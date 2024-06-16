@@ -218,7 +218,7 @@ class AbstractBaseVrmImporter(ABC):
             else:
                 image.filepath_raw = f"//{image_name}.{image_type}"
 
-    def extract_textures(self, repack: bool) -> None:
+    def extract_textures(self, *, repack: bool) -> None:
         dir_path = self.parse_result.filepath.with_suffix(".vrm.textures").absolute()
         if self.preferences.make_new_texture_folder or repack:
             dir_path = create_unique_indexed_directory_path(dir_path)

@@ -765,6 +765,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
         context: Context,
         material: Material,
         obj: Object,
+        *,
         create_modifier: bool,
     ) -> None:
         shader.load_mtoon1_outline_geometry_node_group(context, reset_node_groups=False)
@@ -1009,8 +1010,9 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
     @staticmethod
     def refresh(
         context: Context,
-        create_modifier: bool,
         material_name: Optional[str] = None,
+        *,
+        create_modifier: bool,
     ) -> None:
         if bpy.app.version < (3, 3):
             return
@@ -1035,7 +1037,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
                     continue
 
                 VRM_OT_refresh_mtoon1_outline.assign(
-                    context, material, obj, create_modifier
+                    context, material, obj, create_modifier=create_modifier
                 )
                 outline_material_names.append(material.name)
             if material_name is not None:
@@ -1067,7 +1069,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
                 obj.modifiers.remove(search_modifier)
 
     def execute(self, context: Context) -> set[str]:
-        self.refresh(context, self.create_modifier, self.material_name)
+        self.refresh(context, self.material_name, create_modifier=self.create_modifier)
         return {"FINISHED"}
 
     if TYPE_CHECKING:

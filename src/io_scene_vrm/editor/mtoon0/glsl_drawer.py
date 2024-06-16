@@ -38,7 +38,9 @@ class ICYP_OT_draw_model(Operator):
         GlslDrawObj()
         preferences = get_preferences(context)
         GlslDrawObj.draw_func_add(
-            context, preferences.export_invisibles, preferences.export_only_selections
+            context,
+            invisibles=preferences.export_invisibles,
+            only_selections=preferences.export_only_selections,
         )
         return {"FINISHED"}
 
@@ -670,7 +672,7 @@ class GlslDrawObj:
 
     @staticmethod
     def draw_func_add(
-        context: Context, invisibles: bool, only_selections: bool
+        context: Context, *, invisibles: bool, only_selections: bool
     ) -> None:
         GlslDrawObj.draw_func_remove()
         GlslDrawObj.draw_objs = [

@@ -93,13 +93,18 @@ class WM_OT_vrm_validator(Operator):
         return context.window_manager.invoke_props_dialog(self, width=800)
 
     def draw(self, _context: Context) -> None:
-        self.draw_errors(self.errors, self.show_successful_message, self.layout)
+        self.draw_errors(
+            self.layout,
+            self.errors,
+            show_successful_message=self.show_successful_message,
+        )
 
     @staticmethod
     def validate_bone_order_vrm0(
         context: Context,
         messages: list[str],
         armature: Object,
+        *,
         readonly: bool,
     ) -> None:
         armature_data = armature.data
@@ -136,6 +141,7 @@ class WM_OT_vrm_validator(Operator):
         context: Context,
         messages: list[str],
         armature: Object,
+        *,
         readonly: bool,
     ) -> None:
         armature_data = armature.data
@@ -177,6 +183,7 @@ class WM_OT_vrm_validator(Operator):
         context: Context,
         messages: list[str],
         armature: Object,
+        *,
         readonly: bool,
     ) -> None:
         armature_data = armature.data
@@ -185,11 +192,11 @@ class WM_OT_vrm_validator(Operator):
             raise TypeError(message)
         if armature_data.vrm_addon_extension.is_vrm0():
             WM_OT_vrm_validator.validate_bone_order_vrm0(
-                context, messages, armature, readonly
+                context, messages, armature, readonly=readonly
             )
         else:
             WM_OT_vrm_validator.validate_bone_order_vrm1(
-                context, messages, armature, readonly
+                context, messages, armature, readonly=readonly
             )
 
     @staticmethod
@@ -223,9 +230,9 @@ class WM_OT_vrm_validator(Operator):
         export_objects = search.export_objects(
             context,
             armature_object_name,
-            preferences.export_invisibles,
-            preferences.export_only_selections,
-            preferences.export_lights,
+            export_invisibles=preferences.export_invisibles,
+            export_only_selections=preferences.export_only_selections,
+            export_lights=preferences.export_lights,
         )
 
         if not any(
@@ -438,7 +445,7 @@ class WM_OT_vrm_validator(Operator):
                         )
                 if all_required_bones_exist:
                     WM_OT_vrm_validator.validate_bone_order(
-                        context, error_messages, armature, readonly
+                        context, error_messages, armature, readonly=readonly
                     )
 
             if obj.type == "MESH":
@@ -850,9 +857,10 @@ class WM_OT_vrm_validator(Operator):
 
     @staticmethod
     def draw_errors(
-        error_collection: CollectionPropertyProtocol[VrmValidationError],
-        show_successful_message: bool,
         layout: UILayout,
+        error_collection: CollectionPropertyProtocol[VrmValidationError],
+        *,
+        show_successful_message: bool,
     ) -> None:
         error_errors = []
         warning_errors = []

@@ -94,6 +94,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         self,
         context: Context,
         export_objects: list[Object],
+        *,
         export_fb_ngon_encoding: bool,
     ) -> None:
         super().__init__(context)
@@ -631,6 +632,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
     def set_mtoon_outline_keywords(
         cls,
         keyword_map: dict[str, bool],
+        *,
         width_world: bool,
         width_screen: bool,
         color_fixed: bool,
@@ -648,6 +650,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
     @classmethod
     def material_prop_setter(
         cls,
+        *,
         blend_mode: int,
         src_blend: int,
         dst_blend: int,
@@ -700,25 +703,35 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if float_val is not None:
                 mtoon_float_dict[float_key] = float_val
                 if float_key == "_OutlineWidthMode":
-                    outline_width_mode = min(max(round(float_val), 0), 2)
-                    mtoon_float_dict[float_key] = int(outline_width_mode)
+                    outline_width_mode = int(min(max(round(float_val), 0), 2))
+                    mtoon_float_dict[float_key] = outline_width_mode
                 if float_key == "_OutlineColorMode":
-                    outline_color_mode = min(max(round(float_val), 0), 1)
-                    mtoon_float_dict[float_key] = int(outline_color_mode)
+                    outline_color_mode = int(min(max(round(float_val), 0), 1))
+                    mtoon_float_dict[float_key] = outline_color_mode
 
-        if outline_width_mode < 1:
-            cls.set_mtoon_outline_keywords(keyword_map, False, False, False, False)
-        elif outline_width_mode < 2:
-            if outline_color_mode < 1:
-                cls.set_mtoon_outline_keywords(keyword_map, True, False, True, False)
+        outline_width_world = False
+        outline_width_screen = False
+        outline_color_fixed = False
+        outline_color_mixed = False
+        if outline_width_mode == 1:
+            outline_width_world = True
+            if outline_color_mode == 0:
+                outline_color_fixed = True
             else:
-                cls.set_mtoon_outline_keywords(keyword_map, True, False, False, True)
-
-        elif outline_width_mode >= 2:
-            if outline_color_mode < 1:
-                cls.set_mtoon_outline_keywords(keyword_map, False, True, True, False)
+                outline_color_mixed = True
+        elif outline_width_mode == 2:
+            outline_width_screen = True
+            if outline_color_mode == 0:
+                outline_color_fixed = True
             else:
-                cls.set_mtoon_outline_keywords(keyword_map, False, True, False, True)
+                outline_color_mixed = True
+        cls.set_mtoon_outline_keywords(
+            keyword_map,
+            width_world=outline_width_world,
+            width_screen=outline_width_screen,
+            color_fixed=outline_color_fixed,
+            color_mixed=outline_color_mixed,
+        )
 
         vec_props = list(
             dict.fromkeys(MtoonUnversioned.vector_props_exchange_dict.values())
@@ -810,31 +823,31 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         if material.blend_method == "OPAQUE":
             cls.material_prop_setter(
-                0,
-                1,
-                0,
-                1,
-                False,
-                -1,
-                "Opaque",
-                mtoon_dict,
-                mtoon_float_dict,
-                keyword_map,
-                tag_map,
+                blend_mode=0,
+                src_blend=1,
+                dst_blend=0,
+                z_write=1,
+                alphatest=False,
+                render_queue=-1,
+                render_type="Opaque",
+                mtoon_dict=mtoon_dict,
+                mtoon_float_dict=mtoon_float_dict,
+                keyword_map=keyword_map,
+                tag_map=tag_map,
             )
         elif material.blend_method == "CLIP":
             cls.material_prop_setter(
-                1,
-                1,
-                0,
-                1,
-                True,
-                2450,
-                "TransparentCutout",
-                mtoon_dict,
-                mtoon_float_dict,
-                keyword_map,
-                tag_map,
+                blend_mode=1,
+                src_blend=1,
+                dst_blend=0,
+                z_write=1,
+                alphatest=True,
+                render_queue=2450,
+                render_type="TransparentCutout",
+                mtoon_dict=mtoon_dict,
+                mtoon_float_dict=mtoon_float_dict,
+                keyword_map=keyword_map,
+                tag_map=tag_map,
             )
             mtoon_float_dict["_Cutoff"] = material.alpha_threshold
         else:  # transparent and Z_TRANSPARENCY or Raytrace
@@ -846,31 +859,31 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 or math.fabs(transparent_with_z_write) < float_info.epsilon
             ):
                 cls.material_prop_setter(
-                    2,
-                    5,
-                    10,
-                    0,
-                    False,
-                    3000,
-                    "Transparent",
-                    mtoon_dict,
-                    mtoon_float_dict,
-                    keyword_map,
-                    tag_map,
+                    blend_mode=2,
+                    src_blend=5,
+                    dst_blend=10,
+                    z_write=0,
+                    alphatest=False,
+                    render_queue=3000,
+                    render_type="Transparent",
+                    mtoon_dict=mtoon_dict,
+                    mtoon_float_dict=mtoon_float_dict,
+                    keyword_map=keyword_map,
+                    tag_map=tag_map,
                 )
             else:
                 cls.material_prop_setter(
-                    3,
-                    5,
-                    10,
-                    1,
-                    False,
-                    2501,
-                    "Transparent",
-                    mtoon_dict,
-                    mtoon_float_dict,
-                    keyword_map,
-                    tag_map,
+                    blend_mode=3,
+                    src_blend=5,
+                    dst_blend=10,
+                    z_write=1,
+                    alphatest=False,
+                    render_queue=2501,
+                    render_type="Transparent",
+                    mtoon_dict=mtoon_dict,
+                    mtoon_float_dict=mtoon_float_dict,
+                    keyword_map=keyword_map,
+                    tag_map=tag_map,
                 )
         keyword_map.update(
             {"_ALPHABLEND_ON": material.blend_method not in ("OPAQUE", "CLIP")}
@@ -1667,25 +1680,37 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         float_properties["_OutlineColorMode"] = outline_color_mode
 
         float_properties["_OutlineWidth"] = 0.0
+        outline_width_world = False
+        outline_width_screen = False
+        outline_color_fixed = False
+        outline_color_mixed = False
         if mtoon.outline_width_mode == mtoon.OUTLINE_WIDTH_MODE_NONE:
             float_properties["_OutlineWidthMode"] = 0
             float_properties["_OutlineLightingMix"] = 0
             float_properties["_OutlineColorMode"] = 0
-            self.set_mtoon_outline_keywords(keyword_map, False, False, False, False)
         elif mtoon.outline_width_mode == mtoon.OUTLINE_WIDTH_MODE_WORLD_COORDINATES:
             float_properties["_OutlineWidth"] = mtoon.outline_width_factor * 100
             float_properties["_OutlineWidthMode"] = 1
+            outline_width_world = True
             if outline_color_mode == 0:
-                self.set_mtoon_outline_keywords(keyword_map, True, False, True, False)
+                outline_color_fixed = True
             else:
-                self.set_mtoon_outline_keywords(keyword_map, True, False, False, True)
+                outline_color_mixed = True
         elif mtoon.outline_width_mode == mtoon.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES:
             float_properties["_OutlineWidth"] = mtoon.outline_width_factor * 200
             float_properties["_OutlineWidthMode"] = 2
+            outline_width_screen = True
             if outline_color_mode == 0:
-                self.set_mtoon_outline_keywords(keyword_map, False, True, True, False)
+                outline_color_fixed = True
             else:
-                self.set_mtoon_outline_keywords(keyword_map, False, True, False, True)
+                outline_color_mixed = True
+        self.set_mtoon_outline_keywords(
+            keyword_map,
+            width_world=outline_width_world,
+            width_screen=outline_width_screen,
+            color_fixed=outline_color_fixed,
+            color_mixed=outline_color_mixed,
+        )
 
         float_properties["_Cutoff"] = 0.5
         if gltf.alpha_mode == gltf.ALPHA_MODE_OPAQUE:
@@ -2011,7 +2036,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
     #   (例: 鈍角三角形の底辺を接合した4角形)
     @staticmethod
     def tessface_fan(
-        bm: BMesh, export_fb_ngon_encoding: bool
+        bm: BMesh, *, export_fb_ngon_encoding: bool
     ) -> list[tuple[int, tuple[BMLoop, ...]]]:
         if not export_fb_ngon_encoding:
             return [
@@ -2292,7 +2317,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             unsigned_short_vec4_packer = struct.Struct("<HHHH").pack
 
             for material_slot_index, loops in self.tessface_fan(
-                bm, self.export_fb_ngon_encoding
+                bm, export_fb_ngon_encoding=self.export_fb_ngon_encoding
             ):
                 material_name = material_slot_index_to_material_name_dict.get(
                     material_slot_index

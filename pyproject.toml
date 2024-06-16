@@ -40,7 +40,6 @@ select = ["ALL"]
 ignore = [
     # ----- fixing -----
 
-    "FBT001", # Boolean-typed positional argument in function definition
     "FBT003", # Boolean positional value in function call
     "G003", # Logging statement uses `+`
     "G004", # Logging statement uses f-string

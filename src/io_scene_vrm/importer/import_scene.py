@@ -320,6 +320,7 @@ def import_vrm(
     filepath: Path,
     preferences: ImportPreferencesProtocol,
     context: Context,
+    *,
     license_validation: bool,
 ) -> set[str]:
     parse_result = VrmParser(

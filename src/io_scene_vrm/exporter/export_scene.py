@@ -140,9 +140,9 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         export_objects = search.export_objects(
             context,
             self.armature_object_name,
-            self.export_invisibles,
-            self.export_only_selections,
-            self.export_lights,
+            export_invisibles=self.export_invisibles,
+            export_only_selections=self.export_only_selections,
+            export_lights=self.export_lights,
         )
         is_vrm1 = any(
             obj.type == "ARMATURE"
@@ -155,14 +155,14 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
             vrm_exporter: AbstractBaseVrmExporter = Vrm1Exporter(
                 context,
                 export_objects,
-                self.export_all_influences,
-                self.export_lights,
+                export_all_influences=self.export_all_influences,
+                export_lights=self.export_lights,
             )
         else:
             vrm_exporter = Vrm0Exporter(
                 context,
                 export_objects,
-                export_fb_ngon_encoding,
+                export_fb_ngon_encoding=export_fb_ngon_encoding,
             )
 
         vrm_bin = vrm_exporter.export_vrm()
@@ -183,9 +183,9 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         export_objects = search.export_objects(
             context,
             self.armature_object_name,
-            self.export_invisibles,
-            self.export_only_selections,
-            self.export_lights,
+            export_invisibles=self.export_invisibles,
+            export_only_selections=self.export_only_selections,
+            export_lights=self.export_lights,
         )
 
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
@@ -323,7 +323,9 @@ class VRM_PT_export_file_browser_tool_props(Panel):
 
         if operator.errors:
             validation.WM_OT_vrm_validator.draw_errors(
-                operator.errors, False, layout.box()
+                layout.box(),
+                operator.errors,
+                show_successful_message=False,
             )
 
 
@@ -425,9 +427,9 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         export_objects = search.export_objects(
             context,
             self.armature_object_name,
-            preferences.export_invisibles,
-            preferences.export_only_selections,
-            preferences.export_lights,
+            export_invisibles=preferences.export_invisibles,
+            export_only_selections=preferences.export_only_selections,
+            export_lights=preferences.export_lights,
         )
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if len(armatures) != 1:
@@ -471,9 +473,9 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
             for obj in search.export_objects(
                 context,
                 self.armature_object_name,
-                preferences.export_invisibles,
-                preferences.export_only_selections,
-                preferences.export_lights,
+                export_invisibles=preferences.export_invisibles,
+                export_only_selections=preferences.export_only_selections,
+                export_lights=preferences.export_lights,
             )
             if obj.type == "ARMATURE"
         ]

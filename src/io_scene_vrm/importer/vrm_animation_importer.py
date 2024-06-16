@@ -43,6 +43,7 @@ class NodeRestPoseTree:
     def build(
         node_dicts: list[Json],
         node_index: int,
+        *,
         is_root: bool,
     ) -> list["NodeRestPoseTree"]:
         if not 0 <= node_index < len(node_dicts):

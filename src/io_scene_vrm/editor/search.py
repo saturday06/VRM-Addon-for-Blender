@@ -282,6 +282,7 @@ def current_armature(context: Context) -> Optional[Object]:
 def export_objects(
     context: Context,
     armature_object_name: Optional[str],
+    *,
     export_invisibles: bool,
     export_only_selections: bool,
     export_lights: bool,

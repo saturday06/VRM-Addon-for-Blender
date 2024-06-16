@@ -214,9 +214,10 @@ class HumanBoneSpecification:
     @staticmethod
     def create(
         human_bone_name: HumanBoneName,
+        vrm0_human_bone_specification: Vrm0HumanBoneSpecification,
+        *,
         requirement: bool,
         parent_requirement: bool,
-        vrm0_human_bone_specification: Vrm0HumanBoneSpecification,
     ) -> "HumanBoneSpecification":
         # https://stackoverflow.com/a/1176023
         words = re.sub(r"(?<!^)(?=[A-Z])", "#", human_bone_name.value).split("#")
@@ -296,14 +297,15 @@ def create_and_append_human_bone_specification(
     human_bone_specifications: list[HumanBoneSpecification],
     human_bone_name: HumanBoneName,
     vrm0_human_bone_specification: Vrm0HumanBoneSpecification,
+    *,
     requirement: bool,
     parent_requirement: bool,
 ) -> HumanBoneSpecification:
     human_bone_specification = HumanBoneSpecification.create(
         human_bone_name,
-        requirement,
-        parent_requirement,
         vrm0_human_bone_specification,
+        requirement=requirement,
+        parent_requirement=parent_requirement,
     )
     human_bone_specifications.append(human_bone_specification)
     return human_bone_specification

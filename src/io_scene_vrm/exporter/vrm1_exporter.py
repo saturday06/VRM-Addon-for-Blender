@@ -62,6 +62,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         self,
         context: Context,
         export_objects: list[Object],
+        *,
         export_all_influences: bool,
         export_lights: bool,
     ) -> None:

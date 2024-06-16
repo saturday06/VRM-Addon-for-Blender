@@ -22,11 +22,12 @@ logger = get_logger(__name__)
 def draw_texture_info(
     material_name: str,
     ext: Mtoon1MaterialPropertyGroup,
-    is_vrm0: bool,
     parent_layout: UILayout,
     base_property_group: PropertyGroup,
     texture_info_attr_name: str,
     color_factor_attr_name: Optional[str] = None,
+    *,
+    is_vrm0: bool,
 ) -> UILayout:
     texture_info = getattr(base_property_group, texture_info_attr_name)
     layout = parent_layout.split(factor=0.3)
@@ -188,28 +189,28 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     draw_texture_info(
         material.name,
         ext.mtoon1,
-        is_vrm0,
         lighting_box,
         gltf.pbr_metallic_roughness,
         "base_color_texture",
         "base_color_factor",
+        is_vrm0=is_vrm0,
     )
     draw_texture_info(
         material.name,
         ext.mtoon1,
-        is_vrm0,
         lighting_box,
         mtoon,
         "shade_multiply_texture",
         "shade_color_factor",
+        is_vrm0=is_vrm0,
     )
     normal_texture_layout = draw_texture_info(
         material.name,
         ext.mtoon1,
-        is_vrm0,
         lighting_box,
         gltf,
         "normal_texture",
+        is_vrm0=is_vrm0,
     )
     normal_texture_layout.separator(factor=0.5)
     normal_texture_layout.prop(gltf.normal_texture, "scale")
@@ -219,10 +220,10 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     shading_shift_texture_layout = draw_texture_info(
         material.name,
         ext.mtoon1,
-        is_vrm0,
         lighting_box,
         mtoon,
         "shading_shift_texture",
+        is_vrm0=is_vrm0,
     )
     shading_shift_texture_layout.separator(factor=0.5)
     shading_shift_texture_layout.prop(mtoon.shading_shift_texture, "scale")
@@ -246,10 +247,10 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     emissive_texture_layout = draw_texture_info(
         material.name,
         ext.mtoon1,
-        is_vrm0,
         emission_box,
         gltf,
         "emissive_texture",
+        is_vrm0=is_vrm0,
     ).row(align=True)
     emissive_texture_layout.scale_x = 0.71
     emissive_texture_layout.separator(factor=0.5 / 0.71)
@@ -263,20 +264,20 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     draw_texture_info(
         material.name,
         ext.mtoon1,
-        is_vrm0,
         rim_lighting_box,
         mtoon,
         "rim_multiply_texture",
+        is_vrm0=is_vrm0,
     )
     rim_lighting_box.prop(mtoon, "rim_lighting_mix_factor", slider=True)
     draw_texture_info(
         material.name,
         ext.mtoon1,
-        is_vrm0,
         rim_lighting_box,
         mtoon,
         "matcap_texture",
         "matcap_factor",
+        is_vrm0=is_vrm0,
     )
     rim_lighting_box.row().prop(mtoon, "parametric_rim_color_factor")
     rim_lighting_box.prop(mtoon, "parametric_rim_fresnel_power_factor", slider=True)
@@ -310,10 +311,10 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         outline_width_multiply_texture_layout = draw_texture_info(
             material.name,
             ext.mtoon1,
-            is_vrm0,
             outline_box,
             mtoon,
             "outline_width_multiply_texture",
+            is_vrm0=is_vrm0,
         )
         outline_width_multiply_texture_layout.separator(factor=0.5)
         outline_width_multiply_texture_layout.prop(
@@ -327,10 +328,10 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     draw_texture_info(
         material.name,
         ext.mtoon1,
-        is_vrm0,
         uv_animation_box,
         mtoon,
         "uv_animation_mask_texture",
+        is_vrm0=is_vrm0,
     )
     uv_animation_box.prop(mtoon, "uv_animation_scroll_x_speed_factor")
     uv_animation_box.prop(mtoon, "uv_animation_scroll_y_speed_factor")

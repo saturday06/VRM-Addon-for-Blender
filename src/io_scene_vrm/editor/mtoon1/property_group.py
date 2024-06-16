@@ -238,9 +238,8 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         self,
         node_group_name: str,
         group_label: str,
-        default_value: bool,
     ) -> bool:
-        value = self.get_value(node_group_name, group_label, int(default_value))
+        value = self.get_value(node_group_name, group_label, 0)
         return bool(value)
 
     def get_float(
@@ -568,11 +567,12 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
     @classmethod
     def connect_tex_image_to_node_group(
         cls,
-        link: bool,
         material: Material,
         tex_image_node_name: str,
         tex_image_node_socket_name: str,
         node_socket_target: NodeSocketTarget,
+        *,
+        link: bool,
     ) -> None:
         if link:
             cls.link_tex_image_to_node_group(
@@ -620,11 +620,11 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         ) in texture_info.node_socket_targets.items():
             for node_socket_target in node_socket_targets:
                 self.connect_tex_image_to_node_group(
-                    bool(image),
                     material,
                     node_name,
                     output_socket_name,
                     node_socket_target,
+                    link=bool(image),
                 )
 
     def set_texture_uv(self, name: str, value: object) -> None:
@@ -2567,7 +2567,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     def get_double_sided(self) -> bool:
         return not self.find_material().use_backface_culling
 
-    def set_double_sided(self, value: bool) -> None:
+    def set_double_sided(self, value: object) -> None:
         material = self.find_material()
         material.use_backface_culling = not value
         self.set_bool(
@@ -2713,7 +2713,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     def get_enabled(self) -> bool:
         return self.get_enabled_in_material(self.find_material())
 
-    def set_enabled(self, value: bool) -> None:
+    def set_enabled(self, value: object) -> None:
         material = self.find_material()
 
         if not value:
@@ -2781,7 +2781,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         ]
 
     def all_textures(
-        self, downgrade_to_mtoon0: bool
+        self, *, downgrade_to_mtoon0: bool
     ) -> list[Union[Mtoon0TexturePropertyGroup, Mtoon1TexturePropertyGroup]]:
         # TODO: remove code duplication
         result: list[Union[Mtoon0TexturePropertyGroup, Mtoon1TexturePropertyGroup]] = []
