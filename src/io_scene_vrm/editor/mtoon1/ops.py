@@ -115,8 +115,8 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
             reset_shader_node_group(
                 context,
                 material,
-                reset_node_tree=True,
-                overwrite=overwrite,
+                reset_material_node_tree=True,
+                reset_node_groups=overwrite,
             )
             return
 
@@ -151,8 +151,8 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
         reset_shader_node_group(
             context,
             material,
-            reset_node_tree=True,
-            overwrite=overwrite,
+            reset_material_node_tree=True,
+            reset_node_groups=overwrite,
         )
 
         gltf = material.vrm_addon_extension.mtoon1
@@ -357,7 +357,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
         if isinstance(uv_animation_scroll_y_speed_factor, float):
             uv_animation_scroll_y_speed_factor *= -1
 
-        shader.load_mtoon1_shader(context, material, overwrite=True)
+        shader.load_mtoon1_shader(context, material, reset_node_groups=True)
 
         gltf = material.vrm_addon_extension.mtoon1
         mtoon = gltf.extensions.vrmc_materials_mtoon
@@ -568,7 +568,9 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(Operator):
         material = context.blend_data.materials.get(self.material_name)
         if not isinstance(material, Material):
             return {"CANCELLED"}
-        reset_shader_node_group(context, material, reset_node_tree=True, overwrite=True)
+        reset_shader_node_group(
+            context, material, reset_material_node_tree=True, reset_node_groups=True
+        )
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -765,7 +767,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
         obj: Object,
         create_modifier: bool,
     ) -> None:
-        shader.load_mtoon1_outline_geometry_node_group(context, overwrite=False)
+        shader.load_mtoon1_outline_geometry_node_group(context, reset_node_groups=False)
         node_group = context.blend_data.node_groups.get(
             shader.OUTLINE_GEOMETRY_GROUP_NAME
         )
@@ -843,7 +845,9 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
                 outline_material.diffuse_color[3] = 0.25
             if outline_material.roughness != 0:
                 outline_material.roughness = 0
-            shader.load_mtoon1_shader(context, outline_material, overwrite=False)
+            shader.load_mtoon1_shader(
+                context, outline_material, reset_node_groups=False
+            )
             outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
             material.vrm_addon_extension.mtoon1.outline_material = outline_material
         if outline_material.name != outline_material_name:
@@ -977,7 +981,10 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
 
         if reset_outline_material:
             reset_shader_node_group(
-                context, material, reset_node_tree=False, overwrite=False
+                context,
+                material,
+                reset_material_node_tree=False,
+                reset_node_groups=False,
             )
 
     @staticmethod

@@ -2938,8 +2938,9 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 def reset_shader_node_group(
     context: Context,
     material: Material,
-    reset_node_tree: bool,
-    overwrite: bool,
+    *,
+    reset_material_node_tree: bool,
+    reset_node_groups: bool,
 ) -> None:
     gltf = material.vrm_addon_extension.mtoon1
     mtoon = gltf.extensions.vrmc_materials_mtoon
@@ -2985,10 +2986,18 @@ def reset_shader_node_group(
     uv_animation_scroll_y_speed_factor = mtoon.uv_animation_scroll_y_speed_factor
     uv_animation_rotation_speed_factor = mtoon.uv_animation_rotation_speed_factor
 
-    if reset_node_tree:
-        shader.load_mtoon1_shader(context, material, overwrite)
+    if reset_material_node_tree:
+        shader.load_mtoon1_shader(
+            context,
+            material,
+            reset_node_groups=reset_node_groups,
+        )
         if gltf.outline_material:
-            shader.load_mtoon1_shader(context, gltf.outline_material, overwrite)
+            shader.load_mtoon1_shader(
+                context,
+                gltf.outline_material,
+                reset_node_groups=reset_node_groups,
+            )
 
     gltf.is_outline_material = False
     if gltf.outline_material:

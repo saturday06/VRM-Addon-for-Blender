@@ -223,10 +223,15 @@ def add_shaders(context: Context) -> None:
                     data_to.node_groups.append(node_group)
 
 
-def load_mtoon1_outline_geometry_node_group(context: Context, overwrite: bool) -> None:
+def load_mtoon1_outline_geometry_node_group(
+    context: Context, *, reset_node_groups: bool
+) -> None:
     if bpy.app.version < (3, 3):
         return
-    if not overwrite and OUTLINE_GEOMETRY_GROUP_NAME in context.blend_data.node_groups:
+    if (
+        not reset_node_groups
+        and OUTLINE_GEOMETRY_GROUP_NAME in context.blend_data.node_groups
+    ):
         return
 
     backup_suffix = generate_backup_suffix()
@@ -273,7 +278,7 @@ def load_mtoon1_outline_geometry_node_group(context: Context, overwrite: bool) -
             )
             clear_node_tree(outline_group, clear_inputs_outputs=True)
             copy_node_tree(context, template_outline_group, outline_group)
-        elif overwrite:
+        elif reset_node_groups:
             copy_node_tree(context, template_outline_group, outline_group)
     finally:
         if template_outline_group and template_outline_group.users <= 1:
@@ -289,12 +294,15 @@ def load_mtoon1_outline_geometry_node_group(context: Context, overwrite: bool) -
 def load_mtoon1_shader(
     context: Context,
     material: Material,
-    overwrite: bool,
+    *,
+    reset_node_groups: bool,
 ) -> None:
     if not material.use_nodes:
         material.use_nodes = True
 
-    load_mtoon1_outline_geometry_node_group(context, overwrite)
+    load_mtoon1_outline_geometry_node_group(
+        context, reset_node_groups=reset_node_groups
+    )
 
     backup_suffix = generate_backup_suffix()
 
@@ -349,7 +357,7 @@ def load_mtoon1_shader(
                 )
                 clear_node_tree(group, clear_inputs_outputs=True)
                 copy_node_tree(context, template_group, group)
-            elif overwrite:
+            elif reset_node_groups:
                 copy_node_tree(context, template_group, group)
 
         template_material_node_tree = template_material.node_tree

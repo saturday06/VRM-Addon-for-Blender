@@ -117,7 +117,9 @@ def migrate_material(context: Context, material: Material) -> None:
             alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE
 
     if addon_version < (2, 20, 55):
-        reset_shader_node_group(context, material, reset_node_tree=True, overwrite=True)
+        reset_shader_node_group(
+            context, material, reset_material_node_tree=True, reset_node_groups=True
+        )
 
     # ここから先は、シェーダーノードが最新の状態になっている想定のコードを書ける
     typed_mtoon1 = material.vrm_addon_extension.mtoon1
