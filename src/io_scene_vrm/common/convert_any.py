@@ -19,7 +19,7 @@ def to_object(  # type: ignore[misc]
     any_object: Any,  # noqa: ANN401  # Anyはここのパッケージのみで利用を許可する。
 ) -> object:
     if not isinstance(any_object, object):
-        raise TypeError
+        raise TypeError  # typing.assert_never()
     return any_object
 
 
