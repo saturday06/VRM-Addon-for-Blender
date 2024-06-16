@@ -353,6 +353,7 @@ __Operator = TypeVar("__Operator", bound=Operator)
 def layout_operator(
     layout: UILayout,
     operator_type: type[__Operator],
+    *,
     text: Optional[str] = None,
     text_ctxt: str = "",
     translate: bool = True,

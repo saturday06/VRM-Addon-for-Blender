@@ -405,30 +405,32 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
     @staticmethod
     def defer_update_all_node_candidates(
         armature_data_name: str,
+        *,
         force: bool = False,
     ) -> None:
         bpy.app.timers.register(
             functools.partial(
                 Vrm1HumanBonesPropertyGroup.update_all_node_candidates_timer_callback,
                 armature_data_name,
-                force,
+                force=force,
             )
         )
 
     @staticmethod
     def update_all_node_candidates_timer_callback(
-        armature_object_name: str, force: bool = False
+        armature_object_name: str, *, force: bool = False
     ) -> None:
         """update_all_node_candidates()の型をbpy.app.timers.registerに合わせるためのラッパー."""
         context = bpy.context  # Contextはフレームを跨げないので新たに取得する
         Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
-            context, armature_object_name, force
+            context, armature_object_name, force=force
         )
 
     @staticmethod
     def update_all_node_candidates(
         context: Optional[Context],
         armature_data_name: str,
+        *,
         force: bool = False,
     ) -> None:
         if context is None:

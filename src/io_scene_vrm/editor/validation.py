@@ -197,6 +197,7 @@ class WM_OT_vrm_validator(Operator):
         context: Context,
         error_collection: CollectionPropertyProtocol[VrmValidationError],
         armature_object_name: str,
+        *,
         execute_migration: bool = False,
         readonly: bool = True,
     ) -> None:

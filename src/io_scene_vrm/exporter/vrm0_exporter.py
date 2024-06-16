@@ -512,6 +512,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         image_name_to_index_dict: dict[str, int],
         sampler_tuple_to_index_dict: dict[tuple[int, int, int, int], int],
         texture_tuple_to_index_dict: dict[tuple[int, int], int],
+        *,
         base_color: Optional[Sequence[float]] = None,
         metalness: Optional[float] = None,
         roughness: Optional[float] = None,

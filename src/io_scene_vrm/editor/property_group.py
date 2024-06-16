@@ -239,7 +239,7 @@ class BonePropertyGroup(PropertyGroup):
         )
 
     def set_bone_name(
-        self, value: Optional[str], refresh_node_candidates: bool = False
+        self, value: Optional[str], *, refresh_node_candidates: bool = False
     ) -> None:
         context = bpy.context
 

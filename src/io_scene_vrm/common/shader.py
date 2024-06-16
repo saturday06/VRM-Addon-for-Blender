@@ -942,7 +942,7 @@ def copy_node(
 
 
 def clear_node_tree(
-    node_tree: Optional[NodeTree], clear_inputs_outputs: bool = False
+    node_tree: Optional[NodeTree], *, clear_inputs_outputs: bool = False
 ) -> None:
     if node_tree is None:
         return

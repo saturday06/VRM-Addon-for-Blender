@@ -95,7 +95,7 @@ def migrate(context: Optional[Context], armature_object_name: str) -> bool:
 
 
 def migrate_all_objects(
-    context: Context, skip_non_migrated_armatures: bool = False
+    context: Context, *, skip_non_migrated_armatures: bool = False
 ) -> None:
     for obj in context.blend_data.objects:
         if obj.type == "ARMATURE":
