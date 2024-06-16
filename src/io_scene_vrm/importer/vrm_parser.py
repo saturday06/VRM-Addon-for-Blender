@@ -9,7 +9,7 @@ from typing import Optional, Union
 
 from ..common import deep
 from ..common.binary_reader import BinaryReader
-from ..common.deep import Json
+from ..common.convert import Json
 from ..common.gltf import parse_glb
 from ..common.logging import get_logger
 from .license_validation import validate_license

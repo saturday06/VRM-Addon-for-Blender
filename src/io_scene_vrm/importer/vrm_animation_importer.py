@@ -13,8 +13,8 @@ from bpy.types import Armature, Context, Object
 from mathutils import Matrix, Quaternion, Vector
 
 from ..common import convert
+from ..common.convert import Json
 from ..common.debug import dump
-from ..common.deep import Json
 from ..common.gl import (
     GL_BYTE,
     GL_FLOAT,

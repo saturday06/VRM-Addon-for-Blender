@@ -25,7 +25,8 @@ from mathutils import Matrix, Quaternion, Vector
 
 from ..common import convert, deep, shader
 from ..common.char import INTERNAL_NAME_PREFIX
-from ..common.deep import Json, make_json
+from ..common.convert import Json
+from ..common.deep import make_json
 from ..common.gltf import pack_glb, parse_glb
 from ..common.logging import get_logger
 from ..common.version import addon_version

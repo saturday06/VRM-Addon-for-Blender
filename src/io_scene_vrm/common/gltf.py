@@ -3,7 +3,8 @@ import struct
 from typing import Final, Optional, Union
 
 from .binary_reader import BinaryReader
-from .deep import Json, make_json
+from .convert import Json
+from .deep import make_json
 
 # https://www.khronos.org/opengl/wiki/Small_Float_Formats#Numeric_limits_and_precision
 FLOAT_POSITIVE_MAX: Final = 3.4028237e38

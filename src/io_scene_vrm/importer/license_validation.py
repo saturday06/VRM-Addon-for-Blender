@@ -6,7 +6,7 @@ from urllib.parse import ParseResult, parse_qsl, urlparse
 from bpy.app.translations import pgettext
 
 from ..common import deep
-from ..common.deep import Json
+from ..common.convert import Json
 
 
 class LicenseConfirmationRequiredProp:

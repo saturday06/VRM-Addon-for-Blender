@@ -5,19 +5,10 @@ from json import dumps as json_dumps
 from typing import Union
 
 from . import convert
+from .convert import Json
 from .logging import get_logger
 
 logger = get_logger(__name__)
-
-Json = Union[
-    None,
-    bool,
-    int,
-    float,
-    str,
-    list["Json"],
-    dict[str, "Json"],
-]
 
 
 def make_json(v: object) -> Json:

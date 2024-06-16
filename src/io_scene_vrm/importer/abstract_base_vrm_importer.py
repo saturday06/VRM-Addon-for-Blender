@@ -31,7 +31,8 @@ from bpy.types import (
 from mathutils import Matrix
 
 from ..common import deep, shader
-from ..common.deep import Json, make_json
+from ..common.convert import Json
+from ..common.deep import make_json
 from ..common.fs import (
     create_unique_indexed_directory_path,
     create_unique_indexed_file_path,

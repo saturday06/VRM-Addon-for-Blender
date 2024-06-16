@@ -3,7 +3,8 @@
 
 from typing import Optional, Union
 
-from ..common.deep import Json, make_json
+from ..common.convert import Json
+from ..common.deep import make_json
 
 
 class GlbBinCollection:

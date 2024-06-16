@@ -10,7 +10,8 @@ from bpy.types import Armature, Context, NodesModifier, Object
 from mathutils import Quaternion
 
 from ..common import shader
-from ..common.deep import Json, make_json
+from ..common.convert import Json
+from ..common.deep import make_json
 from ..common.workspace import save_workspace
 from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
 from ..editor.vrm1.property_group import Vrm1HumanoidPropertyGroup

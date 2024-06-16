@@ -16,7 +16,7 @@ from bpy.types import (
 from mathutils import Matrix, Vector
 
 from ..common import convert, deep, shader
-from ..common.deep import Json
+from ..common.convert import Json
 from ..common.logging import get_logger
 from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications

@@ -2,7 +2,8 @@ import re
 from sys import float_info
 
 from ..common import deep, gltf
-from ..common.deep import Json, make_json
+from ..common.convert import Json
+from ..common.deep import make_json
 from .vrm_parser import decode_bin
 
 

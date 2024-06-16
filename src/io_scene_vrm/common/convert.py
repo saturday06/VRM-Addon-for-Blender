@@ -1,6 +1,16 @@
 from collections.abc import Iterator, Mapping
 from sys import float_info
-from typing import Optional
+from typing import Optional, Union
+
+Json = Union[
+    None,
+    bool,
+    int,
+    float,
+    str,
+    list["Json"],
+    dict[str, "Json"],
+]
 
 
 def iterator_or_none(v: object) -> Optional[Iterator[object]]:
@@ -16,7 +26,7 @@ def iterator_or_none(v: object) -> Optional[Iterator[object]]:
 
 
 def vrm_json_vector3_to_tuple(
-    value: object,
+    value: Json,
 ) -> Optional[tuple[float, float, float]]:
     if not isinstance(value, Mapping):
         return None
@@ -32,11 +42,10 @@ def vrm_json_vector3_to_tuple(
     return (float(x), float(y), float(z))
 
 
-def vrm_json_curve_to_list(curve: object) -> Optional[list[float]]:
-    iterator = iterator_or_none(curve)
-    if iterator is None:
+def vrm_json_curve_to_list(curve: Json) -> Optional[list[float]]:
+    if not isinstance(curve, list):
         return None
-    values = [float(v) if isinstance(v, (int, float)) else 0 for v in iterator]
+    values = [float(v) if isinstance(v, (int, float)) else 0 for v in curve]
     while len(values) < 8:
         values.append(0)
     while len(values) > 8:
@@ -44,15 +53,12 @@ def vrm_json_curve_to_list(curve: object) -> Optional[list[float]]:
     return values
 
 
-def vrm_json_array_to_float_vector(json: object, defaults: list[float]) -> list[float]:
-    if isinstance(json, str):
+def vrm_json_array_to_float_vector(
+    input_values: Json, defaults: list[float]
+) -> list[float]:
+    if not isinstance(input_values, list):
         return defaults
 
-    iterator = iterator_or_none(json)
-    if iterator is None:
-        return defaults
-
-    input_values = list(iterator)
     output_values: list[float] = []
     for index, default in enumerate(defaults):
         if index >= len(input_values):

@@ -9,7 +9,8 @@ from bpy.types import Armature, Context, Object, PoseBone
 from mathutils import Euler, Matrix, Quaternion, Vector
 
 from ..common import version
-from ..common.deep import Json, make_json
+from ..common.convert import Json
+from ..common.deep import make_json
 from ..common.gl import GL_FLOAT
 from ..common.gltf import pack_glb
 from ..common.logging import get_logger

@@ -7,7 +7,8 @@ import bpy
 from bpy.types import ID, Armature, Context, Mesh, Object, Text
 
 from ...common import convert
-from ...common.deep import Json, make_json
+from ...common.convert import Json
+from ...common.deep import make_json
 from ...common.vrm0.human_bone import HumanBoneSpecifications
 from ..property_group import BonePropertyGroup
 from .property_group import (

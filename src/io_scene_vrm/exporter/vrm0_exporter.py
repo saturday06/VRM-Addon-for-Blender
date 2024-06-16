@@ -30,7 +30,8 @@ from bpy.types import (
 from mathutils import Matrix, Vector
 
 from ..common import convert, deep, shader
-from ..common.deep import Json, make_json
+from ..common.convert import Json
+from ..common.deep import make_json
 from ..common.gl import (
     GL_FLOAT,
     GL_LINEAR,

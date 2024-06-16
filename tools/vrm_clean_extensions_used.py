@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from io_scene_vrm.common import deep, gltf
-from io_scene_vrm.common.deep import Json
+from io_scene_vrm.common.convert import Json
 
 
 def clean(path: Path) -> None:
