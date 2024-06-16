@@ -1508,8 +1508,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             "metallicFactor": 0,
             "roughnessFactor": 0.9,
         }
-        keyword_map = {}
-        tag_map = {}
+        keyword_map: dict[str, bool] = {}
+        tag_map: dict[str, str] = {}
         float_properties: dict[str, float] = {}
         vector_properties: dict[str, Sequence[float]] = {}
         texture_properties: dict[str, int] = {}
@@ -1984,7 +1984,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         for k, vertex_normals in vert_base_normal_dict.items():
             if k == reference_key_name:
                 continue
-            values = []
+            values: list[list[float]] = []
             for vert_morph_normal, vert_base_normal in zip(
                 zip(*[iter(vertex_normals)] * 3),
                 zip(*[iter(vert_base_normal_dict[reference_key_name])] * 3),
@@ -2367,7 +2367,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     material_index_to_vertex_len_dict[material_index] = 0
 
                 for loop in loops:
-                    uv_list = []
+                    uv_list: list[float] = []
                     for uvlayer_name in uvlayers_dict.values():
                         uv_layer = bm.loops.layers.uv[uvlayer_name]
                         uv_list.extend([loop[uv_layer].uv[0], loop[uv_layer].uv[1]])
@@ -2688,7 +2688,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         return "saturday06_blender_vrm_exporter_experimental_" + ".".join(map(str, v))
 
     def gltf_meta_to_dict(self) -> None:
-        extensions_used = []
+        extensions_used: list[str] = []
 
         base_extensions_dicts: list[Json] = []
         base_extensions_dicts.append(self.json_dict)
@@ -2951,7 +2951,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             self.armature_data.vrm_addon_extension.vrm0.blend_shape_master
         )
         for blend_shape_group in blend_shape_master.blend_shape_groups:
-            blend_shape_group_dict = {}
+            blend_shape_group_dict: dict[str, Json] = {}
 
             if not blend_shape_group.name:
                 continue
@@ -2967,9 +2967,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
             blend_shape_group_dict["presetName"] = blend_shape_group.preset_name
 
-            blend_shape_group_dict["binds"] = bind_dicts = []
+            bind_dicts: list[Json] = []
+            blend_shape_group_dict["binds"] = bind_dicts
             for bind in blend_shape_group.binds:
-                bind_dict: dict[str, object] = {}
+                bind_dict: dict[str, Json] = {}
                 mesh = self.mesh_name_to_index.get(bind.mesh.mesh_object_name)
                 if mesh is None:
                     logger.warning(f"{bind.mesh.mesh_object_name} => None")
@@ -2990,7 +2991,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
                 bind_dicts.append(bind_dict)
 
-            blend_shape_group_dict["materialValues"] = material_value_dicts = []
+            material_value_dicts: list[Json] = []
+            blend_shape_group_dict["materialValues"] = material_value_dicts
             for material_value in blend_shape_group.material_values:
                 if not material_value.material or not material_value.material.name:
                     continue

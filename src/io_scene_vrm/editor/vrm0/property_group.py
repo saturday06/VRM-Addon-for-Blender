@@ -252,7 +252,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
             return
         bones = armature_data.bones.values()
         humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
-        bone_names = []
+        bone_names: list[str] = []
         for bone in sorted(bones, key=lambda b: str(b.name)):
             bone_names.append(bone.name)
             bone_names.append(bone.parent.name if bone.parent else "")
@@ -306,7 +306,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         fixup = True
         while fixup:
             fixup = False
-            found_bones = []
+            found_bones: list[str] = []
             for i, human_bone in enumerate(list(humanoid.human_bones)):
                 if (
                     human_bone.bone in HumanBoneSpecifications.all_names
@@ -323,7 +323,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         fixup = True
         while fixup:
             fixup = False
-            found_node_bone_names = []
+            found_node_bone_names: list[str] = []
             for human_bone in humanoid.human_bones:
                 if not human_bone.node.bone_name:
                     continue
@@ -745,7 +745,9 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
         self.name = (
             str(self.node.bone_name) if self.node and self.node.bone_name else ""
         ) + f"#{self.uuid}"
-        for index, collider in reversed(list(enumerate(list(self.colliders)))):
+        for index, collider in reversed(
+            tuple((index, collider) for index, collider in enumerate(self.colliders))
+        ):
             if not collider.bpy_object or not collider.bpy_object.name:
                 self.colliders.remove(index)
             else:

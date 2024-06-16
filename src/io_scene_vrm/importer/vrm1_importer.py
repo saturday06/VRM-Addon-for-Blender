@@ -627,7 +627,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     group_axis_translation: Optional[str] = None
                     for node_index in next(
                         (g for g in constraint_node_index_groups if bone_index in g),
-                        set(),
+                        set[int](),
                     ):
                         object_or_bone = self.get_object_or_bone_by_node_index(
                             node_index
@@ -774,7 +774,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 if not isinstance(object_or_bone, Object):
                     continue
                 for group_node_index in next(
-                    (g for g in constraint_node_index_groups if node_index in g), set()
+                    (g for g in constraint_node_index_groups if node_index in g),
+                    set[int](),
                 ):
                     group_object_or_bone = self.get_object_or_bone_by_node_index(
                         group_node_index
@@ -941,7 +942,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             humanoid.human_bones.human_bone_name_to_human_bone()
         )
 
-        assigned_bone_names = []
+        assigned_bone_names: list[str] = []
         for human_bone_name in [
             human_bone.name
             for human_bone in vrm1_human_bone.HumanBoneSpecifications.all_human_bones

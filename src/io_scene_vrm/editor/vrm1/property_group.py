@@ -391,7 +391,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         fixup = True
         while fixup:
             fixup = False
-            found_node_bone_names = []
+            found_node_bone_names: list[str] = []
             for human_bone in human_bones.human_bone_name_to_human_bone().values():
                 if not human_bone.node.bone_name:
                     continue
@@ -439,7 +439,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         if not isinstance(armature_data, Armature):
             return
         human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
-        bone_names = []
+        bone_names: list[str] = []
         for bone in sorted(armature_data.bones.values(), key=lambda b: str(b.name)):
             bone_names.append(bone.name)
             bone_names.append(bone.parent.name if bone.parent else "")

@@ -231,7 +231,8 @@ class VRM_OT_load_human_bone_mappings(Operator, ImportHelper):
         for human_bone_name, bpy_bone_name in obj.items():
             if human_bone_name not in HumanBoneSpecifications.all_names:
                 continue
-
+            if not isinstance(bpy_bone_name, str):
+                continue
             found = False
             for (
                 human_bone

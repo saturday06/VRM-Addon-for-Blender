@@ -179,7 +179,7 @@ class ICYP_OT_make_armature(Operator):
             raise TypeError(message)
         armature_data.vrm_addon_extension.addon_version = addon_version()
 
-        bone_dict = {}
+        bone_dict: dict[str, EditBone] = {}
 
         def bone_add(
             name: str,
@@ -556,7 +556,7 @@ class ICYP_OT_make_armature(Operator):
         }
 
         # VRM bone name : blender bone name
-        bone_name_all_dict = {}
+        bone_name_all_dict: dict[str, str] = {}
         bone_name_all_dict.update(body_dict)
         bone_name_all_dict.update(left_right_body_dict)
         bone_name_all_dict.update(fingers_dict)

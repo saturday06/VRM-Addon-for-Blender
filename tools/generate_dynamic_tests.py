@@ -142,9 +142,12 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
     if not isinstance(test_command_args_list, Sequence):
         return render_single_test(path)
 
-    existing_method_names = []
+    existing_method_names: list[str] = []
     content = ""
     for args in test_command_args_list:
+        if not isinstance(args, Sequence):
+            continue
+
         default_method_name = "_".join(map(to_function_component_literal, args))
         method_name = default_method_name
         for index in range(1000000):

@@ -3,7 +3,7 @@ import struct
 from typing import Final, Optional, Union
 
 from .binary_reader import BinaryReader
-from .deep import Json
+from .deep import Json, make_json
 
 # https://www.khronos.org/opengl/wiki/Small_Float_Formats#Numeric_limits_and_precision
 FLOAT_POSITIVE_MAX: Final = 3.4028237e38
@@ -55,10 +55,12 @@ def parse_glb(data: bytes) -> tuple[dict[str, Json], bytes]:
         message = "failed to read json chunk"
         raise ValueError(message)
 
-    json_obj = json.loads(json_str)
+    json_obj = make_json(json.loads(json_str))
     if not isinstance(json_obj, dict):
         raise TypeError("VRM has invalid json: " + str(json_obj))
-    return json_obj, body if body else b""
+    if body is None:
+        body = b""
+    return json_obj, body
 
 
 def pack_glb(

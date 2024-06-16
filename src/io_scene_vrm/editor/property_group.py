@@ -273,7 +273,7 @@ class BonePropertyGroup(PropertyGroup):
         self.armature_data_name = armature_data.name
 
         # Reassign UUIDs if duplicate UUIDs exist in case of bone duplication.
-        found_uuids = set()
+        found_uuids: set[str] = set()
         for bone in armature_data.bones:
             found_uuid = bone.vrm_addon_extension.uuid
             if not found_uuid or found_uuid in found_uuids:

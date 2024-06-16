@@ -176,7 +176,7 @@ class TestVrm0HumanBone(TestCase):
             sorted(vrm0_human_bone.HumanBoneSpecifications.all_names),
         )
 
-        structure_human_bone_names = []
+        structure_human_bone_names: list[str] = []
         children: list[vrm0_human_bone.HumanBoneStructure] = [
             vrm0_human_bone.HUMAN_BONE_STRUCTURE
         ]
@@ -286,7 +286,7 @@ class TestVrm1HumanBone(TestCase):
             sorted(vrm1_human_bone.HumanBoneSpecifications.all_names),
         )
 
-        structure_human_bone_names = []
+        structure_human_bone_names: list[str] = []
         children: list[vrm1_human_bone.HumanBoneStructure] = [
             vrm1_human_bone.HUMAN_BONE_STRUCTURE
         ]

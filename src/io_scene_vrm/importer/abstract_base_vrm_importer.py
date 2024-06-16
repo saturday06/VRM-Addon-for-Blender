@@ -431,7 +431,7 @@ class AbstractBaseVrmImporter(ABC):
         if not isinstance(child_indices, list):
             return []
 
-        result = []
+        result: list[int] = []
         for child_index in child_indices:
             if not isinstance(child_index, int):
                 continue
@@ -547,7 +547,7 @@ class AbstractBaseVrmImporter(ABC):
 
         texture_dicts = json_dict.get("textures")
         if isinstance(texture_dicts, list) and texture_dicts:
-            primitive_dicts = []
+            primitive_dicts = list[Json]()
 
             for texture_index, _ in enumerate(texture_dicts):
                 buffer_dicts = json_dict.get("buffers")
@@ -965,7 +965,7 @@ class AbstractBaseVrmImporter(ABC):
             and isinstance(armature.data, Armature)
             and self.parse_result.spec_version_number < (1, 0)
         ):
-            bone_name_to_roll = {}
+            bone_name_to_roll: dict[str, float] = {}
             with save_workspace(self.context, armature, mode="EDIT"):
                 for edit_bone in armature.data.edit_bones:
                     bone_name_to_roll[edit_bone.name] = edit_bone.roll
@@ -1021,7 +1021,7 @@ class AbstractBaseVrmImporter(ABC):
 
             # Blender 3.6ではevaluatedされたメッシュから参照されるマテリアルの
             # カスタムプロパティも消さないとキャッシュとしてずっと残ることがある
-            restore_modifiers_names = []
+            restore_modifiers_names: list[str] = []
             for modifier in obj.modifiers:
                 if modifier.show_viewport:
                     modifier.show_viewport = False
@@ -1131,7 +1131,7 @@ class AbstractBaseVrmImporter(ABC):
         with save_workspace(self.context):
             meshes_key = self.import_id + "Meshes"
             nodes_key = self.import_id + "Nodes"
-            remove_objs = []
+            remove_objs: list[Object] = []
             for obj in list(self.context.scene.collection.objects):
                 if isinstance(obj.data, Armature):
                     for bone in obj.data.bones:

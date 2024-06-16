@@ -188,7 +188,7 @@ def main() -> int:
     args = argument_parser.parse_args()
     more: bool = args.more
 
-    classes = []
+    classes: list[type] = []
     searching_classes = list(registration.classes)
     while searching_classes:
         c = searching_classes.pop()

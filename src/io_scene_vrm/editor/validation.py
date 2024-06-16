@@ -862,9 +862,9 @@ class WM_OT_vrm_validator(Operator):
         *,
         show_successful_message: bool,
     ) -> None:
-        error_errors = []
-        warning_errors = []
-        info_errors = []
+        error_errors: list[VrmValidationError] = []
+        warning_errors: list[VrmValidationError] = []
+        info_errors: list[VrmValidationError] = []
 
         for error in error_collection:
             if error.severity == 0:

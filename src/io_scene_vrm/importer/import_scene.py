@@ -426,7 +426,7 @@ class WM_OT_vrma_import_prerequisite(Operator):
 
     @staticmethod
     def detect_errors(context: Context, armature_object_name: str) -> list[str]:
-        error_messages = []
+        error_messages: list[str] = []
 
         if not armature_object_name:
             armature = search.current_armature(context)

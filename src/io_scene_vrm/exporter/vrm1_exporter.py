@@ -105,7 +105,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
     @contextmanager
     def overwrite_object_visibility_and_selection(self) -> Iterator[None]:
-        object_visibility_and_selection = {}
+        object_visibility_and_selection: dict[str, tuple[bool, bool]] = {}
         # https://projects.blender.org/blender/blender/issues/113378
         self.context.view_layer.update()
         for obj in self.context.view_layer.objects:
@@ -142,7 +142,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         # - スキニングされたボーンの子供に別のメッシュが存在する
         # そのため、アーマチュアの子孫になっていないメッシュの先祖の親をアーマチュアに
         # し、後で戻す
-        mounted_object_names = []
+        mounted_object_names: list[str] = []
 
         for obj in self.export_objects:
             if obj.type != "MESH" or not [
@@ -432,7 +432,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         bone_name_to_index_dict: dict[str, int],
     ) -> tuple[list[Json], dict[str, int]]:
         collider_dicts: list[Json] = []
-        collider_uuid_to_index_dict = {}
+        collider_uuid_to_index_dict: dict[str, int] = {}
         for collider in spring_bone.colliders:
             collider_dict: dict[str, Json] = {}
             node_index = bone_name_to_index_dict.get(collider.node.bone_name)
@@ -471,7 +471,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         collider_uuid_to_index_dict: dict[str, int],
     ) -> tuple[list[Json], dict[str, int]]:
         collider_group_dicts: list[Json] = []
-        collider_group_uuid_to_index_dict = {}
+        collider_group_uuid_to_index_dict: dict[str, int] = {}
         for collider_group in spring_bone.collider_groups:
             collider_group_dict: dict[str, Json] = {"name": collider_group.vrm_name}
             collider_indices: list[Json] = []
@@ -1677,7 +1677,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     @classmethod
     @contextmanager
     def disable_mtoon1_material_nodes(cls, context: Context) -> Iterator[None]:
-        disabled_material_names = []
+        disabled_material_names: list[str] = []
         for material in context.blend_data.materials:
             if not material:
                 continue

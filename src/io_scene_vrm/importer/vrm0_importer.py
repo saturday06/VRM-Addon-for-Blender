@@ -859,7 +859,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
 
         self.context.view_layer.depsgraph.update()
         self.context.scene.view_layers.update()
-        collider_objs = []
+        collider_objs: list[Object] = []
         for collider_group_dict in collider_group_dicts:
             collider_group = secondary_animation.collider_groups.add()
             collider_group.uuid = uuid.uuid4().hex
