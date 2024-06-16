@@ -1,4 +1,5 @@
 import functools
+import time
 from typing import Optional
 
 from bpy.types import (
@@ -29,7 +30,15 @@ def migrate(context: Context) -> None:
     for material in context.blend_data.materials:
         if not material:
             continue
+
+        migrate_material_start_time = time.perf_counter()
         migrate_material(context, material)
+        migrate_material_end_time = time.perf_counter()
+
+        logger.debug(
+            f"Migrating material {material.name}: "
+            + f"{migrate_material_end_time - migrate_material_start_time:.9f} seconds"
+        )
 
 
 def migrate_material(context: Context, material: Material) -> None:
