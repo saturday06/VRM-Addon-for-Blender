@@ -532,19 +532,19 @@ def unregister() -> None:
     TOPBAR_MT_file_import.remove(import_scene.menu_import)
 
     if hasattr(Object, "vrm_addon_extension"):
-        del Object.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
+        del Object.vrm_addon_extension  # pyright: ignore [reportAttributeAccessIssue]
 
     if hasattr(Armature, "vrm_addon_extension"):
-        del Armature.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
+        del Armature.vrm_addon_extension  # pyright: ignore [reportAttributeAccessIssue]
 
     if hasattr(Bone, "vrm_addon_extension"):
-        del Bone.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
+        del Bone.vrm_addon_extension  # pyright: ignore [reportAttributeAccessIssue]
 
     if hasattr(Scene, "vrm_addon_extension"):
-        del Scene.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
+        del Scene.vrm_addon_extension  # pyright: ignore [reportAttributeAccessIssue]
 
     if hasattr(Material, "vrm_addon_extension"):
-        del Material.vrm_addon_extension  # type: ignore[reportGeneralTypeIssues, unused-ignore]
+        del Material.vrm_addon_extension  # pyright: ignore [reportAttributeAccessIssue]
 
     for cls in reversed(classes):
         try:

@@ -1613,7 +1613,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 continue
 
             # TODO: mypyが賢くなったら消す
-            if not isinstance(  # type: ignore[reportUnnecessaryIsInstance, unused-ignore]
+            if not isinstance(  # pyright: ignore [reportUnnecessaryIsInstance]
                 constraint,
                 (CopyRotationConstraint, DampedTrackConstraint),
             ):
