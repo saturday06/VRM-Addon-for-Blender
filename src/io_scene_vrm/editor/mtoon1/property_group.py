@@ -32,7 +32,7 @@ from bpy.types import (
 from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 from mathutils import Vector
 
-from ...common import shader
+from ...common import convert_any, shader
 from ...common.gl import (
     GL_CLAMP_TO_EDGE,
     GL_LINEAR,
@@ -198,8 +198,10 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
 
     @classmethod
     def get_material_property_chain(cls) -> list[str]:
-        chain = getattr(cls, "material_property_chain", None)
-        if not isinstance(chain, tuple):
+        chain = convert_any.sequence_to_object_sequence(
+            getattr(cls, "material_property_chain", None)
+        )
+        if chain is None:
             message = f"No material property chain: {cls}.{type(chain)} => {chain}"
             raise NotImplementedError(message)
         result: list[str] = []

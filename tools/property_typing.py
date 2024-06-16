@@ -4,7 +4,6 @@
 import re
 import sys
 from argparse import ArgumentParser
-from collections.abc import Mapping
 from pathlib import Path
 
 from bpy.types import (
@@ -12,6 +11,7 @@ from bpy.types import (
 )
 
 from io_scene_vrm import registration
+from io_scene_vrm.common import convert_any
 
 
 def write_property_typing(
@@ -202,8 +202,11 @@ def main() -> int:
     for c in classes:
         print(f"##### {c} #####")
         code = ""
-        annotations = getattr(c, "__annotations__", None)
-        if not isinstance(annotations, Mapping):
+
+        annotations = convert_any.mapping_to_object_mapping(
+            getattr(c, "__annotations__", None)
+        )
+        if annotations is None:
             continue
         for k, v in annotations.items():
             if not isinstance(k, str):
@@ -214,8 +217,11 @@ def main() -> int:
             function_name = getattr(function, "__qualname__", None)
             if function_name is None:
                 continue
-            keywords = getattr(v, "keywords", None)
-            if not isinstance(keywords, Mapping):
+
+            keywords = convert_any.mapping_to_object_mapping(
+                getattr(v, "keywords", None)
+            )
+            if keywords is None:
                 continue
             typed_keywords: dict[str, object] = {
                 typed_k: typed_v

@@ -7,6 +7,7 @@ from typing import Optional
 import bpy
 from bpy.app.translations import pgettext
 
+from . import convert_any
 from .blender_manifest import BlenderManifest
 from .logging import get_logger
 
@@ -87,8 +88,10 @@ def blender_restart_required() -> bool:
 
 def legacy_addon() -> bool:
     root_module = import_module(".".join(__name__.split(".")[:-2]))
-    bl_info = getattr(root_module, "bl_info", None)
-    if not isinstance(bl_info, dict):
+    bl_info = convert_any.mapping_to_object_mapping(
+        getattr(root_module, "bl_info", None)
+    )
+    if bl_info is None:
         return False
 
     return (

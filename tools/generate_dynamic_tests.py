@@ -5,13 +5,15 @@ import re
 import sys
 import uuid
 from base64 import urlsafe_b64encode
-from collections.abc import Sequence
 from importlib.util import module_from_spec, spec_from_file_location
 from os import environ
 from pathlib import Path
 
 # This is not necessary if executed from poetry
 sys.path.append(str(Path(__file__).parent.parent / "src"))
+
+
+from io_scene_vrm.common import convert_any
 
 
 def to_function_component_literal(s: object) -> str:
@@ -135,17 +137,21 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
         with contextlib.suppress(AttributeError):
             func = getattr(mod, "get_test_command_args")  # noqa: B009
         if callable(func):
-            test_command_args_list = func()
+            test_command_args_list = convert_any.to_object(func())
     except Exception as e:  # noqa: BLE001
         return render_generation_failed_test(e)
 
-    if not isinstance(test_command_args_list, Sequence):
+    test_command_args_list = convert_any.sequence_to_object_sequence(
+        test_command_args_list
+    )
+    if test_command_args_list is None:
         return render_single_test(path)
 
     existing_method_names: list[str] = []
     content = ""
-    for args in test_command_args_list:
-        if not isinstance(args, Sequence):
+    for args_object in test_command_args_list:
+        args = convert_any.sequence_to_object_sequence(args_object)
+        if args is None:
             continue
 
         default_method_name = "_".join(map(to_function_component_literal, args))
@@ -160,7 +166,7 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
             raise ValueError(message)
         existing_method_names.append(method_name)
 
-        escaped = [urlsafe_b64encode(a.encode()).decode() for a in [path, *args]]
+        escaped = [urlsafe_b64encode(str(a).encode()).decode() for a in [path, *args]]
         args_str = "\n" + "".join(f'            "{e}",\n' for e in escaped) + "        "
         content += render_multiple_test(method_name, args_str)
     return content

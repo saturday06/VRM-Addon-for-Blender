@@ -14,6 +14,7 @@ from bpy.props import StringProperty
 from bpy.types import Armature, Context, Event, Mesh, Operator, UILayout
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 
+from ..common.deep import make_json
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..common.workspace import save_workspace
 from . import search
@@ -224,7 +225,7 @@ class VRM_OT_load_human_bone_mappings(Operator, ImportHelper):
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
 
-        obj = json.loads(Path(self.filepath).read_text(encoding="UTF-8"))
+        obj = make_json(json.loads(Path(self.filepath).read_text(encoding="UTF-8")))
         if not isinstance(obj, dict):
             return {"CANCELLED"}
 

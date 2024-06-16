@@ -2,6 +2,8 @@ from collections.abc import Iterator, Mapping
 from sys import float_info
 from typing import Optional, Union
 
+from . import convert_any
+
 Json = Union[
     None,
     bool,
@@ -18,8 +20,7 @@ def iterator_or_none(v: object) -> Optional[Iterator[object]]:
         # "isinstance(v, Iterable)" doesn't work.
         # https://github.com/python/cpython/blob/3.9/Doc/library/collections.abc.rst?plain=1#L126-L127
         iterator = iter(v)  # type: ignore[call-overload]
-        if isinstance(iterator, Iterator):  # make type checkers happy
-            return iterator
+        return convert_any.iterator_to_object_iterator(iterator)
     except TypeError:
         pass
     return None

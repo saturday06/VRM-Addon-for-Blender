@@ -29,7 +29,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Vector
 
-from ..common import convert, deep, shader
+from ..common import convert, convert_any, deep, shader
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.gl import (
@@ -1290,8 +1290,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if isinstance(double_sided, bool):
                 pbr_dict["doubleSided"] = double_sided
 
-            emissive_factor = getattr(gltf2_io_material, "emissive_factor", None)
-            if isinstance(emissive_factor, Sequence):
+            emissive_factor = convert_any.sequence_to_object_sequence(
+                getattr(gltf2_io_material, "emissive_factor", None)
+            )
+            if emissive_factor is not None:
                 pbr_dict["emissiveFactor"] = make_json(emissive_factor)
 
             assign_dict(
@@ -1306,8 +1308,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 ),
             )
 
-            extensions = getattr(gltf2_io_material, "extensions", None)
-            if isinstance(extensions, dict):
+            extensions = convert_any.mapping_to_object_mapping(
+                getattr(gltf2_io_material, "extensions", None)
+            )
+            if extensions is not None:
                 extensions_dict: dict[str, Json] = {}
 
                 # https://github.com/KhronosGroup/glTF/tree/19a1d820040239bca1327fc26220ae8cae9f948c/extensions/2.0/Khronos/KHR_materials_unlit
@@ -1315,10 +1319,12 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     extensions_dict["KHR_materials_unlit"] = {}
 
                 # https://github.com/KhronosGroup/glTF/blob/9c4a3567384b4d9f2706cdd9623bbb5ca7b341ad/extensions/2.0/Khronos/KHR_materials_emissive_strength
-                khr_materials_emissive_strength = getattr(
-                    extensions.get("KHR_materials_emissive_strength"),
-                    "extension",
-                    None,
+                khr_materials_emissive_strength = convert_any.mapping_to_object_mapping(
+                    getattr(
+                        extensions.get("KHR_materials_emissive_strength"),
+                        "extension",
+                        None,
+                    )
                 )
                 if isinstance(khr_materials_emissive_strength, dict):
                     emissive_strength = khr_materials_emissive_strength.get(
@@ -1366,10 +1372,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if pbr_metallic_roughness is not None:
                 pbr_metallic_roughness_dict: dict[str, Json] = {}
 
-                base_color_factor = getattr(
-                    pbr_metallic_roughness, "base_color_factor", None
+                base_color_factor = convert_any.sequence_to_object_sequence(
+                    getattr(pbr_metallic_roughness, "base_color_factor", None)
                 )
-                if isinstance(base_color_factor, Sequence):
+                if base_color_factor is not None:
                     pbr_metallic_roughness_dict["baseColorFactor"] = make_json(
                         base_color_factor
                     )

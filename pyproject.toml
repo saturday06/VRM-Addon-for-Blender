@@ -140,10 +140,11 @@ pythonPlatform = "All"
 typeCheckingMode = "strict"
 
 reportMissingModuleSource = false
-reportUnknownArgumentType = false
-reportUnknownMemberType = false
-reportUnknownVariableType = false
+reportCallInDefaultInitializer = true
+reportImplicitStringConcatenation = true
 reportImportCycles = true
+reportPropertyTypeMismatch = true
+reportShadowedImports = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
