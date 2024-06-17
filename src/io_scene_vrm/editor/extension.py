@@ -415,3 +415,16 @@ class VrmAddonMaterialExtensionPropertyGroup(PropertyGroup):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         mtoon1: Mtoon1MaterialPropertyGroup  # type: ignore[no-redef]
+
+
+class VrmAddonNodeTreeExtensionPropertyGroup(PropertyGroup):
+    INITIAL_ADDON_VERSION = VrmAddonPreferences.INITIAL_ADDON_VERSION
+
+    addon_version: IntVectorProperty(  # type: ignore[valid-type]
+        size=3,
+        default=INITIAL_ADDON_VERSION,
+    )
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        addon_version: Sequence[int]  # type: ignore[no-redef]

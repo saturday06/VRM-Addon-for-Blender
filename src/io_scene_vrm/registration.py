@@ -14,6 +14,7 @@ from bpy.types import (
     KeyingSetInfo,
     Material,
     Menu,
+    NodeTree,
     Object,
     Operator,
     Panel,
@@ -436,6 +437,7 @@ classes: list[
     extension.VrmAddonSceneExtensionPropertyGroup,
     extension.VrmAddonMaterialExtensionPropertyGroup,
     extension.VrmAddonObjectExtensionPropertyGroup,
+    extension.VrmAddonNodeTreeExtensionPropertyGroup,
 ]
 
 
@@ -450,6 +452,10 @@ def register() -> None:
 
     for cls in classes:
         bpy.utils.register_class(cls)
+
+    NodeTree.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
+        type=extension.VrmAddonNodeTreeExtensionPropertyGroup
+    )
 
     Material.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
         type=extension.VrmAddonMaterialExtensionPropertyGroup
@@ -545,6 +551,9 @@ def unregister() -> None:
 
     if hasattr(Material, "vrm_addon_extension"):
         del Material.vrm_addon_extension  # pyright: ignore [reportAttributeAccessIssue]
+
+    if hasattr(NodeTree, "vrm_addon_extension"):
+        del NodeTree.vrm_addon_extension  # pyright: ignore [reportAttributeAccessIssue]
 
     for cls in reversed(classes):
         try:
