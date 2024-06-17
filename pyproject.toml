@@ -40,6 +40,9 @@ select = ["ALL"]
 ignore = [
     # ----- fixing -----
 
+    # devcontainer for windows hosts doesn't set executable permissions properly.
+    "EXE002", # The file is executable but no shebang is present
+
     "FBT003", # Boolean positional value in function call
     "G003", # Logging statement uses `+`
     "G004", # Logging statement uses f-string
