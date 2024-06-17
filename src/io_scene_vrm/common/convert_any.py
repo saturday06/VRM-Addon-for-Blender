@@ -10,13 +10,13 @@ https://github.com/microsoft/pyright/issues/3650
 
 from collections.abc import Iterator, Mapping, Sequence
 from typing import (
-    Any,  # Anyはここのパッケージのみで利用を許可する。
+    Any,  # Anyはここのモジュールのみで利用を許可する。
     Optional,
 )
 
 
 def to_object(  # type: ignore[misc]
-    any_object: Any,  # noqa: ANN401  # Anyはここのパッケージのみで利用を許可する。
+    any_object: Any,  # noqa: ANN401  # Anyはここのモジュールのみで利用を許可する。
 ) -> object:
     if not isinstance(any_object, object):
         raise TypeError  # typing.assert_never()
@@ -33,7 +33,7 @@ def sequence_to_object_sequence(  # type: ignore[misc]
 
 
 def iterator_to_object_iterator(  # type: ignore[misc]
-    any_iterator: Any,  # noqa: ANN401  # Anyはここのパッケージのみで利用を許可する。
+    any_iterator: Any,  # noqa: ANN401  # Anyはここのモジュールのみで利用を許可する。
 ) -> Optional[Iterator[object]]:
     any_iterator_without_type_narrowing = any_iterator
     if not isinstance(any_iterator_without_type_narrowing, Iterator):
