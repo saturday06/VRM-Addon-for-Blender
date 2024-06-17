@@ -20,10 +20,9 @@ def iterator_or_none(v: object) -> Optional[Iterator[object]]:
         # "isinstance(v, Iterable)" doesn't work.
         # https://github.com/python/cpython/blob/3.9/Doc/library/collections.abc.rst?plain=1#L126-L127
         iterator = iter(v)  # type: ignore[call-overload]
-        return convert_any.iterator_to_object_iterator(iterator)
     except TypeError:
-        pass
-    return None
+        return None
+    return convert_any.iterator_to_object_iterator(iterator)
 
 
 def vrm_json_vector3_to_tuple(
