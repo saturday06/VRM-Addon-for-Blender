@@ -3,7 +3,7 @@ import math
 from json import dumps as json_dumps
 from typing import Union
 
-from . import convert, convert_any
+from . import convert
 from .convert import Json
 from .logging import get_logger
 
@@ -22,7 +22,7 @@ def make_json(v: object) -> Json:
     if isinstance(v, str):
         return v
 
-    mapping = convert_any.mapping_to_object_mapping(v)
+    mapping = convert.mapping_or_none(v)
     if mapping is not None:
         dict_result: dict[str, Json] = {}
         for key, value in mapping.items():

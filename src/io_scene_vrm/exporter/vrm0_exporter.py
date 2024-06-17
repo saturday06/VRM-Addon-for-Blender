@@ -29,7 +29,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Vector
 
-from ..common import convert, convert_any, deep, shader
+from ..common import convert, deep, shader
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.gl import (
@@ -1290,7 +1290,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if isinstance(double_sided, bool):
                 pbr_dict["doubleSided"] = double_sided
 
-            emissive_factor = convert_any.sequence_to_object_sequence(
+            emissive_factor = convert.sequence_or_none(
                 getattr(gltf2_io_material, "emissive_factor", None)
             )
             if emissive_factor is not None:
@@ -1308,7 +1308,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 ),
             )
 
-            extensions = convert_any.mapping_to_object_mapping(
+            extensions = convert.mapping_or_none(
                 getattr(gltf2_io_material, "extensions", None)
             )
             if extensions is not None:
@@ -1319,7 +1319,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     extensions_dict["KHR_materials_unlit"] = {}
 
                 # https://github.com/KhronosGroup/glTF/blob/9c4a3567384b4d9f2706cdd9623bbb5ca7b341ad/extensions/2.0/Khronos/KHR_materials_emissive_strength
-                khr_materials_emissive_strength = convert_any.mapping_to_object_mapping(
+                khr_materials_emissive_strength = convert.mapping_or_none(
                     getattr(
                         extensions.get("KHR_materials_emissive_strength"),
                         "extension",
@@ -1372,7 +1372,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if pbr_metallic_roughness is not None:
                 pbr_metallic_roughness_dict: dict[str, Json] = {}
 
-                base_color_factor = convert_any.sequence_to_object_sequence(
+                base_color_factor = convert.sequence_or_none(
                     getattr(pbr_metallic_roughness, "base_color_factor", None)
                 )
                 if base_color_factor is not None:

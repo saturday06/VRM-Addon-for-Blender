@@ -1,4 +1,4 @@
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, Sequence
 from sys import float_info
 from typing import Optional, Union
 
@@ -23,6 +23,30 @@ def iterator_or_none(v: object) -> Optional[Iterator[object]]:
     except TypeError:
         return None
     return convert_any.iterator_to_object_iterator(iterator)
+
+
+def sequence_or_none(
+    sequence_object: object,
+) -> Optional[Sequence[object]]:
+    sequence = sequence_object
+    if not isinstance(sequence, Sequence):
+        return None
+    iterator = iterator_or_none(sequence_object)
+    if iterator is None:
+        return None
+    return list(iterator)
+
+
+def mapping_or_none(
+    mapping_object: object,
+) -> Optional[Mapping[object, object]]:
+    mapping = mapping_object
+    if not isinstance(mapping, Mapping):
+        return None
+    key_iterator = iterator_or_none(mapping_object)
+    if key_iterator is None:
+        return None
+    return {key: convert_any.to_object(mapping[key]) for key in key_iterator}
 
 
 def vrm_json_vector3_to_tuple(

@@ -11,7 +11,7 @@ from bpy.types import (
 )
 
 from io_scene_vrm import registration
-from io_scene_vrm.common import convert_any
+from io_scene_vrm.common import convert
 
 
 def write_property_typing(
@@ -203,9 +203,7 @@ def main() -> int:
         print(f"##### {c} #####")
         code = ""
 
-        annotations = convert_any.mapping_to_object_mapping(
-            getattr(c, "__annotations__", None)
-        )
+        annotations = convert.mapping_or_none(getattr(c, "__annotations__", None))
         if annotations is None:
             continue
         for k, v in annotations.items():
@@ -218,9 +216,7 @@ def main() -> int:
             if function_name is None:
                 continue
 
-            keywords = convert_any.mapping_to_object_mapping(
-                getattr(v, "keywords", None)
-            )
+            keywords = convert.mapping_or_none(getattr(v, "keywords", None))
             if keywords is None:
                 continue
             typed_keywords: dict[str, object] = {

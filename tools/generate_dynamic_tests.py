@@ -13,7 +13,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent / "src"))
 
 
-from io_scene_vrm.common import convert_any
+from io_scene_vrm.common import convert, convert_any
 
 
 def to_function_component_literal(s: object) -> str:
@@ -141,16 +141,14 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
     except Exception as e:  # noqa: BLE001
         return render_generation_failed_test(e)
 
-    test_command_args_list = convert_any.sequence_to_object_sequence(
-        test_command_args_list
-    )
+    test_command_args_list = convert.sequence_or_none(test_command_args_list)
     if test_command_args_list is None:
         return render_single_test(path)
 
     existing_method_names: list[str] = []
     content = ""
     for args_object in test_command_args_list:
-        args = convert_any.sequence_to_object_sequence(args_object)
+        args = convert.sequence_or_none(args_object)
         if args is None:
             continue
 
