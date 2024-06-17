@@ -25,7 +25,7 @@ def read_blend_method_from_memory_address(material: Material) -> Optional[str]:
 
     if bpy.app.build_type != b"Release":
         logger.warning(
-            f"Does not read the Blend Mode of {material.name}. "
+            f'The Blend Mode of "{material.name}" could not be read. '
             + f'"{bpy.app.build_type!r}" builds are not supported.'
         )
         return None
@@ -46,7 +46,7 @@ def read_blend_method_from_memory_address(material: Material) -> Optional[str]:
     )
     if native_struct_offset is None:
         logger.warning(
-            f"Does not read the Blend Mode of {material.name}. "
+            f'The Blend Mode of "{material.name}" could not be read. '
             + f"Blender {major}.{minor} ({platform=}, {ext_suffix=}) is not supported."
         )
         return None
