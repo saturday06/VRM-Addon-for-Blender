@@ -1,6 +1,7 @@
 import math
 import random
 import string
+import time
 from copy import deepcopy
 from pathlib import Path
 from sys import float_info
@@ -92,9 +93,12 @@ from . import convert
 from .char import INTERNAL_NAME_PREFIX
 from .gl import GL_CLAMP_TO_EDGE, GL_LINEAR, GL_NEAREST, GL_REPEAT
 from .logging import get_logger
+from .version import addon_version
 from .workspace import save_workspace
 
 logger = get_logger(__name__)
+
+LAST_MODIFIED_VERSION: Final = (2, 20, 56)
 
 BOOL_SOCKET_CLASSES: Final = (NodeSocketBool,)
 FLOAT_SOCKET_CLASSES: Final = (
@@ -223,72 +227,124 @@ def add_shaders(context: Context) -> None:
                     data_to.node_groups.append(node_group)
 
 
+def load_mtoon1_node_group(
+    context: Context,
+    blend_file_path: Path,
+    node_group_name: str,
+    node_group_type: str,
+    node_tree_type: str,
+    *,
+    reset_node_groups: bool,
+) -> None:
+    start_time = time.perf_counter()
+
+    if not blend_file_path.exists():
+        logger.error(f"File not found: {blend_file_path}")
+        return
+
+    if not reset_node_groups:
+        checking_node_group = context.blend_data.node_groups.get(node_group_name)
+        if checking_node_group:
+            if (
+                tuple(checking_node_group.vrm_addon_extension.addon_version)
+                >= LAST_MODIFIED_VERSION
+            ):
+                return
+            if checking_node_group.type != node_tree_type:
+                message = (
+                    f'Node Group "{node_group_name}" already exists'
+                    + f' with different type "{checking_node_group.type}"'
+                )
+                raise TypeError(message)
+
+    backup_suffix = generate_backup_suffix()
+
+    template_node_group_name = template_name(node_group_name)
+    old_template_node_group = context.blend_data.node_groups.get(
+        template_node_group_name
+    )
+    if old_template_node_group:
+        logger.error(f'Node Group "{template_node_group_name}" already exists')
+        old_template_node_group.name = backup_name(
+            old_template_node_group.name, backup_suffix
+        )
+
+    node_tree_path = str(blend_file_path) + "/NodeTree"
+
+    # https://projects.blender.org/blender/blender/src/tag/v2.93.18/source/blender/windowmanager/intern/wm_files_link.c#L85-L90
+    with save_workspace(context):
+        node_tree_append_result = bpy.ops.wm.append(
+            filepath=(node_tree_path + "/" + template_node_group_name),
+            filename=template_node_group_name,
+            directory=node_tree_path,
+        )
+        if node_tree_append_result != {"FINISHED"}:
+            raise RuntimeError(
+                "Failed to append MToon 1.0 template node group "
+                + f'"{template_node_group_name}": {node_tree_append_result}'
+            )
+
+    template_node_group = None
+    try:
+        template_node_group = context.blend_data.node_groups.get(
+            template_node_group_name
+        )
+        if not template_node_group:
+            raise ValueError("No " + template_node_group_name)
+
+        node_group = context.blend_data.node_groups.get(node_group_name)
+        if not node_group:
+            node_group = context.blend_data.node_groups.new(
+                node_group_name, node_group_type
+            )
+            clear_node_tree(node_group, clear_inputs_outputs=True)
+        copy_node_tree(context, template_node_group, node_group)
+        node_group.vrm_addon_extension.addon_version = addon_version()
+    finally:
+        if template_node_group and template_node_group.users <= 1:
+            context.blend_data.node_groups.remove(template_node_group)
+
+        # プログラムロジック的には既にremoveされている可能性もあるので、取得しなおす
+        old_template_node_group = context.blend_data.node_groups.get(
+            backup_name(template_node_group_name, backup_suffix)
+        )
+        if old_template_node_group:
+            old_template_node_group.name = template_node_group_name
+
+    end_time = time.perf_counter()
+    logger.debug(
+        f'Loaded NodeTree "{node_group_name}": '
+        + f"{end_time - start_time:.9f} seconds"
+    )
+
+
 def load_mtoon1_outline_geometry_node_group(
     context: Context, *, reset_node_groups: bool
 ) -> None:
     if bpy.app.version < (3, 3):
         return
-    if (
-        not reset_node_groups
-        and OUTLINE_GEOMETRY_GROUP_NAME in context.blend_data.node_groups
-    ):
-        return
-
-    backup_suffix = generate_backup_suffix()
-
-    template_outline_group_name = template_name(OUTLINE_GEOMETRY_GROUP_NAME)
-    old_template_outline_group = context.blend_data.node_groups.get(
-        template_outline_group_name
-    )
-    if old_template_outline_group:
-        logger.error(f'Node Group "{template_outline_group_name}" already exists')
-        old_template_outline_group.name = backup_name(
-            old_template_outline_group.name, backup_suffix
-        )
-
-    outline_node_tree_path = (
-        str(Path(__file__).with_name("mtoon1_outline.blend")) + "/NodeTree"
+    load_mtoon1_node_group(
+        context,
+        Path(__file__).with_name("mtoon1_outline.blend"),
+        OUTLINE_GEOMETRY_GROUP_NAME,
+        "GeometryNodeTree",
+        "GEOMETRY",
+        reset_node_groups=reset_node_groups,
     )
 
-    # https://projects.blender.org/blender/blender/src/tag/v2.93.18/source/blender/windowmanager/intern/wm_files_link.c#L85-L90
-    with save_workspace(context):
-        outline_node_tree_append_result = bpy.ops.wm.append(
-            filepath=(outline_node_tree_path + "/" + template_outline_group_name),
-            filename=template_outline_group_name,
-            directory=outline_node_tree_path,
-        )
-        if outline_node_tree_append_result != {"FINISHED"}:
-            raise RuntimeError(
-                "Failed to append MToon 1.0 outline template material: "
-                + f"{outline_node_tree_append_result}"
-            )
 
-    template_outline_group = None
-    try:
-        template_outline_group = context.blend_data.node_groups.get(
-            template_outline_group_name
+def load_mtoon1_shader_node_groups(
+    context: Context, *, reset_node_groups: bool
+) -> None:
+    for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
+        load_mtoon1_node_group(
+            context,
+            Path(__file__).with_name("mtoon1.blend"),
+            shader_node_group_name,
+            "ShaderNodeTree",
+            "SHADER",
+            reset_node_groups=reset_node_groups,
         )
-        if not template_outline_group:
-            raise ValueError("No " + template_outline_group_name)
-
-        outline_group = context.blend_data.node_groups.get(OUTLINE_GEOMETRY_GROUP_NAME)
-        if not outline_group:
-            outline_group = context.blend_data.node_groups.new(
-                OUTLINE_GEOMETRY_GROUP_NAME, "GeometryNodeTree"
-            )
-            clear_node_tree(outline_group, clear_inputs_outputs=True)
-            copy_node_tree(context, template_outline_group, outline_group)
-        elif reset_node_groups:
-            copy_node_tree(context, template_outline_group, outline_group)
-    finally:
-        if template_outline_group and template_outline_group.users <= 1:
-            context.blend_data.node_groups.remove(template_outline_group)
-
-        old_template_outline_group = context.blend_data.node_groups.get(
-            backup_name(template_outline_group_name, backup_suffix)
-        )
-        if old_template_outline_group:
-            old_template_outline_group.name = template_outline_group_name
 
 
 def load_mtoon1_shader(
@@ -303,15 +359,22 @@ def load_mtoon1_shader(
     load_mtoon1_outline_geometry_node_group(
         context, reset_node_groups=reset_node_groups
     )
+    load_mtoon1_shader_node_groups(context, reset_node_groups=reset_node_groups)
+
+    start_time = time.perf_counter()
 
     backup_suffix = generate_backup_suffix()
 
+    # アペンドされるマテリアルと同名のものある場合は退避する。
+    # 将来的にはappend(do_reuse_local_id=True)で代替する。
     template_material_name = template_name("VRM Add-on MToon 1.0")
     old_material = context.blend_data.materials.get(template_material_name)
     if old_material:
         logger.error(f'Material "{template_material_name}" already exists')
         old_material.name = backup_name(old_material.name, backup_suffix)
 
+    # Materialをアペンドする際にNodeTreeも同時にアペンドされる。
+    # それらと同名のNodeTreeが存在する場合は退避する。
     for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
         name = template_name(shader_node_group_name)
         old_template_group = context.blend_data.node_groups.get(name)
@@ -329,6 +392,7 @@ def load_mtoon1_shader(
             filepath=material_path + "/" + template_material_name,
             filename=template_material_name,
             directory=material_path,
+            # do_reuse_local_id=True
         )
         if material_append_result != {"FINISHED"}:
             raise RuntimeError(
@@ -341,25 +405,6 @@ def load_mtoon1_shader(
         template_material = context.blend_data.materials.get(template_material_name)
         if not template_material:
             raise ValueError("No " + template_material_name)
-
-        for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
-            shader_node_group_template_name = template_name(shader_node_group_name)
-            template_group = context.blend_data.node_groups.get(
-                shader_node_group_template_name
-            )
-            if not template_group:
-                raise ValueError("No " + shader_node_group_template_name)
-
-            group = context.blend_data.node_groups.get(shader_node_group_name)
-            if not group:
-                group = context.blend_data.node_groups.new(
-                    shader_node_group_name, "ShaderNodeTree"
-                )
-                clear_node_tree(group, clear_inputs_outputs=True)
-                copy_node_tree(context, template_group, group)
-            elif reset_node_groups:
-                copy_node_tree(context, template_group, group)
-
         template_material_node_tree = template_material.node_tree
         material_node_tree = material.node_tree
         if template_material_node_tree is None:
@@ -372,7 +417,7 @@ def load_mtoon1_shader(
         if template_material and template_material.users <= 1:
             context.blend_data.materials.remove(template_material)
 
-        # reload and remove template groups
+        # Materialをアペンドする際に同時にアペンドされたNodeTreeを削除
         for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
             shader_node_group_template_name = template_name(shader_node_group_name)
             template_group = context.blend_data.node_groups.get(
@@ -381,12 +426,14 @@ def load_mtoon1_shader(
             if template_group and template_group.users <= 1:
                 context.blend_data.node_groups.remove(template_group)
 
+        # プログラムロジック的には既にremoveされている可能性もあるので、取得しなおす
         old_material = context.blend_data.materials.get(
             backup_name(template_material_name, backup_suffix)
         )
         if old_material:
             old_material.name = template_material_name
 
+        # 退避していたNodeTreeを復元する
         for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
             name = template_name(shader_node_group_name)
             old_template_group = context.blend_data.node_groups.get(
@@ -394,6 +441,11 @@ def load_mtoon1_shader(
             )
             if old_template_group:
                 old_template_group.name = name
+
+    end_time = time.perf_counter()
+    logger.debug(
+        f'Loaded Material "{material.name}": ' + f"{end_time - start_time:.9f} seconds"
+    )
 
 
 def copy_socket(from_socket: NodeSocket, to_socket: NodeSocket) -> None:

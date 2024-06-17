@@ -1,5 +1,4 @@
 import functools
-import time
 from typing import Optional
 
 from bpy.types import (
@@ -11,7 +10,7 @@ from bpy.types import (
 )
 from idprop.types import IDPropertyGroup
 
-from ...common import convert, native
+from ...common import convert, native, shader
 from ...common.gl import GL_LINEAR, GL_NEAREST
 from ...common.logging import get_logger
 from .property_group import (
@@ -30,15 +29,7 @@ def migrate(context: Context) -> None:
     for material in context.blend_data.materials:
         if not material:
             continue
-
-        migrate_material_start_time = time.perf_counter()
         migrate_material(context, material)
-        migrate_material_end_time = time.perf_counter()
-
-        logger.debug(
-            f"Migrating material {material.name}: "
-            + f"{migrate_material_end_time - migrate_material_start_time:.9f} seconds"
-        )
 
 
 def migrate_material(context: Context, material: Material) -> None:
@@ -116,9 +107,9 @@ def migrate_material(context: Context, material: Material) -> None:
         else:
             alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE
 
-    if addon_version < (2, 20, 55):
+    if addon_version < shader.LAST_MODIFIED_VERSION:
         reset_shader_node_group(
-            context, material, reset_material_node_tree=True, reset_node_groups=True
+            context, material, reset_material_node_tree=True, reset_node_groups=False
         )
 
     # ここから先は、シェーダーノードが最新の状態になっている想定のコードを書ける
