@@ -10,6 +10,7 @@ from ...common import convert
 from ...common.convert import Json
 from ...common.deep import make_json
 from ...common.vrm0.human_bone import HumanBoneSpecifications
+from ..extension import get_armature_extension, get_bone_extension
 from ..property_group import BonePropertyGroup
 from .property_group import (
     Vrm0BlendShapeGroupPropertyGroup,
@@ -443,7 +444,7 @@ def migrate_vrm0_secondary_animation(
 def migrate_legacy_custom_properties(
     context: Context, armature: Object, armature_data: Armature
 ) -> None:
-    ext = armature_data.vrm_addon_extension
+    ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 0, 1):
         return
 
@@ -486,7 +487,7 @@ def migrate_legacy_custom_properties(
 
 
 def migrate_blender_object(armature_data: Armature) -> None:
-    ext = armature_data.vrm_addon_extension
+    ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 3, 27):
         return
 
@@ -500,7 +501,7 @@ def migrate_blender_object(armature_data: Armature) -> None:
 def migrate_link_to_bone_object(
     context: Context, armature: Object, armature_data: Armature
 ) -> None:
-    ext = armature_data.vrm_addon_extension
+    ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 3, 27):
         return
 
@@ -519,9 +520,10 @@ def migrate_link_to_bone_object(
         bone = parent_data.bones.get(link_to_bone.parent_bone)
         if not bone:
             continue
-        if not bone.vrm_addon_extension.uuid:
-            bone.vrm_addon_extension.uuid = uuid.uuid4().hex
-        bone_property_group.bone_uuid = bone.vrm_addon_extension.uuid
+        bone_extension = get_bone_extension(bone)
+        if not bone_extension.uuid:
+            bone_extension.uuid = uuid.uuid4().hex
+        bone_property_group.bone_uuid = bone_extension.uuid
 
     for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(armature):
         link_to_bone = bone_property_group.pop("link_to_bone", None)
@@ -542,7 +544,7 @@ def migrate_link_to_bone_object(
 
 
 def migrate_link_to_mesh_object(armature_data: Armature) -> None:
-    ext = armature_data.vrm_addon_extension
+    ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 3, 23):
         return
 
@@ -570,7 +572,7 @@ def migrate_link_to_mesh_object(armature_data: Armature) -> None:
 
 
 def remove_link_to_mesh_object(armature_data: Armature) -> None:
-    ext = armature_data.vrm_addon_extension
+    ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 3, 27):
         return
 
@@ -598,7 +600,7 @@ def remove_link_to_mesh_object(armature_data: Armature) -> None:
 
 
 def fixup_gravity_dir(armature_data: Armature) -> None:
-    ext = armature_data.vrm_addon_extension
+    ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 15, 4):
         return
 
@@ -609,7 +611,7 @@ def fixup_gravity_dir(armature_data: Armature) -> None:
 
 
 def fixup_humanoid_feet_spacing(armature_data: Armature) -> None:
-    ext = armature_data.vrm_addon_extension
+    ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 18, 2):
         return
     humanoid = ext.vrm0.humanoid
@@ -619,7 +621,7 @@ def fixup_humanoid_feet_spacing(armature_data: Armature) -> None:
 
 
 def migrate_pose(context: Context, armature_data: bpy.types.Armature) -> None:
-    ext = armature_data.vrm_addon_extension
+    ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 20, 34):
         return
 

@@ -13,6 +13,7 @@ from bpy.types import (
 
 from ...common.preferences import get_preferences
 from .. import search
+from ..extension import get_armature_extension
 from ..panel import VRM_PT_vrm_armature_object_property
 from ..search import active_object_is_vrm1_armature
 from .property_group import NodeConstraint1NodeConstraintPropertyGroup
@@ -260,7 +261,7 @@ class VRM_PT_node_constraint1_armature_object_property(Panel):
             context,
             active_object,
             self.layout,
-            armature_data.vrm_addon_extension.node_constraint1,
+            get_armature_extension(armature_data).node_constraint1,
         )
 
 
@@ -291,5 +292,5 @@ class VRM_PT_node_constraint1_ui(Panel):
             context,
             armature,
             self.layout,
-            armature_data.vrm_addon_extension.node_constraint1,
+            get_armature_extension(armature_data).node_constraint1,
         )

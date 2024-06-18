@@ -6,6 +6,7 @@ from bpy.props import IntProperty, StringProperty
 from bpy.types import Armature, Context, Operator
 
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
+from ..extension import get_armature_extension
 from .property_group import Vrm0HumanoidPropertyGroup
 
 
@@ -26,7 +27,7 @@ class VRM_OT_add_vrm0_first_person_mesh_annotation(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        first_person = armature_data.vrm_addon_extension.vrm0.first_person
+        first_person = get_armature_extension(armature_data).vrm0.first_person
         first_person.mesh_annotations.add()
         first_person.active_mesh_annotation_index = (
             len(first_person.mesh_annotations) - 1
@@ -60,7 +61,7 @@ class VRM_OT_remove_vrm0_first_person_mesh_annotation(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        first_person = armature_data.vrm_addon_extension.vrm0.first_person
+        first_person = get_armature_extension(armature_data).vrm0.first_person
         if len(first_person.mesh_annotations) <= self.mesh_annotation_index:
             return {"CANCELLED"}
         first_person.mesh_annotations.remove(self.mesh_annotation_index)
@@ -98,7 +99,7 @@ class VRM_OT_move_up_vrm0_first_person_mesh_annotation(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        first_person = armature_data.vrm_addon_extension.vrm0.first_person
+        first_person = get_armature_extension(armature_data).vrm0.first_person
         if len(first_person.mesh_annotations) <= self.mesh_annotation_index:
             return {"CANCELLED"}
         if len(first_person.mesh_annotations) <= self.mesh_annotation_index:
@@ -138,7 +139,7 @@ class VRM_OT_move_down_vrm0_first_person_mesh_annotation(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        first_person = armature_data.vrm_addon_extension.vrm0.first_person
+        first_person = get_armature_extension(armature_data).vrm0.first_person
         if len(first_person.mesh_annotations) <= self.mesh_annotation_index:
             return {"CANCELLED"}
         new_index = (first_person.active_mesh_annotation_index + 1) % len(
@@ -176,9 +177,9 @@ class VRM_OT_add_vrm0_material_value_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_groups = (
-            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
-        )
+        blend_shape_groups = get_armature_extension(
+            armature_data
+        ).vrm0.blend_shape_master.blend_shape_groups
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
         blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
@@ -220,9 +221,9 @@ class VRM_OT_remove_vrm0_material_value_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_groups = (
-            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
-        )
+        blend_shape_groups = get_armature_extension(
+            armature_data
+        ).vrm0.blend_shape_master.blend_shape_groups
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
         blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
@@ -268,9 +269,9 @@ class VRM_OT_move_up_vrm0_material_value_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_groups = (
-            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
-        )
+        blend_shape_groups = get_armature_extension(
+            armature_data
+        ).vrm0.blend_shape_master.blend_shape_groups
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
         blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
@@ -316,9 +317,9 @@ class VRM_OT_move_down_vrm0_material_value_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_groups = (
-            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
-        )
+        blend_shape_groups = get_armature_extension(
+            armature_data
+        ).vrm0.blend_shape_master.blend_shape_groups
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
         blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
@@ -364,9 +365,9 @@ class VRM_OT_add_vrm0_material_value_bind_target_value(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_groups = (
-            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
-        )
+        blend_shape_groups = get_armature_extension(
+            armature_data
+        ).vrm0.blend_shape_master.blend_shape_groups
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
         material_values = blend_shape_groups[
@@ -414,9 +415,9 @@ class VRM_OT_remove_vrm0_material_value_bind_target_value(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_groups = (
-            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
-        )
+        blend_shape_groups = get_armature_extension(
+            armature_data
+        ).vrm0.blend_shape_master.blend_shape_groups
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
         material_values = blend_shape_groups[
@@ -460,9 +461,9 @@ class VRM_OT_add_vrm0_blend_shape_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_groups = (
-            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
-        )
+        blend_shape_groups = get_armature_extension(
+            armature_data
+        ).vrm0.blend_shape_master.blend_shape_groups
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
         blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
@@ -502,9 +503,9 @@ class VRM_OT_remove_vrm0_blend_shape_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_groups = (
-            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
-        )
+        blend_shape_groups = get_armature_extension(
+            armature_data
+        ).vrm0.blend_shape_master.blend_shape_groups
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
         blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
@@ -550,9 +551,9 @@ class VRM_OT_move_up_vrm0_blend_shape_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_groups = (
-            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
-        )
+        blend_shape_groups = get_armature_extension(
+            armature_data
+        ).vrm0.blend_shape_master.blend_shape_groups
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
         blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
@@ -596,9 +597,9 @@ class VRM_OT_move_down_vrm0_blend_shape_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_groups = (
-            armature_data.vrm_addon_extension.vrm0.blend_shape_master.blend_shape_groups
-        )
+        blend_shape_groups = get_armature_extension(
+            armature_data
+        ).vrm0.blend_shape_master.blend_shape_groups
         if len(blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
         blend_shape_group = blend_shape_groups[self.blend_shape_group_index]
@@ -641,9 +642,9 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        collider_groups = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
-        )
+        collider_groups = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         collider_group = collider_groups[self.collider_group_index]
@@ -697,9 +698,9 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        collider_groups = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
-        )
+        collider_groups = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         collider_group = collider_groups[self.collider_group_index]
@@ -749,9 +750,9 @@ class VRM_OT_move_up_vrm0_secondary_animation_collider_group_collider(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        collider_groups = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
-        )
+        collider_groups = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         collider_group = collider_groups[self.collider_group_index]
@@ -795,9 +796,9 @@ class VRM_OT_move_down_vrm0_secondary_animation_collider_group_collider(Operator
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        collider_groups = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.collider_groups
-        )
+        collider_groups = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         collider_group = collider_groups[self.collider_group_index]
@@ -837,9 +838,9 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        bone_groups = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
-        )
+        bone_groups = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation.bone_groups
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
         bone_group = bone_groups[self.bone_group_index]
@@ -880,9 +881,9 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        bone_groups = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
-        )
+        bone_groups = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation.bone_groups
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
         bone_group = bone_groups[self.bone_group_index]
@@ -927,9 +928,9 @@ class VRM_OT_move_up_vrm0_secondary_animation_group_bone(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        bone_groups = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
-        )
+        bone_groups = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation.bone_groups
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
         bone_group = bone_groups[self.bone_group_index]
@@ -973,9 +974,9 @@ class VRM_OT_move_down_vrm0_secondary_animation_group_bone(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        bone_groups = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
-        )
+        bone_groups = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation.bone_groups
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
         bone_group = bone_groups[self.bone_group_index]
@@ -1015,9 +1016,9 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        bone_groups = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
-        )
+        bone_groups = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation.bone_groups
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
         bone_group = bone_groups[self.bone_group_index]
@@ -1058,9 +1059,9 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        bone_groups = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
-        )
+        bone_groups = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation.bone_groups
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
         bone_group = bone_groups[self.bone_group_index]
@@ -1106,9 +1107,9 @@ class VRM_OT_move_up_vrm0_secondary_animation_group_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        bone_groups = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
-        )
+        bone_groups = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation.bone_groups
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
         bone_group = bone_groups[self.bone_group_index]
@@ -1152,9 +1153,9 @@ class VRM_OT_move_down_vrm0_secondary_animation_group_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        bone_groups = (
-            armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups
-        )
+        bone_groups = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation.bone_groups
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
         bone_group = bone_groups[self.bone_group_index]
@@ -1193,7 +1194,9 @@ class VRM_OT_add_vrm0_blend_shape_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_master = armature_data.vrm_addon_extension.vrm0.blend_shape_master
+        blend_shape_master = get_armature_extension(
+            armature_data
+        ).vrm0.blend_shape_master
         blend_shape_group = blend_shape_master.blend_shape_groups.add()
         blend_shape_group.name = self.name
         blend_shape_master.active_blend_shape_group_index = (
@@ -1229,7 +1232,9 @@ class VRM_OT_remove_vrm0_blend_shape_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_master = armature_data.vrm_addon_extension.vrm0.blend_shape_master
+        blend_shape_master = get_armature_extension(
+            armature_data
+        ).vrm0.blend_shape_master
         if len(blend_shape_master.blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
         blend_shape_master.blend_shape_groups.remove(self.blend_shape_group_index)
@@ -1267,7 +1272,9 @@ class VRM_OT_move_up_vrm0_blend_shape_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_master = armature_data.vrm_addon_extension.vrm0.blend_shape_master
+        blend_shape_master = get_armature_extension(
+            armature_data
+        ).vrm0.blend_shape_master
         if len(blend_shape_master.blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
         new_index = (self.blend_shape_group_index - 1) % len(
@@ -1307,7 +1314,9 @@ class VRM_OT_move_down_vrm0_blend_shape_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        blend_shape_master = armature_data.vrm_addon_extension.vrm0.blend_shape_master
+        blend_shape_master = get_armature_extension(
+            armature_data
+        ).vrm0.blend_shape_master
         if len(blend_shape_master.blend_shape_groups) <= self.blend_shape_group_index:
             return {"CANCELLED"}
         new_index = (self.blend_shape_group_index + 1) % len(
@@ -1349,7 +1358,9 @@ class VRM_OT_add_vrm0_secondary_animation_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        secondary_animation = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation
         secondary_animation.bone_groups.add()
         secondary_animation.active_bone_group_index = (
             len(secondary_animation.bone_groups) - 1
@@ -1384,7 +1395,9 @@ class VRM_OT_remove_vrm0_secondary_animation_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        secondary_animation = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation
         if len(secondary_animation.bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
         secondary_animation.bone_groups.remove(self.bone_group_index)
@@ -1422,7 +1435,9 @@ class VRM_OT_move_up_vrm0_secondary_animation_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        secondary_animation = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation
         if len(secondary_animation.bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
         new_index = (self.bone_group_index - 1) % len(secondary_animation.bone_groups)
@@ -1458,7 +1473,9 @@ class VRM_OT_move_down_vrm0_secondary_animation_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        secondary_animation = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation
         if len(secondary_animation.bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
         new_index = (self.bone_group_index + 1) % len(secondary_animation.bone_groups)
@@ -1490,7 +1507,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        ext = armature_data.vrm_addon_extension
+        ext = get_armature_extension(armature_data)
         secondary_animation = ext.vrm0.secondary_animation
         collider_group = secondary_animation.collider_groups.add()
         collider_group.uuid = uuid.uuid4().hex
@@ -1527,14 +1544,16 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        secondary_animation = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation
         if len(secondary_animation.collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         secondary_animation.collider_groups.remove(self.collider_group_index)
 
-        for (
-            bone_group
-        ) in armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups:
+        for bone_group in get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation.bone_groups:
             bone_group.refresh(armature)
 
         secondary_animation.active_collider_group_index = min(
@@ -1571,7 +1590,9 @@ class VRM_OT_move_up_vrm0_secondary_animation_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        secondary_animation = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation
         if len(secondary_animation.collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         new_index = (self.collider_group_index - 1) % len(
@@ -1609,7 +1630,9 @@ class VRM_OT_move_down_vrm0_secondary_animation_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        secondary_animation = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation
         if len(secondary_animation.collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         new_index = (self.collider_group_index + 1) % len(
@@ -1645,7 +1668,7 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
             return {"CANCELLED"}
 
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-        humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
+        humanoid = get_armature_extension(armature_data).vrm0.humanoid
         bones = armature_data.bones
         for (
             bone_name,

@@ -2,6 +2,8 @@ from collections.abc import Set as AbstractSet
 
 from bpy.types import Armature, Context, GizmoGroup
 
+from ..extension import get_armature_extension
+
 
 # https://gist.github.com/FujiSunflower/09fdabc7ca991f8292657abc4ef001b0
 class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):
@@ -25,7 +27,7 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):
         armature_data = active_object.data
         if not isinstance(armature_data, Armature):
             return
-        ext = armature_data.vrm_addon_extension
+        ext = get_armature_extension(armature_data)
         first_person = ext.vrm0.first_person
         first_person_bone = armature_data.bones[
             first_person.first_person_bone.bone_name
@@ -50,7 +52,7 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):
         armature_data = active_object.data
         if not isinstance(armature_data, Armature):
             return
-        ext = armature_data.vrm_addon_extension
+        ext = get_armature_extension(armature_data)
         gizmo = self.first_person_gizmo
         first_person = ext.vrm0.first_person
         first_person_bone = armature_data.bones[

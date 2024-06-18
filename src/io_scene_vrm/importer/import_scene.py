@@ -27,6 +27,7 @@ from ..common.preferences import (
     get_preferences,
 )
 from ..editor import search
+from ..editor.extension import get_armature_extension
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
@@ -442,8 +443,8 @@ class WM_OT_vrma_import_prerequisite(Operator):
             error_messages.append(pgettext("Armature not found"))
             return error_messages
 
-        ext = armature_data.vrm_addon_extension
-        if armature_data.vrm_addon_extension.is_vrm1():
+        ext = get_armature_extension(armature_data)
+        if get_armature_extension(armature_data).is_vrm1():
             humanoid = ext.vrm1.humanoid
             if not humanoid.human_bones.all_required_bones_are_assigned():
                 error_messages.append(pgettext("Please assign required human bones"))

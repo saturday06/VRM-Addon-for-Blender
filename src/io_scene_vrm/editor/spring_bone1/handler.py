@@ -8,6 +8,7 @@ from bpy.app.handlers import persistent
 from bpy.types import Armature, Context, Object, PoseBone
 from mathutils import Matrix, Quaternion, Vector
 
+from ..extension import get_armature_extension
 from .property_group import (
     SpringBone1ColliderPropertyGroup,
     SpringBone1JointPropertyGroup,
@@ -126,7 +127,7 @@ def calculate_object_pose_bone_rotations(
     armature_data = obj.data
     if not isinstance(armature_data, Armature):
         return
-    ext = armature_data.vrm_addon_extension
+    ext = get_armature_extension(armature_data)
     if not ext.is_vrm1():
         return
     spring_bone1 = ext.spring_bone1

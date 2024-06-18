@@ -18,6 +18,7 @@ from ..common.deep import make_json
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..common.workspace import save_workspace
 from . import search
+from .extension import get_armature_extension
 from .make_armature import ICYP_OT_make_armature
 
 
@@ -178,7 +179,9 @@ class VRM_OT_save_human_bone_mappings(Operator, ExportHelper):
             return {"CANCELLED"}
 
         mappings = {}
-        for human_bone in armature_data.vrm_addon_extension.vrm0.humanoid.human_bones:
+        for human_bone in get_armature_extension(
+            armature_data
+        ).vrm0.humanoid.human_bones:
             if human_bone.bone not in HumanBoneSpecifications.all_names:
                 continue
             if not human_bone.node.bone_name:
@@ -234,10 +237,11 @@ class VRM_OT_load_human_bone_mappings(Operator, ImportHelper):
                 continue
             if not isinstance(bpy_bone_name, str):
                 continue
+            # INFO@MICROSOFT.COM
             found = False
-            for (
-                human_bone
-            ) in armature_data.vrm_addon_extension.vrm0.humanoid.human_bones:
+            for human_bone in get_armature_extension(
+                armature_data
+            ).vrm0.humanoid.human_bones:
                 if human_bone.bone == human_bone_name:
                     human_bone.node.set_bone_name(bpy_bone_name)
                     found = True
@@ -245,9 +249,9 @@ class VRM_OT_load_human_bone_mappings(Operator, ImportHelper):
             if found:
                 continue
 
-            human_bone = (
-                armature_data.vrm_addon_extension.vrm0.humanoid.human_bones.add()
-            )
+            human_bone = get_armature_extension(
+                armature_data
+            ).vrm0.humanoid.human_bones.add()
             human_bone.bone = human_bone_name
             human_bone.node.set_bone_name(bpy_bone_name)
 

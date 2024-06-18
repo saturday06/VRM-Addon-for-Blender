@@ -7,7 +7,10 @@ from bpy.types import Armature, Context
 from mathutils import Euler, Quaternion, Vector
 
 from io_scene_vrm.common import version
-from io_scene_vrm.editor.extension import VrmAddonArmatureExtensionPropertyGroup
+from io_scene_vrm.editor.extension import (
+    VrmAddonArmatureExtensionPropertyGroup,
+    get_armature_extension,
+)
 
 addon_version = version.addon_version()
 spec_version = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1
@@ -54,9 +57,9 @@ def one_joint_extending_in_y_direction(context: Context) -> None:
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
-    armature.data.vrm_addon_extension.addon_version = addon_version
-    armature.data.vrm_addon_extension.spec_version = spec_version
-    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+    get_armature_extension(armature.data).addon_version = addon_version
+    get_armature_extension(armature.data).spec_version = spec_version
+    get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
@@ -84,7 +87,7 @@ def one_joint_extending_in_y_direction(context: Context) -> None:
         armature_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
-    joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
+    joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
     joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].drag_force = 1
@@ -134,9 +137,9 @@ def one_joint_extending_in_y_direction_with_rotating_armature(context: Context) 
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
-    armature.data.vrm_addon_extension.addon_version = addon_version
-    armature.data.vrm_addon_extension.spec_version = spec_version
-    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+    get_armature_extension(armature.data).addon_version = addon_version
+    get_armature_extension(armature.data).spec_version = spec_version
+    get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
@@ -164,7 +167,7 @@ def one_joint_extending_in_y_direction_with_rotating_armature(context: Context) 
         armature_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
-    joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
+    joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
     joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].drag_force = 1
@@ -216,9 +219,9 @@ def one_joint_extending_in_y_direction_with_rotating_armature_stiffness(
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
-    armature.data.vrm_addon_extension.addon_version = addon_version
-    armature.data.vrm_addon_extension.spec_version = spec_version
-    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+    get_armature_extension(armature.data).addon_version = addon_version
+    get_armature_extension(armature.data).spec_version = spec_version
+    get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
@@ -250,7 +253,7 @@ def one_joint_extending_in_y_direction_with_rotating_armature_stiffness(
         armature_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
-    joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
+    joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
     joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 0
     joints[0].drag_force = 1
@@ -298,9 +301,9 @@ def two_joints_extending_in_y_direction(context: Context) -> None:
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
-    armature.data.vrm_addon_extension.addon_version = addon_version
-    armature.data.vrm_addon_extension.spec_version = spec_version
-    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+    get_armature_extension(armature.data).addon_version = addon_version
+    get_armature_extension(armature.data).spec_version = spec_version
+    get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
@@ -336,7 +339,7 @@ def two_joints_extending_in_y_direction(context: Context) -> None:
         armature_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
-    joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
+    joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
     joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].drag_force = 1
@@ -397,9 +400,9 @@ def two_joints_extending_in_y_direction_roll(context: Context) -> None:
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
-    armature.data.vrm_addon_extension.addon_version = addon_version
-    armature.data.vrm_addon_extension.spec_version = spec_version
-    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+    get_armature_extension(armature.data).addon_version = addon_version
+    get_armature_extension(armature.data).spec_version = spec_version
+    get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
@@ -438,7 +441,7 @@ def two_joints_extending_in_y_direction_roll(context: Context) -> None:
         armature_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
-    joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
+    joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
     joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].drag_force = 1
@@ -499,9 +502,9 @@ def two_joints_extending_in_y_direction_local_translation(context: Context) -> N
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
-    armature.data.vrm_addon_extension.addon_version = addon_version
-    armature.data.vrm_addon_extension.spec_version = spec_version
-    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+    get_armature_extension(armature.data).addon_version = addon_version
+    get_armature_extension(armature.data).spec_version = spec_version
+    get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
@@ -541,7 +544,7 @@ def two_joints_extending_in_y_direction_local_translation(context: Context) -> N
         armature_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
-    joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
+    joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
     joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].drag_force = 1
@@ -602,9 +605,9 @@ def two_joints_extending_in_y_direction_connected(context: Context) -> None:
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
-    armature.data.vrm_addon_extension.addon_version = addon_version
-    armature.data.vrm_addon_extension.spec_version = spec_version
-    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+    get_armature_extension(armature.data).addon_version = addon_version
+    get_armature_extension(armature.data).spec_version = spec_version
+    get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
@@ -644,7 +647,7 @@ def two_joints_extending_in_y_direction_connected(context: Context) -> None:
         armature_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
-    joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
+    joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
     joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].drag_force = 1
@@ -707,9 +710,9 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z(
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
-    armature.data.vrm_addon_extension.addon_version = addon_version
-    armature.data.vrm_addon_extension.spec_version = spec_version
-    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+    get_armature_extension(armature.data).addon_version = addon_version
+    get_armature_extension(armature.data).spec_version = spec_version
+    get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
@@ -737,7 +740,7 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z(
         armature_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
-    joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
+    joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
     joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].gravity_dir = (0, 1, 0)
@@ -801,9 +804,9 @@ def one_joint_extending_in_y_direction_rounding_180_degree(context: Context) -> 
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
-    armature.data.vrm_addon_extension.addon_version = addon_version
-    armature.data.vrm_addon_extension.spec_version = spec_version
-    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+    get_armature_extension(armature.data).addon_version = addon_version
+    get_armature_extension(armature.data).spec_version = spec_version
+    get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
@@ -831,7 +834,7 @@ def one_joint_extending_in_y_direction_rounding_180_degree(context: Context) -> 
         armature_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
-    joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
+    joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
     joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1  # はじめに重力で勢いをつける
     joints[0].drag_force = 0
@@ -865,9 +868,9 @@ def two_joints_extending_in_y_direction_root_down(context: Context) -> None:
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
-    armature.data.vrm_addon_extension.addon_version = addon_version
-    armature.data.vrm_addon_extension.spec_version = spec_version
-    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+    get_armature_extension(armature.data).addon_version = addon_version
+    get_armature_extension(armature.data).spec_version = spec_version
+    get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
@@ -903,7 +906,7 @@ def two_joints_extending_in_y_direction_root_down(context: Context) -> None:
         armature_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
-    joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
+    joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
     joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 1
     joints[0].drag_force = 1
@@ -960,9 +963,9 @@ def two_joints_extending_in_y_direction_with_child_stiffness(context: Context) -
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
-    armature.data.vrm_addon_extension.addon_version = addon_version
-    armature.data.vrm_addon_extension.spec_version = spec_version
-    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+    get_armature_extension(armature.data).addon_version = addon_version
+    get_armature_extension(armature.data).spec_version = spec_version
+    get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
@@ -998,7 +1001,7 @@ def two_joints_extending_in_y_direction_with_child_stiffness(context: Context) -
         armature_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
-    joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
+    joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
     joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 0
     joints[0].drag_force = 1
@@ -1087,9 +1090,9 @@ def one_joint_extending_in_y_direction_with_roll_stiffness(context: Context) -> 
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
-    armature.data.vrm_addon_extension.addon_version = addon_version
-    armature.data.vrm_addon_extension.spec_version = spec_version
-    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+    get_armature_extension(armature.data).addon_version = addon_version
+    get_armature_extension(armature.data).spec_version = spec_version
+    get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
     bpy.ops.object.mode_set(mode="EDIT")
     root_bone = armature.data.edit_bones.new("root")
@@ -1118,7 +1121,7 @@ def one_joint_extending_in_y_direction_with_roll_stiffness(context: Context) -> 
         armature_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
-    joints = armature.data.vrm_addon_extension.spring_bone1.springs[0].joints
+    joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
     joints[0].node.bone_name = "joint0"
     joints[0].gravity_power = 0
     joints[0].drag_force = 1
@@ -1164,9 +1167,9 @@ def two_joints_extending_in_y_direction_center_move_to_z(context: Context) -> No
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
-    armature.data.vrm_addon_extension.addon_version = addon_version
-    armature.data.vrm_addon_extension.spec_version = spec_version
-    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+    get_armature_extension(armature.data).addon_version = addon_version
+    get_armature_extension(armature.data).spec_version = spec_version
+    get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
     bpy.ops.object.mode_set(mode="EDIT")
     joint_bone0 = armature.data.edit_bones.new("joint0")
@@ -1197,7 +1200,7 @@ def two_joints_extending_in_y_direction_center_move_to_z(context: Context) -> No
         armature_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
-    spring = armature.data.vrm_addon_extension.spring_bone1.springs[0]
+    spring = get_armature_extension(armature.data).spring_bone1.springs[0]
     spring.center.bone_name = "joint0"
     joints = spring.joints
     joints[0].node.bone_name = "joint0"
@@ -1255,9 +1258,9 @@ def two_joints_extending_in_y_direction_center_move_to_z_no_inertia(
     if not armature or not isinstance(armature.data, Armature):
         raise AssertionError
 
-    armature.data.vrm_addon_extension.addon_version = addon_version
-    armature.data.vrm_addon_extension.spec_version = spec_version
-    armature.data.vrm_addon_extension.spring_bone1.enable_animation = True
+    get_armature_extension(armature.data).addon_version = addon_version
+    get_armature_extension(armature.data).spec_version = spec_version
+    get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
     bpy.ops.object.mode_set(mode="EDIT")
     joint_bone0 = armature.data.edit_bones.new("joint0")
@@ -1288,7 +1291,7 @@ def two_joints_extending_in_y_direction_center_move_to_z_no_inertia(
         armature_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
-    spring = armature.data.vrm_addon_extension.spring_bone1.springs[0]
+    spring = get_armature_extension(armature.data).spring_bone1.springs[0]
     spring.center.bone_name = "joint0"
     joints = spring.joints
     joints[0].node.bone_name = "joint0"

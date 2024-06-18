@@ -25,6 +25,7 @@ from ..common.preferences import (
     get_preferences,
 )
 from ..editor import search, validation
+from ..editor.extension import get_armature_extension
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
 from ..editor.validation import VrmValidationError
@@ -147,7 +148,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         is_vrm1 = any(
             obj.type == "ARMATURE"
             and isinstance(obj.data, Armature)
-            and obj.data.vrm_addon_extension.is_vrm1()
+            and get_armature_extension(obj.data).is_vrm1()
             for obj in export_objects
         )
 
@@ -196,12 +197,12 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
             armature_data = armature.data
             if not isinstance(armature_data, Armature):
                 pass
-            elif armature_data.vrm_addon_extension.is_vrm0():
+            elif get_armature_extension(armature_data).is_vrm0():
                 Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
                 Vrm0HumanoidPropertyGroup.update_all_node_candidates(
                     context, armature_data.name
                 )
-                humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
+                humanoid = get_armature_extension(armature_data).vrm0.humanoid
                 if all(
                     b.node.bone_name not in b.node_candidates
                     for b in humanoid.human_bones
@@ -214,14 +215,14 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                         "INVOKE_DEFAULT",
                         armature_object_name=self.armature_object_name,
                     )
-            elif armature_data.vrm_addon_extension.is_vrm1():
+            elif get_armature_extension(armature_data).is_vrm1():
                 Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
                 Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
                     context, armature_data.name
                 )
-                human_bones = (
-                    armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
-                )
+                human_bones = get_armature_extension(
+                    armature_data
+                ).vrm1.humanoid.human_bones
                 if all(
                     human_bone.node.bone_name not in human_bone.node_candidates
                     for human_bone in (
@@ -438,20 +439,22 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        if armature_data.vrm_addon_extension.is_vrm0():
+        if get_armature_extension(armature_data).is_vrm0():
             Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
             Vrm0HumanoidPropertyGroup.update_all_node_candidates(
                 context, armature_data.name
             )
-            humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
+            humanoid = get_armature_extension(armature_data).vrm0.humanoid
             if not humanoid.all_required_bones_are_assigned():
                 return {"CANCELLED"}
-        elif armature_data.vrm_addon_extension.is_vrm1():
+        elif get_armature_extension(armature_data).is_vrm1():
             Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
             Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
                 context, armature_data.name
             )
-            human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
+            human_bones = get_armature_extension(
+                armature_data
+            ).vrm1.humanoid.human_bones
             if (
                 not human_bones.all_required_bones_are_assigned()
                 and not human_bones.allow_non_humanoid_rig
@@ -486,9 +489,9 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         if not isinstance(armature_data, Armature):
             return
 
-        if armature_data.vrm_addon_extension.is_vrm0():
+        if get_armature_extension(armature_data).is_vrm0():
             WM_OT_vrm_export_human_bones_assignment.draw_vrm0(self.layout, armature)
-        elif armature_data.vrm_addon_extension.is_vrm1():
+        elif get_armature_extension(armature_data).is_vrm1():
             WM_OT_vrm_export_human_bones_assignment.draw_vrm1(self.layout, armature)
 
     @staticmethod
@@ -497,7 +500,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         if not isinstance(armature_data, Armature):
             return
 
-        humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
+        humanoid = get_armature_extension(armature_data).vrm0.humanoid
         if humanoid.all_required_bones_are_assigned():
             alert_box = layout.box()
             alert_box.label(
@@ -521,7 +524,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         if not isinstance(armature_data, Armature):
             return
 
-        human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
+        human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
         if human_bones.all_required_bones_are_assigned():
             alert_box = layout.box()
             alert_box.label(
@@ -720,8 +723,8 @@ class WM_OT_vrma_export_prerequisite(Operator):
             error_messages.append(pgettext("Armature not found"))
             return error_messages
 
-        ext = armature_data.vrm_addon_extension
-        if armature_data.vrm_addon_extension.is_vrm1():
+        ext = get_armature_extension(armature_data)
+        if get_armature_extension(armature_data).is_vrm1():
             humanoid = ext.vrm1.humanoid
             if not humanoid.human_bones.all_required_bones_are_assigned():
                 error_messages.append(pgettext("Please assign required human bones"))
@@ -781,8 +784,8 @@ class WM_OT_vrma_export_prerequisite(Operator):
         if armature:
             armature_data = armature.data
             if isinstance(armature_data, Armature):
-                ext = armature_data.vrm_addon_extension
-                if armature_data.vrm_addon_extension.is_vrm1():
+                ext = get_armature_extension(armature_data)
+                if get_armature_extension(armature_data).is_vrm1():
                     humanoid = ext.vrm1.humanoid
                     if not humanoid.human_bones.all_required_bones_are_assigned():
                         WM_OT_vrm_export_human_bones_assignment.draw_vrm1(

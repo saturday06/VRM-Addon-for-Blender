@@ -9,6 +9,7 @@ from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapp
 from ...common.logging import get_logger
 from ...common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
 from ...common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
+from ..extension import get_armature_extension
 from ..vrm0.property_group import Vrm0HumanoidPropertyGroup
 from .property_group import Vrm1HumanBonesPropertyGroup
 
@@ -32,7 +33,7 @@ class VRM_OT_add_vrm1_meta_author(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        meta = armature_data.vrm_addon_extension.vrm1.meta
+        meta = get_armature_extension(armature_data).vrm1.meta
         author = meta.authors.add()
         author.value = ""
         meta.active_author_index = len(meta.authors) - 1
@@ -65,7 +66,7 @@ class VRM_OT_remove_vrm1_meta_author(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        meta = armature_data.vrm_addon_extension.vrm1.meta
+        meta = get_armature_extension(armature_data).vrm1.meta
         if len(meta.authors) <= self.author_index:
             return {"CANCELLED"}
         meta.authors.remove(self.author_index)
@@ -103,7 +104,7 @@ class VRM_OT_move_up_vrm1_meta_author(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        meta = armature_data.vrm_addon_extension.vrm1.meta
+        meta = get_armature_extension(armature_data).vrm1.meta
         if len(meta.authors) <= self.author_index:
             return {"CANCELLED"}
         new_index = (self.author_index - 1) % len(meta.authors)
@@ -139,7 +140,7 @@ class VRM_OT_move_down_vrm1_meta_author(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        meta = armature_data.vrm_addon_extension.vrm1.meta
+        meta = get_armature_extension(armature_data).vrm1.meta
         if len(meta.authors) <= self.author_index:
             return {"CANCELLED"}
         new_index = (self.author_index + 1) % len(meta.authors)
@@ -171,7 +172,7 @@ class VRM_OT_add_vrm1_meta_reference(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        meta = armature_data.vrm_addon_extension.vrm1.meta
+        meta = get_armature_extension(armature_data).vrm1.meta
         reference = meta.references.add()
         reference.value = ""
         meta.active_reference_index = len(meta.references) - 1
@@ -204,7 +205,7 @@ class VRM_OT_remove_vrm1_meta_reference(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        meta = armature_data.vrm_addon_extension.vrm1.meta
+        meta = get_armature_extension(armature_data).vrm1.meta
         if len(meta.references) <= self.reference_index:
             return {"CANCELLED"}
         meta.references.remove(self.reference_index)
@@ -242,7 +243,7 @@ class VRM_OT_move_up_vrm1_meta_reference(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        meta = armature_data.vrm_addon_extension.vrm1.meta
+        meta = get_armature_extension(armature_data).vrm1.meta
         if len(meta.references) <= self.reference_index:
             return {"CANCELLED"}
         new_index = (self.reference_index - 1) % len(meta.references)
@@ -278,7 +279,7 @@ class VRM_OT_move_down_vrm1_meta_reference(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        meta = armature_data.vrm_addon_extension.vrm1.meta
+        meta = get_armature_extension(armature_data).vrm1.meta
         if len(meta.references) <= self.reference_index:
             return {"CANCELLED"}
         new_index = (self.reference_index + 1) % len(meta.references)
@@ -313,7 +314,7 @@ class VRM_OT_add_vrm1_expressions_custom_expression(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         new_last_custom_index = len(expressions.custom)
         custom_expression = expressions.custom.add()
         custom_expression.custom_name = self.custom_expression_name
@@ -349,7 +350,7 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         for custom_index, custom_expression in enumerate(
             list(expressions.custom.values())
         ):
@@ -389,7 +390,7 @@ class VRM_OT_move_up_vrm1_expressions_custom_expression(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         expression_index = next(
             (
                 i
@@ -434,7 +435,7 @@ class VRM_OT_move_down_vrm1_expressions_custom_expression(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         expression_index = next(
             (
                 i
@@ -476,7 +477,7 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        first_person = armature_data.vrm_addon_extension.vrm1.first_person
+        first_person = get_armature_extension(armature_data).vrm1.first_person
         first_person.mesh_annotations.add()
         first_person.active_mesh_annotation_index = (
             len(first_person.mesh_annotations) - 1
@@ -510,7 +511,7 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        first_person = armature_data.vrm_addon_extension.vrm1.first_person
+        first_person = get_armature_extension(armature_data).vrm1.first_person
         if len(first_person.mesh_annotations) <= self.mesh_annotation_index:
             return {"CANCELLED"}
         first_person.mesh_annotations.remove(self.mesh_annotation_index)
@@ -548,7 +549,7 @@ class VRM_OT_move_up_vrm1_first_person_mesh_annotation(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        first_person = armature_data.vrm_addon_extension.vrm1.first_person
+        first_person = get_armature_extension(armature_data).vrm1.first_person
         if len(first_person.mesh_annotations) <= self.mesh_annotation_index:
             return {"CANCELLED"}
         new_index = (self.mesh_annotation_index - 1) % len(
@@ -586,7 +587,7 @@ class VRM_OT_move_down_vrm1_first_person_mesh_annotation(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        first_person = armature_data.vrm_addon_extension.vrm1.first_person
+        first_person = get_armature_extension(armature_data).vrm1.first_person
         if len(first_person.mesh_annotations) <= self.mesh_annotation_index:
             return {"CANCELLED"}
         new_index = (self.mesh_annotation_index + 1) % len(
@@ -623,7 +624,7 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -664,7 +665,7 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -709,7 +710,7 @@ class VRM_OT_move_up_vrm1_expression_morph_target_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -752,7 +753,7 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -791,7 +792,7 @@ class VRM_OT_add_vrm1_expression_material_color_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        ext = armature_data.vrm_addon_extension
+        ext = get_armature_extension(armature_data)
         expression = ext.vrm1.expressions.all_name_to_expression_dict().get(
             self.expression_name
         )
@@ -834,7 +835,7 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -879,7 +880,7 @@ class VRM_OT_move_up_vrm1_expression_material_color_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -922,7 +923,7 @@ class VRM_OT_move_down_vrm1_expression_material_color_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -961,7 +962,7 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -1002,7 +1003,7 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -1047,7 +1048,7 @@ class VRM_OT_move_up_vrm1_expression_texture_transform_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -1090,7 +1091,7 @@ class VRM_OT_move_down_vrm1_expression_texture_transform_bind(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        expressions = armature_data.vrm_addon_extension.vrm1.expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         expression = expressions.all_name_to_expression_dict().get(self.expression_name)
         if expression is None:
             return {"CANCELLED"}
@@ -1136,7 +1137,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
         Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
             context, armature_data.name
         )
-        human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
+        human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
         human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
         bones = armature_data.bones
 
@@ -1144,7 +1145,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
         Vrm0HumanoidPropertyGroup.update_all_node_candidates(
             context, armature_data.name
         )
-        vrm0_humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
+        vrm0_humanoid = get_armature_extension(armature_data).vrm0.humanoid
         if vrm0_humanoid.all_required_bones_are_assigned():
             for vrm0_human_bone in vrm0_humanoid.human_bones:
                 if (
@@ -1203,7 +1204,7 @@ class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
 
     def execute(self, context: Context) -> set[str]:
         for armature in context.blend_data.armatures:
-            expressions = armature.vrm_addon_extension.vrm1.expressions
+            expressions = get_armature_extension(armature).vrm1.expressions
 
             # Set the number of elements equal to the number of elements wanted to show
             # in the UIList.

@@ -1,5 +1,6 @@
 from bpy.types import Context, Mesh, UILayout, UIList
 
+from ..extension import get_armature_extension
 from ..property_group import BonePropertyGroup, StringPropertyGroup
 from .property_group import (
     Vrm0BlendShapeBindPropertyGroup,
@@ -180,7 +181,7 @@ class VRM_UL_vrm0_secondary_animation_group_collider_group(UIList):
 
         secondary_animation = None
         for armature in context.blend_data.armatures:
-            ext = armature.vrm_addon_extension.vrm0
+            ext = get_armature_extension(armature).vrm0
             if any(bone_group == bg for bg in ext.secondary_animation.bone_groups):
                 secondary_animation = ext.secondary_animation
                 break

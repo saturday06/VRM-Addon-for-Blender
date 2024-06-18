@@ -6,6 +6,7 @@ from bpy.app.handlers import persistent
 from mathutils import Vector
 
 from ...common.logging import get_logger
+from ..extension import get_armature_extension
 from .property_group import Vrm1ExpressionPropertyGroup, Vrm1LookAtPropertyGroup
 
 logger = get_logger(__name__)
@@ -46,7 +47,8 @@ def update_look_at_preview() -> Optional[float]:
     changed = any(
         True
         for ext in [
-            armature.vrm_addon_extension for armature in context.blend_data.armatures
+            get_armature_extension(armature)
+            for armature in context.blend_data.armatures
         ]
         if ext.is_vrm1()
         and ext.vrm1.look_at.enable_preview

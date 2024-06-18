@@ -21,7 +21,15 @@ from ..common.version import addon_version
 from ..common.vrm1 import human_bone as vrm1_human_bone
 from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration
-from ..editor.extension import VrmAddonBoneExtensionPropertyGroup as BoneExtension
+from ..editor.extension import (
+    VrmAddonBoneExtensionPropertyGroup as BoneExtension,
+)
+from ..editor.extension import (
+    get_armature_extension,
+    get_bone_extension,
+    get_material_extension,
+    get_object_extension,
+)
 from ..editor.make_armature import (
     connect_parent_tail_and_child_head_if_very_close_position,
 )
@@ -161,7 +169,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         self.reset_material(material)
         material.use_backface_culling = True
 
-        gltf = material.vrm_addon_extension.mtoon1
+        gltf = get_material_extension(material).mtoon1
         gltf.addon_version = addon_version()
         gltf.enabled = True
         mtoon = gltf.extensions.vrmc_materials_mtoon
@@ -432,7 +440,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         armature = self.armature
         if not armature:
             return
-        addon_extension = self.armature_data.vrm_addon_extension
+        addon_extension = get_armature_extension(self.armature_data)
 
         Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
             self.context, self.armature_data.name, force=True
@@ -763,8 +771,10 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 data_bone = armature_data.bones.get(bone_name)
                 if not data_bone:
                     continue
-                data_bone.vrm_addon_extension.axis_translation = (
-                    BoneExtension.reverse_axis_translation(axis_translation)
+                get_bone_extension(
+                    data_bone
+                ).axis_translation = BoneExtension.reverse_axis_translation(
+                    axis_translation
                 )
 
             for node_index in set(constraint_node_index_to_source_index.keys()) | set(
@@ -784,7 +794,9 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                         self.translate_object_axis(
                             object_or_bone,
                             BoneExtension.reverse_axis_translation(
-                                group_object_or_bone.bone.vrm_addon_extension.axis_translation
+                                get_bone_extension(
+                                    group_object_or_bone.bone
+                                ).axis_translation
                             ),
                         )
                         break
@@ -800,15 +812,15 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         obj.select_set(True)
         bpy.ops.object.origin_set(type="ORIGIN_CURSOR", center="MEDIAN")
 
-        obj.vrm_addon_extension.axis_translation = (
-            BoneExtension.reverse_axis_translation(axis_translation)
-        )
+        get_object_extension(
+            obj
+        ).axis_translation = BoneExtension.reverse_axis_translation(axis_translation)
 
     def load_gltf_extensions(self) -> None:
         armature = self.armature
         if not armature:
             return
-        addon_extension = self.armature_data.vrm_addon_extension
+        addon_extension = get_armature_extension(self.armature_data)
         vrm1 = addon_extension.vrm1
 
         addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM1
@@ -1002,7 +1014,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             )
         )
 
-        humanoid = self.armature_data.vrm_addon_extension.vrm1.humanoid
+        humanoid = get_armature_extension(self.armature_data).vrm1.humanoid
         head_bone_name = humanoid.human_bones.head.node.bone_name
         head_bone = self.armature_data.bones.get(head_bone_name)
         if head_bone:
@@ -1011,7 +1023,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 @ BoneExtension.translate_axis(
                     Matrix(),
                     BoneExtension.reverse_axis_translation(
-                        head_bone.vrm_addon_extension.axis_translation
+                        get_bone_extension(head_bone).axis_translation
                     ),
                 )
             )
@@ -1260,7 +1272,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     )
                 )
                 if bone:
-                    axis_translation = bone.vrm_addon_extension.axis_translation
+                    axis_translation = get_bone_extension(bone).axis_translation
                     offset = Vector(offset) @ BoneExtension.translate_axis(
                         Matrix(),
                         BoneExtension.reverse_axis_translation(axis_translation),
@@ -1283,7 +1295,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 )
             )
             if bone:
-                axis_translation = bone.vrm_addon_extension.axis_translation
+                axis_translation = get_bone_extension(bone).axis_translation
                 offset = Vector(offset) @ BoneExtension.translate_axis(
                     Matrix(),
                     BoneExtension.reverse_axis_translation(axis_translation),
@@ -1300,7 +1312,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 )
             )
             if bone:
-                axis_translation = bone.vrm_addon_extension.axis_translation
+                axis_translation = get_bone_extension(bone).axis_translation
                 tail = Vector(tail) @ BoneExtension.translate_axis(
                     Matrix(),
                     BoneExtension.reverse_axis_translation(axis_translation),
@@ -1543,9 +1555,9 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 continue
 
             axis_translation = BoneExtension.reverse_axis_translation(
-                object_or_bone.bone.vrm_addon_extension.axis_translation
+                get_bone_extension(object_or_bone.bone).axis_translation
                 if isinstance(object_or_bone, PoseBone)
-                else object_or_bone.vrm_addon_extension.axis_translation
+                else get_object_extension(object_or_bone).axis_translation
             )
 
             if isinstance(roll_dict, dict):

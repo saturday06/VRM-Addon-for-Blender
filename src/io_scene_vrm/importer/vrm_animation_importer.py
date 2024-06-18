@@ -28,6 +28,7 @@ from ..common.gltf import parse_glb
 from ..common.logging import get_logger
 from ..common.vrm1.human_bone import HumanBoneName
 from ..common.workspace import save_workspace
+from ..editor.extension import get_armature_extension
 
 logger = get_logger(__name__)
 
@@ -308,12 +309,12 @@ def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return {"CANCELLED"}
-    humanoid = armature_data.vrm_addon_extension.vrm1.humanoid
+    humanoid = get_armature_extension(armature_data).vrm1.humanoid
     if not humanoid.human_bones.all_required_bones_are_assigned():
         return {"CANCELLED"}
 
     saved_pose_position = armature_data.pose_position
-    vrm1 = armature_data.vrm_addon_extension.vrm1
+    vrm1 = get_armature_extension(armature_data).vrm1
 
     # TODO: 現状restがTポーズの時しか動作しない
     # TODO: 自動でTポーズを作成する
@@ -361,10 +362,10 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return {"CANCELLED"}
-    humanoid = armature_data.vrm_addon_extension.vrm1.humanoid
+    humanoid = get_armature_extension(armature_data).vrm1.humanoid
     if not humanoid.human_bones.all_required_bones_are_assigned():
         return {"CANCELLED"}
-    look_at = armature_data.vrm_addon_extension.vrm1.look_at
+    look_at = get_armature_extension(armature_data).vrm1.look_at
 
     vrma_dict, buffer0_bytes = parse_glb(path.read_bytes())
 
@@ -729,7 +730,7 @@ def assign_expression_keyframe(
     frame_count: int,
     timestamp: float,
 ) -> None:
-    expressions = armature_data.vrm_addon_extension.vrm1.expressions
+    expressions = get_armature_extension(armature_data).vrm1.expressions
     expression_name_to_expression = expressions.all_name_to_expression_dict()
     for (
         expression_name,
@@ -881,7 +882,7 @@ def assign_humanoid_keyframe(
         HumanBoneName.LEFT_EYE,
         HumanBoneName.RIGHT_EYE,
     ]:
-        human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
+        human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
         human_bone = human_bones.human_bone_name_to_human_bone().get(human_bone_name)
         if human_bone:
             bone = armature.pose.bones.get(human_bone.node.bone_name)

@@ -13,6 +13,7 @@ from idprop.types import IDPropertyGroup
 from ...common import convert, native, shader
 from ...common.gl import GL_LINEAR, GL_NEAREST
 from ...common.logging import get_logger
+from ..extension import get_material_extension
 from .property_group import (
     GL_LINEAR_IMAGE_INTERPOLATIONS,
     IMAGE_INTERPOLATION_CLOSEST,
@@ -113,7 +114,7 @@ def migrate_material(context: Context, material: Material) -> None:
         )
 
     # ここから先は、シェーダーノードが最新の状態になっている想定のコードを書ける
-    typed_mtoon1 = material.vrm_addon_extension.mtoon1
+    typed_mtoon1 = get_material_extension(material).mtoon1
     if alpha_mode is not None:
         typed_mtoon1.alpha_mode = alpha_mode
     if alpha_cutoff is not None:

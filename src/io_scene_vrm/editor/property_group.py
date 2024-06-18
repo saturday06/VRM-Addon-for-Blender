@@ -132,10 +132,12 @@ class BonePropertyGroup(PropertyGroup):
     def get_all_bone_property_groups(
         armature: Object,
     ) -> Iterator["BonePropertyGroup"]:
+        from .extension import get_armature_extension
+
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        ext = armature_data.vrm_addon_extension
+        ext = get_armature_extension(armature_data)
         yield ext.vrm0.first_person.first_person_bone
         for human_bone in ext.vrm0.humanoid.human_bones:
             yield human_bone.node
@@ -216,6 +218,8 @@ class BonePropertyGroup(PropertyGroup):
         return result
 
     def get_bone_name(self) -> str:
+        from .extension import get_bone_extension
+
         context = bpy.context
 
         if not self.bone_uuid:
@@ -228,7 +232,7 @@ class BonePropertyGroup(PropertyGroup):
 
         # TODO: Optimization
         for bone in armature_data.bones:
-            if bone.vrm_addon_extension.uuid == self.bone_uuid:
+            if get_bone_extension(bone).uuid == self.bone_uuid:
                 return bone.name
 
         return ""
@@ -241,6 +245,8 @@ class BonePropertyGroup(PropertyGroup):
     def set_bone_name(
         self, value: Optional[str], *, refresh_node_candidates: bool = False
     ) -> None:
+        from .extension import get_armature_extension, get_bone_extension
+
         context = bpy.context
 
         armature: Optional[Object] = None
@@ -275,10 +281,10 @@ class BonePropertyGroup(PropertyGroup):
         # Reassign UUIDs if duplicate UUIDs exist in case of bone duplication.
         found_uuids: set[str] = set()
         for bone in armature_data.bones:
-            found_uuid = bone.vrm_addon_extension.uuid
+            found_uuid = get_bone_extension(bone).uuid
             if not found_uuid or found_uuid in found_uuids:
-                bone.vrm_addon_extension.uuid = uuid.uuid4().hex
-            found_uuids.add(bone.vrm_addon_extension.uuid)
+                get_bone_extension(bone).uuid = uuid.uuid4().hex
+            found_uuids.add(get_bone_extension(bone).uuid)
 
         if not value or value not in armature_data.bones:
             if not self.bone_uuid:
@@ -286,14 +292,14 @@ class BonePropertyGroup(PropertyGroup):
             self.bone_uuid = ""
         elif (
             self.bone_uuid
-            and self.bone_uuid == armature_data.bones[value].vrm_addon_extension.uuid
+            and self.bone_uuid == get_bone_extension(armature_data.bones[value]).uuid
         ):
             return
         else:
             bone = armature_data.bones[value]
-            self.bone_uuid = bone.vrm_addon_extension.uuid
+            self.bone_uuid = get_bone_extension(bone).uuid
 
-        ext = armature_data.vrm_addon_extension
+        ext = get_armature_extension(armature_data)
         for collider_group in ext.vrm0.secondary_animation.collider_groups:
             collider_group.refresh(armature)
 

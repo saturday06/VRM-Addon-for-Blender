@@ -40,7 +40,9 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
             armature_data = obj.data
             if not isinstance(armature_data, Armature):
                 continue
-            for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
+            for collider in get_armature_spring_bone1_extension(
+                armature_data
+            ).colliders:
                 if collider.shape.sphere == self:
                     return (obj, collider)
         message = "No armature"
@@ -149,7 +151,9 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
             armature_data = obj.data
             if not isinstance(armature_data, Armature):
                 continue
-            for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
+            for collider in get_armature_spring_bone1_extension(
+                armature_data
+            ).colliders:
                 if collider.shape.capsule == self:
                     return (obj, collider)
         message = "No armature"
@@ -329,7 +333,7 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
             if not hasattr(armature, "vrm_addon_extension"):
                 continue
 
-            spring_bone = armature.vrm_addon_extension.spring_bone1
+            spring_bone = get_armature_spring_bone1_extension(armature)
 
             for collider in spring_bone.colliders:
                 if collider.search_one_time_uuid != self.search_one_time_uuid:
@@ -466,7 +470,7 @@ class SpringBone1ColliderReferencePropertyGroup(PropertyGroup):
 
         self.search_one_time_uuid = uuid.uuid4().hex
         for armature in context.blend_data.armatures:
-            spring_bone = armature.vrm_addon_extension.spring_bone1
+            spring_bone = get_armature_spring_bone1_extension(armature)
             for collider_group in spring_bone.collider_groups:
                 for collider_reference in collider_group.colliders:
                     if (
@@ -511,7 +515,7 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
     def fix_index(self, context: Context) -> None:
         self.search_one_time_uuid = uuid.uuid4().hex
         for armature in context.blend_data.armatures:
-            spring_bone = armature.vrm_addon_extension.spring_bone1
+            spring_bone = get_armature_spring_bone1_extension(armature)
 
             for index, collider_group in enumerate(spring_bone.collider_groups):
                 if collider_group.search_one_time_uuid != self.search_one_time_uuid:
@@ -665,7 +669,7 @@ class SpringBone1ColliderGroupReferencePropertyGroup(PropertyGroup):
 
         self.search_one_time_uuid = uuid.uuid4().hex
         for armature in context.blend_data.armatures:
-            spring_bone = armature.vrm_addon_extension.spring_bone1
+            spring_bone = get_armature_spring_bone1_extension(armature)
             for spring in spring_bone.springs:
                 for collider_group_reference in spring.collider_groups:
                     if (
@@ -814,3 +818,14 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
         active_collider_index: int  # type: ignore[no-redef]
         active_collider_group_index: int  # type: ignore[no-redef]
         active_spring_index: int  # type: ignore[no-redef]
+
+
+def get_armature_spring_bone1_extension(
+    armature: Armature,
+) -> SpringBone1SpringBonePropertyGroup:
+    spring_bone1 = getattr(
+        getattr(armature, "vrm_addon_extension", None), "spring_bone1", None
+    )
+    if not isinstance(spring_bone1, SpringBone1SpringBonePropertyGroup):
+        raise TypeError
+    return spring_bone1

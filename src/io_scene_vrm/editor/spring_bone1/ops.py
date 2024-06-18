@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from bpy.props import BoolProperty, FloatProperty, IntProperty, StringProperty
 from bpy.types import Armature, Context, Operator
 
+from ..extension import get_armature_extension
 from .handler import reset_state, update_pose_bone_rotations
 
 
@@ -26,7 +27,7 @@ class VRM_OT_add_spring_bone1_collider(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone = get_armature_extension(armature_data).spring_bone1
         collider = spring_bone.colliders.add()
         collider.uuid = uuid.uuid4().hex
         collider.shape.sphere.radius = 0.125
@@ -61,7 +62,7 @@ class VRM_OT_remove_spring_bone1_collider(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone = get_armature_extension(armature_data).spring_bone1
         if len(spring_bone.colliders) <= self.collider_index:
             return {"CANCELLED"}
 
@@ -126,7 +127,7 @@ class VRM_OT_move_up_spring_bone1_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone = get_armature_extension(armature_data).spring_bone1
         if len(spring_bone.collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         new_index = (self.collider_group_index - 1) % len(spring_bone.collider_groups)
@@ -164,7 +165,7 @@ class VRM_OT_move_down_spring_bone1_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone = get_armature_extension(armature_data).spring_bone1
         if len(spring_bone.collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         new_index = (self.collider_group_index + 1) % len(spring_bone.collider_groups)
@@ -198,7 +199,7 @@ class VRM_OT_add_spring_bone1_spring(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone1 = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
         spring = spring_bone1.springs.add()
         spring.vrm_name = "Spring"
         spring_bone1.active_spring_index = len(spring_bone1.springs) - 1
@@ -231,7 +232,7 @@ class VRM_OT_remove_spring_bone1_spring(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone1 = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
         if len(spring_bone1.springs) <= self.spring_index:
             return {"CANCELLED"}
         spring_bone1.springs.remove(self.spring_index)
@@ -269,7 +270,7 @@ class VRM_OT_move_up_spring_bone1_spring(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone1 = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
         springs = spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
@@ -306,7 +307,7 @@ class VRM_OT_move_down_spring_bone1_spring(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone1 = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
         springs = spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
@@ -339,7 +340,7 @@ class VRM_OT_add_spring_bone1_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone = get_armature_extension(armature_data).spring_bone1
         collider_group = spring_bone.collider_groups.add()
         collider_group.uuid = uuid.uuid4().hex
         collider_group.vrm_name = "Collider Group"
@@ -373,7 +374,7 @@ class VRM_OT_remove_spring_bone1_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone = get_armature_extension(armature_data).spring_bone1
         collider_groups = spring_bone.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
@@ -428,7 +429,7 @@ class VRM_OT_move_up_spring_bone1_collider(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone1 = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
         colliders = spring_bone1.colliders
         if len(colliders) <= self.collider_index:
             return {"CANCELLED"}
@@ -465,7 +466,7 @@ class VRM_OT_move_down_spring_bone1_collider(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone1 = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
         colliders = spring_bone1.colliders
         if len(colliders) <= self.collider_index:
             return {"CANCELLED"}
@@ -502,7 +503,9 @@ class VRM_OT_add_spring_bone1_collider_group_collider(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        collider_groups = armature_data.vrm_addon_extension.spring_bone1.collider_groups
+        collider_groups = get_armature_extension(
+            armature_data
+        ).spring_bone1.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         collider_group = collider_groups[self.collider_group_index]
@@ -542,7 +545,9 @@ class VRM_OT_remove_spring_bone1_collider_group_collider(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        collider_groups = armature_data.vrm_addon_extension.spring_bone1.collider_groups
+        collider_groups = get_armature_extension(
+            armature_data
+        ).spring_bone1.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         collider_group = collider_groups[self.collider_group_index]
@@ -588,7 +593,7 @@ class VRM_OT_move_up_spring_bone1_collider_group_collider(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone1 = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
         if len(spring_bone1.collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         collider_group = spring_bone1.collider_groups[self.collider_group_index]
@@ -632,7 +637,7 @@ class VRM_OT_move_down_spring_bone1_collider_group_collider(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone1 = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
         if len(spring_bone1.collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         collider_group = spring_bone1.collider_groups[self.collider_group_index]
@@ -672,7 +677,7 @@ class VRM_OT_add_spring_bone1_spring_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        springs = armature_data.vrm_addon_extension.spring_bone1.springs
+        springs = get_armature_extension(armature_data).spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         spring = springs[self.spring_index]
@@ -712,7 +717,7 @@ class VRM_OT_remove_spring_bone1_spring_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        springs = armature_data.vrm_addon_extension.spring_bone1.springs
+        springs = get_armature_extension(armature_data).spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         spring = springs[self.spring_index]
@@ -757,7 +762,7 @@ class VRM_OT_move_up_spring_bone1_spring_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone1 = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
         springs = spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
@@ -804,7 +809,7 @@ class VRM_OT_move_down_spring_bone1_spring_collider_group(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone1 = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
         springs = spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
@@ -850,7 +855,7 @@ class VRM_OT_add_spring_bone1_joint(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        springs = armature_data.vrm_addon_extension.spring_bone1.springs
+        springs = get_armature_extension(armature_data).spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         spring = springs[self.spring_index]
@@ -905,7 +910,7 @@ class VRM_OT_remove_spring_bone1_joint(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        springs = armature_data.vrm_addon_extension.spring_bone1.springs
+        springs = get_armature_extension(armature_data).spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         spring = springs[self.spring_index]
@@ -950,7 +955,7 @@ class VRM_OT_move_up_spring_bone1_joint(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone1 = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
         springs = spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
@@ -995,7 +1000,7 @@ class VRM_OT_move_down_spring_bone1_joint(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        spring_bone1 = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
         springs = spring_bone1.springs
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
@@ -1032,7 +1037,7 @@ class VRM_OT_reset_spring_bone1_animation_state(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-        for spring in armature_data.vrm_addon_extension.spring_bone1.springs:
+        for spring in get_armature_extension(armature_data).spring_bone1.springs:
             for joint in spring.joints:
                 joint.animation_state.initialized_as_tail = False
         reset_state(context)

@@ -244,6 +244,8 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         *,
         force: bool = False,
     ) -> None:
+        from ..extension import get_armature_extension
+
         if context is None:
             context = bpy.context
 
@@ -251,7 +253,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         if not armature_data:
             return
         bones = armature_data.bones.values()
-        humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
+        humanoid = get_armature_extension(armature_data).vrm0.humanoid
         bone_names: list[str] = []
         for bone in sorted(bones, key=lambda b: str(b.name)):
             bone_names.append(bone.name)
@@ -284,11 +286,13 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
 
     @staticmethod
     def fixup_human_bones(obj: Object) -> None:
+        from ..extension import get_armature_extension
+
         armature_data = obj.data
         if not isinstance(armature_data, Armature):
             return
 
-        humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
+        humanoid = get_armature_extension(armature_data).vrm0.humanoid
 
         # 存在していないボーンマップを追加
         refresh = False
@@ -338,7 +342,9 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         if not refresh:
             return
 
-        secondary_animation = armature_data.vrm_addon_extension.vrm0.secondary_animation
+        secondary_animation = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation
         for collider_group in secondary_animation.collider_groups:
             collider_group.refresh(obj)
         for bone_group in secondary_animation.bone_groups:
@@ -742,6 +748,8 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
     )
 
     def refresh(self, armature: Object) -> None:
+        from ..extension import get_armature_extension
+
         self.name = (
             str(self.node.bone_name) if self.node and self.node.bone_name else ""
         ) + f"#{self.uuid}"
@@ -755,9 +763,9 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        for (
-            bone_group
-        ) in armature_data.vrm_addon_extension.vrm0.secondary_animation.bone_groups:
+        for bone_group in get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation.bone_groups:
             bone_group.refresh(armature)
 
     # for UI
@@ -865,10 +873,12 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
     active_collider_group_index: IntProperty(min=0)  # type: ignore[valid-type]
 
     def refresh(self, armature: Object) -> None:
+        from ..extension import get_armature_extension
+
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        ext = armature_data.vrm_addon_extension
+        ext = get_armature_extension(armature_data)
         collider_group_uuid_to_name = {
             collider_group.uuid: collider_group.name
             for collider_group in ext.vrm0.secondary_animation.collider_groups

@@ -13,6 +13,7 @@ from ..common import shader
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.workspace import save_workspace
+from ..editor.extension import get_armature_extension
 from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
 from ..editor.vrm1.property_group import Vrm1HumanoidPropertyGroup
 from ..external import io_scene_gltf2_support
@@ -85,7 +86,7 @@ class AbstractBaseVrmExporter(ABC):
                 bone.name: bone.matrix.copy() for bone in armature.pose.bones
             }
 
-            ext = armature_data.vrm_addon_extension
+            ext = get_armature_extension(armature_data)
             saved_vrm1_look_at_preview = ext.vrm1.look_at.enable_preview
             if ext.is_vrm1() and ext.vrm1.look_at.enable_preview:
                 # TODO: エクスポート時にここに到達する場合は事前に警告をすると親切
@@ -148,7 +149,7 @@ class AbstractBaseVrmExporter(ABC):
                 armature_data.pose_position = saved_pose_position
                 bpy.ops.object.mode_set(mode="OBJECT")
 
-                ext = armature_data.vrm_addon_extension
+                ext = get_armature_extension(armature_data)
                 if (
                     ext.is_vrm1()
                     and ext.vrm1.look_at.enable_preview != saved_vrm1_look_at_preview
@@ -159,7 +160,7 @@ class AbstractBaseVrmExporter(ABC):
     def clear_blend_shape_proxy_previews(
         self, armature_data: Armature
     ) -> Iterator[None]:
-        ext = armature_data.vrm_addon_extension
+        ext = get_armature_extension(armature_data)
 
         saved_vrm0_previews: list[float] = []
         for blend_shape_group in ext.vrm0.blend_shape_master.blend_shape_groups:

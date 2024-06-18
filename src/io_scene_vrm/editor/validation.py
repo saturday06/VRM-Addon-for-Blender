@@ -29,8 +29,9 @@ from ..common.mtoon_unversioned import MtoonUnversioned
 from ..common.preferences import get_preferences
 from ..common.vrm0 import human_bone as vrm0_human_bone
 from ..common.vrm1 import human_bone as vrm1_human_bone
-from ..editor.property_group import CollectionPropertyProtocol
 from . import migration, search
+from .extension import get_armature_extension, get_material_extension
+from .property_group import CollectionPropertyProtocol
 
 logger = get_logger(__name__)
 
@@ -111,7 +112,7 @@ class WM_OT_vrm_validator(Operator):
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
-        humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
+        humanoid = get_armature_extension(armature_data).vrm0.humanoid
         if readonly:
             humanoid.defer_update_all_node_candidates(armature_data.name)
         else:
@@ -148,7 +149,7 @@ class WM_OT_vrm_validator(Operator):
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
-        human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
+        human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
         if readonly:
             human_bones.defer_update_all_node_candidates(armature_data.name)
         else:
@@ -190,7 +191,7 @@ class WM_OT_vrm_validator(Operator):
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
-        if armature_data.vrm_addon_extension.is_vrm0():
+        if get_armature_extension(armature_data).is_vrm0():
             WM_OT_vrm_validator.validate_bone_order_vrm0(
                 context, messages, armature, readonly=readonly
             )
@@ -329,15 +330,15 @@ class WM_OT_vrm_validator(Operator):
 
                 # TODO: T_POSE,
                 all_required_bones_exist = True
-                if armature_data.vrm_addon_extension.is_vrm1():
+                if get_armature_extension(armature_data).is_vrm1():
                     _, _, constraint_warning_messages = search.export_constraints(
                         export_objects, armature
                     )
                     skippable_warning_messages.extend(constraint_warning_messages)
 
-                    human_bones = (
-                        armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
-                    )
+                    human_bones = get_armature_extension(
+                        armature_data
+                    ).vrm1.humanoid.human_bones
 
                     human_bone_name_to_human_bone = (
                         human_bones.human_bone_name_to_human_bone()
@@ -418,7 +419,7 @@ class WM_OT_vrm_validator(Operator):
                         )
 
                 else:
-                    humanoid = armature_data.vrm_addon_extension.vrm0.humanoid
+                    humanoid = get_armature_extension(armature_data).vrm0.humanoid
                     human_bones = humanoid.human_bones
                     all_required_bones_exist = True
                     for (
@@ -469,7 +470,7 @@ class WM_OT_vrm_validator(Operator):
         if (
             armature is not None
             and isinstance(armature.data, Armature)
-            and armature.data.vrm_addon_extension.is_vrm1()
+            and get_armature_extension(armature.data).is_vrm1()
         ):
             error_messages.extend(
                 pgettext(
@@ -482,7 +483,7 @@ class WM_OT_vrm_validator(Operator):
             )
 
             joint_chain_bone_names_to_spring_vrm_name: dict[str, str] = {}
-            for spring in armature.data.vrm_addon_extension.spring_bone1.springs:
+            for spring in get_armature_extension(armature.data).spring_bone1.springs:
                 joint_bone_names: list[str] = []
                 for joint in spring.joints:
                     bone_name = joint.node.bone_name
@@ -546,7 +547,7 @@ class WM_OT_vrm_validator(Operator):
                     if (
                         armature is not None
                         and isinstance(armature.data, Armature)
-                        and armature.data.vrm_addon_extension.is_vrm1()
+                        and get_armature_extension(armature.data).is_vrm1()
                     ):
                         continue
                     info_messages.append(
@@ -578,7 +579,7 @@ class WM_OT_vrm_validator(Operator):
                         vertex_error_count = vertex_error_count + 1
 
         for mat in used_materials:
-            if not mat.node_tree or mat.vrm_addon_extension.mtoon1.enabled:
+            if not mat.node_tree or get_material_extension(mat).mtoon1.enabled:
                 continue
             for node in mat.node_tree.nodes:
                 if node.type != "OUTPUT_MATERIAL":
@@ -668,7 +669,7 @@ class WM_OT_vrm_validator(Operator):
                 )
 
         for mat in used_materials:
-            gltf = mat.vrm_addon_extension.mtoon1
+            gltf = get_material_extension(mat).mtoon1
             if not gltf.enabled:
                 continue
 
@@ -676,7 +677,7 @@ class WM_OT_vrm_validator(Operator):
                 downgrade_to_mtoon0=(
                     armature is None
                     or not isinstance(armature.data, Armature)
-                    or armature.data.vrm_addon_extension.is_vrm0()
+                    or get_armature_extension(armature.data).is_vrm0()
                 )
             ):
                 source = texture.source
@@ -707,7 +708,7 @@ class WM_OT_vrm_validator(Operator):
                 if (
                     armature is None
                     or not isinstance(armature.data, Armature)
-                    or not armature.data.vrm_addon_extension.is_vrm0()
+                    or not get_armature_extension(armature.data).is_vrm0()
                     or not source
                 ):
                     continue
@@ -754,7 +755,7 @@ class WM_OT_vrm_validator(Operator):
         if (
             armature is not None
             and isinstance(armature.data, Armature)
-            and armature.data.vrm_addon_extension.is_vrm0()
+            and get_armature_extension(armature.data).is_vrm0()
         ):
             if export_fb_ngon_encoding:
                 warning_messages.append(
@@ -765,7 +766,7 @@ class WM_OT_vrm_validator(Operator):
                 )
 
             # first_person
-            first_person = armature.data.vrm_addon_extension.vrm0.first_person
+            first_person = get_armature_extension(armature.data).vrm0.first_person
             if not first_person.first_person_bone.bone_name:
                 info_messages.append(
                     pgettext(
@@ -776,9 +777,9 @@ class WM_OT_vrm_validator(Operator):
 
             # blend_shape_master
             # TODO: material value and material existence
-            blend_shape_master = (
-                armature.data.vrm_addon_extension.vrm0.blend_shape_master
-            )
+            blend_shape_master = get_armature_extension(
+                armature.data
+            ).vrm0.blend_shape_master
             for blend_shape_group in blend_shape_master.blend_shape_groups:
                 for bind in blend_shape_group.binds:
                     mesh_object = context.blend_data.objects.get(

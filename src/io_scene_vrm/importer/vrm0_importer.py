@@ -21,6 +21,7 @@ from ..common.logging import get_logger
 from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration
+from ..editor.extension import get_armature_extension, get_material_extension
 from ..editor.make_armature import (
     connect_parent_tail_and_child_head_if_very_close_position,
 )
@@ -157,7 +158,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_15_26/io_scene_vrm/editor/mtoon1/ops.py#L98
         material.use_backface_culling = True
 
-        gltf = material.vrm_addon_extension.mtoon1
+        gltf = get_material_extension(material).mtoon1
         gltf.addon_version = addon_version()
         gltf.enabled = True
         gltf.show_expanded_mtoon0 = True
@@ -426,7 +427,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         material: Material,
         vrm0_material_property: Vrm0MaterialProperty,
     ) -> None:
-        gltf = material.vrm_addon_extension.mtoon1
+        gltf = get_material_extension(material).mtoon1
         gltf.enabled = True
         mtoon = gltf.extensions.vrmc_materials_mtoon
 
@@ -467,7 +468,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         armature = self.armature
         if not armature:
             return
-        addon_extension = self.armature_data.vrm_addon_extension
+        addon_extension = get_armature_extension(self.armature_data)
         addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM0
         vrm0 = addon_extension.vrm0
 
@@ -1086,7 +1087,7 @@ def setup_bones(context: Context, armature: Object) -> None:
     """
     if not isinstance(armature.data, Armature):
         return
-    addon_extension = armature.data.vrm_addon_extension
+    addon_extension = get_armature_extension(armature.data)
 
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
     Vrm0HumanoidPropertyGroup.update_all_node_candidates(

@@ -20,6 +20,7 @@ from bpy.types import (
 )
 
 from ..common.logging import get_logger
+from .extension import get_armature_extension
 
 logger = get_logger(__name__)
 
@@ -188,7 +189,7 @@ def current_armature_is_vrm0(context: Context) -> bool:
         return False
     if all(
         hasattr(armature_data, "vrm_addon_extension")
-        and armature_data.vrm_addon_extension.is_vrm0()
+        and get_armature_extension(armature_data).is_vrm0()
         for armature_data in live_armature_datum
     ) and any(obj.type == "ARMATURE" for obj in context.blend_data.objects):
         return True
@@ -198,7 +199,7 @@ def current_armature_is_vrm0(context: Context) -> bool:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return False
-    return armature_data.vrm_addon_extension.is_vrm0()
+    return get_armature_extension(armature_data).is_vrm0()
 
 
 def current_armature_is_vrm1(context: Context) -> bool:
@@ -211,7 +212,7 @@ def current_armature_is_vrm1(context: Context) -> bool:
         return False
     if all(
         hasattr(armature_data, "vrm_addon_extension")
-        and armature_data.vrm_addon_extension.is_vrm1()
+        and get_armature_extension(armature_data).is_vrm1()
         for armature_data in live_armature_datum
     ) and any(obj.type == "ARMATURE" for obj in context.blend_data.objects):
         return True
@@ -221,7 +222,7 @@ def current_armature_is_vrm1(context: Context) -> bool:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return False
-    return armature_data.vrm_addon_extension.is_vrm1()
+    return get_armature_extension(armature_data).is_vrm1()
 
 
 def multiple_armatures_exist(context: Context) -> bool:
@@ -651,7 +652,7 @@ def active_object_is_vrm1_armature(context: Context) -> bool:
     armature_data = active_object.data
     if not isinstance(armature_data, Armature):
         return False
-    return armature_data.vrm_addon_extension.is_vrm1()
+    return get_armature_extension(armature_data).is_vrm1()
 
 
 def active_object_is_vrm0_armature(context: Context) -> bool:
@@ -663,4 +664,4 @@ def active_object_is_vrm0_armature(context: Context) -> bool:
     armature_data = active_object.data
     if not isinstance(armature_data, Armature):
         return False
-    return armature_data.vrm_addon_extension.is_vrm0()
+    return get_armature_extension(armature_data).is_vrm0()

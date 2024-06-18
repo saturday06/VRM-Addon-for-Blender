@@ -453,27 +453,27 @@ def register() -> None:
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    NodeTree.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
+    NodeTree.vrm_addon_extension = PointerProperty(  # type: ignore[attr-defined]
         type=extension.VrmAddonNodeTreeExtensionPropertyGroup
     )
 
-    Material.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
+    Material.vrm_addon_extension = PointerProperty(  # type: ignore[attr-defined]
         type=extension.VrmAddonMaterialExtensionPropertyGroup
     )
 
-    Scene.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
+    Scene.vrm_addon_extension = PointerProperty(  # type: ignore[attr-defined]
         type=extension.VrmAddonSceneExtensionPropertyGroup
     )
 
-    Bone.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
+    Bone.vrm_addon_extension = PointerProperty(  # type: ignore[attr-defined]
         type=extension.VrmAddonBoneExtensionPropertyGroup
     )
 
-    Armature.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
+    Armature.vrm_addon_extension = PointerProperty(  # type: ignore[attr-defined]
         type=extension.VrmAddonArmatureExtensionPropertyGroup
     )
 
-    Object.vrm_addon_extension = PointerProperty(  # type: ignore[assignment]
+    Object.vrm_addon_extension = PointerProperty(  # type: ignore[attr-defined]
         type=extension.VrmAddonObjectExtensionPropertyGroup
     )
 

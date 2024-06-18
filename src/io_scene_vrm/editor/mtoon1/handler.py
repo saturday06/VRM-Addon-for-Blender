@@ -6,6 +6,7 @@ from bpy.app.handlers import persistent
 from bpy.types import Mesh
 
 from ...common.logging import get_logger
+from ..extension import get_material_extension
 from .ops import VRM_OT_refresh_mtoon1_outline
 
 logger = get_logger(__name__)
@@ -25,9 +26,9 @@ def update_mtoon1_outline() -> Optional[float]:
         [
             (
                 material_slot.material.name,
-                material_slot.material.vrm_addon_extension.mtoon1.get_enabled_in_material(
+                get_material_extension(
                     material_slot.material
-                ),
+                ).mtoon1.get_enabled_in_material(material_slot.material),
                 has_auto_smooth and obj.data.use_auto_smooth,
             )
             if material_slot.material

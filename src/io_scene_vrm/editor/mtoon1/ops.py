@@ -24,6 +24,7 @@ from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 from ...common import convert, shader
 from ...common.logging import get_logger
 from .. import search
+from ..extension import get_material_extension
 from .property_group import (
     Mtoon0ReceiveShadowTexturePropertyGroup,
     Mtoon0ShadingGradeTexturePropertyGroup,
@@ -152,7 +153,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
             reset_node_groups=False,
         )
 
-        gltf = material.vrm_addon_extension.mtoon1
+        gltf = get_material_extension(material).mtoon1
         gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
         if base_color_texture_image:
             gltf.pbr_metallic_roughness.base_color_texture.index.source = (
@@ -356,7 +357,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
 
         shader.load_mtoon1_shader(context, material, reset_node_groups=True)
 
-        gltf = material.vrm_addon_extension.mtoon1
+        gltf = get_material_extension(material).mtoon1
         mtoon = gltf.extensions.vrmc_materials_mtoon
 
         gltf.alpha_mode = alpha_mode
@@ -513,7 +514,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(Operator):
             return
 
         principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
-        gltf = material.vrm_addon_extension.mtoon1
+        gltf = get_material_extension(material).mtoon1
 
         principled_bsdf.base_color = gltf.pbr_metallic_roughness.base_color_factor[:3]
         base_color_texture_image = (
@@ -653,7 +654,7 @@ class VRM_OT_import_mtoon1_texture_image_file(Operator, ImportHelper):
         if not isinstance(material, Material):
             return {"FINISHED"}
 
-        gltf = material.vrm_addon_extension.mtoon1
+        gltf = get_material_extension(material).mtoon1
         mtoon = gltf.extensions.vrmc_materials_mtoon
 
         for texture in [
@@ -771,7 +772,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
         )
         if not node_group:
             return
-        mtoon = material.vrm_addon_extension.mtoon1.extensions.vrmc_materials_mtoon
+        mtoon = get_material_extension(material).mtoon1.extensions.vrmc_materials_mtoon
         outline_width_mode_value = next(
             (
                 value
@@ -831,7 +832,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
         outline_material_name = f"MToon Outline ({material.name})"
         modifier_name = f"MToon Outline ({material.name})"
 
-        outline_material = material.vrm_addon_extension.mtoon1.outline_material
+        outline_material = get_material_extension(material).mtoon1.outline_material
         reset_outline_material = not outline_material
         if reset_outline_material:
             outline_material = context.blend_data.materials.new(
@@ -846,28 +847,28 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
             shader.load_mtoon1_shader(
                 context, outline_material, reset_node_groups=False
             )
-            outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
-            material.vrm_addon_extension.mtoon1.outline_material = outline_material
+            get_material_extension(outline_material).mtoon1.is_outline_material = True
+            get_material_extension(material).mtoon1.outline_material = outline_material
         if outline_material.name != outline_material_name:
             outline_material.name = outline_material_name
         if not outline_material.use_nodes:
             outline_material.use_nodes = True
-        if not outline_material.vrm_addon_extension.mtoon1.is_outline_material:
-            outline_material.vrm_addon_extension.mtoon1.is_outline_material = True
+        if not get_material_extension(outline_material).mtoon1.is_outline_material:
+            get_material_extension(outline_material).mtoon1.is_outline_material = True
         if (
-            outline_material.vrm_addon_extension.mtoon1.alpha_cutoff
-            != material.vrm_addon_extension.mtoon1.alpha_cutoff
+            get_material_extension(outline_material).mtoon1.alpha_cutoff
+            != get_material_extension(material).mtoon1.alpha_cutoff
         ):
-            outline_material.vrm_addon_extension.mtoon1.alpha_cutoff = (
-                material.vrm_addon_extension.mtoon1.alpha_cutoff
-            )
+            get_material_extension(
+                outline_material
+            ).mtoon1.alpha_cutoff = get_material_extension(material).mtoon1.alpha_cutoff
         if (
-            outline_material.vrm_addon_extension.mtoon1.alpha_mode
-            != material.vrm_addon_extension.mtoon1.alpha_mode
+            get_material_extension(outline_material).mtoon1.alpha_mode
+            != get_material_extension(material).mtoon1.alpha_mode
         ):
-            outline_material.vrm_addon_extension.mtoon1.alpha_mode = (
-                material.vrm_addon_extension.mtoon1.alpha_mode
-            )
+            get_material_extension(
+                outline_material
+            ).mtoon1.alpha_mode = get_material_extension(material).mtoon1.alpha_mode
         if outline_material.shadow_method != "NONE":
             outline_material.shadow_method = "NONE"
         if not outline_material.use_backface_culling:
@@ -995,9 +996,9 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
             material = context.blend_data.materials.get(material_slot.material.name)
             if not material:
                 continue
-            if not material.vrm_addon_extension.mtoon1.enabled:
+            if not get_material_extension(material).mtoon1.enabled:
                 continue
-            if material.vrm_addon_extension.mtoon1.is_outline_material:
+            if get_material_extension(material).mtoon1.is_outline_material:
                 continue
 
             VRM_OT_refresh_mtoon1_outline.assign(
@@ -1028,9 +1029,9 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
                 material = context.blend_data.materials.get(material_slot.material.name)
                 if not material:
                     continue
-                if not material.vrm_addon_extension.mtoon1.enabled:
+                if not get_material_extension(material).mtoon1.enabled:
                     continue
-                if material.vrm_addon_extension.mtoon1.is_outline_material:
+                if get_material_extension(material).mtoon1.is_outline_material:
                     continue
 
                 VRM_OT_refresh_mtoon1_outline.assign(

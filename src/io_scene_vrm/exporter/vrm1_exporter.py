@@ -33,6 +33,7 @@ from ..common.version import addon_version
 from ..common.vrm1.human_bone import HumanBoneName
 from ..common.workspace import save_workspace
 from ..editor import search
+from ..editor.extension import get_armature_extension, get_material_extension
 from ..editor.mtoon1.property_group import (
     Mtoon1SamplerPropertyGroup,
     Mtoon1TextureInfoPropertyGroup,
@@ -84,7 +85,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
 
-        for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
+        for collider in get_armature_extension(armature_data).spring_bone1.colliders:
             if not collider.bpy_object:
                 continue
             if collider.bpy_object in self.export_objects:
@@ -932,7 +933,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             "specVersion": "1.0",
         }
 
-        gltf = material.vrm_addon_extension.mtoon1
+        gltf = get_material_extension(material).mtoon1
         mtoon = gltf.extensions.vrmc_materials_mtoon
 
         extensions_dict: dict[str, Json] = {
@@ -1625,7 +1626,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             ):
                 continue
 
-            if material.vrm_addon_extension.mtoon1.enabled:
+            if get_material_extension(material).mtoon1.enabled:
                 material_dicts[index] = cls.create_mtoon1_material_dict(
                     json_dict,
                     body_binary,
@@ -1682,7 +1683,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         for material in context.blend_data.materials:
             if not material:
                 continue
-            if material.vrm_addon_extension.mtoon1.enabled and material.use_nodes:
+            if get_material_extension(material).mtoon1.enabled and material.use_nodes:
                 material.use_nodes = False
                 disabled_material_names.append(material.name)
         try:
@@ -1730,9 +1731,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     material = context.blend_data.materials.get(search_material_name)
                     if not material:
                         continue
-                    if material.vrm_addon_extension.mtoon1.export_shape_key_normals:
+                    if get_material_extension(material).mtoon1.export_shape_key_normals:
                         continue
-                    if material.vrm_addon_extension.mtoon1.enabled:
+                    if get_material_extension(material).mtoon1.enabled:
                         skip = False
                         break
                     node, vrm_shader_name = search.vrm_shader_node(material)
@@ -1760,7 +1761,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         armature: Object,
         armature_data: Armature,
     ) -> Iterator[None]:
-        ext = armature_data.vrm_addon_extension
+        ext = get_armature_extension(armature_data)
         human_bones = ext.vrm1.humanoid.human_bones
         if human_bones.all_required_bones_are_assigned():
             yield
@@ -1981,7 +1982,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
 
-        vrm = armature_data.vrm_addon_extension.vrm1
+        vrm = get_armature_extension(armature_data).vrm1
         with (
             save_workspace(self.context),
             self.setup_dummy_human_bones(self.context, self.armature, armature_data),
@@ -2041,7 +2042,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
 
-        vrm = armature_data.vrm_addon_extension.vrm1
+        vrm = get_armature_extension(armature_data).vrm1
 
         json_dict, body_binary = parse_glb(extra_name_assigned_glb)
         body_binary = bytearray(body_binary)
@@ -2309,7 +2310,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         extensions_used.append("VRMC_vrm")
         extensions["VRMC_vrm"] = {
-            "specVersion": armature_data.vrm_addon_extension.spec_version,
+            "specVersion": get_armature_extension(armature_data).spec_version,
             "meta": self.create_meta_dict(
                 vrm.meta,
                 json_dict,
@@ -2332,7 +2333,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             ),
         }
 
-        spring_bone = armature_data.vrm_addon_extension.spring_bone1
+        spring_bone = get_armature_extension(armature_data).spring_bone1
         spring_bone_dict: dict[str, Json] = {}
 
         (

@@ -4,6 +4,7 @@ from idprop.types import IDPropertyGroup
 from mathutils import Vector
 
 from ...common import convert, shader
+from ..extension import get_armature_extension
 from .property_group import (
     Vrm1ExpressionPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
@@ -181,7 +182,7 @@ def migrate_old_expressions_layout(expressions: Vrm1ExpressionsPropertyGroup) ->
 
 
 def migrate_pose(context: Context, armature_data: Armature) -> None:
-    ext = armature_data.vrm_addon_extension
+    ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 20, 34):
         return
 
@@ -213,20 +214,20 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
                 armature_name=armature.name
             )
 
-    if tuple(armature_data.vrm_addon_extension.addon_version) <= (2, 14, 10):
-        ext = armature_data.vrm_addon_extension
+    if tuple(get_armature_extension(armature_data).addon_version) <= (2, 14, 10):
+        ext = get_armature_extension(armature_data)
         head_bone_name = ext.vrm1.humanoid.human_bones.head.node.bone_name
         head_bone = armature_data.bones.get(head_bone_name)
         if head_bone:
-            look_at = armature_data.vrm_addon_extension.vrm1.look_at
+            look_at = get_armature_extension(armature_data).vrm1.look_at
             world_translation = (
                 armature.matrix_world @ head_bone.matrix_local
             ).to_quaternion() @ Vector(look_at.offset_from_head_bone)
             look_at.offset_from_head_bone = list(world_translation)
 
-    if tuple(armature_data.vrm_addon_extension.addon_version) <= (2, 15, 5):
+    if tuple(get_armature_extension(armature_data).addon_version) <= (2, 15, 5):
         # Apply lower limit value
-        look_at = armature_data.vrm_addon_extension.vrm1.look_at
+        look_at = get_armature_extension(armature_data).vrm1.look_at
         look_at.range_map_horizontal_inner.input_max_value = (
             look_at.range_map_horizontal_inner.input_max_value
         )
@@ -240,13 +241,13 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
             look_at.range_map_vertical_up.input_max_value
         )
 
-    if tuple(armature_data.vrm_addon_extension.addon_version) < (2, 18, 0):
+    if tuple(get_armature_extension(armature_data).addon_version) < (2, 18, 0):
         migrate_old_expressions_layout(
-            armature_data.vrm_addon_extension.vrm1.expressions
+            get_armature_extension(armature_data).vrm1.expressions
         )
 
-    if tuple(armature_data.vrm_addon_extension.addon_version) < (2, 20, 0):
-        look_at = armature_data.vrm_addon_extension.vrm1.look_at
+    if tuple(get_armature_extension(armature_data).addon_version) < (2, 20, 0):
+        look_at = get_armature_extension(armature_data).vrm1.look_at
         look_at.offset_from_head_bone = (
             look_at.offset_from_head_bone[0],
             look_at.offset_from_head_bone[2],
@@ -257,7 +258,7 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
 
     # Expressionのプリセットに名前を設定する
     # 管理上は無くてもよいが、アニメーションキーフレームに表示されるので設定しておきたい
-    expressions = armature_data.vrm_addon_extension.vrm1.expressions
+    expressions = get_armature_extension(armature_data).vrm1.expressions
     preset_name_to_expression_dict = expressions.preset.name_to_expression_dict()
     for preset_name, preset_expression in preset_name_to_expression_dict.items():
         if preset_expression.name != preset_name:

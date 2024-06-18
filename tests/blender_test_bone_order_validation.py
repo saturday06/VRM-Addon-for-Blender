@@ -1,6 +1,8 @@
 import bpy
 from bpy.types import Armature, Context
 
+from io_scene_vrm.editor.extension import get_armature_extension
+
 
 def test(context: Context) -> None:
     bpy.ops.icyp.make_basic_armature()
@@ -10,7 +12,7 @@ def test(context: Context) -> None:
     if not isinstance(armature.data, Armature):
         raise TypeError
 
-    humanoid = armature.data.vrm_addon_extension.vrm0.humanoid
+    humanoid = get_armature_extension(armature.data).vrm0.humanoid
     assert bpy.ops.vrm.model_validate() == {"FINISHED"}
 
     spine_bone = next(b for b in humanoid.human_bones if b.bone == "spine")

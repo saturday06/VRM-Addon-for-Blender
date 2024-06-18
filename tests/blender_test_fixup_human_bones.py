@@ -2,6 +2,7 @@ import bpy
 from bpy.types import Armature, Context
 
 from io_scene_vrm.common.vrm0.human_bone import HumanBoneName
+from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
 
 
@@ -13,7 +14,7 @@ def test(context: Context) -> None:
     if not isinstance(armature.data, Armature):
         raise TypeError
 
-    human_bones = armature.data.vrm_addon_extension.vrm0.humanoid.human_bones
+    human_bones = get_armature_extension(armature.data).vrm0.humanoid.human_bones
 
     original = [(str(b.node.bone_name), str(b.bone)) for b in human_bones]
 

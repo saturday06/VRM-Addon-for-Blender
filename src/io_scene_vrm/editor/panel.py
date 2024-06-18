@@ -20,6 +20,7 @@ from . import (
     search,
     validation,
 )
+from .extension import get_armature_extension
 from .ops import layout_operator
 
 __AddOperator = TypeVar("__AddOperator", bound=Operator)
@@ -266,7 +267,7 @@ class VRM_PT_controller(Panel):
             armature_data = armature.data
             if isinstance(armature_data, Armature):
                 layout.prop(
-                    armature_data.vrm_addon_extension,
+                    get_armature_extension(armature_data),
                     "spec_version",
                     text="",
                     translate=False,

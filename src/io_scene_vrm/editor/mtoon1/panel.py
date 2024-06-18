@@ -6,6 +6,7 @@ from bpy.types import Context, Panel, PropertyGroup, UILayout
 
 from ...common.logging import get_logger
 from .. import search
+from ..extension import get_material_extension
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
 from .ops import (
     VRM_OT_import_mtoon1_texture_image_file,
@@ -162,7 +163,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     material = context.material
     if not material:
         return
-    ext = material.vrm_addon_extension
+    ext = get_material_extension(material)
     layout = layout.column()
 
     layout.prop(ext.mtoon1, "enabled")
@@ -368,7 +369,7 @@ def draw_material(context: Context, layout: UILayout) -> None:
     material = context.material
     if not material:
         return
-    ext = material.vrm_addon_extension
+    ext = get_material_extension(material)
     if ext.mtoon1.is_outline_material:
         layout.box().label(icon="INFO", text="This is a MToon Outline material")
         return

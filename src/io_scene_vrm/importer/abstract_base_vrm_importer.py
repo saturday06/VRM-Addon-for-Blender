@@ -42,6 +42,7 @@ from ..common.gltf import FLOAT_NEGATIVE_MAX, FLOAT_POSITIVE_MAX, pack_glb, pars
 from ..common.logging import get_logger
 from ..common.preferences import ImportPreferencesProtocol
 from ..common.workspace import save_workspace
+from ..editor.extension import get_armature_extension
 from .gltf2_addon_importer_user_extension import Gltf2AddonImporterUserExtension
 from .vrm_parser import ParseResult, remove_unsafe_path_chars
 
@@ -954,10 +955,10 @@ class AbstractBaseVrmImporter(ABC):
                     continue
 
                 if self.parse_result.spec_version_number < (1, 0):
-                    vrm0_humanoid = data.vrm_addon_extension.vrm0.humanoid
+                    vrm0_humanoid = get_armature_extension(data).vrm0.humanoid
                     vrm0_humanoid.initial_automatic_bone_assignment = False
                 else:
-                    vrm1_humanoid = data.vrm_addon_extension.vrm1.humanoid
+                    vrm1_humanoid = get_armature_extension(data).vrm1.humanoid
                     vrm1_humanoid.human_bones.initial_automatic_bone_assignment = False
                 self.armature = obj
 

@@ -7,6 +7,7 @@ from bpy.types import Armature, Context, Mesh, Object, Panel, UILayout
 from ...common.logging import get_logger
 from ...common.vrm1.human_bone import HumanBoneSpecifications
 from .. import ops, search
+from ..extension import get_armature_extension, get_bone_extension
 from ..migration import defer_migrate
 from ..ops import layout_operator
 from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
@@ -326,7 +327,7 @@ class VRM_PT_vrm1_humanoid_armature_object_property(Panel):
             context,
             active_object,
             self.layout,
-            armature_data.vrm_addon_extension.vrm1.humanoid,
+            get_armature_extension(armature_data).vrm1.humanoid,
         )
 
 
@@ -357,7 +358,7 @@ class VRM_PT_vrm1_humanoid_ui(Panel):
             context,
             armature,
             self.layout,
-            armature_data.vrm_addon_extension.vrm1.humanoid,
+            get_armature_extension(armature_data).vrm1.humanoid,
         )
 
 
@@ -426,7 +427,7 @@ class VRM_PT_vrm1_first_person_armature_object_property(Panel):
             active_object,
             context,
             self.layout,
-            armature_data.vrm_addon_extension.vrm1.first_person,
+            get_armature_extension(armature_data).vrm1.first_person,
         )
 
 
@@ -457,7 +458,7 @@ class VRM_PT_vrm1_first_person_ui(Panel):
             armature,
             context,
             self.layout,
-            armature_data.vrm_addon_extension.vrm1.first_person,
+            get_armature_extension(armature_data).vrm1.first_person,
         )
 
 
@@ -533,7 +534,7 @@ class VRM_PT_vrm1_look_at_armature_object_property(Panel):
             active_object,
             context,
             self.layout,
-            armature_data.vrm_addon_extension.vrm1.look_at,
+            get_armature_extension(armature_data).vrm1.look_at,
         )
 
 
@@ -564,7 +565,7 @@ class VRM_PT_vrm1_look_at_ui(Panel):
             armature,
             context,
             self.layout,
-            armature_data.vrm_addon_extension.vrm1.look_at,
+            get_armature_extension(armature_data).vrm1.look_at,
         )
 
 
@@ -851,7 +852,7 @@ class VRM_PT_vrm1_expressions_armature_object_property(Panel):
             active_object,
             context,
             self.layout,
-            armature_data.vrm_addon_extension.vrm1.expressions,
+            get_armature_extension(armature_data).vrm1.expressions,
         )
 
 
@@ -882,7 +883,7 @@ class VRM_PT_vrm1_expressions_ui(Panel):
             armature,
             context,
             self.layout,
-            armature_data.vrm_addon_extension.vrm1.expressions,
+            get_armature_extension(armature_data).vrm1.expressions,
         )
 
 
@@ -1001,7 +1002,7 @@ class VRM_PT_vrm1_meta_armature_object_property(Panel):
         armature_data = active_object.data
         if not isinstance(armature_data, Armature):
             return
-        ext = armature_data.vrm_addon_extension
+        ext = get_armature_extension(armature_data)
         draw_vrm1_meta_layout(active_object, context, self.layout, ext.vrm1.meta)
 
 
@@ -1032,7 +1033,7 @@ class VRM_PT_vrm1_meta_ui(Panel):
             armature,
             context,
             self.layout,
-            armature_data.vrm_addon_extension.vrm1.meta,
+            get_armature_extension(armature_data).vrm1.meta,
         )
 
 
@@ -1070,6 +1071,6 @@ class VRM_PT_vrm1_bone_property(Panel):
         bone = armature_data.bones.active
         if not bone:
             return
-        ext = bone.vrm_addon_extension
+        ext = get_bone_extension(bone)
         layout = self.layout
         layout.prop(ext, "axis_translation")

@@ -236,6 +236,8 @@ def load_mtoon1_node_group(
     *,
     reset_node_groups: bool,
 ) -> None:
+    from ..editor.extension import get_node_tree_extension
+
     start_time = time.perf_counter()
 
     if not blend_file_path.exists():
@@ -246,7 +248,7 @@ def load_mtoon1_node_group(
         checking_node_group = context.blend_data.node_groups.get(node_group_name)
         if checking_node_group:
             if (
-                tuple(checking_node_group.vrm_addon_extension.addon_version)
+                tuple(get_node_tree_extension(checking_node_group).addon_version)
                 >= LAST_MODIFIED_VERSION
             ):
                 return
@@ -299,7 +301,7 @@ def load_mtoon1_node_group(
             )
             clear_node_tree(node_group, clear_inputs_outputs=True)
         copy_node_tree(context, template_node_group, node_group)
-        node_group.vrm_addon_extension.addon_version = addon_version()
+        get_node_tree_extension(node_group).addon_version = addon_version()
     finally:
         if template_node_group and template_node_group.users <= 1:
             context.blend_data.node_groups.remove(template_node_group)

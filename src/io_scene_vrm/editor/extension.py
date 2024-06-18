@@ -9,7 +9,16 @@ from bpy.props import (
     PointerProperty,
     StringProperty,
 )
-from bpy.types import Context, PropertyGroup
+from bpy.types import (
+    Armature,
+    Bone,
+    Context,
+    Material,
+    NodeTree,
+    Object,
+    PropertyGroup,
+    Scene,
+)
 from mathutils import Matrix, Quaternion
 
 from ..common.logging import get_logger
@@ -42,7 +51,7 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
         if not scene:
             logger.error(f'No scene "{scene_name}"')
             return
-        ext = scene.vrm_addon_extension
+        ext = get_scene_extension(scene)
 
         # Unity 2022.3.4 + UniVRM 0.112.0
         gltf_property_names = [
@@ -428,3 +437,51 @@ class VrmAddonNodeTreeExtensionPropertyGroup(PropertyGroup):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         addon_version: Sequence[int]  # type: ignore[no-redef]
+
+
+def get_material_extension(
+    material: Material,
+) -> VrmAddonMaterialExtensionPropertyGroup:
+    extension = getattr(material, "vrm_addon_extension", None)
+    if not isinstance(extension, VrmAddonMaterialExtensionPropertyGroup):
+        raise TypeError
+    return extension
+
+
+def get_armature_extension(
+    armature: Armature,
+) -> VrmAddonArmatureExtensionPropertyGroup:
+    extension = getattr(armature, "vrm_addon_extension", None)
+    if not isinstance(extension, VrmAddonArmatureExtensionPropertyGroup):
+        raise TypeError
+    return extension
+
+
+def get_node_tree_extension(
+    node_tree: NodeTree,
+) -> VrmAddonNodeTreeExtensionPropertyGroup:
+    extension = getattr(node_tree, "vrm_addon_extension", None)
+    if not isinstance(extension, VrmAddonNodeTreeExtensionPropertyGroup):
+        raise TypeError
+    return extension
+
+
+def get_scene_extension(scene: Scene) -> VrmAddonSceneExtensionPropertyGroup:
+    extension = getattr(scene, "vrm_addon_extension", None)
+    if not isinstance(extension, VrmAddonSceneExtensionPropertyGroup):
+        raise TypeError
+    return extension
+
+
+def get_bone_extension(bone: Bone) -> VrmAddonBoneExtensionPropertyGroup:
+    extension = getattr(bone, "vrm_addon_extension", None)
+    if not isinstance(extension, VrmAddonBoneExtensionPropertyGroup):
+        raise TypeError
+    return extension
+
+
+def get_object_extension(obj: Object) -> VrmAddonObjectExtensionPropertyGroup:
+    extension = getattr(obj, "vrm_addon_extension", None)
+    if not isinstance(extension, VrmAddonObjectExtensionPropertyGroup):
+        raise TypeError
+    return extension

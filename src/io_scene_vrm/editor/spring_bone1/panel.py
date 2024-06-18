@@ -4,6 +4,7 @@ from typing import Optional
 from bpy.types import Armature, Context, Object, Panel, UILayout
 
 from .. import search
+from ..extension import get_armature_extension
 from ..migration import defer_migrate
 from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
 from ..search import active_object_is_vrm1_armature
@@ -365,7 +366,7 @@ class VRM_PT_spring_bone1_armature_object_property(Panel):
         draw_spring_bone1_spring_bone_layout(
             active_object,
             self.layout,
-            armature_data.vrm_addon_extension.spring_bone1,
+            get_armature_extension(armature_data).spring_bone1,
         )
 
 
@@ -395,7 +396,7 @@ class VRM_PT_spring_bone1_ui(Panel):
         draw_spring_bone1_spring_bone_layout(
             armature,
             self.layout,
-            armature_data.vrm_addon_extension.spring_bone1,
+            get_armature_extension(armature_data).spring_bone1,
         )
 
 
@@ -440,7 +441,9 @@ class VRM_PT_spring_bone1_collider_property(Panel):
             armature_data = obj.data
             if not isinstance(armature_data, Armature):
                 continue
-            for collider in armature_data.vrm_addon_extension.spring_bone1.colliders:
+            for collider in get_armature_extension(
+                armature_data
+            ).spring_bone1.colliders:
                 if collider.bpy_object == collider_object:
                     return (obj, collider)
         return None
@@ -457,7 +460,7 @@ class VRM_PT_spring_bone1_collider_property(Panel):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        if armature_data.vrm_addon_extension.is_vrm1():
+        if get_armature_extension(armature_data).is_vrm1():
             draw_spring_bone1_collider_layout(armature, self.layout.column(), collider)
             return
 

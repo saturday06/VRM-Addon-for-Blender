@@ -15,6 +15,7 @@ from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..common.workspace import save_workspace
 from . import migration
+from .extension import get_armature_extension
 from .vrm0.property_group import (
     Vrm0BlendShapeGroupPropertyGroup,
     Vrm0HumanoidPropertyGroup,
@@ -177,7 +178,7 @@ class ICYP_OT_make_armature(Operator):
         if not isinstance(armature_data, Armature):
             message = "armature data is not an Armature"
             raise TypeError(message)
-        armature_data.vrm_addon_extension.addon_version = addon_version()
+        get_armature_extension(armature_data).addon_version = addon_version()
 
         bone_dict: dict[str, EditBone] = {}
 
@@ -577,9 +578,9 @@ class ICYP_OT_make_armature(Operator):
         armature_data = armature.data
         if isinstance(armature_data, Armature) and not self.skip_heavy_armature_setup:
             for vrm_bone_name, bpy_bone_name in compare_dict.items():
-                for (
-                    human_bone
-                ) in armature_data.vrm_addon_extension.vrm0.humanoid.human_bones:
+                for human_bone in get_armature_extension(
+                    armature_data
+                ).vrm0.humanoid.human_bones:
                     if human_bone.bone == vrm_bone_name:
                         human_bone.node.set_bone_name(bpy_bone_name)
                         break
@@ -599,8 +600,8 @@ class ICYP_OT_make_armature(Operator):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        vrm0 = armature_data.vrm_addon_extension.vrm0
-        vrm1 = armature_data.vrm_addon_extension.vrm1
+        vrm0 = get_armature_extension(armature_data).vrm0
+        vrm1 = get_armature_extension(armature_data).vrm1
         vrm0.first_person.first_person_bone.set_bone_name("head")
         vrm0.first_person.first_person_bone_offset = (0, 0, 0.06)
         vrm1.look_at.offset_from_head_bone = offset_from_head_bone
@@ -706,13 +707,15 @@ class IcypTemplateMeshMaker:
         tmp_dict = {
             v.bone: i
             for i, v in enumerate(
-                armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
+                get_armature_extension(armature_data).vrm0.humanoid.human_bones
             )
         }
 
-        bone_name: str = armature_data.vrm_addon_extension.vrm0.humanoid.human_bones[
-            tmp_dict[bone]
-        ].node.bone_name
+        bone_name: str = (
+            get_armature_extension(armature_data)
+            .vrm0.humanoid.human_bones[tmp_dict[bone]]
+            .node.bone_name
+        )
         humanoid_bone = armature_data.bones[bone_name]
         return humanoid_bone
 

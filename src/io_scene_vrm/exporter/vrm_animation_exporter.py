@@ -20,6 +20,7 @@ from ..common.vrm1.human_bone import (
     HumanBoneSpecifications,
 )
 from ..common.workspace import save_workspace
+from ..editor.extension import get_armature_extension
 
 logger = get_logger(__name__)
 
@@ -64,7 +65,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
     if not isinstance(armature_data, Armature):
         message = "Armature data is not an Armature"
         raise TypeError(message)
-    vrm1 = armature_data.vrm_addon_extension.vrm1
+    vrm1 = get_armature_extension(armature_data).vrm1
     human_bone_name_to_node_dict: dict[HumanBoneName, dict[str, Json]] = {}
     human_bone_name_to_node_index: dict[HumanBoneName, int] = {}
     human_bone_name_to_human_bone = (
@@ -893,14 +894,14 @@ def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return {"CANCELLED"}
-    humanoid = armature_data.vrm_addon_extension.vrm1.humanoid
+    humanoid = get_armature_extension(armature_data).vrm1.humanoid
     if not humanoid.human_bones.all_required_bones_are_assigned():
         return {"CANCELLED"}
 
     # saved_current_pose_matrix_basis_dict = {}
     # saved_current_pose_matrix_dict = {}
     saved_pose_position = armature_data.pose_position
-    # vrm1 = armature.data.vrm_addon_extension.vrm1
+    # vrm1 = get_armature_extension(armature.data).vrm1
     output_bytes = None
 
     # TODO: 現状restがTポーズの時しか動作しない

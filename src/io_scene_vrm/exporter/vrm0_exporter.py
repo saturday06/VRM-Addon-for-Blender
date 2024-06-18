@@ -56,6 +56,7 @@ from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..common.workspace import save_workspace
 from ..editor import migration, search
+from ..editor.extension import get_armature_extension, get_material_extension
 from ..editor.mtoon1.property_group import (
     Mtoon0TexturePropertyGroup,
     Mtoon1KhrTextureTransformPropertyGroup,
@@ -129,7 +130,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 self.setup_pose(
                     self.armature,
                     self.armature_data,
-                    self.armature_data.vrm_addon_extension.vrm0.humanoid,
+                    get_armature_extension(self.armature_data).vrm0.humanoid,
                 ),
             ):
                 wm.progress_update(1)
@@ -267,9 +268,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         # MToon 1.0 downgraded
         for mat in used_materials:
-            if not mat.vrm_addon_extension.mtoon1.enabled:
+            if not get_material_extension(mat).mtoon1.enabled:
                 continue
-            for texture in mat.vrm_addon_extension.mtoon1.all_textures(
+            for texture in get_material_extension(mat).mtoon1.all_textures(
                 downgrade_to_mtoon0=True
             ):
                 source = texture.source
@@ -277,7 +278,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     used_images.append(source)
 
         # thumbnail
-        ext = self.armature_data.vrm_addon_extension
+        ext = get_armature_extension(self.armature_data)
         if (
             ext.vrm0.meta.texture
             and ext.vrm0.meta.texture.name
@@ -328,7 +329,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         human_bone_node_names = [
             human_bone.node.bone_name
             for human_bone in (
-                self.armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
+                get_armature_extension(self.armature_data).vrm0.humanoid.human_bones
             )
         ]
 
@@ -1502,7 +1503,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         sampler_tuple_to_index_dict: dict[tuple[int, int, int, int], int],
         texture_tuple_to_index_dict: dict[tuple[int, int], int],
     ) -> tuple[dict[str, Json], dict[str, Json]]:
-        gltf = material.vrm_addon_extension.mtoon1
+        gltf = get_material_extension(material).mtoon1
         mtoon = gltf.extensions.vrmc_materials_mtoon
 
         material_dict: dict[str, Json] = {
@@ -1822,7 +1823,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         for material in search.export_materials(self.context, self.export_objects):
             material_properties_dict: dict[str, Json] = {}
             pbr_dict: dict[str, Json] = {}
-            if material.vrm_addon_extension.mtoon1.enabled:
+            if get_material_extension(material).mtoon1.enabled:
                 (
                     material_properties_dict,
                     pbr_dict,
@@ -1935,9 +1936,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             material = context.blend_data.materials.get(material.name)
             if material is None:
                 continue
-            if material.vrm_addon_extension.mtoon1.export_shape_key_normals:
+            if get_material_extension(material).mtoon1.export_shape_key_normals:
                 continue
-            if material.vrm_addon_extension.mtoon1.enabled:
+            if get_material_extension(material).mtoon1.enabled:
                 exclusion_vertex_indices.update(polygon.vertices)
                 continue
             node, vrm_shader_name = search.vrm_shader_node(material)
@@ -2481,7 +2482,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                                     break
                                 mesh_parent = mesh.parent
                             if not bone_name:
-                                ext = self.armature_data.vrm_addon_extension
+                                ext = get_armature_extension(self.armature_data)
                                 for human_bone in ext.vrm0.humanoid.human_bones:
                                     if human_bone.bone == "hips":
                                         bone_name = human_bone.node.bone_name
@@ -2752,7 +2753,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         # materialProperties は material_to_dict()で処理する
         # vrm extension
-        meta = self.armature_data.vrm_addon_extension.vrm0.meta
+        meta = get_armature_extension(self.armature_data).vrm0.meta
         vrm_extension_dict: dict[str, Json] = {
             "exporterVersion": self.exporter_name(),
             "specVersion": "0.0",
@@ -2816,7 +2817,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         human_bone_dicts: list[Json] = []
         humanoid_dict: dict[str, Json] = {"humanBones": human_bone_dicts}
         vrm_extension_dict["humanoid"] = humanoid_dict
-        humanoid = self.armature_data.vrm_addon_extension.vrm0.humanoid
+        humanoid = get_armature_extension(self.armature_data).vrm0.humanoid
         for human_bone_name in HumanBoneSpecifications.all_names:
             for human_bone in humanoid.human_bones:
                 if (
@@ -2865,7 +2866,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         # firstPerson
         first_person_dict: dict[str, Json] = {}
         vrm_extension_dict["firstPerson"] = first_person_dict
-        first_person = self.armature_data.vrm_addon_extension.vrm0.first_person
+        first_person = get_armature_extension(self.armature_data).vrm0.first_person
 
         if first_person.first_person_bone.bone_name:
             first_person_dict["firstPersonBone"] = node_name_id_dict[
@@ -2875,7 +2876,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             name = next(
                 human_bone.node.bone_name
                 for human_bone in (
-                    self.armature_data.vrm_addon_extension.vrm0.humanoid.human_bones
+                    get_armature_extension(self.armature_data).vrm0.humanoid.human_bones
                 )
                 if human_bone.bone == "head"
             )
@@ -2954,9 +2955,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         # meshを名前からid
         # weightを0-1から0-100に
         # shape_indexを名前からindexに
-        blend_shape_master = (
-            self.armature_data.vrm_addon_extension.vrm0.blend_shape_master
-        )
+        blend_shape_master = get_armature_extension(
+            self.armature_data
+        ).vrm0.blend_shape_master
         for blend_shape_group in blend_shape_master.blend_shape_groups:
             blend_shape_group_dict: dict[str, Json] = {}
 
@@ -3047,9 +3048,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         vrm_extension_dict["secondaryAnimation"] = secondary_animation_dict
         collider_group_dicts: list[Json] = []
         secondary_animation_dict["colliderGroups"] = collider_group_dicts
-        secondary_animation = (
-            self.armature_data.vrm_addon_extension.vrm0.secondary_animation
-        )
+        secondary_animation = get_armature_extension(
+            self.armature_data
+        ).vrm0.secondary_animation
         filtered_collider_groups = [
             collider_group
             for collider_group in secondary_animation.collider_groups

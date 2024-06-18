@@ -385,7 +385,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         ):
             return
 
-        human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
+        human_bones = get_armature_vrm1_extension(armature_data).humanoid.human_bones
 
         # 複数のボーンマップに同一のBlenderのボーンが設定されていたら片方を削除
         fixup = True
@@ -438,7 +438,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         armature_data = context.blend_data.armatures.get(armature_data_name)
         if not isinstance(armature_data, Armature):
             return
-        human_bones = armature_data.vrm_addon_extension.vrm1.humanoid.human_bones
+        human_bones = get_armature_vrm1_extension(armature_data).humanoid.human_bones
         bone_names: list[str] = []
         for bone in sorted(armature_data.bones.values(), key=lambda b: str(b.name)):
             bone_names.append(bone.name)
@@ -667,7 +667,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
             armature_data = armature_object.data
             if not isinstance(armature_data, Armature):
                 continue
-            look_at = armature_data.vrm_addon_extension.vrm1.look_at
+            look_at = get_armature_vrm1_extension(armature_data).look_at
             look_at.update_preview(context, armature_object, armature_data)
 
     def update_preview(
@@ -676,10 +676,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
         armature_object: Object,
         armature_data: Armature,
     ) -> None:
-        ext = armature_data.vrm_addon_extension
-        if not ext.is_vrm1():
-            return
-        vrm1 = ext.vrm1
+        vrm1 = get_armature_vrm1_extension(armature_data)
         preview_target_bpy_object = self.preview_target_bpy_object
         if not preview_target_bpy_object:
             return
@@ -1237,11 +1234,12 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
 
         vrm1: Optional[Vrm1PropertyGroup] = None
         for search_armature in context.blend_data.armatures:
-            ext = search_armature.vrm_addon_extension
-            for custom_expression in ext.vrm1.expressions.custom:
+            for custom_expression in get_armature_vrm1_extension(
+                search_armature
+            ).expressions.custom:
                 if custom_expression != self:
                     continue
-                vrm1 = search_armature.vrm_addon_extension.vrm1
+                vrm1 = get_armature_vrm1_extension(search_armature)
                 break
         if vrm1 is None:
             logger.error(f"No armature extension for {self}")
@@ -1553,3 +1551,10 @@ class Vrm1PropertyGroup(PropertyGroup):
         first_person: Vrm1FirstPersonPropertyGroup  # type: ignore[no-redef]
         look_at: Vrm1LookAtPropertyGroup  # type: ignore[no-redef]
         expressions: Vrm1ExpressionsPropertyGroup  # type: ignore[no-redef]
+
+
+def get_armature_vrm1_extension(armature: Armature) -> Vrm1PropertyGroup:
+    from ..extension import get_armature_extension
+
+    vrm1: Vrm1PropertyGroup = get_armature_extension(armature).vrm1
+    return vrm1
