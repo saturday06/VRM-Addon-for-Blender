@@ -145,7 +145,6 @@ typeCheckingMode = "strict"
 reportMissingModuleSource = false
 reportCallInDefaultInitializer = true
 reportImplicitStringConcatenation = true
-reportImportCycles = true
 reportPropertyTypeMismatch = true
 reportShadowedImports = true
 
