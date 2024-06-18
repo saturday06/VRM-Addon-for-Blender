@@ -107,16 +107,13 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
             self.convert_mtoon_unversioned_to_mtoon1(context, material, node)
             return
 
-        addon_version = tuple(material.vrm_addon_extension.mtoon1.addon_version)
-        overwrite = addon_version < (2, 20, 8)
-
         principled_bsdf = PrincipledBSDFWrapper(material)
         if not principled_bsdf.node_principled_bsdf:
             reset_shader_node_group(
                 context,
                 material,
                 reset_material_node_tree=True,
-                reset_node_groups=overwrite,
+                reset_node_groups=False,
             )
             return
 
@@ -152,7 +149,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
             context,
             material,
             reset_material_node_tree=True,
-            reset_node_groups=overwrite,
+            reset_node_groups=False,
         )
 
         gltf = material.vrm_addon_extension.mtoon1
