@@ -42,6 +42,7 @@
 !/tools/*.wsb
 !/tests/ruff.toml
 !/tests/resources
+!/typings/pyproject.toml
 
 *.blend1
 *~

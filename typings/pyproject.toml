@@ -1,0 +1,42 @@
+[project]
+requires-python = ">=3.9"
+
+[tool.poetry]
+name = "starry-bpy-type-stubs"
+version = "1.0.0"
+description = ""
+authors = ["Isamu Mogi <isamu@leafytree.jp>"]
+readme = "README.md"
+packages = [
+    { include = "bgl-stubs" },
+    { include = "bmesh-stubs" },
+    { include = "bpy-stubs" },
+    { include = "bpy_extras-stubs" },
+    { include = "gpu-stubs" },
+    { include = "gpu_extras-stubs" },
+    { include = "idprop-stubs" },
+    { include = "mathutils-stubs" },
+]
+
+[tool.ruff]
+extend = "../pyproject.toml"
+
+[tool.ruff.lint]
+extend-ignore = [
+    # ----- ignored -----
+
+    "A001", # Variable `x` is shadowing a Python builtin
+    "A002", # Argument `x` is shadowing a Python builtin
+    "FBT001", # Boolean-typed positional argument in function definition
+    "FBT002", # Boolean default positional argument in function definition
+    "N801", # Class name `x` should use CapWords convention
+    "N802", # Function name `X` should be lowercase
+    "UP007", # Use `X | Y` for type annotations
+]
+
+[tool.ruff.lint.pylint]
+max-args = 75
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

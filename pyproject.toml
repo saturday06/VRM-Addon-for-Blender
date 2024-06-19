@@ -25,12 +25,12 @@ dulwich = "*"
 mypy = "*"
 pyright = "*"
 ruff = "*"
-starry-bpy-type-stubs = { git = "https://github.com/saturday06/starry-bpy-type-stubs.git" }
+starry-bpy-type-stubs = { path = "typings" }
 tqdm = "*"
 types-tqdm = "*"
 
 [tool.ruff]
-src = ["src"]
+src = ["typings", "src"]
 
 [tool.ruff.lint]
 allowed-confusables = [
@@ -122,7 +122,7 @@ ignore-regex = ".* # codespell-ignore"
 
 [tool.mypy]
 python_version = "3.9"
-mypy_path = "$MYPY_CONFIG_FILE_DIR/src"
+mypy_path = "$MYPY_CONFIG_FILE_DIR/typings:$MYPY_CONFIG_FILE_DIR/src"
 strict = true
 disallow_any_unimported = true
 disallow_any_decorated = true
@@ -145,7 +145,6 @@ typeCheckingMode = "strict"
 reportMissingModuleSource = false
 reportCallInDefaultInitializer = true
 reportImplicitStringConcatenation = true
-reportPropertyTypeMismatch = true
 reportShadowedImports = true
 
 [build-system]
