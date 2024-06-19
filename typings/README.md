@@ -1,4 +1,3 @@
-# starry-bpy-type-stubs
+開発用に手書きしたBlenderの型スタブで、もともと https://github.com/saturday06/starry-bpy-type-stubs で進めていたものです。
 
-fake-bpy-modulesを今まで使っていたんですが、最近それだけだと物足りなくなってきたところでした。
-pyiファイルを自前で書いている方のレポジトリを見つけて、これはアリだと思ったため私もやっていみることにしました。
+将来的にfake-bpy-modulesなどへ移行するため、VRM Add-on固有の定義はできるだけ避けるようにします。
