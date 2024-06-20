@@ -4,17 +4,18 @@ import tempfile
 import bpy
 from bpy.types import Armature, Context
 
+from io_scene_vrm.common import ops
 from io_scene_vrm.editor.extension import get_armature_extension
 
 
 def test(context: Context) -> None:
-    bpy.ops.icyp.make_basic_armature()
+    ops.icyp.make_basic_armature()
 
     new_head_name = "root"
     with tempfile.NamedTemporaryFile(delete=False) as file:
         file.write(json.dumps({"head": new_head_name}).encode())
         file.close()
-        bpy.ops.vrm.load_human_bone_mappings(filepath=file.name)
+        ops.vrm.load_human_bone_mappings(filepath=file.name)
     active_object = context.view_layer.objects.active
     if not active_object:
         raise AssertionError

@@ -29,7 +29,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Vector
 
-from ..common import convert, deep, shader
+from ..common import convert, deep, ops, shader
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.gl import (
@@ -170,7 +170,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             use_dummy_armature = False
         else:
             dummy_armature_key = self.export_id + "DummyArmatureKey"
-            bpy.ops.icyp.make_basic_armature(
+            ops.icyp.make_basic_armature(
                 "EXEC_DEFAULT", custom_property_name=dummy_armature_key
             )
             for obj in self.context.selectable_objects:

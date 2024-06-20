@@ -17,7 +17,7 @@ from bpy.types import (
 )
 from bpy_extras.io_utils import ImportHelper
 
-from ..common import version
+from ..common import ops, version
 from ..common.logging import get_logger
 from ..common.preferences import (
     ImportPreferencesProtocol,
@@ -140,7 +140,7 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
             execution_context = "EXEC_DEFAULT"
             import_anyway = True
 
-        return bpy.ops.wm.vrm_license_warning(
+        return ops.wm.vrm_license_warning(
             execution_context,
             import_anyway=import_anyway,
             license_confirmations=license_error.license_confirmations(),
@@ -153,7 +153,7 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
         copy_import_preferences(source=get_preferences(context), destination=self)
 
         if "gltf" not in dir(bpy.ops.import_scene):
-            return bpy.ops.wm.vrm_gltf2_addon_disabled_warning("INVOKE_DEFAULT")
+            return ops.wm.vrm_gltf2_addon_disabled_warning("INVOKE_DEFAULT")
         return ImportHelper.invoke(self, context, event)
 
     def draw(self, _context: Context) -> None:
@@ -399,7 +399,7 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
         if WM_OT_vrma_import_prerequisite.detect_errors(
             context, self.armature_object_name
         ):
-            return bpy.ops.wm.vrma_import_prerequisite(
+            return ops.wm.vrma_import_prerequisite(
                 "INVOKE_DEFAULT",
                 armature_object_name=self.armature_object_name,
             )
@@ -454,7 +454,7 @@ class WM_OT_vrma_import_prerequisite(Operator):
         return error_messages
 
     def execute(self, _context: Context) -> set[str]:
-        return bpy.ops.import_scene.vrma(
+        return ops.import_scene.vrma(
             "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
         )
 

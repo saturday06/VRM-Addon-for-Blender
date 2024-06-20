@@ -3,7 +3,7 @@ import sys
 from os import environ
 from pathlib import Path
 
-import bpy
+from io_scene_vrm.common import ops
 
 repository_root_dir = Path(__file__).resolve(strict=True).parent.parent
 resources_dir = Path(
@@ -30,7 +30,7 @@ def test(vrm: str) -> None:
         return
 
     in_path = vrm_dir / vrm
-    assert bpy.ops.import_scene.vrm(filepath=str(in_path)) == {"FINISHED"}
+    assert ops.import_scene.vrm(filepath=str(in_path)) == {"FINISHED"}
 
 
 if __name__ == "__main__":

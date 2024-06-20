@@ -1,19 +1,3 @@
-def vrm(
-    execution_context: str = "EXEC_DEFAULT",
-    /,
-    *,
-    filepath: str = "",
-    use_addon_preferences: bool = False,
-    ignore_warning: bool = True,
-    armature_object_name: str = "",
-) -> set[str]: ...
-def vrma(
-    execution_context: str = "EXEC_DEFAULT",
-    /,
-    *,
-    filepath: str = "",
-    armature_object_name: str = "",
-) -> set[str]: ...
 def gltf(
     execution_context: str = "EXEC_DEFAULT",
     /,

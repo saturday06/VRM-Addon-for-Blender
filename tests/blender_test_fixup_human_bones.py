@@ -1,13 +1,14 @@
 import bpy
 from bpy.types import Armature, Context
 
+from io_scene_vrm.common import ops
 from io_scene_vrm.common.vrm0.human_bone import HumanBoneName
 from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
 
 
 def test(context: Context) -> None:
-    bpy.ops.icyp.make_basic_armature()
+    ops.icyp.make_basic_armature()
     armatures = [obj for obj in context.blend_data.objects if obj.type == "ARMATURE"]
     assert len(armatures) == 1
     armature = armatures[0]

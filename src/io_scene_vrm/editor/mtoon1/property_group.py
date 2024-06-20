@@ -32,7 +32,7 @@ from bpy.types import (
 from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 from mathutils import Vector
 
-from ...common import convert, shader
+from ...common import convert, ops, shader
 from ...common.gl import (
     GL_CLAMP_TO_EDGE,
     GL_LINEAR,
@@ -815,14 +815,14 @@ class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
         if get_material_mtoon1_extension(material).is_outline_material:
             return
         self.update_texture_offset(context)
-        bpy.ops.vrm.refresh_mtoon1_outline(material_name=material.name)
+        ops.vrm.refresh_mtoon1_outline(material_name=material.name)
 
     def update_texture_scale_and_outline(self, context: Context) -> None:
         material = self.find_material()
         if get_material_mtoon1_extension(material).is_outline_material:
             return
         self.update_texture_scale(context)
-        bpy.ops.vrm.refresh_mtoon1_outline(material_name=material.name)
+        ops.vrm.refresh_mtoon1_outline(material_name=material.name)
 
     offset: FloatVectorProperty(  # type: ignore[valid-type]
         name="Offset",
@@ -2230,7 +2230,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         material = self.find_material()
         if get_material_mtoon1_extension(material).is_outline_material:
             return
-        bpy.ops.vrm.refresh_mtoon1_outline(
+        ops.vrm.refresh_mtoon1_outline(
             material_name=material.name, create_modifier=True
         )
 
@@ -2717,9 +2717,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
         if not value:
             if self.get("enabled") and material.use_nodes:
-                bpy.ops.vrm.convert_mtoon1_to_bsdf_principled(
-                    material_name=material.name
-                )
+                ops.vrm.convert_mtoon1_to_bsdf_principled(material_name=material.name)
             self["enabled"] = False
             return
 
@@ -2728,7 +2726,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         if self.get_enabled():
             return
 
-        bpy.ops.vrm.convert_material_to_mtoon1(material_name=material.name)
+        ops.vrm.convert_material_to_mtoon1(material_name=material.name)
         self["enabled"] = True
 
     enabled: BoolProperty(  # type: ignore[valid-type]

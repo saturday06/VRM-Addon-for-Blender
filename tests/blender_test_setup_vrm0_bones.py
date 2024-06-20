@@ -5,6 +5,7 @@ import bpy
 from bpy.types import Armature, Context
 from mathutils import Vector
 
+from io_scene_vrm.common import ops
 from io_scene_vrm.importer.vrm0_importer import setup_bones
 
 
@@ -43,7 +44,7 @@ def clean_scene(context: Context) -> None:
 
 def test_eye_bone_world_minus_y(context: Context) -> None:
     clean_scene(context)
-    bpy.ops.icyp.make_basic_armature()
+    ops.icyp.make_basic_armature()
     armature = context.view_layer.objects.active
     if not armature or not isinstance(armature.data, Armature):
         message = "No armature"
@@ -76,7 +77,7 @@ def test_eye_bone_world_minus_y(context: Context) -> None:
 
 def test_head_bone_world_plus_z(context: Context) -> None:
     clean_scene(context)
-    bpy.ops.icyp.make_basic_armature()
+    ops.icyp.make_basic_armature()
     armature = context.view_layer.objects.active
     if not armature or not isinstance(armature.data, Armature):
         message = "No armature"

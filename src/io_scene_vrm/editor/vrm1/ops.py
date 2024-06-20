@@ -1,10 +1,10 @@
 from collections.abc import Set as AbstractSet
 from typing import TYPE_CHECKING
 
-import bpy
 from bpy.props import IntProperty, StringProperty
 from bpy.types import Armature, Context, Operator
 
+from ...common import ops
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
 from ...common.logging import get_logger
 from ...common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
@@ -321,7 +321,7 @@ class VRM_OT_add_vrm1_expressions_custom_expression(Operator):
         expressions.active_expression_ui_list_element_index = (
             len(expressions.preset.name_to_expression_dict()) + new_last_custom_index
         )
-        return bpy.ops.vrm.update_vrm1_expression_ui_list_elements()
+        return ops.vrm.update_vrm1_expression_ui_list_elements()
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -360,7 +360,7 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(Operator):
                     expressions.active_expression_ui_list_element_index,
                     len(expressions.all_name_to_expression_dict()) - 1,
                 )
-                return bpy.ops.vrm.update_vrm1_expression_ui_list_elements()
+                return ops.vrm.update_vrm1_expression_ui_list_elements()
         return {"CANCELLED"}
 
     if TYPE_CHECKING:

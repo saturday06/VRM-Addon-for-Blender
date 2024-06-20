@@ -3,17 +3,15 @@ import sys
 import tempfile
 from pathlib import Path
 
-import bpy
-
-from io_scene_vrm.common import deep
+from io_scene_vrm.common import deep, ops
 
 
 def test() -> None:
-    bpy.ops.icyp.make_basic_armature()
+    ops.icyp.make_basic_armature()
 
     with tempfile.NamedTemporaryFile() as file:
         file.close()
-        bpy.ops.vrm.save_human_bone_mappings(filepath=file.name)
+        ops.vrm.save_human_bone_mappings(filepath=file.name)
         loaded_json = json.loads(Path(file.name).read_text(encoding="UTF-8"))
 
     diffs = deep.diff(

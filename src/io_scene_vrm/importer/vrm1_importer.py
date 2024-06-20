@@ -14,7 +14,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Vector
 
-from ..common import convert, deep, shader
+from ..common import convert, deep, ops, shader
 from ..common.convert import Json
 from ..common.logging import get_logger
 from ..common.version import addon_version
@@ -1236,7 +1236,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             collider_dicts = []
 
         for collider_dict in collider_dicts:
-            if bpy.ops.vrm.add_spring_bone1_collider(armature_name=armature.name) != {
+            if ops.vrm.add_spring_bone1_collider(armature_name=armature.name) != {
                 "FINISHED"
             }:
                 message = f'Failed to add spring bone 1.0 collider to "{armature.name}"'
@@ -1351,9 +1351,9 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         for collider_group_index, collider_group_dict in enumerate(
             collider_group_dicts
         ):
-            if bpy.ops.vrm.add_spring_bone1_collider_group(
-                armature_name=armature_name
-            ) != {"FINISHED"}:
+            if ops.vrm.add_spring_bone1_collider_group(armature_name=armature_name) != {
+                "FINISHED"
+            }:
                 message = (
                     f"Failed to add spring bone 1.0 collider group to {armature_name}"
                 )
@@ -1373,7 +1373,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 continue
 
             for collider_index in collider_indices:
-                if bpy.ops.vrm.add_spring_bone1_collider_group_collider(
+                if ops.vrm.add_spring_bone1_collider_group_collider(
                     armature_name=armature_name,
                     collider_group_index=collider_group_index,
                 ) != {"FINISHED"}:
@@ -1404,7 +1404,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             spring_dicts = []
 
         for spring_dict in spring_dicts:
-            if bpy.ops.vrm.add_spring_bone1_spring(armature_name=armature_name) != {
+            if ops.vrm.add_spring_bone1_spring(armature_name=armature_name) != {
                 "FINISHED"
             } or not isinstance(spring_dict, dict):
                 continue
@@ -1425,7 +1425,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             if not isinstance(joint_dicts, list):
                 joint_dicts = []
             for joint_dict in joint_dicts:
-                if bpy.ops.vrm.add_spring_bone1_spring_joint(
+                if ops.vrm.add_spring_bone1_spring_joint(
                     armature_name=armature_name,
                     spring_index=len(spring_bone.springs) - 1,
                 ) != {"FINISHED"}:
@@ -1472,7 +1472,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             if not isinstance(collider_group_indices, list):
                 collider_group_indices = []
             for collider_group_index in collider_group_indices:
-                if bpy.ops.vrm.add_spring_bone1_spring_collider_group(
+                if ops.vrm.add_spring_bone1_spring_collider_group(
                     armature_name=armature_name,
                     spring_index=len(spring_bone.springs) - 1,
                 ) != {"FINISHED"}:

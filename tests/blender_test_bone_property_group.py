@@ -4,6 +4,7 @@ import bpy
 from bpy.types import Armature, Context, EditBone, Object
 from mathutils import Vector
 
+from io_scene_vrm.common import ops
 from io_scene_vrm.common.vrm0.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
@@ -54,7 +55,7 @@ def test(context: Context) -> None:
     while context.blend_data.collections:
         context.blend_data.collections.remove(context.blend_data.collections[0])
 
-    bpy.ops.icyp.make_basic_armature()
+    ops.icyp.make_basic_armature()
     armatures = [obj for obj in context.blend_data.objects if obj.type == "ARMATURE"]
     assert len(armatures) == 1
     armature = armatures[0]

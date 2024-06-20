@@ -17,7 +17,7 @@ from bpy.types import (
 )
 from bpy_extras.io_utils import ExportHelper
 
-from ..common import version
+from ..common import ops, version
 from ..common.logging import get_logger
 from ..common.preferences import (
     copy_export_preferences,
@@ -126,7 +126,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         if self.use_addon_preferences:
             copy_export_preferences(source=get_preferences(context), destination=self)
 
-        if bpy.ops.vrm.model_validate(
+        if ops.vrm.model_validate(
             "INVOKE_DEFAULT",
             show_successful_message=False,
             armature_object_name=self.armature_object_name,
@@ -177,7 +177,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         copy_export_preferences(source=get_preferences(context), destination=self)
 
         if "gltf" not in dir(bpy.ops.export_scene):
-            return bpy.ops.wm.vrm_gltf2_addon_disabled_warning(
+            return ops.wm.vrm_gltf2_addon_disabled_warning(
                 "INVOKE_DEFAULT",
             )
 
@@ -191,7 +191,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
 
         armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if len(armatures) > 1:
-            return bpy.ops.wm.vrm_export_armature_selection("INVOKE_DEFAULT")
+            return ops.wm.vrm_export_armature_selection("INVOKE_DEFAULT")
         if len(armatures) == 1:
             armature = armatures[0]
             armature_data = armature.data
@@ -207,11 +207,11 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                     b.node.bone_name not in b.node_candidates
                     for b in humanoid.human_bones
                 ):
-                    bpy.ops.vrm.assign_vrm0_humanoid_human_bones_automatically(
+                    ops.vrm.assign_vrm0_humanoid_human_bones_automatically(
                         armature_name=armature.name
                     )
                 if not humanoid.all_required_bones_are_assigned():
-                    return bpy.ops.wm.vrm_export_human_bones_assignment(
+                    return ops.wm.vrm_export_human_bones_assignment(
                         "INVOKE_DEFAULT",
                         armature_object_name=self.armature_object_name,
                     )
@@ -229,19 +229,19 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                         human_bones.human_bone_name_to_human_bone().values()
                     )
                 ):
-                    bpy.ops.vrm.assign_vrm1_humanoid_human_bones_automatically(
+                    ops.vrm.assign_vrm1_humanoid_human_bones_automatically(
                         armature_name=armature.name
                     )
                 if (
                     not human_bones.all_required_bones_are_assigned()
                     and not human_bones.allow_non_humanoid_rig
                 ):
-                    return bpy.ops.wm.vrm_export_human_bones_assignment(
+                    return ops.wm.vrm_export_human_bones_assignment(
                         "INVOKE_DEFAULT",
                         armature_object_name=self.armature_object_name,
                     )
 
-        if bpy.ops.vrm.model_validate(
+        if ops.vrm.model_validate(
             "INVOKE_DEFAULT",
             show_successful_message=False,
             armature_object_name=self.armature_object_name,
@@ -256,7 +256,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         if not self.ignore_warning and any(
             error.severity <= 1 for error in self.errors
         ):
-            return bpy.ops.wm.vrm_export_confirmation(
+            return ops.wm.vrm_export_confirmation(
                 "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
             )
 
@@ -398,7 +398,7 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
         if WM_OT_vrma_export_prerequisite.detect_errors(
             context, self.armature_object_name
         ):
-            return bpy.ops.wm.vrma_export_prerequisite(
+            return ops.wm.vrma_export_prerequisite(
                 "INVOKE_DEFAULT",
                 armature_object_name=self.armature_object_name,
             )
@@ -462,7 +462,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
                 return {"CANCELLED"}
         else:
             return {"CANCELLED"}
-        return bpy.ops.export_scene.vrm(
+        return ops.export_scene.vrm(
             "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
         )
 
@@ -582,7 +582,7 @@ class WM_OT_vrm_export_confirmation(Operator):
     def execute(self, _context: Context) -> set[str]:
         if not self.export_anyway:
             return {"CANCELLED"}
-        bpy.ops.export_scene.vrm(
+        ops.export_scene.vrm(
             "INVOKE_DEFAULT",
             ignore_warning=True,
             armature_object_name=self.armature_object_name,
@@ -646,7 +646,7 @@ class WM_OT_vrm_export_armature_selection(Operator):
         armature_object = context.blend_data.objects.get(self.armature_object_name)
         if not armature_object or armature_object.type != "ARMATURE":
             return {"CANCELLED"}
-        bpy.ops.export_scene.vrm(
+        ops.export_scene.vrm(
             "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
         )
 
@@ -734,7 +734,7 @@ class WM_OT_vrma_export_prerequisite(Operator):
         return error_messages
 
     def execute(self, _context: Context) -> set[str]:
-        return bpy.ops.export_scene.vrma(
+        return ops.export_scene.vrma(
             "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
         )
 

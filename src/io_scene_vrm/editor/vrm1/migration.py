@@ -1,9 +1,8 @@
-import bpy
 from bpy.types import Armature, Context, Material, Object
 from idprop.types import IDPropertyGroup
 from mathutils import Vector
 
-from ...common import convert, shader
+from ...common import convert, ops, shader
 from ..extension import get_armature_extension
 from .property_group import (
     Vrm1ExpressionPropertyGroup,
@@ -210,7 +209,7 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
         human_bones.initial_automatic_bone_assignment = False
         human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
         if all(not b.node.bone_name for b in human_bone_name_to_human_bone.values()):
-            bpy.ops.vrm.assign_vrm1_humanoid_human_bones_automatically(
+            ops.vrm.assign_vrm1_humanoid_human_bones_automatically(
                 armature_name=armature.name
             )
 
@@ -269,4 +268,4 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
         armature_data.name,
         force=True,
     )
-    bpy.ops.vrm.update_vrm1_expression_ui_list_elements()
+    ops.vrm.update_vrm1_expression_ui_list_elements()

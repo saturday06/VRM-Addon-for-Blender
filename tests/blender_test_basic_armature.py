@@ -6,6 +6,7 @@ from pathlib import Path
 import bpy
 from bpy.types import Context
 
+from io_scene_vrm.common import ops
 from io_scene_vrm.importer.vrm_diff import vrm_diff
 
 
@@ -31,13 +32,13 @@ def test(context: Context) -> None:
     while context.blend_data.collections:
         context.blend_data.collections.remove(context.blend_data.collections[0])
 
-    bpy.ops.icyp.make_basic_armature()
-    assert bpy.ops.vrm.model_validate() == {"FINISHED"}
+    ops.icyp.make_basic_armature()
+    assert ops.vrm.model_validate() == {"FINISHED"}
 
     actual_path = temp_dir_path / ("test_basic_armature." + vrm.name)
     if actual_path.exists():
         actual_path.unlink()
-    bpy.ops.export_scene.vrm(filepath=str(actual_path))
+    ops.export_scene.vrm(filepath=str(actual_path))
     if not expected_path.exists():
         shutil.copy(actual_path, expected_path)
 

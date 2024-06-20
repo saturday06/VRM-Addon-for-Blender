@@ -5,20 +5,24 @@ import re
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
+from typing import Optional
 
-from bpy.types import (
-    ID,
-)
+from bpy.types import ID, Operator
 
 from io_scene_vrm import registration
-from io_scene_vrm.common import convert
+from io_scene_vrm.common import convert, convert_any
 
 
 def write_property_typing(
     n: str,
     t: str,
     keywords: dict[str, object],
-) -> str:
+) -> tuple[str, Optional[str], Optional[str]]:
+    arg_line = None
+    arg_call_line = None
+    arg_type = None
+    arg_default: object = None
+
     print(f"  ==> prop={n}")
     ruff_line_len = 88
     comment = "  # type: ignore[no-redef]"
@@ -27,20 +31,28 @@ def write_property_typing(
 
     if t in ["bpy.props.StringProperty", "bpy.props.EnumProperty"]:
         line = f"        {n}: str{comment}"
+        arg_type = "str"
+        arg_default = '""'
     elif t == "bpy.props.FloatProperty":
         line = f"        {n}: float{comment}"
+        arg_type = "float"
+        arg_default = 0.0
     elif t == "bpy.props.FloatVectorProperty":
         line = f"        {n}: Sequence[float]{comment}"
         if len(line) > ruff_line_len:
             line = f"        {n}: ({comment}\n            Sequence[float]\n        )"
     elif t == "bpy.props.IntProperty":
         line = f"        {n}: int{comment}"
+        arg_type = "int"
+        arg_default = 0
     elif t == "bpy.props.IntVectorProperty":
         line = f"        {n}: Sequence[int]{comment}"
         if len(line) > ruff_line_len:
             line = f"        {n}: ({comment}\n            Sequence[int]\n        )"
     elif t == "bpy.props.BoolProperty":
         line = f"        {n}: bool{comment}"
+        arg_type = "bool"
+        arg_default = "False"
     elif t == "bpy.props.BoolVectorProperty":
         line = f"        {n}: Sequence[bool]{comment}"
         if len(line) > ruff_line_len:
@@ -75,13 +87,27 @@ def write_property_typing(
             + f"            {target_name}\n"
             + "        ]"
         )
+        arg_type = "Optional[Sequence[Mapping[str, Union[str, int, float, bool]]]]"
+        arg_default = None
+        arg_call_line = f"{n}={n} if {n} is not None else " + "[]"
     elif t.startswith("bpy.props."):
         line = f"        # TODO: {n} {t}"
     else:
-        return ""
+        return ("", None, None)
 
     line += "\n"
-    return line
+
+    if arg_type is not None:
+        arg_default_param = keywords.get("default")
+        if arg_default_param is not None:
+            arg_default = arg_default_param
+            if isinstance(arg_default, str):
+                arg_default = f'"{arg_default}"'
+        arg_line = f"    {n}: {arg_type} = {arg_default},"
+        if len(arg_line) > 89:
+            arg_line += "  # noqa: E501"
+
+    return (line, arg_line, arg_call_line)
 
 
 def update_property_typing(
@@ -186,7 +212,12 @@ def main() -> int:
     argument_parser = ArgumentParser()
     argument_parser.add_argument("--more", action="store_true", dest="more")
     args = argument_parser.parse_args()
-    more: bool = args.more
+    _more: bool = args.more
+
+    ops_dir = Path(__file__).parent.parent / "src" / "io_scene_vrm" / "common" / "ops"
+    for generated_py_path in ops_dir.glob("*.py"):
+        if generated_py_path.name != "__init__.py":
+            generated_py_path.unlink()
 
     classes: list[type] = []
     searching_classes = list(registration.classes)
@@ -201,35 +232,97 @@ def main() -> int:
             classes.append(c)
     for c in classes:
         print(f"##### {c} #####")
+        ops_path = None
+        ops_code = ""
+        ops_code_sep = False
+        bl_idname: object = ""
+        if issubclass(c, Operator):
+            print("##### ops #####")
+            bl_idname = convert_any.to_object(getattr(c, "bl_idname", None))
+            if isinstance(bl_idname, str):
+                dirs = bl_idname.split(".")
+                method = dirs.pop()
+                ops_path = ops_dir / Path(*dirs).with_suffix(".py")
+                print(ops_path)
+                ops_code = (
+                    f"def {method}(\n"
+                    + '    execution_context: str = "EXEC_DEFAULT",\n'
+                )
+        ops_params: list[str] = []
         code = ""
 
-        annotations = convert.mapping_or_none(getattr(c, "__annotations__", None))
-        if annotations is None:
-            continue
-        for k, v in annotations.items():
-            if not isinstance(k, str):
-                raise TypeError
-            function: object = getattr(v, "function", None)
-            if function is None:
+        cs: list[type] = []
+        searching_cs: list[type] = [c]
+        while searching_cs:
+            cc = searching_cs.pop()
+            if cc in cs:
                 continue
-            function_name = getattr(function, "__qualname__", None)
-            if function_name is None:
-                continue
+            cs.append(cc)
+            searching_cs.extend(cc.__bases__)
 
-            keywords = convert.mapping_or_none(getattr(v, "keywords", None))
-            if keywords is None:
+        ks: list[str] = []
+        for c2 in cs:
+            annotations = convert.mapping_or_none(getattr(c2, "__annotations__", None))
+            if annotations is None:
                 continue
-            typed_keywords: dict[str, object] = {
-                typed_k: typed_v
-                for typed_k, typed_v in keywords.items()
-                if isinstance(typed_k, str)
-            }
-            code += write_property_typing(
-                k,
-                f"{function.__module__}.{function_name}",
-                typed_keywords,
+            for k, v in annotations.items():
+                if not isinstance(k, str):
+                    raise TypeError
+                if k in ks:
+                    continue
+                function: object = getattr(v, "function", None)
+                if function is None:
+                    continue
+                function_name = getattr(function, "__qualname__", None)
+                if function_name is None:
+                    continue
+
+                keywords = convert.mapping_or_none(getattr(v, "keywords", None))
+                if keywords is None:
+                    continue
+                typed_keywords: dict[str, object] = {
+                    typed_k: typed_v
+                    for typed_k, typed_v in keywords.items()
+                    if isinstance(typed_k, str)
+                }
+                code_line, ops_arg_line, ops_call_line = write_property_typing(
+                    k,
+                    f"{function.__module__}.{function_name}",
+                    typed_keywords,
+                )
+                code += code_line
+                if ops_path is not None and ops_arg_line is not None:
+                    if not ops_code_sep:
+                        ops_code += "    /,\n"
+                        ops_code += "    *,\n"
+                        ops_code_sep = True
+                    if ops_call_line is None:
+                        ops_params.append(f"{k}={k}")
+                    else:
+                        ops_params.append(ops_call_line)
+                    ops_code += ops_arg_line + "\n"
+                    ks.append(k)
+        if ops_path is not None:
+            ops_code += ") -> set[str]:\n"
+            ops_code += (
+                f"    return bpy.ops.{bl_idname}("
+                + "  # type: ignore[attr-defined, no-any-return]\n"
+                + "        execution_context,\n"
             )
-        update_property_typing(c, code, more=more)
+            for param in ops_params:
+                ops_code += f"        {param},\n"
+            ops_code += "    )\n\n\n"
+            print(ops_code)
+            if not ops_path.exists():
+                ops_path.write_text(
+                    "# This code is auto generated.\n"
+                    + "# `poetry run python tools/property_typing.py`\n\n"
+                    + "from collections.abc import Mapping, Sequence\n"
+                    + "from typing import Optional, Union\n\n"
+                    + "import bpy\n\n\n"
+                )
+            ops_path.write_text(ops_path.read_text() + ops_code)
+        # update_property_typing(c, code, more=more)
     return 0
 
 

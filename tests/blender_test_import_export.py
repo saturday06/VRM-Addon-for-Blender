@@ -6,6 +6,7 @@ from pathlib import Path
 import bpy
 from bpy.types import Context
 
+from io_scene_vrm.common import ops
 from io_scene_vrm.common.logging import get_logger
 from io_scene_vrm.importer.vrm_diff import vrm_diff
 
@@ -53,13 +54,13 @@ def test(context: Context, vrm: str, extract_textures_str: str) -> None:
     while context.blend_data.collections:
         context.blend_data.collections.remove(context.blend_data.collections[0])
 
-    bpy.ops.import_scene.vrm(
+    ops.import_scene.vrm(
         filepath=str(in_path),
         extract_textures_into_folder=extract_textures,
         make_new_texture_folder=extract_textures,
     )
 
-    assert bpy.ops.vrm.model_validate() == {"FINISHED"}
+    assert ops.vrm.model_validate() == {"FINISHED"}
 
     actual_path = temp_vrm_dir / (
         f"test_import_export.{extract_textures}." + in_path.name
@@ -67,7 +68,7 @@ def test(context: Context, vrm: str, extract_textures_str: str) -> None:
     if actual_path.exists():
         actual_path.unlink()
 
-    bpy.ops.export_scene.vrm(filepath=str(actual_path))
+    ops.export_scene.vrm(filepath=str(actual_path))
     actual_bytes = actual_path.read_bytes()
 
     float_tolerance = 0.00055

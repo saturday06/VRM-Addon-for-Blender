@@ -5,6 +5,7 @@ from pathlib import Path
 
 import bpy
 
+from io_scene_vrm.common import ops
 from io_scene_vrm.importer.vrm_diff import vrm_diff
 
 repository_root_dir = Path(__file__).resolve(strict=True).parent.parent
@@ -72,12 +73,12 @@ def test(blend_path_str: str) -> None:
 
     bpy.ops.wm.open_mainfile(filepath=str(in_path))
 
-    assert bpy.ops.vrm.model_validate() == {"FINISHED"}
+    assert ops.vrm.model_validate() == {"FINISHED"}
 
     actual_path = temp_vrm_dir / ("test_blend_export." + vrm.name)
     if actual_path.exists():
         actual_path.unlink()
-    bpy.ops.export_scene.vrm(filepath=str(actual_path))
+    ops.export_scene.vrm(filepath=str(actual_path))
 
     float_tolerance = 0.00015
 

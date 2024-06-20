@@ -6,7 +6,7 @@ from typing import Optional
 import bpy
 from bpy.types import ID, Armature, Context, Mesh, Object, Text
 
-from ...common import convert
+from ...common import convert, ops
 from ...common.convert import Json
 from ...common.deep import make_json
 from ...common.vrm0.human_bone import HumanBoneSpecifications
@@ -684,6 +684,6 @@ def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None
     if vrm0.humanoid.initial_automatic_bone_assignment:
         vrm0.humanoid.initial_automatic_bone_assignment = False
         if all(not b.node.bone_name for b in vrm0.humanoid.human_bones):
-            bpy.ops.vrm.assign_vrm0_humanoid_human_bones_automatically(
+            ops.vrm.assign_vrm0_humanoid_human_bones_automatically(
                 armature_name=armature.name
             )

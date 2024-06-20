@@ -37,7 +37,7 @@ class ICYP_OT_make_armature(Operator):
     )
 
     #
-    WIP_with_template_mesh: BoolProperty(  # type: ignore[valid-type]
+    wip_with_template_mesh: BoolProperty(  # type: ignore[valid-type]
         default=False
     )
 
@@ -150,7 +150,7 @@ class ICYP_OT_make_armature(Operator):
             self.setup_as_vrm(context, self.armature_obj, compare_dict)
             if self.custom_property_name:
                 self.armature_obj[self.custom_property_name] = True
-            if self.WIP_with_template_mesh:
+            if self.wip_with_template_mesh:
                 IcypTemplateMeshMaker(context, self)
         context.view_layer.objects.active = self.armature_obj
         return {"FINISHED"}
@@ -625,7 +625,7 @@ class ICYP_OT_make_armature(Operator):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         skip_heavy_armature_setup: bool  # type: ignore[no-redef]
-        WIP_with_template_mesh: bool  # type: ignore[no-redef]
+        wip_with_template_mesh: bool  # type: ignore[no-redef]
         tall: float  # type: ignore[no-redef]
         head_ratio: float  # type: ignore[no-redef]
         head_width_ratio: float  # type: ignore[no-redef]
