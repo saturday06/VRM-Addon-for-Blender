@@ -2596,7 +2596,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def get_alpha_cutoff(self) -> float:
-        return self.get_value(
+        return self.get_float(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_ALPHA_CUTOFF_LABEL,
             default_value=shader.OUTPUT_GROUP_ALPHA_CUTOFF_DEFAULT,
