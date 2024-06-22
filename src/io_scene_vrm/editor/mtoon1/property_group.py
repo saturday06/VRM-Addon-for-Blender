@@ -270,6 +270,10 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         value = self.get_value(
             node_group_name, group_label, default_value=default_value
         )
+        if isinstance(value, int):
+            return value
+        if isinstance(value, bool):
+            return int(value)
         return round(value)
 
     def get_value(
