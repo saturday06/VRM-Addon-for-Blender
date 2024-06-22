@@ -240,6 +240,8 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         group_label: str,
     ) -> bool:
         value = self.get_value(node_group_name, group_label, 0)
+        if isinstance(value, float):
+            return abs(value) < 0.000001
         return bool(value)
 
     def get_float(
