@@ -260,6 +260,18 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         )
         return float(value)
 
+    def get_int(
+        self,
+        node_group_name: str,
+        group_label: str,
+        *,
+        default_value: int,
+    ) -> int:
+        value = self.get_value(
+            node_group_name, group_label, default_value=default_value
+        )
+        return round(value)
+
     def get_value(
         self,
         node_group_name: str,
@@ -2508,15 +2520,13 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     alpha_mode_blend_method_hashed: BoolProperty()  # type: ignore[valid-type]
 
     def get_alpha_mode(self) -> int:
-        alpha_mode_value = self.get_value(
+        alpha_mode_value = self.get_int(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_ALPHA_MODE_LABEL,
             default_value=self.ALPHA_MODE_OPAQUE_VALUE,
         )
-        if abs(alpha_mode_value - self.ALPHA_MODE_MASK_VALUE) < 0.0001:
-            return self.ALPHA_MODE_MASK_VALUE
-        if abs(alpha_mode_value - self.ALPHA_MODE_BLEND_VALUE) < 0.0001:
-            return self.ALPHA_MODE_BLEND_VALUE
+        if alpha_mode_value in [value for _, _, _, _, value in self.alpha_mode_items]:
+            return alpha_mode_value
         return self.ALPHA_MODE_OPAQUE_VALUE
 
     def set_alpha_mode(self, value: int) -> None:
