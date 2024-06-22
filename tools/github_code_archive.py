@@ -8,6 +8,9 @@ from pathlib import Path
 
 import bpy
 
+# This is not necessary if executed from poetry
+sys.path.append(str(Path(__file__).parent.parent / "src"))
+
 from io_scene_vrm.common import ops
 
 context = bpy.context
