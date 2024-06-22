@@ -1,8 +1,8 @@
 diff --git a/src/io_scene_vrm/__init__.py b/src/io_scene_vrm/__init__.py
-index 5ef8d2c6..5f4289fb 100644
+index 19594bdd..5f4289fb 100644
 --- a/src/io_scene_vrm/__init__.py
 +++ b/src/io_scene_vrm/__init__.py
-@@ -1,236 +1,17 @@
+@@ -1,237 +1,17 @@
  # SPDX-License-Identifier: MIT
  # SPDX-FileCopyrightText: 2018 iCyP
  
@@ -76,6 +76,7 @@ index 5ef8d2c6..5f4289fb 100644
 -
      registration.unregister()
  
+-    # https://github.com/saturday06/VRM-Addon-for-Blender/issues/506#issuecomment-2183766778
 -    if os.getenv("BLENDER_VRM_DEVEMOPMENT_MODE") == "yes":
 -        cleanse_modules()
 -
@@ -242,7 +243,7 @@ index 5ef8d2c6..5f4289fb 100644
  class glTF2ImportUserExtension:
      def __init__(self) -> None:
 diff --git a/src/io_scene_vrm/blender_manifest.toml b/src/io_scene_vrm/blender_manifest.toml
-index 5adf614d..4feaa899 100644
+index 1bf84a2c..7c5a4237 100644
 --- a/src/io_scene_vrm/blender_manifest.toml
 +++ b/src/io_scene_vrm/blender_manifest.toml
 @@ -11,8 +11,7 @@ website = "https://vrm-addon-for-blender.info"

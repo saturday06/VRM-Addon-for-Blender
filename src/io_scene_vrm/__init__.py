@@ -69,6 +69,7 @@ def unregister() -> None:
 
     registration.unregister()
 
+    # https://github.com/saturday06/VRM-Addon-for-Blender/issues/506#issuecomment-2183766778
     if os.getenv("BLENDER_VRM_DEVEMOPMENT_MODE") == "yes":
         cleanse_modules()
 
