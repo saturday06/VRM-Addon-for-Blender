@@ -15,7 +15,7 @@
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 57),
+    "version": (2, 20, 60),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
     "blender": (2, 93, 0),
@@ -63,10 +63,15 @@ def register() -> None:
 
 def unregister() -> None:
     # Lazy import to minimize initialization before blender version checking.
+    import os
+
     from . import registration
 
     registration.unregister()
-    cleanse_modules()
+
+    # https://github.com/saturday06/VRM-Addon-for-Blender/issues/506#issuecomment-2183766778
+    if os.getenv("BLENDER_VRM_DEVEMOPMENT_MODE") == "yes":
+        cleanse_modules()
 
 
 def raise_error_if_too_old_blender() -> None:
