@@ -4,8 +4,8 @@ permissions: {}
 
 on:
   push:
-    branches:
-      - '**'
+    tags:
+      - '*_*_*'
 
 jobs:
   extension:
