@@ -108,6 +108,14 @@ def migrate_material(context: Context, material: Material) -> None:
         else:
             alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE
 
+    gi_equalization_factor: Optional[float] = None
+    if addon_version < (2, 20, 70):
+        gi_equalization_factor_object = vrmc_materials_mtoon.pop(
+            "gi_equalization_factor", None
+        )
+        if isinstance(gi_equalization_factor_object, (int, float)):
+            gi_equalization_factor = gi_equalization_factor_object
+
     if addon_version < shader.LAST_MODIFIED_VERSION:
         reset_shader_node_group(
             context, material, reset_material_node_tree=True, reset_node_groups=False
@@ -115,10 +123,13 @@ def migrate_material(context: Context, material: Material) -> None:
 
     # ここから先は、シェーダーノードが最新の状態になっている想定のコードを書ける
     typed_mtoon1 = get_material_extension(material).mtoon1
+    typed_vrmc_materials_mtoon = typed_mtoon1.extensions.vrmc_materials_mtoon
     if alpha_mode is not None:
         typed_mtoon1.alpha_mode = alpha_mode
     if alpha_cutoff is not None:
         typed_mtoon1.alpha_cutoff = alpha_cutoff
+    if gi_equalization_factor is not None:
+        typed_vrmc_materials_mtoon.gi_equalization_factor = gi_equalization_factor
 
 
 def migrate_sampler_filter_node(material: Material) -> None:

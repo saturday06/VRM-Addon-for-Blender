@@ -2042,11 +2042,18 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
 class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     material_property_chain = ("extensions", "vrmc_materials_mtoon")
 
-    def update_transparent_with_z_write(self, _context: Context) -> None:
+    def get_transparent_with_z_write(self) -> bool:
+        return self.get_bool(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_TRANSPARENT_WITH_Z_WRITE_LABEL,
+            default_value=shader.OUTPUT_GROUP_TRANSPARENT_WITH_Z_WRITE_DEFAULT,
+        )
+
+    def set_transparent_with_z_write(self, value: object) -> None:
         self.set_bool(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_TRANSPARENT_WITH_Z_WRITE_LABEL,
-            self.transparent_with_z_write,
+            value,
         )
 
         mtoon1 = get_material_mtoon1_extension(self.find_material())
@@ -2054,8 +2061,9 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     transparent_with_z_write: BoolProperty(  # type: ignore[valid-type]
         name="Transparent With ZWrite Mode",
-        update=update_transparent_with_z_write,
         default=shader.OUTPUT_GROUP_TRANSPARENT_WITH_Z_WRITE_DEFAULT,
+        get=get_transparent_with_z_write,
+        set=set_transparent_with_z_write,
     )
 
     def update_render_queue_offset_number(self, _context: Context) -> None:
@@ -2127,11 +2135,18 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         update=update_shading_toony_factor,
     )
 
-    def update_gi_equalization_factor(self, _context: Context) -> None:
+    def get_gi_equalization_factor(self) -> float:
+        return self.get_float(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_GI_EQUALIZATION_FACTOR_LABEL,
+            default_value=shader.OUTPUT_GROUP_GI_EQUALIZATION_FACTOR_DEFAULT,
+        )
+
+    def set_gi_equalization_factor(self, value: object) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_GI_EQUALIZATION_FACTOR_LABEL,
-            self.gi_equalization_factor,
+            value,
         )
 
     gi_equalization_factor: FloatProperty(  # type: ignore[valid-type]
@@ -2139,7 +2154,8 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         min=0.0,
         default=shader.OUTPUT_GROUP_GI_EQUALIZATION_FACTOR_DEFAULT,
         max=1.0,
-        update=update_gi_equalization_factor,
+        get=get_gi_equalization_factor,
+        set=set_gi_equalization_factor,
     )
 
     def update_matcap_factor(self, _context: Context) -> None:
