@@ -11,7 +11,7 @@ jobs:
   extension:
     runs-on: ubuntu-22.04
     env:
-      BLENDER_ARCHIVE_URL: https://cdn.builder.blender.org/download/daily/blender-4.2.0-beta+v42.b73b66330905-linux.x86_64-release.tar.xz
+      BLENDER_ARCHIVE_URL: https://cdn.builder.blender.org/download/daily/blender-4.2.0-beta+v42.3229bde954bc-linux.x86_64-release.tar.xz
     steps:
       - uses: actions/checkout@v4
         with:
