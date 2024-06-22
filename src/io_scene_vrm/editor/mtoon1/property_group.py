@@ -238,8 +238,12 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         self,
         node_group_name: str,
         group_label: str,
+        *,
+        default_value: bool,
     ) -> bool:
-        value = self.get_value(node_group_name, group_label, 0)
+        value = self.get_value(
+            node_group_name, group_label, default_value=int(default_value)
+        )
         if isinstance(value, float):
             return abs(value) < 0.000001
         return bool(value)
@@ -248,17 +252,21 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         self,
         node_group_name: str,
         group_label: str,
+        *,
         default_value: float,
     ) -> float:
-        value = self.get_value(node_group_name, group_label, default_value)
+        value = self.get_value(
+            node_group_name, group_label, default_value=default_value
+        )
         return float(value)
 
     def get_value(
         self,
         node_group_name: str,
         group_label: str,
+        *,
         default_value: float,
-    ) -> Union[float, int]:
+    ) -> Union[float, int, bool]:
         material = self.find_material()
         node_tree = material.node_tree
         if not node_tree:
@@ -2503,7 +2511,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         alpha_mode_value = self.get_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_ALPHA_MODE_LABEL,
-            self.ALPHA_MODE_OPAQUE_VALUE,
+            default_value=self.ALPHA_MODE_OPAQUE_VALUE,
         )
         if abs(alpha_mode_value - self.ALPHA_MODE_MASK_VALUE) < 0.0001:
             return self.ALPHA_MODE_MASK_VALUE
@@ -2591,7 +2599,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         return self.get_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_ALPHA_CUTOFF_LABEL,
-            shader.OUTPUT_GROUP_ALPHA_CUTOFF_DEFAULT,
+            default_value=shader.OUTPUT_GROUP_ALPHA_CUTOFF_DEFAULT,
         )
 
     def set_alpha_cutoff(self, value: float) -> None:
