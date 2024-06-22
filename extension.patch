@@ -1,8 +1,8 @@
 diff --git a/src/io_scene_vrm/__init__.py b/src/io_scene_vrm/__init__.py
-index d4b623f0..5f4289fb 100644
+index 5ef8d2c6..5f4289fb 100644
 --- a/src/io_scene_vrm/__init__.py
 +++ b/src/io_scene_vrm/__init__.py
-@@ -1,231 +1,16 @@
+@@ -1,236 +1,17 @@
  # SPDX-License-Identifier: MIT
  # SPDX-FileCopyrightText: 2018 iCyP
  
@@ -70,10 +70,14 @@ index d4b623f0..5f4289fb 100644
  
  def unregister() -> None:
 -    # Lazy import to minimize initialization before blender version checking.
+-    import os
+-
 -    from . import registration
 -
      registration.unregister()
--    cleanse_modules()
+ 
+-    if os.getenv("BLENDER_VRM_DEVEMOPMENT_MODE") == "yes":
+-        cleanse_modules()
 -
 -
 -def raise_error_if_too_old_blender() -> None:
@@ -233,14 +237,15 @@ index d4b623f0..5f4289fb 100644
 -        )
 -
 -    logger.warning("%s ...OK", log_warning_prefix)
- 
+-
  
  class glTF2ImportUserExtension:
+     def __init__(self) -> None:
 diff --git a/src/io_scene_vrm/blender_manifest.toml b/src/io_scene_vrm/blender_manifest.toml
-index 74e7bbf6..feb441dc 100644
+index 5adf614d..4feaa899 100644
 --- a/src/io_scene_vrm/blender_manifest.toml
 +++ b/src/io_scene_vrm/blender_manifest.toml
-@@ -13,8 +13,7 @@ website = "https://vrm-addon-for-blender.info"
+@@ -11,8 +11,7 @@ website = "https://vrm-addon-for-blender.info"
  
  tags = ["Import-Export", "Animation", "Modeling", "Material", "Physics"]
  

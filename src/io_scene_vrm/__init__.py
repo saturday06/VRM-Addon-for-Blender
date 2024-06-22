@@ -63,10 +63,14 @@ def register() -> None:
 
 def unregister() -> None:
     # Lazy import to minimize initialization before blender version checking.
+    import os
+
     from . import registration
 
     registration.unregister()
-    cleanse_modules()
+
+    if os.getenv("BLENDER_VRM_DEVEMOPMENT_MODE") == "yes":
+        cleanse_modules()
 
 
 def raise_error_if_too_old_blender() -> None:
