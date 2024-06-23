@@ -607,7 +607,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                     None,
                 )
                 if human_bone:
-                    logger.warning(f'Duplicated bone: "{bone}"')
+                    logger.warning('Duplicated bone: "%s"', bone)
                 else:
                     human_bone = humanoid.human_bones.add()
                 human_bone.bone = bone

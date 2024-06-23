@@ -510,7 +510,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(Operator):
             material.use_nodes = True
         shader.clear_node_tree(material.node_tree, clear_inputs_outputs=True)
         if not material.node_tree:
-            logger.error(f"{material.name}'s node tree is None")
+            logger.error("%s's node tree is None", material.name)
             return
 
         principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)

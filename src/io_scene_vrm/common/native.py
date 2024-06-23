@@ -52,7 +52,7 @@ def read_blend_method_from_memory_address(material: Material) -> Optional[str]:
         return None
 
     logger.warning(
-        f"Starts reading the Blend Mode of {material.name} from its memory address."
+        "Starts reading the Blend Mode of %s from its memory address.", material.name
     )
     ##### BEGIN DANGER ZONE #####
     native_char = ctypes.c_char.from_address(
@@ -60,7 +60,7 @@ def read_blend_method_from_memory_address(material: Material) -> Optional[str]:
     )
     ##### END DANGER ZONE #####
     logger.warning(
-        f"Finished reading the Blend Mode of {material.name} from its memory address."
+        "Finished reading the Blend Mode of %s from its memory address.", material.name
     )
 
     if native_char.value == bytes([0]):

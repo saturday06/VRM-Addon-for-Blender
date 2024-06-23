@@ -89,7 +89,7 @@ class Vrm0HumanoidBonePropertyGroup(PropertyGroup):
     ) -> None:
         human_bone_name = HumanBoneName.from_str(self.bone)
         if human_bone_name is None:
-            logger.warning(f"Bone name '{self.bone}' is invalid")
+            logger.warning("Bone name '%s' is invalid", self.bone)
             return
         target = HumanBoneSpecifications.get(human_bone_name)
         new_candidates = BonePropertyGroup.find_bone_candidates(

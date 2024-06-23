@@ -241,7 +241,7 @@ def load_mtoon1_node_group(
     start_time = time.perf_counter()
 
     if not blend_file_path.exists():
-        logger.error(f"File not found: {blend_file_path}")
+        logger.error("File not found: %s", blend_file_path)
         return
 
     if not reset_node_groups:
@@ -266,7 +266,7 @@ def load_mtoon1_node_group(
         template_node_group_name
     )
     if old_template_node_group:
-        logger.error(f'Node Group "{template_node_group_name}" already exists')
+        logger.error('Node Group "%s" already exists', template_node_group_name)
         old_template_node_group.name = backup_name(
             old_template_node_group.name, backup_suffix
         )
@@ -372,7 +372,7 @@ def load_mtoon1_shader(
     template_material_name = template_name("VRM Add-on MToon 1.0")
     old_material = context.blend_data.materials.get(template_material_name)
     if old_material:
-        logger.error(f'Material "{template_material_name}" already exists')
+        logger.error('Material "%s" already exists', template_material_name)
         old_material.name = backup_name(old_material.name, backup_suffix)
 
     # Materialをアペンドする際にNodeTreeも同時にアペンドされる。
@@ -381,7 +381,7 @@ def load_mtoon1_shader(
         name = template_name(shader_node_group_name)
         old_template_group = context.blend_data.node_groups.get(name)
         if old_template_group:
-            logger.error(f'Node Group "{name}" already exists')
+            logger.error('Node Group "%s" already exists', name)
             old_template_group.name = backup_name(
                 old_template_group.name, backup_suffix
             )
@@ -600,7 +600,7 @@ def copy_shader_node_group(
 ) -> None:
     node_tree = from_node.node_tree
     if not node_tree:
-        logger.error(f"No node_tree in ShaderNodeGroup: {from_node.name}")
+        logger.error("No node_tree in ShaderNodeGroup: %s", from_node.name)
         return
 
     for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
@@ -610,14 +610,14 @@ def copy_shader_node_group(
 
         group = context.blend_data.node_groups.get(shader_node_group_name)
         if not group:
-            logger.error(f'"{shader_node_group_name}" Not Found')
+            logger.error('"%s" Not Found', shader_node_group_name)
             continue
 
         to_node.node_tree = group
         return
 
     logger.error(
-        f"Importing ShaderNodeGroup doesn't be supported yet: {node_tree.name}"
+        "Importing ShaderNodeGroup doesn't be supported yet: %s", node_tree.name
     )
 
 
@@ -1299,13 +1299,14 @@ def copy_node_tree(
             continue
         if not 0 <= input_socket_index < len(input_node.inputs):
             logger.error(
-                "Input socket out of range: "
-                + f"{input_socket_index} < {len(input_node.inputs)}"
+                "Input socket out of range: %d < %d",
+                input_socket_index,
+                len(input_node.inputs),
             )
             continue
         input_socket = input_node.inputs[input_socket_index]
         if not input_socket:
-            logger.error(f"No input socket: {from_link.to_socket.name}")
+            logger.error("No input socket: %s", from_link.to_socket.name)
             continue
 
         output_socket_index = next(
@@ -1329,7 +1330,7 @@ def copy_node_tree(
             continue
         output_socket = output_node.outputs[output_socket_index]
         if not output_socket:
-            logger.error(f"No output socket: {from_link.from_socket.name}")
+            logger.error("No output socket: %s", from_link.from_socket.name)
             continue
 
         to_node_tree.links.new(input_socket, output_socket)

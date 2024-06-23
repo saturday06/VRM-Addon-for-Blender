@@ -202,7 +202,7 @@ class AbstractBaseVrmImporter(ABC):
         if material.node_tree:
             material.node_tree.nodes.new("ShaderNodeOutputMaterial")
         else:
-            logger.error(f"No node tree for material {material.name}")
+            logger.error("No node tree for material %s", material.name)
 
     def assign_packed_image_filepaths(self) -> None:
         # Assign image filepath for fbx export
@@ -258,7 +258,7 @@ class AbstractBaseVrmImporter(ABC):
             if len(image_name) >= 100:
                 new_image_name = "texture_too_long_name_" + str(image_index)
                 logger.warning(
-                    f"too long name image: {image_name} is named {new_image_name}"
+                    "too long name image: %s is named %s", image_name, new_image_name
                 )
                 image_name = new_image_name
 
@@ -274,7 +274,7 @@ class AbstractBaseVrmImporter(ABC):
             try:
                 image.unpack(method="WRITE_ORIGINAL")
             except RuntimeError:
-                logger.exception(f"Failed to unpack {image.name}")
+                logger.exception("Failed to unpack %s", image.name)
                 continue
 
             image_original_path_str = image.filepath_from_user()

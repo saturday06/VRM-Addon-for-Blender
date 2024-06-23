@@ -684,7 +684,7 @@ def draw_vrm1_expressions_layout(
             expression.name
         )
         if not preset_icon:
-            logger.error(f"Unknown preset expression: {expression.name}")
+            logger.error("Unknown preset expression: %s", expression.name)
             preset_icon = "SHAPEKEY_DATA"
         layout.label(text=expression.name, translate=False, icon=preset_icon)
     elif 0 <= custom_index < len(expressions.custom):

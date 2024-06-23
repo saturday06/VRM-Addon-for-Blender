@@ -49,7 +49,7 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
     def update_vrm0_material_property_names(context: Context, scene_name: str) -> None:
         scene = context.blend_data.scenes.get(scene_name)
         if not scene:
-            logger.error(f'No scene "{scene_name}"')
+            logger.error('No scene "%s"', scene_name)
             return
         ext = get_scene_extension(scene)
 

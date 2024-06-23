@@ -1,10 +1,10 @@
 import secrets
 import string
-from collections.abc import Sequence
 from typing import Optional
 
 from bpy.types import Image
 
+from ..common.convert import sequence_or_none
 from ..common.logging import get_logger
 
 logger = get_logger(__name__)
@@ -39,16 +39,21 @@ class Gltf2AddonImporterUserExtension:
             )
             return
 
-        images = getattr(getattr(gltf_importer, "data", None), "images", None)
-        if not isinstance(images, Sequence):
+        images = sequence_or_none(
+            getattr(getattr(gltf_importer, "data", None), "images", None)
+        )
+        if images is None:
             logger.warning(
                 "gather_import_image_after_hook: "
-                + f"gltf_importer is unexpected structure: {gltf_importer}"
+                + "gltf_importer is unexpected structure: %s",
+                gltf_importer,
             )
             return
 
         if image not in images:
-            logger.warning(f"gather_import_image_after_hook: {image} not in {images}")
+            logger.warning(
+                "gather_import_image_after_hook: %s not in %s", image, images
+            )
             return
 
         index = images.index(image)

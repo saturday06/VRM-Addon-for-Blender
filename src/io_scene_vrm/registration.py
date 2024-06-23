@@ -443,7 +443,7 @@ classes: list[
 
 def register() -> None:
     name = ".".join(__name__.split(".")[:-1])
-    logger.debug(f"Registering: {name}")
+    logger.debug("Registering: %s", name)
 
     bpy.app.translations.register(
         preferences.addon_package_name,
@@ -503,7 +503,7 @@ def register() -> None:
 
     io_scene_gltf2_support.init_extras_export()
 
-    logger.debug(f"Registered: {name}")
+    logger.debug("Registered: %s", name)
 
 
 def unregister() -> None:
@@ -559,6 +559,6 @@ def unregister() -> None:
         try:
             bpy.utils.unregister_class(cls)
         except RuntimeError:
-            logger.exception(f"Failed to Unregister {cls}")
+            logger.exception("Failed to Unregister %s", cls)
 
     bpy.app.translations.unregister(preferences.addon_package_name)

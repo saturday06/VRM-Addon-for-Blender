@@ -51,7 +51,7 @@ def export_materials(context: Context, objects: list[Object]) -> list[Material]:
                     result.append(material)
         else:
             logger.error(
-                f"Unexpected mesh convertible object type: {type(mesh_convertible)}"
+                "Unexpected mesh convertible object type: %s", type(mesh_convertible)
             )
 
         for material_slot in obj.material_slots:

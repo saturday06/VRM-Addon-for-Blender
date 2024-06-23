@@ -311,7 +311,7 @@ class WM_OT_vrm_validator(Operator):
                 armature = obj
                 armature_data = armature.data
                 if not isinstance(armature_data, Armature):
-                    logger.error(f"{type(armature_data)} is not an Armature")
+                    logger.error("%s is not an Armature", type(armature_data))
                     continue
                 if execute_migration:
                     migration.migrate(context, armature.name)
@@ -452,7 +452,7 @@ class WM_OT_vrm_validator(Operator):
             if obj.type == "MESH":
                 mesh_data = obj.data
                 if not isinstance(mesh_data, Mesh):
-                    logger.error(f"{type(mesh_data)} is not a Mesh")
+                    logger.error("%s is not a Mesh", type(mesh_data))
                     continue
                 for poly in mesh_data.polygons:
                     if poly.loop_total > 3:  # polygons need all triangle

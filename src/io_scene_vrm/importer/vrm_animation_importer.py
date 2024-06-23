@@ -602,7 +602,11 @@ def work_in_progress_2(context: Context, path: Path, armature: Object) -> set[st
     first_timestamp = timestamps[0]
     last_timestamp = timestamps[-1]
 
-    logger.debug(f"{first_timestamp=} ... {last_timestamp=}")
+    logger.debug(
+        "first_timestamp=%s ... last_timestamp=%s",
+        first_timestamp,
+        last_timestamp,
+    )
 
     look_at_target_object = None
     look_at_translation_keyframes = None
@@ -909,29 +913,29 @@ def assign_humanoid_keyframe(
 
                 if rotation_keyframes:
                     logger.debug(
-                        f"================= {human_bone_name.value} ================="
+                        "================= %s =================", human_bone_name.value
                     )
                     logger.debug(
-                        f"humanoid world matrix = {dump(humanoid_rest_world_matrix)}"
+                        "humanoid world matrix = %s", dump(humanoid_rest_world_matrix)
                     )
-                    logger.debug(f"rest_local_matrix     = {dump(rest_local_matrix)}")
-                    logger.debug(f"pose_local_matrix     = {dump(pose_local_matrix)}")
-                    logger.debug(f"rest_world_matrix     = {dump(rest_world_matrix)}")
-                    logger.debug(f"pose_world_matrix     = {dump(pose_world_matrix)}")
-                    logger.debug(f"rest_to_pose_matrix  = {dump(rest_to_pose_matrix)}")
+                    logger.debug("rest_local_matrix     = %s", dump(rest_local_matrix))
+                    logger.debug("pose_local_matrix     = %s", dump(pose_local_matrix))
+                    logger.debug("rest_world_matrix     = %s", dump(rest_world_matrix))
+                    logger.debug("pose_world_matrix     = %s", dump(pose_world_matrix))
+                    logger.debug("rest_to_pose_matrix  = %s", dump(rest_to_pose_matrix))
                     logger.debug(
-                        "rest_to_pose_world_rotation = "
-                        + dump(rest_to_pose_world_rotation)
+                        "rest_to_pose_world_rotation = %s",
+                        dump(rest_to_pose_world_rotation),
                     )
                     logger.debug(
                         "rest_to_pose_target_local_rotation = "
                         + dump(rest_to_pose_target_local_rotation)
                     )
 
-                    # logger.debug(f"parent bone matrix  = {dump(parent_matrix)}")
-                    logger.debug(f"       bone matrix  = {dump(bone.matrix)}")
+                    # logger.debug("parent bone matrix  = %s", dump(parent_matrix))
+                    logger.debug("       bone matrix  = %s", dump(bone.matrix))
                     logger.debug(
-                        f"current bone rotation = {dump(bone.rotation_quaternion)}"
+                        "current bone rotation = %s", dump(bone.rotation_quaternion)
                     )
 
                     backup_rotation_quaternion = bone.rotation_quaternion.copy()

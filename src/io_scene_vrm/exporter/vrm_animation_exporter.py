@@ -103,7 +103,9 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
             )
         else:
             logger.error(
-                f"Unexpected rotation mode for bone {bone.name}: {bone.rotation_mode}"
+                "Unexpected rotation mode for bone %s: %s",
+                bone.name,
+                bone.rotation_mode,
             )
 
         if human_bone_name == HumanBoneName.HIPS:
@@ -478,13 +480,13 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 None,
             )
             if human_bone_name is None:
-                logger.error(f"Failed to find human bone name for bone {bone_name}")
+                logger.error("Failed to find human bone name for bone %s", bone_name)
                 continue
             if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
                 continue
             human_bone_node_index = human_bone_name_to_node_index.get(human_bone_name)
             if not isinstance(human_bone_node_index, int):
-                logger.error(f"Failed to find node index for bone {bone_name}")
+                logger.error("Failed to find node index for bone %s", bone_name)
                 continue
 
             input_byte_offset = len(buffer0_bytearray)

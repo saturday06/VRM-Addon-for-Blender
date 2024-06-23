@@ -1155,11 +1155,11 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
                     continue
                 vrm0_name = Vrm0HumanBoneName.from_str(vrm0_human_bone.bone)
                 if not vrm0_name:
-                    logger.error(f"Invalid VRM0 bone name str: {vrm0_human_bone.bone}")
+                    logger.error("Invalid VRM0 bone name str: %s", vrm0_human_bone.bone)
                     continue
                 vrm1_name = vrm0_human_bone_name_to_vrm1_human_bone_name.get(vrm0_name)
                 if vrm1_name is None:
-                    logger.error(f"Invalid VRM0 bone name: {vrm0_name}")
+                    logger.error("Invalid VRM0 bone name: %s", vrm0_name)
                     continue
                 human_bone = human_bone_name_to_human_bone.get(vrm1_name)
                 if not human_bone:

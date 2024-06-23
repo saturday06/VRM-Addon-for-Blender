@@ -45,7 +45,6 @@ ignore = [
 
     "FBT003", # Boolean positional value in function call
     "G003", # Logging statement uses `+`
-    "G004", # Logging statement uses f-string
 
     # ----- ignored -----
 

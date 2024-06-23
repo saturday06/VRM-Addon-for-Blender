@@ -967,7 +967,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 "texCoord": 0,
             }
         else:
-            logger.warning(f"No image: {socket_name}")
+            logger.warning("No image: %s", socket_name)
 
     @classmethod
     def make_gltf_mat_dict(
@@ -2981,7 +2981,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 bind_dict: dict[str, Json] = {}
                 mesh = self.mesh_name_to_index.get(bind.mesh.mesh_object_name)
                 if mesh is None:
-                    logger.warning(f"{bind.mesh.mesh_object_name} => None")
+                    logger.warning("%s => None", bind.mesh.mesh_object_name)
                     continue
                 bind_dict["mesh"] = mesh
 

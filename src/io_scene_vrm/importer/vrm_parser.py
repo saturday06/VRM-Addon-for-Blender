@@ -215,7 +215,7 @@ def decode_bin(
             continue
         type_num = type_num_dict.get(accessor_type)
         if not isinstance(type_num, int):
-            logger.warning(f"Unrecognized accessor type: {accessor_type}")
+            logger.warning("Unrecognized accessor type: %s", accessor_type)
             continue
         buffer_view_index = accessor_dict.get("bufferView")
         if not isinstance(buffer_view_index, int):

@@ -508,7 +508,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         spring_dicts: list[Json] = []
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
-            logger.error(f"{type(armature_data)} is not an Armature")
+            logger.error("%s is not an Armature", type(armature_data))
             return []
         for spring in spring_bone.springs:
             spring_dict: dict[str, Json] = {"name": spring.vrm_name}
@@ -728,7 +728,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             image_dicts = []
             json_dict["images"] = image_dicts
         if isinstance(image_index, int) and not 0 <= image_index < len(image_dicts):
-            logger.error(f"Bug: not 0 <= {image_index} < len(images)) for {image.name}")
+            logger.error(
+                "Bug: not 0 <= %d < len(images)) for %s", image_index, image.name
+            )
             image_index = None
         if not isinstance(image_index, int):
             image_index = len(image_dicts)
@@ -2031,7 +2033,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             vrm_bytes = self.add_vrm_extension_to_glb(extra_name_assigned_glb)
             if vrm_bytes is None:
                 return None
-            logger.info(f"Generated VRM size: {len(vrm_bytes)} bytes")
+            logger.info("Generated VRM size: %s bytes", len(vrm_bytes))
         return vrm_bytes
 
     def add_vrm_extension_to_glb(

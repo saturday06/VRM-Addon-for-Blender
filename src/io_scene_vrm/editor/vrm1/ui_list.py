@@ -160,7 +160,7 @@ class VRM_UL_vrm1_expression(UIList):
             name, expression = preset_expression_items[index]
             icon = Vrm1ExpressionsPresetPropertyGroup.NAME_TO_ICON_DICT.get(name)
             if not icon:
-                logger.error(f"Unknown preset expression: {name}")
+                logger.error("Unknown preset expression: %s", name)
                 icon = "SHAPEKEY_DATA"
         else:
             custom_expressions = expressions.custom

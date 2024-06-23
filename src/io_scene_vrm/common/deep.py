@@ -29,14 +29,14 @@ def make_json(v: object) -> Json:
             if isinstance(key, str):
                 dict_result[key] = make_json(value)
                 continue
-            logger.warning(f"{key} {type(key)} is unrecognized type for dict key")
+            logger.warning("%s %s is unrecognized type for dict key", key, type(key))
         return dict_result
 
     iterator = convert.iterator_or_none(v)
     if iterator is not None:
         return [make_json(x) for x in iterator]
 
-    logger.warning(f"{v} {type(v)} is unrecognized type")
+    logger.warning("%s %s is unrecognized type", v, type(v))
     return None
 
 

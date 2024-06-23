@@ -183,7 +183,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         context = bpy.context
 
         if self.id_data and self.id_data.is_evaluated:
-            logger.error(f"{self} is evaluated. May cause a problem.")
+            logger.error("%s is evaluated. May cause a problem.", self)
 
         chain = self.get_material_property_chain()
         for material in context.blend_data.materials:
@@ -343,7 +343,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
             None,
         )
         if not node:
-            logger.warning(f'No group node "{node_group_name}"')
+            logger.warning('No group node "%s"', node_group_name)
             return
 
         socket = node.inputs.get(group_label)
@@ -355,7 +355,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
             socket.default_value = int(value)
         else:
             logger.warning(
-                f'No "{group_label}" in shader node group "{node_group_name}"'
+                'No "%s" in shader node group "%s"', group_label, node_group_name
             )
 
     def set_bool(
@@ -407,13 +407,13 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
             None,
         )
         if not node:
-            logger.warning(f'No group node "{node_group_name}"')
+            logger.warning('No group node "%s"', node_group_name)
             return
 
         socket = node.inputs.get(group_label)
         if not isinstance(socket, shader.COLOR_SOCKET_CLASSES):
             logger.warning(
-                f'No "{group_label}" in shader node group "{node_group_name}"'
+                'No "%s" in shader node group "%s"', group_label, node_group_name
             )
             return
 
@@ -452,13 +452,13 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
             None,
         )
         if not node:
-            logger.warning(f'No group node "{node_group_name}"')
+            logger.warning('No group node "%s"', node_group_name)
             return
 
         socket = node.inputs.get(group_label)
         if not isinstance(socket, shader.COLOR_SOCKET_CLASSES):
             logger.warning(
-                f'No "{group_label}" in shader node group "{node_group_name}"'
+                'No "%s" in shader node group "%s"', group_label, node_group_name
             )
             return
 
@@ -541,17 +541,17 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
         in_socket = in_node.inputs.get(in_socket_name)
         if not in_socket:
-            logger.error(f"No input socket: {in_socket_name}")
+            logger.error("No input socket: %s", in_socket_name)
             return
 
         out_node = material.node_tree.nodes.get(tex_image_node_name)
         if not isinstance(out_node, ShaderNodeTexImage):
-            logger.error(f"No tex image node: {tex_image_node_name}")
+            logger.error("No tex image node: %s", tex_image_node_name)
             return
 
         out_socket = out_node.outputs.get(tex_image_node_socket_name)
         if not out_socket:
-            logger.error(f"No tex image node socket: {tex_image_node_socket_name}")
+            logger.error("No tex image node socket: %s", tex_image_node_socket_name)
             return
 
         material.node_tree.links.new(in_socket, out_socket)
@@ -630,7 +630,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
         node = node_tree.nodes.get(node_name)
         if not isinstance(node, ShaderNodeTexImage):
-            logger.warning(f'No shader node tex image "{node_name}"')
+            logger.warning('No shader node tex image "%s"', node_name)
             return
 
         node.image = image
@@ -661,11 +661,11 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         node_tree = material.node_tree
         node = node_tree.nodes.get(node_name)
         if not isinstance(node, ShaderNodeGroup):
-            logger.warning(f'No shader node group "{node_name}"')
+            logger.warning('No shader node group "%s"', node_name)
             return
         socket = node.inputs.get(name)
         if not socket:
-            logger.warning(f'No "{name}" in shader node group "{node_name}"')
+            logger.warning('No "%s" in shader node group "%s"', name, node_name)
             return
 
         if isinstance(value, (float, int)):
@@ -693,7 +693,7 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
             return
         node = material.node_tree.nodes.get(node_name)
         if not isinstance(node, ShaderNodeTexImage):
-            logger.warning(f'No shader node tex image "{node_name}"')
+            logger.warning('No shader node tex image "%s"', node_name)
             return
         node.texture_mapping.translation = Vector((0, 0, 0))
 
@@ -714,7 +714,7 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
             return
         node = material.node_tree.nodes.get(node_name)
         if not isinstance(node, ShaderNodeTexImage):
-            logger.warning(f'No shader node tex image "{node_name}"')
+            logger.warning('No shader node tex image "%s"', node_name)
             return
         node.texture_mapping.scale = Vector((1, 1, 1))
 

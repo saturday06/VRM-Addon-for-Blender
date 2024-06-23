@@ -349,15 +349,15 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
             if not specification.parent_requirement:
                 continue
             if not specification.parent_name:
-                logger.error(f"No parent for '{name}' in spec")
+                logger.error("No parent for '%s' in spec", name)
                 continue
             parent = human_bone_name_to_human_bone.get(specification.parent_name)
             if not parent:
-                logger.error(f"No parent for '{name}' in dict")
+                logger.error("No parent for '%s' in dict", name)
                 continue
             parent_specification = specification.parent()
             if not parent_specification:
-                logger.error(f"No parent specification for '{name}'")
+                logger.error("No parent specification for '%s'", name)
                 continue
             if not parent.node.bone_name:
                 messages.append(
@@ -1242,7 +1242,7 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
                 vrm1 = get_armature_vrm1_extension(search_armature)
                 break
         if vrm1 is None:
-            logger.error(f"No armature extension for {self}")
+            logger.error("No armature extension for %s", self)
             return
 
         expressions = vrm1.expressions
