@@ -13,7 +13,6 @@ from os import environ
 from sys import float_info
 from typing import Optional, Union
 
-import bmesh
 import bpy
 from bmesh.types import BMesh, BMLoop
 from bpy.types import (
@@ -2256,9 +2255,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if bpy.app.version < (4, 1):
                 mesh_data.calc_normals_split()
 
-            bm = bmesh.new()
-            bm.from_mesh(mesh_data)
-
             # temporary used
             material_dicts = self.json_dict.get("materials")
             if not isinstance(material_dicts, list):
@@ -2328,9 +2324,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             unsigned_int_scalar_packer = struct.Struct("<I").pack
             unsigned_short_vec4_packer = struct.Struct("<HHHH").pack
 
-            for material_slot_index, loops in self.tessface_fan(
-                bm, export_fb_ngon_encoding=self.export_fb_ngon_encoding
-            ):
+            for loop_triangle in mesh_data.loop_triangles:
+                material_slot_index = loop_triangle.material_index
                 material_name = material_slot_index_to_material_name_dict.get(
                     material_slot_index
                 )
@@ -2378,17 +2373,20 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 if material_index not in material_index_to_vertex_len_dict:
                     material_index_to_vertex_len_dict[material_index] = 0
 
-                for loop in loops:
+                loops = loop_triangle.loops
+                for loop_index in loops:
+                    loop = mesh_data.loops[loop_index]
                     uv_list: list[float] = []
                     for uvlayer_name in uvlayers_dict.values():
-                        uv_layer = bm.loops.layers.uv[uvlayer_name]
-                        uv_list.extend([loop[uv_layer].uv[0], loop[uv_layer].uv[1]])
+                        uv_layer = mesh_data.uv_layers[uvlayer_name]
+                        uv = uv_layer.data[loop_index].uv
+                        uv_list.extend([uv[0], uv[1]])
 
                     # 頂点のノーマルではなくloopのノーマルを使う。これで失うものはあると
                     # 思うが、glTF 2.0アドオンと同一にしておくのが無難だろうと判断。
                     # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1127
-                    vert_normal = mesh_data.loops[loop.index].normal
-                    vertex_key = (*uv_list, *vert_normal, loop.vert.index)
+                    vert_normal = loop.normal
+                    vertex_key = (*uv_list, *vert_normal, loop.vertex_index)
                     cached_vert_id = unique_vertex_dict.get(
                         vertex_key
                     )  # keyがなければNoneを返す
@@ -2400,35 +2398,44 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         continue
                     unique_vertex_dict[vertex_key] = unique_vertex_id
                     for uvlayer_id, uvlayer_name in uvlayers_dict.items():
-                        uv_layer = bm.loops.layers.uv[uvlayer_name]
-                        uv = loop[uv_layer].uv
+                        uv_layer = mesh_data.uv_layers[uvlayer_name]
+                        uv = uv_layer.data[loop_index].uv
                         texcoord_bins[uvlayer_id].extend(
                             float_pair_packer(uv[0], 1 - uv[1])
                         )  # blenderとglbのuvは上下逆
-                    for shape_name in shape_name_to_pos_bin_dict:
-                        shape_layer = bm.verts.layers.shape[shape_name]
-                        morph_pos = self.axis_blender_to_glb(
-                            [
-                                loop.vert[shape_layer][i] - loop.vert.co[i]
-                                for i in range(3)
-                            ]
-                        )
-                        shape_name_to_pos_bin_dict[shape_name].extend(
-                            float_vec3_packer(*morph_pos)
-                        )
-                        shape_name_to_normal_bin_dict[shape_name].extend(
-                            float_vec3_packer(
-                                *self.axis_blender_to_glb(
-                                    shape_name_to_morph_normal_diff_dict[shape_name][
-                                        loop.vert.index
-                                    ]
+                    if mesh_data.shape_keys is not None:
+                        for shape_name in shape_name_to_pos_bin_dict:
+                            co = mesh_data.vertices[loop.vertex_index].co
+                            shape_co = (
+                                mesh_data.shape_keys.key_blocks[shape_name]
+                                .data[loop.vertex_index]
+                                .co
+                            )
+                            morph_pos = self.axis_blender_to_glb(
+                                (
+                                    shape_co[0] - co[0],
+                                    shape_co[1] - co[1],
+                                    shape_co[2] - co[2],
                                 )
                             )
-                        )
-                        self.min_max(shape_name_to_min_max_dict[shape_name], morph_pos)
+                            shape_name_to_pos_bin_dict[shape_name].extend(
+                                float_vec3_packer(*morph_pos)
+                            )
+                            shape_name_to_normal_bin_dict[shape_name].extend(
+                                float_vec3_packer(
+                                    *self.axis_blender_to_glb(
+                                        shape_name_to_morph_normal_diff_dict[
+                                            shape_name
+                                        ][loop.vertex_index]
+                                    )
+                                )
+                            )
+                            self.min_max(
+                                shape_name_to_min_max_dict[shape_name], morph_pos
+                            )
                     if is_skin_mesh:
                         weight_and_joint_list: list[tuple[float, int]] = []
-                        for v_group in mesh_data.vertices[loop.vert.index].groups:
+                        for v_group in mesh_data.vertices[loop.vertex_index].groups:
                             v_group_name = v_group_name_dict.get(v_group.group)
                             if v_group_name is None:
                                 continue
@@ -2455,7 +2462,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         if len(weight_and_joint_list) > 4:
                             logger.warning(
                                 "Joints on vertex index=%d mesh=%s are truncated",
-                                loop.vert.index,
+                                loop.vertex_index,
                                 mesh.name,
                             )
                             weight_and_joint_list = weight_and_joint_list[:4]
@@ -2466,7 +2473,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         if sum(weights) < float_info.epsilon:
                             logger.warning(
                                 "No weight on vertex index=%d mesh=%s",
-                                loop.vert.index,
+                                loop.vertex_index,
                                 mesh.name,
                             )
 
@@ -2513,7 +2520,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         joints_bin.extend(unsigned_short_vec4_packer(*joints))
                         weights_bin.extend(float_vec4_packer(*normalized_weights))
 
-                    vert_location = self.axis_blender_to_glb(loop.vert.co)
+                    vert_location = self.axis_blender_to_glb(
+                        mesh_data.vertices[loop.vertex_index].co
+                    )
                     position_bin.extend(float_vec3_packer(*vert_location))
                     self.min_max(position_min_max, vert_location)
                     normal_bin.extend(
@@ -2541,7 +2550,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             }
 
             if not material_index_to_glb_dict:
-                bm.free()
                 continue
 
             mesh_index = len(mesh_dicts)
@@ -2693,7 +2701,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 mesh_dict["extensions"] = {"FB_ngon_encoding": {}}
 
             mesh_dicts.append(mesh_dict)
-            bm.free()
 
     def exporter_name(self) -> str:
         v = addon_version()
