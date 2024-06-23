@@ -40,9 +40,6 @@ select = ["ALL"]
 ignore = [
     # ----- fixing -----
 
-    # devcontainer for windows hosts doesn't set executable permissions properly.
-    "EXE002", # The file is executable but no shebang is present
-
     "FBT003", # Boolean positional value in function call
 
     # ----- ignored -----
@@ -65,6 +62,9 @@ ignore = [
     "D106", # Missing docstring in public nested class
     "D107", # Missing docstring in `__init__`
     "ERA001", # Found commented-out code
+
+    # devcontainer for windows hosts doesn't set executable permissions properly.
+    "EXE002", # The file is executable but no shebang is present
 
     # https://projects.blender.org/blender/blender/issues/63713
     "FA100", # Missing `from __future__ import annotations`, but uses `x`
