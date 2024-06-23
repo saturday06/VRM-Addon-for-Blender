@@ -94,14 +94,14 @@ class MeshObjectPropertyGroup(PropertyGroup):
     def get_value(self) -> str:
         logger.warning(
             "MeshObjectPropertyGroup.value is deprecated."
-            + " Use MeshObjectPropertyGroup.mesh_object_name instead."
+            " Use MeshObjectPropertyGroup.mesh_object_name instead."
         )
         return str(self.mesh_object_name)
 
     def set_value(self, value: str) -> None:
         logger.warning(
             "MeshObjectPropertyGroup.value is deprecated."
-            + " Use MeshObjectPropertyGroup.mesh_object_name instead."
+            " Use MeshObjectPropertyGroup.mesh_object_name instead."
         )
         self.mesh_object_name = value
 
@@ -355,14 +355,14 @@ class BonePropertyGroup(PropertyGroup):
     def get_value(self) -> str:
         logger.warning(
             "BonePropertyGroup.value is deprecated."
-            + " Use BonePropertyGroup.bone_name instead."
+            " Use BonePropertyGroup.bone_name instead."
         )
         return str(self.bone_name)
 
     def set_value(self, value: str) -> None:
         logger.warning(
             "BonePropertyGroup.value is deprecated."
-            + " Use BonePropertyGroup.bone_name instead."
+            " Use BonePropertyGroup.bone_name instead."
         )
         self.bone_name = value
 

@@ -43,8 +43,8 @@ def update_mtoon1_outline() -> Optional[float]:
     compare_end_time = time.perf_counter()
 
     logger.debug(
-        "The duration to determine material updates is "
-        + f"{compare_end_time - compare_start_time:.9f} seconds"
+        "The duration to determine material updates is %.9f seconds",
+        compare_end_time - compare_start_time,
     )
 
     if not_changed:

@@ -73,8 +73,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     colorspace_settings.name = texture.colorspace
                 except TypeError:
                     logger.exception(
-                        "image.colorspace_settings.name doesn't support"
-                        + f" {texture.colorspace}."
+                        "image.colorspace_settings.name doesn't support %s",
+                        texture.colorspace,
                     )
                     if texture.colorspace == "Non-Color":
                         with contextlib.suppress(TypeError):

@@ -890,9 +890,9 @@ class AbstractBaseVrmImporter(ABC):
                 full_vrm_import_success = True
             except RuntimeError:
                 logger.exception(
-                    f'Failed to import "{indexed_vrm_filepath}"'
-                    + f' generated from "{self.parse_result.filepath}"'
-                    + " using glTF 2.0 Add-on"
+                    'Failed to import "%s" generated from "%s" using glTF 2.0 Add-on',
+                    indexed_vrm_filepath,
+                    self.parse_result.filepath,
                 )
                 self.cleanup_gltf2_with_indices()
         if not full_vrm_import_success:
@@ -912,9 +912,10 @@ class AbstractBaseVrmImporter(ABC):
                     )
                 except RuntimeError:
                     logger.exception(
-                        f'Failed to import "{indexed_vrm_filepath}"'
-                        + f' generated from "{self.parse_result.filepath}"'
-                        + " using glTF 2.0 Add-on without animations key"
+                        'Failed to import "%s" generated from "%s"'
+                        " using glTF 2.0 Add-on without animations key",
+                        indexed_vrm_filepath,
+                        self.parse_result.filepath,
                     )
                     self.cleanup_gltf2_with_indices()
                     raise
@@ -1194,8 +1195,7 @@ class AbstractBaseVrmImporter(ABC):
                 view_settings.view_transform = "Standard"
             except TypeError:
                 logger.exception(
-                    "scene.view_settings.view_transform"
-                    + ' doesn\'t support "Standard".'
+                    'scene.view_settings.view_transform doesn\'t support "Standard".'
                 )
 
         if self.preferences.set_shading_type_to_material_on_import:

@@ -86,8 +86,10 @@ def migrate(context: Optional[Context], armature_object_name: str) -> bool:
 
     updated_addon_version = addon_version()
     logger.info(
-        f"Upgrade armature {armature_object_name}"
-        + f" {tuple(ext.addon_version)} to {updated_addon_version}"
+        "Upgrade armature %s %s to %s",
+        armature_object_name,
+        tuple(ext.addon_version),
+        updated_addon_version,
     )
     ext.addon_version = updated_addon_version
 
@@ -120,8 +122,9 @@ def migrate_all_objects(
 
     updated_addon_version = addon_version()
     logger.debug(
-        "Upgrade preferences"
-        + f" {tuple(preferences.addon_version)} to {updated_addon_version}"
+        "Upgrade preferences %s to %s",
+        tuple(preferences.addon_version),
+        updated_addon_version,
     )
     preferences.addon_version = updated_addon_version
 

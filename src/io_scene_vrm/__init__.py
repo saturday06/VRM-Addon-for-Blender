@@ -194,8 +194,8 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
 
     logger.warning(
         "%s Extracting the partial add-on archive for "
-        + "users who have acquired the add-on "
-        + 'from "Code" -> "Download ZIP" on GitHub ...',
+        "users who have acquired the add-on "
+        'from "Code" -> "Download ZIP" on GitHub ...',
         log_warning_prefix,
     )
 

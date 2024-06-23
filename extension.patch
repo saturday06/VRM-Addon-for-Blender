@@ -213,8 +213,8 @@ index 22658475..5f4289fb 100644
 -
 -    logger.warning(
 -        "%s Extracting the partial add-on archive for "
--        + "users who have acquired the add-on "
--        + 'from "Code" -> "Download ZIP" on GitHub ...',
+-        "users who have acquired the add-on "
+-        'from "Code" -> "Download ZIP" on GitHub ...',
 -        log_warning_prefix,
 -    )
 -

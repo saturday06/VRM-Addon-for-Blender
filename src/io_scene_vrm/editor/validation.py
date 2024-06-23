@@ -72,7 +72,7 @@ class WM_OT_vrm_validator(Operator):
                 logger.warning("Validation error: truncated ...")
                 break
             if error.severity == 0:
-                logger.warning("Validation error: " + error.message)
+                logger.warning("Validation error: %s", error.message)
                 fatal_error_count += 1
         if fatal_error_count > 0:
             return {"CANCELLED"}

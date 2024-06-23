@@ -2450,8 +2450,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
                         if len(weight_and_joint_list) > 4:
                             logger.warning(
-                                "Joints on vertex "
-                                + f"id: {loop.vert.index} in: {mesh.name} are truncated"
+                                "Joints on vertex index=%d mesh=%s are truncated",
+                                loop.vert.index,
+                                mesh.name,
                             )
                             weight_and_joint_list = weight_and_joint_list[:4]
 
@@ -2460,8 +2461,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
                         if sum(weights) < float_info.epsilon:
                             logger.warning(
-                                "No weight on vertex "
-                                + f"id:{loop.vert.index} in:{mesh.name}"
+                                "No weight on vertex index=%d mesh=%s",
+                                loop.vert.index,
+                                mesh.name,
                             )
 
                             # Attach near bone

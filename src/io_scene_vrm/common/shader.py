@@ -315,8 +315,7 @@ def load_mtoon1_node_group(
 
     end_time = time.perf_counter()
     logger.debug(
-        f'Loaded NodeTree "{node_group_name}": '
-        + f"{end_time - start_time:.9f} seconds"
+        'Loaded NodeTree "%s": %.9f seconds', node_group_name, end_time - start_time
     )
 
 
@@ -446,7 +445,7 @@ def load_mtoon1_shader(
 
     end_time = time.perf_counter()
     logger.debug(
-        f'Loaded Material "{material.name}": ' + f"{end_time - start_time:.9f} seconds"
+        'Loaded Material "%s": %.9f seconds', material.name, end_time - start_time
     )
 
 
@@ -1204,8 +1203,9 @@ def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -
         from_socket_type = from_item.socket_type
         if not from_socket_type:
             logger.error(
-                f"{from_item.name} has empty socket_type."
-                + f" type={type(from_item).__name__}"
+                "%s has empty socket_type. type=%s",
+                from_item.name,
+                type(from_item).__name__,
             )
             if isinstance(from_item, NodeTreeInterfaceSocketFloatFactor):
                 from_socket_type = "NodeSocketFloat"
@@ -1324,8 +1324,9 @@ def copy_node_tree(
             continue
         if not 0 <= output_socket_index < len(output_node.outputs):
             logger.error(
-                "Output socket out of range: "
-                + f"{output_socket_index} < {len(output_node.outputs)}"
+                "Output socket out of range: %d < %d",
+                output_socket_index,
+                len(output_node.outputs),
             )
             continue
         output_socket = output_node.outputs[output_socket_index]

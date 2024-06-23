@@ -220,8 +220,8 @@ def decode_bin(
         buffer_view_index = accessor_dict.get("bufferView")
         if not isinstance(buffer_view_index, int):
             logger.warning(
-                f"accessors[{accessor_index}] doesn't have bufferView "
-                + "that is not implemented yet"
+                "accessors[%s] doesn't have bufferView that is not implemented yet",
+                accessor_index,
             )
             decoded_binary.append([])
             continue

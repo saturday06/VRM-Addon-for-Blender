@@ -44,7 +44,6 @@ ignore = [
     "EXE002", # The file is executable but no shebang is present
 
     "FBT003", # Boolean positional value in function call
-    "G003", # Logging statement uses `+`
 
     # ----- ignored -----
 
@@ -143,7 +142,6 @@ typeCheckingMode = "strict"
 
 reportMissingModuleSource = false
 reportCallInDefaultInitializer = true
-reportImplicitStringConcatenation = true
 reportShadowedImports = true
 
 [build-system]
