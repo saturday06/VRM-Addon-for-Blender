@@ -1,5 +1,17 @@
+From b5f751b2b4d55f1db4314b5b0e52ac0810869813 Mon Sep 17 00:00:00 2001
+From: Patch <patch@example.com>
+Date: Sun, 23 Jun 2024 10:00:00 +0000
+Subject: [PATCH] feat: extensions.blender.org
+
+---
+ src/io_scene_vrm/__init__.py           | 224 +------------------------
+ src/io_scene_vrm/blender_manifest.toml |   3 +-
+ tests/test_legacy_addon_init.py        |  25 ---
+ 3 files changed, 3 insertions(+), 249 deletions(-)
+ delete mode 100644 tests/test_legacy_addon_init.py
+
 diff --git a/src/io_scene_vrm/__init__.py b/src/io_scene_vrm/__init__.py
-index 19594bdd..5f4289fb 100644
+index 22658475..5f4289fb 100644
 --- a/src/io_scene_vrm/__init__.py
 +++ b/src/io_scene_vrm/__init__.py
 @@ -1,237 +1,17 @@
@@ -243,7 +255,7 @@ index 19594bdd..5f4289fb 100644
  class glTF2ImportUserExtension:
      def __init__(self) -> None:
 diff --git a/src/io_scene_vrm/blender_manifest.toml b/src/io_scene_vrm/blender_manifest.toml
-index 1bf84a2c..7c5a4237 100644
+index 6a2d08dc..5a1a0bd9 100644
 --- a/src/io_scene_vrm/blender_manifest.toml
 +++ b/src/io_scene_vrm/blender_manifest.toml
 @@ -11,8 +11,7 @@ website = "https://vrm-addon-for-blender.info"
@@ -287,3 +299,6 @@ index a55ec9ff..00000000
 -            bl_info.get("blender"),
 -            BlenderManifest.read().blender_version_min,
 -        )
+-- 
+2.45.1.windows.1
+
