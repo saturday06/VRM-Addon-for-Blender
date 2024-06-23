@@ -1214,6 +1214,69 @@ def setup_bones(context: Context, armature: Object) -> None:
                 continue
             human_bone_name_to_human_bone[n] = human_bone
 
+        # 目と頭のボーン以外の先端のボーンを、親ボーンと同じ方向に向け、半分の長さにする
+        for tip_bone_name in [
+            HumanBoneName.JAW,
+            HumanBoneName.LEFT_THUMB_DISTAL,
+            HumanBoneName.LEFT_INDEX_DISTAL,
+            HumanBoneName.LEFT_MIDDLE_DISTAL,
+            HumanBoneName.LEFT_RING_DISTAL,
+            HumanBoneName.LEFT_LITTLE_DISTAL,
+            HumanBoneName.RIGHT_THUMB_DISTAL,
+            HumanBoneName.RIGHT_INDEX_DISTAL,
+            HumanBoneName.RIGHT_MIDDLE_DISTAL,
+            HumanBoneName.RIGHT_RING_DISTAL,
+            HumanBoneName.RIGHT_LITTLE_DISTAL,
+            HumanBoneName.LEFT_TOES,
+            HumanBoneName.RIGHT_TOES,
+        ]:
+            bone = None
+            searching_tip_bone_name: Optional[HumanBoneName] = tip_bone_name
+            while searching_tip_bone_name:
+                human_bone = human_bone_name_to_human_bone.get(searching_tip_bone_name)
+                if not human_bone:
+                    break
+
+                bone = armature_data.edit_bones.get(human_bone.node.bone_name)
+                if bone:
+                    break
+
+                specification = HumanBoneSpecifications.get(searching_tip_bone_name)
+                if specification.requirement:
+                    break
+
+                parent_specification = specification.parent()
+                if not parent_specification:
+                    break
+
+                # 親の子孫に割り当て済みのボーンがある場合は何もしない
+                assigned_parent_decendant_found = False
+                for parent_decendant in parent_specification.descendants():
+                    parent_decendant_human_bone = human_bone_name_to_human_bone.get(
+                        parent_decendant.name
+                    )
+                    if not parent_decendant_human_bone:
+                        continue
+                    if (
+                        parent_decendant_human_bone.node.bone_name
+                        in armature_data.edit_bones
+                    ):
+                        assigned_parent_decendant_found = True
+                        break
+                if assigned_parent_decendant_found:
+                    break
+
+                searching_tip_bone_name = specification.parent_name
+            if not bone:
+                continue
+
+            parent_bone = bone.parent
+            if not parent_bone:
+                continue
+
+            bone.roll = parent_bone.roll
+            bone.tail = bone.head + parent_bone.vector / 2
+
         # 目のボーンを正面に向ける。子ボーンがある場合は何もしない。
         for eye_human_bone in [
             human_bone_name_to_human_bone.get(HumanBoneName.LEFT_EYE),
@@ -1259,6 +1322,10 @@ def setup_bones(context: Context, armature: Object) -> None:
             world_inv = armature.matrix_world.inverted()
             if not world_inv:
                 continue
+
+            parent_bone = bone.parent
+            if parent_bone:
+                bone.roll = parent_bone.roll
             bone.tail = (Matrix.Translation(world_tail) @ world_inv).to_translation()
 
         connect_parent_tail_and_child_head_if_very_close_position(armature_data)
