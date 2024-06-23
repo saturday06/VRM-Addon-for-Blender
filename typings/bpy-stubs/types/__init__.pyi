@@ -333,6 +333,8 @@ class EditBone(bpy_struct):
     ) -> Vector: ...  # ドキュメントには3要素のfloat配列と書いてあるが、実際にはVector
     @tail.setter
     def tail(self, value: Iterable[float]) -> None: ...
+    @property
+    def vector(self) -> Vector: ...
 
     parent: Optional[EditBone]
     length: float
@@ -552,9 +554,11 @@ class MeshLoopTriangle(bpy_struct):
     loops: tuple[int, int, int]  # TODO: 正しい型を調べる
 
 class MeshLoop(bpy_struct):
+    edge_index: int
+    index: int
+    normal: Vector
     tangent: Vector  # TODO: 正しい型を調べる
     vertex_index: int
-    normal: Vector
 
 class MeshLoops(bpy_prop_collection[MeshLoop]): ...
 class MeshLoopTriangles(bpy_prop_collection[MeshLoopTriangle]): ...
@@ -575,11 +579,14 @@ class MeshVertex(bpy_struct):
 class MeshVertices(bpy_prop_collection[MeshVertex]): ...
 class UnknownType(bpy_struct): ...
 
+class ShapeKeyPoint(bpy_struct):
+    co: Vector
+
 class ShapeKey(bpy_struct):
     name: str
     value: float
-    @property
-    def data(self) -> bpy_prop_collection[UnknownType]: ...  # TODO: 多分書き漏れ
+    @property  # TODO: UnknownTypeになっている
+    def data(self) -> bpy_prop_collection[ShapeKeyPoint]: ...
     def normals_split_get(self) -> Sequence[float]: ...  # TODO: 正しい型
 
 class Key(ID):
