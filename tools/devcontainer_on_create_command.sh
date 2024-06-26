@@ -7,6 +7,8 @@ sudo apt-get update
 sudo apt-get dist-upgrade --yes
 
 ./tools/devcontainer_fixup_workspace.sh
+./tools/install_hugo.sh
+./tools/install_hadolint.sh
 
 # 空のvenvを作る。
 poetry run python -c ""

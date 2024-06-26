@@ -1,7 +1,6 @@
 {
   "build": {
-    "dockerfile": "Dockerfile",
-    "context": "../tools"
+    "dockerfile": "Dockerfile"
   },
   "remoteUser": "developer",
   "onCreateCommand": "./tools/devcontainer_on_create_command.sh",
