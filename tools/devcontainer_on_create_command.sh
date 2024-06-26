@@ -31,6 +31,7 @@ for _ in $(seq 5); do
   if poetry install; then
     break
   fi
+  sleep 10
 done
 
 # システムのBlenderから開発中のアドオンをすぐに動作確認できるようにする
