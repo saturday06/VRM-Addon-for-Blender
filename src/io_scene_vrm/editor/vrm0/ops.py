@@ -649,16 +649,23 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(Operator):
             return {"CANCELLED"}
         collider_group = collider_groups[self.collider_group_index]
         collider = collider_group.colliders.add()
-        obj = context.blend_data.objects.new(
-            name=f"{self.armature_name}_{self.bone_name}_collider", object_data=None
-        )
+
+        bone_name = self.bone_name
+        if not bone_name:
+            bone_name = collider_group.node.bone_name
+        if bone_name:
+            collider_name = f"{bone_name}_collider"
+        else:
+            collider_name = f"{self.armature_name}_collider"
+
+        obj = context.blend_data.objects.new(name=collider_name, object_data=None)
         collider.bpy_object = obj
         obj.parent = armature
         obj.empty_display_type = "SPHERE"
         obj.empty_display_size = 0.25
-        if self.bone_name:
+        if bone_name:
             obj.parent_type = "BONE"
-            obj.parent_bone = self.bone_name
+            obj.parent_bone = bone_name
         else:
             obj.parent_type = "OBJECT"
         context.scene.collection.objects.link(obj)
