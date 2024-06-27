@@ -36,7 +36,6 @@ class ICYP_OT_make_armature(Operator):
         options={"HIDDEN"},
     )
 
-    #
     wip_with_template_mesh: BoolProperty(  # type: ignore[valid-type]
         default=False
     )

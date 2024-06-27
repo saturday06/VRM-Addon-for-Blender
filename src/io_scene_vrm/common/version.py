@@ -109,11 +109,10 @@ def stable_release() -> bool:
         return True
     if bpy.app.version_cycle == "release":
         return True
-    if platform.system() == "Windows" and bpy.app.version_cycle == "rc":
-        # Microsoft Store distributes RC versions of 3.3.11 and 3.6.3 as
-        # release versions.
-        return True
-    return False
+
+    # Microsoft Store distributes RC versions of 3.3.11 and 3.6.3 as
+    # release versions.
+    return platform.system() == "Windows" and bpy.app.version_cycle == "rc"
 
 
 def supported() -> bool:

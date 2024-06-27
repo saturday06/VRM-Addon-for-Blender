@@ -336,9 +336,7 @@ class VRM_OT_open_url_in_web_browser(Operator):
             url = urlparse(url_str)
         except ValueError:
             return False
-        if url.scheme not in ["http", "https"]:
-            return False
-        return True
+        return url.scheme in ["http", "https"]
 
     def execute(self, _context: Context) -> set[str]:
         url = self.url
