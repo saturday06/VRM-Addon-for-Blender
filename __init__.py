@@ -15,7 +15,7 @@
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 60),
+    "version": (2, 20, 61),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
     "blender": (2, 93, 0),
@@ -194,8 +194,8 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
 
     logger.warning(
         "%s Extracting the partial add-on archive for "
-        + "users who have acquired the add-on "
-        + 'from "Code" -> "Download ZIP" on GitHub ...',
+        "users who have acquired the add-on "
+        'from "Code" -> "Download ZIP" on GitHub ...',
         log_warning_prefix,
     )
 
