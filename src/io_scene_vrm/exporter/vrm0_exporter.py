@@ -2027,9 +2027,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
     def min_max(
         minmax: list[list[float]], position: tuple[float, float, float]
     ) -> None:
-        for i in range(3):
-            minmax[0][i] = position[i] if position[i] < minmax[0][i] else minmax[0][i]
-            minmax[1][i] = position[i] if position[i] > minmax[1][i] else minmax[1][i]
+        minmax[0][0] = min(minmax[0][0], position[0])
+        minmax[0][1] = min(minmax[0][1], position[1])
+        minmax[0][2] = min(minmax[0][2], position[2])
+
+        minmax[1][0] = max(minmax[1][0], position[0])
+        minmax[1][1] = max(minmax[1][1], position[1])
+        minmax[1][2] = max(minmax[1][2], position[2])
 
     # FB_ngon_encodeのため、ngonを扇状に割る。また、分割前の連続したポリゴンが
     # 最初の頂点を共有する場合、ポリゴンごとに最初の頂点を別の構成する頂点に変更する
