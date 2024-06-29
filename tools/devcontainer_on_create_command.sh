@@ -10,17 +10,15 @@ sudo apt-get dist-upgrade --yes
 ./tools/install_hugo.sh
 ./tools/install_hadolint.sh
 
-# 空のvenvを作る。
-poetry run python -c ""
-
 # poetry 1.8.2が自動で作るvenvのスクリプトをVSCodeのターミナルが正しく解釈できないので手動で作る。
 # 例えばvenvの名前が "venv" で、シェルのデフォルトのプロンプトが "$" の場合、シェルのプロンプトは
 # 正しくは "(venv) $" となるべきだが、現状のpoetryとVSCodeの組み合わせでは "venv$" になっている。
+sudo rm -fr .venv-devcontainer
 if [ "$(uname -m)" = "x86_64" ]; then
-  /usr/local/bin/python3 -m venv "$(poetry env info --path)" --clear --prompt venv
+  /usr/local/bin/python3 -m venv .venv-devcontainer --prompt venv
 else
   # x86_64以外の場合はbpyパッケージが存在しないので、システムのものを使う
-  /usr/local/bin/python3 -m venv "$(poetry env info --path)" --clear --prompt venv --system-site-packages
+  /usr/local/bin/python3 -m venv .venv-devcontainer --prompt venv --system-site-packages
 fi
 
 poetry completions bash >>~/.bash_completion

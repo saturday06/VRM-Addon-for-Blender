@@ -52,6 +52,7 @@ __pycache__/
 
 /.idea/
 /.venv/
+/.venv-devcontainer/
 /.vscode/
 /docs/website/.hugo_build.lock
 /docs/website/public/
