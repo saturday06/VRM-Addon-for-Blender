@@ -39,6 +39,7 @@ from .editor import (
     ops,
     panel,
     property_group,
+    subscription,
     validation,
 )
 from .editor.mtoon0 import glsl_drawer
@@ -75,7 +76,7 @@ def setup(*, load_post: bool) -> None:
     context = bpy.context
     shader.add_shaders(context)
     migration.migrate_all_objects(context)
-    migration.setup_subscription(load_post=load_post)
+    subscription.setup_subscription(load_post=load_post)
 
 
 @persistent
@@ -507,7 +508,7 @@ def register() -> None:
 
 
 def unregister() -> None:
-    migration.teardown_subscription()
+    subscription.teardown_subscription()
 
     bpy.app.handlers.depsgraph_update_pre.remove(
         spring_bone1_handler.depsgraph_update_pre

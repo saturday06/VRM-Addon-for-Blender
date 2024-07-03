@@ -1,9 +1,8 @@
 import functools
-from dataclasses import dataclass
 from typing import Optional
 
 import bpy
-from bpy.types import Armature, Bone, Context, Object
+from bpy.types import Armature, Context
 
 from ..common.logging import get_logger
 from ..common.preferences import get_preferences
@@ -92,8 +91,6 @@ def migrate(context: Optional[Context], armature_object_name: str) -> bool:
         updated_addon_version,
     )
     ext.addon_version = updated_addon_version
-
-    setup_subscription(load_post=False)
     return True
 
 
@@ -127,19 +124,6 @@ def migrate_all_objects(
         updated_addon_version,
     )
     preferences.addon_version = updated_addon_version
-
-
-@dataclass
-class Subscription:
-    object_name_subscription_owner = object()
-    object_mode_subscription_owner = object()
-    object_location_subscription_owner = object()
-    bone_name_subscription_owner = object()
-    armature_name_subscription_owner = object()
-    setup_once: bool = False
-
-
-subscription = Subscription()
 
 
 def on_change_bpy_object_name() -> None:
@@ -197,70 +181,3 @@ def on_change_bpy_armature_name() -> None:
     context = bpy.context
 
     migrate_all_objects(context, skip_non_migrated_armatures=True)
-
-
-def setup_subscription(*, load_post: bool) -> None:
-    if subscription.setup_once:
-        if load_post:
-            # If called by load_post, unsubscribe and setup again.
-            teardown_subscription()
-        else:
-            # If a subscription is already setup, do nothing.
-            return
-
-    subscription.setup_once = True
-
-    object_name_subscribe_to = (Object, "name")
-    bpy.msgbus.subscribe_rna(
-        key=object_name_subscribe_to,
-        owner=subscription.object_name_subscription_owner,
-        args=(),
-        notify=on_change_bpy_object_name,
-    )
-
-    object_mode_subscribe_to = (Object, "mode")
-    bpy.msgbus.subscribe_rna(
-        key=object_mode_subscribe_to,
-        owner=subscription.object_mode_subscription_owner,
-        args=(),
-        notify=on_change_bpy_object_mode,
-    )
-
-    object_location_subscribe_to = (Object, "location")
-    bpy.msgbus.subscribe_rna(
-        key=object_location_subscribe_to,
-        owner=subscription.object_location_subscription_owner,
-        args=(),
-        notify=on_change_bpy_object_location,
-    )
-
-    bone_name_subscribe_to = (Bone, "name")
-    bpy.msgbus.subscribe_rna(
-        key=bone_name_subscribe_to,
-        owner=subscription.bone_name_subscription_owner,
-        args=(),
-        notify=on_change_bpy_bone_name,
-    )
-
-    armature_name_subscribe_to = (Armature, "name")
-    bpy.msgbus.subscribe_rna(
-        key=armature_name_subscribe_to,
-        owner=subscription.armature_name_subscription_owner,
-        args=(),
-        notify=on_change_bpy_armature_name,
-    )
-
-    bpy.msgbus.publish_rna(key=object_name_subscribe_to)
-    bpy.msgbus.publish_rna(key=object_mode_subscribe_to)
-    bpy.msgbus.publish_rna(key=object_location_subscribe_to)
-    bpy.msgbus.publish_rna(key=bone_name_subscribe_to)
-    bpy.msgbus.publish_rna(key=armature_name_subscribe_to)
-
-
-def teardown_subscription() -> None:
-    subscription.setup_once = False
-    bpy.msgbus.clear_by_owner(subscription.armature_name_subscription_owner)
-    bpy.msgbus.clear_by_owner(subscription.bone_name_subscription_owner)
-    bpy.msgbus.clear_by_owner(subscription.object_location_subscription_owner)
-    bpy.msgbus.clear_by_owner(subscription.object_mode_subscription_owner)
-    bpy.msgbus.clear_by_owner(subscription.object_name_subscription_owner)
