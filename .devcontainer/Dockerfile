@@ -155,8 +155,10 @@ WORKDIR /home/developer
 ENV BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 ENV BLENDER_VRM_DEVCONTAINER_SPECIAL_WORKAROUNDS=yes
 ENV PATH=/home/developer/.local/bin:$PATH
-# JetBrains製品はホームディレクトリのパスが自動で変更され、virtualenvのパスも同様に自動で変更される。それを防ぐためにパスを固定する。
-ENV POETRY_VIRTUALENVS_PATH=/home/developer/.cache/pypoetry/virtualenvs
+# JetBrains製品はXDGのパスが自動で変更され、Poetry関連パスも影響を受けるためvirtualenvなどが予期せず消えたりする。それを防ぐためにパスを固定。
+ENV POETRY_CONFIG_DIR=/home/developer/.config/pypoetry
+ENV POETRY_DATA_DIR=/home/developer/.local/share/pypoetry
+ENV POETRY_CACHE_DIR=/home/developer/.cache/pypoetry
 
 # JetBrains製品は自動で `~/.cache` フォルダを作成するが、それだとフォルダの権限がroot:rootになる。
 # poetryなどがエラーになるため、あらかじめ作っておく。
