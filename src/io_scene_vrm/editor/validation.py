@@ -680,7 +680,7 @@ class WM_OT_vrm_validator(Operator):
                     or get_armature_extension(armature.data).is_vrm0()
                 )
             ):
-                source = texture.source
+                source = texture.get_connected_node_image()
                 if not source:
                     continue
                 if source not in used_images:
@@ -701,7 +701,7 @@ class WM_OT_vrm_validator(Operator):
                 )
 
             for texture_info in gltf.all_texture_info():
-                source = texture_info.index.source
+                source = texture_info.index.get_connected_node_image()
                 if source and source not in used_images:
                     used_images.append(source)
 

@@ -427,6 +427,7 @@ class UILayout(bpy_struct):
         text_ctxt: str = "",
         translate: bool = True,
         icon: str = "NONE",
+        placeholder: str = "",  # bpy.app.version >= (4, 1)
         expand: bool = False,
         slider: bool = False,
         toggle: int = -1,

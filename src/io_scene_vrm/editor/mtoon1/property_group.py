@@ -245,7 +245,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
             node_group_name, group_label, default_value=int(default_value)
         )
         if isinstance(value, float):
-            return abs(value) < 0.000001
+            return abs(value) > 0.000001
         return bool(value)
 
     def get_float(
@@ -311,6 +311,41 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
             ),
         ):
             return socket.default_value
+
+        return default_value
+
+    def get_rgb(
+        self,
+        node_group_name: str,
+        group_label: str,
+        *,
+        default_value: tuple[float, float, float],
+    ) -> tuple[float, float, float]:
+        material = self.find_material()
+        node_tree = material.node_tree
+        if not node_tree:
+            return default_value
+
+        node = next(
+            (
+                node
+                for node in node_tree.nodes
+                if isinstance(node, ShaderNodeGroup)
+                and node.node_tree
+                and node.node_tree.name == node_group_name
+            ),
+            None,
+        )
+        if not node:
+            return default_value
+
+        socket = node.inputs.get(group_label)
+        if isinstance(socket, shader.COLOR_SOCKET_CLASSES):
+            return (
+                socket.default_value[0],
+                socket.default_value[1],
+                socket.default_value[2],
+            )
 
         return default_value
 
@@ -653,6 +688,88 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
                     link=bool(image),
                 )
 
+    def get_connected_node_image(self) -> Optional[Image]:
+        material = self.find_material()
+        node_tree = material.node_tree
+        if not node_tree:
+            return None
+
+        node_name = self.get_image_texture_node_name()
+
+        node = node_tree.nodes.get(node_name)
+        if not isinstance(node, ShaderNodeTexImage):
+            logger.warning('No shader node tex image "%s"', node_name)
+            return None
+
+        texture_info = self.get_texture_info_property_group()
+        output_socket_name_and_node_socket_targets = next(
+            iter(texture_info.node_socket_targets.items()), None
+        )
+        if output_socket_name_and_node_socket_targets is None:
+            logger.error("No node socket targets in %s", type(self))
+            return None
+
+        output_socket_name, node_socket_targets = (
+            output_socket_name_and_node_socket_targets
+        )
+        node_socket_target = next(iter(node_socket_targets), None)
+        if node_socket_target is None:
+            logger.error("No node socket target in %s", type(self))
+            return None
+
+        output_socket = node.outputs.get(output_socket_name)
+        if output_socket is None:
+            return None
+
+        target_node_selector = node_socket_target.create_node_selector(material)
+        for link in output_socket.links:
+            if target_node_selector(link.to_node):
+                return node.image
+
+        return None
+
+    def get_texture_uv_int(self, name: str, default_value: int) -> int:
+        node_name = self.get_texture_node_name("Uv")
+        material = self.find_material()
+        if not material.node_tree:
+            return default_value
+        node_tree = material.node_tree
+        node = node_tree.nodes.get(node_name)
+        if not isinstance(node, ShaderNodeGroup):
+            return default_value
+        socket = node.inputs.get(name)
+        if not socket:
+            logger.warning('No "%s" in shader node group "%s"', name, node_name)
+            return default_value
+
+        if isinstance(socket, shader.FLOAT_SOCKET_CLASSES):
+            return round(socket.default_value)
+        if isinstance(socket, shader.INT_SOCKET_CLASSES):
+            return socket.default_value
+
+        return default_value
+
+    def get_texture_uv_float(self, name: str, default_value: float) -> float:
+        node_name = self.get_texture_node_name("Uv")
+        material = self.find_material()
+        if not material.node_tree:
+            return default_value
+        node_tree = material.node_tree
+        node = node_tree.nodes.get(node_name)
+        if not isinstance(node, ShaderNodeGroup):
+            return default_value
+        socket = node.inputs.get(name)
+        if not socket:
+            logger.warning('No "%s" in shader node group "%s"', name, node_name)
+            return default_value
+
+        if isinstance(socket, shader.FLOAT_SOCKET_CLASSES):
+            return socket.default_value
+        if isinstance(socket, shader.INT_SOCKET_CLASSES):
+            return float(socket.default_value)
+
+        return default_value
+
     def set_texture_uv(self, name: str, value: object) -> None:
         node_name = self.get_texture_node_name("Uv")
         material = self.find_material()
@@ -661,7 +778,6 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         node_tree = material.node_tree
         node = node_tree.nodes.get(node_name)
         if not isinstance(node, ShaderNodeGroup):
-            logger.warning('No shader node group "%s"', node_name)
             return
         socket = node.inputs.get(name)
         if not socket:
@@ -683,9 +799,24 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
 
 class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
-    def update_texture_offset(self, _context: Context) -> None:
-        self.set_texture_uv("UV Offset X", self.offset[0])
-        self.set_texture_uv("UV Offset Y", self.offset[1])
+    def get_texture_offset(self) -> tuple[float, float]:
+        x = self.get_texture_uv_float(
+            shader.UV_GROUP_UV_OFFSET_X_LABEL,
+            default_value=shader.UV_GROUP_UV_OFFSET_X_DEFAULT,
+        )
+        y = self.get_texture_uv_float(
+            shader.UV_GROUP_UV_OFFSET_Y_LABEL,
+            default_value=shader.UV_GROUP_UV_OFFSET_Y_DEFAULT,
+        )
+        return x, y
+
+    def set_texture_offset(self, value: object) -> None:
+        offset = convert.float2_or_none(value)
+        if offset is None:
+            return
+
+        self.set_texture_uv(shader.UV_GROUP_UV_OFFSET_X_LABEL, offset[0])
+        self.set_texture_uv(shader.UV_GROUP_UV_OFFSET_Y_LABEL, offset[1])
 
         node_name = self.get_image_texture_node_name()
         material = self.find_material()
@@ -702,11 +833,26 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
             return
         if not isinstance(outline, Mtoon1KhrTextureTransformPropertyGroup):
             return
-        outline.update_texture_offset(_context)
+        outline.set_texture_offset(offset)
 
-    def update_texture_scale(self, _context: Context) -> None:
-        self.set_texture_uv("UV Scale X", self.scale[0])
-        self.set_texture_uv("UV Scale Y", self.scale[1])
+    def get_texture_scale(self) -> tuple[float, float]:
+        x = self.get_texture_uv_float(
+            shader.UV_GROUP_UV_SCALE_X_LABEL,
+            default_value=shader.UV_GROUP_UV_SCALE_X_DEFAULT,
+        )
+        y = self.get_texture_uv_float(
+            shader.UV_GROUP_UV_SCALE_Y_LABEL,
+            default_value=shader.UV_GROUP_UV_SCALE_Y_DEFAULT,
+        )
+        return x, y
+
+    def set_texture_scale(self, value: object) -> None:
+        scale = convert.float2_or_none(value)
+        if scale is None:
+            return
+
+        self.set_texture_uv(shader.UV_GROUP_UV_SCALE_X_LABEL, scale[0])
+        self.set_texture_uv(shader.UV_GROUP_UV_SCALE_Y_LABEL, scale[1])
 
         node_name = self.get_image_texture_node_name()
         material = self.find_material()
@@ -723,20 +869,28 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
             return
         if not isinstance(outline, Mtoon1KhrTextureTransformPropertyGroup):
             return
-        outline.update_texture_scale(_context)
+        outline.set_texture_scale(scale)
 
     offset: FloatVectorProperty(  # type: ignore[valid-type]
         name="Offset",
         size=2,
-        default=(0, 0),
-        update=update_texture_offset,
+        default=(
+            shader.UV_GROUP_UV_OFFSET_X_DEFAULT,
+            shader.UV_GROUP_UV_OFFSET_Y_DEFAULT,
+        ),
+        get=get_texture_offset,
+        set=set_texture_offset,
     )
 
     scale: FloatVectorProperty(  # type: ignore[valid-type]
         name="Scale",
         size=2,
-        default=(1, 1),
-        update=update_texture_scale,
+        default=(
+            shader.UV_GROUP_UV_SCALE_X_DEFAULT,
+            shader.UV_GROUP_UV_SCALE_Y_DEFAULT,
+        ),
+        get=get_texture_scale,
+        set=set_texture_scale,
     )
 
     if TYPE_CHECKING:
@@ -836,32 +990,46 @@ class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
         "khr_texture_transform",
     )
 
-    def update_texture_offset_and_outline(self, context: Context) -> None:
+    def set_texture_offset_and_outline(self, value: object) -> None:
+        offset = convert.float2_or_none(value)
+        if offset is None:
+            return
         material = self.find_material()
         if get_material_mtoon1_extension(material).is_outline_material:
             return
-        self.update_texture_offset(context)
+        self.set_texture_offset(offset)
         ops.vrm.refresh_mtoon1_outline(material_name=material.name)
 
-    def update_texture_scale_and_outline(self, context: Context) -> None:
+    def set_texture_scale_and_outline(self, value: object) -> None:
+        scale = convert.float2_or_none(value)
+        if scale is None:
+            return
         material = self.find_material()
         if get_material_mtoon1_extension(material).is_outline_material:
             return
-        self.update_texture_scale(context)
+        self.set_texture_scale(scale)
         ops.vrm.refresh_mtoon1_outline(material_name=material.name)
 
     offset: FloatVectorProperty(  # type: ignore[valid-type]
         name="Offset",
         size=2,
-        default=(0, 0),
-        update=update_texture_offset_and_outline,
+        default=(
+            shader.UV_GROUP_UV_OFFSET_X_DEFAULT,
+            shader.UV_GROUP_UV_OFFSET_Y_DEFAULT,
+        ),
+        get=Mtoon1KhrTextureTransformPropertyGroup.get_texture_offset,
+        set=set_texture_offset_and_outline,
     )
 
     scale: FloatVectorProperty(  # type: ignore[valid-type]
         name="Scale",
         size=2,
-        default=(1, 1),
-        update=update_texture_scale_and_outline,
+        default=(
+            shader.UV_GROUP_UV_SCALE_X_DEFAULT,
+            shader.UV_GROUP_UV_SCALE_Y_DEFAULT,
+        ),
+        get=Mtoon1KhrTextureTransformPropertyGroup.get_texture_scale,
+        set=set_texture_scale_and_outline,
     )
 
     if TYPE_CHECKING:
@@ -1032,10 +1200,10 @@ class Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup(
 
 
 class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
-    MAG_FILTER_DEFAULT_ID = "NEAREST"
+    MAG_FILTER_DEFAULT_ID = "LINEAR"
     mag_filter_items = (
-        (MAG_FILTER_DEFAULT_ID, "Nearest", "", GL_NEAREST),
-        ("LINEAR", "Linear", "", GL_LINEAR),
+        ("NEAREST", "Nearest", "", GL_NEAREST),
+        (MAG_FILTER_DEFAULT_ID, "Linear", "", GL_LINEAR),
     )
     MAG_FILTER_NUMBER_TO_ID: Mapping[int, str] = {
         item[-1]: item[0] for item in mag_filter_items
@@ -1046,7 +1214,7 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
     MAG_FILTER_IDS: tuple[str, ...] = tuple(item[0] for item in mag_filter_items)
 
     def get_mag_filter(self) -> int:
-        default_value = next(iter(self.MAG_FILTER_NUMBER_TO_ID.keys()))
+        default_value = self.MAG_FILTER_ID_TO_NUMBER[self.MAG_FILTER_DEFAULT_ID]
 
         material = self.find_material()
         node_name = self.get_image_texture_node_name()
@@ -1103,7 +1271,7 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         if isinstance(value, int) and value in self.MIN_FILTER_NUMBER_TO_ID:
             return value
 
-        default_value = next(iter(self.MIN_FILTER_NUMBER_TO_ID.keys()))
+        default_value = self.MIN_FILTER_ID_TO_NUMBER[self.MIN_FILTER_DEFAULT_ID]
 
         material = self.find_material()
         node_name = self.get_image_texture_node_name()
@@ -1152,10 +1320,10 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
 
         self["min_filter"] = value
 
-    MIN_FILTER_DEFAULT_ID = "NEAREST"
+    MIN_FILTER_DEFAULT_ID = "LINEAR"
     min_filter_items = (
-        (MIN_FILTER_DEFAULT_ID, "Nearest", "", GL_NEAREST),
-        ("LINEAR", "Linear", "", GL_LINEAR),
+        ("NEAREST", "Nearest", "", GL_NEAREST),
+        (MIN_FILTER_DEFAULT_ID, "Linear", "", GL_LINEAR),
         (
             "NEAREST_MIPMAP_NEAREST",
             "Nearest Mipmap Nearest",
@@ -1202,13 +1370,27 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
     WRAP_ID_TO_NUMBER: Mapping[str, int] = {wrap[0]: wrap[-1] for wrap in wrap_items}
     WRAP_IDS: tuple[str, ...] = tuple(wrap[0] for wrap in wrap_items)
 
-    def update_wrap_s(self, _context: Context) -> None:
-        wrap_s = self.WRAP_ID_TO_NUMBER.get(self.wrap_s, self.WRAP_DEFAULT_NUMBER)
-        self.set_texture_uv("Wrap S", wrap_s)
+    def get_wrap_s(self) -> int:
+        wrap_s = self.get_texture_uv_int(
+            shader.UV_GROUP_WRAP_S_LABEL, shader.UV_GROUP_WRAP_S_DEFAULT
+        )
+        if wrap_s in self.WRAP_NUMBER_TO_ID:
+            return wrap_s
+        return shader.UV_GROUP_WRAP_S_DEFAULT
 
-    def update_wrap_t(self, _context: Context) -> None:
-        wrap_t = self.WRAP_ID_TO_NUMBER.get(self.wrap_t, self.WRAP_DEFAULT_NUMBER)
-        self.set_texture_uv("Wrap T", wrap_t)
+    def set_wrap_s(self, value: object) -> None:
+        self.set_texture_uv(shader.UV_GROUP_WRAP_S_LABEL, value)
+
+    def get_wrap_t(self) -> int:
+        wrap_t = self.get_texture_uv_int(
+            shader.UV_GROUP_WRAP_T_LABEL, shader.UV_GROUP_WRAP_T_DEFAULT
+        )
+        if wrap_t in self.WRAP_NUMBER_TO_ID:
+            return wrap_t
+        return shader.UV_GROUP_WRAP_T_DEFAULT
+
+    def set_wrap_t(self, value: object) -> None:
+        self.set_texture_uv(shader.UV_GROUP_WRAP_T_LABEL, value)
 
     mag_filter: EnumProperty(  # type: ignore[valid-type]
         items=mag_filter_items,
@@ -1228,14 +1410,16 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         items=wrap_items,
         name="Wrap S",
         default=WRAP_DEFAULT_ID,
-        update=update_wrap_s,
+        get=get_wrap_s,
+        set=set_wrap_s,
     )
 
     wrap_t: EnumProperty(  # type: ignore[valid-type]
         items=wrap_items,
         name="Wrap T",
         default=WRAP_DEFAULT_ID,
-        update=update_wrap_t,
+        get=get_wrap_t,
+        set=set_wrap_t,
     )
 
     if TYPE_CHECKING:
@@ -1345,6 +1529,26 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
         update=update_source,
     )
 
+    def update_source_not_sync_with_node_tree(self, context: Context) -> None:
+        original_syncing_source_name: Optional[str] = None
+        if self.source_not_sync_with_node_tree:
+            original_syncing_source_name = self.source_not_sync_with_node_tree.name
+
+        if self.source_not_sync_with_node_tree is not None:
+            self.source_not_sync_with_node_tree = None  # trigger recursive assignment
+
+        if original_syncing_source_name is not None:
+            image = context.blend_data.images.get(original_syncing_source_name)
+            if image:
+                self.source = image
+        else:
+            self.source = None
+
+    source_not_sync_with_node_tree: PointerProperty(  # type: ignore[valid-type]
+        type=Image,
+        update=update_source_not_sync_with_node_tree,
+    )
+
     sampler: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1SamplerPropertyGroup
     )
@@ -1353,6 +1557,7 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         source: Optional[Image]  # type: ignore[no-redef]
+        source_not_sync_with_node_tree: Optional[Image]  # type: ignore[no-redef]
         sampler: Mtoon1SamplerPropertyGroup  # type: ignore[no-redef]
 
 
@@ -1519,7 +1724,7 @@ class Mtoon1OutlineWidthMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup)
 
     def update_source(self, context: Context) -> None:
         mtoon1 = get_material_mtoon1_extension(self.find_material())
-        mtoon1.extensions.vrmc_materials_mtoon.update_outline_geometry(context)
+        mtoon1.extensions.vrmc_materials_mtoon.update_outline_geometry()
         super().update_source(context)
 
     sampler: PointerProperty(  # type: ignore[valid-type]
@@ -1570,8 +1775,8 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
     @dataclass(frozen=True)
     class TextureInfoBackup:
         source: Optional[Image]
-        mag_filter: str
-        min_filter: str
+        mag_filter: Optional[str]
+        min_filter: Optional[str]
         wrap_s: str
         wrap_t: str
         offset: tuple[float, float]
@@ -1599,7 +1804,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
         if backup.mag_filter in Mtoon1SamplerPropertyGroup.MAG_FILTER_IDS:
             self.index.sampler.mag_filter = backup.mag_filter
-        else:
+        elif backup.mag_filter is not None:
             logger.warning("invalid mag filter: %s", backup.mag_filter)
             self.index.sampler.mag_filter = (
                 Mtoon1SamplerPropertyGroup.MAG_FILTER_DEFAULT_ID
@@ -1607,7 +1812,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
         if backup.min_filter in Mtoon1SamplerPropertyGroup.MIN_FILTER_IDS:
             self.index.sampler.min_filter = backup.min_filter
-        else:
+        elif backup.min_filter is not None:
             logger.warning("invalid min filter: %s", backup.min_filter)
             self.index.sampler.min_filter = (
                 Mtoon1SamplerPropertyGroup.MIN_FILTER_DEFAULT_ID
@@ -1721,11 +1926,18 @@ class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
         type=Mtoon1NormalTexturePropertyGroup
     )
 
-    def update_scale(self, _context: Context) -> None:
+    def get_scale(self) -> float:
+        return self.get_float(
+            shader.NORMAL_GROUP_NAME,
+            shader.NORMAL_GROUP_SCALE_LABEL,
+            default_value=shader.NORMAL_GROUP_SCALE_DEFAULT,
+        )
+
+    def set_scale(self, value: object) -> None:
         self.set_value(
             shader.NORMAL_GROUP_NAME,
             shader.NORMAL_GROUP_SCALE_LABEL,
-            self.scale,
+            value,
         )
         material = self.find_material()
         principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
@@ -1744,8 +1956,9 @@ class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
     scale: FloatProperty(  # type: ignore[valid-type]
         name="Scale",
-        default=1.0,
-        update=update_scale,
+        default=shader.NORMAL_GROUP_SCALE_DEFAULT,
+        get=get_scale,
+        set=set_scale,
     )
 
     extensions: PointerProperty(  # type: ignore[valid-type]
@@ -1783,17 +1996,25 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
         type=Mtoon1ShadingShiftTexturePropertyGroup
     )
 
-    def update_scale(self, _context: Context) -> None:
+    def get_scale(self) -> float:
+        return self.get_float(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_SHADING_SHIFT_TEXTURE_SCALE_LABEL,
+            default_value=shader.OUTPUT_GROUP_SHADING_SHIFT_TEXTURE_SCALE_DEFAULT,
+        )
+
+    def set_scale(self, value: object) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_SHADING_SHIFT_TEXTURE_SCALE_LABEL,
-            self.scale,
+            value,
         )
 
     scale: FloatProperty(  # type: ignore[valid-type]
         name="Scale",
         default=shader.OUTPUT_GROUP_SHADING_SHIFT_TEXTURE_SCALE_DEFAULT,
-        update=update_scale,
+        set=set_scale,
+        get=get_scale,
     )
 
     extensions: PointerProperty(  # type: ignore[valid-type]
@@ -1982,6 +2203,9 @@ class Mtoon0SamplerPropertyGroup(PropertyGroup):
 class Mtoon0TexturePropertyGroup(PropertyGroup):
     colorspace = "sRGB"
 
+    def get_connected_node_image(self) -> Optional[Image]:
+        return self.source if isinstance(self.source, Image) else None
+
     source: PointerProperty(  # type: ignore[valid-type]
         type=Image,
     )
@@ -2016,25 +2240,41 @@ class Mtoon0ShadingGradeTexturePropertyGroup(Mtoon0TexturePropertyGroup):
 class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
     material_property_chain = ("pbr_metallic_roughness",)
 
-    def update_base_color_factor(self, _context: Context) -> None:
+    def get_base_color_factor(self) -> tuple[float, float, float, float]:
+        rgb = self.get_rgb(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_COLOR_LABEL,
+            default_value=shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_COLOR_DEFAULT,
+        )
+        a = self.get_value(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_ALPHA_LABEL,
+            default_value=shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_ALPHA_DEFAULT,
+        )
+        return (*rgb, a)
+
+    def set_base_color_factor(self, value: object) -> None:
+        color = convert.float4_or_none(value)
+        if color is None:
+            return
         self.set_rgba(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_COLOR_LABEL,
-            self.base_color_factor,
+            color,
         )
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_ALPHA_LABEL,
-            self.base_color_factor[3],
+            color[3],
         )
         material = self.find_material()
         principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
         principled_bsdf.base_color = (
-            self.base_color_factor[0],
-            self.base_color_factor[1],
-            self.base_color_factor[2],
+            color[0],
+            color[1],
+            color[2],
         )
-        principled_bsdf.alpha = self.base_color_factor[3]
+        principled_bsdf.alpha = color[3]
 
         mtoon1 = get_material_mtoon1_extension(material)
         if mtoon1.is_outline_material:
@@ -2045,15 +2285,19 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
         outline_principled_bsdf = PrincipledBSDFWrapper(
             outline_material, is_readonly=False
         )
-        outline_principled_bsdf.alpha = self.base_color_factor[3]
+        outline_principled_bsdf.alpha = color[3]
 
     base_color_factor: FloatVectorProperty(  # type: ignore[valid-type]
         size=4,
         subtype="COLOR",
-        default=(1, 1, 1, 1),
+        default=(
+            *shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_COLOR_DEFAULT,
+            shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_ALPHA_DEFAULT,
+        ),
         min=0,
         max=1,
-        update=update_base_color_factor,
+        get=get_base_color_factor,
+        set=set_base_color_factor,
     )
 
     base_color_texture: PointerProperty(  # type: ignore[valid-type]
@@ -2072,11 +2316,18 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
 class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     material_property_chain = ("extensions", "vrmc_materials_mtoon")
 
-    def update_transparent_with_z_write(self, _context: Context) -> None:
+    def get_transparent_with_z_write(self) -> bool:
+        return self.get_bool(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_TRANSPARENT_WITH_Z_WRITE_LABEL,
+            default_value=shader.OUTPUT_GROUP_TRANSPARENT_WITH_Z_WRITE_DEFAULT,
+        )
+
+    def set_transparent_with_z_write(self, value: object) -> None:
         self.set_bool(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_TRANSPARENT_WITH_Z_WRITE_LABEL,
-            self.transparent_with_z_write,
+            value,
         )
 
         mtoon1 = get_material_mtoon1_extension(self.find_material())
@@ -2084,84 +2335,124 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     transparent_with_z_write: BoolProperty(  # type: ignore[valid-type]
         name="Transparent With ZWrite Mode",
-        update=update_transparent_with_z_write,
         default=shader.OUTPUT_GROUP_TRANSPARENT_WITH_Z_WRITE_DEFAULT,
+        get=get_transparent_with_z_write,
+        set=set_transparent_with_z_write,
     )
 
-    def update_render_queue_offset_number(self, _context: Context) -> None:
+    def get_render_queue_offset_number(self) -> int:
+        return self.get_int(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_RENDER_QUEUE_OFFSET_NUMBER_LABEL,
+            default_value=shader.OUTPUT_GROUP_RENDER_QUEUE_OFFSET_NUMBER_DEFAULT,
+        )
+
+    def set_render_queue_offset_number(self, value: int) -> None:
         self.set_int(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_RENDER_QUEUE_OFFSET_NUMBER_LABEL,
-            self.render_queue_offset_number,
+            value,
         )
 
     render_queue_offset_number: IntProperty(  # type: ignore[valid-type]
         name="RenderQueue Offset",
         min=shader.OUTPUT_GROUP_RENDER_QUEUE_OFFSET_NUMBER_MIN,
-        default=0,
+        default=shader.OUTPUT_GROUP_RENDER_QUEUE_OFFSET_NUMBER_DEFAULT,
         max=shader.OUTPUT_GROUP_RENDER_QUEUE_OFFSET_NUMBER_MAX,
-        update=update_render_queue_offset_number,
+        get=get_render_queue_offset_number,
+        set=set_render_queue_offset_number,
     )
 
     shade_multiply_texture: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadeMultiplyTextureInfoPropertyGroup
     )
 
-    def update_shade_color_factor(self, _context: Context) -> None:
+    def get_shade_color_factor(self) -> tuple[float, float, float]:
+        return self.get_rgb(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_SHADE_COLOR_FACTOR_LABEL,
+            default_value=shader.OUTPUT_GROUP_SHADE_COLOR_FACTOR_DEFAULT,
+        )
+
+    def set_shade_color_factor(self, value: object) -> None:
         self.set_rgb(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_SHADE_COLOR_FACTOR_LABEL,
-            self.shade_color_factor,
+            value,
         )
 
     shade_color_factor: FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
         subtype="COLOR",
-        default=(1.0, 1.0, 1.0),
+        default=shader.OUTPUT_GROUP_SHADE_COLOR_FACTOR_DEFAULT,
         min=0.0,
         max=1.0,
-        update=update_shade_color_factor,
+        get=get_shade_color_factor,
+        set=set_shade_color_factor,
     )
 
     shading_shift_texture: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1ShadingShiftTextureInfoPropertyGroup
     )
 
-    def update_shading_shift_factor(self, _context: Context) -> None:
+    def get_shading_shift_factor(self) -> float:
+        return self.get_float(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_SHADING_SHIFT_FACTOR_LABEL,
+            default_value=shader.OUTPUT_GROUP_SHADING_SHIFT_FACTOR_DEFAULT,
+        )
+
+    def set_shading_shift_factor(self, value: object) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_SHADING_SHIFT_FACTOR_LABEL,
-            self.shading_shift_factor,
+            value,
         )
 
     shading_shift_factor: FloatProperty(  # type: ignore[valid-type]
         name=shader.OUTPUT_GROUP_SHADING_SHIFT_FACTOR_LABEL,
         soft_min=-1.0,
-        default=-0.2,
+        default=shader.OUTPUT_GROUP_SHADING_SHIFT_FACTOR_DEFAULT,
         soft_max=1.0,
-        update=update_shading_shift_factor,
+        get=get_shading_shift_factor,
+        set=set_shading_shift_factor,
     )
 
-    def update_shading_toony_factor(self, _context: Context) -> None:
+    def get_shading_toony_factor(self) -> float:
+        return self.get_float(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_SHADING_TOONY_FACTOR_LABEL,
+            default_value=shader.OUTPUT_GROUP_SHADING_TOONY_FACTOR_DEFAULT,
+        )
+
+    def set_shading_toony_factor(self, value: object) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_SHADING_TOONY_FACTOR_LABEL,
-            self.shading_toony_factor,
+            value,
         )
 
     shading_toony_factor: FloatProperty(  # type: ignore[valid-type]
         name=shader.OUTPUT_GROUP_SHADING_TOONY_FACTOR_LABEL,
         min=0.0,
-        default=0.9,
+        default=shader.OUTPUT_GROUP_SHADING_TOONY_FACTOR_DEFAULT,
         max=1.0,
-        update=update_shading_toony_factor,
+        get=get_shading_toony_factor,
+        set=set_shading_toony_factor,
     )
 
-    def update_gi_equalization_factor(self, _context: Context) -> None:
+    def get_gi_equalization_factor(self) -> float:
+        return self.get_float(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_GI_EQUALIZATION_FACTOR_LABEL,
+            default_value=shader.OUTPUT_GROUP_GI_EQUALIZATION_FACTOR_DEFAULT,
+        )
+
+    def set_gi_equalization_factor(self, value: object) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_GI_EQUALIZATION_FACTOR_LABEL,
-            self.gi_equalization_factor,
+            value,
         )
 
     gi_equalization_factor: FloatProperty(  # type: ignore[valid-type]
@@ -2169,84 +2460,125 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         min=0.0,
         default=shader.OUTPUT_GROUP_GI_EQUALIZATION_FACTOR_DEFAULT,
         max=1.0,
-        update=update_gi_equalization_factor,
+        get=get_gi_equalization_factor,
+        set=set_gi_equalization_factor,
     )
 
-    def update_matcap_factor(self, _context: Context) -> None:
+    def get_matcap_factor(self) -> tuple[float, float, float]:
+        return self.get_rgb(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_MATCAP_FACTOR_LABEL,
+            default_value=shader.OUTPUT_GROUP_MATCAP_FACTOR_DEFAULT,
+        )
+
+    def set_matcap_factor(self, value: object) -> None:
         self.set_rgb(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_MATCAP_FACTOR_LABEL,
-            self.matcap_factor,
+            value,
         )
 
     matcap_factor: FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
         subtype="COLOR",
-        default=(1, 1, 1),
+        default=shader.OUTPUT_GROUP_MATCAP_FACTOR_DEFAULT,
         min=0,
         max=1,
-        update=update_matcap_factor,
+        get=get_matcap_factor,
+        set=set_matcap_factor,
     )
 
     matcap_texture: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1MatcapTextureInfoPropertyGroup
     )
 
-    def update_parametric_rim_color_factor(self, _context: Context) -> None:
+    def get_parametric_rim_color_factor(self) -> tuple[float, float, float]:
+        return self.get_rgb(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_PARAMETRIC_RIM_COLOR_FACTOR_LABEL,
+            default_value=shader.OUTPUT_GROUP_PARAMETRIC_RIM_COLOR_FACTOR_DEFAULT,
+        )
+
+    def set_parametric_rim_color_factor(self, value: object) -> None:
         self.set_rgb(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_PARAMETRIC_RIM_COLOR_FACTOR_LABEL,
-            self.parametric_rim_color_factor,
+            value,
         )
 
     parametric_rim_color_factor: FloatVectorProperty(  # type: ignore[valid-type]
         name=shader.OUTPUT_GROUP_PARAMETRIC_RIM_COLOR_FACTOR_LABEL,
         size=3,
         subtype="COLOR",
-        default=(0, 0, 0),
+        default=shader.OUTPUT_GROUP_PARAMETRIC_RIM_COLOR_FACTOR_DEFAULT,
         min=0,
         max=1,
-        update=update_parametric_rim_color_factor,
+        get=get_parametric_rim_color_factor,
+        set=set_parametric_rim_color_factor,
     )
 
     rim_multiply_texture: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1RimMultiplyTextureInfoPropertyGroup
     )
 
-    def update_rim_lighting_mix_factor(self, _context: Context) -> None:
+    def get_rim_lighting_mix_factor(self) -> float:
+        return self.get_value(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_RIM_LIGHTING_MIX_FACTOR_LABEL,
+            default_value=shader.OUTPUT_GROUP_RIM_LIGHTING_MIX_FACTOR_DEFAULT,
+        )
+
+    def set_rim_lighting_mix_factor(self, value: object) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
-            shader.OUTPUT_GROUP_RIM_LIGHTING_MIX_FACTOR,
-            self.rim_lighting_mix_factor,
+            shader.OUTPUT_GROUP_RIM_LIGHTING_MIX_FACTOR_LABEL,
+            value,
         )
 
     rim_lighting_mix_factor: FloatProperty(  # type: ignore[valid-type]
-        name=shader.OUTPUT_GROUP_RIM_LIGHTING_MIX_FACTOR,
+        name=shader.OUTPUT_GROUP_RIM_LIGHTING_MIX_FACTOR_LABEL,
+        default=shader.OUTPUT_GROUP_RIM_LIGHTING_MIX_FACTOR_DEFAULT,
         soft_min=0,
         soft_max=1,
-        update=update_rim_lighting_mix_factor,
+        get=get_rim_lighting_mix_factor,
+        set=set_rim_lighting_mix_factor,
     )
 
-    def update_parametric_rim_fresnel_power_factor(self, _context: Context) -> None:
+    def get_parametric_rim_fresnel_power_factor(self) -> float:
+        return self.get_float(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_PARAMETRIC_RIM_FRESNEL_POWER_LABEL,
+            default_value=shader.OUTPUT_GROUP_PARAMETRIC_RIM_FRESNEL_POWER_DEFAULT,
+        )
+
+    def set_parametric_rim_fresnel_power_factor(self, value: object) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_PARAMETRIC_RIM_FRESNEL_POWER_LABEL,
-            self.parametric_rim_fresnel_power_factor,
+            value,
         )
 
     parametric_rim_fresnel_power_factor: FloatProperty(  # type: ignore[valid-type]
         name=shader.OUTPUT_GROUP_PARAMETRIC_RIM_FRESNEL_POWER_LABEL,
         min=0.0,
-        default=1.0,
+        default=shader.OUTPUT_GROUP_PARAMETRIC_RIM_FRESNEL_POWER_DEFAULT,
         soft_max=100.0,
-        update=update_parametric_rim_fresnel_power_factor,
+        get=get_parametric_rim_fresnel_power_factor,
+        set=set_parametric_rim_fresnel_power_factor,
     )
 
-    def update_parametric_rim_lift_factor(self, _context: Context) -> None:
+    def get_parametric_rim_lift_factor(self) -> float:
+        return self.get_float(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_PARAMETRIC_RIM_LIFT_FACTOR_LABEL,
+            default_value=shader.OUTPUT_GROUP_PARAMETRIC_RIM_LIFT_FACTOR_DEFAULT,
+        )
+
+    def set_parametric_rim_lift_factor(self, value: object) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_PARAMETRIC_RIM_LIFT_FACTOR_LABEL,
-            self.parametric_rim_lift_factor,
+            value,
         )
 
     parametric_rim_lift_factor: FloatProperty(  # type: ignore[valid-type]
@@ -2254,7 +2586,8 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         soft_min=0.0,
         default=shader.OUTPUT_GROUP_PARAMETRIC_RIM_LIFT_FACTOR_DEFAULT,
         soft_max=1.0,
-        update=update_parametric_rim_lift_factor,
+        get=get_parametric_rim_lift_factor,
+        set=set_parametric_rim_lift_factor,
     )
 
     OUTLINE_WIDTH_MODE_NONE = "none"
@@ -2281,8 +2614,27 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         outline_width_mode_item[0]
         for outline_width_mode_item in outline_width_mode_items
     )
+    OUTLINE_WIDTH_MODE_NUMBER_TO_ID: Mapping[int, str] = {
+        outline_width_mode_item[-1]: outline_width_mode_item[0]
+        for outline_width_mode_item in outline_width_mode_items
+    }
 
-    def update_outline_geometry(self, _context: Context) -> None:
+    def get_outline_width_mode(self) -> int:
+        return self.get_int(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_OUTLINE_WIDTH_MODE_LABEL,
+            default_value=shader.OUTPUT_GROUP_OUTLINE_WIDTH_MODE_DEFAULT,
+        )
+
+    def set_outline_width_mode(self, value: object) -> None:
+        self.set_int(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_OUTLINE_WIDTH_MODE_LABEL,
+            value,
+        )
+        self.update_outline_geometry()
+
+    def update_outline_geometry(self) -> None:
         material = self.find_material()
         if get_material_mtoon1_extension(material).is_outline_material:
             return
@@ -2293,36 +2645,53 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
     outline_width_mode: EnumProperty(  # type: ignore[valid-type]
         items=outline_width_mode_items,
         name=shader.OUTPUT_GROUP_OUTLINE_WIDTH_MODE_LABEL,
-        update=update_outline_geometry,
+        get=get_outline_width_mode,
+        set=set_outline_width_mode,
     )
 
-    def update_outline_width_factor(self, context: Context) -> None:
+    def get_outline_width_factor(self) -> float:
+        return self.get_value(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_OUTLINE_WIDTH_FACTOR_LABEL,
+            default_value=shader.OUTPUT_GROUP_OUTLINE_WIDTH_FACTOR_DEFAULT,
+        )
+
+    def set_outline_width_factor(self, value: object) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_OUTLINE_WIDTH_FACTOR_LABEL,
-            self.outline_width_factor,
+            value,
         )
-        self.update_outline_geometry(context)
+        self.update_outline_geometry()
 
     outline_width_factor: FloatProperty(  # type: ignore[valid-type]
         name=shader.OUTPUT_GROUP_OUTLINE_WIDTH_FACTOR_LABEL,
+        default=shader.OUTPUT_GROUP_OUTLINE_WIDTH_FACTOR_DEFAULT,
         min=0.0,
         soft_max=0.05,
-        update=update_outline_width_factor,
+        get=get_outline_width_factor,
+        set=set_outline_width_factor,
     )
 
     outline_width_multiply_texture: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup
     )
 
-    def update_outline_color_factor(self, context: Context) -> None:
+    def get_outline_color_factor(self) -> tuple[float, float, float]:
+        return self.get_rgb(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_OUTLINE_COLOR_FACTOR_LABEL,
+            default_value=shader.OUTPUT_GROUP_OUTLINE_COLOR_FACTOR_DEFAULT,
+        )
+
+    def set_outline_color_factor(self, value: object) -> None:
         self.set_rgb(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_OUTLINE_COLOR_FACTOR_LABEL,
-            self.outline_color_factor,
+            value,
             shader.OUTPUT_GROUP_OUTLINE_COLOR_FACTOR_DEFAULT,
         )
-        self.update_outline_geometry(context)
+        self.update_outline_geometry()
 
         material = self.find_material()
         mtoon1 = get_material_mtoon1_extension(material)
@@ -2350,63 +2719,98 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         default=shader.OUTPUT_GROUP_OUTLINE_COLOR_FACTOR_DEFAULT,
         min=0,
         max=1,
-        update=update_outline_color_factor,
+        get=get_outline_color_factor,
+        set=set_outline_color_factor,
     )
 
-    def update_outline_lighting_mix_factor(self, context: Context) -> None:
+    def get_outline_lighting_mix_factor(self) -> float:
+        return self.get_value(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_OUTLINE_LIGHTING_MIX_FACTOR_LABEL,
+            default_value=shader.OUTPUT_GROUP_OUTLINE_LIGHTING_MIX_FACTOR_DEFAULT,
+        )
+
+    def set_outline_lighting_mix_factor(self, value: object) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_OUTLINE_LIGHTING_MIX_FACTOR_LABEL,
-            self.outline_lighting_mix_factor,
+            value,
         )
-        self.update_outline_geometry(context)
+        self.update_outline_geometry()
 
     outline_lighting_mix_factor: FloatProperty(  # type: ignore[valid-type]
         name=shader.OUTPUT_GROUP_OUTLINE_LIGHTING_MIX_FACTOR_LABEL,
         min=0.0,
-        default=1.0,
+        default=shader.OUTPUT_GROUP_OUTLINE_LIGHTING_MIX_FACTOR_DEFAULT,
         max=1.0,
-        update=update_outline_lighting_mix_factor,
+        get=get_outline_lighting_mix_factor,
+        set=set_outline_lighting_mix_factor,
     )
 
     uv_animation_mask_texture: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1UvAnimationMaskTextureInfoPropertyGroup
     )
 
-    def update_uv_animation_scroll_x_speed_factor(self, _context: Context) -> None:
+    def get_uv_animation_scroll_x_speed_factor(self) -> float:
+        return self.get_value(
+            shader.UV_ANIMATION_GROUP_NAME,
+            shader.UV_ANIMATION_GROUP_TRANSLATE_X_LABEL,
+            default_value=shader.UV_ANIMATION_GROUP_TRANSLATE_X_DEFAULT,
+        )
+
+    def set_uv_animation_scroll_x_speed_factor(self, value: object) -> None:
         self.set_value(
             shader.UV_ANIMATION_GROUP_NAME,
             shader.UV_ANIMATION_GROUP_TRANSLATE_X_LABEL,
-            self.uv_animation_scroll_x_speed_factor,
+            value,
         )
 
     uv_animation_scroll_x_speed_factor: FloatProperty(  # type: ignore[valid-type]
         name=shader.UV_ANIMATION_GROUP_TRANSLATE_X_LABEL,
-        update=update_uv_animation_scroll_x_speed_factor,
+        default=shader.UV_ANIMATION_GROUP_TRANSLATE_X_DEFAULT,
+        get=get_uv_animation_scroll_x_speed_factor,
+        set=set_uv_animation_scroll_x_speed_factor,
     )
 
-    def update_uv_animation_scroll_y_speed_factor(self, _context: Context) -> None:
+    def get_uv_animation_scroll_y_speed_factor(self) -> float:
+        return self.get_value(
+            shader.UV_ANIMATION_GROUP_NAME,
+            shader.UV_ANIMATION_GROUP_TRANSLATE_Y_LABEL,
+            default_value=shader.UV_ANIMATION_GROUP_TRANSLATE_Y_DEFAULT,
+        )
+
+    def set_uv_animation_scroll_y_speed_factor(self, value: object) -> None:
         self.set_value(
             shader.UV_ANIMATION_GROUP_NAME,
             shader.UV_ANIMATION_GROUP_TRANSLATE_Y_LABEL,
-            self.uv_animation_scroll_y_speed_factor,
+            value,
         )
 
     uv_animation_scroll_y_speed_factor: FloatProperty(  # type: ignore[valid-type]
         name=shader.UV_ANIMATION_GROUP_TRANSLATE_Y_LABEL,
-        update=update_uv_animation_scroll_y_speed_factor,
+        default=shader.UV_ANIMATION_GROUP_TRANSLATE_Y_DEFAULT,
+        get=get_uv_animation_scroll_y_speed_factor,
+        set=set_uv_animation_scroll_y_speed_factor,
     )
 
-    def update_uv_animation_rotation_speed_factor(self, _context: Context) -> None:
+    def get_uv_animation_rotation_speed_factor(self) -> float:
+        return self.get_value(
+            shader.UV_ANIMATION_GROUP_NAME,
+            shader.UV_ANIMATION_GROUP_ROTATION_LABEL,
+            default_value=shader.UV_ANIMATION_GROUP_ROTATION_DEFAULT,
+        )
+
+    def set_uv_animation_rotation_speed_factor(self, value: object) -> None:
         self.set_value(
             shader.UV_ANIMATION_GROUP_NAME,
             shader.UV_ANIMATION_GROUP_ROTATION_LABEL,
-            self.uv_animation_rotation_speed_factor,
+            value,
         )
 
     uv_animation_rotation_speed_factor: FloatProperty(  # type: ignore[valid-type]
         name=shader.UV_ANIMATION_GROUP_ROTATION_LABEL,
-        update=update_uv_animation_rotation_speed_factor,
+        get=get_uv_animation_rotation_speed_factor,
+        set=set_uv_animation_rotation_speed_factor,
     )
 
     if TYPE_CHECKING:
@@ -2455,11 +2859,18 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
         "khr_materials_emissive_strength",
     )
 
-    def update_emissive_strength(self, _context: Context) -> None:
+    def get_emissive_strength(self) -> float:
+        return self.get_float(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_EMISSIVE_STRENGTH_LABEL,
+            default_value=shader.OUTPUT_GROUP_EMISSIVE_STRENGTH_DEFAULT,
+        )
+
+    def set_emissive_strength(self, value: object) -> None:
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_EMISSIVE_STRENGTH_LABEL,
-            self.emissive_strength,
+            value,
         )
 
         material = self.find_material()
@@ -2494,8 +2905,9 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
     emissive_strength: FloatProperty(  # type: ignore[valid-type]
         name="Strength",
         min=0.0,
-        default=1.0,
-        update=update_emissive_strength,
+        default=shader.OUTPUT_GROUP_EMISSIVE_STRENGTH_DEFAULT,
+        get=get_emissive_strength,
+        set=set_emissive_strength,
     )
 
     if TYPE_CHECKING:
@@ -2679,11 +3091,18 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         type=Mtoon1EmissiveTextureInfoPropertyGroup
     )
 
-    def update_emissive_factor(self, _context: Context) -> None:
+    def get_emissive_factor(self) -> tuple[float, float, float]:
+        return self.get_rgb(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_EMISSIVE_FACTOR_LABEL,
+            default_value=shader.OUTPUT_GROUP_EMISSIVE_FACTOR_DEFAULT,
+        )
+
+    def set_emissive_factor(self, value: object) -> None:
         self.set_rgb(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_EMISSIVE_FACTOR_LABEL,
-            self.emissive_factor,
+            value,
             shader.OUTPUT_GROUP_EMISSIVE_FACTOR_DEFAULT,
         )
 
@@ -2738,7 +3157,8 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         default=shader.OUTPUT_GROUP_EMISSIVE_FACTOR_DEFAULT,
         min=0,
         max=1,
-        update=update_emissive_factor,
+        get=get_emissive_factor,
+        set=set_emissive_factor,
     )
 
     extensions: PointerProperty(  # type: ignore[valid-type]

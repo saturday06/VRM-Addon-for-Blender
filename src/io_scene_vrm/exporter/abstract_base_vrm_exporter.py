@@ -13,7 +13,7 @@ from ..common import shader
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.workspace import save_workspace
-from ..editor.extension import get_armature_extension
+from ..editor.extension import get_armature_extension, get_material_extension
 from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
 from ..editor.vrm1.property_group import Vrm1HumanoidPropertyGroup
 from ..external import io_scene_gltf2_support
@@ -268,6 +268,28 @@ class AbstractBaseVrmExporter(ABC):
             AbstractBaseVrmExporter.exit_hide_mtoon1_outline_geometry_nodes(
                 context, object_name_to_modifier_names
             )
+
+    @staticmethod
+    def setup_mtoon_gltf_fallback_nodes(context: Context, *, is_vrm0: bool) -> None:
+        """MToonのノードの値を、glTFのフォールバック値に使われるノードに反映する.
+
+        MToonのノードを直接編集した場合、glTFのフォールバック値は自動で設定されない。
+        そのためエクスポート時に明示的に値を設定する。
+        """
+        for material in context.blend_data.materials:
+            mtoon1 = get_material_extension(material).mtoon1
+            if not mtoon1.enabled:
+                continue
+            mtoon1.pbr_metallic_roughness.base_color_factor = (
+                mtoon1.pbr_metallic_roughness.base_color_factor
+            )
+            mtoon1.emissive_factor = mtoon1.emissive_factor
+            mtoon1.normal_texture.scale = mtoon1.normal_texture.scale
+            mtoon1.extensions.khr_materials_emissive_strength.emissive_strength = (
+                mtoon1.extensions.khr_materials_emissive_strength.emissive_strength
+            )
+            for texture in mtoon1.all_textures(downgrade_to_mtoon0=is_vrm0):
+                texture.source = texture.source
 
 
 def assign_dict(

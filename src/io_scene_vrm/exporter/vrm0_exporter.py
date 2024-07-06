@@ -121,6 +121,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
     def export_vrm(self) -> Optional[bytes]:
         wm = self.context.window_manager
         wm.progress_begin(0, 8)
+
+        self.setup_mtoon_gltf_fallback_nodes(self.context, is_vrm0=True)
+
         try:
             with (
                 save_workspace(self.context),
@@ -273,7 +276,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             for texture in get_material_extension(mat).mtoon1.all_textures(
                 downgrade_to_mtoon0=True
             ):
-                source = texture.source
+                source = texture.get_connected_node_image()
                 if source and source not in used_images:
                     used_images.append(source)
 
@@ -1438,14 +1441,15 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         sampler_tuple_to_index_dict: dict[tuple[int, int, int, int], int],
         texture_tuple_to_index_dict: dict[tuple[int, int], int],
     ) -> Optional[dict[str, Json]]:
-        if not texture.source:
+        source = texture.get_connected_node_image()
+        if not source:
             return None
 
         index = self.add_texture(
             image_name_to_index_dict,
             sampler_tuple_to_index_dict,
             texture_tuple_to_index_dict,
-            texture.source.name,
+            source.name,
             Mtoon1SamplerPropertyGroup.WRAP_ID_TO_NUMBER[texture.sampler.wrap_s],
             Mtoon1SamplerPropertyGroup.MAG_FILTER_ID_TO_NUMBER[
                 texture.sampler.mag_filter

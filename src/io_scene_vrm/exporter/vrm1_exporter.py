@@ -759,7 +759,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         image_name_to_index_dict: dict[str, int],
         gltf2_addon_export_settings: dict[str, object],
     ) -> Optional[dict[str, Json]]:
-        image = texture_info.index.source
+        image = texture_info.index.get_connected_node_image()
         if not image:
             return None
 
@@ -1983,6 +1983,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
+
+        self.setup_mtoon_gltf_fallback_nodes(self.context, is_vrm0=False)
 
         vrm = get_armature_extension(armature_data).vrm1
         with (

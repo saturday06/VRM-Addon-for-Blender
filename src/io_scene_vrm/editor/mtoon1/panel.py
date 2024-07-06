@@ -14,6 +14,7 @@ from .ops import (
 )
 from .property_group import (
     Mtoon1MaterialPropertyGroup,
+    Mtoon1TextureInfoPropertyGroup,
     Mtoon1VrmcMaterialsMtoonPropertyGroup,
 )
 
@@ -31,6 +32,8 @@ def draw_texture_info(
     is_vrm0: bool,
 ) -> UILayout:
     texture_info = getattr(base_property_group, texture_info_attr_name)
+    if not isinstance(texture_info, Mtoon1TextureInfoPropertyGroup):
+        raise TypeError
     layout = parent_layout.split(factor=0.3)
     toggle_layout = layout.row()
     toggle_layout.alignment = "LEFT"
@@ -43,7 +46,31 @@ def draw_texture_info(
         icon="TRIA_DOWN" if texture_info.show_expanded else "TRIA_RIGHT",
     )
     input_layout = layout.row(align=True)
-    input_layout.prop(texture_info.index, "source", text="")
+
+    node_image = texture_info.index.get_connected_node_image()
+    if node_image == texture_info.index.source:
+        source_prop_name = "source"
+        placeholder = ""
+    else:
+        source_prop_name = "source_not_sync_with_node_tree"
+        placeholder = node_image.name if node_image else ""
+
+    if bpy.app.version >= (4, 1):
+        input_layout.prop(
+            texture_info.index,
+            source_prop_name,
+            text="",
+            translate=False,
+            placeholder=placeholder,
+        )
+    else:
+        input_layout.prop(
+            texture_info.index,
+            source_prop_name,
+            text="",
+            translate=False,
+        )
+
     import_image_file_op = layout_operator(
         input_layout,
         VRM_OT_import_mtoon1_texture_image_file,
