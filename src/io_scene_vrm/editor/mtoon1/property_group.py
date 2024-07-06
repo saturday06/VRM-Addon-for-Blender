@@ -1032,8 +1032,9 @@ class Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup(
 
 
 class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
+    MAG_FILTER_DEFAULT_ID = "NEAREST"
     mag_filter_items = (
-        ("NEAREST", "Nearest", "", GL_NEAREST),
+        (MAG_FILTER_DEFAULT_ID, "Nearest", "", GL_NEAREST),
         ("LINEAR", "Linear", "", GL_LINEAR),
     )
     MAG_FILTER_NUMBER_TO_ID: Mapping[int, str] = {
@@ -1042,6 +1043,7 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
     MAG_FILTER_ID_TO_NUMBER: Mapping[str, int] = {
         item[0]: item[-1] for item in mag_filter_items
     }
+    MAG_FILTER_IDS: tuple[str, ...] = tuple(item[0] for item in mag_filter_items)
 
     def get_mag_filter(self) -> int:
         default_value = next(iter(self.MAG_FILTER_NUMBER_TO_ID.keys()))
@@ -1150,8 +1152,9 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
 
         self["min_filter"] = value
 
+    MIN_FILTER_DEFAULT_ID = "NEAREST"
     min_filter_items = (
-        ("NEAREST", "Nearest", "", GL_NEAREST),
+        (MIN_FILTER_DEFAULT_ID, "Nearest", "", GL_NEAREST),
         ("LINEAR", "Linear", "", GL_LINEAR),
         (
             "NEAREST_MIPMAP_NEAREST",
@@ -1184,6 +1187,7 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
     MIN_FILTER_ID_TO_NUMBER: Mapping[str, int] = {
         item[0]: item[-1] for item in min_filter_items
     }
+    MIN_FILTER_IDS: tuple[str, ...] = tuple(item[0] for item in min_filter_items)
 
     # https://github.com/KhronosGroup/glTF/blob/2a9996a2ea66ab712590eaf62f39f1115996f5a3/specification/2.0/schema/sampler.schema.json#L67-L117
     WRAP_DEFAULT_NUMBER = GL_REPEAT
@@ -1196,6 +1200,7 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
     )
     WRAP_NUMBER_TO_ID: Mapping[int, str] = {wrap[-1]: wrap[0] for wrap in wrap_items}
     WRAP_ID_TO_NUMBER: Mapping[str, int] = {wrap[0]: wrap[-1] for wrap in wrap_items}
+    WRAP_IDS: tuple[str, ...] = tuple(wrap[0] for wrap in wrap_items)
 
     def update_wrap_s(self, _context: Context) -> None:
         wrap_s = self.WRAP_ID_TO_NUMBER.get(self.wrap_s, self.WRAP_DEFAULT_NUMBER)
@@ -1591,10 +1596,35 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
     def restore(self, backup: TextureInfoBackup) -> None:
         self.index.source = backup.source
-        self.index.sampler.mag_filter = backup.mag_filter
-        self.index.sampler.min_filter = backup.min_filter
-        self.index.sampler.wrap_s = backup.wrap_s
-        self.index.sampler.wrap_t = backup.wrap_t
+
+        if backup.mag_filter in Mtoon1SamplerPropertyGroup.MAG_FILTER_IDS:
+            self.index.sampler.mag_filter = backup.mag_filter
+        else:
+            logger.warning("invalid mag filter: %s", backup.mag_filter)
+            self.index.sampler.mag_filter = (
+                Mtoon1SamplerPropertyGroup.MAG_FILTER_DEFAULT_ID
+            )
+
+        if backup.min_filter in Mtoon1SamplerPropertyGroup.MIN_FILTER_IDS:
+            self.index.sampler.min_filter = backup.min_filter
+        else:
+            logger.warning("invalid min filter: %s", backup.min_filter)
+            self.index.sampler.min_filter = (
+                Mtoon1SamplerPropertyGroup.MIN_FILTER_DEFAULT_ID
+            )
+
+        if backup.wrap_s in Mtoon1SamplerPropertyGroup.WRAP_IDS:
+            self.index.sampler.wrap_s = backup.wrap_s
+        else:
+            logger.warning("invalid wrap s: %s", backup.wrap_s)
+            self.index.sampler.wrap_s = Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID
+
+        if backup.wrap_t in Mtoon1SamplerPropertyGroup.WRAP_IDS:
+            self.index.sampler.wrap_t = backup.wrap_t
+        else:
+            logger.warning("invalid wrap t: %s", backup.wrap_t)
+            self.index.sampler.wrap_t = Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID
+
         self.extensions.khr_texture_transform.offset = backup.offset
         self.extensions.khr_texture_transform.scale = backup.scale
 
