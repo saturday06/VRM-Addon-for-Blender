@@ -25,6 +25,8 @@ class bpy_struct:
         group: str = "",
         options: set[str] = ...,
     ) -> bool: ...
+    def driver_add(self, path: str, index: int = -1) -> Union[FCurve, list[FCurve]]: ...
+    def driver_remove(self, path: str, index: int = -1) -> bool: ...
 
     bl_rna: BlenderRNA  # ドキュメントには存在しない。TODO: read only
 
@@ -227,10 +229,16 @@ class TimelineMarker(bpy_struct):
 class ActionPoseMarkers(bpy_prop_collection[TimelineMarker]): ...
 
 class FCurve(bpy_struct):
-    mute: bool
-    is_valid: bool
-    data_path: str
     array_index: int
+    auto_smoothing: str
+    # color: tuple[float, float, float]  # TODO: Vectorかもしれない
+    color_mode: str
+    data_path: str
+    @property
+    def driver(self) -> Optional[Driver]: ...  # TODO: 本当にOptionalか?
+    extrapolation: str
+    is_valid: bool
+    mute: bool
 
     def evaluate(self, frame: int) -> float: ...
 
@@ -272,6 +280,41 @@ class SpaceView3D(Space):
 
 class Depsgraph(bpy_struct):
     def update(self) -> None: ...
+
+class DriverTarget(bpy_struct):
+    bone_target: str
+    data_path: str
+    id: ID
+    id_type: str
+    rotation_mode: str
+    transform_space: str
+    transform_type: str
+
+class DriverVariable(bpy_struct):
+    @property
+    def is_name_valid(self) -> bool: ...
+    name: str
+    @property
+    def targets(self) -> bpy_prop_collection[DriverTarget]: ...
+    type: str
+
+class ChannelDriverVariables(bpy_prop_collection[DriverVariable]):
+    # TODO: ドキュメントにはbpy_structから継承していると記載されている
+    def new(self) -> DriverVariable: ...
+    def remove(self, variable: DriverVariable) -> None: ...
+
+class Driver(bpy_struct):
+    expression: str
+    @property
+    def is_simple_expression(self) -> bool: ...
+    @property
+    def is_valid(
+        self,
+    ) -> bool: ...  # TODO: これreadonlyな気がするがドキュメントでは違う
+    type: str
+    use_self: bool
+    @property
+    def variables(self) -> ChannelDriverVariables: ...
 
 class ViewLayer(bpy_struct):
     @property
@@ -663,12 +706,31 @@ class Mesh(ID):
         clean_customdata: bool = True,
     ) -> bool: ...
 
+class AnimDataDrivers(bpy_prop_collection[FCurve]):  # TODO: 型が不明瞭
+    ...
+class NlaTrack(bpy_struct): ...
+class NlaTracks(bpy_prop_collection[NlaTrack]):  # TODO: 型が不明瞭
+    ...
+
+class AnimData(bpy_struct):
+    action: Optional[Action]
+    action_blend_type: str
+    action_extrapolation: str
+    action_influence: float
+    @property
+    def drivers(self) -> AnimDataDrivers: ...
+    @property
+    def nla_tracks(self) -> NlaTracks: ...
+    use_nla: bool
+    use_pin: bool
+    use_tweak_mode: bool
+    def nla_tweak_strip_time_to_scene(
+        self, frame: float, invert: bool = False
+    ) -> float: ...
+
 class ArmatureEditBones(bpy_prop_collection[EditBone]):
     def new(self, name: str) -> EditBone: ...
     def remove(self, bone: EditBone) -> None: ...
-
-class AnimData(bpy_struct):
-    action: Optional[Action]  # TODO: 本当にOptionalか確認
 
 class Armature(ID):
     pose_position: str
@@ -1339,7 +1401,7 @@ class Object(ID):
     @property
     def modifiers(self) -> ObjectModifiers: ...
     @property
-    def animation_data(self) -> Optional[AnimData]: ...  # TODO: 本当にOptionalか確認
+    def animation_data(self) -> Optional[AnimData]: ...
     def shape_key_add(self, name: str = "Key", from_mix: bool = True) -> ShapeKey: ...
     def select_get(self, view_layer: Optional[ViewLayer] = None) -> bool: ...
     def hide_get(self, view_layer: Optional[ViewLayer] = None) -> bool: ...
@@ -1527,6 +1589,8 @@ class NodeTree(ID):
     def nodes(self) -> Nodes: ...
     @property
     def type(self) -> str: ...
+    @property
+    def animation_data(self) -> Optional[AnimData]: ...
 
     # bpy.app.version < (4, 0)
     @property
@@ -1539,7 +1603,9 @@ class NodeTree(ID):
     def interface(self) -> NodeTreeInterface: ...
 
 class Material(ID):
-    name: str
+    @property
+    def animation_data(self) -> Optional[AnimData]: ...
+
     blend_method: str
 
     @property
