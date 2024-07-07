@@ -2,37 +2,8 @@
 
 set -eu -o pipefail
 
-# Dockerイメージは積極的にキャッシュされ、パッケージが古いままのことが多いのでここでアップデート
-sudo apt-get update
-sudo apt-get dist-upgrade --yes
-
-./tools/devcontainer_fixup_workspace.sh
-./tools/install_hugo.sh
-./tools/install_hadolint.sh
-
-# poetry 1.8.2が自動で作るvenvのスクリプトをVSCodeのターミナルが正しく解釈できないので手動で作る。
-# 例えばvenvの名前が "venv" で、シェルのデフォルトのプロンプトが "$" の場合、シェルのプロンプトは
-# 正しくは "(venv) $" となるべきだが、現状のpoetryとVSCodeの組み合わせでは "venv$" になっている。
-sudo rm -fr .venv-devcontainer
-if [ "$(uname -m)" = "x86_64" ]; then
-  /usr/local/bin/python3 -m venv .venv-devcontainer --prompt venv
-else
-  # x86_64以外の場合はbpyパッケージが存在しないので、システムのものを使う
-  /usr/local/bin/python3 -m venv .venv-devcontainer --prompt venv --system-site-packages
-fi
-
-poetry completions bash >>~/.bash_completion
-
 # いちおうサブモジュールを取得するが、作業フォルダの状態次第で失敗するので `|| true` を付与
 git submodule update --init --recursive || true
-
-# 環境によってはpoetry installは5%くらいの頻度で失敗するのでリトライする
-for _ in $(seq 5); do
-  if poetry install; then
-    break
-  fi
-  sleep 10
-done
 
 # システムのBlenderから開発中のアドオンをすぐに動作確認できるようにする
 for blender_version in \
