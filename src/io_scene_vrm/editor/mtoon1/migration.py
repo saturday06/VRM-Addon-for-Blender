@@ -11,7 +11,7 @@ from bpy.types import (
 )
 from idprop.types import IDPropertyGroup
 
-from ...common import convert, native, shader
+from ...common import convert, shader
 from ...common.gl import GL_LINEAR, GL_NEAREST
 from ...common.logging import get_logger
 from ..extension import get_material_extension
@@ -111,7 +111,7 @@ def migrate_material(context: Context, material: Material) -> None:
     alpha_cutoff: Optional[float] = None
     if addon_version < (2, 20, 55):
         alpha_cutoff = material.alpha_threshold
-        blend_method = native.read_blend_method_from_memory_address(material)
+        blend_method = material.blend_method
         if blend_method in ["BLEND", "HASHED"]:
             alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND
         elif blend_method == "CLIP":
