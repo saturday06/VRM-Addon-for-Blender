@@ -491,7 +491,7 @@ class UILayout(bpy_struct):
         translate: bool = True,
         icon: str = "NONE",
         icon_value: int = 0,
-    ) -> UILayout: ...
+    ) -> None: ...
     def split(
         self,
         /,
