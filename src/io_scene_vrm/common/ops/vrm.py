@@ -139,6 +139,18 @@ def model_draw(
     )
 
 
+def show_material_blender_4_2_warning(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    material_name_lines: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.show_material_blender_4_2_warning(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        material_name_lines=material_name_lines,
+    )
+
+
 def refresh_mtoon1_outline(
     execution_context: str = "EXEC_DEFAULT",
     /,

@@ -6,6 +6,7 @@ from sys import float_info
 from typing import TYPE_CHECKING, Optional
 
 import bpy
+from bpy.app.translations import pgettext
 from bpy.props import BoolProperty, EnumProperty, StringProperty
 from bpy.types import (
     Context,
@@ -1075,3 +1076,60 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
         # `poetry run python tools/property_typing.py`
         material_name: str  # type: ignore[no-redef]
         create_modifier: bool  # type: ignore[no-redef]
+
+
+class VRM_OT_show_material_blender_4_2_warning(Operator):
+    bl_idname = "vrm.show_material_blender_4_2_warning"
+    bl_label = "Blender 4.2 Material Upgrade Warning"
+    bl_description = "Show Material Blender 4.2 Warning"
+    bl_options: AbstractSet[str] = {"REGISTER"}
+
+    material_name_lines: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        return {"FINISHED"}
+
+    def invoke(self, context: Context, _event: Event) -> set[str]:
+        return context.window_manager.invoke_props_dialog(self, width=750)
+
+    def draw(self, _context: Context) -> None:
+        column = self.layout.row(align=True).column()
+        text = pgettext(
+            'Updating to Blender 4.2 may unintentionally change the "{alpha_mode}"'
+            + ' of some MToon materials to "{transparent}".\n'
+            + 'This was previously implemented using the material\'s "{blend_mode}"'
+            + " but since that setting was removed in Blender 4.2.\n"
+            + 'In the current VRM add-on, the "{alpha_mode}" function has been'
+            + " re-implemented using a different method. However, it\n"
+            + "was not possible"
+            + " to implement automatic migration of old settings values because those"
+            + " values could no longer be read.\n"
+            + 'Please check the "{alpha_mode}" settings for materials that have'
+            + " MToon enabled. "
+            + "Alternatively, if you open and save the \ncurrent file using the latest"
+            + " version of Blender 3.6 and the VRM add-on, the data for automatic"
+            + " migration will be created \ninternally, so that file can be opened in"
+            + " Blender 4.2 or later without losing the material settings.\n"
+            + "Materials that may be affected are as follows:"
+        ).format(
+            blend_mode=pgettext("Blend Mode"),
+            alpha_mode=pgettext("Alpha Mode"),
+            transparent=pgettext("Transparent"),
+        )
+        description_outer_column = column.column()
+        description_outer_column.emboss = "NONE"
+        description_column = description_outer_column.box().column(align=True)
+        for i, line in enumerate(text.splitlines()):
+            icon = "ERROR" if i == 0 else "NONE"
+            description_column.label(text=line, translate=False, icon=icon)
+        material_column = column.box().column(align=True)
+        for line in self.material_name_lines.splitlines():
+            material_column.label(text=line, translate=False, icon="MATERIAL")
+        column.separator()
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        material_name_lines: str  # type: ignore[no-redef]

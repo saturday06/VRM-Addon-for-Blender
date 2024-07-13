@@ -401,6 +401,7 @@ classes: list[
     mtoon1_ops.VRM_OT_reset_mtoon1_material_shader_node_tree,
     mtoon1_ops.VRM_OT_import_mtoon1_texture_image_file,
     mtoon1_ops.VRM_OT_refresh_mtoon1_outline,
+    mtoon1_ops.VRM_OT_show_material_blender_4_2_warning,
     detail_mesh_maker.ICYP_OT_detail_mesh_maker,
     glsl_drawer.ICYP_OT_draw_model,
     glsl_drawer.ICYP_OT_remove_draw_model,

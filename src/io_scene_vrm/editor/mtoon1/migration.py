@@ -1,6 +1,7 @@
 import functools
 from typing import Final, Optional
 
+import bpy
 from bpy.types import (
     Context,
     Image,
@@ -11,7 +12,7 @@ from bpy.types import (
 )
 from idprop.types import IDPropertyGroup
 
-from ...common import convert, shader
+from ...common import convert, ops, shader, version
 from ...common.gl import GL_LINEAR, GL_NEAREST
 from ...common.logging import get_logger
 from ..extension import get_material_extension
@@ -37,14 +38,45 @@ WRAP_NUMBER_TO_ID: Final = Mtoon1SamplerPropertyGroup.WRAP_NUMBER_TO_ID
 logger = get_logger(__name__)
 
 
+def show_material_blender_4_2_warning_delay(material_name_lines: str) -> None:
+    ops.vrm.show_material_blender_4_2_warning(
+        "INVOKE_DEFAULT",
+        material_name_lines=material_name_lines,
+    )
+
+
 def migrate(context: Context) -> None:
+    blender_4_2_migrated_material_names: list[str] = []
     for material in context.blend_data.materials:
         if not material:
             continue
-        migrate_material(context, material)
+        migrate_material(context, material, blender_4_2_migrated_material_names)
+    if (
+        blender_4_2_migrated_material_names
+        and tuple(bpy.data.version) < (4, 2)
+        and bpy.app.version >= (4, 2)
+    ):
+        logger.warning(
+            "Migrating Materials from blender version data=%s app=%s",
+            bpy.data.version,
+            bpy.app.version,
+        )
+
+        # Blender 4.2.0ではtimerで実行しないとダイアログが自動で消える
+        bpy.app.timers.register(
+            functools.partial(
+                show_material_blender_4_2_warning_delay,
+                "\n".join(blender_4_2_migrated_material_names),
+            ),
+            first_interval=0,
+        )
 
 
-def migrate_material(context: Context, material: Material) -> None:
+def migrate_material(
+    context: Context,
+    material: Material,
+    blender_4_2_migrated_material_names: list[str],
+) -> None:
     if not material.use_nodes:
         return
     node_tree = material.node_tree
@@ -110,6 +142,7 @@ def migrate_material(context: Context, material: Material) -> None:
     alpha_mode: Optional[str] = None
     alpha_cutoff: Optional[float] = None
     if addon_version < (2, 20, 55):
+        blender_4_2_migrated_material_names.append(material.name)
         alpha_cutoff = material.alpha_threshold
         blend_method = material.blend_method
         if blend_method in ["BLEND", "HASHED"]:
@@ -370,6 +403,8 @@ def migrate_material(context: Context, material: Material) -> None:
         typed_vrmc_materials_mtoon.uv_animation_rotation_speed_factor = (
             uv_animation_rotation_speed_factor
         )
+
+    typed_mtoon1.addon_version = version.addon_version()
 
 
 def backup_texture_info(texture_info: object) -> Optional[TextureInfoBackup]:

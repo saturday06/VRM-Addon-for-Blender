@@ -552,4 +552,40 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " for humanoid avatars.",
     ): "アーマチュアは人型では無いリグでエクスポートされます。"
     + "人型アバター用のアニメーションが適用されません。",
+    (
+        "Operator",
+        "Blender 4.2 Material Upgrade Warning",
+    ): "Blender 4.2でのマテリアルアップグレードの警告",
+    (
+        "*",
+        'Updating to Blender 4.2 may unintentionally change the "{alpha_mode}"'
+        + ' of some MToon materials to "{transparent}".\n'
+        + 'This was previously implemented using the material\'s "{blend_mode}"'
+        + " but since that setting was removed in Blender 4.2.\n"
+        + 'In the current VRM add-on, the "{alpha_mode}" function has been'
+        + " re-implemented using a different method. However, it\n"
+        + "was not possible"
+        + " to implement automatic migration of old settings values because those"
+        + " values could no longer be read.\n"
+        + 'Please check the "{alpha_mode}" settings for materials that have'
+        + " MToon enabled. "
+        + "Alternatively, if you open and save the \ncurrent file using the latest"
+        + " version of Blender 3.6 and the VRM add-on, the data for automatic"
+        + " migration will be created \ninternally, so that file can be opened in"
+        + " Blender 4.2 or later without losing the material settings.\n"
+        + "Materials that may be affected are as follows:",
+    ): "Blender 4.2へのアップデートに伴い、一部のMToonマテリアルの"
+    + "「{alpha_mode}」設定が意図せず「{transparent}」に変化している\n"
+    + "可能性があります。当該機能は今までマテリアルの「{blend_mode}」設定で"
+    + "実装されていましたが、Blender 4.2からその設定が\n"
+    + "削除されたためです。"
+    + "現在のVRMアドオンでは「{alpha_mode}」の機能は別の方式で再実装"
+    + "されましたが、古い設定値の自動移行は、\n"
+    + "古い設定値自体がもう読めないため実装が不可能でした。"
+    + "MToonが有効なマテリアルの「{alpha_mode}」設定の確認をお願いします。\n"
+    + "あるいは、Blender 3.6とVRMアドオンの最新版で現在のファイルを"
+    + "一度開いて保存すると、内部的に自動移行用のデータが作成\n"
+    + "されるため、そのファイルはマテリアルの設定を失わずに"
+    + "Blender 4.2以降でも開けるようになります。\n"
+    + "影響のある可能性のあるマテリアルは次の通りです。",
 }
