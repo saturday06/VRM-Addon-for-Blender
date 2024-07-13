@@ -301,7 +301,7 @@ def main() -> int:
                     else:
                         ops_params.append(ops_call_line)
                     ops_code += ops_arg_line + "\n"
-                    ks.append(k)
+                ks.append(k)
         if ops_path is not None:
             ops_code += ") -> set[str]:\n"
             ops_code += (
