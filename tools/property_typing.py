@@ -212,7 +212,7 @@ def main() -> int:
     argument_parser = ArgumentParser()
     argument_parser.add_argument("--more", action="store_true", dest="more")
     args = argument_parser.parse_args()
-    _more: bool = args.more
+    more: bool = args.more
 
     ops_dir = Path(__file__).parent.parent / "src" / "io_scene_vrm" / "common" / "ops"
     for generated_py_path in ops_dir.glob("*.py"):
@@ -322,7 +322,7 @@ def main() -> int:
                     + "import bpy\n\n\n"
                 )
             ops_path.write_text(ops_path.read_text() + ops_code)
-        # update_property_typing(c, code, more=more)
+        update_property_typing(c, code, more=more)
     return 0
 
 
