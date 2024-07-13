@@ -290,7 +290,8 @@ def main() -> int:
                     f"{function.__module__}.{function_name}",
                     typed_keywords,
                 )
-                code += code_line
+                if c == c2:
+                    code += code_line
                 if ops_path is not None and ops_arg_line is not None:
                     if not ops_code_sep:
                         ops_code += "    /,\n"
