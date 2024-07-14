@@ -44,7 +44,7 @@ index 22658475..5f4289fb 100644
 -    "category": "Import-Export",
 -}
 -
--MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (4, 1)
+-MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (4, 2)
 -
 -
 -def cleanse_modules() -> None:
@@ -263,7 +263,7 @@ index 6a2d08dc..5a1a0bd9 100644
  tags = ["Import-Export", "Animation", "Modeling", "Material", "Physics"]
  
 -blender_version_min = "2.93.0"
--blender_version_max = "4.1.999"
+-blender_version_max = "4.2.999"
 +blender_version_min = "4.2.0"
  
  license = ["SPDX:MIT"]

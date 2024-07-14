@@ -3,7 +3,7 @@ The download location for VRM Add-on for Blender has changed.
 For Blender 4.2 or later, please download from Blender Extension Platform.
 https://extensions.blender.org/add-ons/vrm
 
-For Blender 4.1 or earlier, please download from the official website.
+For Blender 4.1 or earlier, please download from the official site.
 https://vrm-addon-for-blender.info
 
 VRM Add-on for Blenderのダウンロードサイトは変更になりました。
