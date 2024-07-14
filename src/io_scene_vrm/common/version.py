@@ -104,9 +104,13 @@ def legacy_addon() -> bool:
 
 
 def stable_release() -> bool:
-    # for Blender Extensions Platform
-    if not legacy_addon() and bpy.app.version == (4, 2, 0):
+    if (  # for Blender Extensions Platform
+        not legacy_addon()
+        and bpy.app.version == (4, 2, 0)
+        and bpy.app.version_cycle == "rc"
+    ):
         return True
+
     if bpy.app.version_cycle == "release":
         return True
 
