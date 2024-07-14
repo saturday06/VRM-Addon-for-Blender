@@ -16,9 +16,13 @@ main article.prose section :where(p, img):not(:where([class~=not-prose] *)) {
 
 ![](top.en.png)
 
-**[Download Latest Version {{< release_utc >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)**<small> / [Past Releases](https://github.com/saturday06/VRM-Addon-for-Blender/releases)</small>
+VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blender. It supports Blender versions 2.93 to 4.2.
 
-VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blender. It supports Blender versions 2.93 to 4.1.
+## Download
+
+For Blender 4.2 or later, please download from [**Blender Extensions Platform (https://extensions.blender.org/add-ons/vrm)**](https://extensions.blender.org/add-ons/vrm). \
+For Blender 4.1 or earlier: **[Download Latest Version {{< release_utc >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)** \
+<small>[Past Releases](https://github.com/saturday06/VRM-Addon-for-Blender/releases)</small>
 
 ## Tutorials
 
