@@ -527,6 +527,9 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
     def get_image_texture_node_name(self) -> str:
         return self.get_texture_node_name("Image")
 
+    def get_image_texture_uv_node_name(self) -> str:
+        return self.get_texture_node_name("Uv")
+
     @classmethod
     def link_tex_image_to_node_group(
         cls,
@@ -670,8 +673,14 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
         node.image = image
 
-        self.set_texture_uv("Image Width", max(image.size[0], 1) if image else 1)
-        self.set_texture_uv("Image Height", max(image.size[1], 1) if image else 1)
+        self.set_texture_uv(
+            shader.UV_GROUP_IMAGE_WIDTH_LABEL,
+            max(image.size[0], 1) if image else 1,
+        )
+        self.set_texture_uv(
+            shader.UV_GROUP_IMAGE_HEIGHT_LABEL,
+            max(image.size[1], 1) if image else 1,
+        )
 
         texture_info = self.get_texture_info_property_group()
 
@@ -729,7 +738,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         return None
 
     def get_texture_uv_int(self, name: str, default_value: int) -> int:
-        node_name = self.get_texture_node_name("Uv")
+        node_name = self.get_image_texture_uv_node_name()
         material = self.find_material()
         if not material.node_tree:
             return default_value
@@ -750,7 +759,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         return default_value
 
     def get_texture_uv_float(self, name: str, default_value: float) -> float:
-        node_name = self.get_texture_node_name("Uv")
+        node_name = self.get_image_texture_uv_node_name()
         material = self.find_material()
         if not material.node_tree:
             return default_value
@@ -771,7 +780,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         return default_value
 
     def set_texture_uv(self, name: str, value: object) -> None:
-        node_name = self.get_texture_node_name("Uv")
+        node_name = self.get_image_texture_uv_node_name()
         material = self.find_material()
         if not material.node_tree:
             return
