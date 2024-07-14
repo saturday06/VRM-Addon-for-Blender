@@ -32,7 +32,7 @@ index 22658475..5f4289fb 100644
 -bl_info = {
 -    "name": "VRM format",
 -    "author": "saturday06, iCyP",
--    "version": (2, 20, 63),
+-    "version": (2, 20, 64),
 -    "location": "File > Import-Export",
 -    "description": "Import-Edit-Export VRM",
 -    "blender": (2, 93, 0),
