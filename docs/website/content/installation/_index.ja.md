@@ -3,7 +3,7 @@ title: "アドオンのインストール"
 images: ["images/installation.gif"]
 ---
 
-*このチュートリアルは、Blender 4.1かそれ以前のバージョンを使う場合のものです。Blender 4.2以降を利用される場合は [Blender Extension Platform (https://extensions.blender.org/add-ons/vrm)](https://extensions.blender.org/add-ons/vrm) 経由でインストールできます。*
+*このチュートリアルは、Blender 2.93から4.1を使う場合のものです。Blender 4.2以降を利用される場合は [Blender Extension Platform (https://extensions.blender.org/add-ons/vrm)](https://extensions.blender.org/add-ons/vrm) 経由でインストールできます。*
 
 **[最新版のダウンロード {{< release_ja >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)** から最新版のアドオンファイルをダウンロードします。
 

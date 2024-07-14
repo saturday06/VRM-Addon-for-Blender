@@ -3,7 +3,7 @@ title: "Add-on Installation"
 images: ["images/installation.gif"]
 ---
 
-*This tutorial is for Blender 4.1 or earlier versions. For Blender 4.2 or later, please download and install from [Blender Extensions Platform (https://extensions.blender.org/add-ons/vrm)](https://extensions.blender.org/add-ons/vrm).*
+*This tutorial is for Blender 2.93 to 4.1. For Blender 4.2 or later, please download and install from [Blender Extensions Platform (https://extensions.blender.org/add-ons/vrm)](https://extensions.blender.org/add-ons/vrm).*
 
 Download latest add-on file from **[Download Latest Version {{< release_utc >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)**
 
