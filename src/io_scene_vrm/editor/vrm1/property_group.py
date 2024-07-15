@@ -1156,14 +1156,27 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
 
         shape_key_name_and_key_block_name_to_value: dict[tuple[str, str], float] = {}
         for name, expression in name_to_expression_dict.items():
-            if name in Vrm1ExpressionsPresetPropertyGroup.MOUTH_EXPRESSION_NAMES:
-                blend_factor = mouth_blend_factor
-            elif name in Vrm1ExpressionsPresetPropertyGroup.BLINK_EXPRESSION_NAMES:
-                blend_factor = blink_blend_factor
-            elif name in Vrm1ExpressionsPresetPropertyGroup.LOOK_AT_EXPRESSION_NAMES:
-                blend_factor = look_at_blend_factor
+            if expression.is_binary:
+                preview = 0.0 if expression.preview < float_info.epsilon else 1.0
             else:
-                blend_factor = 1.0
+                preview = expression.preview
+
+            if name in Vrm1ExpressionsPresetPropertyGroup.MOUTH_EXPRESSION_NAMES:
+                preview *= mouth_blend_factor
+            elif name in Vrm1ExpressionsPresetPropertyGroup.BLINK_EXPRESSION_NAMES:
+                preview *= blink_blend_factor
+            elif name in Vrm1ExpressionsPresetPropertyGroup.LOOK_AT_EXPRESSION_NAMES:
+                preview *= look_at_blend_factor
+
+            for texture_transform_bind in expression.texture_transform_binds:
+                material = texture_transform_bind.material
+                if not material:
+                    continue
+
+            for material_color_bind in expression.material_color_binds:
+                material = material_color_bind.material
+                if not material:
+                    continue
 
             for morph_target_bind in expression.morph_target_binds:
                 mesh_object = context.blend_data.objects.get(
@@ -1187,14 +1200,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
                 if not key_block:
                     continue
 
-                if expression.is_binary:
-                    if expression.preview < float_info.epsilon:
-                        value = 0.0
-                    else:
-                        value = morph_target_bind.weight * blend_factor
-                else:
-                    value = morph_target_bind.weight * blend_factor * expression.preview
-
+                value = morph_target_bind.weight * preview
                 shape_key_name_and_key_block_name = (shape_key.name, key_block.name)
                 shape_key_name_and_key_block_name_to_value[
                     shape_key_name_and_key_block_name
