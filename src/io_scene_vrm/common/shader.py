@@ -382,6 +382,8 @@ def load_mtoon1_shader(
     *,
     reset_node_groups: bool,
 ) -> None:
+    from ..editor.extension import get_material_extension
+
     if not material.use_nodes:
         material.use_nodes = True
 
@@ -470,6 +472,9 @@ def load_mtoon1_shader(
             )
             if old_template_group:
                 old_template_group.name = name
+
+    ext = get_material_extension(material)
+    ext.mtoon1.setup_drivers()
 
     end_time = time.perf_counter()
     logger.debug(

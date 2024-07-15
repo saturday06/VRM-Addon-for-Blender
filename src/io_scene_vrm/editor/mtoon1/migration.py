@@ -404,6 +404,7 @@ def migrate_material(
             uv_animation_rotation_speed_factor
         )
 
+    typed_mtoon1.setup_drivers()
     typed_mtoon1.addon_version = version.addon_version()
 
 

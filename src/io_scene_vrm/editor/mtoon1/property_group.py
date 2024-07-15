@@ -17,6 +17,8 @@ from bpy.props import (
 )
 from bpy.types import (
     Context,
+    Driver,
+    FCurve,
     Image,
     Material,
     Node,
@@ -673,15 +675,6 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
         node.image = image
 
-        self.set_texture_uv(
-            shader.UV_GROUP_IMAGE_WIDTH_LABEL,
-            max(image.size[0], 1) if image else 1,
-        )
-        self.set_texture_uv(
-            shader.UV_GROUP_IMAGE_HEIGHT_LABEL,
-            max(image.size[1], 1) if image else 1,
-        )
-
         texture_info = self.get_texture_info_property_group()
 
         for (
@@ -696,6 +689,8 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
                     node_socket_target,
                     link=bool(image),
                 )
+
+        texture_info.setup_drivers()
 
     def get_connected_node_image(self) -> Optional[Image]:
         material = self.find_material()
@@ -1844,6 +1839,92 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
     show_expanded: BoolProperty()  # type: ignore[valid-type]
 
+    def setup_drivers(self) -> None:
+        material = self.find_material()
+        node_tree = material.node_tree
+        if not node_tree:
+            return
+        animation_data = node_tree.animation_data
+        if not animation_data:
+            animation_data = node_tree.animation_data_create()
+            if not animation_data:
+                logger.error(
+                    'Failed to create anomation data for node tree "%s"', node_tree.name
+                )
+                return
+        uv_node_name = self.index.get_image_texture_uv_node_name()
+        uv_node = node_tree.nodes.get(uv_node_name)
+        if not uv_node or not isinstance(uv_node, ShaderNodeGroup):
+            logger.error('Failed to get uv node "%s"', uv_node_name)
+            return
+        image_node_name = self.index.get_image_texture_node_name()
+        for size_index, uv_input_label in (
+            (0, shader.UV_GROUP_IMAGE_WIDTH_LABEL),
+            (1, shader.UV_GROUP_IMAGE_HEIGHT_LABEL),
+        ):
+            uv_input_index = next(
+                iter(
+                    index
+                    for index, socket in enumerate(uv_node.inputs)
+                    if socket.name == uv_input_label
+                ),
+                None,
+            )
+            if uv_input_index is None:
+                logger.error('Failed to get uv input index for "%s"', uv_input_label)
+                continue
+            data_path = (
+                f'nodes["{uv_node_name}"]'
+                + f".inputs[{uv_input_index}]"
+                + ".default_value"
+            )
+            fcurve: Optional[Union[FCurve, list[FCurve]]] = next(
+                iter(
+                    fcurve
+                    for fcurve in animation_data.drivers
+                    if fcurve.data_path == data_path
+                ),
+                None,
+            )
+            if fcurve is None:
+                fcurve = node_tree.driver_add(data_path)
+            if not isinstance(fcurve, FCurve):
+                logger.error(
+                    'Failed to get fcurve "%s" for node tree "%s"',
+                    data_path,
+                    node_tree.name,
+                )
+                continue
+            fcurve.array_index = 0
+            driver = fcurve.driver
+            if not isinstance(driver, Driver):
+                logger.error('Failed to get driver for fcurve "%s"', data_path)
+                continue
+            driver.type = "SUM"
+            if not driver.variables:
+                driver.variables.new()
+            while len(driver.variables) > 1:
+                driver.variables.remove(driver.variables[-1])
+            variable = driver.variables[0]
+            variable.type = "SINGLE_PROP"
+            if not variable.targets:
+                logger.error(
+                    'No targets in variable for fcurve "%s" in node_tree "%s"',
+                    data_path,
+                    node_tree.name,
+                )
+                continue
+            target = variable.targets[0]
+            target.id_type = "MATERIAL"
+            target.id = material
+            target_data_path = (
+                "node_tree"
+                + f'.nodes["{image_node_name}"]'
+                + ".image"
+                + f".size[{size_index}]"
+            )
+            target.data_path = target_data_path
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
@@ -1854,6 +1935,11 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/textureInfo.schema.json
 class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
+    material_property_chain = (
+        "pbr_metallic_roughness",
+        "base_color_texture",
+    )
+
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -1892,6 +1978,12 @@ class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 
 class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
+    material_property_chain = (
+        "extensions",
+        "vrmc_materials_mtoon",
+        "shade_multiply_texture",
+    )
+
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -2042,6 +2134,8 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/textureInfo.schema.json
 class Mtoon1EmissiveTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
+    material_property_chain = ("emissive_texture",)
+
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -2072,6 +2166,12 @@ class Mtoon1EmissiveTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 
 class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
+    material_property_chain = (
+        "extensions",
+        "vrmc_materials_mtoon",
+        "rim_multiply_texture",
+    )
+
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -2098,6 +2198,12 @@ class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 
 class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
+    material_property_chain = (
+        "extensions",
+        "vrmc_materials_mtoon",
+        "matcap_texture",
+    )
+
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -2126,6 +2232,12 @@ class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
     Mtoon1TextureInfoPropertyGroup
 ):
+    material_property_chain = (
+        "extensions",
+        "vrmc_materials_mtoon",
+        "outline_width_multiply_texture",
+    )
+
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -2152,6 +2264,12 @@ class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
 
 
 class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
+    material_property_chain = (
+        "extensions",
+        "vrmc_materials_mtoon",
+        "uv_animation_mask_texture",
+    )
+
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -3376,6 +3494,10 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         name="Render Queue",
         default=2000,
     )
+
+    def setup_drivers(self) -> None:
+        for texture_info in self.all_texture_info():
+            texture_info.setup_drivers()
 
     if TYPE_CHECKING:
         # This code is auto generated.
