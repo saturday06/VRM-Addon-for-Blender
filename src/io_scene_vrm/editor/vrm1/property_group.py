@@ -1101,17 +1101,143 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         for expression_override_type_item in expression_override_type_items
     )
 
+    def update_preview(self, context: Context) -> None:
+        Vrm1ExpressionPropertyGroup.update_previews(self, context)
+
+    @staticmethod
+    def update_previews(
+        triggered_expression: "Vrm1ExpressionPropertyGroup",
+        context: Context,
+    ) -> None:
+        armature: Optional[Armature] = None
+        for search_armature in context.blend_data.armatures:
+            ext = get_armature_vrm1_extension(search_armature)
+            if (
+                triggered_expression
+                == ext.expressions.all_name_to_expression_dict().get(
+                    triggered_expression.name
+                )
+            ):
+                armature = search_armature
+                break
+
+        if not armature:
+            logger.error("No armature for %s", triggered_expression.name)
+            return
+
+        name_to_expression_dict = get_armature_vrm1_extension(
+            armature
+        ).expressions.all_name_to_expression_dict()
+
+        mouth_block_rate = 0.0
+        blink_block_rate = 0.0
+        look_at_block_rate = 0.0
+        for expression in name_to_expression_dict.values():
+            if expression.preview < float_info.epsilon:
+                continue
+
+            if expression.override_mouth == "blend":
+                mouth_block_rate += expression.preview
+            if expression.override_blink == "blend":
+                blink_block_rate += expression.preview
+            if expression.override_look_at == "blend":
+                look_at_block_rate += expression.preview
+
+            if expression.override_mouth == "block":
+                mouth_block_rate = 1.0
+            if expression.override_blink == "block":
+                blink_block_rate = 1.0
+            if expression.override_look_at == "block":
+                look_at_block_rate = 1.0
+
+        mouth_blend_factor = max(0, min(1 - mouth_block_rate, 1))
+        blink_blend_factor = max(0, min(1 - blink_block_rate, 1))
+        look_at_blend_factor = max(0, min(1 - look_at_block_rate, 1))
+
+        shape_key_name_and_key_block_name_to_value: dict[tuple[str, str], float] = {}
+        for name, expression in name_to_expression_dict.items():
+            if name in Vrm1ExpressionsPresetPropertyGroup.MOUTH_EXPRESSION_NAMES:
+                blend_factor = mouth_blend_factor
+            elif name in Vrm1ExpressionsPresetPropertyGroup.BLINK_EXPRESSION_NAMES:
+                blend_factor = blink_blend_factor
+            elif name in Vrm1ExpressionsPresetPropertyGroup.LOOK_AT_EXPRESSION_NAMES:
+                blend_factor = look_at_blend_factor
+            else:
+                blend_factor = 1.0
+
+            for morph_target_bind in expression.morph_target_binds:
+                mesh_object = context.blend_data.objects.get(
+                    morph_target_bind.node.mesh_object_name
+                )
+                if not mesh_object or mesh_object.type != "MESH":
+                    continue
+                mesh = mesh_object.data
+                if not isinstance(mesh, Mesh):
+                    continue
+                mesh_shape_keys = mesh.shape_keys
+                if not mesh_shape_keys:
+                    continue
+                shape_key = context.blend_data.shape_keys.get(mesh_shape_keys.name)
+                if not shape_key:
+                    continue
+                key_blocks = shape_key.key_blocks
+                if not key_blocks:
+                    continue
+                key_block = key_blocks.get(morph_target_bind.index)
+                if not key_block:
+                    continue
+
+                if expression.is_binary:
+                    if expression.preview < float_info.epsilon:
+                        value = 0.0
+                    else:
+                        value = morph_target_bind.weight * blend_factor
+                else:
+                    value = morph_target_bind.weight * blend_factor * expression.preview
+
+                shape_key_name_and_key_block_name = (shape_key.name, key_block.name)
+                shape_key_name_and_key_block_name_to_value[
+                    shape_key_name_and_key_block_name
+                ] = (
+                    shape_key_name_and_key_block_name_to_value.get(
+                        shape_key_name_and_key_block_name, 0.0
+                    )
+                    + value
+                )
+
+        for (
+            shape_key_name,
+            key_block_name,
+        ), value in shape_key_name_and_key_block_name_to_value.items():
+            shape_key = context.blend_data.shape_keys.get(shape_key_name)
+            if not shape_key:
+                continue
+            key_blocks = shape_key.key_blocks
+            if not key_blocks:
+                continue
+            key_block = key_blocks.get(key_block_name)
+            if not key_block:
+                continue
+            key_block.value = value
+
+        Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.update(
+            shape_key_name_and_key_block_name_to_value
+        )
+
     override_blink: EnumProperty(  # type: ignore[valid-type]
         name="Override Blink",
         items=expression_override_type_items,
+        update=update_preview,
     )
     override_look_at: EnumProperty(  # type: ignore[valid-type]
         name="Override Look At",
         items=expression_override_type_items,
+        update=update_preview,
     )
     override_mouth: EnumProperty(  # type: ignore[valid-type]
         name="Override Mouth",
         items=expression_override_type_items,
+        update=update_preview,
     )
 
     # for UI
@@ -1136,6 +1262,14 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             return float(value)
         return 0.0
 
+    def find_armature(self, context: Context) -> Armature:
+        for armature in context.blend_data.armatures:
+            ext = get_armature_vrm1_extension(armature)
+            ext.expressions.all_name_to_expression_dict()
+
+        message = f"No armature extension for {self.name}"
+        raise ValueError(message)
+
     def set_preview(self, value: object) -> None:
         context = bpy.context
 
@@ -1150,38 +1284,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             return
 
         self["preview"] = float(value)
-
-        for morph_target_bind in self.morph_target_binds:
-            mesh_object = context.blend_data.objects.get(
-                morph_target_bind.node.mesh_object_name
-            )
-            if not mesh_object or mesh_object.type != "MESH":
-                continue
-            mesh = mesh_object.data
-            if not isinstance(mesh, Mesh):
-                continue
-            mesh_shape_keys = mesh.shape_keys
-            if not mesh_shape_keys:
-                continue
-            shape_key = context.blend_data.shape_keys.get(mesh_shape_keys.name)
-            if not shape_key:
-                continue
-            key_blocks = shape_key.key_blocks
-            if not key_blocks:
-                continue
-            if morph_target_bind.index not in key_blocks:
-                continue
-            if self.is_binary:
-                preview = 1.0 if self.preview > 0.0 else 0.0
-            else:
-                preview = self.preview
-            key_block_value = (
-                morph_target_bind.weight * preview
-            )  # Lerp 0.0 * (1 - a) + weight * a
-            key_blocks[morph_target_bind.index].value = key_block_value
-            Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates[
-                (shape_key.name, morph_target_bind.index)
-            ] = key_block_value
+        Vrm1ExpressionPropertyGroup.update_preview(self, context)
 
     preview: FloatProperty(  # type: ignore[valid-type]
         name="Expression",
@@ -1310,6 +1413,13 @@ class Vrm1ExpressionsPresetPropertyGroup(PropertyGroup):
         "lookLeft": "ANCHOR_RIGHT",
         "lookRight": "ANCHOR_LEFT",
     }
+
+    # https://github.com/vrm-c/vrm-specification/blob/321312d1a462bb74b6f06c34c44ede564a1c53d1/specification/VRMC_vrm-1.0/expressions.md?plain=1#L152
+    MOUTH_EXPRESSION_NAMES = ("aa", "ih", "ou", "ee", "oh")
+    # https://github.com/vrm-c/vrm-specification/blob/321312d1a462bb74b6f06c34c44ede564a1c53d1/specification/VRMC_vrm-1.0/expressions.md?plain=1#L153
+    BLINK_EXPRESSION_NAMES = ("blink", "blinkLeft", "blinkRight")
+    # https://github.com/vrm-c/vrm-specification/blob/321312d1a462bb74b6f06c34c44ede564a1c53d1/specification/VRMC_vrm-1.0/expressions.md?plain=1#L154
+    LOOK_AT_EXPRESSION_NAMES = ("lookUp", "lookDown", "lookLeft", "lookRight")
 
     def name_to_expression_dict(self) -> dict[str, Vrm1ExpressionPropertyGroup]:
         return {
