@@ -309,18 +309,20 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "代わりにfirstPersonBoneとしてVRMヒューマンボーン「head」を自動で設定します。",
     (
         "*",
-        'mesh "{mesh_name}" doesn\'t have shape key. '
-        + 'But blend shape group needs "{shape_key_name}"'
-        + " in its shape key.",
-    ): "blend shape groupが参照しているメッシュ「{mesh_name}」の"
-    + "シェイプキー「{shape_key_name}」が存在しません。",
+        'A mesh named "{mesh_name}" is assigned to a blend'
+        + ' shape group named "{blend_shape_group_name}" but'
+        + " the mesh will not be exported",
+    ): "Blend Shape Group「{blend_shape_group_name}」にメッシュ「{mesh_name}」が"
+    + "割り当てられていますが、そのメッシュはエクスポートされません",
     (
         "*",
-        'mesh "{mesh_name}" doesn\'t have '
-        + '"{shape_key_name}" shape key. '
-        + "But blend shape group needs it.",
-    ): "メッシュ「{mesh_name}」にはシェイプキー「{shape_key_name}」が存在しません。"
-    + "しかし blend shape group の設定はそれを必要としています。",
+        'A shape key named "{shape_key_name}" in a mesh'
+        + ' named "{mesh_name}" is assigned to a blend shape'
+        + ' group named "{blend_shape_group_name}" but the'
+        + " shape key doesn't exist.",
+    ): "Blend Shape Group「{blend_shape_group_name}」にメッシュ"
+    + "「{mesh_name}」のシェイプキー「{shape_key_name}」が割り当てられていますが、"
+    + "そのようなシェイプキーは存在しません",
     (
         "*",
         'need "{expect_node_type}" input' + ' in "{shader_val}" of "{material_name}"',

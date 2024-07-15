@@ -782,37 +782,48 @@ class WM_OT_vrm_validator(Operator):
             ).vrm0.blend_shape_master
             for blend_shape_group in blend_shape_master.blend_shape_groups:
                 for bind in blend_shape_group.binds:
-                    mesh_object = context.blend_data.objects.get(
-                        bind.mesh.mesh_object_name
+                    mesh_object_name = bind.mesh.mesh_object_name
+                    if not bind.index or not mesh_object_name:
+                        continue
+                    mesh_object = next(
+                        iter(
+                            obj
+                            for obj in export_objects
+                            if obj.name == mesh_object_name
+                        ),
+                        None,
                     )
+                    if (
+                        not mesh_object
+                        and mesh_object_name in context.blend_data.objects
+                    ):
+                        info_messages.append(
+                            pgettext(
+                                'A mesh named "{mesh_name}" is assigned to a blend'
+                                + ' shape group named "{blend_shape_group_name}" but'
+                                + " the mesh will not be exported"
+                            ).format(
+                                blend_shape_group_name=blend_shape_group.name,
+                                mesh_name=mesh_object_name,
+                            )
+                        )
                     if not mesh_object:
                         continue
                     mesh_data = mesh_object.data
                     if not isinstance(mesh_data, Mesh):
                         continue
                     shape_keys = mesh_data.shape_keys
-                    if not shape_keys:
+                    if not shape_keys or bind.index not in shape_keys.key_blocks:
                         info_messages.append(
                             pgettext(
-                                'mesh "{mesh_name}" doesn\'t have shape key. '
-                                + 'But blend shape group needs "{shape_key_name}"'
-                                + " in its shape key."
+                                'A shape key named "{shape_key_name}" in a mesh'
+                                + ' named "{mesh_name}" is assigned to a blend shape'
+                                + ' group named "{blend_shape_group_name}" but the'
+                                + " shape key doesn't exist."
                             ).format(
-                                mesh_name=bind.mesh.name,
+                                mesh_name=mesh_object.name,
                                 shape_key_name=bind.index,
-                            )
-                        )
-                        continue
-
-                    if bind.index not in shape_keys.key_blocks:
-                        info_messages.append(
-                            pgettext(
-                                'mesh "{mesh_name}" doesn\'t have '
-                                + '"{shape_key_name}" shape key. '
-                                + "But blend shape group needs it."
-                            ).format(
-                                mesh_name=bind.mesh.name,
-                                shape_key_name=bind.index,
+                                blend_shape_group_name=blend_shape_group.name,
                             )
                         )
 
