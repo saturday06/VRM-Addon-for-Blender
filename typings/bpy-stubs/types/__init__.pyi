@@ -297,6 +297,7 @@ class DriverVariable(bpy_struct):
     @property
     def targets(self) -> bpy_prop_collection[DriverTarget]: ...
     type: str
+    context_property: str  # bpy.app.version >= (3, 6)
 
 class ChannelDriverVariables(bpy_prop_collection[DriverVariable]):
     # TODO: ドキュメントにはbpy_structから継承していると記載されている

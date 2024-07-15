@@ -1841,6 +1841,9 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
     def setup_drivers(self) -> None:
         material = self.find_material()
+        mtoon1 = get_material_mtoon1_extension(material)
+        if not mtoon1.get_enabled_in_material(material):
+            return
         node_tree = material.node_tree
         if not node_tree:
             return
@@ -1858,6 +1861,10 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
             logger.error('Failed to get uv node "%s"', uv_node_name)
             return
         image_node_name = self.index.get_image_texture_node_name()
+        image_node = node_tree.nodes.get(image_node_name)
+        image_exists = isinstance(image_node, ShaderNodeTexImage) and isinstance(
+            image_node.image, Image
+        )
         for size_index, uv_input_label in (
             (0, shader.UV_GROUP_IMAGE_WIDTH_LABEL),
             (1, shader.UV_GROUP_IMAGE_HEIGHT_LABEL),
@@ -1895,18 +1902,21 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
                     node_tree.name,
                 )
                 continue
-            fcurve.array_index = 0
+            if fcurve.array_index != 0:
+                fcurve.array_index = 0
             driver = fcurve.driver
             if not isinstance(driver, Driver):
                 logger.error('Failed to get driver for fcurve "%s"', data_path)
                 continue
-            driver.type = "SUM"
+            if driver.type != "SUM":
+                driver.type = "SUM"
             if not driver.variables:
                 driver.variables.new()
             while len(driver.variables) > 1:
                 driver.variables.remove(driver.variables[-1])
             variable = driver.variables[0]
-            variable.type = "SINGLE_PROP"
+            if variable.type != "SINGLE_PROP":
+                variable.type = "SINGLE_PROP"
             if not variable.targets:
                 logger.error(
                     'No targets in variable for fcurve "%s" in node_tree "%s"',
@@ -1915,15 +1925,22 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
                 )
                 continue
             target = variable.targets[0]
-            target.id_type = "MATERIAL"
-            target.id = material
+            if target.id_type != "MATERIAL":
+                target.id_type = "MATERIAL"
+            if target.id != material:
+                target.id = material
             target_data_path = (
                 "node_tree"
                 + f'.nodes["{image_node_name}"]'
                 + ".image"
                 + f".size[{size_index}]"
             )
-            target.data_path = target_data_path
+            if target.data_path != target_data_path or (
+                # Blender 2.93では、一度imageを削除するとis_validがFalseになる。
+                # data_pathを再設定することで解消。
+                image_exists and (not fcurve.is_valid or not driver.is_valid)
+            ):
+                target.data_path = target_data_path
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -3654,3 +3671,104 @@ def get_material_mtoon1_extension(material: Material) -> Mtoon1MaterialPropertyG
 
     mtoon1: Mtoon1MaterialPropertyGroup = get_material_extension(material).mtoon1
     return mtoon1
+
+
+UV_ANIMATION_GROUP_FPS_BASE_NODE_NAME: Final = "Scene.Render.FpsBase"
+UV_ANIMATION_GROUP_FPS_NODE_NAME: Final = "Scene.Render.Fps"
+UV_ANIMATION_GROUP_FRAME_CURRENT_NODE_NAME: Final = "Scene.FrameCurrent"
+
+
+def setup_frame_count_driver(context: Context) -> None:
+    node_group = context.blend_data.node_groups.get(shader.UV_ANIMATION_GROUP_NAME)
+    if not node_group:
+        return
+    animation_data = node_group.animation_data
+    if not animation_data:
+        animation_data = node_group.animation_data_create()
+        if not animation_data:
+            logger.error(
+                'Failed to create anomation data for node group "%s"', node_group.name
+            )
+            return
+    node_group = context.blend_data.node_groups.get(shader.UV_ANIMATION_GROUP_NAME)
+    if not node_group:
+        return
+
+    for data_path, target_data_path in [
+        (
+            f'nodes["{UV_ANIMATION_GROUP_FPS_BASE_NODE_NAME}"]'
+            + ".inputs[0]"
+            + ".default_value",
+            "frame_current",
+        ),
+        (
+            f'nodes["{UV_ANIMATION_GROUP_FPS_NODE_NAME}"]'
+            + ".inputs[0]"
+            + ".default_value",
+            "render.fps",
+        ),
+        (
+            f'nodes["{UV_ANIMATION_GROUP_FRAME_CURRENT_NODE_NAME}"]'
+            + ".inputs[0]"
+            + ".default_value",
+            "render.fps_base",
+        ),
+    ]:
+        fcurve: Optional[Union[FCurve, list[FCurve]]] = next(
+            iter(
+                fcurve
+                for fcurve in animation_data.drivers
+                if fcurve.data_path == data_path
+            ),
+            None,
+        )
+        if fcurve is None:
+            fcurve = node_group.driver_add(data_path)
+        if not isinstance(fcurve, FCurve):
+            logger.error(
+                'Failed to get fcurve "%s" for node tree "%s"',
+                data_path,
+                node_group.name,
+            )
+            continue
+        if fcurve.array_index != 0:
+            fcurve.array_index = 0
+        driver = fcurve.driver
+        if not isinstance(driver, Driver):
+            logger.error('Failed to get driver for fcurve "%s"', data_path)
+            continue
+        if driver.type != "SUM":
+            driver.type = "SUM"
+        if not driver.variables:
+            driver.variables.new()
+        while len(driver.variables) > 1:
+            driver.variables.remove(driver.variables[-1])
+        variable = driver.variables[0]
+        if not variable.targets:
+            logger.error(
+                'No targets in variable for fcurve "%s" in node_tree "%s"',
+                data_path,
+                node_group.name,
+            )
+            continue
+        target = variable.targets[0]
+        if bpy.app.version >= (3, 6):
+            if variable.type != "CONTEXT_PROP":
+                variable.type = "CONTEXT_PROP"
+            if variable.context_property != "ACTIVE_SCENE":
+                variable.context_property = "ACTIVE_SCENE"
+        else:
+            if variable.type != "SINGLE_PROP":
+                variable.type = "SINGLE_PROP"
+            if target.id_type != "SCENE":
+                target.id_type = "SCENE"
+            if target.id != context.scene:
+                target.id = context.scene
+        if target.data_path != target_data_path:
+            target.data_path = target_data_path
+
+
+def setup_drivers(context: Context) -> None:
+    for material in context.blend_data.materials:
+        get_material_mtoon1_extension(material).setup_drivers()
+    # setup_frame_count_driver(context)
