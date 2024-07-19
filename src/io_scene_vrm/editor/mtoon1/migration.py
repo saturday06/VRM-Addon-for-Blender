@@ -68,7 +68,7 @@ def migrate(context: Context) -> None:
                 show_material_blender_4_2_warning_delay,
                 "\n".join(blender_4_2_migrated_material_names),
             ),
-            first_interval=0,
+            first_interval=0.1,
         )
 
 
