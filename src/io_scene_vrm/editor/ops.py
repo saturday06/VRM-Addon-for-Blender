@@ -358,28 +358,25 @@ class VRM_OT_show_blend_file_compatibility_warning(Operator):
     bl_description = "Show Blend File Compatibility Warning"
     bl_options: AbstractSet[str] = {"REGISTER"}
 
+    file_version: StringProperty(options={"HIDDEN"})  # type: ignore[valid-type]
+    app_version: StringProperty(options={"HIDDEN"})  # type: ignore[valid-type]
+
     def execute(self, _context: Context) -> set[str]:
         return {"FINISHED"}
 
     def invoke(self, context: Context, _event: Event) -> set[str]:
         return context.window_manager.invoke_props_dialog(self, width=500)
 
-    def draw(self, context: Context) -> None:
-        app_version = str(bpy.app.version[0]) + "." + str(bpy.app.version[1])
-        file_version = (
-            str(context.blend_data.version[0])
-            + "."
-            + str(context.blend_data.version[1])
-        )
+    def draw(self, _context: Context) -> None:
         column = self.layout.row(align=True).column()
         text = pgettext(
             "The current file is not compatible with the running Blender.\n"
-            + "The file was created in Blender {file_version}, but the running Blender"
-            + " version is {app_version}.\n"
+            + "The current file was created in Blender {file_version}, but the running"
+            + " Blender version is {app_version}.\n"
             + "So it is not compatible. As a result some data may be lost or corrupted."
         ).format(
-            app_version=app_version,
-            file_version=file_version,
+            app_version=self.app_version,
+            file_version=self.file_version,
         )
         description_outer_column = column.column()
         description_outer_column.emboss = "NONE"
@@ -395,12 +392,21 @@ class VRM_OT_show_blend_file_compatibility_warning(Operator):
         )
         open_url.url = "https://developer.blender.org/docs/handbook/guidelines/compatibility_handling_for_blend_files/#forward-compatibility"
 
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        file_version: str  # type: ignore[no-redef]
+        app_version: str  # type: ignore[no-redef]
 
-class VRM_OT_show_blend_file_vrm_addon_compatibility_warning(Operator):
-    bl_idname = "vrm.show_blend_file_vrm_addon_compatibility_warning"
+
+class VRM_OT_show_blend_file_addon_compatibility_warning(Operator):
+    bl_idname = "vrm.show_blend_file_addon_compatibility_warning"
     bl_label = "VRM Add-on Compatibility Warning"
     bl_description = "Show Blend File and VRM Add-on Compatibility Warning"
     bl_options: AbstractSet[str] = {"REGISTER"}
+
+    file_addon_version: StringProperty(options={"HIDDEN"})  # type: ignore[valid-type]
+    installed_addon_version: StringProperty(options={"HIDDEN"})  # type: ignore[valid-type]
 
     def execute(self, _context: Context) -> set[str]:
         return {"FINISHED"}
@@ -408,22 +414,18 @@ class VRM_OT_show_blend_file_vrm_addon_compatibility_warning(Operator):
     def invoke(self, context: Context, _event: Event) -> set[str]:
         return context.window_manager.invoke_props_dialog(self, width=500)
 
-    def draw(self, context: Context) -> None:
-        app_version = str(bpy.app.version[0]) + "." + str(bpy.app.version[1])
-        file_version = (
-            str(context.blend_data.version[0])
-            + "."
-            + str(context.blend_data.version[1])
-        )
+    def draw(self, _context: Context) -> None:
         column = self.layout.row(align=True).column()
         text = pgettext(
-            "The current file is not compatible with the current VRM Add-on.\n"
-            + "The file was created in VRM Add-on {file_version}, but the current"
-            + " VRM Add-on version is {app_version}.\n"
-            + "So it is not compatible. As a result some data may be lost or corrupted."
+            "The current file is not compatible with the installed VRM Add-on.\n"
+            + "The current file was created in VRM Add-on {file_addon_version}, but the"
+            + " installed\n"
+            + "VRM Add-on version is {installed_addon_version}. So it is not"
+            + " compatible. As a result some\n"
+            + "data may be lost or corrupted."
         ).format(
-            current_version=app_version,
-            file_version=file_version,
+            file_addon_version=self.file_addon_version,
+            installed_addon_version=self.installed_addon_version,
         )
         description_outer_column = column.column()
         description_outer_column.emboss = "NONE"
@@ -431,6 +433,12 @@ class VRM_OT_show_blend_file_vrm_addon_compatibility_warning(Operator):
         for i, line in enumerate(text.splitlines()):
             icon = "ERROR" if i == 0 else "NONE"
             description_column.label(text=line, translate=False, icon=icon)
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        file_addon_version: str  # type: ignore[no-redef]
+        installed_addon_version: str  # type: ignore[no-redef]
 
 
 __Operator = TypeVar("__Operator", bound=Operator)

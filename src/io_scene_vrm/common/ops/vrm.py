@@ -23,19 +23,31 @@ def model_validate(
     )
 
 
-def show_blend_file_vrm_addon_compatibility_warning(
+def show_blend_file_addon_compatibility_warning(
     execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    file_addon_version: str = "",
+    installed_addon_version: str = "",
 ) -> set[str]:
-    return bpy.ops.vrm.show_blend_file_vrm_addon_compatibility_warning(  # type: ignore[attr-defined, no-any-return]
+    return bpy.ops.vrm.show_blend_file_addon_compatibility_warning(  # type: ignore[attr-defined, no-any-return]
         execution_context,
+        file_addon_version=file_addon_version,
+        installed_addon_version=installed_addon_version,
     )
 
 
 def show_blend_file_compatibility_warning(
     execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    file_version: str = "",
+    app_version: str = "",
 ) -> set[str]:
     return bpy.ops.vrm.show_blend_file_compatibility_warning(  # type: ignore[attr-defined, no-any-return]
         execution_context,
+        file_version=file_version,
+        app_version=app_version,
     )
 
 

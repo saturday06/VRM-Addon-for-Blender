@@ -29,6 +29,7 @@ logger = get_logger(__name__)
 @dataclass
 class State:
     blend_file_compatibility_warning_shown: bool = False
+    blend_file_addon_compatibility_warning_shown: bool = False
 
 
 state: Final = State()
@@ -124,7 +125,8 @@ def migrate_all_objects(
         context, context.scene.name
     )
     mtoon1_migration.migrate(context)
-    validate_blend_file_version_compatibility(context)
+    validate_blend_file_compatibility(context)
+    validate_blend_file_addon_compatibility(context)
 
     preferences = get_preferences(context)
 
@@ -137,7 +139,7 @@ def migrate_all_objects(
     preferences.addon_version = updated_addon_version
 
 
-def validate_blend_file_version_compatibility(context: Context) -> None:
+def validate_blend_file_compatibility(context: Context) -> None:
     """新しいBlenderで作成されたファイルを古いBlenderで編集しようとした場合に警告をする.
 
     アドオンの対応バージョンの事情で新しいBlenderで編集されたファイルを古いBlenderで編集しようとし、
@@ -156,23 +158,83 @@ def validate_blend_file_version_compatibility(context: Context) -> None:
     if blend_file_major_minor_version <= current_major_minor_version:
         return
 
+    file_version_str = ".".join(map(str, blend_file_major_minor_version))
+    app_version_str = ".".join(map(str, current_major_minor_version))
+
     logger.error(
         "Opening incompatible file: file_blender_version=%s running_blender_version=%s",
-        context.blend_data.version,
-        bpy.app.version,
+        file_version_str,
+        app_version_str,
     )
 
     if not state.blend_file_compatibility_warning_shown:
         state.blend_file_compatibility_warning_shown = True
         # Blender 4.2.0ではtimerで実行しないとダイアログが自動で消えるのでタイマーを使う
         bpy.app.timers.register(
-            show_blend_file_compatibility_warning,
+            functools.partial(
+                show_blend_file_compatibility_warning,
+                file_version_str,
+                app_version_str,
+            ),
             first_interval=0.1,
         )
 
 
-def show_blend_file_compatibility_warning() -> None:
-    ops.vrm.show_blend_file_compatibility_warning("INVOKE_DEFAULT")
+def show_blend_file_compatibility_warning(file_version: str, app_version: str) -> None:
+    ops.vrm.show_blend_file_compatibility_warning(
+        "INVOKE_DEFAULT",
+        file_version=file_version,
+        app_version=app_version,
+    )
+
+
+def validate_blend_file_addon_compatibility(context: Context) -> None:
+    """新しいVRMアドオンで作成されたファイルを古いVRMアドオンで編集しようとした場合に警告をする."""
+    if not context.blend_data.filepath:
+        return
+    installed_addon_version = addon_version()
+
+    # TODO: これはSceneあたりにバージョンを生やしたほうが良いかも
+    up_to_date = True
+    file_addon_version: tuple[int, ...] = (0, 0, 0)
+    for armature in context.blend_data.armatures:
+        file_addon_version = tuple(get_armature_extension(armature).addon_version)
+        if file_addon_version > installed_addon_version:
+            up_to_date = False
+            break
+    if up_to_date:
+        return
+
+    file_addon_version_str = ".".join(map(str, file_addon_version))
+    installed_addon_version_str = ".".join(map(str, installed_addon_version))
+
+    logger.error(
+        "Opening incompatible VRM add-on version: file=%s installed=%s",
+        file_addon_version_str,
+        installed_addon_version_str,
+    )
+
+    if not state.blend_file_compatibility_warning_shown:
+        state.blend_file_compatibility_warning_shown = True
+        # Blender 4.2.0ではtimerで実行しないとダイアログが自動で消えるのでタイマーを使う
+        bpy.app.timers.register(
+            functools.partial(
+                show_blend_file_addon_compatibility_warning,
+                file_addon_version_str,
+                installed_addon_version_str,
+            ),
+            first_interval=0.1,
+        )
+
+
+def show_blend_file_addon_compatibility_warning(
+    file_addon_version: str, installed_addon_version: str
+) -> None:
+    ops.vrm.show_blend_file_addon_compatibility_warning(
+        "INVOKE_DEFAULT",
+        file_addon_version=file_addon_version,
+        installed_addon_version=installed_addon_version,
+    )
 
 
 def have_vrm_model(context: Context) -> bool:
