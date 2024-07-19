@@ -1,4 +1,5 @@
 import functools
+from dataclasses import dataclass
 from typing import Final, Optional
 
 import bpy
@@ -38,6 +39,14 @@ WRAP_NUMBER_TO_ID: Final = Mtoon1SamplerPropertyGroup.WRAP_NUMBER_TO_ID
 logger = get_logger(__name__)
 
 
+@dataclass
+class State:
+    material_blender_4_2_warning_shown: bool = False
+
+
+state: Final = State()
+
+
 def show_material_blender_4_2_warning_delay(material_name_lines: str) -> None:
     ops.vrm.show_material_blender_4_2_warning(
         "INVOKE_DEFAULT",
@@ -62,14 +71,16 @@ def migrate(context: Context) -> None:
             bpy.app.version,
         )
 
-        # Blender 4.2.0ではtimerで実行しないとダイアログが自動で消える
-        bpy.app.timers.register(
-            functools.partial(
-                show_material_blender_4_2_warning_delay,
-                "\n".join(blender_4_2_migrated_material_names),
-            ),
-            first_interval=0.1,
-        )
+        if not state.material_blender_4_2_warning_shown:
+            state.material_blender_4_2_warning_shown = True
+            # Blender 4.2.0ではtimerで実行しないとダイアログが自動で消える
+            bpy.app.timers.register(
+                functools.partial(
+                    show_material_blender_4_2_warning_delay,
+                    "\n".join(blender_4_2_migrated_material_names),
+                ),
+                first_interval=0.1,
+            )
 
 
 def migrate_material(

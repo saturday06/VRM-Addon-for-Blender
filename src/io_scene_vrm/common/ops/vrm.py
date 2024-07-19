@@ -23,6 +23,22 @@ def model_validate(
     )
 
 
+def show_blend_file_vrm_addon_compatibility_warning(
+    execution_context: str = "EXEC_DEFAULT",
+) -> set[str]:
+    return bpy.ops.vrm.show_blend_file_vrm_addon_compatibility_warning(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+    )
+
+
+def show_blend_file_compatibility_warning(
+    execution_context: str = "EXEC_DEFAULT",
+) -> set[str]:
+    return bpy.ops.vrm.show_blend_file_compatibility_warning(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+    )
+
+
 def load_human_bone_mappings(
     execution_context: str = "EXEC_DEFAULT",
     /,

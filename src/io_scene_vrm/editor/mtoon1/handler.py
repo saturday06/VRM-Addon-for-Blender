@@ -7,6 +7,7 @@ from bpy.types import Mesh
 
 from ...common.logging import get_logger
 from ..extension import get_material_extension
+from . import migration
 from .ops import VRM_OT_refresh_mtoon1_outline
 
 logger = get_logger(__name__)
@@ -72,3 +73,8 @@ def save_pre(_unused: object) -> None:
 @persistent
 def depsgraph_update_pre(_unused: object) -> None:
     trigger_update_mtoon1_outline()
+
+
+@persistent
+def load_post(_unsed: object) -> None:
+    migration.state.material_blender_4_2_warning_shown = False

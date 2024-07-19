@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Optional, TypeVar, cast
 from urllib.parse import urlparse
 
 import bpy
+from bpy.app.translations import pgettext
 from bpy.props import StringProperty
 from bpy.types import Armature, Context, Event, Mesh, Operator, UILayout
 from bpy_extras.io_utils import ExportHelper, ImportHelper
@@ -349,6 +350,87 @@ class VRM_OT_open_url_in_web_browser(Operator):
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
         url: str  # type: ignore[no-redef]
+
+
+class VRM_OT_show_blend_file_compatibility_warning(Operator):
+    bl_idname = "vrm.show_blend_file_compatibility_warning"
+    bl_label = "File Compatibility Warning"
+    bl_description = "Show Blend File Compatibility Warning"
+    bl_options: AbstractSet[str] = {"REGISTER"}
+
+    def execute(self, _context: Context) -> set[str]:
+        return {"FINISHED"}
+
+    def invoke(self, context: Context, _event: Event) -> set[str]:
+        return context.window_manager.invoke_props_dialog(self, width=500)
+
+    def draw(self, context: Context) -> None:
+        app_version = str(bpy.app.version[0]) + "." + str(bpy.app.version[1])
+        file_version = (
+            str(context.blend_data.version[0])
+            + "."
+            + str(context.blend_data.version[1])
+        )
+        column = self.layout.row(align=True).column()
+        text = pgettext(
+            "The current file is not compatible with the running Blender.\n"
+            + "The file was created in Blender {file_version}, but the running Blender"
+            + " version is {app_version}.\n"
+            + "So it is not compatible. As a result some data may be lost or corrupted."
+        ).format(
+            app_version=app_version,
+            file_version=file_version,
+        )
+        description_outer_column = column.column()
+        description_outer_column.emboss = "NONE"
+        description_column = description_outer_column.box().column(align=True)
+        for i, line in enumerate(text.splitlines()):
+            icon = "ERROR" if i == 0 else "NONE"
+            description_column.label(text=line, translate=False, icon=icon)
+        open_url = layout_operator(
+            self.layout,
+            VRM_OT_open_url_in_web_browser,
+            text="Open Documentation",
+            icon="URL",
+        )
+        open_url.url = "https://developer.blender.org/docs/handbook/guidelines/compatibility_handling_for_blend_files/#forward-compatibility"
+
+
+class VRM_OT_show_blend_file_vrm_addon_compatibility_warning(Operator):
+    bl_idname = "vrm.show_blend_file_vrm_addon_compatibility_warning"
+    bl_label = "VRM Add-on Compatibility Warning"
+    bl_description = "Show Blend File and VRM Add-on Compatibility Warning"
+    bl_options: AbstractSet[str] = {"REGISTER"}
+
+    def execute(self, _context: Context) -> set[str]:
+        return {"FINISHED"}
+
+    def invoke(self, context: Context, _event: Event) -> set[str]:
+        return context.window_manager.invoke_props_dialog(self, width=500)
+
+    def draw(self, context: Context) -> None:
+        app_version = str(bpy.app.version[0]) + "." + str(bpy.app.version[1])
+        file_version = (
+            str(context.blend_data.version[0])
+            + "."
+            + str(context.blend_data.version[1])
+        )
+        column = self.layout.row(align=True).column()
+        text = pgettext(
+            "The current file is not compatible with the current VRM Add-on.\n"
+            + "The file was created in VRM Add-on {file_version}, but the current"
+            + " VRM Add-on version is {app_version}.\n"
+            + "So it is not compatible. As a result some data may be lost or corrupted."
+        ).format(
+            current_version=app_version,
+            file_version=file_version,
+        )
+        description_outer_column = column.column()
+        description_outer_column.emboss = "NONE"
+        description_column = description_outer_column.box().column(align=True)
+        for i, line in enumerate(text.splitlines()):
+            icon = "ERROR" if i == 0 else "NONE"
+            description_column.label(text=line, translate=False, icon=icon)
 
 
 __Operator = TypeVar("__Operator", bound=Operator)

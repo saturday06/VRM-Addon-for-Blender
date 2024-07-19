@@ -1,9 +1,11 @@
 import functools
-from typing import Optional
+from dataclasses import dataclass
+from typing import Final, Optional
 
 import bpy
 from bpy.types import Armature, Context
 
+from ..common import ops
 from ..common.logging import get_logger
 from ..common.preferences import get_preferences
 from ..common.version import addon_version
@@ -22,6 +24,14 @@ from .vrm1 import migration as vrm1_migration
 from .vrm1 import property_group as vrm1_property_group
 
 logger = get_logger(__name__)
+
+
+@dataclass
+class State:
+    blend_file_compatibility_warning_shown: bool = False
+
+
+state: Final = State()
 
 
 def is_unnecessary(armature_data: Armature) -> bool:
@@ -114,6 +124,7 @@ def migrate_all_objects(
         context, context.scene.name
     )
     mtoon1_migration.migrate(context)
+    validate_blend_file_version_compatibility(context)
 
     preferences = get_preferences(context)
 
@@ -124,6 +135,69 @@ def migrate_all_objects(
         updated_addon_version,
     )
     preferences.addon_version = updated_addon_version
+
+
+def validate_blend_file_version_compatibility(context: Context) -> None:
+    """新しいBlenderで作成されたファイルを古いBlenderで編集しようとした場合に警告をする.
+
+    アドオンの対応バージョンの事情で新しいBlenderで編集されたファイルを古いBlenderで編集しようとし、
+    それによりシェイプキーが壊れるなどの報告がよく上がる。警告を出すことでユーザーに注意を促す。
+    """
+    if not context.blend_data.filepath:
+        return
+    if not have_vrm_model(context):
+        return
+
+    blend_file_major_minor_version = (
+        context.blend_data.version[0],
+        context.blend_data.version[1],
+    )
+    current_major_minor_version = (bpy.app.version[0], bpy.app.version[1])
+    if blend_file_major_minor_version <= current_major_minor_version:
+        return
+
+    logger.error(
+        "Opening incompatible file: file_blender_version=%s running_blender_version=%s",
+        context.blend_data.version,
+        bpy.app.version,
+    )
+
+    if not state.blend_file_compatibility_warning_shown:
+        state.blend_file_compatibility_warning_shown = True
+        # Blender 4.2.0ではtimerで実行しないとダイアログが自動で消えるのでタイマーを使う
+        bpy.app.timers.register(
+            show_blend_file_compatibility_warning,
+            first_interval=0.1,
+        )
+
+
+def show_blend_file_compatibility_warning() -> None:
+    ops.vrm.show_blend_file_compatibility_warning("INVOKE_DEFAULT")
+
+
+def have_vrm_model(context: Context) -> bool:
+    for obj in context.blend_data.objects:
+        if obj.type != "ARMATURE":
+            continue
+        armature = obj.data
+        if not isinstance(armature, Armature):
+            continue
+
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_0_3/io_scene_vrm/editor/migration.py#L372-L373
+        ext = get_armature_extension(armature)
+        if tuple(ext.addon_version) > (2, 0, 1):
+            return True
+
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/0_79/importer/model_build.py#L731
+        humanoid_params_key = obj.get("humanoid_params")
+        if not isinstance(humanoid_params_key, str):
+            continue
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/0_79/importer/model_build.py#L723-L726
+        if not humanoid_params_key.startswith(".json"):
+            continue
+
+        return True
+    return False
 
 
 def on_change_bpy_object_name() -> None:

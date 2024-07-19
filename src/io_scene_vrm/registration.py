@@ -33,6 +33,7 @@ from .common.version import trigger_clear_addon_version_cache
 from .editor import (
     detail_mesh_maker,
     extension,
+    handler,
     make_armature,
     make_mesh_from_bone_envelopes,
     migration,
@@ -417,6 +418,8 @@ classes: list[
     ops.VRM_OT_open_url_in_web_browser,
     ops.VRM_OT_save_human_bone_mappings,
     ops.VRM_OT_load_human_bone_mappings,
+    ops.VRM_OT_show_blend_file_compatibility_warning,
+    ops.VRM_OT_show_blend_file_vrm_addon_compatibility_warning,
     validation.VrmValidationError,
     validation.WM_OT_vrm_validator,
     export_scene.WM_OT_vrm_export_human_bones_assignment,
@@ -485,6 +488,8 @@ def register() -> None:
     VIEW3D_MT_armature_add.append(panel.add_armature)
     # VIEW3D_MT_mesh_add.append(panel.make_mesh)
 
+    bpy.app.handlers.load_post.append(handler.load_post)
+    bpy.app.handlers.load_post.append(mtoon1_handler.load_post)
     bpy.app.handlers.load_post.append(load_post)
     bpy.app.handlers.depsgraph_update_pre.append(
         depsgraph_update_pre_once_if_load_post_is_unavailable
@@ -534,6 +539,8 @@ def unregister() -> None:
             depsgraph_update_pre_once_if_load_post_is_unavailable
         )
     bpy.app.handlers.load_post.remove(load_post)
+    bpy.app.handlers.load_post.remove(mtoon1_handler.load_post)
+    bpy.app.handlers.load_post.remove(handler.load_post)
 
     # VIEW3D_MT_mesh_add.remove(panel.make_mesh)
     VIEW3D_MT_armature_add.remove(panel.add_armature)

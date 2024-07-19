@@ -590,4 +590,28 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "されるため、そのファイルはマテリアルの設定を失わずに"
     + "Blender 4.2以降でも開けるようになります。\n"
     + "影響のある可能性のあるマテリアルは次の通りです。",
+    (
+        "Operator",
+        "File Compatibility Warning",
+    ): "ファイルの互換性の警告",
+    (
+        "*",
+        "The current file is not compatible with the running Blender.\n"
+        + "The file was created in Blender {file_version}, but the running Blender"
+        + " version is {app_version}.\n"
+        + "So it is not compatible. As a result some data may be lost or corrupted.",
+    ): "現在のファイルは実行中のBlenderと互換性がありません。\n"
+    + "現在のファイルはBlender {file_version}で作られたファイルですが、"
+    + "起動中のBlenderの\n"
+    + "バージョンは{app_version}のため互換性ありません。そのため、"
+    + "一部のデータが消えたり\n"
+    + "壊れたりすることがあります。",
+    ("VrmAddon", "Open Documentation"): "関連ドキュメントを開く",
+    (
+        "*",
+        "The current file is not compatible with the current VRM Add-on.\n"
+        + "The file was created in VRM Add-on {file_version}, but the current"
+        + " VRM Add-on version is {app_version}.\n"
+        + "So it is not compatible. As a result some data may be lost or corrupted.",
+    ): "VRMアドオンのバージョンが合ってないっす {file_version} vs {app_version}",
 }
