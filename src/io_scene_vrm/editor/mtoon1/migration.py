@@ -53,12 +53,12 @@ def migrate(context: Context) -> None:
         migrate_material(context, material, blender_4_2_migrated_material_names)
     if (
         blender_4_2_migrated_material_names
-        and tuple(bpy.data.version) < (4, 2)
+        and tuple(context.blend_data.version) < (4, 2)
         and bpy.app.version >= (4, 2)
     ):
         logger.warning(
             "Migrating Materials from blender version data=%s app=%s",
-            bpy.data.version,
+            context.blend_data.version,
             bpy.app.version,
         )
 
