@@ -905,7 +905,7 @@ class WM_OT_vrm_validator(Operator):
 
         if error_errors:
             layout.label(text="Error", icon="ERROR")
-            column = layout.column()
+            column = layout.column(align=True)
             for error in error_errors:
                 column.prop(
                     error,
@@ -916,7 +916,7 @@ class WM_OT_vrm_validator(Operator):
 
         if warning_errors:
             layout.label(text="Warning", icon="CANCEL")
-            column = layout.column()
+            column = layout.column(align=True)
             for error in warning_errors:
                 column.prop(
                     error,
@@ -927,7 +927,7 @@ class WM_OT_vrm_validator(Operator):
 
         if info_errors:
             layout.label(text="Info", icon="INFO")
-            column = layout.column()
+            column = layout.column(align=True)
             for error in info_errors:
                 column.prop(
                     error,
