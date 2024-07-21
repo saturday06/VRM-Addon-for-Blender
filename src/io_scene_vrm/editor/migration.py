@@ -106,7 +106,10 @@ def migrate(context: Optional[Context], armature_object_name: str) -> bool:
 
 
 def migrate_all_objects(
-    context: Context, *, skip_non_migrated_armatures: bool = False
+    context: Context,
+    *,
+    skip_non_migrated_armatures: bool = False,
+    show_progress: bool = False,
 ) -> None:
     for obj in context.blend_data.objects:
         if obj.type == "ARMATURE":
@@ -124,7 +127,7 @@ def migrate_all_objects(
     VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(
         context, context.scene.name
     )
-    mtoon1_migration.migrate(context)
+    mtoon1_migration.migrate(context, show_progress=show_progress)
     validate_blend_file_compatibility(context)
     validate_blend_file_addon_compatibility(context)
 

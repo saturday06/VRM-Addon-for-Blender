@@ -16,6 +16,7 @@ from idprop.types import IDPropertyGroup
 from ...common import convert, ops, shader, version
 from ...common.gl import GL_LINEAR, GL_NEAREST
 from ...common.logging import get_logger
+from ...common.progress import create_progress
 from ..extension import get_material_extension
 from .property_group import (
     GL_LINEAR_IMAGE_INTERPOLATIONS,
@@ -54,12 +55,17 @@ def show_material_blender_4_2_warning_delay(material_name_lines: str) -> None:
     )
 
 
-def migrate(context: Context) -> None:
+def migrate(context: Context, *, show_progress: bool = False) -> None:
     blender_4_2_migrated_material_names: list[str] = []
-    for material in context.blend_data.materials:
-        if not material:
-            continue
-        migrate_material(context, material, blender_4_2_migrated_material_names)
+
+    with create_progress(context, show_progress=show_progress) as progress:
+        for material_index, material in enumerate(context.blend_data.materials):
+            if not material:
+                continue
+            migrate_material(context, material, blender_4_2_migrated_material_names)
+            progress.update(float(material_index) / len(context.blend_data.materials))
+        progress.update(1)
+
     if (
         blender_4_2_migrated_material_names
         and tuple(context.blend_data.version) < (4, 2)
@@ -416,7 +422,9 @@ def migrate_material(
         )
 
     typed_mtoon1.setup_drivers()
-    typed_mtoon1.addon_version = version.addon_version()
+    updated_addon_version = version.addon_version()
+    if tuple(typed_mtoon1.addon_version) != updated_addon_version:
+        typed_mtoon1.addon_version = updated_addon_version
 
 
 def backup_texture_info(texture_info: object) -> Optional[TextureInfoBackup]:

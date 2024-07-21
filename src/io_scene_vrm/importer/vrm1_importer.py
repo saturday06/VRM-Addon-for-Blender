@@ -17,6 +17,7 @@ from mathutils import Matrix, Vector
 from ..common import convert, deep, ops, shader
 from ..common.convert import Json
 from ..common.logging import get_logger
+from ..common.progress import PartialProgress
 from ..common.version import addon_version
 from ..common.vrm1 import human_bone as vrm1_human_bone
 from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
@@ -363,13 +364,16 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 uv_animation_scroll_y_speed_factor
             )
 
-    def make_materials(self) -> None:
+    def make_materials(self, progress: PartialProgress) -> None:
         material_dicts = self.parse_result.json_dict.get("materials")
         if not isinstance(material_dicts, list):
+            progress.update(1)
             return
         for index, material_dict in enumerate(material_dicts):
             if isinstance(material_dict, dict):
                 self.make_mtoon1_material(index, material_dict)
+            progress.update(float(index) / len(material_dicts))
+        progress.update(1)
 
     def find_vrm1_bone_node_indices(self) -> list[int]:
         result: list[int] = []

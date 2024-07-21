@@ -41,6 +41,7 @@ from ..common.gl import GL_FLOAT, GL_LINEAR, GL_REPEAT, GL_UNSIGNED_SHORT
 from ..common.gltf import FLOAT_NEGATIVE_MAX, FLOAT_POSITIVE_MAX, pack_glb, parse_glb
 from ..common.logging import get_logger
 from ..common.preferences import ImportPreferencesProtocol
+from ..common.progress import PartialProgress, create_progress
 from ..common.workspace import save_workspace
 from ..editor.extension import get_armature_extension
 from .gltf2_addon_importer_user_extension import Gltf2AddonImporterUserExtension
@@ -72,7 +73,7 @@ class AbstractBaseVrmImporter(ABC):
         self.mesh_object_names: dict[int, str] = {}
 
     @abstractmethod
-    def make_materials(self) -> None:
+    def make_materials(self, progress: PartialProgress) -> None:
         pass
 
     @abstractmethod
@@ -84,34 +85,32 @@ class AbstractBaseVrmImporter(ABC):
         pass
 
     def import_vrm(self) -> None:
-        wm = self.context.window_manager
-        wm.progress_begin(0, 7)
         try:
-            with save_workspace(self.context):
-                wm.progress_update(1)
+            with (
+                create_progress(self.context) as progress,
+                save_workspace(self.context),
+            ):
+                progress.update(0.1)
                 self.import_gltf2_with_indices()
-                wm.progress_update(2)
+                progress.update(0.2)
                 if self.preferences.extract_textures_into_folder:
                     self.extract_textures(repack=False)
                 elif bpy.app.version < (3, 1):
                     self.extract_textures(repack=True)
                 else:
                     self.assign_packed_image_filepaths()
-                wm.progress_update(3)
+                progress.update(0.3)
                 self.use_fake_user_for_thumbnail()
-                wm.progress_update(4)
+                progress.update(0.4)
                 if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
-                    self.make_materials()
-                wm.progress_update(5)
+                    self.make_materials(progress.partial_progress(0.9))
                 if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
                     self.load_gltf_extensions()
-                wm.progress_update(6)
-            self.viewport_setup()
+                self.viewport_setup()
+                self.context.view_layer.update()
+                progress.update(1)
         finally:
-            try:
-                Gltf2AddonImporterUserExtension.clear_current_import_id()
-            finally:
-                wm.progress_end()
+            Gltf2AddonImporterUserExtension.clear_current_import_id()
 
     @property
     def armature_data(self) -> Armature:

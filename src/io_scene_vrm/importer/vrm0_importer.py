@@ -18,6 +18,7 @@ from mathutils import Matrix, Vector
 from ..common import convert, deep, shader
 from ..common.convert import Json
 from ..common.logging import get_logger
+from ..common.progress import PartialProgress
 from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration
@@ -49,7 +50,7 @@ logger = get_logger(__name__)
 
 
 class Vrm0Importer(AbstractBaseVrmImporter):
-    def make_materials(self) -> None:
+    def make_materials(self, progress: PartialProgress) -> None:
         shader_to_build_method = {
             "VRM/MToon": self.build_material_from_mtoon0,
             "VRM/UnlitTransparentZWrite": self.build_material_from_transparent_z_write,
@@ -69,6 +70,11 @@ class Vrm0Importer(AbstractBaseVrmImporter):
 
             self.reset_material(material)
             build_method(material, material_property)
+            progress.update(
+                float(index) / len(self.parse_result.vrm0_material_properties)
+            )
+
+        progress.update(1)
 
     def assign_mtoon0_texture(
         self,

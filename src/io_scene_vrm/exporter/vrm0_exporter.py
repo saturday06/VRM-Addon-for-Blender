@@ -52,6 +52,7 @@ from ..common.gltf import (
 from ..common.legacy_gltf import TEXTURE_INPUT_NAMES
 from ..common.logging import get_logger
 from ..common.mtoon_unversioned import MtoonUnversioned
+from ..common.progress import PartialProgress, create_progress
 from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..common.workspace import save_workspace
@@ -119,42 +120,35 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         return armature_data
 
     def export_vrm(self) -> Optional[bytes]:
-        wm = self.context.window_manager
-        wm.progress_begin(0, 8)
-
-        self.setup_mtoon_gltf_fallback_nodes(self.context, is_vrm0=True)
-
-        try:
-            with (
-                save_workspace(self.context),
-                self.setup_armature(),
-                self.clear_blend_shape_proxy_previews(self.armature_data),
-                self.hide_mtoon1_outline_geometry_nodes(self.context),
-                self.setup_pose(
-                    self.armature,
-                    self.armature_data,
-                    get_armature_extension(self.armature_data).vrm0.humanoid,
-                ),
-            ):
-                wm.progress_update(1)
-                self.image_to_bin()
-                wm.progress_update(2)
-                self.make_scene_node_skin_dicts()
-                wm.progress_update(3)
-                self.material_to_dict()
-                wm.progress_update(4)
-                # 内部でcontext.view_layer.objects.active = meshをするので復元する
-                with save_workspace(self.context):
-                    self.mesh_to_bin_and_dict()
-                wm.progress_update(5)
-                self.json_dict["scene"] = 0
-                self.gltf_meta_to_dict()
-                wm.progress_update(6)
-                self.vrm_meta_to_dict()  # colliderとかmetaとか....
-                wm.progress_update(7)
-                self.pack()
-        finally:
-            wm.progress_end()
+        with (
+            create_progress(self.context) as progress,
+            save_workspace(self.context),
+            self.setup_armature(),
+            self.clear_blend_shape_proxy_previews(self.armature_data),
+            self.hide_mtoon1_outline_geometry_nodes(self.context),
+            self.setup_pose(
+                self.armature,
+                self.armature_data,
+                get_armature_extension(self.armature_data).vrm0.humanoid,
+            ),
+        ):
+            self.setup_mtoon_gltf_fallback_nodes(self.context, is_vrm0=True)
+            progress.update(0.1)
+            self.image_to_bin()
+            progress.update(0.2)
+            self.make_scene_node_skin_dicts()
+            progress.update(0.3)
+            self.material_to_dict()
+            progress.update(0.4)
+            # 内部でcontext.view_layer.objects.active = meshをするので復元する
+            with save_workspace(self.context):
+                self.mesh_to_bin_and_dict(progress.partial_progress(0.8))
+            self.json_dict["scene"] = 0
+            self.gltf_meta_to_dict()
+            progress.update(0.9)
+            self.vrm_meta_to_dict()  # colliderとかmetaとか....
+            progress.update(1)
+            self.pack()
         return self.result
 
     @staticmethod
@@ -2112,7 +2106,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             )
         return polys
 
-    def mesh_to_bin_and_dict(self) -> None:
+    def mesh_to_bin_and_dict(self, progress: PartialProgress) -> None:
         mesh_dicts = self.json_dict.get("meshes")
         if not isinstance(mesh_dicts, list):
             mesh_dicts = []
@@ -2698,6 +2692,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
             mesh_dicts.append(mesh_dict)
             bm.free()
+
+            progress.update(float(mesh_index) / len(meshes))
+        progress.update(1)
 
     def exporter_name(self) -> str:
         v = addon_version()
