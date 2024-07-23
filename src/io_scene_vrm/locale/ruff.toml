@@ -1,0 +1,8 @@
+extend = "../../../pyproject.toml"
+
+[lint]
+allowed-confusables = [
+    "\u30ce", # Katakana Letter No
+    "\uff0c", # Fullwidth Comma
+    "\uff1a", # Fullwidth Colon
+]

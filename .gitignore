@@ -9,6 +9,7 @@
 !*.py
 !*.pyi
 !*.rb
+!ruff.toml
 
 !/.clang-format
 !/.devcontainer/**
@@ -40,7 +41,6 @@
 !/tools/*.dockerfile
 !/tools/*.sh
 !/tools/*.wsb
-!/tests/ruff.toml
 !/tests/resources
 !/typings/pyproject.toml
 
