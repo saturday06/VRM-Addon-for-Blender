@@ -1,4 +1,8 @@
-locale_key = "zh_HANS"
+import bpy
+
+# https://projects.blender.org/blender/blender/commit/0ce02355c1d0fb676167b7070870c8b5ef6ce048
+locale_key = "zh_CN" if bpy.app.version < (4, 0) else "zh_HANS"
+
 
 translation_dictionary: dict[tuple[str, str], str] = {
     (
