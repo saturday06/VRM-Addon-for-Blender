@@ -43,16 +43,13 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "The VRM add-on has been updated."
         + " Please restart Blender to apply the changes.",
-    ): "已更新 VRM 附加组件。"
-    + "重启 Blender 以应用更改。",
+    ): "已更新 VRM 附加组件。" + "重启 Blender 以应用更改。",
     (
         "*",
         "The VRM add-on has been\n"
         + "updated. Please restart Blender\n"
         + "to apply the changes.",
-    ): "VRM 附加组件\n已更新。"
-    + "要应用更改\n"
-    + "Blender重新启动。",
+    ): "VRM 附加组件\n已更新。" + "要应用更改\n" + "Blender重新启动。",
     ("*", 'Set shading type to "Material"'): "将 3D 视图设置为材质预览",
     ("*", 'Set view transform to "Standard"'): "将视图转换设置为 “标准”",
     (
@@ -75,8 +72,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "Try the FB_ngon_encoding under development"
         + " (Exported meshes can be corrupted)",
-    ): "试试开发中的 FB_ngon_encoding 扩展"
-    + "(导出的网格可能已损坏)",
+    ): "试试开发中的 FB_ngon_encoding 扩展" + "(导出的网格可能已损坏)",
     (
         "*",
         "Export All Bone Influences",
@@ -96,8 +92,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "No error. But there're {warning_count} warning(s)."
         + " The output may not be what you expected.",
-    ): "没有错误。、{warning_count}有关于此的警告。。"
-    + "输出结果可能与预期不同。",
+    ): "没有错误。、{warning_count}有关于此的警告。。" + "输出结果可能与预期不同。",
     ("*", "VRM Export"): "VRM 输出",
     ("*", "Create VRM Model"): "创建 VRM 模型",
     ("*", "Validate VRM Model"): "检查 VRM 模型",
@@ -113,22 +108,19 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         "Multiple armatures were found. Please select one to export as VRM.",
-    ): "存在多个armatures。。"
-    + "选择要导出为 VRM 的armatures。",
+    ): "存在多个armatures。。" + "选择要导出为 VRM 的armatures。",
     ("*", "Import Anyway"): "强制导入",
     ("*", "Export Anyway"): "强制导出",
     (
         "*",
         "There is a high-impact warning. VRM may not export as intended.",
-    ): "有影响较大的警告。。"
-    + "VRM 可能无法按预期输出。",
+    ): "有影响较大的警告。。" + "VRM 可能无法按预期输出。",
     ("*", "A light is required"): "需要照明。",
     ("*", "License Confirmation"): "许可确认。",
     (
         "*",
         'Is this VRM allowed to edited? Please check its "{json_key}" value.',
-    ): "指定 VRM 的元数据「{json_key}」值"
-    + "已设置了唯一的许可证 URL。。",
+    ): "指定 VRM 的元数据「{json_key}」值" + "已设置了唯一的许可证 URL。。",
     (
         "*",
         'This VRM is licensed by VRoid Hub License "Alterations: No".',
@@ -140,26 +132,22 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         'The VRM selects "Other" license but no license url is found.',
-    ): "指定的 VRM 具有「Other」许可证规定、"
-    + "未设置 URL。",
+    ): "指定的 VRM 具有「Other」许可证规定、" + "未设置 URL。",
     (
         "*",
         'The VRM is licensed by "{license_name}".'
         + " No derivative works are allowed.",
-    ): "指定 VRM 的不可修改许可证。「{license_name}」设置为。"
-    + "不允许衍生作品。。",
+    ): "指定 VRM 的不可修改许可证。「{license_name}」设置为。" + "不允许衍生作品。。",
     (
         "*",
         "FB_ngon_encoding extension under development will be used."
         + " The exported mesh may be corrupted.",
-    ): "正在开发的 FB_ngon_encoding 扩展已启用。"
-    + "导出的网格可能已损坏。",
+    ): "正在开发的 FB_ngon_encoding 扩展已启用。" + "导出的网格可能已损坏。",
     (
         "*",
         "Nodes(mesh,bones) require unique names for VRM export."
         + " {name} is duplicated.",
-    ): "glTF 节点元素(网格,骨骼)名称不得重复。。"
-    + "「{name}」是重复的。。",
+    ): "glTF 节点元素(网格,骨骼)名称不得重复。。" + "「{name}」是重复的。。",
     (
         "*",
         'There are not an object on the origin "{name}"',
@@ -169,8 +157,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "The same name cannot be used"
         + " for a mesh object and a bone."
         + ' Rename either one whose name is "{name}".',
-    ): "网格对象和骨骼不能使用相同的名称。"
-    + "名称：「{name}」更改以下名称之一。",
+    ): "网格对象和骨骼不能使用相同的名称。" + "名称：「{name}」更改以下名称之一。",
     (
         "*",
         'The "{name}" mesh has both a non-armature modifier'
@@ -242,13 +229,11 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'Please assign "{parent_name}"'
         + ' because "{name}" requires it as its child bone.',
-    ): "「{parent_name}」指定。"
-    + "因为「{name}」需要将其作为子骨骼。。",
+    ): "「{parent_name}」指定。" + "因为「{name}」需要将其作为子骨骼。。",
     (
         "*",
         'Non-tri faces detected in "{name}". ' + "will be triangulated automatically.",
-    ): "「{name}」包含三角形以外的多边形。"
-    + "自动划分为三角形。",
+    ): "「{name}」包含三角形以外的多边形。" + "自动划分为三角形。",
     (
         "*",
         'VRM Bone "{child}" needs "{parent}".'
@@ -263,8 +248,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         'Object "{name}" contains a negative value for the scale;'
         + " VRM 1.0 does not allow negative values to be specified"
         + " for the scale.",
-    ): "对象「{name}」中的缩放为负数。"
-    + "VRM 1.0不允许指定负值。",
+    ): "对象「{name}」中的缩放为负数。" + "VRM 1.0不允许指定负值。",
     (
         "*",
         'Node Constraint "{owner_name} / {constraint_name}" has'
@@ -277,8 +261,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         'vertex index "{vertex_index}" is no weight'
         + ' in "{mesh_name}".'
         + " Add weight to parent bone automatically.",
-    ): "「{mesh_name}」的頂点id「{vertex_index}」未加权。"
-    + "自动为父骨骼分配权重。。",
+    ): "「{mesh_name}」的頂点id「{vertex_index}」未加权。" + "自动为父骨骼分配权重。。",
     (
         "*",
         'vertex index "{vertex_index}" has'
@@ -350,8 +333,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         "There are unassigned VRM Required Bones. Please assign all.",
-    ): "存在未分配的 VRM 必需骨骼。"
-    + "分配所有 VRM 必需骨骼。",
+    ): "存在未分配的 VRM 必需骨骼。" + "分配所有 VRM 必需骨骼。",
     ("Operator", "Automatic Bone Assignment"): "自动骨骼分配",
     ("Operator", "Export VRM"): "导出 VRM",
     ("Operator", "Import VRM"): "导入 VRM",
@@ -448,8 +430,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         'Material "{name}" {texture}\'s Offset and Scale'
         + " in VRM 0.0 are the values of"
         + " the Lit Color Texture",
-    ): "VRM 0.0材质「name」的{texture}的偏移和缩放为"
-    + "Lit Color Texture的值",
+    ): "VRM 0.0材质「name」的{texture}的偏移和缩放为" + "Lit Color Texture的值",
     (
         "*",
         'It is recommended to set "{colorspace}"'
@@ -478,8 +459,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'The "Screen Coordinates" display is not yet implemented.\n'
         + 'It is displayed in the same way as "World Coordinates".',
-    ): "「Screen Coordinates」尚未实施\n"
-    + "与「World Coordinates」具有相同的显示",
+    ): "「Screen Coordinates」尚未实施\n" + "与「World Coordinates」具有相同的显示",
     (
         "*",
         "How to export this material to VRM.\n"
@@ -543,18 +523,13 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "VRMs exported as Non-Humanoid\n"
         + "Rigs can not have animations applied\n"
         + "for humanoid avatars.",
-    ): (
-        "作为 非人形 导出VRM\n"
-        + "无法应用动画\n"
-        + "于人形avatar。"
-    ),
+    ): ("作为 非人形 导出VRM\n" + "无法应用动画\n" + "于人形avatar。"),
     (
         "*",
         "This armature will be exported but not as humanoid."
         + " It can not have animations applied"
         + " for humanoid avatars.",
-    ): "这个骨架会导出但是不是作为人形。"
-    + "人形avatars的动画不适用。",
+    ): "这个骨架会导出但是不是作为人形。" + "人形avatars的动画不适用。",
     (
         "Operator",
         "Blender 4.2 Material Upgrade Warning",
