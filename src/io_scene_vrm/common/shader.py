@@ -1245,6 +1245,7 @@ def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -
             else:
                 continue
 
+        translated_from_socket_type = from_socket_type
         if bpy.app.version >= (4, 1):
             for (
                 socket_type,
@@ -1254,7 +1255,7 @@ def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -
                 if not socket_names:
                     continue
                 if from_item.name in socket_names:
-                    from_socket_type = socket_type
+                    translated_from_socket_type = socket_type
                     break
 
         to_socket: Optional[NodeTreeInterfaceSocket] = None
@@ -1264,7 +1265,8 @@ def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -
                 to_item.item_type != "SOCKET"
                 or not isinstance(to_item, NodeTreeInterfaceSocket)
                 or to_item.in_out != from_item.in_out
-                or to_item.socket_type != from_socket_type
+                or to_item.socket_type
+                not in [from_socket_type, translated_from_socket_type]
             ):
                 to_node_tree.interface.remove(to_item)
                 continue
@@ -1280,7 +1282,7 @@ def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -
                 from_item.name,
                 description=from_item.description,
                 in_out=from_item.in_out,
-                socket_type=from_socket_type,
+                socket_type=translated_from_socket_type,
             )
 
         copy_node_tree_interface_socket(from_item, to_socket)
