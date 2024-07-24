@@ -35,6 +35,19 @@ For more advanced development, such as running tests, please use [Poetry](https:
 git checkout main
 git submodule update --init
 
+# Blender 4.2 or later
+
+# Linux
+ln -s "$PWD/src/io_scene_vrm" "$HOME/.config/blender/BLENDER_VERSION/extensions/user_default/vrm"
+# macOS
+ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/BLENDER_VERSION/extensions/user_default/vrm"
+# Windows PowerShell
+New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\BLENDER_VERSION\extensions\user_default\vrm" -Value "$(Get-Location)\src\io_scene_vrm"
+# Windows Command Prompt
+mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\extensions\user_default\vrm" src\io_scene_vrm
+
+# Blender 4.1.1 or earlier
+
 # Linux
 ln -s "$PWD/src/io_scene_vrm" "$HOME/.config/blender/BLENDER_VERSION/scripts/addons/io_scene_vrm"
 # macOS
@@ -84,6 +97,19 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加やM
 ```text
 git checkout main
 git submodule update --init
+
+# Blender 4.2以上の場合
+
+# Linux
+ln -s "$PWD/src/io_scene_vrm" "$HOME/.config/blender/BLENDER_VERSION/extensions/user_default/vrm"
+# macOS
+ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/BLENDER_VERSION/extensions/user_default/vrm"
+# Windows PowerShell
+New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\BLENDER_VERSION\extensions\user_default\vrm" -Value "$(Get-Location)\src\io_scene_vrm"
+# Windows Command Prompt
+mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\extensions\user_default\vrm" src\io_scene_vrm
+
+# Blender 4.2未満の場合
 
 # Linux
 ln -s "$PWD/src/io_scene_vrm" "$HOME/.config/blender/BLENDER_VERSION/scripts/addons/io_scene_vrm"
