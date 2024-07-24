@@ -15,7 +15,7 @@
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 67),
+    "version": (2, 20, 68),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
     "blender": (2, 93, 0),
@@ -47,8 +47,9 @@ def cleanse_modules() -> None:
 
 
 def register() -> None:
-    raise_error_if_too_old_blender()
-    extract_github_private_partial_code_archive_if_necessary()
+    if "bl_info" in globals():
+        raise_error_if_too_old_blender()
+        extract_github_private_partial_code_archive_if_necessary()
 
     # Lazy import to minimize initialization before blender version checking and
     # support unzipping the partial add-on archive.
@@ -57,7 +58,8 @@ def register() -> None:
 
         registration.register()
     except ImportError as exception:
-        raise_error_if_too_new_blender(exception)
+        if "bl_info" in globals():
+            raise_error_if_too_new_blender(exception)
         raise
 
 
@@ -70,7 +72,7 @@ def unregister() -> None:
     registration.unregister()
 
     # https://github.com/saturday06/VRM-Addon-for-Blender/issues/506#issuecomment-2183766778
-    if os.getenv("BLENDER_VRM_DEVEMOPMENT_MODE") == "yes":
+    if os.getenv("BLENDER_VRM_DEVELOPMENT_MODE") == "yes":
         cleanse_modules()
 
 
