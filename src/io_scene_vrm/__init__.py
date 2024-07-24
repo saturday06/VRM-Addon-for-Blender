@@ -47,8 +47,9 @@ def cleanse_modules() -> None:
 
 
 def register() -> None:
-    raise_error_if_too_old_blender()
-    extract_github_private_partial_code_archive_if_necessary()
+    if "bl_info" in globals():
+        raise_error_if_too_old_blender()
+        extract_github_private_partial_code_archive_if_necessary()
 
     # Lazy import to minimize initialization before blender version checking and
     # support unzipping the partial add-on archive.
@@ -57,7 +58,8 @@ def register() -> None:
 
         registration.register()
     except ImportError as exception:
-        raise_error_if_too_new_blender(exception)
+        if "bl_info" in globals():
+            raise_error_if_too_new_blender(exception)
         raise
 
 

@@ -1,20 +1,20 @@
-From b5f751b2b4d55f1db4314b5b0e52ac0810869813 Mon Sep 17 00:00:00 2001
+From 2d9ed3e5dd81d4415af552b30f207bb512ec27d6 Mon Sep 17 00:00:00 2001
 From: Patch <patch@example.com>
 Date: Sun, 23 Jun 2024 10:00:00 +0000
 Subject: [PATCH] feat: extensions.blender.org
 
 ---
- src/io_scene_vrm/__init__.py           | 224 +------------------------
+ src/io_scene_vrm/__init__.py           | 226 +------------------------
  src/io_scene_vrm/blender_manifest.toml |   3 +-
  tests/test_legacy_addon_init.py        |  25 ---
- 3 files changed, 3 insertions(+), 249 deletions(-)
+ 3 files changed, 3 insertions(+), 251 deletions(-)
  delete mode 100644 tests/test_legacy_addon_init.py
 
 diff --git a/src/io_scene_vrm/__init__.py b/src/io_scene_vrm/__init__.py
-index 22658475..5f4289fb 100644
+index aeecf285..5f4289fb 100644
 --- a/src/io_scene_vrm/__init__.py
 +++ b/src/io_scene_vrm/__init__.py
-@@ -1,237 +1,17 @@
+@@ -1,239 +1,17 @@
  # SPDX-License-Identifier: MIT
  # SPDX-FileCopyrightText: 2018 iCyP
  
@@ -65,8 +65,9 @@ index 22658475..5f4289fb 100644
  
  
  def register() -> None:
--    raise_error_if_too_old_blender()
--    extract_github_private_partial_code_archive_if_necessary()
+-    if "bl_info" in globals():
+-        raise_error_if_too_old_blender()
+-        extract_github_private_partial_code_archive_if_necessary()
 -
 -    # Lazy import to minimize initialization before blender version checking and
 -    # support unzipping the partial add-on archive.
@@ -75,7 +76,8 @@ index 22658475..5f4289fb 100644
 -
 -        registration.register()
 -    except ImportError as exception:
--        raise_error_if_too_new_blender(exception)
+-        if "bl_info" in globals():
+-            raise_error_if_too_new_blender(exception)
 -        raise
 +    registration.register()
  
@@ -255,7 +257,7 @@ index 22658475..5f4289fb 100644
  class glTF2ImportUserExtension:
      def __init__(self) -> None:
 diff --git a/src/io_scene_vrm/blender_manifest.toml b/src/io_scene_vrm/blender_manifest.toml
-index 6a2d08dc..5a1a0bd9 100644
+index 01e01bd1..d7fba6b3 100644
 --- a/src/io_scene_vrm/blender_manifest.toml
 +++ b/src/io_scene_vrm/blender_manifest.toml
 @@ -11,8 +11,7 @@ website = "https://vrm-addon-for-blender.info"
@@ -300,5 +302,5 @@ index a55ec9ff..00000000
 -            BlenderManifest.read().blender_version_min,
 -        )
 -- 
-2.45.1.windows.1
+2.45.2.windows.1
 
