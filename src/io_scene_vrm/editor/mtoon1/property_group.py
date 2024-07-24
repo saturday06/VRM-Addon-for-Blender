@@ -3755,8 +3755,8 @@ def setup_frame_count_driver(context: Context) -> None:
         if bpy.app.version >= (3, 6):
             if variable.type != "CONTEXT_PROP":
                 variable.type = "CONTEXT_PROP"
-            if variable.context_property != "ACTIVE_SCENE":
-                variable.context_property = "ACTIVE_SCENE"
+            if target.context_property != "ACTIVE_SCENE":
+                target.context_property = "ACTIVE_SCENE"
         else:
             if variable.type != "SINGLE_PROP":
                 variable.type = "SINGLE_PROP"
