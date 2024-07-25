@@ -44,9 +44,6 @@ ignore = [
 
     # ----- ignored -----
 
-    "ANN101", # Missing type annotation for `self` in method
-    "ANN102", # Missing type annotation for `cls` in classmethod
-
     # `COM812` may cause conflicts when used with the formatter in Ruff 0.1.6
     "COM812", # Trailing comma missing
 
