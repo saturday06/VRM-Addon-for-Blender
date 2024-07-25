@@ -5,11 +5,13 @@ import time
 from copy import deepcopy
 from pathlib import Path
 from sys import float_info
-from typing import Final, Optional
+from typing import Final, Optional, Union
 
 import bpy
 from bpy.types import (
     Context,
+    Driver,
+    FCurve,
     Material,
     Node,
     NodeFrame,
@@ -98,7 +100,7 @@ from .workspace import save_workspace
 
 logger = get_logger(__name__)
 
-LAST_MODIFIED_VERSION: Final = (2, 20, 56)
+LAST_MODIFIED_VERSION: Final = (2, 20, 68)
 
 BOOL_SOCKET_CLASSES: Final = (NodeSocketBool,)
 FLOAT_SOCKET_CLASSES: Final = (
@@ -161,6 +163,9 @@ UV_ANIMATION_GROUP_TRANSLATE_Y_LABEL: Final = "Translate Y"
 UV_ANIMATION_GROUP_TRANSLATE_Y_DEFAULT: Final = 0.0
 UV_ANIMATION_GROUP_ROTATION_LABEL: Final = "Rotation"
 UV_ANIMATION_GROUP_ROTATION_DEFAULT: Final = 0.0
+UV_ANIMATION_GROUP_FPS_NODE_NAME: Final = "Scene.Render.Fps"
+UV_ANIMATION_GROUP_FPS_BASE_NODE_NAME: Final = "Scene.Render.FpsBase"
+UV_ANIMATION_GROUP_FRAME_CURRENT_NODE_NAME: Final = "Scene.FrameCurrent"
 
 NORMAL_GROUP_NAME: Final = "VRM Add-on MToon 1.0 Normal Revision 1"
 NORMAL_GROUP_SCALE_LABEL: Final = "Normal Map Texture Scale"
@@ -374,6 +379,7 @@ def load_mtoon1_shader_node_groups(
             "SHADER",
             reset_node_groups=reset_node_groups,
         )
+    setup_frame_count_driver(context)
 
 
 def load_mtoon1_shader(
@@ -1604,3 +1610,92 @@ def get_rgb_value(
         return default_value
 
     return rgb_or_none(getattr(outputs[0], "default_value", None), min_value, max_value)
+
+
+def setup_frame_count_driver(context: Context) -> None:
+    node_group = context.blend_data.node_groups.get(UV_ANIMATION_GROUP_NAME)
+    if not node_group:
+        return
+    animation_data = node_group.animation_data
+    if not animation_data:
+        animation_data = node_group.animation_data_create()
+        if not animation_data:
+            logger.error(
+                'Failed to create anomation data for node group "%s"', node_group.name
+            )
+            return
+    for data_path, target_data_path in [
+        (
+            f'nodes["{UV_ANIMATION_GROUP_FPS_BASE_NODE_NAME}"]'
+            + ".outputs[0]"
+            + ".default_value",
+            "render.fps_base",
+        ),
+        (
+            f'nodes["{UV_ANIMATION_GROUP_FPS_NODE_NAME}"]'
+            + ".outputs[0]"
+            + ".default_value",
+            "render.fps",
+        ),
+        (
+            f'nodes["{UV_ANIMATION_GROUP_FRAME_CURRENT_NODE_NAME}"]'
+            + ".outputs[0]"
+            + ".default_value",
+            "frame_current",
+        ),
+    ]:
+        fcurve: Optional[Union[FCurve, list[FCurve]]] = next(
+            iter(
+                fcurve
+                for fcurve in animation_data.drivers
+                if fcurve.data_path == data_path
+            ),
+            None,
+        )
+        if fcurve is None:
+            try:
+                fcurve = node_group.driver_add(data_path)
+            except TypeError:
+                continue
+        if not isinstance(fcurve, FCurve):
+            logger.error(
+                'Failed to get fcurve "%s" for node tree "%s"',
+                data_path,
+                node_group.name,
+            )
+            continue
+        if fcurve.array_index != 0:
+            fcurve.array_index = 0
+        driver = fcurve.driver
+        if not isinstance(driver, Driver):
+            logger.error('Failed to get driver for fcurve "%s"', data_path)
+            continue
+        if driver.type != "SUM":
+            driver.type = "SUM"
+        if not driver.variables:
+            driver.variables.new()
+        while len(driver.variables) > 1:
+            driver.variables.remove(driver.variables[-1])
+        variable = driver.variables[0]
+        if not variable.targets:
+            logger.error(
+                'No targets in variable for fcurve "%s" in node_tree "%s"',
+                data_path,
+                node_group.name,
+            )
+            continue
+        target = variable.targets[0]
+        if bpy.app.version >= (3, 6):
+            if variable.type != "CONTEXT_PROP":
+                variable.type = "CONTEXT_PROP"
+            if target.context_property != "ACTIVE_SCENE":
+                target.context_property = "ACTIVE_SCENE"
+        else:
+            if variable.type != "SINGLE_PROP":
+                variable.type = "SINGLE_PROP"
+            if target.id_type != "SCENE":
+                target.id_type = "SCENE"
+            if target.id != context.scene:
+                target.id = context.scene
+        if target.data_path != target_data_path:
+            target.data_path = target_data_path

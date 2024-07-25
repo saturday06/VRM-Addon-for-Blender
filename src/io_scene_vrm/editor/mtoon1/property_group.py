@@ -28,6 +28,7 @@ from bpy.types import (
     ShaderNodeBsdfPrincipled,
     ShaderNodeEmission,
     ShaderNodeGroup,
+    ShaderNodeMath,
     ShaderNodeNormalMap,
     ShaderNodeTexImage,
 )
@@ -77,6 +78,11 @@ GL_LINEAR_IMAGE_INTERPOLATIONS: Final = (
     IMAGE_INTERPOLATION_CUBIC,
     IMAGE_INTERPOLATION_SMART,
 )
+
+ALPHA_CLIP_INPUT_NODE_NAME: Final = "Mtoon1Material.AlphaClip.Input"
+ALPHA_CLIP_INPUT_NODE_SOCKET_NAME: Final = "Value"
+ALPHA_CLIP_OUTPUT_NODE_NAME: Final = "Mtoon1Material.AlphaClip.Output"
+ALPHA_CLIP_OUTPUT_NODE_SOCKET_NAME: Final = "Value"
 
 
 def get_gltf_emissive_node(material: Material) -> Optional[ShaderNodeEmission]:
@@ -128,6 +134,25 @@ class PrincipledBsdfNodeSocketTarget(NodeSocketTarget):
         )
 
 
+class StaticNodeSocketTarget(NodeSocketTarget):
+    def __init__(
+        self, *, in_node_name: str, in_node_type: type[Node], in_socket_name: str
+    ) -> None:
+        self.in_node_name = in_node_name
+        self.in_node_type = in_node_type
+        self.in_socket_name = in_socket_name
+
+    def get_in_socket_name(self) -> str:
+        return self.in_socket_name
+
+    def create_node_selector(self, material: Material) -> Callable[[Node], bool]:
+        _ = material
+        return (
+            lambda node: isinstance(node, self.in_node_type)
+            and node.name == self.in_node_name
+        )
+
+
 class PrincipledBsdfNormalMapNodeSocketTarget(NodeSocketTarget):
     def get_in_socket_name(self) -> str:
         return NORMAL_MAP_COLOR_INPUT_KEY
@@ -168,16 +193,17 @@ class NodeGroupSocketTarget(NodeSocketTarget):
     def get_in_socket_name(self) -> str:
         return self.in_socket_name
 
+    def select_node(self, node: Node) -> bool:
+        if not isinstance(node, ShaderNodeGroup):
+            return False
+        node_tree = node.node_tree
+        if not node_tree:
+            return False
+        return node_tree.name == self.node_group_node_tree_name
+
     def create_node_selector(self, material: Material) -> Callable[[Node], bool]:
         _ = material
-        return (
-            lambda node: isinstance(node, ShaderNodeGroup)
-            and (
-                node_tree := node.node_tree,
-                node_tree is not None
-                and node_tree.name == self.node_group_node_tree_name,
-            )[1]
-        )
+        return self.select_node
 
 
 class MaterialTraceablePropertyGroup(PropertyGroup):
@@ -533,11 +559,12 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         return self.get_texture_node_name("Uv")
 
     @classmethod
-    def link_tex_image_to_node_group(
+    def link_nodes(
         cls,
         material: Material,
-        tex_image_node_name: str,
-        tex_image_node_socket_name: str,
+        out_node_name: str,
+        out_node_type: type[Node],
+        out_node_socket_name: str,
         node_socket_target: NodeSocketTarget,
     ) -> None:
         if not material.node_tree:
@@ -548,10 +575,10 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         if any(
             1
             for link in material.node_tree.links
-            if isinstance(link.from_node, ShaderNodeTexImage)
-            and link.from_node.name == tex_image_node_name
+            if isinstance(link.from_node, out_node_type)
+            and link.from_node.name == out_node_name
             and link.from_socket
-            and link.from_socket.name == tex_image_node_socket_name
+            and link.from_socket.name == out_node_socket_name
             and select_in_node(link.to_node)
             and link.to_socket
             and link.to_socket.name == in_socket_name
@@ -584,24 +611,25 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             logger.error("No input socket: %s", in_socket_name)
             return
 
-        out_node = material.node_tree.nodes.get(tex_image_node_name)
-        if not isinstance(out_node, ShaderNodeTexImage):
-            logger.error("No tex image node: %s", tex_image_node_name)
+        out_node = material.node_tree.nodes.get(out_node_name)
+        if not isinstance(out_node, out_node_type):
+            logger.error("No output node: %s", out_node_name)
             return
 
-        out_socket = out_node.outputs.get(tex_image_node_socket_name)
+        out_socket = out_node.outputs.get(out_node_socket_name)
         if not out_socket:
-            logger.error("No tex image node socket: %s", tex_image_node_socket_name)
+            logger.error("No output node socket: %s", out_node_socket_name)
             return
 
         material.node_tree.links.new(in_socket, out_socket)
 
     @classmethod
-    def unlink_tex_image_from_node_group(
+    def unlink_nodes(
         cls,
         material: Material,
-        tex_image_node_name: str,
-        tex_image_node_socket_name: str,
+        out_node_name: str,
+        out_node_type: type[Node],
+        out_node_socket_name: str,
         node_socket_target: NodeSocketTarget,
     ) -> None:
         while True:
@@ -615,10 +643,10 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
                 (
                     link
                     for link in material.node_tree.links
-                    if isinstance(link.from_node, ShaderNodeTexImage)
-                    and link.from_node.name == tex_image_node_name
+                    if isinstance(link.from_node, out_node_type)
+                    and link.from_node.name == out_node_name
                     and link.from_socket
-                    and link.from_socket.name == tex_image_node_socket_name
+                    and link.from_socket.name == out_node_socket_name
                     and select_in_node(link.to_node)
                     and link.to_socket
                     and link.to_socket.name == in_socket_name
@@ -631,27 +659,30 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             material.node_tree.links.remove(disconnecting_link)
 
     @classmethod
-    def connect_tex_image_to_node_group(
+    def link_or_unlink_nodes(
         cls,
         material: Material,
-        tex_image_node_name: str,
-        tex_image_node_socket_name: str,
+        out_node_name: str,
+        out_node_type: type[Node],
+        out_node_socket_name: str,
         node_socket_target: NodeSocketTarget,
         *,
         link: bool,
     ) -> None:
         if link:
-            cls.link_tex_image_to_node_group(
+            cls.link_nodes(
                 material,
-                tex_image_node_name,
-                tex_image_node_socket_name,
+                out_node_name,
+                out_node_type,
+                out_node_socket_name,
                 node_socket_target,
             )
         else:
-            cls.unlink_tex_image_from_node_group(
+            cls.unlink_nodes(
                 material,
-                tex_image_node_name,
-                tex_image_node_socket_name,
+                out_node_name,
+                out_node_type,
+                out_node_socket_name,
                 node_socket_target,
             )
 
@@ -682,15 +713,16 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             node_socket_targets,
         ) in texture_info.node_socket_targets.items():
             for node_socket_target in node_socket_targets:
-                self.connect_tex_image_to_node_group(
+                self.link_or_unlink_nodes(
                     material,
                     node_name,
+                    ShaderNodeTexImage,
                     output_socket_name,
                     node_socket_target,
                     link=bool(image),
                 )
 
-        texture_info.setup_drivers()
+        texture_info.setup_drivers(material)
 
     def get_connected_node_image(self) -> Optional[Image]:
         material = self.find_material()
@@ -1580,6 +1612,15 @@ class Mtoon1BaseColorTexturePropertyGroup(Mtoon1TexturePropertyGroup):
         type=Mtoon1BaseColorSamplerPropertyGroup
     )
 
+    def update_image(self, image: Optional[Image]) -> None:
+        super().update_image(image)
+        material = self.find_material()
+        mtoon1 = get_material_mtoon1_extension(material)
+        Mtoon1MaterialPropertyGroup.update_alpha_nodes(
+            material,
+            mtoon1.get_alpha_mode(),
+        )
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # `poetry run python tools/property_typing.py`
@@ -1839,8 +1880,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
     show_expanded: BoolProperty()  # type: ignore[valid-type]
 
-    def setup_drivers(self) -> None:
-        material = self.find_material()
+    def setup_drivers(self, material: Material) -> None:
         mtoon1 = get_material_mtoon1_extension(material)
         if not mtoon1.get_enabled_in_material(material):
             return
@@ -1894,7 +1934,10 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
                 None,
             )
             if fcurve is None:
-                fcurve = node_tree.driver_add(data_path)
+                try:
+                    fcurve = node_tree.driver_add(data_path)
+                except TypeError:
+                    continue
             if not isinstance(fcurve, FCurve):
                 logger.error(
                     'Failed to get fcurve "%s" for node tree "%s"',
@@ -1971,9 +2014,6 @@ class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
             NodeGroupSocketTarget(
                 node_group_node_tree_name=shader.OUTPUT_GROUP_NAME,
                 in_socket_name="Lit Color Texture Alpha",
-            ),
-            PrincipledBsdfNodeSocketTarget(
-                in_socket_name=PRINCIPLED_BSDF_ALPHA_INPUT_KEY
             ),
         ],
     }
@@ -2418,18 +2458,17 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
             color[1],
             color[2],
         )
-        principled_bsdf.alpha = color[3]
-
         mtoon1 = get_material_mtoon1_extension(material)
+        alpha_mode_value = mtoon1.get_alpha_mode()
+        mtoon1.update_alpha_nodes(material, alpha_mode_value)
+
         if mtoon1.is_outline_material:
             return
         outline_material = mtoon1.outline_material
         if not outline_material:
             return
-        outline_principled_bsdf = PrincipledBSDFWrapper(
-            outline_material, is_readonly=False
-        )
-        outline_principled_bsdf.alpha = color[3]
+        outline_mtoon1 = get_material_mtoon1_extension(outline_material)
+        outline_mtoon1.update_alpha_nodes(outline_material, alpha_mode_value)
 
     base_color_factor: FloatVectorProperty(  # type: ignore[valid-type]
         size=4,
@@ -3119,6 +3158,153 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             return alpha_mode_value
         return self.ALPHA_MODE_OPAQUE_VALUE
 
+    @staticmethod
+    def update_alpha_nodes(material: Material, alpha_mode_value: int) -> None:
+        node_tree = material.node_tree
+        if not node_tree:
+            return
+
+        # glTFのノードに合わせる
+        # https://docs.blender.org/manual/en/4.2/addons/import_export/scene_gltf2.html#alpha-modes
+        mtoon1 = get_material_mtoon1_extension(material)
+        texture = mtoon1.pbr_metallic_roughness.base_color_texture.index
+        tex_image_node_name = texture.get_image_texture_node_name()
+
+        if alpha_mode_value != Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK_VALUE:
+            TextureTraceablePropertyGroup.unlink_nodes(
+                material,
+                tex_image_node_name,
+                ShaderNodeTexImage,
+                TEX_IMAGE_ALPHA_OUTPUT_KEY,
+                StaticNodeSocketTarget(
+                    in_node_name=ALPHA_CLIP_INPUT_NODE_NAME,
+                    in_node_type=ShaderNodeMath,
+                    in_socket_name=ALPHA_CLIP_INPUT_NODE_SOCKET_NAME,
+                ),
+            )
+            TextureTraceablePropertyGroup.unlink_nodes(
+                material,
+                ALPHA_CLIP_OUTPUT_NODE_NAME,
+                ShaderNodeMath,
+                ALPHA_CLIP_OUTPUT_NODE_SOCKET_NAME,
+                PrincipledBsdfNodeSocketTarget(
+                    in_socket_name=PRINCIPLED_BSDF_ALPHA_INPUT_KEY
+                ),
+            )
+        if (
+            alpha_mode_value != Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND_VALUE
+            or bpy.app.version < (4, 2)
+        ):
+            TextureTraceablePropertyGroup.unlink_nodes(
+                material,
+                tex_image_node_name,
+                ShaderNodeTexImage,
+                TEX_IMAGE_ALPHA_OUTPUT_KEY,
+                PrincipledBsdfNodeSocketTarget(
+                    in_socket_name=PRINCIPLED_BSDF_ALPHA_INPUT_KEY
+                ),
+            )
+
+        principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
+        if bpy.app.version < (4, 2):
+            principled_bsdf.alpha = mtoon1.pbr_metallic_roughness.base_color_factor[3]
+            tex_image_node = node_tree.nodes.get(tex_image_node_name)
+            if isinstance(tex_image_node, ShaderNodeTexImage):
+                TextureTraceablePropertyGroup.link_or_unlink_nodes(
+                    material,
+                    tex_image_node_name,
+                    ShaderNodeTexImage,
+                    TEX_IMAGE_ALPHA_OUTPUT_KEY,
+                    PrincipledBsdfNodeSocketTarget(
+                        in_socket_name=PRINCIPLED_BSDF_ALPHA_INPUT_KEY
+                    ),
+                    link=bool(tex_image_node.image),
+                )
+        elif alpha_mode_value == Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE_VALUE:
+            principled_bsdf.alpha = 1.0
+        elif alpha_mode_value == Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK_VALUE:
+            tex_image_node = node_tree.nodes.get(tex_image_node_name)
+            image_exists = False
+            if isinstance(tex_image_node, ShaderNodeTexImage):
+                image_exists = bool(tex_image_node.image)
+                TextureTraceablePropertyGroup.link_or_unlink_nodes(
+                    material,
+                    tex_image_node_name,
+                    ShaderNodeTexImage,
+                    TEX_IMAGE_ALPHA_OUTPUT_KEY,
+                    StaticNodeSocketTarget(
+                        in_node_name=ALPHA_CLIP_INPUT_NODE_NAME,
+                        in_node_type=ShaderNodeMath,
+                        in_socket_name=ALPHA_CLIP_INPUT_NODE_SOCKET_NAME,
+                    ),
+                    link=image_exists,
+                )
+                TextureTraceablePropertyGroup.link_or_unlink_nodes(
+                    material,
+                    ALPHA_CLIP_OUTPUT_NODE_NAME,
+                    ShaderNodeMath,
+                    ALPHA_CLIP_OUTPUT_NODE_SOCKET_NAME,
+                    PrincipledBsdfNodeSocketTarget(
+                        in_socket_name=PRINCIPLED_BSDF_ALPHA_INPUT_KEY
+                    ),
+                    link=image_exists,
+                )
+            if not image_exists:
+                alpha = mtoon1.pbr_metallic_roughness.base_color_factor[3]
+                if alpha >= mtoon1.alpha_cutoff:
+                    principled_bsdf.alpha = 1.0
+                else:
+                    principled_bsdf.alpha = 0.0
+        elif alpha_mode_value == Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND_VALUE:
+            principled_bsdf.alpha = mtoon1.pbr_metallic_roughness.base_color_factor[3]
+            tex_image_node = node_tree.nodes.get(tex_image_node_name)
+            if isinstance(tex_image_node, ShaderNodeTexImage):
+                TextureTraceablePropertyGroup.link_or_unlink_nodes(
+                    material,
+                    tex_image_node_name,
+                    ShaderNodeTexImage,
+                    TEX_IMAGE_ALPHA_OUTPUT_KEY,
+                    PrincipledBsdfNodeSocketTarget(
+                        in_socket_name=PRINCIPLED_BSDF_ALPHA_INPUT_KEY
+                    ),
+                    link=bool(tex_image_node.image),
+                )
+
+        alpha_clip_input_node = node_tree.nodes.get(ALPHA_CLIP_INPUT_NODE_NAME)
+        if (
+            isinstance(alpha_clip_input_node, ShaderNodeMath)
+            and alpha_clip_input_node.operation == "MINIMUM"
+        ):
+            inputs = alpha_clip_input_node.inputs
+            if len(inputs) >= 2:
+                alpha_input = inputs[0]
+                if isinstance(alpha_input, shader.FLOAT_SOCKET_CLASSES):
+                    alpha_input.default_value = (
+                        mtoon1.pbr_metallic_roughness.base_color_factor[3]
+                    )
+                else:
+                    logger.error(
+                        "Unexpected alpha input node input type: %s", type(alpha_input)
+                    )
+
+                alpha_cutoff_input = inputs[1]
+                if isinstance(alpha_cutoff_input, shader.FLOAT_SOCKET_CLASSES):
+                    alpha_cutoff_input.default_value = mtoon1.alpha_cutoff
+                else:
+                    logger.error(
+                        "Unexpected alpha clip input node input type: %s",
+                        type(alpha_cutoff_input),
+                    )
+            else:
+                logger.error(
+                    "Unexpected alpha clip input node input length: %s", len(inputs)
+                )
+        else:
+            logger.error(
+                "Unexpected alpha clip input node type: %s",
+                type(alpha_clip_input_node),
+            )
+
     def set_alpha_mode(self, value: int) -> None:
         changed = self.get_alpha_mode() != value
 
@@ -3155,11 +3341,14 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             self.set_mtoon0_render_queue_and_clamp(self.mtoon0_render_queue)
 
         if get_material_mtoon1_extension(material).is_outline_material:
-            material.shadow_method = "NONE"
+            if bpy.app.version < (4, 2):
+                material.shadow_method = "NONE"
             return
 
         if shadow_method is not None:
             material.shadow_method = shadow_method
+
+        Mtoon1MaterialPropertyGroup.update_alpha_nodes(material, value)
 
         outline_material = get_material_mtoon1_extension(material).outline_material
         if not outline_material:
@@ -3210,6 +3399,12 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_ALPHA_CUTOFF_LABEL,
             max(0, value),
+        )
+
+        mtoon1 = get_material_mtoon1_extension(material)
+        Mtoon1MaterialPropertyGroup.update_alpha_nodes(
+            material,
+            mtoon1.get_alpha_mode(),
         )
 
         if get_material_mtoon1_extension(material).is_outline_material:
@@ -3346,6 +3541,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
         ops.vrm.convert_material_to_mtoon1(material_name=material.name)
         self["enabled"] = True
+        self.setup_drivers()
 
     enabled: BoolProperty(  # type: ignore[valid-type]
         name="Enable VRM MToon Material",
@@ -3513,8 +3709,9 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     )
 
     def setup_drivers(self) -> None:
+        material = self.find_material()
         for texture_info in self.all_texture_info():
-            texture_info.setup_drivers()
+            texture_info.setup_drivers(material)
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -3663,6 +3860,7 @@ def reset_shader_node_group(
     mtoon.uv_animation_scroll_y_speed_factor = uv_animation_scroll_y_speed_factor
     mtoon.uv_animation_rotation_speed_factor = uv_animation_rotation_speed_factor
 
+    gltf.setup_drivers()
     gltf.addon_version = addon_version()
 
 
@@ -3673,102 +3871,7 @@ def get_material_mtoon1_extension(material: Material) -> Mtoon1MaterialPropertyG
     return mtoon1
 
 
-UV_ANIMATION_GROUP_FPS_BASE_NODE_NAME: Final = "Scene.Render.FpsBase"
-UV_ANIMATION_GROUP_FPS_NODE_NAME: Final = "Scene.Render.Fps"
-UV_ANIMATION_GROUP_FRAME_CURRENT_NODE_NAME: Final = "Scene.FrameCurrent"
-
-
-def setup_frame_count_driver(context: Context) -> None:
-    node_group = context.blend_data.node_groups.get(shader.UV_ANIMATION_GROUP_NAME)
-    if not node_group:
-        return
-    animation_data = node_group.animation_data
-    if not animation_data:
-        animation_data = node_group.animation_data_create()
-        if not animation_data:
-            logger.error(
-                'Failed to create anomation data for node group "%s"', node_group.name
-            )
-            return
-    node_group = context.blend_data.node_groups.get(shader.UV_ANIMATION_GROUP_NAME)
-    if not node_group:
-        return
-
-    for data_path, target_data_path in [
-        (
-            f'nodes["{UV_ANIMATION_GROUP_FPS_BASE_NODE_NAME}"]'
-            + ".inputs[0]"
-            + ".default_value",
-            "frame_current",
-        ),
-        (
-            f'nodes["{UV_ANIMATION_GROUP_FPS_NODE_NAME}"]'
-            + ".inputs[0]"
-            + ".default_value",
-            "render.fps",
-        ),
-        (
-            f'nodes["{UV_ANIMATION_GROUP_FRAME_CURRENT_NODE_NAME}"]'
-            + ".inputs[0]"
-            + ".default_value",
-            "render.fps_base",
-        ),
-    ]:
-        fcurve: Optional[Union[FCurve, list[FCurve]]] = next(
-            iter(
-                fcurve
-                for fcurve in animation_data.drivers
-                if fcurve.data_path == data_path
-            ),
-            None,
-        )
-        if fcurve is None:
-            fcurve = node_group.driver_add(data_path)
-        if not isinstance(fcurve, FCurve):
-            logger.error(
-                'Failed to get fcurve "%s" for node tree "%s"',
-                data_path,
-                node_group.name,
-            )
-            continue
-        if fcurve.array_index != 0:
-            fcurve.array_index = 0
-        driver = fcurve.driver
-        if not isinstance(driver, Driver):
-            logger.error('Failed to get driver for fcurve "%s"', data_path)
-            continue
-        if driver.type != "SUM":
-            driver.type = "SUM"
-        if not driver.variables:
-            driver.variables.new()
-        while len(driver.variables) > 1:
-            driver.variables.remove(driver.variables[-1])
-        variable = driver.variables[0]
-        if not variable.targets:
-            logger.error(
-                'No targets in variable for fcurve "%s" in node_tree "%s"',
-                data_path,
-                node_group.name,
-            )
-            continue
-        target = variable.targets[0]
-        if bpy.app.version >= (3, 6):
-            if variable.type != "CONTEXT_PROP":
-                variable.type = "CONTEXT_PROP"
-            if target.context_property != "ACTIVE_SCENE":
-                target.context_property = "ACTIVE_SCENE"
-        else:
-            if variable.type != "SINGLE_PROP":
-                variable.type = "SINGLE_PROP"
-            if target.id_type != "SCENE":
-                target.id_type = "SCENE"
-            if target.id != context.scene:
-                target.id = context.scene
-        if target.data_path != target_data_path:
-            target.data_path = target_data_path
-
-
 def setup_drivers(context: Context) -> None:
     for material in context.blend_data.materials:
         get_material_mtoon1_extension(material).setup_drivers()
-    # setup_frame_count_driver(context)
+    shader.setup_frame_count_driver(context)
