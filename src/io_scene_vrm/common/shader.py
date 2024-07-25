@@ -379,7 +379,7 @@ def load_mtoon1_shader_node_groups(
             "SHADER",
             reset_node_groups=reset_node_groups,
         )
-    # setup_frame_count_driver(context)
+    setup_frame_count_driver(context)
 
 
 def load_mtoon1_shader(
@@ -1624,24 +1624,27 @@ def setup_frame_count_driver(context: Context) -> None:
                 'Failed to create anomation data for node group "%s"', node_group.name
             )
             return
-    for data_path, target_data_path in [
+    for data_path, target_data_path, enabled in [
         (
             f'nodes["{UV_ANIMATION_GROUP_FPS_BASE_NODE_NAME}"]'
             + ".outputs[0]"
             + ".default_value",
             "render.fps_base",
+            True,
         ),
         (
             f'nodes["{UV_ANIMATION_GROUP_FPS_NODE_NAME}"]'
             + ".outputs[0]"
             + ".default_value",
             "render.fps",
+            True,
         ),
         (
             f'nodes["{UV_ANIMATION_GROUP_FRAME_CURRENT_NODE_NAME}"]'
             + ".outputs[0]"
             + ".default_value",
             "frame_current",
+            False,
         ),
     ]:
         fcurve: Optional[Union[FCurve, list[FCurve]]] = next(
@@ -1652,6 +1655,10 @@ def setup_frame_count_driver(context: Context) -> None:
             ),
             None,
         )
+        if not enabled:
+            if fcurve is not None:
+                node_group.driver_remove(data_path)
+            continue
         if fcurve is None:
             try:
                 fcurve = node_group.driver_add(data_path)

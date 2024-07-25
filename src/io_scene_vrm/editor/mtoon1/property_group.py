@@ -3874,4 +3874,4 @@ def get_material_mtoon1_extension(material: Material) -> Mtoon1MaterialPropertyG
 def setup_drivers(context: Context) -> None:
     for material in context.blend_data.materials:
         get_material_mtoon1_extension(material).setup_drivers()
-    # shader.setup_frame_count_driver(context)
+    shader.setup_frame_count_driver(context)
