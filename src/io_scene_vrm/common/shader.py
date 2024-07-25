@@ -379,7 +379,7 @@ def load_mtoon1_shader_node_groups(
             "SHADER",
             reset_node_groups=reset_node_groups,
         )
-    setup_frame_count_driver(context)
+    # setup_frame_count_driver(context)
 
 
 def load_mtoon1_shader(
