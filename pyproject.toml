@@ -85,6 +85,8 @@ ignore = [
     "TCH003", # Move standard library import `x` into a type-checking block
     "TD002", # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
     "TD003", # Missing issue link on the line following this TODO
+
+    # https://docs.blender.org/manual/en/4.2/advanced/extensions/addons.html#relative-imports
     "TID252", # Relative imports from parent modules are banned
 ]
 
