@@ -217,10 +217,10 @@ class ICYP_OT_make_armature(Operator):
             right_roll = 0
             left_roll = 0
             if bone_type == "arm":
-                right_roll = 180
+                right_roll = 0
             elif bone_type == "leg":
-                right_roll = 90
-                left_roll = 90
+                right_roll = 0
+                left_roll = 0
             left_bone = bone_add(
                 base_name + ".L",
                 right_head_pos,
@@ -288,22 +288,20 @@ class ICYP_OT_make_armature(Operator):
             Vector((0, 0, body_separate)),
             Vector((0, 0, hips_tall)),
             root,
-            roll=90,
+            roll=0,
         )
         # 骨盤基部->胸郭基部
-        spine = bone_add(
-            "spine", hips.tail, z_add(hips.tail, spine_len), hips, roll=-90
-        )
+        spine = bone_add("spine", hips.tail, z_add(hips.tail, spine_len), hips, roll=0)
         # 胸郭基部->首元
         chest = bone_add(
-            "chest", spine.tail, z_add(hips.tail, backbone_len), spine, roll=-90
+            "chest", spine.tail, z_add(hips.tail, backbone_len), spine, roll=0
         )
         neck = bone_add(
             "neck",
             Vector((0, 0, self.tall - head_size - neck_len / 2)),
             Vector((0, 0, self.tall - head_size + neck_len / 2)),
             chest,
-            roll=-90,
+            roll=0,
         )
         # 首の1/2は顎の後ろに隠れてる
         head = bone_add(
@@ -311,7 +309,7 @@ class ICYP_OT_make_armature(Operator):
             Vector((0, 0, self.tall - head_size + neck_len / 2)),
             Vector((0, 0, self.tall)),
             neck,
-            roll=-90,
+            roll=0,
         )
 
         # 目
@@ -498,7 +496,7 @@ class ICYP_OT_make_armature(Operator):
                 thumbs[j][n].transform(mats[n].inverted(), scale=False, roll=False)
                 thumbs[j][n].transform(Matrix.Rotation(radians(angle), 4, "Z"))
                 thumbs[j][n].transform(mats[n], scale=False, roll=False)
-                thumbs[j][n].roll = [0, radians(180)][n]
+                thumbs[j][n].roll = 0
 
         index_fingers = fingers(
             "index",
