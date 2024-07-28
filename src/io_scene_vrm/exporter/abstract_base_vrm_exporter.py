@@ -47,19 +47,19 @@ class AbstractBaseVrmExporter(ABC):
         action = humanoid.pose_library
         pose_marker_name = humanoid.pose_marker_name
 
-        if pose != Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CUSTOM_POSE:
+        if pose != humanoid.POSE_ITEM_VALUE_CUSTOM_POSE:
             action = None
             pose_marker_name = ""
 
         if (
-            pose == Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CURRENT_POSE
+            pose == humanoid.POSE_ITEM_VALUE_CURRENT_POSE
             and armature_data.pose_position == "REST"
         ):
             yield
             return
 
-        if pose == Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_REST_POSITION_POSE or (
-            pose == Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CUSTOM_POSE
+        if pose == humanoid.POSE_ITEM_VALUE_REST_POSITION_POSE or (
+            pose == humanoid.POSE_ITEM_VALUE_CUSTOM_POSE
             and not (action and action.name in self.context.blend_data.actions)
         ):
             saved_pose_position = armature_data.pose_position
