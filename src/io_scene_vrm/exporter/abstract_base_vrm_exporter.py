@@ -108,7 +108,13 @@ class AbstractBaseVrmExporter(ABC):
                             right_eye_bone.rotation_mode = "QUATERNION"
                         right_eye_bone.rotation_quaternion = Quaternion()
 
-            if action and action.name in self.context.blend_data.actions:
+            if pose == humanoid.POSE_ITEM_VALUE_AUTO_POSE:
+                make_t_pose(armature)
+            elif (
+                pose == humanoid.POSE_ITEM_VALUE_CUSTOM_POSE
+                and action
+                and action.name in self.context.blend_data.actions
+            ):
                 pose_marker_frame = 0
                 if pose_marker_name:
                     for search_pose_marker in action.pose_markers.values():
@@ -302,3 +308,27 @@ def assign_dict(
         return False
     target[key] = make_json(value)
     return True
+
+
+def make_t_pose(armature_obj: Object) -> None:
+    if armature_obj.mode != "POSE":
+        message = f'Armature object must be in "POSE" mode but {armature_obj.mode}'
+        raise ValueError(message)
+
+    armature_data = armature_obj.data
+    if not isinstance(armature_data, Armature):
+        message = f'Armature object must be an "Armature" but {type(armature_data)}'
+        raise TypeError(message)
+
+    ext = get_armature_extension(armature_data)
+    if ext.is_vrm0():
+        humanoid = ext.vrm0.humanoid
+        if not humanoid.all_required_bones_are_assigned():
+            return
+    else:
+        humanoid = ext.vrm1.humanoid
+        if not humanoid.human_bones.all_required_bones_are_assigned():
+            return
+
+    for bone in armature_obj.pose.bones:
+        bone.rotation_quaternion = Quaternion()

@@ -44,6 +44,10 @@ from ..common.preferences import ImportPreferencesProtocol
 from ..common.progress import PartialProgress, create_progress
 from ..common.workspace import save_workspace
 from ..editor.extension import get_armature_extension
+from ..editor.vrm0.property_group import (
+    Vrm0HumanoidPropertyGroup,
+)
+from ..editor.vrm1.property_group import Vrm1HumanoidPropertyGroup
 from .gltf2_addon_importer_user_extension import Gltf2AddonImporterUserExtension
 from .vrm_parser import ParseResult, remove_unsafe_path_chars
 
@@ -957,9 +961,15 @@ class AbstractBaseVrmImporter(ABC):
                 if self.parse_result.spec_version_number < (1, 0):
                     vrm0_humanoid = get_armature_extension(data).vrm0.humanoid
                     vrm0_humanoid.initial_automatic_bone_assignment = False
+                    vrm0_humanoid.pose = (
+                        Vrm0HumanoidPropertyGroup.POSE_ITEM_VALUE_REST_POSITION_POSE
+                    )
                 else:
                     vrm1_humanoid = get_armature_extension(data).vrm1.humanoid
                     vrm1_humanoid.human_bones.initial_automatic_bone_assignment = False
+                    vrm1_humanoid.pose = (
+                        Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_REST_POSITION_POSE
+                    )
                 self.armature = obj
 
         if (

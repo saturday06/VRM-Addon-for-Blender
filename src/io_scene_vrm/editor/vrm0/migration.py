@@ -635,6 +635,19 @@ def migrate_pose(context: Context, armature_data: bpy.types.Armature) -> None:
         humanoid.pose = humanoid.POSE_ITEM_VALUE_CURRENT_POSE
 
 
+def migrate_auto_pose(armature_data: Armature) -> None:
+    ext = get_armature_extension(armature_data)
+    if tuple(ext.addon_version) > (2, 20, 70):
+        return
+
+    humanoid = ext.vrm0.humanoid
+    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION:
+        humanoid.pose = humanoid.POSE_ITEM_VALUE_AUTO_POSE
+        return
+    if not isinstance(humanoid.get("pose"), int):
+        humanoid.pose = humanoid.POSE_ITEM_VALUE_CURRENT_POSE
+
+
 def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
     if vrm0.humanoid.initial_automatic_bone_assignment:
         return False
@@ -674,6 +687,7 @@ def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None
     fixup_gravity_dir(armature_data)
     fixup_humanoid_feet_spacing(armature_data)
     migrate_pose(context, armature_data)
+    migrate_auto_pose(armature_data)
 
     Vrm0HumanoidPropertyGroup.update_all_node_candidates(
         context,

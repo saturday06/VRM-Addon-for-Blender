@@ -76,6 +76,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
         armature_name: str  # type: ignore[no-redef]
 
 
+# deprecated
 class VRM_OT_add_extensions_to_armature(Operator):
     bl_idname = "vrm.add_vrm_extensions"
     bl_label = "Add VRM attributes"

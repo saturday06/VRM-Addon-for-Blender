@@ -546,11 +546,19 @@ class Vrm1HumanoidPropertyGroup(PropertyGroup):
     def update_pose_library(self, _context: Context) -> None:
         self.pose_marker_name = ""
 
+    POSE_ITEM_VALUE_AUTO_POSE = "autoPose"
     POSE_ITEM_VALUE_REST_POSITION_POSE = "restPositionPose"
     POSE_ITEM_VALUE_CURRENT_POSE = "currentPose"
     POSE_ITEM_VALUE_CUSTOM_POSE = "customPose"
 
     pose_items = (
+        (
+            POSE_ITEM_VALUE_AUTO_POSE,
+            "Auto",
+            "Auto",
+            "ARMATURE_DATA",
+            3,
+        ),
         (
             POSE_ITEM_VALUE_REST_POSITION_POSE,
             "Rest Position",
@@ -572,7 +580,7 @@ class Vrm1HumanoidPropertyGroup(PropertyGroup):
         items=pose_items,
         name="T-Pose",
         description="T-Pose",
-        default=POSE_ITEM_VALUE_CURRENT_POSE,
+        default=POSE_ITEM_VALUE_AUTO_POSE,
     )
 
     pose_library: PointerProperty(  # type: ignore[valid-type]

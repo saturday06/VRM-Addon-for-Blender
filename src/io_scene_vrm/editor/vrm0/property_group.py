@@ -169,6 +169,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         default=False,
     )
 
+    POSE_ITEM_VALUE_AUTO_POSE = Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_AUTO_POSE
     POSE_ITEM_VALUE_REST_POSITION_POSE = (
         Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_REST_POSITION_POSE
     )
@@ -181,7 +182,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         items=Vrm1HumanoidPropertyGroup.pose_items,
         name="T-Pose",
         description="T-Pose",
-        default=POSE_ITEM_VALUE_CURRENT_POSE,
+        default=POSE_ITEM_VALUE_AUTO_POSE,
     )
 
     # for T-Pose

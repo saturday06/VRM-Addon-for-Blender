@@ -20,6 +20,7 @@ from .vrm0.property_group import (
     Vrm0BlendShapeGroupPropertyGroup,
     Vrm0HumanoidPropertyGroup,
 )
+from .vrm1.property_group import Vrm1HumanoidPropertyGroup
 
 MIN_BONE_LENGTH = 0.00001  # 10μm
 AUTO_BONE_CONNECTION_DISTANCE = 0.000001  # 1μm
@@ -571,16 +572,24 @@ class ICYP_OT_make_armature(Operator):
     def setup_as_vrm(
         self, context: Context, armature: Object, compare_dict: dict[str, str]
     ) -> None:
-        Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         armature_data = armature.data
-        if isinstance(armature_data, Armature) and not self.skip_heavy_armature_setup:
+        if not isinstance(armature_data, Armature):
+            message = "armature data is not an Armature"
+            raise TypeError(message)
+        Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
+        ext = get_armature_extension(armature_data)
+        if not self.skip_heavy_armature_setup:
             for vrm_bone_name, bpy_bone_name in compare_dict.items():
-                for human_bone in get_armature_extension(
-                    armature_data
-                ).vrm0.humanoid.human_bones:
+                for human_bone in ext.vrm0.humanoid.human_bones:
                     if human_bone.bone == vrm_bone_name:
                         human_bone.node.set_bone_name(bpy_bone_name)
                         break
+        ext.vrm0.humanoid.pose = (
+            Vrm0HumanoidPropertyGroup.POSE_ITEM_VALUE_REST_POSITION_POSE
+        )
+        ext.vrm1.humanoid.pose = (
+            Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_REST_POSITION_POSE
+        )
         self.make_extension_setting_and_metas(
             armature,
             offset_from_head_bone=(-self.eye_depth, self.head_size() / 6, 0),

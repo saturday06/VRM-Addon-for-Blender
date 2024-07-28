@@ -195,6 +195,19 @@ def migrate_pose(context: Context, armature_data: Armature) -> None:
         humanoid.pose = humanoid.POSE_ITEM_VALUE_CURRENT_POSE
 
 
+def migrate_auto_pose(armature_data: Armature) -> None:
+    ext = get_armature_extension(armature_data)
+    if tuple(ext.addon_version) > (2, 20, 70):
+        return
+
+    humanoid = ext.vrm1.humanoid
+    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION:
+        humanoid.pose = humanoid.POSE_ITEM_VALUE_AUTO_POSE
+        return
+    if not isinstance(humanoid.get("pose"), int):
+        humanoid.pose = humanoid.POSE_ITEM_VALUE_CURRENT_POSE
+
+
 def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
@@ -254,6 +267,7 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
         )
 
     migrate_pose(context, armature_data)
+    migrate_auto_pose(armature_data)
 
     # Expressionのプリセットに名前を設定する
     # 管理上は無くてもよいが、アニメーションキーフレームに表示されるので設定しておきたい
