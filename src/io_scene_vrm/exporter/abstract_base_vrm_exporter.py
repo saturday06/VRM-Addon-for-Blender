@@ -330,5 +330,8 @@ def make_t_pose(armature_obj: Object) -> None:
         if not humanoid.human_bones.all_required_bones_are_assigned():
             return
 
+    # 現在のポーズの回転に依存しないロジックにしたいため、回転はリセットする。
+    # ポーズの平行移動とズームは、ポーズというよりはそういう状態でエクスポートが
+    # 必要な可能性があると感じるのでリセットはしない。
     for bone in armature_obj.pose.bones:
         bone.rotation_quaternion = Quaternion()
