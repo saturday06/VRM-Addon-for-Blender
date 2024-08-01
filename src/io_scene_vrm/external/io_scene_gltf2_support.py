@@ -79,7 +79,9 @@ def init_extras_export() -> None:
 
 
 def create_export_settings() -> dict[str, object]:
+    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/b9bdc358ebf41e5f14be397d0d612cc8d645a09e/addons/io_scene_gltf2/__init__.py#L1054
     loglevel = logging.INFO
+
     export_settings: dict[str, object] = {
         "loglevel": loglevel,
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L522
@@ -136,8 +138,10 @@ def create_export_settings() -> dict[str, object]:
     if bpy.app.version < (4, 2):
         return export_settings
 
+    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/b9bdc358ebf41e5f14be397d0d612cc8d645a09e/addons/io_scene_gltf2/__init__.py#L1270-L1271
     gltf2_io_debug = importlib.import_module("io_scene_gltf2.io.com.gltf2_io_debug")
     export_settings["log"] = gltf2_io_debug.Log(loglevel)
+
     return export_settings
 
 
