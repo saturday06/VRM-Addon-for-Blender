@@ -1,6 +1,7 @@
 import dataclasses
 import datetime
 import importlib
+import logging
 from collections.abc import Set as AbstractSet
 
 import bpy
@@ -78,7 +79,9 @@ def init_extras_export() -> None:
 
 
 def create_export_settings() -> dict[str, object]:
-    return {
+    loglevel = logging.INFO
+    export_settings: dict[str, object] = {
+        "loglevel": loglevel,
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L522
         "timestamp": datetime.datetime.now(datetime.timezone.utc),
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L258-L268
@@ -129,6 +132,13 @@ def create_export_settings() -> dict[str, object]:
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/06f0f908e883add2767fde828f52a013086a17c3/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather.py#L62-L66
         "KHR_animation_pointer": {"materials": {}, "lights": {}, "cameras": {}},
     }
+
+    if bpy.app.version < (4, 2):
+        return export_settings
+
+    gltf2_io_debug = importlib.import_module("io_scene_gltf2.io.com.gltf2_io_debug")
+    export_settings["log"] = gltf2_io_debug.Log(loglevel)
+    return export_settings
 
 
 @dataclasses.dataclass
