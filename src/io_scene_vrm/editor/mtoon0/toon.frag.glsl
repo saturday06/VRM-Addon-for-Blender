@@ -194,7 +194,7 @@ void main() {
     output_color *= lighting;
     outline_col *= lighting;
 
-    //未実装@Indirect Light
+    // 未実装@Indirect Light
 
     // parametric rim
     vec3 p_rim_color =

@@ -138,7 +138,7 @@ jobs:
       - name: Install deb packages
         run: |
           sudo apt-get update -qq || true
-          sudo apt-get install -y clang-format-12 glslang-tools python3 shellcheck shfmt uchardet
+          sudo apt-get install -y clang-format glslang-tools python3 shellcheck shfmt uchardet
         env:
           DEBIAN_FRONTEND: noninteractive
       - uses: actions/checkout@v4
@@ -190,7 +190,7 @@ jobs:
           done
       - name: Format GLSL (May break syntax!)
         run: |
-          git ls-files "*.glsl" | xargs clang-format-12 -i
+          git ls-files "*.glsl" | xargs clang-format -i
           git diff --exit-code
       - name: Install poetry
         run: |
