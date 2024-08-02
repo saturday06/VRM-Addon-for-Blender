@@ -219,5 +219,6 @@ def export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
             raise
         logger.exception("Failed to export VRM with animations")
         # TODO: check traceback
-        arguments.export_animations = False
-        return __invoke_export_scene_gltf(arguments)
+
+    arguments.export_animations = False
+    return __invoke_export_scene_gltf(arguments)
