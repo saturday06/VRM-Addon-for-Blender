@@ -1109,6 +1109,10 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         triggered_expression: "Vrm1ExpressionPropertyGroup",
         context: Context,
     ) -> None:
+        if not triggered_expression.name:
+            logger.debug("Unnamed expression: %s", type(triggered_expression))
+            return
+
         armature: Optional[Armature] = None
         for search_armature in context.blend_data.armatures:
             ext = get_armature_vrm1_extension(search_armature)
