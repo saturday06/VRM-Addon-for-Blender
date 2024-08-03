@@ -1616,7 +1616,7 @@ class Mtoon1BaseColorTexturePropertyGroup(Mtoon1TexturePropertyGroup):
         super().update_image(image)
         material = self.find_material()
         mtoon1 = get_material_mtoon1_extension(material)
-        Mtoon1MaterialPropertyGroup.update_alpha_nodes(
+        mtoon1.update_alpha_nodes(
             material,
             mtoon1.get_alpha_mode(),
         )
@@ -3340,7 +3340,9 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         if changed:
             self.set_mtoon0_render_queue_and_clamp(self.mtoon0_render_queue)
 
-        if get_material_mtoon1_extension(material).is_outline_material:
+        self.update_alpha_nodes(material, value)
+
+        if self.is_outline_material:
             if bpy.app.version < (4, 2):
                 material.shadow_method = "NONE"
             return
@@ -3348,9 +3350,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         if shadow_method is not None:
             material.shadow_method = shadow_method
 
-        Mtoon1MaterialPropertyGroup.update_alpha_nodes(material, value)
-
-        outline_material = get_material_mtoon1_extension(material).outline_material
+        outline_material = self.outline_material
         if not outline_material:
             return
         get_material_mtoon1_extension(outline_material).set_alpha_mode(value)
@@ -3401,15 +3401,11 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             max(0, value),
         )
 
-        mtoon1 = get_material_mtoon1_extension(material)
-        Mtoon1MaterialPropertyGroup.update_alpha_nodes(
-            material,
-            mtoon1.get_alpha_mode(),
-        )
+        self.update_alpha_nodes(material, self.get_alpha_mode())
 
-        if get_material_mtoon1_extension(material).is_outline_material:
+        if self.is_outline_material:
             return
-        outline_material = get_material_mtoon1_extension(material).outline_material
+        outline_material = self.outline_material
         if not outline_material:
             return
         get_material_mtoon1_extension(outline_material).set_alpha_cutoff(value)

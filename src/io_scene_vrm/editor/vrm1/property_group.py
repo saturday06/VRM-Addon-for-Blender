@@ -1102,7 +1102,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
     )
 
     def update_preview(self, context: Context) -> None:
-        Vrm1ExpressionPropertyGroup.update_previews(self, context)
+        self.update_previews(self, context)
 
     @staticmethod
     def update_previews(
