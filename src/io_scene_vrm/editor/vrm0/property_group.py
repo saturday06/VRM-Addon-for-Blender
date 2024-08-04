@@ -542,9 +542,13 @@ class Vrm0MaterialValueBindPropertyGroup(PropertyGroup):
         name="Material",
         type=Material,
     )
+
+    # property_nameはEnumPropertyではなくStringPropertyを使う。
+    # これは任意の値を入力できるようにする必要があるため。
     property_name: StringProperty(  # type: ignore[valid-type]
         name="Property Name"
     )
+
     target_value: CollectionProperty(  # type: ignore[valid-type]
         name="Target Value",
         type=FloatPropertyGroup,
