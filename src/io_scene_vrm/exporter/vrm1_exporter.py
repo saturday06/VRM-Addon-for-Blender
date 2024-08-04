@@ -2002,6 +2002,13 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 tempfile.TemporaryDirectory() as temp_dir,
             ):
                 filepath = Path(temp_dir, "out.glb")
+
+                # Blender 4.2ではexport_applyが有効な状態でアーマチュアモディファイアが
+                # ついているメッシュをエクスポートをするとシェイプキーが消えてしまう。
+                # 将来的にexport_apply相当の処理を自前で行って対応したいが大工事になる。
+                # 現時点ではexport_applyを無効化してこの場をしのぐ。
+                export_apply = bpy.app.version < (4, 2)
+
                 export_scene_gltf_result = export_scene_gltf(
                     ExportSceneGltfArguments(
                         filepath=str(filepath),
@@ -2013,7 +2020,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         use_selection=True,
                         export_animations=True,
                         export_rest_position_armature=False,
-                        export_apply=True,
+                        export_apply=export_apply,
                         # Models may appear incorrectly in many viewers
                         export_all_influences=self.export_all_influences,
                         # TODO: Expose UI Option, Unity allows light export
