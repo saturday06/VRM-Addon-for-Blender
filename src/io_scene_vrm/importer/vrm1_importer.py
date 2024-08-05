@@ -1244,6 +1244,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             collider_dicts = []
 
         for collider_dict in collider_dicts:
+            # ColliderGroupからColliderへの参照はindexでの参照のため、
+            # collider_dictの中身が不正でも空のデータは作成しておく
             if ops.vrm.add_spring_bone1_collider(armature_name=armature.name) != {
                 "FINISHED"
             }:
@@ -1359,6 +1361,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         for collider_group_index, collider_group_dict in enumerate(
             collider_group_dicts
         ):
+            # SpringからColliderGroupへの参照はindexでの参照のため、
+            # collider_group_dictの中身が不正でも空のデータは作成しておく
             if ops.vrm.add_spring_bone1_collider_group(armature_name=armature_name) != {
                 "FINISHED"
             }:
