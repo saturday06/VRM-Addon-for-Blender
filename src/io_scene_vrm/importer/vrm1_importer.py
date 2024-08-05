@@ -1255,6 +1255,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             collider = spring_bone.colliders[-1]
 
             if not isinstance(collider_dict, dict):
+                collider.shape.sphere.radius = 0.0001
+                collider.shape.sphere.offset = (0, 0, -10000)
                 continue
 
             bone: Optional[Bone] = None
