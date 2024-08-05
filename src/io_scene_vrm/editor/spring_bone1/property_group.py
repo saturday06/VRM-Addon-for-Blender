@@ -54,7 +54,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
         armature, collider = self.find_armature_and_collider(context)
         if not collider.bpy_object:
             logger.error(
-                "Failed to get bpy object of %s in get_offset()", collider.name
+                'Failed to get bpy object of "%s" in sphere.get_offset()', collider.name
             )
             return (0, 0, 0)
         bone = armature.pose.bones.get(collider.node.bone_name)
@@ -94,7 +94,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
         _, collider = self.find_armature_and_collider(context)
         if not collider.bpy_object:
             logger.error(
-                "Failed to get bpy object of %s in get_radius()", collider.name
+                'Failed to get bpy object of "%s" in sphere.get_radius()', collider.name
             )
             return 0.0
         mean_scale = statistics.mean(
@@ -109,7 +109,10 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
         armature, collider = self.find_armature_and_collider(context)
         collider.reset_bpy_object(context, armature)
         if not collider.bpy_object:
-            logger.error("Failed to reset bpy_object for collider: %s", collider.name)
+            logger.error(
+                'Failed to reset bpy object of "%s" in sphere.set_radius()',
+                collider.name,
+            )
             return
         location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
         collider.bpy_object.matrix_basis = (
@@ -169,7 +172,8 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         armature, collider = self.find_armature_and_collider(context)
         if not collider.bpy_object:
             logger.error(
-                "Failed to get bpy object of %s in get_offset()", collider.name
+                'Failed to get bpy object of "%s" in capsule.get_offset()',
+                collider.name,
             )
             return (0, 0, 0)
         bone = armature.pose.bones.get(collider.node.bone_name)
@@ -208,7 +212,9 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
 
         armature, collider = self.find_armature_and_collider(context)
         if not collider.bpy_object or not collider.bpy_object.children:
-            logger.error("Failed to get bpy object of %s in get_tail()", collider.name)
+            logger.error(
+                'Failed to get bpy object of "%s" in capsule.get_tail()', collider.name
+            )
             return (0, 0, 0)
         bone = armature.pose.bones.get(collider.node.bone_name)
         if bone:
@@ -250,7 +256,8 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         _, collider = self.find_armature_and_collider(context)
         if not collider.bpy_object:
             logger.error(
-                "Failed to get bpy object of %s in get_radius()", collider.name
+                'Failed to get bpy object of "%s" in capsule.get_radius()',
+                collider.name,
             )
             return 0.0
         mean_scale: float = statistics.mean(
@@ -265,7 +272,10 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         armature, collider = self.find_armature_and_collider(context)
         collider.reset_bpy_object(context, armature)
         if not collider.bpy_object:
-            logger.error("Failed to reset bpy_object for collider: %s", collider.name)
+            logger.error(
+                'Failed to reset bpy object of "%s" in capsule.set_radius()',
+                collider.name,
+            )
             return
         location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
         collider.bpy_object.matrix_basis = (
