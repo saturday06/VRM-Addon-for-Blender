@@ -30,12 +30,6 @@ from .property_group import (
 )
 
 TextureInfoBackup = Mtoon1TextureInfoPropertyGroup.TextureInfoBackup
-OUTLINE_WIDTH_MODE_NUMBER_TO_ID: Final = (
-    Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_NUMBER_TO_ID
-)
-MAG_FILTER_NUMBER_TO_ID: Final = Mtoon1SamplerPropertyGroup.MAG_FILTER_NUMBER_TO_ID
-MIN_FILTER_NUMBER_TO_ID: Final = Mtoon1SamplerPropertyGroup.MIN_FILTER_NUMBER_TO_ID
-WRAP_NUMBER_TO_ID: Final = Mtoon1SamplerPropertyGroup.WRAP_NUMBER_TO_ID
 
 logger = get_logger(__name__)
 
@@ -163,11 +157,11 @@ def migrate_material(
         alpha_cutoff = material.alpha_threshold
         blend_method = material.blend_method
         if blend_method in ["BLEND", "HASHED"]:
-            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND
+            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND.identifier
         elif blend_method == "CLIP":
-            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK
+            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK.identifier
         else:
-            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE
+            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE.identifier
 
     base_color_factor: Optional[tuple[float, float, float, float]] = None
     base_color_texture_backup: Optional[TextureInfoBackup] = None
@@ -283,8 +277,12 @@ def migrate_material(
         )
         outline_width_mode_number = vrmc_materials_mtoon.get("outline_width_mode")
         if isinstance(outline_width_mode_number, int):
-            outline_width_mode = OUTLINE_WIDTH_MODE_NUMBER_TO_ID.get(
-                outline_width_mode_number
+            outline_width_mode_item = (
+                Mtoon1VrmcMaterialsMtoonPropertyGroup.outline_width_mode_enum
+            )
+            outline_width_mode = outline_width_mode_item.value_to_identifier(
+                outline_width_mode_number,
+                Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_NONE.identifier,
             )
         outline_width_factor = convert.float_or_none(
             vrmc_materials_mtoon.get("outline_width_factor")
@@ -437,8 +435,8 @@ def backup_texture_info(texture_info: object) -> Optional[TextureInfoBackup]:
         return None
 
     source: Optional[Image] = None
-    wrap_s = Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID
-    wrap_t = Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID
+    wrap_s = Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.identifier
+    wrap_t = Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.identifier
     offset_x = 0.0
     offset_y = 0.0
     scale_x = 1.0
@@ -453,13 +451,15 @@ def backup_texture_info(texture_info: object) -> Optional[TextureInfoBackup]:
         if isinstance(sampler, IDPropertyGroup):
             wrap_s_number = sampler.get("wrap_s")
             if isinstance(wrap_s_number, int):
-                wrap_s = WRAP_NUMBER_TO_ID.get(
-                    wrap_s_number, Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID
+                wrap_s = Mtoon1SamplerPropertyGroup.wrap_enum.value_to_identifier(
+                    wrap_s_number,
+                    wrap_s,
                 )
             wrap_t_number = sampler.get("wrap_t")
             if isinstance(wrap_t_number, int):
-                wrap_t = WRAP_NUMBER_TO_ID.get(
-                    wrap_t_number, Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID
+                wrap_t = Mtoon1SamplerPropertyGroup.wrap_enum.value_to_identifier(
+                    wrap_t_number,
+                    wrap_t,
                 )
 
     extensions = texture_info.get("extensions")
@@ -544,7 +544,7 @@ def migrate_sampler_filter_node(material: Material) -> None:
         mag_filter = sampler.get("mag_filter")
         if (
             not isinstance(mag_filter, int)
-            or mag_filter not in Mtoon1SamplerPropertyGroup.MAG_FILTER_NUMBER_TO_ID
+            or mag_filter not in Mtoon1SamplerPropertyGroup.mag_filter_enum.values()
         ):
             continue
 

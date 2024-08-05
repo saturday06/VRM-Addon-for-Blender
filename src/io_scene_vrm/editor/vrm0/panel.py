@@ -333,7 +333,7 @@ def draw_vrm0_humanoid_layout(
     column = t_pose_box.row().column()
     column.label(text="VRM T-Pose", icon="OUTLINER_OB_ARMATURE")
     column.prop(humanoid, "pose")
-    if humanoid.pose == humanoid.POSE_ITEM_VALUE_CUSTOM_POSE:
+    if humanoid.pose == humanoid.POSE_ITEM_CUSTOM_POSE.identifier:
         label = "Pose Library" if bpy.app.version < (3, 0) else "Pose Asset"
         column.prop_search(
             humanoid,
@@ -1160,7 +1160,7 @@ def draw_vrm0_meta_layout(
     )
     layout.prop(meta, "other_permission_url", icon="URL")
     layout.prop(meta, "license_name", icon="COMMUNITY")
-    if meta.license_name == Vrm0MetaPropertyGroup.LICENSE_NAME_OTHER:
+    if meta.license_name == Vrm0MetaPropertyGroup.LICENSE_NAME_OTHER.identifier:
         layout.prop(meta, "other_license_url", icon="URL")
 
 

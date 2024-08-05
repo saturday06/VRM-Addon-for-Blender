@@ -40,32 +40,32 @@ def test() -> None:
     assert_axis_translation(
         (1, 2, 3),
         (1, 2, 3),
-        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_NONE_ID,
+        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_NONE.identifier,
     )
     assert_axis_translation(
         (1, 2, 3),
         (-2, 1, 3),
-        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_X_TO_Y_ID,
+        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_X_TO_Y.identifier,
     )
     assert_axis_translation(
         (1, 2, 3),
         (2, -1, 3),
-        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_MINUS_X_TO_Y_ID,
+        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_MINUS_X_TO_Y.identifier,
     )
     assert_axis_translation(
         (1, 2, 3),
         (-1, -2, 3),
-        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID,
+        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z.identifier,
     )
     assert_axis_translation(
         (1, 2, 3),
         (1, 3, -2),
-        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_Z_TO_Y_ID,
+        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_Z_TO_Y.identifier,
     )
     assert_axis_translation(
         (1, 2, 3),
         (1, -3, 2),
-        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID,
+        VrmAddonBoneExtensionPropertyGroup.AXIS_TRANSLATION_MINUS_Z_TO_Y.identifier,
     )
 
 

@@ -50,6 +50,7 @@ from ...common.gl import (
 from ...common.logging import get_logger
 from ...common.preferences import VrmAddonPreferences
 from ...common.version import addon_version
+from ..property_group import property_group_enum
 
 logger = get_logger(__name__)
 
@@ -1236,21 +1237,20 @@ class Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup(
 
 
 class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
-    MAG_FILTER_DEFAULT_ID = "LINEAR"
-    mag_filter_items = (
-        ("NEAREST", "Nearest", "", GL_NEAREST),
-        (MAG_FILTER_DEFAULT_ID, "Linear", "", GL_LINEAR),
+    (
+        mag_filter_enum,
+        (
+            MAG_FILTER_NEAREST,
+            MAG_FILTER_LINEAR,
+        ),
+    ) = property_group_enum(
+        ("NEAREST", "Nearest", "", "NONE", GL_NEAREST),
+        ("LINEAR", "Linear", "", "NONE", GL_LINEAR),
     )
-    MAG_FILTER_NUMBER_TO_ID: Mapping[int, str] = {
-        item[-1]: item[0] for item in mag_filter_items
-    }
-    MAG_FILTER_ID_TO_NUMBER: Mapping[str, int] = {
-        item[0]: item[-1] for item in mag_filter_items
-    }
-    MAG_FILTER_IDS: tuple[str, ...] = tuple(item[0] for item in mag_filter_items)
+    MAG_FILTER_DEFAULT = MAG_FILTER_LINEAR
 
     def get_mag_filter(self) -> int:
-        default_value = self.MAG_FILTER_ID_TO_NUMBER[self.MAG_FILTER_DEFAULT_ID]
+        default_value = self.MAG_FILTER_DEFAULT.value
 
         material = self.find_material()
         node_name = self.get_image_texture_node_name()
@@ -1269,7 +1269,7 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
             return GL_LINEAR
 
         value = self.get("mag_filter")
-        if isinstance(value, int) and value in self.MAG_FILTER_NUMBER_TO_ID:
+        if isinstance(value, int) and value in self.mag_filter_enum.values():
             return value
 
         return default_value
@@ -1279,7 +1279,7 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         # 入力値がGL_NEARESTかつTexImageがClosestの場合は、内部値を削除する
         # 入力値がGL_LINEARかつTexImageがLinear/Cubic/Smartの場合は、内部値を削除する
 
-        if value not in self.MAG_FILTER_NUMBER_TO_ID:
+        if value not in self.mag_filter_enum.values():
             self.pop("mag_filter", None)
             return
 
@@ -1304,10 +1304,10 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
 
     def get_min_filter(self) -> int:
         value = self.get("min_filter")
-        if isinstance(value, int) and value in self.MIN_FILTER_NUMBER_TO_ID:
+        if isinstance(value, int) and value in self.min_filter_enum.values():
             return value
 
-        default_value = self.MIN_FILTER_ID_TO_NUMBER[self.MIN_FILTER_DEFAULT_ID]
+        default_value = self.MIN_FILTER_DEFAULT.value
 
         material = self.find_material()
         node_name = self.get_image_texture_node_name()
@@ -1331,7 +1331,7 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         # 入力値がGL_NEARESTかつTexImageがClosestの場合は、内部値を削除する
         # 入力値がGL_LINEARかつTexImageがLinear/Cubic/Smartの場合は、内部値を削除する
 
-        if value not in self.MIN_FILTER_NUMBER_TO_ID:
+        if value not in self.min_filter_enum.values():
             self.pop("min_filter", None)
             return
 
@@ -1356,61 +1356,71 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
 
         self["min_filter"] = value
 
-    MIN_FILTER_DEFAULT_ID = "LINEAR"
-    min_filter_items = (
-        ("NEAREST", "Nearest", "", GL_NEAREST),
-        (MIN_FILTER_DEFAULT_ID, "Linear", "", GL_LINEAR),
+    (
+        min_filter_enum,
+        (
+            MIN_FILTER_NEAREST,
+            MIN_FILTER_LINEAR,
+            MIN_FILTER_NEAREST_MIPMAP_NEAREST,
+            MIN_FILTER_LINEAR_MIPMAP_NEAREST,
+            MIN_FILTER_NEAREST_MIPMAP_LINEAR,
+            MIN_FILTER_LINEAR_MIPMAP_LINEAR,
+        ),
+    ) = property_group_enum(
+        ("NEAREST", "Nearest", "", "NONE", GL_NEAREST),
+        ("LINEAR", "Linear", "", "NONE", GL_LINEAR),
         (
             "NEAREST_MIPMAP_NEAREST",
             "Nearest Mipmap Nearest",
             "",
+            "NONE",
             GL_NEAREST_MIPMAP_NEAREST,
         ),
         (
             "LINEAR_MIPMAP_NEAREST",
             "Linear Mipmap Nearest",
             "",
+            "NONE",
             GL_LINEAR_MIPMAP_NEAREST,
         ),
         (
             "NEAREST_MIPMAP_LINEAR",
             "Nearest Mipmap Linear",
             "",
+            "NONE",
             GL_NEAREST_MIPMAP_LINEAR,
         ),
         (
             "LINEAR_MIPMAP_LINEAR",
             "Linear Mipmap Linear",
             "",
+            "NONE",
             GL_LINEAR_MIPMAP_LINEAR,
         ),
     )
-    MIN_FILTER_NUMBER_TO_ID: Mapping[int, str] = {
-        item[-1]: item[0] for item in min_filter_items
-    }
-    MIN_FILTER_ID_TO_NUMBER: Mapping[str, int] = {
-        item[0]: item[-1] for item in min_filter_items
-    }
-    MIN_FILTER_IDS: tuple[str, ...] = tuple(item[0] for item in min_filter_items)
+    MIN_FILTER_DEFAULT = MIN_FILTER_LINEAR
 
     # https://github.com/KhronosGroup/glTF/blob/2a9996a2ea66ab712590eaf62f39f1115996f5a3/specification/2.0/schema/sampler.schema.json#L67-L117
-    WRAP_DEFAULT_NUMBER = GL_REPEAT
-    WRAP_DEFAULT_ID = "REPEAT"
-
-    wrap_items = (
-        ("CLAMP_TO_EDGE", "Clamp to Edge", "", GL_CLAMP_TO_EDGE),
-        ("MIRRORED_REPEAT", "Mirrored Repeat", "", GL_MIRRORED_REPEAT),
-        (WRAP_DEFAULT_ID, "Repeat", "", WRAP_DEFAULT_NUMBER),
+    (
+        wrap_enum,
+        (
+            WRAP_ITEM_CLAMP_TO_EDGE,
+            WRAP_ITEM_MIRRORED_REPEAT,
+            WRAP_ITEM_REPEAT,
+        ),
+    ) = property_group_enum(
+        ("CLAMP_TO_EDGE", "Clamp to Edge", "", "NONE", GL_CLAMP_TO_EDGE),
+        ("MIRRORED_REPEAT", "Mirrored Repeat", "", "NONE", GL_MIRRORED_REPEAT),
+        ("REPEAT", "Repeat", "", "NONE", GL_REPEAT),
     )
-    WRAP_NUMBER_TO_ID: Mapping[int, str] = {wrap[-1]: wrap[0] for wrap in wrap_items}
-    WRAP_ID_TO_NUMBER: Mapping[str, int] = {wrap[0]: wrap[-1] for wrap in wrap_items}
-    WRAP_IDS: tuple[str, ...] = tuple(wrap[0] for wrap in wrap_items)
+
+    WRAP_DEFAULT = WRAP_ITEM_REPEAT
 
     def get_wrap_s(self) -> int:
         wrap_s = self.get_texture_uv_int(
             shader.UV_GROUP_WRAP_S_LABEL, shader.UV_GROUP_WRAP_S_DEFAULT
         )
-        if wrap_s in self.WRAP_NUMBER_TO_ID:
+        if wrap_s in self.wrap_enum.values():
             return wrap_s
         return shader.UV_GROUP_WRAP_S_DEFAULT
 
@@ -1421,7 +1431,7 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         wrap_t = self.get_texture_uv_int(
             shader.UV_GROUP_WRAP_T_LABEL, shader.UV_GROUP_WRAP_T_DEFAULT
         )
-        if wrap_t in self.WRAP_NUMBER_TO_ID:
+        if wrap_t in self.wrap_enum.values():
             return wrap_t
         return shader.UV_GROUP_WRAP_T_DEFAULT
 
@@ -1429,31 +1439,31 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         self.set_texture_uv(shader.UV_GROUP_WRAP_T_LABEL, value)
 
     mag_filter: EnumProperty(  # type: ignore[valid-type]
-        items=mag_filter_items,
+        items=mag_filter_enum.items(),
         get=get_mag_filter,
         set=set_mag_filter,
         name="Mag Filter",
     )
 
     min_filter: EnumProperty(  # type: ignore[valid-type]
-        items=min_filter_items,
+        items=min_filter_enum.items(),
         get=get_min_filter,
         set=set_min_filter,
         name="Min Filter",
     )
 
     wrap_s: EnumProperty(  # type: ignore[valid-type]
-        items=wrap_items,
+        items=wrap_enum.items(),
         name="Wrap S",
-        default=WRAP_DEFAULT_ID,
+        default=WRAP_DEFAULT.value,
         get=get_wrap_s,
         set=set_wrap_s,
     )
 
     wrap_t: EnumProperty(  # type: ignore[valid-type]
-        items=wrap_items,
+        items=wrap_enum.items(),
         name="Wrap T",
-        default=WRAP_DEFAULT_ID,
+        default=WRAP_DEFAULT.value,
         get=get_wrap_t,
         set=set_wrap_t,
     )
@@ -1847,33 +1857,43 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
     def restore(self, backup: TextureInfoBackup) -> None:
         self.index.source = backup.source
 
-        if backup.mag_filter in Mtoon1SamplerPropertyGroup.MAG_FILTER_IDS:
+        if (
+            backup.mag_filter
+            in Mtoon1SamplerPropertyGroup.mag_filter_enum.identifiers()
+        ):
             self.index.sampler.mag_filter = backup.mag_filter
         elif backup.mag_filter is not None:
             logger.warning("invalid mag filter: %s", backup.mag_filter)
             self.index.sampler.mag_filter = (
-                Mtoon1SamplerPropertyGroup.MAG_FILTER_DEFAULT_ID
+                Mtoon1SamplerPropertyGroup.MAG_FILTER_DEFAULT.identifier
             )
 
-        if backup.min_filter in Mtoon1SamplerPropertyGroup.MIN_FILTER_IDS:
+        if (
+            backup.min_filter
+            in Mtoon1SamplerPropertyGroup.min_filter_enum.identifiers()
+        ):
             self.index.sampler.min_filter = backup.min_filter
         elif backup.min_filter is not None:
             logger.warning("invalid min filter: %s", backup.min_filter)
             self.index.sampler.min_filter = (
-                Mtoon1SamplerPropertyGroup.MIN_FILTER_DEFAULT_ID
+                Mtoon1SamplerPropertyGroup.MIN_FILTER_DEFAULT.identifier
             )
 
-        if backup.wrap_s in Mtoon1SamplerPropertyGroup.WRAP_IDS:
+        if backup.wrap_s in Mtoon1SamplerPropertyGroup.wrap_enum.identifiers():
             self.index.sampler.wrap_s = backup.wrap_s
         else:
             logger.warning("invalid wrap s: %s", backup.wrap_s)
-            self.index.sampler.wrap_s = Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID
+            self.index.sampler.wrap_s = (
+                Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.identifier
+            )
 
-        if backup.wrap_t in Mtoon1SamplerPropertyGroup.WRAP_IDS:
+        if backup.wrap_t in Mtoon1SamplerPropertyGroup.wrap_enum.identifiers():
             self.index.sampler.wrap_t = backup.wrap_t
         else:
             logger.warning("invalid wrap t: %s", backup.wrap_t)
-            self.index.sampler.wrap_t = Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID
+            self.index.sampler.wrap_t = (
+                Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.identifier
+            )
 
         self.extensions.khr_texture_transform.offset = backup.offset
         self.extensions.khr_texture_transform.scale = backup.scale
@@ -2354,25 +2374,25 @@ class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGro
 
 class Mtoon0SamplerPropertyGroup(PropertyGroup):
     mag_filter: EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.mag_filter_items,
+        items=Mtoon1SamplerPropertyGroup.mag_filter_enum.items(),
         name="Mag Filter",
     )
 
     min_filter: EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.min_filter_items,
+        items=Mtoon1SamplerPropertyGroup.min_filter_enum.items(),
         name="Min Filter",
     )
 
     wrap_s: EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
+        items=Mtoon1SamplerPropertyGroup.wrap_enum.items(),
         name="Wrap S",
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.value,
     )
 
     wrap_t: EnumProperty(  # type: ignore[valid-type]
-        items=Mtoon1SamplerPropertyGroup.wrap_items,
+        items=Mtoon1SamplerPropertyGroup.wrap_enum.items(),
         name="Wrap T",
-        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT_ID,
+        default=Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.value,
     )
 
     if TYPE_CHECKING:
@@ -2773,34 +2793,30 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         set=set_parametric_rim_lift_factor,
     )
 
-    OUTLINE_WIDTH_MODE_NONE = "none"
-    OUTLINE_WIDTH_MODE_WORLD_COORDINATES = "worldCoordinates"
-    OUTLINE_WIDTH_MODE_SCREEN_COORDINATES = "screenCoordinates"
-    outline_width_mode_items: tuple[tuple[str, str, str, str, int], ...] = (
+    (
+        outline_width_mode_enum,
         (
             OUTLINE_WIDTH_MODE_NONE,
+            OUTLINE_WIDTH_MODE_WORLD_COORDINATES,
+            OUTLINE_WIDTH_MODE_SCREEN_COORDINATES,
+        ),
+    ) = property_group_enum(
+        (
+            "none",
             "None",
             "",
             "NONE",
             shader.OUTPUT_GROUP_OUTLINE_WIDTH_MODE_MIN,
         ),
-        (OUTLINE_WIDTH_MODE_WORLD_COORDINATES, "World Coordinates", "", "NONE", 1),
+        ("worldCoordinates", "World Coordinates", "", "NONE", 1),
         (
-            OUTLINE_WIDTH_MODE_SCREEN_COORDINATES,
+            "screenCoordinates",
             "Screen Coordinates",
             "",
             "NONE",
             shader.OUTPUT_GROUP_OUTLINE_WIDTH_MODE_MAX,
         ),
     )
-    OUTLINE_WIDTH_MODE_IDS = tuple(
-        outline_width_mode_item[0]
-        for outline_width_mode_item in outline_width_mode_items
-    )
-    OUTLINE_WIDTH_MODE_NUMBER_TO_ID: Mapping[int, str] = {
-        outline_width_mode_item[-1]: outline_width_mode_item[0]
-        for outline_width_mode_item in outline_width_mode_items
-    }
 
     def get_outline_width_mode(self) -> int:
         return self.get_int(
@@ -2826,7 +2842,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
 
     outline_width_mode: EnumProperty(  # type: ignore[valid-type]
-        items=outline_width_mode_items,
+        items=outline_width_mode_enum.items(),
         name=shader.OUTPUT_GROUP_OUTLINE_WIDTH_MODE_LABEL,
         get=get_outline_width_mode,
         set=set_outline_width_mode,
@@ -3133,18 +3149,18 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         type=Mtoon1PbrMetallicRoughnessPropertyGroup
     )
 
-    ALPHA_MODE_OPAQUE = "OPAQUE"
-    ALPHA_MODE_OPAQUE_VALUE = 0
-    ALPHA_MODE_MASK = "MASK"
-    ALPHA_MODE_MASK_VALUE = 1
-    ALPHA_MODE_BLEND = "BLEND"
-    ALPHA_MODE_BLEND_VALUE = 2
-    alpha_mode_items: tuple[tuple[str, str, str, str, int], ...] = (
-        (ALPHA_MODE_OPAQUE, "Opaque", "", "NONE", ALPHA_MODE_OPAQUE_VALUE),
-        (ALPHA_MODE_MASK, "Cutout", "", "NONE", ALPHA_MODE_MASK_VALUE),
-        (ALPHA_MODE_BLEND, "Transparent", "", "NONE", ALPHA_MODE_BLEND_VALUE),
+    (
+        alpha_mode_enum,
+        (
+            ALPHA_MODE_OPAQUE,
+            ALPHA_MODE_MASK,
+            ALPHA_MODE_BLEND,
+        ),
+    ) = property_group_enum(
+        ("OPAQUE", "Opaque", "", "NONE", 0),
+        ("MASK", "Cutout", "", "NONE", 1),
+        ("BLEND", "Transparent", "", "NONE", 2),
     )
-    ALPHA_MODE_IDS = tuple(alpha_mode_item[0] for alpha_mode_item in alpha_mode_items)
 
     alpha_mode_blend_method_hashed: BoolProperty()  # type: ignore[valid-type]
 
@@ -3152,11 +3168,11 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         alpha_mode_value = self.get_int(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_ALPHA_MODE_LABEL,
-            default_value=self.ALPHA_MODE_OPAQUE_VALUE,
+            default_value=self.ALPHA_MODE_OPAQUE.value,
         )
-        if alpha_mode_value in [value for _, _, _, _, value in self.alpha_mode_items]:
+        if alpha_mode_value in self.alpha_mode_enum.values():
             return alpha_mode_value
-        return self.ALPHA_MODE_OPAQUE_VALUE
+        return self.ALPHA_MODE_OPAQUE.value
 
     @staticmethod
     def update_alpha_nodes(material: Material, alpha_mode_value: int) -> None:
@@ -3170,7 +3186,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         texture = mtoon1.pbr_metallic_roughness.base_color_texture.index
         tex_image_node_name = texture.get_image_texture_node_name()
 
-        if alpha_mode_value != Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK_VALUE:
+        if alpha_mode_value != mtoon1.ALPHA_MODE_MASK.value:
             TextureTraceablePropertyGroup.unlink_nodes(
                 material,
                 tex_image_node_name,
@@ -3191,9 +3207,9 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
                     in_socket_name=PRINCIPLED_BSDF_ALPHA_INPUT_KEY
                 ),
             )
-        if (
-            alpha_mode_value != Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND_VALUE
-            or bpy.app.version < (4, 2)
+        if alpha_mode_value != mtoon1.ALPHA_MODE_BLEND.value or bpy.app.version < (
+            4,
+            2,
         ):
             TextureTraceablePropertyGroup.unlink_nodes(
                 material,
@@ -3220,9 +3236,9 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
                     ),
                     link=bool(tex_image_node.image),
                 )
-        elif alpha_mode_value == Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE_VALUE:
+        elif alpha_mode_value == mtoon1.ALPHA_MODE_OPAQUE.value:
             principled_bsdf.alpha = 1.0
-        elif alpha_mode_value == Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK_VALUE:
+        elif alpha_mode_value == mtoon1.ALPHA_MODE_MASK.value:
             tex_image_node = node_tree.nodes.get(tex_image_node_name)
             image_exists = False
             if isinstance(tex_image_node, ShaderNodeTexImage):
@@ -3255,7 +3271,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
                     principled_bsdf.alpha = 1.0
                 else:
                     principled_bsdf.alpha = 0.0
-        elif alpha_mode_value == Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND_VALUE:
+        elif alpha_mode_value == mtoon1.ALPHA_MODE_BLEND.value:
             principled_bsdf.alpha = mtoon1.pbr_metallic_roughness.base_color_factor[3]
             tex_image_node = node_tree.nodes.get(tex_image_node_name)
             if isinstance(tex_image_node, ShaderNodeTexImage):
@@ -3317,13 +3333,13 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             if material.blend_method == "BLEND":
                 self.alpha_mode_blend_method_hashed = False
 
-            if value == self.ALPHA_MODE_OPAQUE_VALUE:
+            if value == self.ALPHA_MODE_OPAQUE.value:
                 material.blend_method = "OPAQUE"
                 shadow_method = "OPAQUE"
-            elif value == self.ALPHA_MODE_MASK_VALUE:
+            elif value == self.ALPHA_MODE_MASK.value:
                 material.blend_method = "CLIP"
                 shadow_method = "CLIP"
-            elif value == self.ALPHA_MODE_BLEND_VALUE:
+            elif value == self.ALPHA_MODE_BLEND.value:
                 material.blend_method = "HASHED"
                 shadow_method = "HASHED"
             else:
@@ -3356,7 +3372,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         get_material_mtoon1_extension(outline_material).set_alpha_mode(value)
 
     alpha_mode: EnumProperty(  # type: ignore[valid-type]
-        items=alpha_mode_items,
+        items=alpha_mode_enum.items(),
         name="Alpha Mode",
         get=get_alpha_mode,
         set=set_alpha_mode,
@@ -3675,9 +3691,9 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
     def set_mtoon0_render_queue_and_clamp(self, value: int) -> None:
         # https://github.com/Santarh/MToon/blob/42b03163459ac8e6b7aee08070d0f4f912035069/MToon/Scripts/Utils.cs#L74-L113
-        if self.alpha_mode == self.ALPHA_MODE_OPAQUE:
+        if self.alpha_mode == self.ALPHA_MODE_OPAQUE.identifier:
             mtoon0_render_queue = 2000
-        elif self.alpha_mode == self.ALPHA_MODE_MASK:
+        elif self.alpha_mode == self.ALPHA_MODE_MASK.identifier:
             mtoon0_render_queue = 2450
         elif not self.extensions.vrmc_materials_mtoon.transparent_with_z_write:
             mtoon0_render_queue = max(2951, min(3000, value))

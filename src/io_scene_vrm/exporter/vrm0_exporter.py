@@ -1439,19 +1439,35 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         if not source:
             return None
 
+        wrap_s = Mtoon1SamplerPropertyGroup.wrap_enum.identifier_to_value(
+            texture.sampler.wrap_s,
+            Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.value,
+        )
+
+        wrap_t = Mtoon1SamplerPropertyGroup.wrap_enum.identifier_to_value(
+            texture.sampler.wrap_t,
+            Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.value,
+        )
+
+        mag_filter = Mtoon1SamplerPropertyGroup.mag_filter_enum.identifier_to_value(
+            texture.sampler.mag_filter,
+            Mtoon1SamplerPropertyGroup.MAG_FILTER_DEFAULT.value,
+        )
+
+        min_filter = Mtoon1SamplerPropertyGroup.min_filter_enum.identifier_to_value(
+            texture.sampler.min_filter,
+            Mtoon1SamplerPropertyGroup.MIN_FILTER_DEFAULT.value,
+        )
+
         index = self.add_texture(
             image_name_to_index_dict,
             sampler_tuple_to_index_dict,
             texture_tuple_to_index_dict,
             source.name,
-            Mtoon1SamplerPropertyGroup.WRAP_ID_TO_NUMBER[texture.sampler.wrap_s],
-            Mtoon1SamplerPropertyGroup.MAG_FILTER_ID_TO_NUMBER[
-                texture.sampler.mag_filter
-            ],
-            Mtoon1SamplerPropertyGroup.WRAP_ID_TO_NUMBER[texture.sampler.wrap_t],
-            Mtoon1SamplerPropertyGroup.MIN_FILTER_ID_TO_NUMBER[
-                texture.sampler.min_filter
-            ],
+            wrap_s,
+            mag_filter,
+            wrap_t,
+            min_filter,
         )
         texture_properties[texture_properties_key] = index
         vector_properties[texture_properties_key] = [0, 0, 1, 1]
@@ -1690,11 +1706,14 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         outline_width_screen = False
         outline_color_fixed = False
         outline_color_mixed = False
-        if mtoon.outline_width_mode == mtoon.OUTLINE_WIDTH_MODE_NONE:
+        if mtoon.outline_width_mode == mtoon.OUTLINE_WIDTH_MODE_NONE.identifier:
             float_properties["_OutlineWidthMode"] = 0
             float_properties["_OutlineLightingMix"] = 0
             float_properties["_OutlineColorMode"] = 0
-        elif mtoon.outline_width_mode == mtoon.OUTLINE_WIDTH_MODE_WORLD_COORDINATES:
+        elif (
+            mtoon.outline_width_mode
+            == mtoon.OUTLINE_WIDTH_MODE_WORLD_COORDINATES.identifier
+        ):
             float_properties["_OutlineWidth"] = mtoon.outline_width_factor * 100
             float_properties["_OutlineWidthMode"] = 1
             outline_width_world = True
@@ -1702,7 +1721,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 outline_color_fixed = True
             else:
                 outline_color_mixed = True
-        elif mtoon.outline_width_mode == mtoon.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES:
+        elif (
+            mtoon.outline_width_mode
+            == mtoon.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES.identifier
+        ):
             float_properties["_OutlineWidth"] = mtoon.outline_width_factor * 200
             float_properties["_OutlineWidthMode"] = 2
             outline_width_screen = True
@@ -1719,7 +1741,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         )
 
         float_properties["_Cutoff"] = 0.5
-        if gltf.alpha_mode == gltf.ALPHA_MODE_OPAQUE:
+        if gltf.alpha_mode == gltf.ALPHA_MODE_OPAQUE.identifier:
             blend_mode = 0
             src_blend = 1
             dst_blend = 0
@@ -1727,7 +1749,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             alphatest_on = False
             render_queue = -1
             render_type = "Opaque"
-        elif gltf.alpha_mode == gltf.ALPHA_MODE_MASK:
+        elif gltf.alpha_mode == gltf.ALPHA_MODE_MASK.identifier:
             blend_mode = 1
             src_blend = 1
             dst_blend = 0
@@ -2954,9 +2976,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         vrm_extension_dict["blendShapeMaster"] = blend_shape_master_dict
 
         remaining_preset_names = [
-            preset_name
-            for preset_name in Vrm0BlendShapeGroupPropertyGroup.PRESET_NAME_VALUES
-            if preset_name != "unknown"
+            preset_name.identifier
+            for preset_name in Vrm0BlendShapeGroupPropertyGroup.preset_name_enum
+            if preset_name != Vrm0BlendShapeGroupPropertyGroup.PRESET_NAME_UNKNOWN
         ]
 
         # meshを名前からid
@@ -3034,9 +3056,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 continue
             name = next(
                 (
-                    preset.default_blend_shape_group_name
-                    for preset in Vrm0BlendShapeGroupPropertyGroup.presets
-                    if preset.identifier == preset_name
+                    enum.name.replace(" ", "")
+                    for enum in Vrm0BlendShapeGroupPropertyGroup.preset_name_enum
+                    if enum.identifier == preset_name
                 ),
                 preset_name.capitalize(),
             )

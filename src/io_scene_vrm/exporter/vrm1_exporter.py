@@ -442,14 +442,14 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 continue
             collider_dict["node"] = node_index
 
-            if collider.shape_type == collider.SHAPE_TYPE_SPHERE:
+            if collider.shape_type == collider.SHAPE_TYPE_SPHERE.identifier:
                 shape_dict: dict[str, Json] = {
                     "sphere": {
                         "offset": list(collider.shape.sphere.offset),
                         "radius": collider.shape.sphere.radius,
                     }
                 }
-            elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE:
+            elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE.identifier:
                 shape_dict = {
                     "capsule": {
                         "offset": list(collider.shape.capsule.offset),
@@ -771,19 +771,31 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             gltf2_addon_export_settings,
         )
 
+        mag_filter = Mtoon1SamplerPropertyGroup.mag_filter_enum.identifier_to_value(
+            texture_info.index.sampler.mag_filter,
+            Mtoon1SamplerPropertyGroup.MAG_FILTER_DEFAULT.value,
+        )
+
+        min_filter = Mtoon1SamplerPropertyGroup.min_filter_enum.identifier_to_value(
+            texture_info.index.sampler.min_filter,
+            Mtoon1SamplerPropertyGroup.MIN_FILTER_DEFAULT.value,
+        )
+
+        wrap_s = Mtoon1SamplerPropertyGroup.wrap_enum.identifier_to_value(
+            texture_info.index.sampler.wrap_s,
+            Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.value,
+        )
+
+        wrap_t = Mtoon1SamplerPropertyGroup.wrap_enum.identifier_to_value(
+            texture_info.index.sampler.wrap_t,
+            Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.value,
+        )
+
         sampler_dict: dict[str, Json] = {
-            "magFilter": Mtoon1SamplerPropertyGroup.MAG_FILTER_ID_TO_NUMBER[
-                texture_info.index.sampler.mag_filter
-            ],
-            "minFilter": Mtoon1SamplerPropertyGroup.MIN_FILTER_ID_TO_NUMBER[
-                texture_info.index.sampler.min_filter
-            ],
-            "wrapS": Mtoon1SamplerPropertyGroup.WRAP_ID_TO_NUMBER[
-                texture_info.index.sampler.wrap_s
-            ],
-            "wrapT": Mtoon1SamplerPropertyGroup.WRAP_ID_TO_NUMBER[
-                texture_info.index.sampler.wrap_t
-            ],
+            "magFilter": mag_filter,
+            "minFilter": min_filter,
+            "wrapS": wrap_s,
+            "wrapT": wrap_t,
         }
 
         sampler_dicts = json_dict.get("samplers")

@@ -34,7 +34,7 @@ def draw_spring_bone1_collider_layout(
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
-    if collider.shape_type == collider.SHAPE_TYPE_SPHERE:
+    if collider.shape_type == collider.SHAPE_TYPE_SPHERE.identifier:
         layout.prop_search(collider.node, "bone_name", armature_data, "bones")
         layout.prop(collider, "shape_type")
         if collider.bpy_object:
@@ -44,7 +44,7 @@ def draw_spring_bone1_collider_layout(
         layout.prop(collider.shape.sphere, "offset", text="")
         layout.separator(factor=0.5)
         layout.prop(collider.shape.sphere, "radius", slider=True)
-    elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE:
+    elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE.identifier:
         layout.prop_search(collider.node, "bone_name", armature_data, "bones")
         layout.prop(collider, "shape_type")
         if collider.bpy_object:

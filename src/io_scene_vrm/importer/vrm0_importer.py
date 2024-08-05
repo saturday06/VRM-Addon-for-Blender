@@ -34,12 +34,10 @@ from ..editor.mtoon1.property_group import (
     Mtoon1TexturePropertyGroup,
 )
 from ..editor.vrm0.property_group import (
-    Vrm0BlendShapeGroupPropertyGroup,
     Vrm0BlendShapeMasterPropertyGroup,
     Vrm0FirstPersonPropertyGroup,
     Vrm0HumanoidBonePropertyGroup,
     Vrm0HumanoidPropertyGroup,
-    Vrm0MeshAnnotationPropertyGroup,
     Vrm0MetaPropertyGroup,
     Vrm0SecondaryAnimationPropertyGroup,
 )
@@ -112,31 +110,35 @@ class Vrm0Importer(AbstractBaseVrmImporter):
 
         mag_filter = sampler_dict.get("magFilter")
         if isinstance(mag_filter, int):
-            mag_filter_id = Mtoon1SamplerPropertyGroup.MAG_FILTER_NUMBER_TO_ID.get(
-                mag_filter
+            texture.sampler.mag_filter = (
+                Mtoon1SamplerPropertyGroup.mag_filter_enum.value_to_identifier(
+                    mag_filter, Mtoon1SamplerPropertyGroup.MAG_FILTER_DEFAULT.identifier
+                )
             )
-            if isinstance(mag_filter_id, str):
-                texture.sampler.mag_filter = mag_filter_id
 
         min_filter = sampler_dict.get("minFilter")
         if isinstance(min_filter, int):
-            min_filter_id = Mtoon1SamplerPropertyGroup.MIN_FILTER_NUMBER_TO_ID.get(
-                min_filter
+            texture.sampler.min_filter = (
+                Mtoon1SamplerPropertyGroup.min_filter_enum.value_to_identifier(
+                    min_filter, Mtoon1SamplerPropertyGroup.MIN_FILTER_DEFAULT.identifier
+                )
             )
-            if isinstance(min_filter_id, str):
-                texture.sampler.min_filter = min_filter_id
 
         wrap_s = sampler_dict.get("wrapS")
         if isinstance(wrap_s, int):
-            wrap_s_id = Mtoon1SamplerPropertyGroup.WRAP_NUMBER_TO_ID.get(wrap_s)
-            if isinstance(wrap_s_id, str):
-                texture.sampler.wrap_s = wrap_s_id
+            texture.sampler.wrap_s = (
+                Mtoon1SamplerPropertyGroup.wrap_enum.value_to_identifier(
+                    wrap_s, Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.identifier
+                )
+            )
 
         wrap_t = sampler_dict.get("wrapT")
         if isinstance(wrap_t, int):
-            wrap_t_id = Mtoon1SamplerPropertyGroup.WRAP_NUMBER_TO_ID.get(wrap_t)
-            if isinstance(wrap_t_id, str):
-                texture.sampler.wrap_t = wrap_t_id
+            texture.sampler.wrap_t = (
+                Mtoon1SamplerPropertyGroup.wrap_enum.value_to_identifier(
+                    wrap_t, Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.identifier
+                )
+            )
 
         return True
 
@@ -170,15 +172,15 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         gltf.show_expanded_mtoon0 = True
         mtoon = gltf.extensions.vrmc_materials_mtoon
 
-        gltf.alpha_mode = gltf.ALPHA_MODE_OPAQUE
+        gltf.alpha_mode = gltf.ALPHA_MODE_OPAQUE.identifier
         blend_mode = vrm0_material_property.float_properties.get("_BlendMode")
         if blend_mode is not None:
             if math.fabs(blend_mode - 1) < 0.001:
-                gltf.alpha_mode = gltf.ALPHA_MODE_MASK
+                gltf.alpha_mode = gltf.ALPHA_MODE_MASK.identifier
             elif math.fabs(blend_mode - 2) < 0.001:
-                gltf.alpha_mode = gltf.ALPHA_MODE_BLEND
+                gltf.alpha_mode = gltf.ALPHA_MODE_BLEND.identifier
             elif math.fabs(blend_mode - 3) < 0.001:
-                gltf.alpha_mode = gltf.ALPHA_MODE_BLEND
+                gltf.alpha_mode = gltf.ALPHA_MODE_BLEND.identifier
                 mtoon.transparent_with_z_write = True
 
         cutoff = vrm0_material_property.float_properties.get("_Cutoff")
@@ -333,12 +335,16 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             outline_width = 0.0
 
         if outline_width_mode == 0:
-            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_NONE
+            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_NONE.identifier
         elif outline_width_mode == 1:
-            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_WORLD_COORDINATES
+            mtoon.outline_width_mode = (
+                mtoon.OUTLINE_WIDTH_MODE_WORLD_COORDINATES.identifier
+            )
             mtoon.outline_width_factor = max(0.0, outline_width * centimeter_to_meter)
         else:
-            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES
+            mtoon.outline_width_mode = (
+                mtoon.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES.identifier
+            )
             mtoon.outline_width_factor = max(0.0, outline_width * one_hundredth * 0.5)
             outline_scaled_max_distance = vrm0_material_property.float_properties.get(
                 "_OutlineScaledMaxDistance"
@@ -459,7 +465,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         gltf.pbr_metallic_roughness.base_color_factor = (0, 0, 0, 1)
         gltf.emissive_factor = (1, 1, 1)
 
-        gltf.alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND
+        gltf.alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND.identifier
         gltf.alpha_cutoff = 0.5
         gltf.double_sided = False
         mtoon.transparent_with_z_write = True
@@ -529,29 +535,28 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         allowed_user_name = meta_dict.get("allowedUserName")
         if (
             isinstance(allowed_user_name, str)
-            and allowed_user_name in Vrm0MetaPropertyGroup.ALLOWED_USER_NAME_VALUES
+            and allowed_user_name in meta.allowed_user_name_enum.identifiers()
         ):
             meta.allowed_user_name = allowed_user_name
 
         violent_ussage_name = meta_dict.get("violentUssageName")
         if (
             isinstance(violent_ussage_name, str)
-            and violent_ussage_name in Vrm0MetaPropertyGroup.VIOLENT_USSAGE_NAME_VALUES
+            and violent_ussage_name in meta.violent_ussage_name_enum.identifiers()
         ):
             meta.violent_ussage_name = violent_ussage_name
 
         sexual_ussage_name = meta_dict.get("sexualUssageName")
         if (
             isinstance(sexual_ussage_name, str)
-            and sexual_ussage_name in Vrm0MetaPropertyGroup.SEXUAL_USSAGE_NAME_VALUES
+            and sexual_ussage_name in meta.sexual_ussage_name_enum.identifiers()
         ):
             meta.sexual_ussage_name = sexual_ussage_name
 
         commercial_ussage_name = meta_dict.get("commercialUssageName")
         if (
             isinstance(commercial_ussage_name, str)
-            and commercial_ussage_name
-            in Vrm0MetaPropertyGroup.COMMERCIAL_USSAGE_NAME_VALUES
+            and commercial_ussage_name in meta.commercial_ussage_name_enum.identifiers()
         ):
             meta.commercial_ussage_name = commercial_ussage_name
 
@@ -562,7 +567,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         license_name = meta_dict.get("licenseName")
         if (
             isinstance(license_name, str)
-            and license_name in Vrm0MetaPropertyGroup.LICENSE_NAME_VALUES
+            and license_name in meta.license_name_enum.identifiers()
         ):
             meta.license_name = license_name
 
@@ -711,15 +716,14 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 if (
                     isinstance(first_person_flag, str)
                     and first_person_flag
-                    in Vrm0MeshAnnotationPropertyGroup.FIRST_PERSON_FLAG_VALUES
+                    in mesh_annotation.first_person_flag_enum.identifiers()
                 ):
                     mesh_annotation.first_person_flag = first_person_flag
 
         look_at_type_name = first_person_dict.get("lookAtTypeName")
         if (
             isinstance(look_at_type_name, str)
-            and look_at_type_name
-            in Vrm0FirstPersonPropertyGroup.LOOK_AT_TYPE_NAME_VALUES
+            and look_at_type_name in first_person.look_at_type_name_enum.identifiers()
         ):
             first_person.look_at_type_name = look_at_type_name
 
@@ -780,7 +784,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             preset_name = blend_shape_group_dict.get("presetName")
             if (
                 isinstance(preset_name, str)
-                and preset_name in Vrm0BlendShapeGroupPropertyGroup.PRESET_NAME_VALUES
+                and preset_name in blend_shape_group.preset_name_enum.identifiers()
             ):
                 blend_shape_group.preset_name = preset_name
 

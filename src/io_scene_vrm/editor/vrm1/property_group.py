@@ -2,6 +2,7 @@ import functools
 import math
 import sys
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from sys import float_info
 from typing import TYPE_CHECKING, ClassVar, Optional
 
@@ -40,6 +41,7 @@ from ..property_group import (
     BonePropertyGroup,
     MeshObjectPropertyGroup,
     StringPropertyGroup,
+    property_group_enum,
 )
 
 if TYPE_CHECKING:
@@ -546,33 +548,42 @@ class Vrm1HumanoidPropertyGroup(PropertyGroup):
     def update_pose_library(self, _context: Context) -> None:
         self.pose_marker_name = ""
 
-    POSE_ITEM_VALUE_REST_POSITION_POSE = "restPositionPose"
-    POSE_ITEM_VALUE_CURRENT_POSE = "currentPose"
-    POSE_ITEM_VALUE_CUSTOM_POSE = "customPose"
-
-    pose_items = (
+    (
+        pose_enum,
         (
-            POSE_ITEM_VALUE_REST_POSITION_POSE,
+            POSE_ITEM_REST_POSITION_POSE,
+            POSE_ITEM_CURRENT_POSE,
+            POSE_ITEM_CUSTOM_POSE,
+        ),
+    ) = property_group_enum(
+        (
+            "restPositionPose",
             "Rest Position",
             "Rest Position Pose",
             "ARMATURE_DATA",
             0,
         ),
         (
-            POSE_ITEM_VALUE_CURRENT_POSE,
+            "currentPose",
             "Current Pose",
             "Current Pose",
             "ARMATURE_DATA",
             1,
         ),
-        (POSE_ITEM_VALUE_CUSTOM_POSE, "Custom Pose", "Custom Pose", "ARMATURE_DATA", 2),
+        (
+            "customPose",
+            "Custom Pose",
+            "Custom Pose",
+            "ARMATURE_DATA",
+            2,
+        ),
     )
 
     pose: EnumProperty(  # type: ignore[valid-type]
-        items=pose_items,
+        items=pose_enum.items(),
         name="T-Pose",
         description="T-Pose",
-        default=POSE_ITEM_VALUE_CURRENT_POSE,
+        default=POSE_ITEM_CURRENT_POSE.identifier,
     )
 
     pose_library: PointerProperty(  # type: ignore[valid-type]
@@ -619,22 +630,29 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
         unit="LENGTH",
         default=(0, 0, 0),
     )
-    TYPE_VALUE_BONE = "bone"
-    TYPE_VALUE_EXPRESSION = "expression"
-    type_items = (
-        (TYPE_VALUE_BONE, "Bone", "Bone", "BONE_DATA", 0),
+
+    (
+        type_enum,
         (
-            TYPE_VALUE_EXPRESSION,
+            TYPE_BONE,
+            TYPE_EXPRESSION,
+        ),
+    ) = property_group_enum(
+        ("bone", "Bone", "Bone", "BONE_DATA", 0),
+        (
+            "expression",
             "Expression" + DISABLE_TRANSLATION,
             "Expression",
             "SHAPEKEY_DATA",
             1,
         ),
     )
+
     type: EnumProperty(  # type: ignore[valid-type]
         name="Type",
-        items=type_items,
+        items=type_enum.items(),
     )
+
     range_map_horizontal_inner: PointerProperty(  # type: ignore[valid-type]
         type=Vrm1LookAtRangeMapPropertyGroup,
     )
@@ -744,7 +762,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
                 math.sqrt(math.pow(right_length, 2) + math.pow(forward_length, 2)),
             )
         )
-        if vrm1.look_at.type == vrm1.look_at.TYPE_VALUE_BONE:
+        if vrm1.look_at.type == vrm1.look_at.TYPE_BONE.identifier:
             self.apply_eye_bone_preview(
                 vrm1,
                 yaw_degrees,
@@ -759,7 +777,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
                 armature_object,
                 HumanBoneName.LEFT_EYE,
             )
-        elif vrm1.look_at.type == vrm1.look_at.TYPE_VALUE_EXPRESSION:
+        elif vrm1.look_at.type == vrm1.look_at.TYPE_EXPRESSION.identifier:
             self.apply_expression_preview(vrm1, yaw_degrees, pitch_degrees)
 
     # https://github.com/vrm-c/vrm-specification/blob/0861a66eb2f2b76835322d775678047d616536b3/specification/VRMC_vrm-1.0/lookAt.md?plain=1#L230
@@ -934,14 +952,14 @@ class Vrm1MeshAnnotationPropertyGroup(PropertyGroup):
     node: PointerProperty(  # type: ignore[valid-type]
         type=MeshObjectPropertyGroup
     )
-    type_items = (
-        ("auto", "Auto", "", 0),
-        ("both", "Both", "", 1),
-        ("thirdPersonOnly", "Third-Person Only", "", 2),
-        ("firstPersonOnly", "First-Person Only", "", 3),
+    type_enum, __types = property_group_enum(
+        ("auto", "Auto", "", "NONE", 0),
+        ("both", "Both", "", "NONE", 1),
+        ("thirdPersonOnly", "Third-Person Only", "", "NONE", 2),
+        ("firstPersonOnly", "First-Person Only", "", "NONE", 3),
     )
     type: EnumProperty(  # type: ignore[valid-type]
-        items=type_items,
+        items=type_enum.items(),
         name="First Person Type",
     )
 
@@ -999,17 +1017,17 @@ class Vrm1MaterialColorBindPropertyGroup(PropertyGroup):
         type=Material,
     )
 
-    type_items: tuple[tuple[str, str, str, int], ...] = (
-        ("color", "Color", "", 0),
-        ("emissionColor", "Emission Color", "", 1),
-        ("shadeColor", "Shade Color", "", 2),
-        ("matcapColor", "Matcap Color", "", 5),
-        ("rimColor", "Rim Color", "", 3),
-        ("outlineColor", "Outline Color", "", 4),
+    type_enum, __types = property_group_enum(
+        ("color", "Color", "", "NONE", 0),
+        ("emissionColor", "Emission Color", "", "NONE", 1),
+        ("shadeColor", "Shade Color", "", "NONE", 2),
+        ("matcapColor", "Matcap Color", "", "NONE", 5),
+        ("rimColor", "Rim Color", "", "NONE", 3),
+        ("outlineColor", "Outline Color", "", "NONE", 4),
     )
     type: EnumProperty(  # type: ignore[valid-type]
         name="Type",
-        items=type_items,
+        items=type_enum.items(),
     )
     target_value: FloatVectorProperty(  # type: ignore[valid-type]
         name="Target Value",
@@ -1091,14 +1109,10 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         name="Is Binary"
     )
 
-    expression_override_type_items = (
-        ("none", "None", "", 0),
-        ("block", "Block", "", 1),
-        ("blend", "Blend", "", 2),
-    )
-    EXPRESSION_OVERRIDE_TYPE_VALUES = tuple(
-        expression_override_type_item[0]
-        for expression_override_type_item in expression_override_type_items
+    expression_override_type_enum, __expression_override_types = property_group_enum(
+        ("none", "None", "", "NONE", 0),
+        ("block", "Block", "", "NONE", 1),
+        ("blend", "Blend", "", "NONE", 2),
     )
 
     def update_preview(self, context: Context) -> None:
@@ -1129,9 +1143,8 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             logger.error("No armature for %s", triggered_expression.name)
             return
 
-        name_to_expression_dict = get_armature_vrm1_extension(
-            armature
-        ).expressions.all_name_to_expression_dict()
+        expressions = get_armature_vrm1_extension(armature).expressions
+        name_to_expression_dict = expressions.all_name_to_expression_dict()
 
         mouth_block_rate = 0.0
         blink_block_rate = 0.0
@@ -1165,11 +1178,11 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             else:
                 preview = expression.preview
 
-            if name in Vrm1ExpressionsPresetPropertyGroup.MOUTH_EXPRESSION_NAMES:
+            if expressions.preset.is_mouth_expression(name):
                 preview *= mouth_blend_factor
-            elif name in Vrm1ExpressionsPresetPropertyGroup.BLINK_EXPRESSION_NAMES:
+            elif expressions.preset.is_blink_expression(name):
                 preview *= blink_blend_factor
-            elif name in Vrm1ExpressionsPresetPropertyGroup.LOOK_AT_EXPRESSION_NAMES:
+            elif expressions.preset.is_look_at_expression(name):
                 preview *= look_at_blend_factor
 
             for texture_transform_bind in expression.texture_transform_binds:
@@ -1236,17 +1249,17 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
 
     override_blink: EnumProperty(  # type: ignore[valid-type]
         name="Override Blink",
-        items=expression_override_type_items,
+        items=expression_override_type_enum.items(),
         update=update_preview,
     )
     override_look_at: EnumProperty(  # type: ignore[valid-type]
         name="Override Look At",
-        items=expression_override_type_items,
+        items=expression_override_type_enum.items(),
         update=update_preview,
     )
     override_mouth: EnumProperty(  # type: ignore[valid-type]
         name="Override Mouth",
-        items=expression_override_type_items,
+        items=expression_override_type_enum.items(),
         update=update_preview,
     )
 
@@ -1382,6 +1395,15 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
         custom_name: str  # type: ignore[no-redef]
 
 
+@dataclass(frozen=True)
+class ExpressionPreset:
+    name: str
+    icon: str
+    mouth: bool
+    blink: bool
+    look_at: bool
+
+
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.schema.json
 class Vrm1ExpressionsPresetPropertyGroup(PropertyGroup):
     happy: PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
@@ -1403,55 +1425,165 @@ class Vrm1ExpressionsPresetPropertyGroup(PropertyGroup):
     look_left: PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
     look_right: PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
 
-    NAME_TO_ICON_DICT: Mapping[str, str] = {
-        "happy": "HEART",
-        "angry": "ORPHAN_DATA",
-        "sad": "MOD_FLUIDSIM",
-        "relaxed": "LIGHT_SUN",
-        "surprised": "LIGHT_SUN",
-        "neutral": "VIEW_ORTHO",
-        "aa": "EVENT_A",
-        "ih": "EVENT_I",
-        "ou": "EVENT_U",
-        "ee": "EVENT_E",
-        "oh": "EVENT_O",
-        "blink": "HIDE_ON",
-        "blinkLeft": "HIDE_ON",
-        "blinkRight": "HIDE_ON",
-        "lookUp": "ANCHOR_TOP",
-        "lookDown": "ANCHOR_BOTTOM",
-        "lookLeft": "ANCHOR_RIGHT",
-        "lookRight": "ANCHOR_LEFT",
-    }
+    def expression_preset_and_expressions(
+        self,
+    ) -> tuple[tuple[ExpressionPreset, Vrm1ExpressionPropertyGroup], ...]:
+        return (
+            (
+                ExpressionPreset(
+                    "happy", "HEART", mouth=False, blink=False, look_at=False
+                ),
+                self.happy,
+            ),
+            (
+                ExpressionPreset(
+                    "angry", "ORPHAN_DATA", mouth=False, blink=False, look_at=False
+                ),
+                self.angry,
+            ),
+            (
+                ExpressionPreset(
+                    "sad", "MOD_FLUIDSIM", mouth=False, blink=False, look_at=False
+                ),
+                self.sad,
+            ),
+            (
+                ExpressionPreset(
+                    "relaxed", "LIGHT_SUN", mouth=False, blink=False, look_at=False
+                ),
+                self.relaxed,
+            ),
+            (
+                ExpressionPreset(
+                    "surprised", "LIGHT_SUN", mouth=False, blink=False, look_at=False
+                ),
+                self.surprised,
+            ),
+            (
+                ExpressionPreset(
+                    "neutral", "VIEW_ORTHO", mouth=False, blink=False, look_at=False
+                ),
+                self.neutral,
+            ),
+            (
+                ExpressionPreset(
+                    "aa", "EVENT_A", mouth=True, blink=False, look_at=False
+                ),
+                self.aa,
+            ),
+            (
+                ExpressionPreset(
+                    "ih", "EVENT_I", mouth=True, blink=False, look_at=False
+                ),
+                self.ih,
+            ),
+            (
+                ExpressionPreset(
+                    "ou", "EVENT_U", mouth=True, blink=False, look_at=False
+                ),
+                self.ou,
+            ),
+            (
+                ExpressionPreset(
+                    "ee", "EVENT_E", mouth=True, blink=False, look_at=False
+                ),
+                self.ee,
+            ),
+            (
+                ExpressionPreset(
+                    "oh", "EVENT_O", mouth=True, blink=False, look_at=False
+                ),
+                self.oh,
+            ),
+            (
+                ExpressionPreset(
+                    "blink", "HIDE_ON", mouth=False, blink=True, look_at=False
+                ),
+                self.blink,
+            ),
+            (
+                ExpressionPreset(
+                    "blinkLeft", "HIDE_ON", mouth=False, blink=True, look_at=False
+                ),
+                self.blink_left,
+            ),
+            (
+                ExpressionPreset(
+                    "blinkRight", "HIDE_ON", mouth=False, blink=True, look_at=False
+                ),
+                self.blink_right,
+            ),
+            (
+                ExpressionPreset(
+                    "lookUp", "ANCHOR_TOP", mouth=False, blink=False, look_at=True
+                ),
+                self.look_up,
+            ),
+            (
+                ExpressionPreset(
+                    "lookDown", "ANCHOR_BOTTOM", mouth=False, blink=False, look_at=True
+                ),
+                self.look_down,
+            ),
+            (
+                ExpressionPreset(
+                    "lookLeft", "ANCHOR_RIGHT", mouth=False, blink=False, look_at=True
+                ),
+                self.look_left,
+            ),
+            (
+                ExpressionPreset(
+                    "lookRight", "ANCHOR_LEFT", mouth=False, blink=False, look_at=True
+                ),
+                self.look_right,
+            ),
+        )
 
-    # https://github.com/vrm-c/vrm-specification/blob/321312d1a462bb74b6f06c34c44ede564a1c53d1/specification/VRMC_vrm-1.0/expressions.md?plain=1#L152
-    MOUTH_EXPRESSION_NAMES = ("aa", "ih", "ou", "ee", "oh")
-    # https://github.com/vrm-c/vrm-specification/blob/321312d1a462bb74b6f06c34c44ede564a1c53d1/specification/VRMC_vrm-1.0/expressions.md?plain=1#L153
-    BLINK_EXPRESSION_NAMES = ("blink", "blinkLeft", "blinkRight")
-    # https://github.com/vrm-c/vrm-specification/blob/321312d1a462bb74b6f06c34c44ede564a1c53d1/specification/VRMC_vrm-1.0/expressions.md?plain=1#L154
-    LOOK_AT_EXPRESSION_NAMES = ("lookUp", "lookDown", "lookLeft", "lookRight")
-
-    def name_to_expression_dict(self) -> dict[str, Vrm1ExpressionPropertyGroup]:
+    def name_to_expression_dict(self) -> Mapping[str, Vrm1ExpressionPropertyGroup]:
         return {
-            "happy": self.happy,
-            "angry": self.angry,
-            "sad": self.sad,
-            "relaxed": self.relaxed,
-            "surprised": self.surprised,
-            "neutral": self.neutral,
-            "aa": self.aa,
-            "ih": self.ih,
-            "ou": self.ou,
-            "ee": self.ee,
-            "oh": self.oh,
-            "blink": self.blink,
-            "blinkLeft": self.blink_left,
-            "blinkRight": self.blink_right,
-            "lookUp": self.look_up,
-            "lookDown": self.look_down,
-            "lookLeft": self.look_left,
-            "lookRight": self.look_right,
+            preset.name: property_group
+            for preset, property_group in self.expression_preset_and_expressions()
         }
+
+    def is_mouth_expression(self, expression_name: str) -> bool:
+        return next(
+            (
+                preset.mouth
+                for preset, _ in self.expression_preset_and_expressions()
+                if preset.name == expression_name
+            ),
+            False,
+        )
+
+    def is_blink_expression(self, expression_name: str) -> bool:
+        return next(
+            (
+                preset.blink
+                for preset, _ in self.expression_preset_and_expressions()
+                if preset.name == expression_name
+            ),
+            False,
+        )
+
+    def get_icon(self, expression_name: str) -> Optional[str]:
+        return next(
+            (
+                preset.icon
+                for preset, _ in self.expression_preset_and_expressions()
+                if preset.name == expression_name
+            ),
+            None,
+        )
+
+    def is_look_at_expression(self, expression_name: str) -> bool:
+        return next(
+            (
+                preset.look_at
+                for preset, _ in self.expression_preset_and_expressions()
+                if preset.name == expression_name
+            ),
+            False,
+        )
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -1486,8 +1618,8 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
         type=Vrm1CustomExpressionPropertyGroup,
     )
 
-    def all_name_to_expression_dict(self) -> dict[str, Vrm1ExpressionPropertyGroup]:
-        result: dict[str, Vrm1ExpressionPropertyGroup] = (
+    def all_name_to_expression_dict(self) -> Mapping[str, Vrm1ExpressionPropertyGroup]:
+        result: dict[str, Vrm1ExpressionPropertyGroup] = dict(
             self.preset.name_to_expression_dict()
         )
         for custom_expression in self.custom:
@@ -1515,39 +1647,39 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.meta.schema.json
 class Vrm1MetaPropertyGroup(PropertyGroup):
-    avatar_permission_items = (
-        ("onlyAuthor", "Only Author", "", 0),
-        ("onlySeparatelyLicensedPerson", "Only Separately Licensed Person", "", 1),
-        ("everyone", "Everyone", "", 2),
-    )
-    AVATAR_PERMISSION_VALUES = tuple(
-        avatar_permission_item[0] for avatar_permission_item in avatar_permission_items
-    )
-
-    commercial_usage_items = (
-        ("personalNonProfit", "Personal Non-Profit", "", 0),
-        ("personalProfit", "Personal Profit", "", 1),
-        ("corporation", "Corporation", "", 2),
-    )
-    COMMERCIAL_USAGE_VALUES = tuple(
-        commercial_usage_item[0] for commercial_usage_item in commercial_usage_items
+    avatar_permission_enum, __avatar_permissions = property_group_enum(
+        ("onlyAuthor", "Only Author", "", "NONE", 0),
+        (
+            "onlySeparatelyLicensedPerson",
+            "Only Separately Licensed Person",
+            "",
+            "NONE",
+            1,
+        ),
+        ("everyone", "Everyone", "", "NONE", 2),
     )
 
-    credit_notation_items = (
-        ("required", "Required", "", 0),
-        ("unnecessary", "Unnecessary", "", 1),
-    )
-    CREDIT_NOTATION_VALUES = tuple(
-        credit_notation_item[0] for credit_notation_item in credit_notation_items
+    commercial_usage_enum, __commercial_usage = property_group_enum(
+        ("personalNonProfit", "Personal Non-Profit", "", "NONE", 0),
+        ("personalProfit", "Personal Profit", "", "NONE", 1),
+        ("corporation", "Corporation", "", "NONE", 2),
     )
 
-    modification_items = (
-        ("prohibited", "Prohibited", "", 0),
-        ("allowModification", "Allow Modification", "", 1),
-        ("allowModificationRedistribution", "Allow Modification Redistribution", "", 2),
+    credit_notation_enum, __credit_notation = property_group_enum(
+        ("required", "Required", "", "NONE", 0),
+        ("unnecessary", "Unnecessary", "", "NONE", 1),
     )
-    MODIFICATION_VALUES = tuple(
-        modification_item[0] for modification_item in modification_items
+
+    modification_enum, __modification = property_group_enum(
+        ("prohibited", "Prohibited", "", "NONE", 0),
+        ("allowModification", "Allow Modification", "", "NONE", 1),
+        (
+            "allowModificationRedistribution",
+            "Allow Modification Redistribution",
+            "",
+            "NONE",
+            2,
+        ),
     )
 
     vrm_name: StringProperty(  # type: ignore[valid-type]
@@ -1580,7 +1712,7 @@ class Vrm1MetaPropertyGroup(PropertyGroup):
     # )
     avatar_permission: EnumProperty(  # type: ignore[valid-type]
         name="Avatar Permission",
-        items=avatar_permission_items,
+        items=avatar_permission_enum.items(),
     )
     allow_excessively_violent_usage: BoolProperty(  # type: ignore[valid-type]
         name="Allow Excessively Violent Usage"
@@ -1590,7 +1722,7 @@ class Vrm1MetaPropertyGroup(PropertyGroup):
     )
     commercial_usage: EnumProperty(  # type: ignore[valid-type]
         name="Commercial Usage",
-        items=commercial_usage_items,
+        items=commercial_usage_enum.items(),
     )
     allow_political_or_religious_usage: BoolProperty(  # type: ignore[valid-type]
         name="Allow Political or Religious Usage"
@@ -1600,14 +1732,14 @@ class Vrm1MetaPropertyGroup(PropertyGroup):
     )
     credit_notation: EnumProperty(  # type: ignore[valid-type]
         name="Credit Notation",
-        items=credit_notation_items,
+        items=credit_notation_enum.items(),
     )
     allow_redistribution: BoolProperty(  # type: ignore[valid-type]
         name="Allow Redistribution"
     )
     modification: EnumProperty(  # type: ignore[valid-type]
         name="Modification",
-        items=modification_items,
+        items=modification_enum.items(),
     )
     other_license_url: StringProperty(  # type: ignore[valid-type]
         name="Other License URL"

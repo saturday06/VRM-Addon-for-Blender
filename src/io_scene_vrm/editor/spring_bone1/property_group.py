@@ -20,7 +20,7 @@ from mathutils import Matrix, Vector
 
 from ...common import convert
 from ...common.logging import get_logger
-from ..property_group import BonePropertyGroup
+from ..property_group import BonePropertyGroup, property_group_enum
 
 if TYPE_CHECKING:
     from ..property_group import CollectionPropertyProtocol
@@ -361,11 +361,15 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
     # for UI
     show_expanded: BoolProperty()  # type: ignore[valid-type]
 
-    SHAPE_TYPE_SPHERE = "Sphere"
-    SHAPE_TYPE_CAPSULE = "Capsule"
-    shape_type_items = (
-        (SHAPE_TYPE_SPHERE, "Sphere", "", 0),
-        (SHAPE_TYPE_CAPSULE, "Capsule", "", 1),
+    (
+        shape_type_enum,
+        (
+            SHAPE_TYPE_SPHERE,
+            SHAPE_TYPE_CAPSULE,
+        ),
+    ) = property_group_enum(
+        ("Sphere", "Sphere", "", "NONE", 0),
+        ("Capsule", "Capsule", "", "NONE", 1),
     )
 
     def update_shape_type(self, context: Context) -> None:
@@ -377,7 +381,7 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
             self.reset_bpy_object(context, self.bpy_object.parent)
 
     shape_type: EnumProperty(  # type: ignore[valid-type]
-        items=shape_type_items,
+        items=shape_type_enum.items(),
         name="Shape",
         update=update_shape_type,
     )
@@ -412,7 +416,7 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
         if self.bpy_object.empty_display_type != "SPHERE":
             self.bpy_object.empty_display_type = "SPHERE"
 
-        if self.shape_type == self.SHAPE_TYPE_SPHERE:
+        if self.shape_type == self.SHAPE_TYPE_SPHERE.identifier:
             children = list(self.bpy_object.children)
             for collection in context.blend_data.collections:
                 for child in children:
@@ -423,7 +427,7 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
                 if child.users <= 1:
                     context.blend_data.objects.remove(child, do_unlink=True)
 
-        elif self.shape_type == self.SHAPE_TYPE_CAPSULE:
+        elif self.shape_type == self.SHAPE_TYPE_CAPSULE.identifier:
             if self.bpy_object.children:
                 end_object = self.bpy_object.children[0]
             else:

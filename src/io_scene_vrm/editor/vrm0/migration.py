@@ -13,7 +13,6 @@ from ...common.vrm0.human_bone import HumanBoneSpecifications
 from ..extension import get_armature_extension, get_bone_extension
 from ..property_group import BonePropertyGroup
 from .property_group import (
-    Vrm0BlendShapeGroupPropertyGroup,
     Vrm0BlendShapeMasterPropertyGroup,
     Vrm0FirstPersonPropertyGroup,
     Vrm0HumanoidPropertyGroup,
@@ -46,7 +45,8 @@ def migrate_vrm0_meta(
     allowed_user_name = armature.get("allowedUserName")
     if (
         isinstance(allowed_user_name, str)
-        and allowed_user_name in Vrm0MetaPropertyGroup.ALLOWED_USER_NAME_VALUES
+        and allowed_user_name
+        in Vrm0MetaPropertyGroup.allowed_user_name_enum.identifiers()
     ):
         meta.allowed_user_name = allowed_user_name
 
@@ -58,7 +58,7 @@ def migrate_vrm0_meta(
     if (
         isinstance(commercial_ussage_name, str)
         and commercial_ussage_name
-        in Vrm0MetaPropertyGroup.COMMERCIAL_USSAGE_NAME_VALUES
+        in Vrm0MetaPropertyGroup.commercial_ussage_name_enum.identifiers()
     ):
         meta.commercial_ussage_name = commercial_ussage_name
 
@@ -69,7 +69,7 @@ def migrate_vrm0_meta(
     license_name = armature.get("licenseName")
     if (
         isinstance(license_name, str)
-        and license_name in Vrm0MetaPropertyGroup.LICENSE_NAME_VALUES
+        and license_name in Vrm0MetaPropertyGroup.license_name_enum.identifiers()
     ):
         meta.license_name = license_name
 
@@ -88,7 +88,8 @@ def migrate_vrm0_meta(
     sexual_ussage_name = armature.get("sexualUssageName")
     if (
         isinstance(sexual_ussage_name, str)
-        and sexual_ussage_name in Vrm0MetaPropertyGroup.SEXUAL_USSAGE_NAME_VALUES
+        and sexual_ussage_name
+        in Vrm0MetaPropertyGroup.sexual_ussage_name_enum.identifiers()
     ):
         meta.sexual_ussage_name = sexual_ussage_name
 
@@ -103,7 +104,8 @@ def migrate_vrm0_meta(
     violent_ussage_name = armature.get("violentUssageName")
     if (
         isinstance(violent_ussage_name, str)
-        and violent_ussage_name in Vrm0MetaPropertyGroup.VIOLENT_USSAGE_NAME_VALUES
+        and violent_ussage_name
+        in Vrm0MetaPropertyGroup.violent_ussage_name_enum.identifiers()
     ):
         meta.violent_ussage_name = violent_ussage_name
 
@@ -200,14 +202,14 @@ def migrate_vrm0_first_person(
             if (
                 isinstance(first_person_flag, str)
                 and first_person_flag
-                in Vrm0MeshAnnotationPropertyGroup.FIRST_PERSON_FLAG_VALUES
+                in Vrm0MeshAnnotationPropertyGroup.first_person_flag_enum.identifiers()
             ):
                 mesh_annotation.first_person_flag = first_person_flag
 
     look_at_type_name = first_person_dict.get("lookAtTypeName")
     if (
         isinstance(look_at_type_name, str)
-        and look_at_type_name in Vrm0FirstPersonPropertyGroup.LOOK_AT_TYPE_NAME_VALUES
+        and look_at_type_name in first_person.look_at_type_name_enum.identifiers()
     ):
         first_person.look_at_type_name = look_at_type_name
 
@@ -265,7 +267,7 @@ def migrate_vrm0_blend_shape_groups(
         preset_name = blend_shape_group_dict.get("presetName")
         if (
             isinstance(preset_name, str)
-            and preset_name in Vrm0BlendShapeGroupPropertyGroup.PRESET_NAME_VALUES
+            and preset_name in blend_shape_group.preset_name_enum.identifiers()
         ):
             blend_shape_group.preset_name = preset_name
 
@@ -628,11 +630,11 @@ def migrate_pose(context: Context, armature_data: bpy.types.Armature) -> None:
     humanoid = ext.vrm0.humanoid
     action = humanoid.pose_library
     if action and action.name in context.blend_data.actions:
-        humanoid.pose = humanoid.POSE_ITEM_VALUE_CUSTOM_POSE
+        humanoid.pose = humanoid.POSE_ITEM_CUSTOM_POSE.identifier
     elif armature_data.pose_position == "REST":
-        humanoid.pose = humanoid.POSE_ITEM_VALUE_REST_POSITION_POSE
+        humanoid.pose = humanoid.POSE_ITEM_REST_POSITION_POSE.identifier
     else:
-        humanoid.pose = humanoid.POSE_ITEM_VALUE_CURRENT_POSE
+        humanoid.pose = humanoid.POSE_ITEM_CURRENT_POSE.identifier
 
 
 def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:

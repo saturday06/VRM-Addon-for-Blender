@@ -47,19 +47,19 @@ class AbstractBaseVrmExporter(ABC):
         action = humanoid.pose_library
         pose_marker_name = humanoid.pose_marker_name
 
-        if pose != humanoid.POSE_ITEM_VALUE_CUSTOM_POSE:
+        if pose != humanoid.POSE_ITEM_CUSTOM_POSE.identifier:
             action = None
             pose_marker_name = ""
 
         if (
-            pose == humanoid.POSE_ITEM_VALUE_CURRENT_POSE
+            pose == humanoid.POSE_ITEM_CURRENT_POSE.identifier
             and armature_data.pose_position == "REST"
         ):
             yield
             return
 
-        if pose == humanoid.POSE_ITEM_VALUE_REST_POSITION_POSE or (
-            pose == humanoid.POSE_ITEM_VALUE_CUSTOM_POSE
+        if pose == humanoid.POSE_ITEM_REST_POSITION_POSE.identifier or (
+            pose == humanoid.POSE_ITEM_CUSTOM_POSE.identifier
             and not (action and action.name in self.context.blend_data.actions)
         ):
             saved_pose_position = armature_data.pose_position
@@ -91,7 +91,7 @@ class AbstractBaseVrmExporter(ABC):
             if ext.is_vrm1() and ext.vrm1.look_at.enable_preview:
                 # TODO: エクスポート時にここに到達する場合は事前に警告をすると親切
                 ext.vrm1.look_at.enable_preview = False
-                if ext.vrm1.look_at.type == ext.vrm1.look_at.TYPE_VALUE_BONE:
+                if ext.vrm1.look_at.type == ext.vrm1.look_at.TYPE_BONE.identifier:
                     human_bones = ext.vrm1.humanoid.human_bones
 
                     left_eye_bone_name = human_bones.left_eye.node.bone_name

@@ -10,7 +10,6 @@ from mathutils import Matrix, Quaternion, Vector
 
 from ..extension import get_armature_extension
 from .property_group import (
-    SpringBone1ColliderPropertyGroup,
     SpringBone1JointPropertyGroup,
     SpringBone1SpringPropertyGroup,
 )
@@ -143,14 +142,14 @@ def calculate_object_pose_bone_rotations(
             continue
         pose_bone_world_matrix = obj.matrix_world @ pose_bone.matrix
 
-        if collider.shape_type == SpringBone1ColliderPropertyGroup.SHAPE_TYPE_SPHERE:
+        if collider.shape_type == collider.SHAPE_TYPE_SPHERE.identifier:
             offset = pose_bone_world_matrix @ Vector(collider.shape.sphere.offset)
             radius = collider.shape.sphere.radius
             collider_uuid_to_world_collider[collider.uuid] = SphereWorldCollider(
                 offset=offset,
                 radius=radius,
             )
-        elif collider.shape_type == SpringBone1ColliderPropertyGroup.SHAPE_TYPE_CAPSULE:
+        elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE.identifier:
             offset = pose_bone_world_matrix @ Vector(collider.shape.capsule.offset)
             tail = pose_bone_world_matrix @ Vector(collider.shape.capsule.tail)
             radius = collider.shape.sphere.radius

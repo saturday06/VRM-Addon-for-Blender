@@ -611,11 +611,14 @@ class ICYP_OT_make_armature(Operator):
         vrm0.meta.reference = "undefined"
         vrm0.meta.title = "undefined"
         vrm0.meta.version = "undefined"
-        for preset in Vrm0BlendShapeGroupPropertyGroup.presets:
-            if preset.identifier == "unknown":
+        for preset in Vrm0BlendShapeGroupPropertyGroup.preset_name_enum:
+            if (
+                preset.identifier
+                == Vrm0BlendShapeGroupPropertyGroup.PRESET_NAME_UNKNOWN.identifier
+            ):
                 continue
             blend_shape_group = vrm0.blend_shape_master.blend_shape_groups.add()
-            blend_shape_group.name = preset.default_blend_shape_group_name
+            blend_shape_group.name = preset.name.replace(" ", "")
             blend_shape_group.preset_name = preset.identifier
 
     if TYPE_CHECKING:

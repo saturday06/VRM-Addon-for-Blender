@@ -3,7 +3,6 @@ from bpy.types import Context, Mesh, UILayout, UIList
 from ...common.logging import get_logger
 from ..property_group import StringPropertyGroup
 from .property_group import (
-    Vrm1ExpressionsPresetPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
     Vrm1FirstPersonPropertyGroup,
     Vrm1MaterialColorBindPropertyGroup,
@@ -158,7 +157,7 @@ class VRM_UL_vrm1_expression(UIList):
         )
         if index < len(preset_expression_items):
             name, expression = preset_expression_items[index]
-            icon = Vrm1ExpressionsPresetPropertyGroup.NAME_TO_ICON_DICT.get(name)
+            icon = expressions.preset.get_icon(name)
             if not icon:
                 logger.error("Unknown preset expression: %s", name)
                 icon = "SHAPEKEY_DATA"
@@ -253,16 +252,16 @@ class VRM_UL_vrm1_material_color_bind(UIList):
         name = ""
         if material_color_bind.material:
             name = material_color_bind.material.name
-            type_str = next(
+            type_name = next(
                 (
-                    s
-                    for (t, s, _, _) in Vrm1MaterialColorBindPropertyGroup.type_items
-                    if t == material_color_bind.type
+                    enum.name
+                    for enum in Vrm1MaterialColorBindPropertyGroup.type_enum
+                    if enum.identifier == material_color_bind.type
                 ),
                 None,
             )
-            if type_str:
-                name += " / " + type_str
+            if type_name:
+                name += " / " + type_name
         layout.label(text=name, translate=False, icon="MATERIAL")
 
 

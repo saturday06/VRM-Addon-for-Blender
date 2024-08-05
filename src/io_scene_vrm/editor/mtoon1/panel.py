@@ -15,7 +15,6 @@ from .ops import (
 from .property_group import (
     Mtoon1MaterialPropertyGroup,
     Mtoon1TextureInfoPropertyGroup,
-    Mtoon1VrmcMaterialsMtoonPropertyGroup,
 )
 
 logger = get_logger(__name__)
@@ -205,9 +204,9 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     layout.label(text="Rendering", translate=False)
     rendering_box = layout.box().column()
     rendering_box.prop(gltf, "alpha_mode")
-    if gltf.alpha_mode == gltf.ALPHA_MODE_MASK:
+    if gltf.alpha_mode == gltf.ALPHA_MODE_MASK.identifier:
         rendering_box.prop(gltf, "alpha_cutoff", slider=True)
-    if gltf.alpha_mode == gltf.ALPHA_MODE_BLEND:
+    if gltf.alpha_mode == gltf.ALPHA_MODE_BLEND.identifier:
         rendering_box.prop(mtoon, "transparent_with_z_write")
     rendering_box.prop(gltf, "double_sided")
     rendering_box.prop(mtoon, "render_queue_offset_number", slider=True)
@@ -317,7 +316,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     if (
         bpy.app.version >= (3, 3)
         and mtoon.outline_width_mode
-        == Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES
+        == mtoon.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES.identifier
     ):
         outline_warning_message = pgettext(
             'The "Screen Coordinates" display is not yet implemented.\n'
@@ -332,10 +331,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
                 translate=False,
                 icon="BLANK1" if index else "INFO",
             )
-    if (
-        mtoon.outline_width_mode
-        != Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_NONE
-    ):
+    if mtoon.outline_width_mode != mtoon.OUTLINE_WIDTH_MODE_NONE.identifier:
         outline_width_multiply_texture_layout = draw_texture_info(
             material.name,
             ext.mtoon1,

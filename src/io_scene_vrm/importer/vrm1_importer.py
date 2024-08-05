@@ -94,31 +94,35 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
         mag_filter = sampler_dict.get("magFilter")
         if isinstance(mag_filter, int):
-            mag_filter_id = Mtoon1SamplerPropertyGroup.MAG_FILTER_NUMBER_TO_ID.get(
-                mag_filter
+            texture.sampler.mag_filter = (
+                Mtoon1SamplerPropertyGroup.mag_filter_enum.value_to_identifier(
+                    mag_filter, Mtoon1SamplerPropertyGroup.MAG_FILTER_DEFAULT.identifier
+                )
             )
-            if isinstance(mag_filter_id, str):
-                texture.sampler.mag_filter = mag_filter_id
 
         min_filter = sampler_dict.get("minFilter")
         if isinstance(min_filter, int):
-            min_filter_id = Mtoon1SamplerPropertyGroup.MIN_FILTER_NUMBER_TO_ID.get(
-                min_filter
+            texture.sampler.min_filter = (
+                Mtoon1SamplerPropertyGroup.min_filter_enum.value_to_identifier(
+                    min_filter, Mtoon1SamplerPropertyGroup.MIN_FILTER_DEFAULT.identifier
+                )
             )
-            if isinstance(min_filter_id, str):
-                texture.sampler.min_filter = min_filter_id
 
         wrap_s = sampler_dict.get("wrapS")
         if isinstance(wrap_s, int):
-            wrap_s_id = Mtoon1SamplerPropertyGroup.WRAP_NUMBER_TO_ID.get(wrap_s)
-            if isinstance(wrap_s_id, str):
-                texture.sampler.wrap_s = wrap_s_id
+            texture.sampler.wrap_s = (
+                Mtoon1SamplerPropertyGroup.wrap_enum.value_to_identifier(
+                    wrap_s, Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.identifier
+                )
+            )
 
         wrap_t = sampler_dict.get("wrapT")
         if isinstance(wrap_t, int):
-            wrap_t_id = Mtoon1SamplerPropertyGroup.WRAP_NUMBER_TO_ID.get(wrap_t)
-            if isinstance(wrap_t_id, str):
-                texture.sampler.wrap_t = wrap_t_id
+            texture.sampler.wrap_t = (
+                Mtoon1SamplerPropertyGroup.wrap_enum.value_to_identifier(
+                    wrap_t, Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.identifier
+                )
+            )
 
     def assign_khr_texture_transform(
         self,
@@ -193,7 +197,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 )
 
         alpha_mode = gltf_dict.get("alphaMode")
-        if alpha_mode in gltf.ALPHA_MODE_IDS:
+        if alpha_mode in gltf.alpha_mode_enum.identifiers():
             gltf.alpha_mode = alpha_mode
 
         alpha_cutoff = gltf_dict.get("alphaCutoff")
@@ -309,7 +313,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             mtoon.rim_lighting_mix_factor = float(rim_lighting_mix_factor)
 
         outline_width_mode = mtoon_dict.get("outlineWidthMode")
-        if outline_width_mode in mtoon.OUTLINE_WIDTH_MODE_IDS:
+        if outline_width_mode in mtoon.outline_width_mode_enum.identifiers():
             mtoon.outline_width_mode = outline_width_mode
 
         outline_width_factor = mtoon_dict.get("outlineWidthFactor")
@@ -693,7 +697,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     target_vector = target_translation - base_translation
                 elif not bone.parent:
                     bone_name_to_axis_translation[bone.name] = (
-                        BoneExtension.AXIS_TRANSLATION_NONE_ID
+                        BoneExtension.AXIS_TRANSLATION_NONE.identifier
                     )
                     continue
                 elif bone_name_to_human_bone_name.get(bone.name) in [
@@ -730,27 +734,27 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 bone_length_and_axis_translations: list[tuple[float, str]] = [
                     (
                         target_vector.dot(x_vector),
-                        BoneExtension.AXIS_TRANSLATION_X_TO_Y_ID,
+                        BoneExtension.AXIS_TRANSLATION_X_TO_Y.identifier,
                     ),
                     (
                         target_vector.dot(y_vector),
-                        BoneExtension.AXIS_TRANSLATION_NONE_ID,
+                        BoneExtension.AXIS_TRANSLATION_NONE.identifier,
                     ),
                     (
                         target_vector.dot(z_vector),
-                        BoneExtension.AXIS_TRANSLATION_Z_TO_Y_ID,
+                        BoneExtension.AXIS_TRANSLATION_Z_TO_Y.identifier,
                     ),
                     (
                         target_vector.dot(x_negated_vector),
-                        BoneExtension.AXIS_TRANSLATION_MINUS_X_TO_Y_ID,
+                        BoneExtension.AXIS_TRANSLATION_MINUS_X_TO_Y.identifier,
                     ),
                     (
                         target_vector.dot(y_negated_vector),
-                        BoneExtension.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID,
+                        BoneExtension.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z.identifier,
                     ),
                     (
                         target_vector.dot(z_negated_vector),
-                        BoneExtension.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID,
+                        BoneExtension.AXIS_TRANSLATION_MINUS_Z_TO_Y.identifier,
                     ),
                 ]
                 bone_length, axis_translation = sorted(
@@ -806,7 +810,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                         break
 
     def translate_object_axis(self, obj: Object, axis_translation: str) -> None:
-        if axis_translation != BoneExtension.AXIS_TRANSLATION_AUTO_ID:
+        if axis_translation != BoneExtension.AXIS_TRANSLATION_AUTO.identifier:
             return
         matrix = BoneExtension.translate_axis(obj.matrix_world, axis_translation)
         location, rotation, _ = matrix.decompose()
@@ -897,7 +901,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         avatar_permission = meta_dict.get("avatarPermission")
         if (
             isinstance(avatar_permission, str)
-            and avatar_permission in Vrm1MetaPropertyGroup.AVATAR_PERMISSION_VALUES
+            and avatar_permission
+            in Vrm1MetaPropertyGroup.avatar_permission_enum.identifiers()
         ):
             meta.avatar_permission = avatar_permission
 
@@ -912,7 +917,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         commercial_usage = meta_dict.get("commercialUsage")
         if (
             isinstance(commercial_usage, str)
-            and commercial_usage in Vrm1MetaPropertyGroup.COMMERCIAL_USAGE_VALUES
+            and commercial_usage
+            in Vrm1MetaPropertyGroup.commercial_usage_enum.identifiers()
         ):
             meta.commercial_usage = commercial_usage
 
@@ -927,7 +933,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         credit_notation = meta_dict.get("creditNotation")
         if (
             isinstance(credit_notation, str)
-            and credit_notation in Vrm1MetaPropertyGroup.CREDIT_NOTATION_VALUES
+            and credit_notation
+            in Vrm1MetaPropertyGroup.credit_notation_enum.identifiers()
         ):
             meta.credit_notation = credit_notation
 
@@ -936,7 +943,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         modification = meta_dict.get("modification")
         if (
             isinstance(modification, str)
-            and modification in Vrm1MetaPropertyGroup.MODIFICATION_VALUES
+            and modification in Vrm1MetaPropertyGroup.modification_enum.identifiers()
         ):
             meta.modification = modification
 
@@ -999,7 +1006,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     mesh_annotation.node.mesh_object_name = mesh_object_name
 
             type_ = mesh_annotation_dict.get("type")
-            if type_ in ["auto", "both", "thirdPersonOnly", "firstPersonOnly"]:
+            if type_ in mesh_annotation.type_enum.identifiers():
                 mesh_annotation.type = type_
 
     def load_vrm1_look_at(
@@ -1034,7 +1041,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
         look_at.offset_from_head_bone = offset_from_head_bone
         type_ = look_at_dict.get("type")
-        if type_ in ["bone", "expression"]:
+        if type_ in look_at.type_enum.identifiers():
             look_at.type = type_
 
         for range_map, range_map_dict in [
@@ -1139,10 +1146,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     material_color_bind.material = material
 
             type_ = material_color_bind_dict.get("type")
-            if type_ in [
-                value
-                for (value, _, _, _) in Vrm1MaterialColorBindPropertyGroup.type_items
-            ]:
+            if type_ in Vrm1MaterialColorBindPropertyGroup.type_enum.identifiers():
                 material_color_bind.type = type_
 
             target_value = material_color_bind_dict.get("targetValue")
@@ -1186,7 +1190,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         if (
             isinstance(override_blink, str)
             and override_blink
-            in Vrm1ExpressionPropertyGroup.EXPRESSION_OVERRIDE_TYPE_VALUES
+            in Vrm1ExpressionPropertyGroup.expression_override_type_enum.identifiers()
         ):
             expression.override_blink = override_blink
 
@@ -1194,7 +1198,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         if (
             isinstance(override_look_at, str)
             and override_look_at
-            in Vrm1ExpressionPropertyGroup.EXPRESSION_OVERRIDE_TYPE_VALUES
+            in Vrm1ExpressionPropertyGroup.expression_override_type_enum.identifiers()
         ):
             expression.override_look_at = override_look_at
 
@@ -1202,7 +1206,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         if (
             isinstance(override_mouth, str)
             and override_mouth
-            in Vrm1ExpressionPropertyGroup.EXPRESSION_OVERRIDE_TYPE_VALUES
+            in Vrm1ExpressionPropertyGroup.expression_override_type_enum.identifiers()
         ):
             expression.override_mouth = override_mouth
 
@@ -1269,7 +1273,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
             sphere_dict = shape_dict.get("sphere")
             if isinstance(sphere_dict, dict):
-                collider.shape_type = collider.SHAPE_TYPE_SPHERE
+                collider.shape_type = collider.SHAPE_TYPE_SPHERE.identifier
                 offset = Vector(
                     convert.vrm_json_array_to_float_vector(
                         sphere_dict.get("offset"), [0, 0, 0]
@@ -1291,7 +1295,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             if not isinstance(capsule_dict, dict):
                 continue
 
-            collider.shape_type = collider.SHAPE_TYPE_CAPSULE
+            collider.shape_type = collider.SHAPE_TYPE_CAPSULE.identifier
 
             offset = Vector(
                 convert.vrm_json_array_to_float_vector(

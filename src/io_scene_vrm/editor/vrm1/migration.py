@@ -60,14 +60,9 @@ def migrate_old_expression_layout(
 
             old_type = next(
                 (
-                    value
-                    for (
-                        value,
-                        _,
-                        _,
-                        value_int,
-                    ) in Vrm1MaterialColorBindPropertyGroup.type_items
-                    if old_material_color_bind.get("type") == value_int
+                    enum.identifier
+                    for enum in Vrm1MaterialColorBindPropertyGroup.type_enum
+                    if old_material_color_bind.get("type") == enum.value
                 ),
                 None,
             )
@@ -113,14 +108,9 @@ def migrate_old_expression_layout(
 
     old_override_blink = next(
         (
-            value
-            for (
-                value,
-                _,
-                _,
-                value_int,
-            ) in Vrm1ExpressionPropertyGroup.expression_override_type_items
-            if old_expression.get("override_blink") == value_int
+            enum.identifier
+            for enum in Vrm1ExpressionPropertyGroup.expression_override_type_enum
+            if old_expression.get("override_blink") == enum.value
         ),
         None,
     )
@@ -129,14 +119,9 @@ def migrate_old_expression_layout(
 
     old_override_look_at = next(
         (
-            value
-            for (
-                value,
-                _,
-                _,
-                value_int,
-            ) in Vrm1ExpressionPropertyGroup.expression_override_type_items
-            if old_expression.get("override_look_at") == value_int
+            enum.identifier
+            for enum in Vrm1ExpressionPropertyGroup.expression_override_type_enum
+            if old_expression.get("override_look_at") == enum.value
         ),
         None,
     )
@@ -145,14 +130,9 @@ def migrate_old_expression_layout(
 
     old_override_mouth = next(
         (
-            value
-            for (
-                value,
-                _,
-                _,
-                value_int,
-            ) in Vrm1ExpressionPropertyGroup.expression_override_type_items
-            if old_expression.get("override_mouth") == value_int
+            enum.identifier
+            for enum in Vrm1ExpressionPropertyGroup.expression_override_type_enum
+            if old_expression.get("override_mouth") == enum.value
         ),
         None,
     )
@@ -188,11 +168,11 @@ def migrate_pose(context: Context, armature_data: Armature) -> None:
     humanoid = ext.vrm1.humanoid
     action = humanoid.pose_library
     if action and action.name in context.blend_data.actions:
-        humanoid.pose = humanoid.POSE_ITEM_VALUE_CUSTOM_POSE
+        humanoid.pose = humanoid.POSE_ITEM_CUSTOM_POSE.identifier
     elif armature_data.pose_position == "REST":
-        humanoid.pose = humanoid.POSE_ITEM_VALUE_REST_POSITION_POSE
+        humanoid.pose = humanoid.POSE_ITEM_REST_POSITION_POSE.identifier
     else:
-        humanoid.pose = humanoid.POSE_ITEM_VALUE_CURRENT_POSE
+        humanoid.pose = humanoid.POSE_ITEM_CURRENT_POSE.identifier
 
 
 def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None:

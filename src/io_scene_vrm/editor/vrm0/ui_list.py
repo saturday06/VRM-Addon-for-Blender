@@ -317,7 +317,7 @@ class VRM_UL_vrm0_blend_shape_group(UIList):
         preset = next(
             (
                 preset
-                for preset in Vrm0BlendShapeGroupPropertyGroup.presets
+                for preset in blend_shape_group.preset_name_enum
                 if preset.identifier == blend_shape_group.preset_name
             ),
             None,

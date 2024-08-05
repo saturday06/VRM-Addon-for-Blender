@@ -25,7 +25,7 @@ from ..common.logging import get_logger
 from ..common.preferences import VrmAddonPreferences
 from .mtoon1.property_group import Mtoon1MaterialPropertyGroup
 from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup
-from .property_group import StringPropertyGroup
+from .property_group import StringPropertyGroup, property_group_enum
 from .spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
 from .vrm0.property_group import Vrm0HumanoidPropertyGroup, Vrm0PropertyGroup
 from .vrm1.property_group import Vrm1HumanBonesPropertyGroup, Vrm1PropertyGroup
@@ -155,27 +155,40 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
 class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
     uuid: StringProperty()  # type: ignore[valid-type]
 
-    AXIS_TRANSLATION_AUTO_ID = "AUTO"
-    AXIS_TRANSLATION_NONE_ID = "NONE"
-    AXIS_TRANSLATION_X_TO_Y_ID = "X_TO_Y"
-    AXIS_TRANSLATION_MINUS_X_TO_Y_ID = "MINUS_X_TO_Y"
-    AXIS_TRANSLATION_Z_TO_Y_ID = "Z_TO_Y"
-    AXIS_TRANSLATION_MINUS_Z_TO_Y_ID = "MINUS_Z_TO_Y"
-    AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID = "MINUS_Y_TO_Y_AROUND_Z"
+    (
+        axis_translation_enum,
+        (
+            AXIS_TRANSLATION_AUTO,
+            AXIS_TRANSLATION_NONE,
+            AXIS_TRANSLATION_X_TO_Y,
+            AXIS_TRANSLATION_MINUS_X_TO_Y,
+            AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z,
+            AXIS_TRANSLATION_Z_TO_Y,
+            AXIS_TRANSLATION_MINUS_Z_TO_Y,
+        ),
+    ) = property_group_enum(
+        ("AUTO", "Auto", "", "NONE", 0),
+        ("NONE", "None", "", "NONE", 1),
+        ("X_TO_Y", "X,Y to Y,-X", "", "NONE", 2),
+        ("MINUS_X_TO_Y", "X,Y to -Y,X", "", "NONE", 3),
+        ("MINUS_Y_TO_Y_AROUND_Z", "X,Y to -X,-Y", "", "NONE", 4),
+        ("Z_TO_Y", "Y,Z to -Z,Y", "", "NONE", 5),
+        ("MINUS_Z_TO_Y", "Y,Z to Z,-Y", "", "NONE", 6),
+    )
 
     @classmethod
     def reverse_axis_translation(cls, axis_translation: str) -> str:
         return {
-            cls.AXIS_TRANSLATION_AUTO_ID: cls.AXIS_TRANSLATION_AUTO_ID,
-            cls.AXIS_TRANSLATION_NONE_ID: cls.AXIS_TRANSLATION_NONE_ID,
-            cls.AXIS_TRANSLATION_X_TO_Y_ID: cls.AXIS_TRANSLATION_MINUS_X_TO_Y_ID,
-            cls.AXIS_TRANSLATION_MINUS_X_TO_Y_ID: cls.AXIS_TRANSLATION_X_TO_Y_ID,
-            cls.AXIS_TRANSLATION_Z_TO_Y_ID: cls.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID,
-            cls.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID: cls.AXIS_TRANSLATION_Z_TO_Y_ID,
-            cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID: (
-                cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID
+            cls.AXIS_TRANSLATION_AUTO.identifier: cls.AXIS_TRANSLATION_AUTO,
+            cls.AXIS_TRANSLATION_NONE.identifier: cls.AXIS_TRANSLATION_NONE,
+            cls.AXIS_TRANSLATION_X_TO_Y.identifier: (cls.AXIS_TRANSLATION_MINUS_X_TO_Y),
+            cls.AXIS_TRANSLATION_MINUS_X_TO_Y.identifier: (cls.AXIS_TRANSLATION_X_TO_Y),
+            cls.AXIS_TRANSLATION_Z_TO_Y.identifier: (cls.AXIS_TRANSLATION_MINUS_Z_TO_Y),
+            cls.AXIS_TRANSLATION_MINUS_Z_TO_Y.identifier: (cls.AXIS_TRANSLATION_Z_TO_Y),
+            cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z.identifier: (
+                cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z
             ),
-        }[axis_translation]
+        }[axis_translation].identifier
 
     @classmethod
     def node_constraint_roll_axis_translation(
@@ -184,13 +197,21 @@ class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
         if roll_axis is None:
             return None
         return {
-            cls.AXIS_TRANSLATION_AUTO_ID: {"X": "X", "Y": "Y", "Z": "Z"},
-            cls.AXIS_TRANSLATION_NONE_ID: {"X": "X", "Y": "Y", "Z": "Z"},
-            cls.AXIS_TRANSLATION_X_TO_Y_ID: {"X": "Y", "Y": "X", "Z": "Z"},
-            cls.AXIS_TRANSLATION_MINUS_X_TO_Y_ID: {"X": "Y", "Y": "X", "Z": "Z"},
-            cls.AXIS_TRANSLATION_Z_TO_Y_ID: {"X": "X", "Y": "Z", "Z": "Y"},
-            cls.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID: {"X": "X", "Y": "Z", "Z": "Y"},
-            cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID: {
+            cls.AXIS_TRANSLATION_AUTO.identifier: {"X": "X", "Y": "Y", "Z": "Z"},
+            cls.AXIS_TRANSLATION_NONE.identifier: {"X": "X", "Y": "Y", "Z": "Z"},
+            cls.AXIS_TRANSLATION_X_TO_Y.identifier: {"X": "Y", "Y": "X", "Z": "Z"},
+            cls.AXIS_TRANSLATION_MINUS_X_TO_Y.identifier: {
+                "X": "Y",
+                "Y": "X",
+                "Z": "Z",
+            },
+            cls.AXIS_TRANSLATION_Z_TO_Y.identifier: {"X": "X", "Y": "Z", "Z": "Y"},
+            cls.AXIS_TRANSLATION_MINUS_Z_TO_Y.identifier: {
+                "X": "X",
+                "Y": "Z",
+                "Z": "Y",
+            },
+            cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z.identifier: {
                 "X": "X",
                 "Y": "Y",
                 "Z": "Z",
@@ -204,7 +225,7 @@ class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
         if aim_axis is None:
             return None
         return {
-            cls.AXIS_TRANSLATION_AUTO_ID: {
+            cls.AXIS_TRANSLATION_AUTO.identifier: {
                 "PositiveX": "PositiveX",
                 "PositiveY": "PositiveY",
                 "PositiveZ": "PositiveZ",
@@ -212,7 +233,7 @@ class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
                 "NegativeY": "NegativeY",
                 "NegativeZ": "NegativeZ",
             },
-            cls.AXIS_TRANSLATION_NONE_ID: {
+            cls.AXIS_TRANSLATION_NONE.identifier: {
                 "PositiveX": "PositiveX",
                 "PositiveY": "PositiveY",
                 "PositiveZ": "PositiveZ",
@@ -220,7 +241,7 @@ class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
                 "NegativeY": "NegativeY",
                 "NegativeZ": "NegativeZ",
             },
-            cls.AXIS_TRANSLATION_X_TO_Y_ID: {
+            cls.AXIS_TRANSLATION_X_TO_Y.identifier: {
                 "PositiveX": "PositiveY",
                 "PositiveY": "NegativeX",
                 "PositiveZ": "PositiveZ",
@@ -228,7 +249,7 @@ class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
                 "NegativeY": "PositiveX",
                 "NegativeZ": "NegativeZ",
             },
-            cls.AXIS_TRANSLATION_MINUS_X_TO_Y_ID: {
+            cls.AXIS_TRANSLATION_MINUS_X_TO_Y.identifier: {
                 "PositiveY": "PositiveX",
                 "NegativeX": "PositiveY",
                 "PositiveZ": "PositiveZ",
@@ -236,7 +257,7 @@ class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
                 "PositiveX": "NegativeY",
                 "NegativeZ": "NegativeZ",
             },
-            cls.AXIS_TRANSLATION_Z_TO_Y_ID: {
+            cls.AXIS_TRANSLATION_Z_TO_Y.identifier: {
                 "PositiveX": "PositiveX",
                 "PositiveY": "NegativeZ",
                 "PositiveZ": "PositiveY",
@@ -244,7 +265,7 @@ class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
                 "NegativeY": "PositiveZ",
                 "NegativeZ": "NegativeY",
             },
-            cls.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID: {
+            cls.AXIS_TRANSLATION_MINUS_Z_TO_Y.identifier: {
                 "PositiveX": "PositiveX",
                 "NegativeZ": "PositiveY",
                 "PositiveY": "PositiveZ",
@@ -252,7 +273,7 @@ class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
                 "PositiveZ": "NegativeY",
                 "NegativeY": "NegativeZ",
             },
-            cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID: {
+            cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z.identifier: {
                 "PositiveX": "NegativeX",
                 "PositiveY": "NegativeY",
                 "PositiveZ": "PositiveZ",
@@ -266,15 +287,15 @@ class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
     def translate_axis(cls, matrix: Matrix, axis_translation: str) -> Matrix:
         location, rotation, scale = matrix.decompose()
 
-        if axis_translation == cls.AXIS_TRANSLATION_X_TO_Y_ID:
+        if axis_translation == cls.AXIS_TRANSLATION_X_TO_Y.identifier:
             rotation @= Quaternion((0, 0, 1), -math.pi / 2)
-        elif axis_translation == cls.AXIS_TRANSLATION_MINUS_X_TO_Y_ID:
+        elif axis_translation == cls.AXIS_TRANSLATION_MINUS_X_TO_Y.identifier:
             rotation @= Quaternion((0, 0, 1), math.pi / 2)
-        elif axis_translation == cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID:
+        elif axis_translation == cls.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z.identifier:
             rotation @= Quaternion((0, 0, 1), math.pi)
-        elif axis_translation == cls.AXIS_TRANSLATION_Z_TO_Y_ID:
+        elif axis_translation == cls.AXIS_TRANSLATION_Z_TO_Y.identifier:
             rotation @= Quaternion((1, 0, 0), math.pi / 2)
-        elif axis_translation == cls.AXIS_TRANSLATION_MINUS_Z_TO_Y_ID:
+        elif axis_translation == cls.AXIS_TRANSLATION_MINUS_Z_TO_Y.identifier:
             rotation @= Quaternion((1, 0, 0), -math.pi / 2)
 
         # return Matrix.LocRotScale(location, rotation, scale)
@@ -284,18 +305,8 @@ class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
             @ Matrix.Diagonal(scale).to_4x4()
         )
 
-    axis_translation_items = (
-        (AXIS_TRANSLATION_AUTO_ID, "Auto", "", "NONE", 0),
-        (AXIS_TRANSLATION_NONE_ID, "None", "", "NONE", 1),
-        (AXIS_TRANSLATION_X_TO_Y_ID, "X,Y to Y,-X", "", "NONE", 2),
-        (AXIS_TRANSLATION_MINUS_X_TO_Y_ID, "X,Y to -Y,X", "", "NONE", 3),
-        (AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z_ID, "X,Y to -X,-Y", "", "NONE", 4),
-        (AXIS_TRANSLATION_Z_TO_Y_ID, "Y,Z to -Z,Y", "", "NONE", 5),
-        (AXIS_TRANSLATION_MINUS_Z_TO_Y_ID, "Y,Z to Z,-Y", "", "NONE", 6),
-    )
-
     axis_translation: EnumProperty(  # type: ignore[valid-type]
-        items=axis_translation_items,
+        items=axis_translation_enum.items(),
         name="Axis Translation on Export",
     )
 
@@ -308,7 +319,7 @@ class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
 
 class VrmAddonObjectExtensionPropertyGroup(PropertyGroup):
     axis_translation: EnumProperty(  # type: ignore[valid-type]
-        items=VrmAddonBoneExtensionPropertyGroup.axis_translation_items,
+        items=VrmAddonBoneExtensionPropertyGroup.axis_translation_enum.items(),
         name="Axis Translation on Export",
     )
 

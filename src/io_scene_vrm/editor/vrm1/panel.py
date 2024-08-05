@@ -14,7 +14,6 @@ from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
 from ..search import active_object_is_vrm1_armature
 from . import ops as vrm1_ops
 from .property_group import (
-    Vrm1ExpressionsPresetPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
     Vrm1FirstPersonPropertyGroup,
     Vrm1HumanBonePropertyGroup,
@@ -240,7 +239,7 @@ def draw_vrm1_humanoid_layout(
     column = t_pose_box.row().column()
     column.label(text="VRM T-Pose", icon="OUTLINER_OB_ARMATURE")
     column.prop(humanoid, "pose")
-    if humanoid.pose == humanoid.POSE_ITEM_VALUE_CUSTOM_POSE:
+    if humanoid.pose == humanoid.POSE_ITEM_CUSTOM_POSE.identifier:
         label = "Pose Library" if bpy.app.version < (3, 0) else "Pose Asset"
         column.prop_search(
             humanoid,
@@ -680,9 +679,7 @@ def draw_vrm1_expressions_layout(
 
     if 0 <= expression_ui_list_element_index < len(preset_expressions):
         expression = preset_expressions[expression_ui_list_element_index]
-        preset_icon = Vrm1ExpressionsPresetPropertyGroup.NAME_TO_ICON_DICT.get(
-            expression.name
-        )
+        preset_icon = expressions.preset.get_icon(expression.name)
         if not preset_icon:
             logger.error("Unknown preset expression: %s", expression.name)
             preset_icon = "SHAPEKEY_DATA"

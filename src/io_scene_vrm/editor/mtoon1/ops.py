@@ -41,7 +41,6 @@ from .property_group import (
     Mtoon1ShadingShiftTexturePropertyGroup,
     Mtoon1TextureInfoPropertyGroup,
     Mtoon1UvAnimationMaskTexturePropertyGroup,
-    Mtoon1VrmcMaterialsMtoonPropertyGroup,
     reset_shader_node_group,
 )
 
@@ -86,22 +85,23 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
 
         texture_info.index.source = image
 
-        mag_filter = Mtoon1SamplerPropertyGroup.MAG_FILTER_NUMBER_TO_ID.get(
-            filter_number
+        texture_info.index.sampler.mag_filter = (
+            Mtoon1SamplerPropertyGroup.mag_filter_enum.value_to_identifier(
+                filter_number, Mtoon1SamplerPropertyGroup.MAG_FILTER_DEFAULT.identifier
+            )
         )
-        if mag_filter:
-            texture_info.index.sampler.mag_filter = mag_filter
 
-        min_filter = Mtoon1SamplerPropertyGroup.MIN_FILTER_NUMBER_TO_ID.get(
-            filter_number
+        texture_info.index.sampler.min_filter = (
+            Mtoon1SamplerPropertyGroup.min_filter_enum.value_to_identifier(
+                filter_number, Mtoon1SamplerPropertyGroup.MIN_FILTER_DEFAULT.identifier
+            )
         )
-        if min_filter:
-            texture_info.index.sampler.min_filter = min_filter
 
-        wrap = Mtoon1SamplerPropertyGroup.WRAP_NUMBER_TO_ID.get(wrap_number)
-        if wrap:
-            texture_info.index.sampler.wrap_s = wrap
-            texture_info.index.sampler.wrap_t = wrap
+        wrap = Mtoon1SamplerPropertyGroup.wrap_enum.value_to_identifier(
+            wrap_number, Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.identifier
+        )
+        texture_info.index.sampler.wrap_s = wrap
+        texture_info.index.sampler.wrap_t = wrap
 
     def convert_material_to_mtoon1(self, context: Context, material: Material) -> None:
         node, vrm_shader_name = search.vrm_shader_node(material)
@@ -182,14 +182,14 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
         transparent_with_z_write = False
         alpha_cutoff: Optional[float] = 0.5
         if material.blend_method == "OPAQUE":
-            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE
+            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE.identifier
         elif material.blend_method == "CLIP":
             alpha_cutoff = shader.get_float_value(node, "CutoffRate", 0, float_info.max)
             if alpha_cutoff is None:
                 alpha_cutoff = 0.5
-            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK
+            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK.identifier
         else:
-            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND
+            alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND.identifier
             transparent_with_z_write_float = shader.get_float_value(
                 node, "TransparentWithZWrite"
             )
@@ -441,13 +441,17 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
             outline_width_mode = 0
 
         if outline_width_mode == 1:
-            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_WORLD_COORDINATES
+            mtoon.outline_width_mode = (
+                mtoon.OUTLINE_WIDTH_MODE_WORLD_COORDINATES.identifier
+            )
             mtoon.outline_width_factor = max(0.0, outline_width * centimeter_to_meter)
         elif outline_width_mode == 2:
-            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES
+            mtoon.outline_width_mode = (
+                mtoon.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES.identifier
+            )
             mtoon.outline_width_factor = max(0.0, outline_width * one_hundredth * 0.5)
         else:
-            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_NONE
+            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_NONE.identifier
 
         self.assign_mtoon_unversioned_image(
             context,
@@ -774,22 +778,12 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
         if not node_group:
             return
         mtoon = get_material_extension(material).mtoon1.extensions.vrmc_materials_mtoon
-        outline_width_mode_value = next(
-            (
-                value
-                for mode, _, _, _, value in (
-                    Mtoon1VrmcMaterialsMtoonPropertyGroup.outline_width_mode_items
-                )
-                if mode == mtoon.outline_width_mode
-            ),
-            None,
+        outline_width_mode_value = mtoon.outline_width_mode_enum.identifier_to_value(
+            mtoon.outline_width_mode,
+            mtoon.OUTLINE_WIDTH_MODE_NONE.value,
         )
-        if not isinstance(outline_width_mode_value, int):
-            return
-
         no_outline = (
-            mtoon.outline_width_mode
-            == Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_NONE
+            outline_width_mode_value == mtoon.OUTLINE_WIDTH_MODE_NONE.value
             or mtoon.outline_width_factor < float_info.epsilon
         )
         cleanup = no_outline
@@ -825,9 +819,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
             return
 
         if not modifier and not create_modifier:
-            mtoon.outline_width_mode = (
-                Mtoon1VrmcMaterialsMtoonPropertyGroup.OUTLINE_WIDTH_MODE_NONE
-            )
+            mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_NONE.identifier
             return
 
         outline_material_name = f"MToon Outline ({material.name})"

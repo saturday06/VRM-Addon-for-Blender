@@ -1,6 +1,5 @@
 import functools
 from collections.abc import Sequence
-from dataclasses import dataclass
 from sys import float_info
 from typing import TYPE_CHECKING, ClassVar, Optional
 
@@ -38,6 +37,7 @@ from ..property_group import (
     FloatPropertyGroup,
     MeshObjectPropertyGroup,
     StringPropertyGroup,
+    property_group_enum,
 )
 from ..vrm1.property_group import Vrm1HumanoidPropertyGroup
 
@@ -169,19 +169,17 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         default=False,
     )
 
-    POSE_ITEM_VALUE_REST_POSITION_POSE = (
-        Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_REST_POSITION_POSE
+    POSE_ITEM_REST_POSITION_POSE = (
+        Vrm1HumanoidPropertyGroup.POSE_ITEM_REST_POSITION_POSE
     )
-    POSE_ITEM_VALUE_CURRENT_POSE = (
-        Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CURRENT_POSE
-    )
-    POSE_ITEM_VALUE_CUSTOM_POSE = Vrm1HumanoidPropertyGroup.POSE_ITEM_VALUE_CUSTOM_POSE
+    POSE_ITEM_CURRENT_POSE = Vrm1HumanoidPropertyGroup.POSE_ITEM_CURRENT_POSE
+    POSE_ITEM_CUSTOM_POSE = Vrm1HumanoidPropertyGroup.POSE_ITEM_CUSTOM_POSE
 
     pose: bpy.props.EnumProperty(  # type: ignore[valid-type]
-        items=Vrm1HumanoidPropertyGroup.pose_items,
+        items=Vrm1HumanoidPropertyGroup.pose_enum.items(),
         name="T-Pose",
         description="T-Pose",
-        default=POSE_ITEM_VALUE_CURRENT_POSE,
+        default=POSE_ITEM_CURRENT_POSE.identifier,
     )
 
     # for T-Pose
@@ -404,27 +402,28 @@ class Vrm0MeshAnnotationPropertyGroup(PropertyGroup):
         type=MeshObjectPropertyGroup,
         description="Mesh on restrict render in the first person camera",
     )
-    first_person_flag_items = (
-        ("Auto", "Auto", "Auto restrict render", 0),
+
+    first_person_flag_enum, *__first_person_flags = property_group_enum(
+        ("Auto", "Auto", "Auto restrict render", "NONE", 0),
         (
             "FirstPersonOnly",
             "First-Person Only",
             "(Maybe needless) Restrict render in the third person camera",
+            "NONE",
             1,
         ),
         (
             "ThirdPersonOnly",
             "Third-Person Only",
             "Restrict render in the first person camera for face, hairs or hat",
+            "NONE",
             2,
         ),
-        ("Both", "Both", "No restrict render for body, arms or legs", 3),
+        ("Both", "Both", "No restrict render for body, arms or legs", "NONE", 3),
     )
-    FIRST_PERSON_FLAG_VALUES = tuple(
-        first_person_flag_item[0] for first_person_flag_item in first_person_flag_items
-    )
+
     first_person_flag: EnumProperty(  # type: ignore[valid-type]
-        items=first_person_flag_items,
+        items=first_person_flag_enum.items(),
         name="First Person Flag",
         description="Restrict render in the first person camera",
     )
@@ -457,7 +456,7 @@ class Vrm0FirstPersonPropertyGroup(PropertyGroup):
         name="Mesh Annotations",
         type=Vrm0MeshAnnotationPropertyGroup,
     )
-    look_at_type_name_items = (
+    look_at_type_name_enum, *__look_at_types = property_group_enum(
         ("Bone", "Bone", "Use bones to eye movement", "BONE_DATA", 0),
         (
             "BlendShape",
@@ -467,11 +466,8 @@ class Vrm0FirstPersonPropertyGroup(PropertyGroup):
             1,
         ),
     )
-    LOOK_AT_TYPE_NAME_VALUES = tuple(
-        look_at_type_name_item[0] for look_at_type_name_item in look_at_type_name_items
-    )
     look_at_type_name: EnumProperty(  # type: ignore[valid-type]
-        items=look_at_type_name_items,
+        items=look_at_type_name_enum.items(),
         name="Look At Type Name",
         description="How to eye movement",
     )
@@ -571,45 +567,29 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
         description="Name of the blendshape group",
     )
 
-    @dataclass(frozen=True)
-    class Preset:
-        identifier: str
-        name: str
-        description: str
-        icon: str
-        number: int
-        default_blend_shape_group_name: str
-
-    presets = (
-        Preset("unknown", "Unknown", "", "SHAPEKEY_DATA", 0, "Unknown"),
-        Preset("neutral", "Neutral", "", "VIEW_ORTHO", 1, "Neutral"),
-        Preset("a", "A", "", "EVENT_A", 2, "A"),
-        Preset("i", "I", "", "EVENT_I", 3, "I"),
-        Preset("u", "U", "", "EVENT_U", 4, "U"),
-        Preset("e", "E", "", "EVENT_E", 5, "E"),
-        Preset("o", "O", "", "EVENT_O", 6, "O"),
-        Preset("blink", "Blink", "", "HIDE_ON", 7, "Blink"),
-        Preset("joy", "Joy", "", "HEART", 8, "Joy"),
-        Preset("angry", "Angry", "", "ORPHAN_DATA", 9, "Angry"),
-        Preset("sorrow", "Sorrow", "", "MOD_FLUIDSIM", 10, "Sorrow"),
-        Preset("fun", "Fun", "", "LIGHT_SUN", 11, "Fun"),
-        Preset("lookup", "Look Up", "", "ANCHOR_TOP", 12, "LookUp"),
-        Preset("lookdown", "Look Down", "", "ANCHOR_BOTTOM", 13, "LookDown"),
-        Preset("lookleft", "Look Left", "", "ANCHOR_RIGHT", 14, "LookLeft"),
-        Preset("lookright", "Look Right", "", "ANCHOR_LEFT", 15, "LookRight"),
-        Preset("blink_l", "Blink_L", "", "HIDE_ON", 16, "Blink_L"),
-        Preset("blink_r", "Blink_R", "", "HIDE_ON", 17, "Blink_R"),
+    preset_name_enum, (PRESET_NAME_UNKNOWN, *__preset_names) = property_group_enum(
+        ("unknown", "Unknown", "", "SHAPEKEY_DATA", 0),
+        ("neutral", "Neutral", "", "VIEW_ORTHO", 1),
+        ("a", "A", "", "EVENT_A", 2),
+        ("i", "I", "", "EVENT_I", 3),
+        ("u", "U", "", "EVENT_U", 4),
+        ("e", "E", "", "EVENT_E", 5),
+        ("o", "O", "", "EVENT_O", 6),
+        ("blink", "Blink", "", "HIDE_ON", 7),
+        ("joy", "Joy", "", "HEART", 8),
+        ("angry", "Angry", "", "ORPHAN_DATA", 9),
+        ("sorrow", "Sorrow", "", "MOD_FLUIDSIM", 10),
+        ("fun", "Fun", "", "LIGHT_SUN", 11),
+        ("lookup", "Look Up", "", "ANCHOR_TOP", 12),
+        ("lookdown", "Look Down", "", "ANCHOR_BOTTOM", 13),
+        ("lookleft", "Look Left", "", "ANCHOR_RIGHT", 14),
+        ("lookright", "Look Right", "", "ANCHOR_LEFT", 15),
+        ("blink_l", "Blink_L", "", "HIDE_ON", 16),
+        ("blink_r", "Blink_R", "", "HIDE_ON", 17),
     )
-
-    preset_name_items = tuple(
-        (preset.identifier, preset.name, preset.description, preset.icon, preset.number)
-        for preset in presets
-    )
-
-    PRESET_NAME_VALUES = tuple(preset.identifier for preset in presets)
 
     preset_name: EnumProperty(  # type: ignore[valid-type]
-        items=preset_name_items,
+        items=preset_name_enum.items(),
         name="Preset",
         description="Preset name in VRM avatar",
     )
@@ -925,56 +905,50 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Meta.cs#L33-L149
 class Vrm0MetaPropertyGroup(PropertyGroup):
-    allowed_user_name_items = (
-        ("OnlyAuthor", "Only Author", "", 0),
-        ("ExplicitlyLicensedPerson", "Explicitly Licensed Person", "", 1),
-        ("Everyone", "Everyone", "", 2),
-    )
-    ALLOWED_USER_NAME_VALUES = tuple(
-        allowed_user_name_item[0] for allowed_user_name_item in allowed_user_name_items
+    allowed_user_name_enum, __allowed_user_names = property_group_enum(
+        ("OnlyAuthor", "Only Author", "", "NONE", 0),
+        ("ExplicitlyLicensedPerson", "Explicitly Licensed Person", "", "NONE", 1),
+        ("Everyone", "Everyone", "", "NONE", 2),
     )
 
-    violent_ussage_name_items = (
-        ("Disallow", "Disallow", "", 0),
-        ("Allow", "Allow", "", 1),
-    )
-    VIOLENT_USSAGE_NAME_VALUES = tuple(
-        violent_ussage_name_item[0]
-        for violent_ussage_name_item in violent_ussage_name_items
+    violent_ussage_name_enum, __violent_ussage_names = property_group_enum(
+        ("Disallow", "Disallow", "", "NONE", 0),
+        ("Allow", "Allow", "", "NONE", 1),
     )
 
-    sexual_ussage_name_items = (
-        ("Disallow", "Disallow", "", 0),
-        ("Allow", "Allow", "", 1),
-    )
-    SEXUAL_USSAGE_NAME_VALUES = tuple(
-        sexual_ussage_name_item[0]
-        for sexual_ussage_name_item in sexual_ussage_name_items
+    sexual_ussage_name_enum, __sexual_ussage_names = property_group_enum(
+        ("Disallow", "Disallow", "", "NONE", 0),
+        ("Allow", "Allow", "", "NONE", 1),
     )
 
-    commercial_ussage_name_items = (
-        ("Disallow", "Disallow", "", 0),
-        ("Allow", "Allow", "", 1),
-    )
-    COMMERCIAL_USSAGE_NAME_VALUES = tuple(
-        commercial_ussage_name_item[0]
-        for commercial_ussage_name_item in commercial_ussage_name_items
+    commercial_ussage_name_enum, __commercial_ussage_names = property_group_enum(
+        ("Disallow", "Disallow", "", "NONE", 0),
+        ("Allow", "Allow", "", "NONE", 1),
     )
 
-    LICENSE_NAME_OTHER = "Other"
-    license_name_items = (
-        ("Redistribution_Prohibited", "Redistribution Prohibited", "", 0),
-        ("CC0", "CC0", "", 1),
-        ("CC_BY", "CC BY", "", 2),
-        ("CC_BY_NC", "CC BY NC", "", 3),
-        ("CC_BY_SA", "CC BY SA", "", 4),
-        ("CC_BY_NC_SA", "CC BY NC SA", "", 5),
-        ("CC_BY_ND", "CC BY ND", "", 6),  # codespell-ignore
-        ("CC_BY_NC_ND", "CC BY NC ND", "", 7),  # codespell-ignore
-        (LICENSE_NAME_OTHER, "Other", "", 8),
-    )
-    LICENSE_NAME_VALUES = tuple(
-        license_name_item[0] for license_name_item in license_name_items
+    (
+        license_name_enum,
+        (
+            LICENSE_NAME_REDISTRIBUTION_PROHIBITED,
+            LICENSE_NAME_CC0,
+            LICENSE_NAME_CC_BY,
+            LICENSE_NAME_CC_BY_NC,
+            LICENSE_NAME_CC_BY_SA,
+            LICENSE_NAME_CC_BY_NC_SA,
+            LICENSE_NAME_CC_BY_ND,
+            LICENSE_NAME_CC_BY_NC_ND,
+            LICENSE_NAME_OTHER,
+        ),
+    ) = property_group_enum(
+        ("Redistribution_Prohibited", "Redistribution Prohibited", "", "NONE", 0),
+        ("CC0", "CC0", "", "NONE", 1),
+        ("CC_BY", "CC BY", "", "NONE", 2),
+        ("CC_BY_NC", "CC BY NC", "", "NONE", 3),
+        ("CC_BY_SA", "CC BY SA", "", "NONE", 4),
+        ("CC_BY_NC_SA", "CC BY NC SA", "", "NONE", 5),
+        ("CC_BY_ND", "CC BY ND", "", "NONE", 6),  # codespell-ignore
+        ("CC_BY_NC_ND", "CC BY NC ND", "", "NONE", 7),  # codespell-ignore
+        ("Other", "Other", "", "NONE", 8),
     )
 
     title: StringProperty(  # type: ignore[valid-type]
@@ -998,22 +972,22 @@ class Vrm0MetaPropertyGroup(PropertyGroup):
         description="Referenced works about the avatar",
     )
     allowed_user_name: EnumProperty(  # type: ignore[valid-type]
-        items=allowed_user_name_items,
+        items=allowed_user_name_enum.items(),
         name="Allowed User",
         description="Allowed user of the avatar",
     )
     violent_ussage_name: EnumProperty(  # type: ignore[valid-type]
-        items=violent_ussage_name_items,
+        items=violent_ussage_name_enum.items(),
         name="Violent Usage",
         description="Violent usage of the avatar",
     )
     sexual_ussage_name: EnumProperty(  # type: ignore[valid-type]
-        items=sexual_ussage_name_items,
+        items=sexual_ussage_name_enum.items(),
         name="Sexual Usage",
         description="Sexual Usage of the avatar",
     )
     commercial_ussage_name: EnumProperty(  # type: ignore[valid-type]
-        items=commercial_ussage_name_items,
+        items=commercial_ussage_name_enum.items(),
         name="Commercial Usage",
         description="Commercial Usage of the avatar",
     )
@@ -1022,7 +996,7 @@ class Vrm0MetaPropertyGroup(PropertyGroup):
         description="URL about other permissions of the avatar",
     )
     license_name: EnumProperty(  # type: ignore[valid-type]
-        items=license_name_items,
+        items=license_name_enum.items(),
         name="License",
         description="License of the avatar",
     )

@@ -1,5 +1,6 @@
 import uuid
 from collections.abc import Iterator, ValuesView
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Protocol, TypeVar, overload
 
 import bpy
@@ -17,6 +18,79 @@ HumanBoneSpecification = TypeVar(
 )
 
 logger = get_logger(__name__)
+
+
+# https://docs.blender.org/api/2.93/bpy.types.EnumPropertyItem.html#bpy.types.EnumPropertyItem
+@dataclass(frozen=True)
+class PropertyGroupEnumItem:
+    identifier: str
+    name: str
+    description: str
+    icon: str
+    value: int
+
+    @staticmethod
+    def from_enum_property_items(
+        items: tuple[tuple[str, str, str, str, int], ...],
+    ) -> tuple[tuple[str, ...], tuple[int, ...], tuple["PropertyGroupEnumItem", ...]]:
+        enum_items = tuple(
+            PropertyGroupEnumItem(
+                identifier=identifier,
+                name=name,
+                description=description,
+                icon=icon,
+                value=value,
+            )
+            for identifier, name, description, icon, value in items
+        )
+        identifiers = tuple(enum_item.identifier for enum_item in enum_items)
+        values = tuple(enum_item.value for enum_item in enum_items)
+        return identifiers, values, enum_items
+
+
+class PropertyGroupEnum:
+    def __init__(self, enum_items: tuple[tuple[str, str, str, str, int], ...]) -> None:
+        self.enum_items = enum_items
+
+    def items(self) -> tuple[tuple[str, str, str, str, int], ...]:
+        return self.enum_items
+
+    def value_to_identifier(self, value: int, default: str) -> str:
+        return next(
+            (enum.identifier for enum in self if enum.value == value),
+            default,
+        )
+
+    def identifier_to_value(self, identifier: str, default: int) -> int:
+        return next(
+            (enum.value for enum in self if enum.identifier == identifier),
+            default,
+        )
+
+    def identifiers(self) -> tuple[str, ...]:
+        return tuple(enum.identifier for enum in self)
+
+    def values(self) -> tuple[int, ...]:
+        return tuple(enum.value for enum in self)
+
+    def __iter__(self) -> Iterator[PropertyGroupEnumItem]:
+        return (
+            PropertyGroupEnumItem(
+                identifier=identifier,
+                name=name,
+                description=description,
+                icon=icon,
+                value=value,
+            )
+            for identifier, name, description, icon, value in self.items()
+        )
+
+
+def property_group_enum(
+    *items: tuple[str, str, str, str, int],
+) -> tuple[PropertyGroupEnum, Iterator[PropertyGroupEnumItem]]:
+    enum = PropertyGroupEnum(items)
+    return enum, enum.__iter__()
 
 
 class StringPropertyGroup(PropertyGroup):
