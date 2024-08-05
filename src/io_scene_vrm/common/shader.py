@@ -1242,7 +1242,7 @@ def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -
         from_socket_type = from_item.socket_type
         if not from_socket_type:
             logger.error(
-                "%s has empty socket_type. type=%s",
+                'Socket source "%s" has empty socket_type. type=%s',
                 from_item.name,
                 type(from_item).__name__,
             )
@@ -1271,11 +1271,26 @@ def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -
                 to_item.item_type != "SOCKET"
                 or not isinstance(to_item, NodeTreeInterfaceSocket)
                 or to_item.in_out != from_item.in_out
-                or to_item.socket_type
-                not in [from_socket_type, translated_from_socket_type]
             ):
                 to_node_tree.interface.remove(to_item)
                 continue
+
+            if not to_item.socket_type:
+                logger.error(
+                    'Socket destination "%s" has empty socket_type. type=%s',
+                    to_item.name,
+                    type(to_item).__name__,
+                )
+                if isinstance(to_item, NodeTreeInterfaceSocketFloatFactor):
+                    to_item.socket_type = "NodeSocketFloat"
+
+            if to_item.socket_type not in [
+                from_socket_type,
+                translated_from_socket_type,
+            ]:
+                to_node_tree.interface.remove(to_item)
+                continue
+
             if to_item.name != from_item.name:
                 to_item.name = from_item.name
             if to_item.description != from_item.description:
