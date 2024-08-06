@@ -2,7 +2,7 @@ import statistics
 import uuid
 from collections.abc import Sequence
 from sys import float_info
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
 import bpy
 from bpy.props import (
@@ -16,7 +16,7 @@ from bpy.props import (
     StringProperty,
 )
 from bpy.types import Armature, Context, Object, PropertyGroup
-from mathutils import Matrix, Vector
+from mathutils import Matrix, Quaternion, Vector
 
 from ...common import convert
 from ...common.logging import get_logger
@@ -28,25 +28,32 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 
+def find_armature_and_collider(
+    context: Context,
+    match_collider: Callable[["SpringBone1ColliderPropertyGroup"], bool],
+) -> tuple[Object, "SpringBone1ColliderPropertyGroup"]:
+    for obj in context.blend_data.objects:
+        if obj.type != "ARMATURE":
+            continue
+        armature_data = obj.data
+        if not isinstance(armature_data, Armature):
+            continue
+        for collider in get_armature_spring_bone1_extension(armature_data).colliders:
+            if match_collider(collider):
+                return (obj, collider)
+    message = "No armature"
+    raise ValueError(message)
+
+
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json#L7-L27
 class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
     def find_armature_and_collider(
         self,
         context: Context,
     ) -> tuple[Object, "SpringBone1ColliderPropertyGroup"]:
-        for obj in context.blend_data.objects:
-            if obj.type != "ARMATURE":
-                continue
-            armature_data = obj.data
-            if not isinstance(armature_data, Armature):
-                continue
-            for collider in get_armature_spring_bone1_extension(
-                armature_data
-            ).colliders:
-                if collider.shape.sphere == self:
-                    return (obj, collider)
-        message = "No armature"
-        raise ValueError(message)
+        return find_armature_and_collider(
+            context, lambda collider: collider.shape.sphere == self
+        )
 
     def get_offset(self) -> tuple[float, float, float]:
         context = bpy.context
@@ -88,6 +95,9 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
             )
         self.set_radius(backup_radius)
 
+    def update_offset(self, _context: Context) -> None:
+        self.fallback_offset = self.offset
+
     def get_radius(self) -> float:
         context = bpy.context
 
@@ -120,6 +130,9 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
         )
         collider.bpy_object.empty_display_size = v
 
+    def update_radius(self, _context: Context) -> None:
+        self.fallback_radius = self.radius
+
     offset: FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
         subtype="TRANSLATION",
@@ -127,6 +140,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
         default=(0, 0, 0),
         get=get_offset,
         set=set_offset,
+        update=update_offset,
     )
 
     radius: FloatProperty(  # type: ignore[valid-type]
@@ -137,6 +151,23 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
         unit="LENGTH",
         get=get_radius,
         set=set_radius,
+        update=update_radius,
+    )
+
+    fallback_offset: FloatVectorProperty(  # type: ignore[valid-type]
+        name="Fallback Sphere Offset",
+        size=3,
+        subtype="TRANSLATION",
+        unit="LENGTH",
+        default=(0, 0, 0),
+    )
+
+    fallback_radius: FloatProperty(  # type: ignore[valid-type]
+        name="Fallback Sphere Radius",
+        min=0.0,
+        default=0.0,
+        soft_max=1.0,
+        unit="LENGTH",
     )
 
     if TYPE_CHECKING:
@@ -144,6 +175,8 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
         # `poetry run python tools/property_typing.py`
         offset: Sequence[float]  # type: ignore[no-redef]
         radius: float  # type: ignore[no-redef]
+        fallback_offset: Sequence[float]  # type: ignore[no-redef]
+        fallback_radius: float  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json#L28-L58
@@ -152,19 +185,9 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         self,
         context: Context,
     ) -> tuple[Object, "SpringBone1ColliderPropertyGroup"]:
-        for obj in context.blend_data.objects:
-            if obj.type != "ARMATURE":
-                continue
-            armature_data = obj.data
-            if not isinstance(armature_data, Armature):
-                continue
-            for collider in get_armature_spring_bone1_extension(
-                armature_data
-            ).colliders:
-                if collider.shape.capsule == self:
-                    return (obj, collider)
-        message = "No armature"
-        raise ValueError(message)
+        return find_armature_and_collider(
+            context, lambda collider: collider.shape.capsule == self
+        )
 
     def get_offset(self) -> tuple[float, float, float]:
         context = bpy.context
@@ -206,6 +229,9 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
                 armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
             )
         self.set_radius(backup_radius)
+
+    def update_offset(self, _context: Context) -> None:
+        self.fallback_offset = self.offset
 
     def get_tail(self) -> tuple[float, float, float]:
         context = bpy.context
@@ -250,6 +276,9 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
             )
         self.set_radius(backup_radius)
 
+    def update_tail(self, _context: Context) -> None:
+        self.fallback_tail = self.tail
+
     def get_radius(self) -> float:
         context = bpy.context
 
@@ -284,6 +313,9 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         collider.bpy_object.empty_display_size = v
         collider.bpy_object.children[0].empty_display_size = v
 
+    def update_radius(self, _context: Context) -> None:
+        self.fallback_radius = self.radius
+
     offset: FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
         subtype="TRANSLATION",
@@ -291,6 +323,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         default=(0, 0, 0),
         get=get_offset,
         set=set_offset,
+        update=update_offset,
     )
 
     radius: FloatProperty(  # type: ignore[valid-type]
@@ -301,6 +334,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         unit="LENGTH",
         get=get_radius,
         set=set_radius,
+        update=update_radius,
     )
 
     tail: FloatVectorProperty(  # type: ignore[valid-type]
@@ -310,6 +344,31 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         default=(0, 0, 0),
         get=get_tail,
         set=set_tail,
+        update=update_tail,
+    )
+
+    fallback_offset: FloatVectorProperty(  # type: ignore[valid-type]
+        name="Fallback Capsule Head",
+        size=3,
+        subtype="TRANSLATION",
+        unit="LENGTH",
+        default=(0, 0, 0),
+    )
+
+    fallback_radius: FloatProperty(  # type: ignore[valid-type]
+        name="Fallback Capsule Radius",
+        min=0.0,
+        default=0.0,
+        soft_max=1.0,
+        unit="LENGTH",
+    )
+
+    fallback_tail: FloatVectorProperty(  # type: ignore[valid-type]
+        name="Fallback Capsule Tail",
+        size=3,
+        subtype="TRANSLATION",
+        unit="LENGTH",
+        default=(0, 0, 0),
     )
 
     if TYPE_CHECKING:
@@ -318,6 +377,175 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         offset: Sequence[float]  # type: ignore[no-redef]
         radius: float  # type: ignore[no-redef]
         tail: Sequence[float]  # type: ignore[no-redef]
+        fallback_offset: Sequence[float]  # type: ignore[no-redef]
+        fallback_radius: float  # type: ignore[no-redef]
+        fallback_tail: Sequence[float]  # type: ignore[no-redef]
+
+
+# https://github.com/vrm-c/vrm-specification/blob/9e8c886a2043639a3c166eb7cc93526be6313147/specification/VRMC_springBone_extended_collider-1.0/schema/VRMC_springBone_extended_collider.shape.schema.json#L9
+class SpringBone1ExtendedColliderShapeSpherePropertyGroup(
+    SpringBone1ColliderShapeSpherePropertyGroup
+):
+    def find_armature_and_collider(
+        self,
+        context: Context,
+    ) -> tuple[Object, "SpringBone1ColliderPropertyGroup"]:
+        return find_armature_and_collider(
+            context,
+            lambda collider: (
+                collider.extensions.vrmc_spring_bone_extended_collider.shape.sphere
+                == self
+            ),
+        )
+
+    inside: BoolProperty()  # type: ignore[valid-type]
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        inside: bool  # type: ignore[no-redef]
+
+
+# https://github.com/vrm-c/vrm-specification/blob/9e8c886a2043639a3c166eb7cc93526be6313147/specification/VRMC_springBone_extended_collider-1.0/schema/VRMC_springBone_extended_collider.shape.schema.json#L36
+class SpringBone1ExtendedColliderShapeCapsulePropertyGroup(
+    SpringBone1ColliderShapeCapsulePropertyGroup
+):
+    def find_armature_and_collider(
+        self,
+        context: Context,
+    ) -> tuple[Object, "SpringBone1ColliderPropertyGroup"]:
+        return find_armature_and_collider(
+            context,
+            lambda collider: (
+                collider.extensions.vrmc_spring_bone_extended_collider.shape.capsule
+                == self
+            ),
+        )
+
+    inside: BoolProperty()  # type: ignore[valid-type]
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        inside: bool  # type: ignore[no-redef]
+
+
+# https://github.com/vrm-c/vrm-specification/blob/9e8c886a2043639a3c166eb7cc93526be6313147/specification/VRMC_springBone_extended_collider-1.0/schema/VRMC_springBone_extended_collider.shape.schema.json#L73
+class SpringBone1ExtendedColliderShapePlanePropertyGroup(PropertyGroup):
+    def find_armature_and_collider(
+        self,
+        context: Context,
+    ) -> tuple[Object, "SpringBone1ColliderPropertyGroup"]:
+        return find_armature_and_collider(
+            context,
+            lambda collider: (
+                collider.extensions.vrmc_spring_bone_extended_collider.shape.plane
+                == self
+            ),
+        )
+
+    def get_offset(self) -> tuple[float, float, float]:
+        context = bpy.context
+
+        armature, collider = self.find_armature_and_collider(context)
+        if not collider.bpy_object:
+            logger.error(
+                'Failed to get bpy object of "%s" in extended_collider.get_offset()',
+                collider.name,
+            )
+            return (0, 0, 0)
+        bone = armature.pose.bones.get(collider.node.bone_name)
+        if bone:
+            matrix = (
+                bone.matrix.inverted()
+                @ armature.matrix_world.inverted()
+                @ collider.bpy_object.matrix_world
+            )
+        else:
+            matrix = armature.matrix_world.inverted() @ collider.bpy_object.matrix_world
+        return convert.float3_or(matrix.to_translation(), (0.0, 0.0, 0.0))
+
+    def set_offset(self, offset: Sequence[float]) -> None:
+        context = bpy.context
+
+        armature, collider = self.find_armature_and_collider(context)
+        collider.reset_bpy_object(context, armature)
+        bone = armature.pose.bones.get(collider.node.bone_name)
+        if not bone:
+            if collider.bpy_object:
+                collider.bpy_object.matrix_world = (
+                    armature.matrix_world @ Matrix.Translation(offset)
+                )
+            return
+        if collider.bpy_object:
+            collider.bpy_object.matrix_world = (
+                armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
+            )
+
+    def get_normal(self) -> tuple[float, float, float]:
+        context = bpy.context
+
+        armature, collider = self.find_armature_and_collider(context)
+        collider.reset_bpy_object(context, armature)
+        bpy_object = collider.bpy_object
+        if not bpy_object:
+            return (0.0, 1.0, 0.0)
+
+        result = Vector((0.0, 1.0, 0.0))
+        if bpy_object.rotation_mode == "QUATERNION":
+            result.rotate(bpy_object.rotation_quaternion)
+        elif bpy_object.rotation_mode in ["XYZ", "XZY", "YXZ", "YZX", "ZXY", "ZYX"]:
+            result.rotate(bpy_object.rotation_euler)
+        elif bpy_object.rotation_mode == "AXIS_ANGLE":
+            axis_x, axis_y, axis_z, angle = bpy_object.rotation_axis_angle
+            result.rotate(Quaternion((axis_x, axis_y, axis_z), angle))
+
+        return (
+            # use tuple initializer to make type checkers happy
+            result.x,
+            result.y,
+            result.z,
+        )
+
+    def set_normal(self, normal: Sequence[float]) -> None:
+        context = bpy.context
+
+        y_up_vec = Vector((0.0, 1.0, 0.0))
+        normal_vec = Vector(normal)
+        if normal_vec.length_squared > 0:
+            rotation_quaternion = normal_vec.rotation_difference(y_up_vec)
+        else:
+            rotation_quaternion = Quaternion()
+
+        armature, collider = self.find_armature_and_collider(context)
+        collider.reset_bpy_object(context, armature)
+        bpy_object = collider.bpy_object
+        if bpy_object:
+            if bpy_object.rotation_mode != "QUATERNION":
+                bpy_object.rotation_mode = "QUATERNION"
+            bpy_object.rotation_quaternion = rotation_quaternion
+
+    offset: FloatVectorProperty(  # type: ignore[valid-type]
+        size=3,
+        subtype="TRANSLATION",
+        unit="LENGTH",
+        default=(0, 0, 0),
+        get=get_offset,
+        set=set_offset,
+    )
+
+    normal: FloatVectorProperty(  # type: ignore[valid-type]
+        size=3,
+        default=(0, 0, 1),
+        get=get_normal,
+        set=set_normal,
+    )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        offset: Sequence[float]  # type: ignore[no-redef]
+        normal: Sequence[float]  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.shape.schema.json
@@ -334,6 +562,98 @@ class SpringBone1ColliderShapePropertyGroup(PropertyGroup):
         # `poetry run python tools/property_typing.py`
         sphere: SpringBone1ColliderShapeSpherePropertyGroup  # type: ignore[no-redef]
         capsule: SpringBone1ColliderShapeCapsulePropertyGroup  # type: ignore[no-redef]
+
+
+# https://github.com/vrm-c/vrm-specification/blob/9e8c886a2043639a3c166eb7cc93526be6313147/specification/VRMC_springBone_extended_collider-1.0/schema/VRMC_springBone_extended_collider.shape.schema.json
+class SpringBone1ExtendedColliderShapePropertyGroup(PropertyGroup):
+    sphere: PointerProperty(  # type: ignore[valid-type]
+        type=SpringBone1ExtendedColliderShapeSpherePropertyGroup
+    )
+    capsule: PointerProperty(  # type: ignore[valid-type]
+        type=SpringBone1ExtendedColliderShapeCapsulePropertyGroup
+    )
+    plane: PointerProperty(  # type: ignore[valid-type]
+        type=SpringBone1ExtendedColliderShapePlanePropertyGroup
+    )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        sphere: (  # type: ignore[no-redef]
+            SpringBone1ExtendedColliderShapeSpherePropertyGroup
+        )
+        capsule: (  # type: ignore[no-redef]
+            SpringBone1ExtendedColliderShapeCapsulePropertyGroup
+        )
+        plane: (  # type: ignore[no-redef]
+            SpringBone1ExtendedColliderShapePlanePropertyGroup
+        )
+
+
+# https://github.com/vrm-c/vrm-specification/blob/9e8c886a2043639a3c166eb7cc93526be6313147/specification/VRMC_springBone_extended_collider-1.0/schema/VRMC_springBone_extended_collider.schema.json
+class SpringBone1VrmcSpringBoneExtendedColliderPropertyGroup(PropertyGroup):
+    def update_shape_type(self, context: Context) -> None:
+        armature, collider = find_armature_and_collider(
+            context,
+            lambda collider: (
+                collider.extensions.vrmc_spring_bone_extended_collider == self
+            ),
+        )
+        collider.reset_bpy_object(context, armature)
+
+    enabled: BoolProperty(  # type: ignore[valid-type]
+        name="Extended Collider",
+        update=update_shape_type,
+    )
+
+    automatic_fallback_generation: BoolProperty(  # type: ignore[valid-type]
+        name="Automatic Fallback Generation",
+        default=True,
+    )
+
+    shape: PointerProperty(  # type: ignore[valid-type]
+        type=SpringBone1ExtendedColliderShapePropertyGroup
+    )
+
+    (
+        shape_type_enum,
+        (
+            SHAPE_TYPE_EXTENDED_SPHERE,
+            SHAPE_TYPE_EXTENDED_CAPSULE,
+            SHAPE_TYPE_EXTENDED_PLANE,
+        ),
+    ) = property_group_enum(
+        ("extendedSphere", "Sphere", "", "NONE", 0),
+        ("extendedCapsule", "Capsule", "", "NONE", 1),
+        ("extendedPlane", "Plane", "", "NONE", 2),
+    )
+
+    shape_type: EnumProperty(  # type: ignore[valid-type]
+        items=shape_type_enum.items(),
+        name="Shape",
+        update=update_shape_type,
+    )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        enabled: bool  # type: ignore[no-redef]
+        automatic_fallback_generation: bool  # type: ignore[no-redef]
+        shape: SpringBone1ExtendedColliderShapePropertyGroup  # type: ignore[no-redef]
+        shape_type: str  # type: ignore[no-redef]
+
+
+class SpringBone1ColliderExtensionsPropertyGroup(PropertyGroup):
+    vrmc_spring_bone_extended_collider: PointerProperty(  # type: ignore[valid-type]
+        type=SpringBone1VrmcSpringBoneExtendedColliderPropertyGroup
+    )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # `poetry run python tools/property_typing.py`
+        vrmc_spring_bone_extended_collider: (  # type: ignore[no-redef]
+            SpringBone1VrmcSpringBoneExtendedColliderPropertyGroup
+        )
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.collider.schema.json
@@ -367,6 +687,7 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
 
     node: PointerProperty(type=BonePropertyGroup)  # type: ignore[valid-type]
     shape: PointerProperty(type=SpringBone1ColliderShapePropertyGroup)  # type: ignore[valid-type]
+    extensions: PointerProperty(type=SpringBone1ColliderExtensionsPropertyGroup)  # type: ignore[valid-type]
 
     # for UI
     show_expanded: BoolProperty()  # type: ignore[valid-type]
@@ -382,6 +703,83 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
         ("Capsule", "Capsule", "", "NONE", 1),
     )
 
+    (
+        ui_collider_type_enum,
+        (
+            UI_COLLIDER_TYPE_SPHERE,
+            UI_COLLIDER_TYPE_CAPSULE,
+            UI_COLLIDER_TYPE_PLANE,
+            UI_COLLIDER_TYPE_SPHERE_INSIDE,
+            UI_COLLIDER_TYPE_CAPSULE_INSIDE,
+        ),
+    ) = property_group_enum(
+        ("uiColliderTypeSphere", "Sphere", "", "NONE", 0),
+        ("uiColliderTypeCapsule", "Capsule", "", "NONE", 1),
+        ("uiColliderTypePlane", "Plane", "", "NONE", 2),
+        ("uiColliderTypeSphereInside", "Sphere Inside", "", "NONE", 3),
+        ("uiColliderTypeCapsuleInside", "Capsule Inside", "", "NONE", 4),
+    )
+
+    def get_ui_collider_type(self) -> int:
+        extended = self.extensions.vrmc_spring_bone_extended_collider
+        if not extended.enabled:
+            if self.shape_type == self.SHAPE_TYPE_SPHERE.identifier:
+                return self.UI_COLLIDER_TYPE_SPHERE.value
+            if self.shape_type == self.SHAPE_TYPE_CAPSULE.identifier:
+                return self.UI_COLLIDER_TYPE_CAPSULE.value
+            return self.UI_COLLIDER_TYPE_SPHERE.value
+
+        if extended.shape_type == extended.SHAPE_TYPE_EXTENDED_PLANE.identifier:
+            return self.UI_COLLIDER_TYPE_PLANE.value
+        if extended.shape_type == extended.SHAPE_TYPE_EXTENDED_SPHERE.identifier:
+            if extended.shape.sphere.inside:
+                return self.UI_COLLIDER_TYPE_SPHERE_INSIDE.value
+            return self.UI_COLLIDER_TYPE_SPHERE.value
+        if extended.shape_type == extended.SHAPE_TYPE_EXTENDED_CAPSULE.identifier:
+            if extended.shape.capsule.inside:
+                return self.UI_COLLIDER_TYPE_CAPSULE_INSIDE.value
+            return self.UI_COLLIDER_TYPE_CAPSULE.value
+        return self.UI_COLLIDER_TYPE_SPHERE.value
+
+    def set_ui_collider_type(self, value: int) -> None:
+        extended = self.extensions.vrmc_spring_bone_extended_collider
+
+        if value in [
+            self.UI_COLLIDER_TYPE_SPHERE.value,
+            self.UI_COLLIDER_TYPE_SPHERE_INSIDE.value,
+        ]:
+            if self.shape_type != self.SHAPE_TYPE_SPHERE.identifier:
+                self.shape_type = self.SHAPE_TYPE_SPHERE.identifier
+            if extended.shape_type != extended.SHAPE_TYPE_EXTENDED_SPHERE.identifier:
+                extended.shape_type = extended.SHAPE_TYPE_EXTENDED_SPHERE.identifier
+            inside = self.UI_COLLIDER_TYPE_SPHERE_INSIDE.value == value
+            if extended.shape.sphere.inside != inside:
+                extended.shape.sphere.inside = inside
+            if extended.enabled != inside:
+                extended.enabled = inside
+            return
+
+        if value in [
+            self.UI_COLLIDER_TYPE_CAPSULE.value,
+            self.UI_COLLIDER_TYPE_CAPSULE_INSIDE.value,
+        ]:
+            if self.shape_type != self.SHAPE_TYPE_CAPSULE.identifier:
+                self.shape_type = self.SHAPE_TYPE_CAPSULE.identifier
+            if extended.shape_type != extended.SHAPE_TYPE_EXTENDED_CAPSULE.identifier:
+                extended.shape_type = extended.SHAPE_TYPE_EXTENDED_CAPSULE.identifier
+            inside = self.UI_COLLIDER_TYPE_CAPSULE_INSIDE.value == value
+            if extended.shape.capsule.inside != inside:
+                extended.shape.capsule.inside = inside
+            if extended.enabled != inside:
+                extended.enabled = inside
+            return
+
+        if self.UI_COLLIDER_TYPE_PLANE.value == value:
+            if not extended.enabled:
+                extended.enabled = True
+            if extended.shape_type != extended.SHAPE_TYPE_EXTENDED_PLANE.identifier:
+                extended.shape_type = extended.SHAPE_TYPE_EXTENDED_PLANE.identifier
+
     def update_shape_type(self, context: Context) -> None:
         if (
             self.bpy_object
@@ -394,6 +792,13 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
         items=shape_type_enum.items(),
         name="Shape",
         update=update_shape_type,
+    )
+
+    ui_collider_type: EnumProperty(  # type: ignore[valid-type]
+        items=ui_collider_type_enum.items(),
+        name="Collider Type",
+        get=get_ui_collider_type,
+        set=set_ui_collider_type,
     )
 
     # for View3D
@@ -423,10 +828,17 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
 
         if self.bpy_object.parent != armature:
             self.bpy_object.parent = armature
-        if self.bpy_object.empty_display_type != "SPHERE":
-            self.bpy_object.empty_display_type = "SPHERE"
 
-        if self.shape_type == self.SHAPE_TYPE_SPHERE.identifier:
+        extended = self.extensions.vrmc_spring_bone_extended_collider
+        if (
+            self.shape_type == self.SHAPE_TYPE_SPHERE.identifier
+            or extended.enabled
+            and extended.shape_type
+            in [
+                extended.SHAPE_TYPE_EXTENDED_SPHERE.identifier,
+                extended.SHAPE_TYPE_EXTENDED_PLANE.identifier,
+            ]
+        ):
             children = list(self.bpy_object.children)
             for collection in context.blend_data.collections:
                 for child in children:
@@ -436,8 +848,16 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
             for child in children:
                 if child.users <= 1:
                     context.blend_data.objects.remove(child, do_unlink=True)
-
-        elif self.shape_type == self.SHAPE_TYPE_CAPSULE.identifier:
+            empty_display_type = "SPHERE"
+            if extended.shape_type == extended.SHAPE_TYPE_EXTENDED_PLANE.identifier:
+                empty_display_type = "CIRCLE"
+            if self.bpy_object.empty_display_type != empty_display_type:
+                self.bpy_object.empty_display_type = empty_display_type
+        elif (
+            self.shape_type == self.SHAPE_TYPE_CAPSULE
+            or extended.enabled
+            and extended.shape_type == extended.SHAPE_TYPE_EXTENDED_CAPSULE.identifier
+        ):
             if self.bpy_object.children:
                 end_object = self.bpy_object.children[0]
             else:
@@ -447,6 +867,8 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
                 end_object.empty_display_size = self.bpy_object.empty_display_size
                 context.scene.collection.objects.link(end_object)
                 end_object.parent = self.bpy_object
+            if self.bpy_object.empty_display_type != "SPHERE":
+                self.bpy_object.empty_display_type = "SPHERE"
             if end_object.empty_display_type != "SPHERE":
                 end_object.empty_display_type = "SPHERE"
 
@@ -468,8 +890,10 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
         # `poetry run python tools/property_typing.py`
         node: BonePropertyGroup  # type: ignore[no-redef]
         shape: SpringBone1ColliderShapePropertyGroup  # type: ignore[no-redef]
+        extensions: SpringBone1ColliderExtensionsPropertyGroup  # type: ignore[no-redef]
         show_expanded: bool  # type: ignore[no-redef]
         shape_type: str  # type: ignore[no-redef]
+        ui_collider_type: str  # type: ignore[no-redef]
         bpy_object: Optional[Object]  # type: ignore[no-redef]
         uuid: str  # type: ignore[no-redef]
         search_one_time_uuid: str  # type: ignore[no-redef]

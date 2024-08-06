@@ -40,7 +40,10 @@ from ..editor.mtoon1.property_group import (
     Mtoon1TextureInfoPropertyGroup,
     Mtoon1TexturePropertyGroup,
 )
-from ..editor.spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
+from ..editor.spring_bone1.property_group import (
+    SpringBone1ColliderPropertyGroup,
+    SpringBone1SpringBonePropertyGroup,
+)
 from ..editor.vrm1.property_group import (
     Vrm1ExpressionPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
@@ -1233,72 +1236,59 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 expression.custom_name = custom_name
                 self.load_vrm1_expression(expression, expression_dict)
 
-    def load_spring_bone1_colliders(
+    @staticmethod
+    def detect_spring_bone1_collider_shape_shape(
+        collider_dict: dict[str, Json],
+    ) -> Optional[str]:
+        shape_dict = collider_dict.get("shape")
+        if not isinstance(shape_dict, dict):
+            return None
+
+        return SpringBone1ColliderPropertyGroup.SHAPE_TYPE_CAPSULE.identifier
+
+    def load_spring_bone1_collider(
         self,
-        spring_bone: SpringBone1SpringBonePropertyGroup,
-        spring_bone_dict: dict[str, Json],
-        armature: Object,
+        collider: SpringBone1ColliderPropertyGroup,
+        collider_dict: dict[str, Json],
     ) -> None:
-        collider_dicts = spring_bone_dict.get("colliders")
-        if not isinstance(collider_dicts, list):
-            collider_dicts = []
+        bone: Optional[Bone] = None
+        node_index = collider_dict.get("node")
+        if isinstance(node_index, int):
+            bone_name = self.bone_names.get(node_index)
+            if isinstance(bone_name, str):
+                collider.node.set_bone_name(bone_name)
+                if collider.bpy_object:
+                    collider.bpy_object.name = f"{bone_name} Collider"
+                bone = self.armature_data.bones.get(collider.node.bone_name)
 
-        for collider_dict in collider_dicts:
-            # ColliderGroupからColliderへの参照はindexでの参照のため、
-            # collider_dictの中身が不正でも空のデータは作成しておく
-            if ops.vrm.add_spring_bone1_collider(armature_name=armature.name) != {
-                "FINISHED"
-            }:
-                message = f'Failed to add spring bone 1.0 collider to "{armature.name}"'
-                raise ValueError(message)
+        shape_dict = collider_dict.get("shape")
+        if not isinstance(shape_dict, dict):
+            collider.shape.sphere.radius = 0.0001
+            collider.shape.sphere.offset = (0, 0, -10000)
+            return
 
-            collider = spring_bone.colliders[-1]
+        shape = collider.shape
 
-            if not isinstance(collider_dict, dict):
-                collider.shape.sphere.radius = 0.0001
-                collider.shape.sphere.offset = (0, 0, -10000)
-                continue
-
-            bone: Optional[Bone] = None
-            node_index = collider_dict.get("node")
-            if isinstance(node_index, int):
-                bone_name = self.bone_names.get(node_index)
-                if isinstance(bone_name, str):
-                    collider.node.set_bone_name(bone_name)
-                    if collider.bpy_object:
-                        collider.bpy_object.name = f"{bone_name} Collider"
-                    bone = self.armature_data.bones.get(collider.node.bone_name)
-
-            shape_dict = collider_dict.get("shape")
-            if not isinstance(shape_dict, dict):
-                continue
-
-            shape = collider.shape
-
-            sphere_dict = shape_dict.get("sphere")
-            if isinstance(sphere_dict, dict):
-                collider.shape_type = collider.SHAPE_TYPE_SPHERE.identifier
-                offset = Vector(
-                    convert.vrm_json_array_to_float_vector(
-                        sphere_dict.get("offset"), [0, 0, 0]
-                    )
+        sphere_dict = shape_dict.get("sphere")
+        capsule_dict = shape_dict.get("capsule")
+        if isinstance(sphere_dict, dict):
+            collider.shape_type = collider.SHAPE_TYPE_SPHERE.identifier
+            offset = Vector(
+                convert.vrm_json_array_to_float_vector(
+                    sphere_dict.get("offset"), [0, 0, 0]
                 )
-                if bone:
-                    axis_translation = get_bone_extension(bone).axis_translation
-                    offset = Vector(offset) @ BoneExtension.translate_axis(
-                        Matrix(),
-                        BoneExtension.reverse_axis_translation(axis_translation),
-                    )
-                shape.sphere.offset = offset
-                radius = sphere_dict.get("radius")
-                if isinstance(radius, (float, int)):
-                    shape.sphere.radius = float(radius)
-                continue
-
-            capsule_dict = shape_dict.get("capsule")
-            if not isinstance(capsule_dict, dict):
-                continue
-
+            )
+            if bone:
+                axis_translation = get_bone_extension(bone).axis_translation
+                offset = Vector(offset) @ BoneExtension.translate_axis(
+                    Matrix(),
+                    BoneExtension.reverse_axis_translation(axis_translation),
+                )
+            shape.sphere.offset = offset
+            radius = sphere_dict.get("radius")
+            if isinstance(radius, (float, int)):
+                shape.sphere.radius = float(radius)
+        elif isinstance(capsule_dict, dict):
             collider.shape_type = collider.SHAPE_TYPE_CAPSULE.identifier
 
             offset = Vector(
@@ -1330,6 +1320,149 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     BoneExtension.reverse_axis_translation(axis_translation),
                 )
             shape.capsule.tail = tail
+
+        extensions_dict = collider_dict.get("extensions")
+        if not isinstance(extensions_dict, dict):
+            return
+        extended_collider_dict = extensions_dict.get(
+            "VRMC_springBone_extended_collider"
+        )
+        if not isinstance(extended_collider_dict, dict):
+            return
+        extended_shape_dict = extended_collider_dict.get("shape")
+        if not isinstance(extended_shape_dict, dict):
+            return
+
+        extended_collider = collider.extensions.vrmc_spring_bone_extended_collider
+        extended_shape = extended_collider.shape
+        extended_sphere_dict = extended_shape_dict.get("sphere")
+        extended_capsule_dict = extended_shape_dict.get("capsule")
+        extended_plane_dict = extended_shape_dict.get("plane")
+        if isinstance(extended_sphere_dict, dict):
+            extended_collider.shape_type = (
+                extended_collider.SHAPE_TYPE_EXTENDED_SPHERE.identifier
+            )
+            offset = Vector(
+                convert.vrm_json_array_to_float_vector(
+                    extended_sphere_dict.get("offset"), [0, 0, 0]
+                )
+            )
+            if bone:
+                axis_translation = get_bone_extension(bone).axis_translation
+                offset = Vector(offset) @ BoneExtension.translate_axis(
+                    Matrix(),
+                    BoneExtension.reverse_axis_translation(axis_translation),
+                )
+            extended_shape.sphere.offset = offset
+            radius = extended_sphere_dict.get("radius")
+            if isinstance(radius, (float, int)):
+                extended_shape.sphere.radius = float(radius)
+
+            inside = extended_sphere_dict.get("inside")
+            if isinstance(inside, bool):
+                extended_shape.sphere.inside = inside
+
+        elif isinstance(extended_capsule_dict, dict):
+            extended_collider.shape_type = (
+                extended_collider.SHAPE_TYPE_EXTENDED_CAPSULE.identifier
+            )
+            offset = Vector(
+                convert.vrm_json_array_to_float_vector(
+                    extended_capsule_dict.get("offset"), [0, 0, 0]
+                )
+            )
+            if bone:
+                axis_translation = get_bone_extension(bone).axis_translation
+                offset = Vector(offset) @ BoneExtension.translate_axis(
+                    Matrix(),
+                    BoneExtension.reverse_axis_translation(axis_translation),
+                )
+            extended_shape.capsule.offset = offset
+
+            radius = extended_capsule_dict.get("radius")
+            if isinstance(radius, (float, int)):
+                extended_shape.capsule.radius = float(radius)
+
+            tail = Vector(
+                convert.vrm_json_array_to_float_vector(
+                    extended_capsule_dict.get("tail"), [0, 0, 0]
+                )
+            )
+            if bone:
+                axis_translation = get_bone_extension(bone).axis_translation
+                tail = Vector(tail) @ BoneExtension.translate_axis(
+                    Matrix(),
+                    BoneExtension.reverse_axis_translation(axis_translation),
+                )
+            extended_shape.capsule.tail = tail
+
+            inside = extended_capsule_dict.get("inside")
+            if isinstance(inside, bool):
+                extended_shape.capsule.inside = inside
+
+        elif isinstance(extended_plane_dict, dict):
+            extended_collider.shape_type = (
+                extended_collider.SHAPE_TYPE_EXTENDED_PLANE.identifier
+            )
+
+            offset = Vector(
+                convert.vrm_json_array_to_float_vector(
+                    extended_plane_dict.get("offset"), [0, 0, 0]
+                )
+            )
+            if bone:
+                axis_translation = get_bone_extension(bone).axis_translation
+                offset = Vector(offset) @ BoneExtension.translate_axis(
+                    Matrix(),
+                    BoneExtension.reverse_axis_translation(axis_translation),
+                )
+            extended_shape.plane.offset = offset
+
+            normal = Vector(
+                convert.vrm_json_array_to_float_vector(
+                    extended_plane_dict.get("normal"), [0, 0, 0]
+                )
+            )
+            if bone:
+                axis_translation = get_bone_extension(bone).axis_translation
+                normal = Vector(normal) @ BoneExtension.translate_axis(
+                    Matrix(),
+                    BoneExtension.reverse_axis_translation(axis_translation),
+                )
+            extended_shape.plane.normal = normal
+
+        else:
+            return
+
+        extended_collider.enabled = True
+
+    def load_spring_bone1_colliders(
+        self,
+        spring_bone: SpringBone1SpringBonePropertyGroup,
+        spring_bone_dict: dict[str, Json],
+        armature: Object,
+    ) -> None:
+        collider_dicts = spring_bone_dict.get("colliders")
+        if not isinstance(collider_dicts, list):
+            collider_dicts = []
+
+        for collider_dict in collider_dicts:
+            # ColliderGroupからColliderへの参照はindexでの参照のため、
+            # collider_dictの中身が不正でも空のデータは作成しておく
+            if ops.vrm.add_spring_bone1_collider(armature_name=armature.name) != {
+                "FINISHED"
+            }:
+                message = f'Failed to add spring bone 1.0 collider to "{armature.name}"'
+                raise ValueError(message)
+
+            collider = spring_bone.colliders[-1]
+
+            if not isinstance(collider_dict, dict):
+                collider.shape.sphere.radius = 0.0001
+                collider.shape.sphere.offset = (0, 0, -10000)
+                continue
+
+            self.load_spring_bone1_collider(collider, collider_dict)
 
         for collider in spring_bone.colliders:
             collider.reset_bpy_object(self.context, armature)

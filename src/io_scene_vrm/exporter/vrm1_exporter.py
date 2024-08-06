@@ -434,6 +434,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     @classmethod
     def create_spring_bone_collider_dicts(
         cls,
+        extensions_used: list[Json],
         spring_bone: SpringBone1SpringBonePropertyGroup,
         bone_name_to_index_dict: Mapping[str, int],
     ) -> tuple[list[Json], dict[str, int]]:
@@ -446,27 +447,111 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 continue
             collider_dict["node"] = node_index
 
+            extended_collider = collider.extensions.vrmc_spring_bone_extended_collider
             if collider.shape_type == collider.SHAPE_TYPE_SPHERE.identifier:
-                shape_dict: dict[str, Json] = {
-                    "sphere": {
-                        "offset": list(collider.shape.sphere.offset),
-                        "radius": collider.shape.sphere.radius,
-                    }
+                if not extended_collider.enabled:
+                    sphere_offset: Json = list(collider.shape.sphere.offset)
+                    sphere_radius = collider.shape.sphere.radius
+                elif not extended_collider.automatic_fallback_generation:
+                    sphere_offset = list(collider.shape.sphere.fallback_offset)
+                    sphere_radius = collider.shape.sphere.fallback_radius
+                elif (
+                    extended_collider.shape_type
+                    == extended_collider.SHAPE_TYPE_EXTENDED_SPHERE.identifier
+                    and not extended_collider.shape.sphere.inside
+                ):
+                    sphere_offset = list(extended_collider.shape.sphere.offset)
+                    sphere_radius = extended_collider.shape.sphere.radius
+                else:
+                    sphere_offset = [0, -10000, 0]
+                    sphere_radius = 0.00001
+                sphere_dict: dict[str, Json] = {
+                    "offset": sphere_offset,
+                    "radius": sphere_radius,
                 }
+                shape_dict: dict[str, Json] = {"sphere": sphere_dict}
             elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE.identifier:
-                shape_dict = {
-                    "capsule": {
-                        "offset": list(collider.shape.capsule.offset),
-                        "radius": collider.shape.capsule.radius,
-                        "tail": list(collider.shape.capsule.tail),
-                    }
+                if not extended_collider.enabled:
+                    capsule_offset: Json = list(collider.shape.capsule.offset)
+                    capsule_radius = collider.shape.capsule.radius
+                    capsule_tail: Json = list(collider.shape.capsule.tail)
+                elif not extended_collider.automatic_fallback_generation:
+                    capsule_offset = list(collider.shape.capsule.fallback_offset)
+                    capsule_radius = collider.shape.capsule.fallback_radius
+                    capsule_tail = list(collider.shape.capsule.fallback_tail)
+                elif (
+                    extended_collider.shape_type
+                    == extended_collider.SHAPE_TYPE_EXTENDED_CAPSULE.identifier
+                    and not extended_collider.shape.capsule.inside
+                ):
+                    capsule_offset = list(extended_collider.shape.capsule.offset)
+                    capsule_radius = extended_collider.shape.capsule.radius
+                    capsule_tail = list(extended_collider.shape.capsule.tail)
+                else:
+                    capsule_offset = [0, -10000, 0]
+                    capsule_radius = 0.00001
+                    capsule_tail = [0, -10001, 0]
+                capsule_dict: dict[str, Json] = {
+                    "offset": capsule_offset,
+                    "radius": capsule_radius,
+                    "tail": capsule_tail,
                 }
+                shape_dict = {"capsule": capsule_dict}
             else:
                 continue
 
             collider_dict["shape"] = shape_dict
             collider_uuid_to_index_dict[collider.uuid] = len(collider_dicts)
             collider_dicts.append(collider_dict)
+
+            if not extended_collider.enabled:
+                continue
+
+            if (
+                extended_collider.shape_type
+                == extended_collider.SHAPE_TYPE_EXTENDED_SPHERE.identifier
+            ):
+                extended_shape_dict: dict[str, Json] = {
+                    "sphere": {
+                        "offset": list(extended_collider.shape.sphere.offset),
+                        "radius": extended_collider.shape.sphere.radius,
+                        "inside": extended_collider.shape.sphere.inside,
+                    }
+                }
+            elif (
+                extended_collider.shape_type
+                == extended_collider.SHAPE_TYPE_EXTENDED_CAPSULE.identifier
+            ):
+                extended_shape_dict = {
+                    "capsule": {
+                        "offset": list(extended_collider.shape.capsule.offset),
+                        "radius": extended_collider.shape.capsule.radius,
+                        "tail": list(extended_collider.shape.capsule.tail),
+                        "inside": extended_collider.shape.capsule.inside,
+                    }
+                }
+            elif (
+                extended_collider.shape_type
+                == extended_collider.SHAPE_TYPE_EXTENDED_PLANE.identifier
+            ):
+                extended_shape_dict = {
+                    "plane": {
+                        "offset": list(extended_collider.shape.plane.offset),
+                        "normal": list(extended_collider.shape.plane.normal),
+                    }
+                }
+            else:
+                continue
+
+            collider_dict["extensions"] = {
+                "VRMC_springBone_extended_collider": {
+                    "specVersion": "1.0-draft",
+                    "shape": extended_shape_dict,
+                }
+            }
+
+            if "VRMC_springBone_extended_collider" not in extensions_used:
+                extensions_used.append("VRMC_springBone_extended_collider")
 
         return collider_dicts, collider_uuid_to_index_dict
 
@@ -2366,7 +2451,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         (
             spring_bone_collider_dicts,
             collider_uuid_to_index_dict,
-        ) = self.create_spring_bone_collider_dicts(spring_bone, bone_name_to_index_dict)
+        ) = self.create_spring_bone_collider_dicts(
+            extensions_used, spring_bone, bone_name_to_index_dict
+        )
         if spring_bone_collider_dicts:
             spring_bone_dict["colliders"] = spring_bone_collider_dicts
 

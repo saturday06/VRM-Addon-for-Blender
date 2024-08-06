@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 from decimal import Decimal
 from sys import float_info
@@ -45,9 +46,10 @@ class SphereWorldCollider:
         self, target: Vector, target_radius: float
     ) -> tuple[Vector, float]:
         diff = target - self.offset
-        diff_length = diff.length
-        if diff_length < float_info.epsilon:
+        diff_length_squared = diff.length_squared
+        if diff_length_squared < float_info.epsilon:
             return Vector((0, 0, -1)), -0.01
+        diff_length = math.sqrt(diff_length_squared)
         return diff / diff_length, diff_length - target_radius - self.radius
 
 
@@ -56,16 +58,13 @@ class CapsuleWorldCollider:
     offset: Vector
     radius: float
     tail: Vector
-    offset_to_tail_diff: Vector
-    offset_to_tail_diff_length_squared: float
+    offset_to_tail_diff: Vector  # ゼロベクトル以外の値にする必要がある
+    offset_to_tail_diff_length_squared: float  # ゼロ以上の値にする必要がある
 
     def calculate_collision(
         self, target: Vector, target_radius: float
     ) -> tuple[Vector, float]:
         fallback_result = (Vector((0, 0, -1)), -0.01)
-
-        if abs(self.offset_to_tail_diff_length_squared) < float_info.epsilon:
-            return fallback_result
 
         offset_to_target_diff = target - self.offset
 
@@ -94,6 +93,42 @@ class CapsuleWorldCollider:
             nearest_to_target_diff / nearest_to_target_diff_length,
             nearest_to_target_diff_length - target_radius - self.radius,
         )
+
+
+@dataclass(frozen=True)
+class SphereInsideWorldCollider:
+    offset: Vector
+    radius: float
+
+    def calculate_collision(
+        self, _target: Vector, _target_radius: float
+    ) -> tuple[Vector, float]:
+        return Vector((0, 0, -1)), -0.01
+
+
+@dataclass(frozen=True)
+class CapsuleInsideWorldCollider:
+    offset: Vector
+    radius: float
+    tail: Vector
+    offset_to_tail_diff: Vector  # ゼロベクトル以外の値にする必要がある
+    offset_to_tail_diff_length_squared: float  # ゼロ以上の値にする必要がある
+
+    def calculate_collision(
+        self, _target: Vector, _target_radius: float
+    ) -> tuple[Vector, float]:
+        return Vector((0, 0, -1)), -0.01
+
+
+@dataclass(frozen=True)
+class PlaneWorldCollider:
+    offset: Vector
+    normal: Vector
+
+    def calculate_collision(
+        self, _target: Vector, _target_radius: float
+    ) -> tuple[Vector, float]:
+        return Vector((0, 0, -1)), -0.01
 
 
 # https://github.com/vrm-c/vrm-specification/tree/993a90a5bda9025f3d9e2923ad6dea7506f88553/specification/VRMC_springBone-1.0#update-procedure
@@ -134,7 +169,14 @@ def calculate_object_pose_bone_rotations(
         return
 
     collider_uuid_to_world_collider: dict[
-        str, Union[SphereWorldCollider, CapsuleWorldCollider]
+        str,
+        Union[
+            SphereWorldCollider,
+            CapsuleWorldCollider,
+            SphereInsideWorldCollider,
+            CapsuleInsideWorldCollider,
+            PlaneWorldCollider,
+        ],
     ] = {}
     for collider in spring_bone1.colliders:
         pose_bone = obj.pose.bones.get(collider.node.bone_name)
@@ -142,10 +184,86 @@ def calculate_object_pose_bone_rotations(
             continue
         pose_bone_world_matrix = obj.matrix_world @ pose_bone.matrix
 
-        if collider.shape_type == collider.SHAPE_TYPE_SPHERE.identifier:
+        extended_collider = collider.extensions.vrmc_spring_bone_extended_collider
+        world_collider: Union[
+            None,
+            SphereWorldCollider,
+            CapsuleWorldCollider,
+            SphereInsideWorldCollider,
+            CapsuleInsideWorldCollider,
+            PlaneWorldCollider,
+        ] = None
+        if extended_collider.enabled:
+            if (
+                extended_collider.shape_type
+                == extended_collider.SHAPE_TYPE_EXTENDED_SPHERE.identifier
+            ):
+                offset = pose_bone_world_matrix @ Vector(
+                    extended_collider.shape.sphere.offset
+                )
+                radius = extended_collider.shape.sphere.radius
+                if extended_collider.shape.sphere.inside:
+                    world_collider = SphereInsideWorldCollider(
+                        offset=offset, radius=radius
+                    )
+                else:
+                    world_collider = SphereWorldCollider(offset=offset, radius=radius)
+            elif (
+                extended_collider.shape_type
+                == extended_collider.SHAPE_TYPE_EXTENDED_CAPSULE.identifier
+            ):
+                offset = pose_bone_world_matrix @ Vector(
+                    extended_collider.shape.capsule.offset
+                )
+                tail = pose_bone_world_matrix @ Vector(
+                    extended_collider.shape.capsule.tail
+                )
+                radius = extended_collider.shape.sphere.radius
+                offset_to_tail_diff = tail - offset
+                offset_to_tail_diff_length_squared = offset_to_tail_diff.length_squared
+                if offset_to_tail_diff_length_squared < float_info.epsilon:
+                    # offsetとtailの位置が同じ場合はスフィアコライダーにする
+                    if extended_collider.shape.capsule.inside:
+                        world_collider = SphereInsideWorldCollider(
+                            offset=offset, radius=radius
+                        )
+                    else:
+                        world_collider = SphereWorldCollider(
+                            offset=offset, radius=radius
+                        )
+                elif extended_collider.shape.capsule.inside:
+                    world_collider = CapsuleInsideWorldCollider(
+                        offset=offset,
+                        radius=radius,
+                        tail=tail,
+                        offset_to_tail_diff=offset_to_tail_diff,
+                        offset_to_tail_diff_length_squared=offset_to_tail_diff_length_squared,
+                    )
+                else:
+                    world_collider = CapsuleWorldCollider(
+                        offset=offset,
+                        radius=radius,
+                        tail=tail,
+                        offset_to_tail_diff=offset_to_tail_diff,
+                        offset_to_tail_diff_length_squared=offset_to_tail_diff_length_squared,
+                    )
+            elif (
+                extended_collider.shape_type
+                == extended_collider.SHAPE_TYPE_EXTENDED_PLANE.identifier
+            ):
+                offset = pose_bone_world_matrix @ Vector(
+                    extended_collider.shape.plane.offset
+                )
+                normal_vector = Vector(extended_collider.shape.plane.normal)
+                normal_vector.rotate(pose_bone_world_matrix)
+                world_collider = PlaneWorldCollider(
+                    offset=offset,
+                    normal=normal_vector,
+                )
+        elif collider.shape_type == collider.SHAPE_TYPE_SPHERE.identifier:
             offset = pose_bone_world_matrix @ Vector(collider.shape.sphere.offset)
             radius = collider.shape.sphere.radius
-            collider_uuid_to_world_collider[collider.uuid] = SphereWorldCollider(
+            world_collider = SphereWorldCollider(
                 offset=offset,
                 radius=radius,
             )
@@ -154,7 +272,7 @@ def calculate_object_pose_bone_rotations(
             tail = pose_bone_world_matrix @ Vector(collider.shape.capsule.tail)
             radius = collider.shape.sphere.radius
             offset_to_tail_diff = tail - offset
-            collider_uuid_to_world_collider[collider.uuid] = CapsuleWorldCollider(
+            world_collider = CapsuleWorldCollider(
                 offset=offset,
                 radius=radius,
                 tail=tail,
@@ -162,8 +280,20 @@ def calculate_object_pose_bone_rotations(
                 offset_to_tail_diff_length_squared=offset_to_tail_diff.length_squared,
             )
 
+        if world_collider:
+            collider_uuid_to_world_collider[collider.uuid] = world_collider
+
     collider_group_uuid_to_world_colliders: dict[
-        str, list[Union[SphereWorldCollider, CapsuleWorldCollider]]
+        str,
+        list[
+            Union[
+                SphereWorldCollider,
+                CapsuleWorldCollider,
+                SphereInsideWorldCollider,
+                CapsuleInsideWorldCollider,
+                PlaneWorldCollider,
+            ]
+        ],
     ] = {}
     for collider_group in spring_bone1.collider_groups:
         for collider_reference in collider_group.colliders:
@@ -245,7 +375,16 @@ def calculate_spring_pose_bone_rotations(
     spring: SpringBone1SpringPropertyGroup,
     pose_bone_and_rotations: list[tuple[PoseBone, Quaternion]],
     collider_group_uuid_to_world_colliders: dict[
-        str, list[Union[SphereWorldCollider, CapsuleWorldCollider]]
+        str,
+        list[
+            Union[
+                SphereWorldCollider,
+                CapsuleWorldCollider,
+                SphereInsideWorldCollider,
+                CapsuleInsideWorldCollider,
+                PlaneWorldCollider,
+            ]
+        ],
     ],
     previous_to_current_center_world_translation: Vector,
 ) -> None:
@@ -303,7 +442,15 @@ def calculate_spring_pose_bone_rotations(
             )
         )
 
-    world_colliders: list[Union[SphereWorldCollider, CapsuleWorldCollider]] = []
+    world_colliders: list[
+        Union[
+            SphereWorldCollider,
+            CapsuleWorldCollider,
+            SphereInsideWorldCollider,
+            CapsuleInsideWorldCollider,
+            PlaneWorldCollider,
+        ]
+    ] = []
     for collider_group_reference in spring.collider_groups:
         collider_group_world_colliders = collider_group_uuid_to_world_colliders.get(
             collider_group_reference.collider_group_uuid
@@ -350,7 +497,15 @@ def calculate_joint_pair_head_pose_bone_rotations(
     tail_pose_bone: PoseBone,
     current_tail_rest_object_matrix: Matrix,
     next_head_pose_bone_before_rotation_matrix: Optional[Matrix],
-    world_colliders: list[Union[SphereWorldCollider, CapsuleWorldCollider]],
+    world_colliders: list[
+        Union[
+            SphereWorldCollider,
+            CapsuleWorldCollider,
+            SphereInsideWorldCollider,
+            CapsuleInsideWorldCollider,
+            PlaneWorldCollider,
+        ]
+    ],
     previous_to_current_center_world_translation: Vector,
 ) -> tuple[Quaternion, Matrix]:
     current_head_pose_bone_matrix = head_pose_bone.matrix
