@@ -7,7 +7,7 @@ import math
 import re
 import statistics
 import struct
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from os import environ
 from sys import float_info
@@ -290,7 +290,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             ImageBin(image_bin, image.name, filetype, self.glb_bin_collector)
 
     def bone_to_node_dict(
-        self, bone: PoseBone, bone_name_to_node_index_dict: dict[str, int]
+        self, bone: PoseBone, bone_name_to_node_index_dict: Mapping[str, int]
     ) -> dict[str, Json]:
         if bone.parent is not None:
             world_head = (
@@ -433,7 +433,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
     @classmethod
     def add_texture(
         cls,
-        image_name_to_index_dict: dict[str, int],
+        image_name_to_index_dict: Mapping[str, int],
         sampler_tuple_to_index_dict: dict[tuple[int, int, int, int], int],
         texture_tuple_to_index_dict: dict[tuple[int, int], int],
         image_name: str,
@@ -477,8 +477,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
     def apply_texture_and_sampler_to_dict(
         self,
-        sampler_tuple_to_index_dict: dict[tuple[int, int, int, int], int],
-        texture_tuple_to_index_dict: dict[tuple[int, int], int],
+        sampler_tuple_to_index_dict: Mapping[tuple[int, int, int, int], int],
+        texture_tuple_to_index_dict: Mapping[tuple[int, int], int],
     ) -> None:
         if sampler_tuple_to_index_dict:
             self.json_dict["samplers"] = [
@@ -1921,7 +1921,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         )
 
     def joint_id_from_node_name_solver(
-        self, node_name: str, node_id_dict: dict[str, int]
+        self, node_name: str, node_id_dict: Mapping[str, int]
     ) -> int:
         # 存在しないボーンを指してる場合は-1を返す
         node_id = node_id_dict.get(node_name)

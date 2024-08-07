@@ -1,6 +1,6 @@
 import math
 import tempfile
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from copy import deepcopy
 from os import environ
@@ -63,13 +63,13 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def __init__(
         self,
         context: Context,
-        export_objects: list[Object],
+        export_objects: Sequence[Object],
         *,
         export_all_influences: bool,
         export_lights: bool,
     ) -> None:
         super().__init__(context)
-        self.export_objects = export_objects
+
         self.export_all_influences = export_all_influences
         self.export_lights = export_lights
 
@@ -85,14 +85,18 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
 
+        collider_bpy_objects: list[Object] = []
         for collider in get_armature_extension(armature_data).spring_bone1.colliders:
             if not collider.bpy_object:
                 continue
-            if collider.bpy_object in self.export_objects:
-                self.export_objects.remove(collider.bpy_object)
-            for child in collider.bpy_object.children:
-                if child in self.export_objects:
-                    self.export_objects.remove(child)
+            collider_bpy_objects.append(collider.bpy_object)
+            collider_bpy_objects.extend(collider.bpy_object.children)
+
+        self.export_objects: Sequence[Object] = [
+            export_object
+            for export_object in export_objects
+            if export_object not in collider_bpy_objects
+        ]
 
         self.extras_main_armature_key = (
             INTERNAL_NAME_PREFIX + self.export_id + "MainArmature"
@@ -235,7 +239,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def create_humanoid_dict(
         cls,
         humanoid: Vrm1HumanoidPropertyGroup,
-        bone_name_to_index_dict: dict[str, int],
+        bone_name_to_index_dict: Mapping[str, int],
     ) -> dict[str, Json]:
         human_bones_dict: dict[str, Json] = {}
         for (
@@ -254,7 +258,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def create_first_person_dict(
         cls,
         first_person: Vrm1FirstPersonPropertyGroup,
-        mesh_object_name_to_node_index_dict: dict[str, int],
+        mesh_object_name_to_node_index_dict: Mapping[str, int],
     ) -> dict[str, Json]:
         mesh_annotation_dicts: list[Json] = []
         for mesh_annotation in first_person.mesh_annotations:
@@ -305,9 +309,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def create_expression_dict(
         cls,
         expression: Vrm1ExpressionPropertyGroup,
-        mesh_object_name_to_node_index_dict: dict[str, int],
-        mesh_object_name_to_morph_target_names_dict: dict[str, list[str]],
-        material_name_to_index_dict: dict[str, int],
+        mesh_object_name_to_node_index_dict: Mapping[str, int],
+        mesh_object_name_to_morph_target_names_dict: Mapping[str, list[str]],
+        material_name_to_index_dict: Mapping[str, int],
     ) -> dict[str, Json]:
         expression_dict: dict[str, Json] = {
             "isBinary": expression.is_binary,
@@ -399,8 +403,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def create_expressions_dict(
         cls,
         expressions: Vrm1ExpressionsPropertyGroup,
-        mesh_object_name_to_node_index_dict: dict[str, int],
-        mesh_object_name_to_morph_target_names_dict: dict[str, list[str]],
+        mesh_object_name_to_node_index_dict: Mapping[str, int],
+        mesh_object_name_to_morph_target_names_dict: Mapping[str, list[str]],
         material_name_to_index_dict: dict[str, int],
     ) -> dict[str, Json]:
         preset_dict: dict[str, Json] = {}
@@ -431,7 +435,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def create_spring_bone_collider_dicts(
         cls,
         spring_bone: SpringBone1SpringBonePropertyGroup,
-        bone_name_to_index_dict: dict[str, int],
+        bone_name_to_index_dict: Mapping[str, int],
     ) -> tuple[list[Json], dict[str, int]]:
         collider_dicts: list[Json] = []
         collider_uuid_to_index_dict: dict[str, int] = {}
@@ -470,7 +474,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def create_spring_bone_collider_group_dicts(
         cls,
         spring_bone: SpringBone1SpringBonePropertyGroup,
-        collider_uuid_to_index_dict: dict[str, int],
+        collider_uuid_to_index_dict: Mapping[str, int],
     ) -> tuple[list[Json], dict[str, int]]:
         collider_group_dicts: list[Json] = []
         collider_group_uuid_to_index_dict: dict[str, int] = {}
@@ -501,8 +505,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def create_spring_bone_spring_dicts(
         cls,
         spring_bone: SpringBone1SpringBonePropertyGroup,
-        bone_name_to_index_dict: dict[str, int],
-        collider_group_uuid_to_index_dict: dict[str, int],
+        bone_name_to_index_dict: Mapping[str, int],
+        collider_group_uuid_to_index_dict: Mapping[str, int],
         armature: Object,
     ) -> list[Json]:
         spring_dicts: list[Json] = []
@@ -574,8 +578,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def search_constraint_target_index(
         cls,
         constraint: Union[CopyRotationConstraint, DampedTrackConstraint],
-        object_name_to_index_dict: dict[str, int],
-        bone_name_to_index_dict: dict[str, int],
+        object_name_to_index_dict: Mapping[str, int],
+        bone_name_to_index_dict: Mapping[str, int],
     ) -> Optional[int]:
         target = constraint.target
         if not target:
@@ -589,8 +593,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         cls,
         name: str,
         constraints: search.ExportConstraint,
-        object_name_to_index_dict: dict[str, int],
-        bone_name_to_index_dict: dict[str, int],
+        object_name_to_index_dict: Mapping[str, int],
+        bone_name_to_index_dict: Mapping[str, int],
     ) -> dict[str, Json]:
         roll_constraint = constraints.roll_constraints.get(name)
         aim_constraint = constraints.aim_constraints.get(name)
@@ -1624,7 +1628,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         context: Context,
         json_dict: dict[str, Json],
         body_binary: bytearray,
-        material_name_to_index_dict: dict[str, int],
+        material_name_to_index_dict: Mapping[str, int],
         image_name_to_index_dict: dict[str, int],
         gltf2_addon_export_settings: dict[str, object],
     ) -> None:
@@ -1717,7 +1721,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         cls,
         context: Context,
         json_dict: dict[str, Json],
-        material_name_to_index_dict: dict[str, int],
+        material_name_to_index_dict: Mapping[str, int],
     ) -> None:
         mesh_dicts = json_dict.get("meshes")
         if not isinstance(mesh_dicts, list):

@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Optional, Union
 
@@ -338,7 +339,7 @@ class ExportConstraint:
 
 def roll_constraint_or_none(
     constraint: Constraint,
-    objs: list[Object],
+    objs: Sequence[Object],
     armature: Object,
 ) -> Optional[CopyRotationConstraint]:
     if (
@@ -372,7 +373,7 @@ def roll_constraint_or_none(
 
 def aim_constraint_or_none(
     constraint: Constraint,
-    objs: list[Object],
+    objs: Sequence[Object],
     armature: Object,
 ) -> Optional[DampedTrackConstraint]:
     if (
@@ -403,7 +404,7 @@ def aim_constraint_or_none(
 
 def rotation_constraint_or_none(
     constraint: Constraint,
-    objs: list[Object],
+    objs: Sequence[Object],
     armature: Object,
 ) -> Optional[CopyRotationConstraint]:
     if (
@@ -441,7 +442,7 @@ def rotation_constraint_or_none(
 
 
 def export_object_constraints(
-    objs: list[Object],
+    objs: Sequence[Object],
     armature: Object,
 ) -> ExportConstraint:
     roll_constraints: dict[str, CopyRotationConstraint] = {}
@@ -473,7 +474,7 @@ def export_object_constraints(
 
 
 def export_bone_constraints(
-    objs: list[Object],
+    objs: Sequence[Object],
     armature: Object,
 ) -> ExportConstraint:
     roll_constraints: dict[str, CopyRotationConstraint] = {}
@@ -505,9 +506,9 @@ def export_bone_constraints(
 
 
 def export_constraints(
-    objs: list[Object],
+    objs: Sequence[Object],
     armature: Object,
-) -> tuple[ExportConstraint, ExportConstraint, list[str]]:
+) -> tuple[ExportConstraint, ExportConstraint, Sequence[str]]:
     messages: list[str] = []
     object_constraints = export_object_constraints(objs, armature)
     bone_constraints = export_bone_constraints(objs, armature)
