@@ -545,7 +545,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
             collider_dict["extensions"] = {
                 "VRMC_springBone_extended_collider": {
-                    "specVersion": "1.0-draft",
+                    "specVersion": "1.0",
                     "shape": extended_shape_dict,
                 }
             }
