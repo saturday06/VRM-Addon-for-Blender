@@ -1431,6 +1431,10 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 )
             extended_shape.plane.normal = normal
 
+            if collider.bpy_object:
+                # フォールバックのコライダーをロードする際に入った値を固定値で上書きする
+                collider.bpy_object.empty_display_size = 0.125
+
         else:
             return
 
