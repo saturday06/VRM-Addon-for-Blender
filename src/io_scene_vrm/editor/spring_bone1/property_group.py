@@ -271,6 +271,13 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
             self.set_radius(backup_radius)
             return
         if collider.bpy_object:
+            if not collider.bpy_object.children:
+                logger.error(
+                    'Failed to set tail bpy object matrix of "%s"'
+                    " in capsule.set_tail()",
+                    collider.name,
+                )
+                return
             collider.bpy_object.children[0].matrix_world = (
                 armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
             )
@@ -311,6 +318,12 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
             Matrix.Translation(location) @ rotation.to_matrix().to_4x4()
         )
         collider.bpy_object.empty_display_size = v
+        if not collider.bpy_object.children:
+            logger.error(
+                'Failed to set tail bpy object size of "%s" in capsule.set_radius()',
+                collider.name,
+            )
+            return
         collider.bpy_object.children[0].empty_display_size = v
 
     def update_radius(self, _context: Context) -> None:
