@@ -298,13 +298,21 @@ def calculate_object_pose_bone_rotations(
             tail = pose_bone_world_matrix @ Vector(collider.shape.capsule.tail)
             radius = collider.shape.sphere.radius
             offset_to_tail_diff = tail - offset
-            world_collider = CapsuleWorldCollider(
-                offset=offset,
-                radius=radius,
-                tail=tail,
-                offset_to_tail_diff=offset_to_tail_diff,
-                offset_to_tail_diff_length_squared=offset_to_tail_diff.length_squared,
-            )
+            offset_to_tail_diff_length_squared = offset_to_tail_diff.length_squared
+            if offset_to_tail_diff_length_squared < float_info.epsilon:
+                # offsetとtailの位置が同じ場合はスフィアコライダーにする
+                world_collider = SphereWorldCollider(
+                    offset=offset,
+                    radius=radius,
+                )
+            else:
+                world_collider = CapsuleWorldCollider(
+                    offset=offset,
+                    radius=radius,
+                    tail=tail,
+                    offset_to_tail_diff=offset_to_tail_diff,
+                    offset_to_tail_diff_length_squared=offset_to_tail_diff_length_squared,
+                )
 
         if world_collider:
             collider_uuid_to_world_collider[collider.uuid] = world_collider
