@@ -1,4 +1,3 @@
-import math
 from dataclasses import dataclass
 from decimal import Decimal
 from sys import float_info
@@ -46,10 +45,9 @@ class SphereWorldCollider:
         self, target: Vector, target_radius: float
     ) -> tuple[Vector, float]:
         diff = target - self.offset
-        diff_length_squared = diff.length_squared
-        if diff_length_squared < float_info.epsilon:
+        diff_length = diff.length
+        if diff_length < float_info.epsilon:
             return Vector((0, 0, -1)), -0.01
-        diff_length = math.sqrt(diff_length_squared)
         return diff / diff_length, diff_length - target_radius - self.radius
 
 
@@ -64,8 +62,6 @@ class CapsuleWorldCollider:
     def calculate_collision(
         self, target: Vector, target_radius: float
     ) -> tuple[Vector, float]:
-        fallback_result = (Vector((0, 0, -1)), -0.01)
-
         offset_to_target_diff = target - self.offset
 
         # offsetとtailを含む直線上で、targetまでの最短の点を
@@ -81,18 +77,17 @@ class CapsuleWorldCollider:
             0, min(1, offset_to_tail_ratio_for_nearest)
         )
 
-        # targetまでの最短の点を計算し、衝突判定
+        # targetまでの最短の点を計算
         nearest = (
             self.offset + self.offset_to_tail_diff * offset_to_tail_ratio_for_nearest
         )
-        nearest_to_target_diff = target - nearest
-        nearest_to_target_diff_length = nearest_to_target_diff.length
-        if nearest_to_target_diff_length < float_info.epsilon:
-            return fallback_result
-        return (
-            nearest_to_target_diff / nearest_to_target_diff_length,
-            nearest_to_target_diff_length - target_radius - self.radius,
-        )
+
+        # 衝突判定
+        diff = target - nearest
+        diff_length = diff.length
+        if diff_length < float_info.epsilon:
+            return Vector((0, 0, -1)), -0.01
+        return diff / diff_length, diff_length - target_radius - self.radius
 
 
 @dataclass(frozen=True)
@@ -101,9 +96,13 @@ class SphereInsideWorldCollider:
     radius: float
 
     def calculate_collision(
-        self, _target: Vector, _target_radius: float
+        self, target: Vector, target_radius: float
     ) -> tuple[Vector, float]:
-        return Vector((0, 0, -1)), -0.01
+        diff = self.offset - target
+        diff_length = diff.length
+        if diff_length < float_info.epsilon:
+            return Vector((0, 0, -1)), -0.01
+        return diff / diff_length, diff_length + target_radius - self.radius
 
 
 @dataclass(frozen=True)
@@ -115,9 +114,34 @@ class CapsuleInsideWorldCollider:
     offset_to_tail_diff_length_squared: float  # ゼロ以上の値にする必要がある
 
     def calculate_collision(
-        self, _target: Vector, _target_radius: float
+        self, target: Vector, target_radius: float
     ) -> tuple[Vector, float]:
-        return Vector((0, 0, -1)), -0.01
+        offset_to_target_diff = target - self.offset
+
+        # offsetとtailを含む直線上で、targetまでの最短の点を
+        # self.offset + (self.tail - self.offset) * offset_to_tail_ratio_for_nearest
+        # という式で表すためのoffset_to_tail_ratio_for_nearestを求める
+        offset_to_tail_ratio_for_nearest = (
+            self.offset_to_tail_diff.dot(offset_to_target_diff)
+            / self.offset_to_tail_diff_length_squared
+        )
+
+        # offsetからtailまでの線分の始点が0で終点が1なので、範囲外は切り取る
+        offset_to_tail_ratio_for_nearest = max(
+            0, min(1, offset_to_tail_ratio_for_nearest)
+        )
+
+        # targetまでの最短の点を計算
+        nearest = (
+            self.offset + self.offset_to_tail_diff * offset_to_tail_ratio_for_nearest
+        )
+
+        # 衝突判定
+        diff = nearest - target
+        diff_length = diff.length
+        if diff_length < float_info.epsilon:
+            return Vector((0, 0, -1)), -0.01
+        return diff / diff_length, diff_length + target_radius - self.radius
 
 
 @dataclass(frozen=True)
@@ -126,9 +150,10 @@ class PlaneWorldCollider:
     normal: Vector
 
     def calculate_collision(
-        self, _target: Vector, _target_radius: float
+        self, target: Vector, target_radius: float
     ) -> tuple[Vector, float]:
-        return Vector((0, 0, -1)), -0.01
+        distance = (target - self.offset).dot(self.normal) - target_radius
+        return self.normal, distance
 
 
 # https://github.com/vrm-c/vrm-specification/tree/993a90a5bda9025f3d9e2923ad6dea7506f88553/specification/VRMC_springBone-1.0#update-procedure
@@ -254,11 +279,12 @@ def calculate_object_pose_bone_rotations(
                 offset = pose_bone_world_matrix @ Vector(
                     extended_collider.shape.plane.offset
                 )
-                normal_vector = Vector(extended_collider.shape.plane.normal)
-                normal_vector.rotate(pose_bone_world_matrix)
+                normal = pose_bone_world_matrix.to_quaternion() @ Vector(
+                    extended_collider.shape.plane.normal
+                )
                 world_collider = PlaneWorldCollider(
                     offset=offset,
-                    normal=normal_vector,
+                    normal=normal,
                 )
         elif collider.shape_type == collider.SHAPE_TYPE_SPHERE.identifier:
             offset = pose_bone_world_matrix @ Vector(collider.shape.sphere.offset)
