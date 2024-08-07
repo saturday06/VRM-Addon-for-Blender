@@ -508,7 +508,7 @@ class SpringBone1ExtendedColliderShapePlanePropertyGroup(PropertyGroup):
         if bpy_object.rotation_mode == "QUATERNION":
             result.rotate(bpy_object.rotation_quaternion)
         elif bpy_object.rotation_mode in ["XYZ", "XZY", "YXZ", "YZX", "ZXY", "ZYX"]:
-            result.rotate(bpy_object.rotation_euler)
+            result.rotate(bpy_object.rotation_euler.to_quaternion())
         elif bpy_object.rotation_mode == "AXIS_ANGLE":
             axis_x, axis_y, axis_z, angle = bpy_object.rotation_axis_angle
             result.rotate(Quaternion((axis_x, axis_y, axis_z), angle))
