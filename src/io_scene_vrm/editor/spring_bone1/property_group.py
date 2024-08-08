@@ -513,6 +513,9 @@ class SpringBone1ExtendedColliderShapePlanePropertyGroup(PropertyGroup):
     def set_normal(self, normal: Sequence[float]) -> None:
         context = bpy.context
 
+        armature, collider = self.find_armature_and_collider(context)
+        collider.reset_bpy_object(context, armature)
+
         y_up_vec = Vector((0.0, 1.0, 0.0))
         normal_vec = Vector(normal)
         if normal_vec.length_squared > 0:
@@ -520,8 +523,6 @@ class SpringBone1ExtendedColliderShapePlanePropertyGroup(PropertyGroup):
         else:
             rotation_quaternion = Quaternion()
 
-        armature, collider = self.find_armature_and_collider(context)
-        collider.reset_bpy_object(context, armature)
         bpy_object = collider.bpy_object
         if bpy_object:
             if bpy_object.rotation_mode != "QUATERNION":
