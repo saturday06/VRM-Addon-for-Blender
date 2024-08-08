@@ -102,7 +102,7 @@ class SphereInsideWorldCollider:
         diff_length = diff.length
         if diff_length < float_info.epsilon:
             return Vector((0, 0, -1)), -0.01
-        return diff / diff_length, diff_length + target_radius - self.radius
+        return diff / diff_length, -diff_length - target_radius + self.radius
 
 
 @dataclass(frozen=True)
@@ -141,7 +141,7 @@ class CapsuleInsideWorldCollider:
         diff_length = diff.length
         if diff_length < float_info.epsilon:
             return Vector((0, 0, -1)), -0.01
-        return diff / diff_length, diff_length + target_radius - self.radius
+        return diff / diff_length, -diff_length - target_radius + self.radius
 
 
 @dataclass(frozen=True)
