@@ -489,8 +489,7 @@ class SpringBone1ExtendedColliderShapePlanePropertyGroup(PropertyGroup):
     def get_normal(self) -> tuple[float, float, float]:
         context = bpy.context
 
-        armature, collider = self.find_armature_and_collider(context)
-        collider.reset_bpy_object(context, armature)
+        _, collider = self.find_armature_and_collider(context)
         bpy_object = collider.bpy_object
         if not bpy_object:
             return (0.0, 1.0, 0.0)
