@@ -871,10 +871,15 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
                 end_object.empty_display_size = self.bpy_object.empty_display_size
                 context.scene.collection.objects.link(end_object)
                 end_object.parent = self.bpy_object
+                end_object.matrix_local = Matrix.Translation(Vector((0.0, 0.2, 0.0)))
             if self.bpy_object.empty_display_type != "SPHERE":
                 self.bpy_object.empty_display_type = "SPHERE"
             if end_object.empty_display_type != "SPHERE":
                 end_object.empty_display_type = "SPHERE"
+            if end_object.empty_display_size != self.bpy_object.empty_display_size:
+                end_object.empty_display_size = self.bpy_object.empty_display_size
+            if end_object.scale != Vector((1, 1, 1)):
+                end_object.scale = Vector((1, 1, 1))
 
         if self.node.bone_name:
             if self.bpy_object.parent_type != "BONE":
