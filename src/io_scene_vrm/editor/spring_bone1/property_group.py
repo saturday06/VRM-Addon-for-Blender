@@ -78,7 +78,6 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
     def set_offset(self, offset: Sequence[float]) -> None:
         context = bpy.context
 
-        backup_radius = self.get_radius()
         armature, collider = self.find_armature_and_collider(context)
         collider.reset_bpy_object(context, armature)
         bone = armature.pose.bones.get(collider.node.bone_name)
@@ -87,13 +86,11 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
                 collider.bpy_object.matrix_world = (
                     armature.matrix_world @ Matrix.Translation(offset)
                 )
-            self.set_radius(backup_radius)
             return
         if collider.bpy_object:
             collider.bpy_object.matrix_world = (
                 armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
             )
-        self.set_radius(backup_radius)
 
     def update_offset(self, _context: Context) -> None:
         self.fallback_offset = self.offset
@@ -213,7 +210,6 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
     def set_offset(self, offset: Sequence[float]) -> None:
         context = bpy.context
 
-        backup_radius = self.get_radius()
         armature, collider = self.find_armature_and_collider(context)
         collider.reset_bpy_object(context, armature)
         bone = armature.pose.bones.get(collider.node.bone_name)
@@ -222,13 +218,11 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
                 collider.bpy_object.matrix_world = (
                     armature.matrix_world @ Matrix.Translation(offset)
                 )
-            self.set_radius(backup_radius)
             return
         if collider.bpy_object:
             collider.bpy_object.matrix_world = (
                 armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
             )
-        self.set_radius(backup_radius)
 
     def update_offset(self, _context: Context) -> None:
         self.fallback_offset = self.offset
@@ -259,7 +253,6 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
     def set_tail(self, offset: Sequence[float]) -> None:
         context = bpy.context
 
-        backup_radius = self.get_radius()
         armature, collider = self.find_armature_and_collider(context)
         collider.reset_bpy_object(context, armature)
         bone = armature.pose.bones.get(collider.node.bone_name)
@@ -268,7 +261,6 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
                 collider.bpy_object.children[0].matrix_world = (
                     armature.matrix_world @ Matrix.Translation(offset)
                 )
-            self.set_radius(backup_radius)
             return
         if collider.bpy_object:
             if not collider.bpy_object.children:
@@ -281,7 +273,6 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
             collider.bpy_object.children[0].matrix_world = (
                 armature.matrix_world @ bone.matrix @ Matrix.Translation(offset)
             )
-        self.set_radius(backup_radius)
 
     def update_tail(self, _context: Context) -> None:
         self.fallback_tail = self.tail
