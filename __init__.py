@@ -15,7 +15,7 @@
 bl_info = {
     "name": "VRM format",
     "author": "saturday06, iCyP",
-    "version": (2, 20, 73),
+    "version": (2, 20, 75),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
     "blender": (2, 93, 0),
