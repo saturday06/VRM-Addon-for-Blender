@@ -1439,6 +1439,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             return
 
         extended_collider.enabled = True
+        extended_collider.automatic_fallback_generation = False
 
     def load_spring_bone1_colliders(
         self,
