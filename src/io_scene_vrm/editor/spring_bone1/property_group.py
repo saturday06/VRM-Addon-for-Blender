@@ -519,7 +519,7 @@ class SpringBone1ExtendedColliderShapePlanePropertyGroup(PropertyGroup):
         y_up_vec = Vector((0.0, 1.0, 0.0))
         normal_vec = Vector(normal)
         if normal_vec.length_squared > 0:
-            rotation_quaternion = normal_vec.rotation_difference(y_up_vec)
+            rotation_quaternion = y_up_vec.rotation_difference(normal_vec)
         else:
             rotation_quaternion = Quaternion()
 
