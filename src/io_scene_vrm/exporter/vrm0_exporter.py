@@ -2257,9 +2257,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 if not mesh_from_mesh_owner:
                     continue
                 mesh_data = mesh_from_mesh_owner.copy()
-                if isinstance(mesh.data, Mesh):
-                    for prop in mesh.data.keys():
-                        mesh_data[prop] = mesh.data[prop]
 
             mesh.hide_viewport = False
             mesh.hide_select = False
