@@ -836,7 +836,8 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
 
         extended = self.extensions.vrmc_spring_bone_extended_collider
         if (
-            self.shape_type == self.SHAPE_TYPE_SPHERE.identifier
+            not extended.enabled
+            and self.shape_type == self.SHAPE_TYPE_SPHERE.identifier
             or extended.enabled
             and extended.shape_type
             in [
@@ -859,7 +860,8 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
             if self.bpy_object.empty_display_type != empty_display_type:
                 self.bpy_object.empty_display_type = empty_display_type
         elif (
-            self.shape_type == self.SHAPE_TYPE_CAPSULE.identifier
+            not extended.enabled
+            and self.shape_type == self.SHAPE_TYPE_CAPSULE.identifier
             or extended.enabled
             and extended.shape_type == extended.SHAPE_TYPE_EXTENDED_CAPSULE.identifier
         ):
