@@ -7,9 +7,11 @@ from os import environ
 from pathlib import Path
 from sys import float_info
 from typing import Optional, Union
+from uuid import uuid4
 
 import bpy
 from bpy.types import (
+    ID,
     Armature,
     ArmatureModifier,
     Bone,
@@ -54,7 +56,11 @@ from ..external.io_scene_gltf2_support import (
     image_to_image_bytes,
     init_extras_export,
 )
-from .abstract_base_vrm_exporter import AbstractBaseVrmExporter, assign_dict
+from .abstract_base_vrm_exporter import (
+    AbstractBaseVrmExporter,
+    assign_dict,
+    force_apply_modifiers,
+)
 
 logger = get_logger(__name__)
 
@@ -133,6 +139,98 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 if restore_obj:
                     restore_obj.hide_set(hidden)
                     restore_obj.select_set(selection)
+
+    @contextmanager
+    def save_selected_mesh_compat_objects(self) -> Iterator[Sequence[str]]:
+        backup_obj_name_to_original_obj_name: dict[str, str] = {}
+        backup_data_name_to_original_data_name: dict[str, str] = {}
+        # https://projects.blender.org/blender/blender/issues/113378
+        self.context.view_layer.update()
+
+        active_layer_objects = (
+            self.context.view_layer.active_layer_collection.collection.objects
+        )
+        for obj in self.context.view_layer.objects:
+            if obj not in self.export_objects:
+                continue
+            if obj.type not in search.MESH_CONVERTIBLE_OBJECT_TYPES:
+                continue
+            if not obj.select_get():
+                continue
+
+            backup_obj_name = "Backup-Object-" + uuid4().hex
+            original_obj_name = obj.name
+            backup_obj_name_to_original_obj_name[backup_obj_name] = original_obj_name
+            obj.name = backup_obj_name
+
+            backup_data_name = "Backup-Data-" + uuid4().hex
+            original_data_name = None
+            obj_data = obj.data
+            if obj_data:
+                original_data_name = obj_data.name
+                backup_data_name_to_original_data_name[backup_data_name] = (
+                    original_data_name
+                )
+                obj_data.name = backup_data_name
+
+            export_obj = obj.copy()
+            export_obj.name = original_obj_name
+            export_obj_data = export_obj.data
+            if export_obj_data and original_data_name is not None:
+                export_obj_data.name = original_data_name
+
+            active_layer_objects.link(export_obj)
+            export_obj.select_set(True)
+            obj.select_set(False)
+
+        try:
+            yield list(backup_obj_name_to_original_obj_name.values())
+        finally:
+            # いちおう、取得しなおす
+            active_layer_objects = (
+                self.context.view_layer.active_layer_collection.collection.objects
+            )
+
+            for (
+                backup_obj_name,
+                original_obj_name,
+            ) in backup_obj_name_to_original_obj_name.items():
+                restored_export_obj = self.context.blend_data.objects.get(
+                    original_obj_name
+                )
+                if restored_export_obj:
+                    restored_export_obj.name = "Export-" + uuid4().hex
+                    if restored_export_obj.name in active_layer_objects:
+                        active_layer_objects.unlink(restored_export_obj)
+                    if restored_export_obj.users <= 1:
+                        self.context.blend_data.objects.remove(restored_export_obj)
+                    else:
+                        logger.warning(
+                            'Failed to remove "%s" with %d users'
+                            ' (temp object for "%s")',
+                            restored_export_obj.name,
+                            restored_export_obj.users,
+                            original_obj_name,
+                        )
+
+                restored_obj = self.context.blend_data.objects.get(backup_obj_name)
+                if not restored_obj:
+                    continue
+
+                restored_obj.name = original_obj_name
+                restored_obj.select_set(True)
+
+                restored_obj_data = restored_obj.data
+                if not restored_obj_data:
+                    continue
+
+                restored_original_data_name = (
+                    backup_data_name_to_original_data_name.get(restored_obj_data.name)
+                )
+                if not restored_original_data_name:
+                    continue
+
+                restored_obj_data.name = restored_original_data_name
 
     @contextmanager
     def mount_skinned_mesh_parent(self) -> Iterator[None]:
@@ -2099,17 +2197,13 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 self.hide_mtoon1_outline_geometry_nodes(self.context),
                 self.disable_mtoon1_material_nodes(self.context),
                 self.mount_skinned_mesh_parent(),
+                self.save_selected_mesh_compat_objects() as mesh_compat_object_names,
                 self.assign_export_custom_properties(armature_data),
                 tempfile.TemporaryDirectory() as temp_dir,
             ):
+                force_apply_modifiers_to_objects(self.context, mesh_compat_object_names)
+
                 filepath = Path(temp_dir, "out.glb")
-
-                # Blender 4.2ではexport_applyが有効な状態でアーマチュアモディファイアが
-                # ついているメッシュをエクスポートをするとシェイプキーが消えてしまう。
-                # 将来的にexport_apply相当の処理を自前で行って対応したいが大工事になる。
-                # 現時点ではexport_applyを無効化してこの場をしのぐ。
-                export_apply = bpy.app.version < (4, 2)
-
                 export_scene_gltf_result = export_scene_gltf(
                     ExportSceneGltfArguments(
                         filepath=str(filepath),
@@ -2121,7 +2215,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         use_selection=True,
                         export_animations=True,
                         export_rest_position_armature=False,
-                        export_apply=export_apply,
+                        export_apply=False,
                         # Models may appear incorrectly in many viewers
                         export_all_influences=self.export_all_influences,
                         # TODO: Expose UI Option, Unity allows light export
@@ -2619,3 +2713,88 @@ def set_node_matrix(node_dict: dict[str, Json], matrix: Matrix) -> None:
         rotation.w,
     ]
     node_dict["scale"] = list(scale)
+
+
+def force_apply_modifiers_to_objects(
+    context: Context,
+    mesh_compatible_object_names: Sequence[str],
+) -> None:
+    selected_object_names: list[str] = [
+        obj.name for obj in context.selectable_objects if obj.select_get()
+    ]
+    for mesh_compatible_object_name in mesh_compatible_object_names:
+        force_apply_modifiers_to_object(context, mesh_compatible_object_name)
+    for obj in context.selectable_objects:
+        obj.select_set(obj.name in selected_object_names)
+
+
+def force_apply_modifiers_to_object(
+    context: Context,
+    mesh_compatible_object_name: str,
+) -> None:
+    mesh_compatible_object = context.blend_data.objects.get(mesh_compatible_object_name)
+    if not mesh_compatible_object:
+        return
+    if mesh_compatible_object.type == "MESH":
+        mesh_object: Optional[Object] = mesh_compatible_object
+    elif mesh_compatible_object.type in search.MESH_CONVERTIBLE_OBJECT_TYPES:
+        with save_workspace(context, mesh_compatible_object):
+            convert_result = bpy.ops.object.convert(target="MESH")
+            if convert_result != {"FINISHED"}:
+                logger.warning(
+                    "Failed to convert %s to MESH: %s",
+                    mesh_compatible_object.name,
+                    convert_result,
+                )
+                return
+            mesh_object = context.blend_data.objects.get(mesh_compatible_object_name)
+    else:
+        return
+
+    if not mesh_object:
+        return
+
+    original_mesh_data = mesh_object.data
+    if not original_mesh_data:
+        return
+
+    armature_modifier_name_to_show_render_and_show_viewport: dict[
+        str, tuple[bool, bool]
+    ] = {}
+    for modifier in list(mesh_object.modifiers):
+        if modifier.type != "ARMATURE":
+            continue
+        armature_modifier_name_to_show_render_and_show_viewport[modifier.name] = (
+            modifier.show_render,
+            modifier.show_viewport,
+        )
+        modifier.show_render = False
+        modifier.show_viewport = False
+
+    try:
+        mesh_data_name = original_mesh_data.name
+        original_mesh_data.name = "Backup-Apply-Data-" + uuid4().hex
+
+        mesh_data: Optional[ID] = force_apply_modifiers(context, mesh_object)
+        if not mesh_data:
+            return
+
+        mesh_data.user_remap(original_mesh_data)
+        mesh_data = mesh_object.data
+        if not mesh_data:
+            return
+
+        mesh_data.name = mesh_data_name
+    finally:
+        for modifier in list(mesh_object.modifiers):
+            if modifier.type != "ARMATURE":
+                mesh_object.modifiers.remove(modifier)
+                continue
+            show_render_and_show_viewport = (
+                armature_modifier_name_to_show_render_and_show_viewport.get(
+                    modifier.name
+                )
+            )
+            if show_render_and_show_viewport is None:
+                continue
+            modifier.show_render, modifier.show_viewport = show_render_and_show_viewport
