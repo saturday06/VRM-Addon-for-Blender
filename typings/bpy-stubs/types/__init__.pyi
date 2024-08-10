@@ -1410,6 +1410,7 @@ class Object(ID):
     def hide_set(self, state: bool, view_layer: Optional[ViewLayer] = None) -> bool: ...
     @property
     def children(self) -> Sequence[Object]: ...  # ドキュメントでは型が不明瞭
+    def copy(self) -> Object: ...  # override ID.copy
 
 class PreferencesView:
     use_translate_interface: bool
