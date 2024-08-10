@@ -317,7 +317,12 @@ class Driver(bpy_struct):
     @property
     def variables(self) -> ChannelDriverVariables: ...
 
+class LayerCollection(bpy_struct):
+    @property
+    def collection(self) -> Collection: ...
+
 class ViewLayer(bpy_struct):
+    active_layer_collection: LayerCollection
     @property
     def objects(self) -> LayerObjects: ...
     @property
