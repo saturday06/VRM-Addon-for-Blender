@@ -3,7 +3,6 @@ import json
 import uuid
 from typing import Optional
 
-import bpy
 from bpy.types import ID, Armature, Context, Mesh, Object, Text
 
 from ...common import convert, ops
@@ -622,7 +621,7 @@ def fixup_humanoid_feet_spacing(armature_data: Armature) -> None:
         humanoid.feet_spacing = float(feet_spacing)
 
 
-def migrate_pose(context: Context, armature_data: bpy.types.Armature) -> None:
+def migrate_pose(context: Context, armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 20, 34):
         return
