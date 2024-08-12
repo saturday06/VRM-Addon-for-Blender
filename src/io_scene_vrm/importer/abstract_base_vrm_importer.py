@@ -1028,7 +1028,7 @@ class AbstractBaseVrmImporter(ABC):
                 if modifier.show_viewport:
                     modifier.show_viewport = False
                     restore_modifiers_names.append(modifier.name)
-            depsgraph = bpy.context.evaluated_depsgraph_get()
+            depsgraph = self.context.evaluated_depsgraph_get()
             evaluated_mesh_owner = obj.evaluated_get(depsgraph)
             evaluated_mesh = evaluated_mesh_owner.to_mesh(
                 preserve_all_data_layers=True, depsgraph=depsgraph
