@@ -1,7 +1,9 @@
 from collections.abc import Iterable, Iterator, Sequence
-from typing import Optional, Union, overload
+from typing import Optional, TypeVar, Union, overload
 
 # TODO: 引数のIterableは本当はSequenceだったりしないか?
+
+__MatrixFallbackType = TypeVar("__MatrixFallbackType")
 
 class Matrix:
     def __init__(self, rows: Sequence[Sequence[float]] = ()) -> None: ...
@@ -14,11 +16,12 @@ class Matrix:
     def Identity(cls, size: int) -> Matrix: ...
     @classmethod
     def Diagonal(cls, vector: Iterable[float]) -> Matrix: ...
-
-    # ドキュメントには"fallback"という引数がついているが、それを指定すると
-    # フォールバック時にそれが返るらしい。でもそれだと型が合わないので
-    # 使わないでほしいという気持ちを込めるため書かない。
+    @overload
     def inverted(self) -> Matrix: ...
+    @overload
+    def inverted(
+        self, fallback: __MatrixFallbackType
+    ) -> Union[Matrix, __MatrixFallbackType]: ...
     @overload
     def __matmul__(self, other: Matrix) -> Matrix: ...
     @overload
