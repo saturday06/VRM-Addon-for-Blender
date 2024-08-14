@@ -1864,6 +1864,40 @@ def save_error_dialog_message(
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
+def save_vrm_export_error_message(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    filter_glob: str = "*.txt",
+    process_output_lines: Optional[
+        Sequence[Mapping[str, Union[str, int, float, bool]]]
+    ] = None,
+    filepath: str = "",
+    check_existing: bool = True,
+) -> set[str]:
+    return bpy.ops.vrm.save_vrm_export_error_message(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        filter_glob=filter_glob,
+        process_output_lines=process_output_lines
+        if process_output_lines is not None
+        else [],
+        filepath=filepath,
+        check_existing=check_existing,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def export_vrm(
+    execution_context: str = "EXEC_DEFAULT",
+) -> set[str]:
+    return bpy.ops.vrm.export_vrm(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def import_vrm_via_file_handler(
     execution_context: str = "EXEC_DEFAULT",
     /,
