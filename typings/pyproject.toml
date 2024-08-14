@@ -8,6 +8,7 @@ description = ""
 authors = ["Isamu Mogi <isamu@leafytree.jp>"]
 readme = "README.md"
 packages = [
+    { include = "addon_utils-stubs" },
     { include = "bgl-stubs" },
     { include = "bmesh-stubs" },
     { include = "bpy-stubs" },
