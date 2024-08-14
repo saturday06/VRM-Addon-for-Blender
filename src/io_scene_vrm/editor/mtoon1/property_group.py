@@ -3797,7 +3797,7 @@ def reset_shader_node_group(
     shading_shift_factor = mtoon.shading_shift_factor
     shading_toony_factor = mtoon.shading_toony_factor
     gi_equalization_factor = mtoon.gi_equalization_factor
-    matcap_factor = mtoon.matcap_factor
+    matcap_factor = list(mtoon.matcap_factor)
     matcap_texture = mtoon.matcap_texture.backup()
     parametric_rim_color_factor = list(mtoon.parametric_rim_color_factor)
     rim_multiply_texture = mtoon.rim_multiply_texture.backup()
