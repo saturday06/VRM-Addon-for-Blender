@@ -1,5 +1,6 @@
 import contextlib
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -92,34 +93,16 @@ class BaseBlenderTestCase(TestCase):
             env_blender_path = Path(env_blender_path_str)
             if env_blender_path.exists():
                 return env_blender_path
-        if sys.platform == "win32":
-            completed_process = subprocess.run(
-                "where blender", shell=True, capture_output=True, check=False
-            )
-            if completed_process.returncode == 0:
-                where_str = self.process_output_to_str(
-                    completed_process.stdout
-                ).splitlines()[0]
-                if where_str:
-                    where_path = Path(where_str)
-                    if where_path.exists():
-                        return where_path
-        if os.name == "posix":
-            completed_process = subprocess.run(
-                "command -v blender", shell=True, capture_output=True, check=False
-            )
-            if completed_process.returncode == 0:
-                which_str = self.process_output_to_str(
-                    completed_process.stdout
-                ).splitlines()[0]
-                if which_str:
-                    which_path = Path(which_str)
-                    if which_path.exists():
-                        return which_path
+
+        which_str = shutil.which("blender")
+        if which_str:
+            return Path(which_str)
+
         if sys.platform == "darwin":
             default_path = Path("/Applications/Blender.app/Contents/MacOS/Blender")
             if default_path.exists():
                 return default_path
+
         raise RuntimeError(
             "Failed to discover blender executable. "
             + "Please set blender executable location to "
