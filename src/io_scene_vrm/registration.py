@@ -62,7 +62,7 @@ from .editor.vrm1 import ops as vrm1_ops
 from .editor.vrm1 import panel as vrm1_panel
 from .editor.vrm1 import property_group as vrm1_property_group
 from .editor.vrm1 import ui_list as vrm1_ui_list
-from .exporter import export_scene
+from .exporter import export_scene, exporter_process
 from .external import io_scene_gltf2_support
 from .importer import file_handler, import_scene
 from .locale.translation_dictionary import translation_dictionary
@@ -435,6 +435,11 @@ classes: list[
     error_dialog.VRM_UL_vrm_error_dialog_message,
     error_dialog.VRM_OT_save_error_dialog_message,
     error_dialog.WM_OT_vrm_error_dialog,
+    exporter_process.VrmExportProcessOutputLine,
+    exporter_process.VRM_UL_vrm_export_process_output,
+    exporter_process.VRM_OT_save_vrm_export_error_message,
+    exporter_process.VRM_OT_export_vrm,
+    exporter_process.WM_OT_vrm_export_result,
     import_scene.LicenseConfirmation,
     import_scene.WM_OT_vrm_license_confirmation,
     import_scene.WM_OT_vrma_import_prerequisite,

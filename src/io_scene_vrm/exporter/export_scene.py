@@ -2,6 +2,7 @@
 import traceback
 from collections.abc import Set as AbstractSet
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Optional
 
 import bpy
@@ -47,6 +48,10 @@ from ..editor.vrm1.panel import (
 )
 from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
+from .exporter_process import (
+    ExportConfig,
+    run_vrm_export_process_and_show_result_if_error,
+)
 from .uni_vrm_vrm_animation_exporter import UniVrmVrmAnimationExporter
 from .vrm0_exporter import Vrm0Exporter
 from .vrm1_exporter import Vrm1Exporter
@@ -128,17 +133,29 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
             if not self.filepath:
                 return {"CANCELLED"}
 
-            if self.use_addon_preferences:
-                copy_export_preferences(
-                    source=get_preferences(context), destination=self
+            with TemporaryDirectory() as temp_dir:
+                blend_path = Path(temp_dir) / "temp_vrm_export.blend"
+                export_config = ExportConfig(
+                    blend_path=str(blend_path),
+                    result_path=self.filepath,
+                    armature_object_name=self.armature_object_name,
                 )
 
-            return export_vrm(
-                Path(self.filepath),
-                self,
-                context,
-                armature_object_name=self.armature_object_name,
-            )
+                if self.use_addon_preferences:
+                    copy_export_preferences(
+                        source=get_preferences(context),
+                        destination=export_config,
+                    )
+                else:
+                    copy_export_preferences(
+                        source=self,
+                        destination=export_config,
+                    )
+
+                config_path = Path(temp_dir) / "config.json"
+                return run_vrm_export_process_and_show_result_if_error(
+                    export_config, config_path
+                )
         except Exception:
             show_error_dialog(
                 pgettext("Failed to export VRM."),
