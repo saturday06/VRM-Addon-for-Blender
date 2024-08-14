@@ -89,7 +89,7 @@ from bpy.types import (
     ShaderNodeVertexColor,
     ShaderNodeWireframe,
 )
-from mathutils import Color
+from mathutils import Color, Euler, Vector
 
 from . import convert
 from .char import INTERNAL_NAME_PREFIX
@@ -1197,6 +1197,45 @@ def copy_node_tree_interface_socket(
     elif isinstance(from_socket, vector_classes) and isinstance(
         to_socket, vector_classes
     ):
+        if isinstance(to_socket, NodeTreeInterfaceSocketVector):
+            to_socket.default_value = deepcopy(
+                (
+                    from_socket.default_value[0],
+                    from_socket.default_value[1],
+                    from_socket.default_value[2],
+                )
+            )
+        elif isinstance(to_socket, NodeTreeInterfaceSocketVectorEuler):
+            if isinstance(from_socket, NodeTreeInterfaceSocketVectorEuler):
+                to_socket.default_value = from_socket.default_value.copy()
+            else:
+                to_socket.default_value = Euler(
+                    deepcopy(
+                        (
+                            from_socket.default_value[0],
+                            from_socket.default_value[1],
+                            from_socket.default_value[2],
+                        )
+                    ),
+                    "XYZ",
+                )
+        elif isinstance(from_socket, NodeTreeInterfaceSocketVectorEuler):
+            to_socket.default_value = Vector(
+                (
+                    from_socket.default_value.x,
+                    from_socket.default_value.y,
+                    from_socket.default_value.z,
+                )
+            )
+        else:
+            to_socket.default_value = Vector(
+                (
+                    from_socket.default_value[0],
+                    from_socket.default_value[1],
+                    from_socket.default_value[2],
+                )
+            )
+
         to_socket.min_value = from_socket.min_value
         to_socket.max_value = from_socket.max_value
 
