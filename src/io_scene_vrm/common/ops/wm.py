@@ -109,6 +109,26 @@ def vrm_error_dialog(
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
+def vrm_export_result(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    process_output_lines: Optional[
+        Sequence[Mapping[str, Union[str, int, float, bool]]]
+    ] = None,
+    active_process_output_line_index: int = 0,
+) -> set[str]:
+    return bpy.ops.wm.vrm_export_result(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        process_output_lines=process_output_lines
+        if process_output_lines is not None
+        else [],
+        active_process_output_line_index=active_process_output_line_index,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def vrm_license_warning(
     execution_context: str = "EXEC_DEFAULT",
     /,
