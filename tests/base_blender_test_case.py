@@ -80,7 +80,7 @@ class BaseBlenderTestCase(TestCase):
         try:
             import bpy
 
-            bpy_binary_path_str = str(bpy.app.binary_path)
+            bpy_binary_path_str = bpy.app.binary_path
             if bpy_binary_path_str:
                 bpy_binary_path = Path(bpy_binary_path_str)
                 if bpy_binary_path.exists():
