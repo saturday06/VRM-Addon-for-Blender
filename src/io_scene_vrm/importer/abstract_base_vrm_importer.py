@@ -71,6 +71,7 @@ class AbstractBaseVrmImporter(ABC):
         self.temp_object_name_count = 0
         self.object_names: dict[int, str] = {}
         self.mesh_object_names: dict[int, str] = {}
+        self.imported_gltf_object_names: Optional[list[str]] = None
 
     @abstractmethod
     def make_materials(self, progress: PartialProgress) -> None:
@@ -86,29 +87,38 @@ class AbstractBaseVrmImporter(ABC):
 
     def import_vrm(self) -> None:
         try:
-            with (
-                create_progress(self.context) as progress,
-                save_workspace(self.context),
-            ):
-                progress.update(0.1)
-                self.import_gltf2_with_indices()
-                progress.update(0.2)
-                if self.preferences.extract_textures_into_folder:
-                    self.extract_textures(repack=False)
-                elif bpy.app.version < (3, 1):
-                    self.extract_textures(repack=True)
-                else:
-                    self.assign_packed_image_filepaths()
-                progress.update(0.3)
-                self.use_fake_user_for_thumbnail()
-                progress.update(0.4)
-                if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
-                    self.make_materials(progress.partial_progress(0.9))
-                if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
-                    self.load_gltf_extensions()
-                self.setup_viewport()
-                self.context.view_layer.update()
-                progress.update(1)
+            with create_progress(self.context) as progress:
+                with save_workspace(self.context):
+                    progress.update(0.1)
+                    self.import_gltf2_with_indices()
+                    progress.update(0.2)
+                    if self.preferences.extract_textures_into_folder:
+                        self.extract_textures(repack=False)
+                    elif bpy.app.version < (3, 1):
+                        self.extract_textures(repack=True)
+                    else:
+                        self.assign_packed_image_filepaths()
+                    progress.update(0.3)
+                    self.use_fake_user_for_thumbnail()
+                    progress.update(0.4)
+                    if (
+                        self.parse_result.vrm1_extension
+                        or self.parse_result.vrm0_extension
+                    ):
+                        self.make_materials(progress.partial_progress(0.9))
+                    if (
+                        self.parse_result.vrm1_extension
+                        or self.parse_result.vrm0_extension
+                    ):
+                        self.load_gltf_extensions()
+                    progress.update(0.92)
+                    self.setup_viewport()
+                    progress.update(0.94)
+                    self.context.view_layer.update()
+                    progress.update(0.96)
+
+                self.setup_object_selection_and_activation()
+                progress.update(0.98)
         finally:
             Gltf2AddonImporterUserExtension.clear_current_import_id()
 
@@ -918,6 +928,10 @@ class AbstractBaseVrmImporter(ABC):
                     )
                     self.cleanup_gltf2_with_indices()
                     raise
+        # glTFインポート直後のオブジェクトの選択状態を保存
+        self.imported_gltf_object_names = [
+            selected_object.name for selected_object in self.context.selected_objects
+        ]
 
         extras_node_index_key = self.import_id + "Nodes"
         for obj in self.context.selectable_objects:
@@ -1203,3 +1217,12 @@ class AbstractBaseVrmImporter(ABC):
                 for space in area.spaces:
                     if space.type == "VIEW_3D" and isinstance(space, SpaceView3D):
                         space.shading.type = "MATERIAL"
+
+    def setup_object_selection_and_activation(self) -> None:
+        if self.imported_gltf_object_names is not None:
+            bpy.ops.object.select_all(action="DESELECT")
+            for obj in self.context.selectable_objects:
+                if obj.name in self.imported_gltf_object_names:
+                    obj.select_set(True)
+        if self.armature is not None:
+            self.context.view_layer.objects.active = self.armature
