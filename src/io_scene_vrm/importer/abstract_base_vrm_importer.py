@@ -106,7 +106,7 @@ class AbstractBaseVrmImporter(ABC):
                     self.make_materials(progress.partial_progress(0.9))
                 if self.parse_result.vrm1_extension or self.parse_result.vrm0_extension:
                     self.load_gltf_extensions()
-                self.viewport_setup()
+                self.setup_viewport()
                 self.context.view_layer.update()
                 progress.update(1)
         finally:
@@ -1177,7 +1177,7 @@ class AbstractBaseVrmImporter(ABC):
     def is_temp_object_name(self, name: str) -> bool:
         return name.startswith(f"{self.import_id}Temp_")
 
-    def viewport_setup(self) -> None:
+    def setup_viewport(self) -> None:
         if self.armature:
             if self.preferences.set_armature_display_to_wire:
                 self.armature.display_type = "WIRE"
