@@ -239,7 +239,7 @@ def draw_vrm1_humanoid_layout(
     column = t_pose_box.row().column()
     column.label(text="VRM T-Pose", icon="OUTLINER_OB_ARMATURE")
     column.prop(humanoid, "pose")
-    if humanoid.pose == humanoid.POSE_ITEM_CUSTOM_POSE.identifier:
+    if humanoid.pose == humanoid.POSE_CUSTOM_POSE.identifier:
         label = "Pose Library" if bpy.app.version < (3, 0) else "Pose Asset"
         column.prop_search(
             humanoid,

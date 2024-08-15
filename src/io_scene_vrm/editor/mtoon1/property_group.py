@@ -1404,9 +1404,9 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
     (
         wrap_enum,
         (
-            WRAP_ITEM_CLAMP_TO_EDGE,
-            WRAP_ITEM_MIRRORED_REPEAT,
-            WRAP_ITEM_REPEAT,
+            WRAP_CLAMP_TO_EDGE,
+            WRAP_MIRRORED_REPEAT,
+            WRAP_REPEAT,
         ),
     ) = property_group_enum(
         ("CLAMP_TO_EDGE", "Clamp to Edge", "", "NONE", GL_CLAMP_TO_EDGE),
@@ -1414,7 +1414,7 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         ("REPEAT", "Repeat", "", "NONE", GL_REPEAT),
     )
 
-    WRAP_DEFAULT = WRAP_ITEM_REPEAT
+    WRAP_DEFAULT = WRAP_REPEAT
 
     def get_wrap_s(self) -> int:
         wrap_s = self.get_texture_uv_int(

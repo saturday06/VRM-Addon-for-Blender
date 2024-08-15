@@ -169,17 +169,15 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         default=False,
     )
 
-    POSE_ITEM_REST_POSITION_POSE = (
-        Vrm1HumanoidPropertyGroup.POSE_ITEM_REST_POSITION_POSE
-    )
-    POSE_ITEM_CURRENT_POSE = Vrm1HumanoidPropertyGroup.POSE_ITEM_CURRENT_POSE
-    POSE_ITEM_CUSTOM_POSE = Vrm1HumanoidPropertyGroup.POSE_ITEM_CUSTOM_POSE
+    POSE_REST_POSITION_POSE = Vrm1HumanoidPropertyGroup.POSE_REST_POSITION_POSE
+    POSE_CURRENT_POSE = Vrm1HumanoidPropertyGroup.POSE_CURRENT_POSE
+    POSE_CUSTOM_POSE = Vrm1HumanoidPropertyGroup.POSE_CUSTOM_POSE
 
     pose: bpy.props.EnumProperty(  # type: ignore[valid-type]
         items=Vrm1HumanoidPropertyGroup.pose_enum.items(),
         name="T-Pose",
         description="T-Pose",
-        default=POSE_ITEM_CURRENT_POSE.identifier,
+        default=POSE_CURRENT_POSE.identifier,
     )
 
     # for T-Pose

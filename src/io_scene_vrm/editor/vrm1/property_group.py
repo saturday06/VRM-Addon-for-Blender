@@ -551,9 +551,9 @@ class Vrm1HumanoidPropertyGroup(PropertyGroup):
     (
         pose_enum,
         (
-            POSE_ITEM_REST_POSITION_POSE,
-            POSE_ITEM_CURRENT_POSE,
-            POSE_ITEM_CUSTOM_POSE,
+            POSE_REST_POSITION_POSE,
+            POSE_CURRENT_POSE,
+            POSE_CUSTOM_POSE,
         ),
     ) = property_group_enum(
         (
@@ -583,7 +583,7 @@ class Vrm1HumanoidPropertyGroup(PropertyGroup):
         items=pose_enum.items(),
         name="T-Pose",
         description="T-Pose",
-        default=POSE_ITEM_CURRENT_POSE.identifier,
+        default=POSE_CURRENT_POSE.identifier,
     )
 
     pose_library: PointerProperty(  # type: ignore[valid-type]

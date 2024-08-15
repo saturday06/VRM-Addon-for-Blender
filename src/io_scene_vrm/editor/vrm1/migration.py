@@ -168,11 +168,11 @@ def migrate_pose(context: Context, armature_data: Armature) -> None:
     humanoid = ext.vrm1.humanoid
     action = humanoid.pose_library
     if action and action.name in context.blend_data.actions:
-        humanoid.pose = humanoid.POSE_ITEM_CUSTOM_POSE.identifier
+        humanoid.pose = humanoid.POSE_CUSTOM_POSE.identifier
     elif armature_data.pose_position == "REST":
-        humanoid.pose = humanoid.POSE_ITEM_REST_POSITION_POSE.identifier
+        humanoid.pose = humanoid.POSE_REST_POSITION_POSE.identifier
     else:
-        humanoid.pose = humanoid.POSE_ITEM_CURRENT_POSE.identifier
+        humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
 
 
 def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None:
