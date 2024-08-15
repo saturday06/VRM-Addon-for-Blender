@@ -280,8 +280,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
         ) @ Matrix.Rotation(self.eye_rotate, 4, "X") @ Vector(
             [0, eye_height, eye_width]
         )
-        if eye_inner_point[2] < self.head_width_size / 12:
-            eye_inner_point[2] = self.head_width_size / 12
+        eye_inner_point[2] = max(eye_inner_point[2], self.head_width_size / 12)
         eye_quad_lu_vert = self.add_point(bm, eye_quad_lu_point)
         eye_quad_ld_vert = self.add_point(bm, eye_quad_ld_point)
         eye_quad_rd_vert = self.add_point(bm, eye_quad_rd_point)

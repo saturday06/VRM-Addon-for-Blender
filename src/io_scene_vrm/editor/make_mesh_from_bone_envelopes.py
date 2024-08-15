@@ -126,8 +126,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
                 elem = mball.elements.new()
                 elem.co = loc
                 elem.radius = rad
-            if min([hrad, trad]) < mball.resolution:
-                mball.resolution = min([hrad, trad])
+            mball.resolution = min(hrad, trad, mball.resolution)
         mobj = context.blend_data.objects.new(f"{armature.name}_mesh", mball)
         mobj.location = armature.location
         mobj.rotation_quaternion = armature.rotation_quaternion

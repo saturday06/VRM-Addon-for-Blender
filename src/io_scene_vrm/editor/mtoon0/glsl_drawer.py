@@ -295,15 +295,14 @@ class GlslDrawObj:
         GlslDrawObj.scene_meshes = []
         glsl_draw_obj.draw_x_offset = 0
         for obj in glsl_draw_obj.objs:
-            if glsl_draw_obj.draw_x_offset < obj.bound_box[4][0] * 2:
-                glsl_draw_obj.draw_x_offset = obj.bound_box[4][0] * 2
+            glsl_draw_obj.draw_x_offset = max(
+                glsl_draw_obj.draw_x_offset, obj.bound_box[4][0] * 2
+            )
             bounding_box_xyz = [[1.0, 1.0, 1.0], [-1.0, -1.0, -1.0]]
             for point in obj.bound_box:
                 for i, xyz in enumerate(point):
-                    if bounding_box_xyz[0][i] < xyz:
-                        bounding_box_xyz[0][i] = xyz
-                    if bounding_box_xyz[1][i] > xyz:
-                        bounding_box_xyz[1][i] = xyz
+                    bounding_box_xyz[0][i] = max(bounding_box_xyz[0][i], xyz)
+                    bounding_box_xyz[1][i] = min(bounding_box_xyz[1][i], xyz)
             GlslDrawObj.bounding_center = [
                 (i + n) / 2 for i, n in zip(bounding_box_xyz[0], bounding_box_xyz[1])
             ]
