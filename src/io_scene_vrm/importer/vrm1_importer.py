@@ -1236,16 +1236,6 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 expression.custom_name = custom_name
                 self.load_vrm1_expression(expression, expression_dict)
 
-    @staticmethod
-    def detect_spring_bone1_collider_shape_shape(
-        collider_dict: dict[str, Json],
-    ) -> Optional[str]:
-        shape_dict = collider_dict.get("shape")
-        if not isinstance(shape_dict, dict):
-            return None
-
-        return SpringBone1ColliderPropertyGroup.SHAPE_TYPE_CAPSULE.identifier
-
     def load_spring_bone1_collider(
         self,
         collider: SpringBone1ColliderPropertyGroup,
@@ -1472,6 +1462,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         for collider in spring_bone.colliders:
             collider.reset_bpy_object(self.context, armature)
 
+        collider_object_names: list[str] = []
         if spring_bone.colliders:
             colliders_collection = self.context.blend_data.collections.new("Colliders")
             self.context.scene.collection.children.link(colliders_collection)
@@ -1479,14 +1470,23 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 if not collider.bpy_object:
                     continue
                 colliders_collection.objects.link(collider.bpy_object)
+                collider_object_names.append(collider.bpy_object.name)
                 if collider.bpy_object.name in self.context.scene.collection.objects:
                     self.context.scene.collection.objects.unlink(collider.bpy_object)
                 for child in collider.bpy_object.children:
+                    collider_object_names.append(child.name)
                     colliders_collection.objects.link(child)
                     if child.name in self.context.scene.collection.objects:
                         self.context.scene.collection.objects.unlink(child)
 
         spring_bone.active_collider_index = 0
+
+        if collider_object_names:
+            imported_object_names = self.imported_object_names
+            if imported_object_names is None:
+                imported_object_names = []
+                self.imported_object_names = imported_object_names
+            imported_object_names.extend(collider_object_names)
 
     def load_spring_bone1_collider_groups(
         self,

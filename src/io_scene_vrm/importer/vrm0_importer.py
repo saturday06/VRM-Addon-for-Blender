@@ -1006,6 +1006,19 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         for bone_group in secondary_animation.bone_groups:
             bone_group.refresh(armature)
 
+        collider_object_names = [
+            collider.bpy_object.name
+            for collider_group in secondary_animation.collider_groups
+            for collider in collider_group.colliders
+            if collider.bpy_object is not None
+        ]
+        if collider_object_names:
+            imported_object_names = self.imported_object_names
+            if imported_object_names is None:
+                imported_object_names = []
+                self.imported_object_names = imported_object_names
+            imported_object_names.extend(collider_object_names)
+
     def find_vrm0_bone_node_indices(self) -> list[int]:
         result: list[int] = []
         vrm0_dict = self.parse_result.vrm0_extension

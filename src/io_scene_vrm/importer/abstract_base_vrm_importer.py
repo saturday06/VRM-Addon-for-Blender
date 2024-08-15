@@ -71,7 +71,7 @@ class AbstractBaseVrmImporter(ABC):
         self.temp_object_name_count = 0
         self.object_names: dict[int, str] = {}
         self.mesh_object_names: dict[int, str] = {}
-        self.imported_gltf_object_names: Optional[list[str]] = None
+        self.imported_object_names: Optional[list[str]] = None
 
     @abstractmethod
     def make_materials(self, progress: PartialProgress) -> None:
@@ -929,7 +929,7 @@ class AbstractBaseVrmImporter(ABC):
                     self.cleanup_gltf2_with_indices()
                     raise
         # glTFインポート直後のオブジェクトの選択状態を保存
-        self.imported_gltf_object_names = [
+        self.imported_object_names = [
             selected_object.name for selected_object in self.context.selected_objects
         ]
 
@@ -1219,10 +1219,10 @@ class AbstractBaseVrmImporter(ABC):
                         space.shading.type = "MATERIAL"
 
     def setup_object_selection_and_activation(self) -> None:
-        if self.imported_gltf_object_names is not None:
+        if self.imported_object_names is not None:
             bpy.ops.object.select_all(action="DESELECT")
             for obj in self.context.selectable_objects:
-                if obj.name in self.imported_gltf_object_names:
+                if obj.name in self.imported_object_names:
                     obj.select_set(True)
         if self.armature is not None:
             self.context.view_layer.objects.active = self.armature
