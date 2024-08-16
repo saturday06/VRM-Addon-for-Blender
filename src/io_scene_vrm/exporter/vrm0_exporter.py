@@ -1418,7 +1418,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 if isinstance(roughness_factor, (int, float)):
                     pbr_metallic_roughness_dict["roughnessFactor"] = roughness_factor
 
-                pbr_dict["pbrMetallicRoughness"] = pbr_metallic_roughness_dict
+                if pbr_metallic_roughness_dict:
+                    pbr_dict["pbrMetallicRoughness"] = pbr_metallic_roughness_dict
         except Exception:
             logger.exception("Failed to generate glTF Material using glTF 2.0 add-on")
             return fallback
