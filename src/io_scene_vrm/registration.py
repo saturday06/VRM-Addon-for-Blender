@@ -426,6 +426,7 @@ classes: list[
     ops.VRM_OT_load_human_bone_mappings,
     ops.VRM_OT_show_blend_file_compatibility_warning,
     ops.VRM_OT_show_blend_file_addon_compatibility_warning,
+    ops.VRM_OT_make_estimated_humanoid_t_pose,
     validation.VrmValidationError,
     validation.WM_OT_vrm_validator,
     export_scene.WM_OT_vrm_export_human_bones_assignment,

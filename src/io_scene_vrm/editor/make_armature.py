@@ -571,16 +571,22 @@ class ICYP_OT_make_armature(Operator):
     def setup_as_vrm(
         self, context: Context, armature: Object, compare_dict: dict[str, str]
     ) -> None:
-        Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         armature_data = armature.data
-        if isinstance(armature_data, Armature) and not self.skip_heavy_armature_setup:
+        if not isinstance(armature_data, Armature):
+            message = "armature data is not an Armature"
+            raise TypeError(message)
+        Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
+        ext = get_armature_extension(armature_data)
+        vrm0_humanoid = ext.vrm0.humanoid
+        vrm1_humanoid = ext.vrm1.humanoid
+        if not self.skip_heavy_armature_setup:
             for vrm_bone_name, bpy_bone_name in compare_dict.items():
-                for human_bone in get_armature_extension(
-                    armature_data
-                ).vrm0.humanoid.human_bones:
+                for human_bone in vrm0_humanoid.human_bones:
                     if human_bone.bone == vrm_bone_name:
                         human_bone.node.set_bone_name(bpy_bone_name)
                         break
+        vrm0_humanoid.pose = vrm0_humanoid.POSE_REST_POSITION_POSE.identifier
+        vrm1_humanoid.pose = vrm1_humanoid.POSE_REST_POSITION_POSE.identifier
         self.make_extension_setting_and_metas(
             armature,
             offset_from_head_bone=(-self.eye_depth, self.head_size() / 6, 0),

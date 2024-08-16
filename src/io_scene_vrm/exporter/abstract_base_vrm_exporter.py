@@ -9,7 +9,7 @@ import bpy
 from bpy.types import Armature, Context, NodesModifier, Object
 from mathutils import Quaternion
 
-from ..common import shader
+from ..common import ops, shader
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.workspace import save_workspace
@@ -108,16 +108,22 @@ class AbstractBaseVrmExporter(ABC):
                             right_eye_bone.rotation_mode = "QUATERNION"
                         right_eye_bone.rotation_quaternion = Quaternion()
 
-            if action and action.name in self.context.blend_data.actions:
-                pose_marker_frame = 0
-                if pose_marker_name:
-                    for search_pose_marker in action.pose_markers.values():
-                        if search_pose_marker.name == pose_marker_name:
-                            pose_marker_frame = search_pose_marker.frame
-                            break
-                armature.pose.apply_pose_from_action(
-                    action, evaluation_time=pose_marker_frame
-                )
+            if pose == humanoid.POSE_AUTO_POSE.identifier:
+                ops.vrm.make_estimated_humanoid_t_pose(armature_name=armature.name)
+            elif pose == humanoid.POSE_CUSTOM_POSE.identifier:
+                if action and action.name in self.context.blend_data.actions:
+                    pose_marker_frame = 0
+                    if pose_marker_name:
+                        for search_pose_marker in action.pose_markers.values():
+                            if search_pose_marker.name == pose_marker_name:
+                                pose_marker_frame = search_pose_marker.frame
+                                break
+                    armature.pose.apply_pose_from_action(
+                        action, evaluation_time=pose_marker_frame
+                    )
+                else:
+                    # TODO: エクスポート時にここに到達する場合は事前に警告をすると親切
+                    ops.vrm.make_estimated_humanoid_t_pose(armature_name=armature.name)
 
         self.context.view_layer.update()
 

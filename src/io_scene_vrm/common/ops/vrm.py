@@ -23,6 +23,18 @@ def model_validate(
     )
 
 
+def make_estimated_humanoid_t_pose(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.make_estimated_humanoid_t_pose(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_name=armature_name,
+    )
+
+
 def show_blend_file_addon_compatibility_warning(
     execution_context: str = "EXEC_DEFAULT",
     /,

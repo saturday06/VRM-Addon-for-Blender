@@ -3,6 +3,7 @@ from idprop.types import IDPropertyGroup
 from mathutils import Vector
 
 from ...common import convert, ops, shader
+from ...common.preferences import get_preferences
 from ..extension import get_armature_extension
 from .property_group import (
     Vrm1ExpressionPropertyGroup,
@@ -166,12 +167,31 @@ def migrate_pose(context: Context, armature_data: Armature) -> None:
         return
 
     humanoid = ext.vrm1.humanoid
+    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or isinstance(
+        humanoid.get("pose"), int
+    ):
+        return
+
     action = humanoid.pose_library
     if action and action.name in context.blend_data.actions:
         humanoid.pose = humanoid.POSE_CUSTOM_POSE.identifier
     elif armature_data.pose_position == "REST":
         humanoid.pose = humanoid.POSE_REST_POSITION_POSE.identifier
     else:
+        humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
+
+
+def migrate_auto_pose(context: Context, armature_data: Armature) -> None:
+    ext = get_armature_extension(armature_data)
+    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or tuple(
+        ext.addon_version
+    ) >= (2, 20, 78):
+        return
+
+    _preferences = get_preferences(context)
+
+    humanoid = ext.vrm1.humanoid
+    if not isinstance(humanoid.get("pose"), int):
         humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
 
 
@@ -234,6 +254,7 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
         )
 
     migrate_pose(context, armature_data)
+    migrate_auto_pose(context, armature_data)
 
     # Expressionのプリセットに名前を設定する
     # 管理上は無くてもよいが、アニメーションキーフレームに表示されるので設定しておきたい

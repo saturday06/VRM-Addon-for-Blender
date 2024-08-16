@@ -169,6 +169,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         default=False,
     )
 
+    POSE_AUTO_POSE = Vrm1HumanoidPropertyGroup.POSE_AUTO_POSE
     POSE_REST_POSITION_POSE = Vrm1HumanoidPropertyGroup.POSE_REST_POSITION_POSE
     POSE_CURRENT_POSE = Vrm1HumanoidPropertyGroup.POSE_CURRENT_POSE
     POSE_CUSTOM_POSE = Vrm1HumanoidPropertyGroup.POSE_CUSTOM_POSE
@@ -177,7 +178,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         items=Vrm1HumanoidPropertyGroup.pose_enum.items(),
         name="T-Pose",
         description="T-Pose",
-        default=POSE_CURRENT_POSE.identifier,
+        default=POSE_AUTO_POSE.identifier,
     )
 
     # for T-Pose

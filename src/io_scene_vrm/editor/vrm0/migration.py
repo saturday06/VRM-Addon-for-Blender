@@ -627,12 +627,29 @@ def migrate_pose(context: Context, armature_data: Armature) -> None:
         return
 
     humanoid = ext.vrm0.humanoid
+    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or isinstance(
+        humanoid.get("pose"), int
+    ):
+        return
+
     action = humanoid.pose_library
     if action and action.name in context.blend_data.actions:
         humanoid.pose = humanoid.POSE_CUSTOM_POSE.identifier
     elif armature_data.pose_position == "REST":
         humanoid.pose = humanoid.POSE_REST_POSITION_POSE.identifier
     else:
+        humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
+
+
+def migrate_auto_pose(_context: Context, armature_data: Armature) -> None:
+    ext = get_armature_extension(armature_data)
+    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or tuple(
+        ext.addon_version
+    ) >= (2, 20, 78):
+        return
+
+    humanoid = ext.vrm0.humanoid
+    if not isinstance(humanoid.get("pose"), int):
         humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
 
 
@@ -675,6 +692,7 @@ def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None
     fixup_gravity_dir(armature_data)
     fixup_humanoid_feet_spacing(armature_data)
     migrate_pose(context, armature_data)
+    migrate_auto_pose(context, armature_data)
 
     Vrm0HumanoidPropertyGroup.update_all_node_candidates(
         context,
