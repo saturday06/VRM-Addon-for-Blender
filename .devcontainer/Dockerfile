@@ -92,10 +92,11 @@ RUN locale-gen en_US.UTF-8
 WORKDIR /root/src
 
 RUN if [ "$(uname -m)" = "aarch64" ]; then \
-        mkdir -p sse2neon \
+        curl --fail --show-error --location --output sse2neon.tar.gz https://github.com/DLTcollab/sse2neon/archive/refs/tags/v1.7.0.tar.gz \
+        && test "$(md5sum sse2neon.tar.gz)" = "09e0a5ac47f852862c5c0e754462bc81  sse2neon.tar.gz" \
+        && mkdir -p sse2neon \
         && pushd sse2neon \
-        && curl --fail --show-error --location https://github.com/DLTcollab/sse2neon/archive/refs/tags/v1.7.0.tar.gz \
-            | tar zxf - --strip-components=1 \
+        && tar zxf ../sse2neon.tar.gz --strip-components=1 \
         && make \
         && make check \
         && cp sse2neon.h /usr/local/include/ \
@@ -105,10 +106,11 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
 
 # poetryを経由して開発に利用するPythonを/usr/localにビルドしてインストールする。
 # Python3.10系を使いたいがUbuntu 24.04のパッケージには存在しないので、自前でビルドする必要がある。
-RUN mkdir -p python \
+RUN curl --fail --show-error --location --output Python.tar.xz https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tar.xz \
+    && test "$(md5sum Python.tar.xz)" = "05148354ce821ba7369e5b7958435400  Python.tar.xz" \
+    && mkdir -p python \
     && pushd python \
-    && curl --fail --show-error --location https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tar.xz \
-        | tar Jxf - --strip-components=1 \
+    && tar Jxf ../Python.tar.xz --strip-components=1 \
     && ./configure \
     && make \
     && make install \
@@ -130,10 +132,11 @@ RUN /usr/local/bin/pip3 install numpy requests zstandard
 # 一般的には `make bpy || make NPROCS=1 bpy` という対応をするが、Parallels Desktop上のUbuntu Arm64 22.04だと
 # GUI全体を巻き込んでクラッシュしたのでNPROCS=1で決め打ちする。
 RUN if [ "$(uname -m)" != "x86_64" ]; then \
-        mkdir -p blender/blender \
+        curl --fail --show-error --location --output blender.tar.xz https://download.blender.org/source/blender-3.6.14.tar.xz \
+        && test "$(md5sum blender.tar.xz)" = "e78b7af0307584551759e742dd70970f  blender.tar.xz" \
+        && mkdir -p blender/blender \
         && pushd blender/blender \
-        && curl --fail --show-error --location https://download.blender.org/source/blender-3.6.12.tar.xz \
-            | tar Jxf - --strip-components=1 \
+        && tar Jxf ../../blender.tar.xz --strip-components=1 \
         && ./build_files/build_environment/install_linux_packages.py \
         && make NPROCS=1 bpy \
         && pushd ../build_linux_bpy \
@@ -142,7 +145,7 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
         && popd \
         && popd \
         && rm -fr blender \
-        && python3 -c 'import bpy; assert(bpy.app.version == (3, 6, 12))' \
+        && python3 -c 'import bpy; assert(bpy.app.version == (3, 6, 14))' \
     ; fi
 
 RUN useradd --create-home --user-group --shell /bin/bash developer \
