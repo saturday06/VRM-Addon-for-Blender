@@ -624,4 +624,18 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "Operator",
         "VRM Add-on Compatibility Warning",
     ): "VRMアドオンの互換性の警告",
+    (
+        "*",
+        "Automatic T-Pose Conversion is enabled."
+        + " There is a setting"
+        + ' in "VRM" panel → "VRM 0.x Humanoid" → "T-Pose".',
+    ): "自動Tポーズ化が有効です。"
+    + "「VRM」パネルの「VRM 0.x Humanoid」→「T-Pose」に設定があります。",
+    (
+        "*",
+        "Automatic T-Pose Conversion is enabled."
+        + " There is a setting"
+        + ' in "VRM" panel → "Humanoid" → "T-Pose".',
+    ): "自動Tポーズ化が有効です。"
+    + "「VRM」パネルの「Humanoid」→「T-Pose」に設定があります。",
 }

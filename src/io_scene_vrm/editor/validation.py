@@ -330,15 +330,24 @@ class WM_OT_vrm_validator(Operator):
 
                 # TODO: T_POSE,
                 all_required_bones_exist = True
-                if get_armature_extension(armature_data).is_vrm1():
+                armature_extension = get_armature_extension(armature_data)
+                if armature_extension.is_vrm1():
                     _, _, constraint_warning_messages = search.export_constraints(
                         export_objects, armature
                     )
                     skippable_warning_messages.extend(constraint_warning_messages)
 
-                    human_bones = get_armature_extension(
-                        armature_data
-                    ).vrm1.humanoid.human_bones
+                    humanoid = armature_extension.vrm1.humanoid
+                    if humanoid.pose == humanoid.POSE_AUTO_POSE.identifier:
+                        info_messages.append(
+                            pgettext(
+                                "Automatic T-Pose Conversion is enabled."
+                                + " There is a setting"
+                                + ' in "VRM" panel → "Humanoid" → "T-Pose".'
+                            )
+                        )
+
+                    human_bones = humanoid.human_bones
 
                     human_bone_name_to_human_bone = (
                         human_bones.human_bone_name_to_human_bone()
@@ -418,8 +427,17 @@ class WM_OT_vrm_validator(Operator):
                             )
                         )
 
-                else:
-                    humanoid = get_armature_extension(armature_data).vrm0.humanoid
+                elif armature_extension.is_vrm0():
+                    humanoid = armature_extension.vrm0.humanoid
+                    if humanoid.pose == humanoid.POSE_AUTO_POSE.identifier:
+                        info_messages.append(
+                            pgettext(
+                                "Automatic T-Pose Conversion is enabled."
+                                + " There is a setting"
+                                + ' in "VRM" panel → "VRM 0.x Humanoid" → "T-Pose".'
+                            )
+                        )
+
                     human_bones = humanoid.human_bones
                     all_required_bones_exist = True
                     for (
