@@ -47,26 +47,7 @@ def test(blend_path_str: str) -> None:
 
     if blend.name.endswith(".merge.blend"):
         blend = blend.with_suffix("").with_suffix(".blend")
-    vrm = blend.with_suffix(".vrm")
-    blend_vrm_path = vrm_dir / major_minor / "out" / blend.with_suffix(".blend.vrm")
-
-    expected_path_blend_vrm = blend_vrm_path
-    expected_path_vrm_out = vrm_dir / major_minor / "out" / vrm
-    expected_path_vrm_in = vrm_dir / "in" / vrm
-    if expected_path_blend_vrm.exists():
-        expected_path = expected_path_blend_vrm
-    elif expected_path_vrm_out.exists():
-        expected_path = expected_path_vrm_out
-    elif expected_path_vrm_in.exists():
-        expected_path = expected_path_vrm_in
-    else:
-        message = (
-            "No expected result file:\n"
-            + f"{expected_path_blend_vrm}\n"
-            + f"{expected_path_vrm_out}\n"
-            + f"{expected_path_vrm_in}\n"
-        )
-        raise FileNotFoundError(message)
+    expected_path = vrm_dir / major_minor / "out" / "blend" / blend.with_suffix(".vrm")
 
     temp_vrm_dir = vrm_dir / major_minor / "temp"
     temp_vrm_dir.mkdir(parents=True, exist_ok=True)
@@ -75,10 +56,15 @@ def test(blend_path_str: str) -> None:
 
     assert ops.vrm.model_validate() == {"FINISHED"}
 
-    actual_path = temp_vrm_dir / ("test_blend_export." + vrm.name)
+    actual_path = temp_vrm_dir / ("test_blend_export." + expected_path.name)
     if actual_path.exists():
         actual_path.unlink()
+
     ops.export_scene.vrm(filepath=str(actual_path))
+
+    if not expected_path.exists():
+        message = f"No expected result file: {expected_path}"
+        raise FileNotFoundError(message)
 
     float_tolerance = 0.00015
 
@@ -91,7 +77,7 @@ def test(blend_path_str: str) -> None:
         return
 
     if update_failed_vrm:
-        shutil.copy(actual_path, blend_vrm_path)
+        shutil.copy(actual_path, expected_path)
 
     diffs_str = "\n".join(diffs)
     message = (
