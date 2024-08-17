@@ -92,12 +92,6 @@ class AbstractBaseVrmImporter(ABC):
                     progress.update(0.1)
                     self.import_gltf2_with_indices()
                     progress.update(0.2)
-                    if self.preferences.extract_textures_into_folder:
-                        self.extract_textures(repack=False)
-                    elif bpy.app.version < (3, 1):
-                        self.extract_textures(repack=True)
-                    else:
-                        self.assign_packed_image_filepaths()
                     progress.update(0.3)
                     self.use_fake_user_for_thumbnail()
                     progress.update(0.4)
@@ -116,6 +110,17 @@ class AbstractBaseVrmImporter(ABC):
                     progress.update(0.94)
                     self.context.view_layer.update()
                     progress.update(0.96)
+
+                    # テクスチャの展開を行う。その際に.blendファイルの保存が発生して
+                    # 保存時のコールバックが走ることがあるため、中途半端にインポート
+                    # されたVRMのデータに対してそのコールバックが適用されないように
+                    # 注意する
+                    if self.preferences.extract_textures_into_folder:
+                        self.extract_textures(repack=False)
+                    elif bpy.app.version < (3, 1):
+                        self.extract_textures(repack=True)
+                    else:
+                        self.assign_packed_image_filepaths()
 
                 self.setup_object_selection_and_activation()
                 progress.update(0.98)
@@ -230,6 +235,11 @@ class AbstractBaseVrmImporter(ABC):
                 image.filepath_raw = f"//{image_name}.{image_type}"
 
     def extract_textures(self, *, repack: bool) -> None:
+        """テクスチャをファイルにフォルダに展開します.
+
+        Blender 3.1以降ではテクスチャの展開は.blendファイルを保存しないとできない。
+        そのためファイルを保存するが、その際にファイル保存コールバックが走るのに注意してください。
+        """
         dir_path = self.parse_result.filepath.with_suffix(".vrm.textures").absolute()
         if self.preferences.make_new_texture_folder or repack:
             dir_path = create_unique_indexed_directory_path(dir_path)
