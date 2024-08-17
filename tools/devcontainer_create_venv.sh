@@ -17,7 +17,14 @@ if [ -L .venv-devcontainer ] ||
   [ "$(readlink --canonicalize-existing .venv-devcontainer)" != "$(readlink --canonicalize-existing "$(poetry env info --path)")" ] \
   ; then
 
-  sudo rm -fr .venv-devcontainer
+  if ! sudo rm -fr .venv-devcontainer; then
+    # Docker for Windowsバックエンド切り替え時などに消せないファイルが残ることがある
+    echo >&2 # ログ表示成形のため改行出力
+    echo >&2 "#################################################################"
+    echo >&2 "Failed to remove '.venv-devcontainer'. Please remove it manually."
+    echo >&2 "#################################################################"
+    exit 1
+  fi
 
   # poetry 1.8.2が自動で作るvenvのスクリプトをVSCodeのターミナルが正しく解釈できないので手動で作る。
   # 例えばvenvの名前が "venv" で、シェルのデフォルトのプロンプトが "$" の場合、シェルのプロンプトは
