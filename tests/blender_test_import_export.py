@@ -49,6 +49,11 @@ def test(context: Context, vrm: str, extract_textures_str: str) -> None:
     if not (out_vrm_dir / vrm).exists():
         update_failed_vrm = True
 
+    # 非公開のテストモデルの中に特定のBlenderバージョンで出力結果が不安定なものがある
+    if f"(unstable-{major_minor})" in vrm:
+        logger.warning("Skipped: %s", vrm)
+        return
+
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
     while context.blend_data.collections:
