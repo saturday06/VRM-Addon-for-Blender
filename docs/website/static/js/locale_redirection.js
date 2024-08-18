@@ -35,7 +35,6 @@
   if (!redirection) {
     return
   }
-  window.location.search = params.join('&')
 
   const mainLocalizedFolder = guessLocalizedFolder()
   if (!mainLocalizedFolder) {
@@ -62,8 +61,9 @@
   if (contentPathname) {
     href += '/' + contentPathname
   }
-  if (window.location.search !== '?') {
-    href += window.location.search
+  const locationSearch = params.join('&')
+  if (locationSearch) {
+    href += '?' + locationSearch
   }
   href += window.location.hash
   window.location.replace(href)
