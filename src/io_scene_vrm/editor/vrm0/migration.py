@@ -621,15 +621,18 @@ def fixup_humanoid_feet_spacing(armature_data: Armature) -> None:
         humanoid.feet_spacing = float(feet_spacing)
 
 
-def migrate_pose(context: Context, armature_data: Armature) -> None:
+def migrate_pose(context: Context, armature: Object, armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 20, 34):
         return
 
     humanoid = ext.vrm0.humanoid
-    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or isinstance(
-        humanoid.get("pose"), int
-    ):
+    if isinstance(humanoid.get("pose"), int):
+        return
+
+    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION:
+        if "humanoid_params" in armature and "hips" in armature_data:
+            humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
         return
 
     action = humanoid.pose_library
@@ -691,7 +694,7 @@ def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None
     remove_link_to_mesh_object(armature_data)
     fixup_gravity_dir(armature_data)
     fixup_humanoid_feet_spacing(armature_data)
-    migrate_pose(context, armature_data)
+    migrate_pose(context, armature, armature_data)
     migrate_auto_pose(context, armature_data)
 
     Vrm0HumanoidPropertyGroup.update_all_node_candidates(
