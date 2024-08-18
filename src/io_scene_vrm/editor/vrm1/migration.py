@@ -3,7 +3,6 @@ from idprop.types import IDPropertyGroup
 from mathutils import Vector
 
 from ...common import convert, ops, shader
-from ...common.preferences import get_preferences
 from ..extension import get_armature_extension
 from .property_group import (
     Vrm1ExpressionPropertyGroup,
@@ -184,14 +183,12 @@ def migrate_pose(context: Context, armature: Object, armature_data: Armature) ->
         humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
 
 
-def migrate_auto_pose(context: Context, armature_data: Armature) -> None:
+def migrate_auto_pose(_context: Context, armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or tuple(
         ext.addon_version
-    ) >= (2, 20, 78):
+    ) >= (2, 20, 81):
         return
-
-    _preferences = get_preferences(context)
 
     humanoid = ext.vrm1.humanoid
     if not isinstance(humanoid.get("pose"), int):

@@ -648,7 +648,7 @@ def migrate_auto_pose(_context: Context, armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or tuple(
         ext.addon_version
-    ) >= (2, 20, 78):
+    ) >= (2, 20, 81):
         return
 
     humanoid = ext.vrm0.humanoid
