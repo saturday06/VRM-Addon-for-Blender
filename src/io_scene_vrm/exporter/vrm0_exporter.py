@@ -2281,7 +2281,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 )
             mesh_data_transform @= mesh.matrix_world
             mesh_data.transform(mesh_data_transform, shape_keys=True)
-            mesh_data.calc_loop_triangles()
             if bpy.app.version < (4, 1):
                 mesh_data.calc_normals_split()
 
