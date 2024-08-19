@@ -1946,6 +1946,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         context: Context,
         mesh_data: Mesh,
     ) -> dict[str, list[list[float]]]:
+        # 法線の差分を強制的にゼロにする設定が有効な頂点インデックスを集める
         exclusion_vertex_indices: set[int] = set()
         for polygon in mesh_data.polygons:
             if len(mesh_data.materials) <= polygon.material_index:
@@ -1957,9 +1958,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             material = context.blend_data.materials.get(material.name)
             if material is None:
                 continue
-            if get_material_extension(material).mtoon1.export_shape_key_normals:
+            material_extension = get_material_extension(material)
+            if material_extension.mtoon1.export_shape_key_normals:
                 continue
-            if get_material_extension(material).mtoon1.enabled:
+            if material_extension.mtoon1.enabled:
                 exclusion_vertex_indices.update(polygon.vertices)
                 continue
             node, vrm_shader_name = search.vrm_shader_node(material)
@@ -1968,61 +1970,70 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if vrm_shader_name == "MToon_unversioned":
                 exclusion_vertex_indices.update(polygon.vertices)
 
-        morph_normal_diff_dict: dict[str, list[list[float]]] = {}
-        vert_base_normal_dict: dict[str, list[float]] = {}
+        # シェイプキーごとの法線の値を集める
+        shape_key_name_to_vertex_normal_vectors: dict[str, list[Vector]] = {}
         if not mesh_data.shape_keys:
             message = "mesh_data.shape_keys is None"
             raise AssertionError(message)
-        for kb in mesh_data.shape_keys.key_blocks:
+        for key_block in mesh_data.shape_keys.key_blocks:
             # 頂点のノーマルではなくsplit(loop)のノーマルを使う
             # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1129
-            split_normals = kb.normals_split_get()
+            split_normals = key_block.normals_split_get()
 
-            vertex_normal_vectors = [Vector([0.0, 0.0, 0.0])] * len(mesh_data.vertices)
+            vertex_normal_sum_vectors = [Vector([0.0, 0.0, 0.0])] * len(
+                mesh_data.vertices
+            )
             for loop_index in range(len(split_normals) // 3):
                 loop = mesh_data.loops[loop_index]
                 if loop.vertex_index in exclusion_vertex_indices:
                     continue
-                v = Vector(
-                    [
+                vector = Vector(
+                    (
                         split_normals[loop_index * 3 + 0],
                         split_normals[loop_index * 3 + 1],
                         split_normals[loop_index * 3 + 2],
-                    ]
+                    )
                 )
-                if v.length <= float_info.epsilon:
+                if vector.length_squared <= float_info.epsilon:
                     continue
-                vertex_normal_vectors[loop.vertex_index] = (
-                    vertex_normal_vectors[loop.vertex_index] + v
-                )
+                vertex_normal_sum_vectors[loop.vertex_index] += vector
+            shape_key_name_to_vertex_normal_vectors[key_block.name] = [
+                vector.normalized() for vector in vertex_normal_sum_vectors
+            ]
 
-            vertex_normals = [0.0] * len(vertex_normal_vectors) * 3
-            for index, _ in enumerate(vertex_normal_vectors):
-                if index in exclusion_vertex_indices:
-                    continue
-                n = vertex_normal_vectors[index]
-                if n.length <= float_info.epsilon:
-                    continue
-                n = n.normalized()
-                vertex_normals[index * 3 + 0] = n[0]
-                vertex_normals[index * 3 + 1] = n[1]
-                vertex_normals[index * 3 + 2] = n[2]
-
-            vert_base_normal_dict.update({kb.name: vertex_normals})
         reference_key_name = mesh_data.shape_keys.reference_key.name
-        for k, vertex_normals in vert_base_normal_dict.items():
-            if k == reference_key_name:
+        reference_vertex_normal_vectors = shape_key_name_to_vertex_normal_vectors.get(
+            reference_key_name
+        )
+        if reference_vertex_normal_vectors is None:
+            message = f"Reference Key: {reference_key_name} not found"
+            raise AssertionError(message)
+
+        # シェイプキーごとに、リファレンスキーとの法線の差分を集める
+        shape_key_name_to_vertex_index_to_morph_normal_diffs: dict[
+            str, list[list[float]]
+        ] = {}
+        for (
+            shape_key_name,
+            vertex_normal_vectors,
+        ) in shape_key_name_to_vertex_normal_vectors.items():
+            if shape_key_name == reference_key_name:
                 continue
-            values: list[list[float]] = []
-            for vert_morph_normal, vert_base_normal in zip(
-                zip(*[iter(vertex_normals)] * 3),
-                zip(*[iter(vert_base_normal_dict[reference_key_name])] * 3),
-            ):
-                values.append(
-                    [vert_morph_normal[i] - vert_base_normal[i] for i in range(3)]
+            vertex_index_to_morph_normal_diffs: list[list[float]] = [
+                [
+                    vertex_normal_vector.x - reference_vertex_normal_vector.x,
+                    vertex_normal_vector.y - reference_vertex_normal_vector.y,
+                    vertex_normal_vector.z - reference_vertex_normal_vector.z,
+                ]
+                for vertex_normal_vector, reference_vertex_normal_vector in zip(
+                    vertex_normal_vectors,
+                    reference_vertex_normal_vectors,
                 )
-            morph_normal_diff_dict.update({k: values})
-        return morph_normal_diff_dict
+            ]
+            shape_key_name_to_vertex_index_to_morph_normal_diffs[shape_key_name] = (
+                vertex_index_to_morph_normal_diffs
+            )
+        return shape_key_name_to_vertex_index_to_morph_normal_diffs
 
     def is_skin_mesh(self, mesh: Object) -> bool:
         while mesh:
