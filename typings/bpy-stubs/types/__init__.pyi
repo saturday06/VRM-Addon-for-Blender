@@ -649,6 +649,7 @@ class MeshPolygon(bpy_struct):
     material_index: int
     use_smooth: bool
     vertices: tuple[int, int, int]  # TODO: 正しい型を調べる
+    loop_indices: Sequence[int]  # TODO: 正しい型を調べる
     @property
     def loop_total(self) -> int: ...
 
