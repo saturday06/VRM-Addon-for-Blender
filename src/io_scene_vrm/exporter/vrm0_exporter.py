@@ -1996,7 +1996,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 )
                 if vector.length_squared <= float_info.epsilon:
                     continue
-                vertex_normal_sum_vectors[loop.vertex_index] += vector
+                vertex_normal_sum_vectors[loop.vertex_index] = (
+                    # 普通は += 演算子を使うが、なぜか結果が変わるので使わない
+                    vertex_normal_sum_vectors[loop.vertex_index] + vector
+                )
             shape_key_name_to_vertex_normal_vectors[key_block.name] = [
                 vector.normalized() for vector in vertex_normal_sum_vectors
             ]
