@@ -1949,7 +1949,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         # 法線の差分を強制的にゼロにする設定が有効な頂点インデックスを集める
         exclusion_vertex_indices: set[int] = set()
         for polygon in mesh_data.polygons:
-            if len(mesh_data.materials) <= polygon.material_index:
+            if not (0 <= polygon.material_index < len(mesh_data.materials)):
                 continue
             material = mesh_data.materials[polygon.material_index]
             if material is None:
@@ -2020,11 +2020,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if shape_key_name == reference_key_name:
                 continue
             vertex_index_to_morph_normal_diffs: list[list[float]] = [
-                [
-                    vertex_normal_vector.x - reference_vertex_normal_vector.x,
-                    vertex_normal_vector.y - reference_vertex_normal_vector.y,
-                    vertex_normal_vector.z - reference_vertex_normal_vector.z,
-                ]
+                list(vertex_normal_vector - reference_vertex_normal_vector)
                 for vertex_normal_vector, reference_vertex_normal_vector in zip(
                     vertex_normal_vectors,
                     reference_vertex_normal_vectors,
