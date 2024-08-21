@@ -10,10 +10,10 @@ license = {file = "LICENSE"}
 
 dependencies = [
     # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_35/poetry.lock#L10-L13
-    "bpy ==3.6.*; platform_system == 'Darwin' and platform_machine == 'x86_64'",
-    "bpy ==3.6.*; platform_system == 'Darwin' and platform_machine == 'arm64'",
-    "bpy ==3.6.*; platform_system == 'Linux' and platform_machine == 'x86_64'",
-    "bpy ==3.6.*; platform_system == 'Windows' and platform_machine == 'AMD64'",
+    "bpy == 3.6.*; platform_system == 'Darwin' and platform_machine == 'x86_64'",
+    "bpy == 3.6.*; platform_system == 'Darwin' and platform_machine == 'arm64'",
+    "bpy == 3.6.*; platform_system == 'Linux' and platform_machine == 'x86_64'",
+    "bpy == 3.6.*; platform_system == 'Windows' and platform_machine == 'AMD64'",
 ]
 
 [tool.uv]
