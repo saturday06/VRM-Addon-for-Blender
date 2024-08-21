@@ -274,14 +274,14 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "codespell", specifier = ">=0" },
-    { name = "dulwich", specifier = ">=0" },
-    { name = "mypy", specifier = ">=0" },
-    { name = "pyright", specifier = ">=0" },
-    { name = "ruff", specifier = ">=0" },
+    { name = "codespell", specifier = ">=2.3.0" },
+    { name = "dulwich", specifier = ">=0.22.1" },
+    { name = "mypy", specifier = ">=1.11.1" },
+    { name = "pyright", specifier = ">=1.1.377" },
+    { name = "ruff", specifier = ">=0.6.1" },
     { name = "starry-bpy-typings", directory = "typings" },
-    { name = "tqdm", specifier = ">=0" },
-    { name = "types-tqdm", specifier = ">=0" },
+    { name = "tqdm", specifier = ">=4.66.5" },
+    { name = "types-tqdm", specifier = ">=4.66.0.20240417" },
 ]
 
 [[package]]
