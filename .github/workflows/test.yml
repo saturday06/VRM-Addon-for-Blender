@@ -192,14 +192,14 @@ jobs:
         run: |
           git ls-files "*.glsl" | xargs clang-format -i
           git diff --exit-code
-      - name: Install poetry
+      - name: Install UV
         run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-      - name: Install poetry dependencies
+          curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+      - name: Install UV dependencies
         run: |
           for _ in $(seq 5); do
-            if poetry install; then
+            if uv run python -c 'print("OK")'; then
               break
             fi
           done
@@ -209,7 +209,7 @@ jobs:
           git diff --exit-code
       - name: Check property type annotations
         run: |
-          poetry run python tools/property_typing.py > property_typing.log
+          uv run python tools/property_typing.py > property_typing.log
           ./tools/format.sh
           git diff --exit-code
       - name: Install hadolint
@@ -223,7 +223,7 @@ jobs:
           ./tools/format.sh
           git diff --exit-code
           ./tools/lint.sh
-          poetry -C src run python -c "import io_scene_vrm; io_scene_vrm.register(); io_scene_vrm.unregister()"
+          uv run python -c "import io_scene_vrm; io_scene_vrm.register(); io_scene_vrm.unregister()"
           git reset --hard "$GITHUB_SHA"
       - name: Super-Linter
         uses: github/super-linter@v6

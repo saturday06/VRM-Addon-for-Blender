@@ -35,7 +35,6 @@
 !/src/io_scene_vrm/README.txt
 !/src/io_scene_vrm/blender_manifest.toml
 !/src/io_scene_vrm/editor/vroid2vrc_lipsync_recipe.json
-!/poetry.lock
 !/pyproject.toml
 !/tools/*.bat
 !/tools/*.dockerfile
@@ -43,6 +42,7 @@
 !/tools/*.wsb
 !/tests/resources
 !/typings/pyproject.toml
+!/uv.lock
 
 *.blend1
 *~
@@ -52,7 +52,6 @@ __pycache__/
 
 /.idea/
 /.venv/
-/.venv-devcontainer/
 /.vscode/
 /docs/website/.hugo_build.lock
 /docs/website/public/

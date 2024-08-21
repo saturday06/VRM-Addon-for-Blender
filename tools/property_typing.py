@@ -194,7 +194,7 @@ def update_property_typing(
         another_def_start_index - 1,
         "    if TYPE_CHECKING:\n"
         + "        # This code is auto generated.\n"
-        + "        # `poetry run python tools/property_typing.py`\n"
+        + "        # `uv run tools/property_typing.py`\n"
         + typing_code,
     )
 
@@ -317,7 +317,7 @@ def main() -> int:
             if not ops_path.exists():
                 ops_path.write_text(
                     "# This code is auto generated.\n"
-                    + "# `poetry run python tools/property_typing.py`\n\n"
+                    + "# `uv run tools/property_typing.py`\n\n"
                     + "from collections.abc import Mapping, Sequence\n"
                     + "from typing import Optional, Union\n\n"
                     + "import bpy\n\n\n"

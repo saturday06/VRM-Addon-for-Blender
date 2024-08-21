@@ -117,7 +117,7 @@ class Vrm0HumanoidBonePropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         bone: str  # type: ignore[no-redef]
         node: BonePropertyGroup  # type: ignore[no-redef]
         use_default_values: bool  # type: ignore[no-redef]
@@ -349,7 +349,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         human_bones: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm0HumanoidBonePropertyGroup
         ]
@@ -388,7 +388,7 @@ class Vrm0DegreeMapPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         curve: Sequence[float]  # type: ignore[no-redef]
         x_range: float  # type: ignore[no-redef]
         y_range: float  # type: ignore[no-redef]
@@ -429,7 +429,7 @@ class Vrm0MeshAnnotationPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         mesh: MeshObjectPropertyGroup  # type: ignore[no-redef]
         first_person_flag: str  # type: ignore[no-redef]
 
@@ -492,7 +492,7 @@ class Vrm0FirstPersonPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         first_person_bone: BonePropertyGroup  # type: ignore[no-redef]
         first_person_bone_offset: Sequence[float]  # type: ignore[no-redef]
         mesh_annotations: CollectionPropertyProtocol[  # type: ignore[no-redef]
@@ -525,7 +525,7 @@ class Vrm0BlendShapeBindPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         mesh: MeshObjectPropertyGroup  # type: ignore[no-redef]
         index: str  # type: ignore[no-redef]
         weight: float  # type: ignore[no-redef]
@@ -551,7 +551,7 @@ class Vrm0MaterialValueBindPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         material: Optional[Material]  # type: ignore[no-redef]
         property_name: str  # type: ignore[no-redef]
         target_value: CollectionPropertyProtocol[  # type: ignore[no-redef]
@@ -673,7 +673,7 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         name: str  # type: ignore[no-redef]
         preset_name: str  # type: ignore[no-redef]
         binds: CollectionPropertyProtocol[  # type: ignore[no-redef]
@@ -713,7 +713,7 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         bpy_object: Optional[Object]  # type: ignore[no-redef]
 
 
@@ -762,7 +762,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         node: BonePropertyGroup  # type: ignore[no-redef]
         colliders: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm0SecondaryAnimationColliderPropertyGroup
@@ -881,7 +881,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         comment: str  # type: ignore[no-redef]
         stiffiness: float  # type: ignore[no-redef]
         gravity_power: float  # type: ignore[no-redef]
@@ -1011,7 +1011,7 @@ class Vrm0MetaPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         title: str  # type: ignore[no-redef]
         version: str  # type: ignore[no-redef]
         author: str  # type: ignore[no-redef]
@@ -1039,7 +1039,7 @@ class Vrm0BlendShapeMasterPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         blend_shape_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm0BlendShapeGroupPropertyGroup
         ]
@@ -1070,7 +1070,7 @@ class Vrm0SecondaryAnimationPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         bone_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm0SecondaryAnimationGroupPropertyGroup
         ]
@@ -1107,7 +1107,7 @@ class Vrm0PropertyGroup(PropertyGroup):
     )
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         meta: Vrm0MetaPropertyGroup  # type: ignore[no-redef]
         humanoid: Vrm0HumanoidPropertyGroup  # type: ignore[no-redef]
         first_person: Vrm0FirstPersonPropertyGroup  # type: ignore[no-redef]

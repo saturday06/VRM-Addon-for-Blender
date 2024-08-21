@@ -1,35 +1,38 @@
 [project]
-requires-python = ">=3.9"
-
-[tool.poetry]
 name = "io_scene_vrm"
+requires-python = "==3.10.*" # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
 version = "1.0.0" # Dummy version. See __init__.bl_info["version"] instead.
-description = ""
-authors = ["Isamu Mogi <isamu@leafytree.jp>", "iCyP"]
-license = "MIT"
+authors = [
+    {name = "Isamu Mogi"},
+    {name = "iCyP"},
+]
+license = {file = "LICENSE"}
 
-[tool.poetry.dependencies]
-python = "3.10.*" # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
-
-# https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_35/poetry.lock#L10-L13
-bpy = [
-    {version = "3.6.*", markers = "platform_system == 'Darwin' and platform_machine == 'x86_64'"},
-    {version = "3.6.*", markers = "platform_system == 'Darwin' and platform_machine == 'arm64'"},
-    {version = "3.6.*", markers = "platform_system == 'Linux' and platform_machine == 'x86_64'"},
-    {version = "3.6.*", markers = "platform_system == 'Windows' and platform_machine == 'AMD64'"},
+dependencies = [
+    # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_35/poetry.lock#L10-L13
+    "bpy ==3.6.*; platform_system == 'Darwin' and platform_machine == 'x86_64'",
+    "bpy ==3.6.*; platform_system == 'Darwin' and platform_machine == 'arm64'",
+    "bpy ==3.6.*; platform_system == 'Linux' and platform_machine == 'x86_64'",
+    "bpy ==3.6.*; platform_system == 'Windows' and platform_machine == 'AMD64'",
 ]
 
-[tool.poetry.group.dev.dependencies]
-codespell = "*"
-dulwich = "*"
-mypy = "*"
-pyright = "*"
-ruff = "*"
-starry-bpy-type-stubs = { path = "typings" }
-tqdm = "*"
-types-tqdm = "*"
+[tool.uv]
+dev-dependencies = [
+    "codespell >=0",
+    "dulwich >=0",
+    "mypy >=0",
+    "pyright >=0",
+    "ruff >=0",
+    "starry-bpy-typings",
+    "tqdm >=0",
+    "types-tqdm >=0",
+]
+
+[tool.uv.sources]
+starry-bpy-typings = {path = "typings"}
 
 [tool.ruff]
+target-version = "py39" # It overrides 'project.requires-python = "==3.10.*"'
 src = ["typings", "src"]
 
 [tool.ruff.lint]
@@ -145,5 +148,5 @@ reportCallInDefaultInitializer = true
 reportShadowedImports = true
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

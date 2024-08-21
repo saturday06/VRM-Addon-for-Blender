@@ -42,7 +42,7 @@ class VrmValidationError(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         message: str  # type: ignore[no-redef]
         severity: int  # type: ignore[no-redef]
 
@@ -956,7 +956,7 @@ class WM_OT_vrm_validator(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         show_successful_message: bool  # type: ignore[no-redef]
         errors: CollectionPropertyProtocol[  # type: ignore[no-redef]
             VrmValidationError

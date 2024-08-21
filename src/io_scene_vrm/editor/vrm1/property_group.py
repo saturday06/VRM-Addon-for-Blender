@@ -86,7 +86,7 @@ class Vrm1HumanBonePropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         node: BonePropertyGroup  # type: ignore[no-redef]
         node_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
             StringPropertyGroup
@@ -477,7 +477,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         hips: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         spine: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         chest: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
@@ -602,7 +602,7 @@ class Vrm1HumanoidPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         human_bones: Vrm1HumanBonesPropertyGroup  # type: ignore[no-redef]
         pose: str  # type: ignore[no-redef]
         pose_library: Optional[Action]  # type: ignore[no-redef]
@@ -624,7 +624,7 @@ class Vrm1LookAtRangeMapPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         input_max_value: float  # type: ignore[no-redef]
         output_scale: float  # type: ignore[no-redef]
 
@@ -935,7 +935,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         offset_from_head_bone: Sequence[float]  # type: ignore[no-redef]
         type: str  # type: ignore[no-redef]
         range_map_horizontal_inner: (  # type: ignore[no-redef]
@@ -973,7 +973,7 @@ class Vrm1MeshAnnotationPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         node: MeshObjectPropertyGroup  # type: ignore[no-redef]
         type: str  # type: ignore[no-redef]
 
@@ -990,7 +990,7 @@ class Vrm1FirstPersonPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         mesh_annotations: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm1MeshAnnotationPropertyGroup
         ]
@@ -1012,7 +1012,7 @@ class Vrm1MorphTargetBindPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         node: MeshObjectPropertyGroup  # type: ignore[no-redef]
         index: str  # type: ignore[no-redef]
         weight: float  # type: ignore[no-redef]
@@ -1072,7 +1072,7 @@ class Vrm1MaterialColorBindPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         material: Optional[Material]  # type: ignore[no-redef]
         type: str  # type: ignore[no-redef]
         target_value: Sequence[float]  # type: ignore[no-redef]
@@ -1096,7 +1096,7 @@ class Vrm1TextureTransformBindPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         material: Optional[Material]  # type: ignore[no-redef]
         scale: Sequence[float]  # type: ignore[no-redef]
         offset: Sequence[float]  # type: ignore[no-redef]
@@ -1332,7 +1332,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         morph_target_binds: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm1MorphTargetBindPropertyGroup
         ]
@@ -1399,7 +1399,7 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         custom_name: str  # type: ignore[no-redef]
 
 
@@ -1595,7 +1595,7 @@ class Vrm1ExpressionsPresetPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         happy: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
         angry: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
         sad: Vrm1ExpressionPropertyGroup  # type: ignore[no-redef]
@@ -1642,7 +1642,7 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         preset: Vrm1ExpressionsPresetPropertyGroup  # type: ignore[no-redef]
         custom: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm1CustomExpressionPropertyGroup
@@ -1759,7 +1759,7 @@ class Vrm1MetaPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         vrm_name: str  # type: ignore[no-redef]
         version: str  # type: ignore[no-redef]
         authors: CollectionPropertyProtocol[  # type: ignore[no-redef]
@@ -1805,7 +1805,7 @@ class Vrm1PropertyGroup(PropertyGroup):
     )
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         meta: Vrm1MetaPropertyGroup  # type: ignore[no-redef]
         humanoid: Vrm1HumanoidPropertyGroup  # type: ignore[no-redef]
         first_person: Vrm1FirstPersonPropertyGroup  # type: ignore[no-redef]

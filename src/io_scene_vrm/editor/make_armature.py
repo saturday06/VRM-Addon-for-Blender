@@ -629,7 +629,7 @@ class ICYP_OT_make_armature(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         skip_heavy_armature_setup: bool  # type: ignore[no-redef]
         wip_with_template_mesh: bool  # type: ignore[no-redef]
         tall: float  # type: ignore[no-redef]

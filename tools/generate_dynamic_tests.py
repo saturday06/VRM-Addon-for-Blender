@@ -9,7 +9,7 @@ from importlib.util import module_from_spec, spec_from_file_location
 from os import environ
 from pathlib import Path
 
-# This is not necessary if executed from poetry
+# This is not necessary if executed from uv
 sys.path.append(str(Path(__file__).parent.parent / "src"))
 
 

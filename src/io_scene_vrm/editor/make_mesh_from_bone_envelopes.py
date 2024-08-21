@@ -180,7 +180,7 @@ class ICYP_OT_make_mesh_from_bone_envelopes(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         resolution: int  # type: ignore[no-redef]
         max_distance_between_mataballs: float  # type: ignore[no-redef]
         use_selected_bones: bool  # type: ignore[no-redef]

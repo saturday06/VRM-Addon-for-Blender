@@ -222,7 +222,7 @@ class VrmAddonPreferences(AddonPreferences):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `poetry run python tools/property_typing.py`
+        # `uv run tools/property_typing.py`
         addon_version: Sequence[int]  # type: ignore[no-redef]
         extract_textures_into_folder: bool  # type: ignore[no-redef]
         make_new_texture_folder: bool  # type: ignore[no-redef]

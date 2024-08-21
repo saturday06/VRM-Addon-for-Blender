@@ -104,22 +104,6 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
         && rm -fr sse2neon \
     ; fi
 
-# poetryを経由して開発に利用するPythonを/usr/localにビルドしてインストールする。
-# Python3.10系を使いたいがUbuntu 24.04のパッケージには存在しないので、自前でビルドする必要がある。
-RUN curl --fail --show-error --location --output Python.tar.xz https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tar.xz \
-    && test "$(md5sum Python.tar.xz)" = "05148354ce821ba7369e5b7958435400  Python.tar.xz" \
-    && mkdir -p python \
-    && pushd python \
-    && tar Jxf ../Python.tar.xz --strip-components=1 \
-    && ./configure \
-    && make \
-    && make install \
-    && popd \
-    && rm -fr python \
-    && ln -s /usr/local/bin/python3 /usr/local/bin/python
-
-RUN /usr/local/bin/pip3 install numpy requests zstandard
-
 # Linux用のbpyはx86_64版だけしかpypiに上がっていないため、それ以外の場合は自前でビルドしてシステムにインストールする。
 # https://developer.blender.org/docs/handbook/building_blender/python_module/
 # ceresのビルド中にビルドが失敗することがある。失敗した場合はNPROCS=1を付与することで解決した。
@@ -131,6 +115,20 @@ RUN /usr/local/bin/pip3 install numpy requests zstandard
 # make[3]: *** Deleting file 'extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o'
 # 一般的には `make bpy || make NPROCS=1 bpy` という対応をするが、Parallels Desktop上のUbuntu Arm64 22.04だと
 # GUI全体を巻き込んでクラッシュしたのでNPROCS=1で決め打ちする。
+RUN if [ "$(uname -m)" != "x86_64" ]; then \
+        curl --fail --show-error --location --output Python.tar.xz https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tar.xz \
+        && test "$(md5sum Python.tar.xz)" = "05148354ce821ba7369e5b7958435400  Python.tar.xz" \
+        && mkdir -p python \
+        && pushd python \
+        && tar Jxf ../Python.tar.xz --strip-components=1 \
+        && ./configure \
+        && make \
+        && make install \
+        && popd \
+        && rm -fr python \
+        && ln -s /usr/local/bin/python3 /usr/local/bin/python \
+        && /usr/local/bin/pip3 install numpy requests zstandard \
+    ; fi
 RUN if [ "$(uname -m)" != "x86_64" ]; then \
         curl --fail --show-error --location --output blender.tar.xz https://download.blender.org/source/blender-3.6.14.tar.xz \
         && test "$(md5sum blender.tar.xz)" = "e78b7af0307584551759e742dd70970f  blender.tar.xz" \
@@ -157,15 +155,11 @@ WORKDIR /home/developer
 # できれば "remoteEnv" で設定したいが、現在のJetBrains製品だと反映されないのでここで設定
 ENV BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 ENV BLENDER_VRM_DEVCONTAINER_SPECIAL_WORKAROUNDS=yes
-ENV PATH=/home/developer/.local/bin:$PATH
-# JetBrains製品はXDGのパスが自動で変更され、Poetry関連パスも影響を受けるためvirtualenvなどが予期せず消えたりする。それを防ぐためにパスを固定。
-ENV POETRY_CONFIG_DIR=/home/developer/.config/pypoetry
-ENV POETRY_DATA_DIR=/home/developer/.local/share/pypoetry
-ENV POETRY_CACHE_DIR=/home/developer/.cache/pypoetry
+ENV PATH=/home/developer/.cargo/bin:/home/developer/.local/bin:$PATH
+ENV UV_LINK_MODE=copy
 
 # JetBrains製品は自動で `~/.cache` フォルダを作成するが、それだとフォルダの権限がroot:rootになる。
 # poetryなどがエラーになるため、あらかじめ作っておく。
 RUN mkdir -p .cache
 
-RUN curl --fail --show-error --location https://install.python-poetry.org \
-        | /usr/local/bin/python3 -
+RUN curl --fail --show-error --location https://astral.sh/uv/install.sh | sh

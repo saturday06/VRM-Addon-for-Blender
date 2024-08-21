@@ -1,5 +1,5 @@
 # This code is auto generated.
-# `poetry run python tools/property_typing.py`
+# `uv run tools/property_typing.py`
 
 
 import bpy
