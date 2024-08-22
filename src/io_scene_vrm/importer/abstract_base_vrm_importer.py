@@ -984,8 +984,8 @@ class AbstractBaseVrmImporter(ABC):
                     vrm0_humanoid.initial_automatic_bone_assignment = False
                 else:
                     vrm1_humanoid.human_bones.initial_automatic_bone_assignment = False
-                vrm0_humanoid.pose = vrm0_humanoid.POSE_REST_POSITION_POSE.identifier
-                vrm1_humanoid.pose = vrm1_humanoid.POSE_REST_POSITION_POSE.identifier
+                vrm0_humanoid.pose = vrm0_humanoid.POSE_CURRENT_POSE.identifier
+                vrm1_humanoid.pose = vrm1_humanoid.POSE_CURRENT_POSE.identifier
                 self.armature = obj
 
         if (
