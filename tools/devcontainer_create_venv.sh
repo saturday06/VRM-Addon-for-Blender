@@ -13,7 +13,7 @@ fi
 
 # 環境によってはパッケージのインストールは5%くらいの頻度で失敗するのでリトライする
 for _ in $(seq 5); do
-  if uv run python -c ''; then # パッケージのインストールを実行
+  if uv sync; then
     break
   fi
   sleep 10

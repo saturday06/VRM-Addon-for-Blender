@@ -199,7 +199,7 @@ jobs:
       - name: Install UV dependencies
         run: |
           for _ in $(seq 5); do
-            if uv run python -c 'print("OK")'; then
+            if uv sync; then
               break
             fi
           done
