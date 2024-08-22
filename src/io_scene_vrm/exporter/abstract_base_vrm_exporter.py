@@ -6,7 +6,7 @@ from contextlib import contextmanager
 from typing import Optional, Union
 
 import bpy
-from bpy.types import Armature, Context, NodesModifier, Object
+from bpy.types import Armature, Context, Mesh, NodesModifier, Object
 from mathutils import Quaternion
 
 from ..common import ops, shader
@@ -14,6 +14,7 @@ from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.workspace import save_workspace
 from ..editor.extension import get_armature_extension, get_material_extension
+from ..editor.search import MESH_CONVERTIBLE_OBJECT_TYPES
 from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
 from ..editor.vrm1.property_group import Vrm1HumanoidPropertyGroup
 from ..external import io_scene_gltf2_support
@@ -308,3 +309,20 @@ def assign_dict(
         return False
     target[key] = make_json(value)
     return True
+
+
+def force_apply_modifiers(context: Context, obj: Object) -> Optional[Mesh]:
+    if obj.type not in MESH_CONVERTIBLE_OBJECT_TYPES:
+        return None
+
+    # https://docs.blender.org/api/2.80/Depsgraph.html
+    # TODO: シェイプキーが壊れることがあるらしい
+    depsgraph = context.evaluated_depsgraph_get()
+    mesh_owner = obj.evaluated_get(depsgraph)
+    mesh_from_mesh_owner = mesh_owner.to_mesh(
+        preserve_all_data_layers=True, depsgraph=depsgraph
+    )
+    if not mesh_from_mesh_owner:
+        return None
+
+    return mesh_from_mesh_owner.copy()

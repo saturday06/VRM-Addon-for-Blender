@@ -20,12 +20,14 @@ from bpy.types import (
     Armature,
     Context,
     Image,
+    Key,
     Material,
     Mesh,
     Node,
     Object,
     PoseBone,
     ShaderNodeTexImage,
+    ShapeKey,
 )
 from mathutils import Matrix, Vector
 
@@ -67,7 +69,11 @@ from ..editor.mtoon1.property_group import (
 )
 from ..editor.vrm0.property_group import Vrm0BlendShapeGroupPropertyGroup
 from ..external import io_scene_gltf2_support
-from .abstract_base_vrm_exporter import AbstractBaseVrmExporter, assign_dict
+from .abstract_base_vrm_exporter import (
+    AbstractBaseVrmExporter,
+    assign_dict,
+    force_apply_modifiers,
+)
 from .glb_bin_collection import GlbBin, GlbBinCollection, ImageBin
 
 logger = get_logger(__name__)
@@ -124,6 +130,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             create_progress(self.context) as progress,
             save_workspace(self.context),
             self.setup_armature(),
+            self.clear_shape_key_values() as mesh_name_and_shape_key_name_to_value,
             self.clear_blend_shape_proxy_previews(self.armature_data),
             self.hide_mtoon1_outline_geometry_nodes(self.context),
             self.setup_pose(
@@ -142,7 +149,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             progress.update(0.4)
             # 内部でcontext.view_layer.objects.active = meshをするので復元する
             with save_workspace(self.context):
-                self.mesh_to_bin_and_dict(progress.partial_progress(0.8))
+                self.mesh_to_bin_and_dict(
+                    progress.partial_progress(0.8),
+                    mesh_name_and_shape_key_name_to_value,
+                )
             self.json_dict["scene"] = 0
             self.gltf_meta_to_dict()
             progress.update(0.9)
@@ -185,6 +195,42 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         finally:
             if use_dummy_armature:
                 self.context.blend_data.objects.remove(self.armature, do_unlink=True)
+
+    @contextmanager
+    def clear_shape_key_values(self) -> Iterator[dict[tuple[str, str], float]]:
+        mesh_name_and_shape_key_name_to_value: dict[tuple[str, str], float] = {}
+        mesh_objs = [obj for obj in self.export_objects if obj.type == "MESH"]
+        for mesh_obj in mesh_objs:
+            mesh = mesh_obj.data
+            if not isinstance(mesh, Mesh):
+                continue
+            shape_keys = mesh.shape_keys
+            if not shape_keys:
+                continue
+            key_block: Optional[ShapeKey] = None
+            for key_block in shape_keys.key_blocks:
+                mesh_name_and_shape_key_name_to_value[(mesh.name, key_block.name)] = (
+                    key_block.value
+                )
+                key_block.value = 0
+        self.context.view_layer.update()
+        try:
+            yield mesh_name_and_shape_key_name_to_value
+        finally:
+            for (
+                mesh_name,
+                shape_key_name,
+            ), value in mesh_name_and_shape_key_name_to_value.items():
+                mesh = self.context.blend_data.meshes.get(mesh_name)
+                if not mesh:
+                    continue
+                shape_keys = mesh.shape_keys
+                if not shape_keys:
+                    continue
+                key_block = shape_keys.key_blocks.get(shape_key_name)
+                if not key_block:
+                    continue
+                key_block.value = value
 
     def image_to_bin(self) -> None:
         # collect used image
@@ -1945,6 +1991,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
     def fetch_morph_vertex_normal_difference(
         context: Context,
         mesh_data: Mesh,
+        shape_key_name_to_mesh_data: Mapping[str, Mesh],
     ) -> dict[str, list[list[float]]]:
         # 法線の差分を強制的にゼロにする設定が有効な頂点インデックスを集める
         exclusion_vertex_indices: set[int] = set()
@@ -1975,42 +2022,38 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         if not mesh_data.shape_keys:
             message = "mesh_data.shape_keys is None"
             raise AssertionError(message)
-        for key_block in mesh_data.shape_keys.key_blocks:
+        reference_key_name = mesh_data.shape_keys.reference_key.name
+        for shape_key_name, shape_key_mesh_data in [
+            (reference_key_name, mesh_data),
+            *shape_key_name_to_mesh_data.items(),
+        ]:
             # 頂点のノーマルではなくsplit(loop)のノーマルを使う
             # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1129
-            split_normals = key_block.normals_split_get()
-
             vertex_normal_sum_vectors = [Vector([0.0, 0.0, 0.0])] * len(
                 mesh_data.vertices
             )
-            for loop_index in range(len(split_normals) // 3):
-                loop = mesh_data.loops[loop_index]
-                if loop.vertex_index in exclusion_vertex_indices:
-                    continue
-                vector = Vector(
-                    (
-                        split_normals[loop_index * 3 + 0],
-                        split_normals[loop_index * 3 + 1],
-                        split_normals[loop_index * 3 + 2],
+            for loop_triangle in shape_key_mesh_data.loop_triangles:
+                for vertex_index, normal in zip(
+                    loop_triangle.vertices, loop_triangle.split_normals
+                ):
+                    if vertex_index in exclusion_vertex_indices:
+                        continue
+                    if not (0 <= vertex_index < len(vertex_normal_sum_vectors)):
+                        continue
+                    vertex_normal_sum_vectors[vertex_index] = (
+                        # 普通は += 演算子を使うが、なぜか結果が変わるので使わない
+                        vertex_normal_sum_vectors[vertex_index] + Vector(normal)
                     )
-                )
-                if vector.length_squared <= float_info.epsilon:
-                    continue
-                vertex_normal_sum_vectors[loop.vertex_index] = (
-                    # 普通は += 演算子を使うが、なぜか結果が変わるので使わない
-                    vertex_normal_sum_vectors[loop.vertex_index] + vector
-                )
-            shape_key_name_to_vertex_normal_vectors[key_block.name] = [
-                vector.normalized() for vector in vertex_normal_sum_vectors
+            shape_key_name_to_vertex_normal_vectors[shape_key_name] = [
+                Vector((0, 0, 0))
+                if vector.length_squared < float_info.epsilon
+                else vector.normalized()
+                for vector in vertex_normal_sum_vectors
             ]
 
-        reference_key_name = mesh_data.shape_keys.reference_key.name
-        reference_vertex_normal_vectors = shape_key_name_to_vertex_normal_vectors.get(
+        reference_vertex_normal_vectors = shape_key_name_to_vertex_normal_vectors[
             reference_key_name
-        )
-        if reference_vertex_normal_vectors is None:
-            message = f"Reference Key: {reference_key_name} not found"
-            raise AssertionError(message)
+        ]
 
         # シェイプキーごとに、リファレンスキーとの法線の差分を集める
         shape_key_name_to_vertex_index_to_morph_normal_diffs: dict[
@@ -2139,7 +2182,11 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             )
         return polys
 
-    def mesh_to_bin_and_dict(self, progress: PartialProgress) -> None:
+    def mesh_to_bin_and_dict(
+        self,
+        progress: PartialProgress,
+        _mesh_name_and_shape_key_name_to_value: dict[tuple[str, str], float],
+    ) -> None:
         mesh_dicts = self.json_dict.get("meshes")
         if not isinstance(mesh_dicts, list):
             mesh_dicts = []
@@ -2150,11 +2197,14 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             for obj in self.export_objects
             if obj.type in search.MESH_CONVERTIBLE_OBJECT_TYPES
         ]
+
+        # メッシュを親子関係に従ってソート
         while True:
             swapped = False
             for mesh in list(meshes):
                 if (
                     mesh.parent_type == "OBJECT"
+                    # TODO: 本来なら再帰的に親を探索するべき
                     and mesh.parent
                     and mesh.parent.type in search.MESH_CONVERTIBLE_OBJECT_TYPES
                     and meshes.index(mesh) < meshes.index(mesh.parent)
@@ -2258,16 +2308,41 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                             self.axis_blender_to_glb(relate_pos)
                         )
 
+            original_mesh_data = mesh.data
+            original_shape_keys: Optional[Key] = None
+            if isinstance(original_mesh_data, Mesh):
+                original_mesh_data.calc_loop_triangles()
+                original_shape_keys = original_mesh_data.shape_keys
+
+            shape_key_names: Sequence[str] = []
             with save_workspace(self.context):
-                # https://docs.blender.org/api/2.80/Depsgraph.html
-                depsgraph = self.context.evaluated_depsgraph_get()
-                mesh_owner = mesh.evaluated_get(depsgraph)
-                mesh_from_mesh_owner = mesh_owner.to_mesh(
-                    preserve_all_data_layers=True, depsgraph=depsgraph
-                )
-                if not mesh_from_mesh_owner:
+                main_mesh_data = force_apply_modifiers(self.context, mesh)
+                if not main_mesh_data:
                     continue
-                mesh_data = mesh_from_mesh_owner.copy()
+                shape_key_name_to_mesh_data: dict[str, Mesh] = {}
+                if original_shape_keys:
+                    # シェイプキーごとにモディファイアを適用したメッシュを作成する。
+                    # これは、VRM 0.x用にglTF Nodeの回転やスケールを正規化するが、
+                    # ポーズモードで回転やスケールをつけた場合、その正規化のウエイト
+                    # 計算がシェイプキーに適用されないため、シェイプキーごとの変化量を
+                    # 自前で計算しなおす必要があるため。
+                    # 頂点のインデックスなどが変わる可能性があるためダメなパターンも
+                    # あると思うので、改善の余地あり。
+                    for shape_key in original_shape_keys.key_blocks:
+                        if original_shape_keys.reference_key.name == shape_key.name:
+                            continue
+
+                        shape_key.value = 1.0
+                        self.context.view_layer.update()
+                        shape_mesh = force_apply_modifiers(self.context, mesh)
+                        shape_key.value = 0.0
+                        self.context.view_layer.update()
+
+                        if not shape_mesh:
+                            continue
+                        shape_key_name_to_mesh_data[shape_key.name] = shape_mesh
+
+                shape_key_names = list(shape_key_name_to_mesh_data.keys())
 
             mesh.hide_viewport = False
             mesh.hide_select = False
@@ -2279,12 +2354,29 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     -mesh.matrix_world.to_translation()
                 )
             mesh_data_transform @= mesh.matrix_world
-            mesh_data.transform(mesh_data_transform, shape_keys=True)
-            if bpy.app.version < (4, 1):
-                mesh_data.calc_normals_split()
+
+            for mesh_data in [main_mesh_data, *shape_key_name_to_mesh_data.values()]:
+                if not mesh_data:
+                    continue
+                mesh_data.transform(mesh_data_transform)
+                if bpy.app.version < (4, 1):
+                    mesh_data.calc_normals_split()
 
             bm = bmesh.new()
-            bm.from_mesh(mesh_data)
+            bm.from_mesh(main_mesh_data)
+            bm.verts.ensure_lookup_table()
+            bm.verts.index_update()
+
+            shape_key_name_to_bmesh: dict[str, BMesh] = {}
+            for (
+                shape_key_name,
+                shape_key_mesh_data,
+            ) in shape_key_name_to_mesh_data.items():
+                shape_key_bm = bmesh.new()
+                shape_key_bm.from_mesh(shape_key_mesh_data)
+                shape_key_bm.verts.ensure_lookup_table()
+                shape_key_bm.verts.index_update()
+                shape_key_name_to_bmesh[shape_key_name] = shape_key_bm
 
             # temporary used
             material_dicts = self.json_dict.get("materials")
@@ -2315,7 +2407,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             # (uvと頂点番号が同じ頂点は同じものとして省くようにする)
             unique_vertex_dict: dict[tuple[object, ...], int] = {}
             uvlayers_dict = {
-                i: uvlayer.name for i, uvlayer in enumerate(mesh_data.uv_layers)
+                i: uvlayer.name for i, uvlayer in enumerate(main_mesh_data.uv_layers)
             }
 
             material_index_to_bin_dict: dict[int, bytearray] = {}
@@ -2325,23 +2417,24 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             shape_name_to_normal_bin_dict: dict[str, bytearray] = {}
             shape_name_to_min_max_dict: dict[str, list[list[float]]] = {}
             shape_name_to_morph_normal_diff_dict: dict[str, list[list[float]]] = {}
-            if mesh_data.shape_keys is not None:
-                # 0番目Basisは省く
+            if shape_key_names:
                 shape_name_to_pos_bin_dict = {
-                    shape.name: bytearray()
-                    for shape in mesh_data.shape_keys.key_blocks[1:]
+                    shape_key_name: bytearray() for shape_key_name in shape_key_names
                 }
                 shape_name_to_normal_bin_dict = {
-                    shape.name: bytearray()
-                    for shape in mesh_data.shape_keys.key_blocks[1:]
+                    shape_key_name: bytearray() for shape_key_name in shape_key_names
                 }
                 shape_name_to_min_max_dict = {
-                    shape.name: [[fmax, fmax, fmax], [fmin, fmin, fmin]]
-                    for shape in mesh_data.shape_keys.key_blocks[1:]
+                    shape_key_name: [[fmax, fmax, fmax], [fmin, fmin, fmin]]
+                    for shape_key_name in shape_key_names
                 }
                 # {morphname:{vertexid:[diff_X,diff_y,diff_z]}}
                 shape_name_to_morph_normal_diff_dict = (
-                    self.fetch_morph_vertex_normal_difference(self.context, mesh_data)
+                    self.fetch_morph_vertex_normal_difference(
+                        self.context,
+                        main_mesh_data,
+                        shape_key_name_to_mesh_data,
+                    )
                 )
             position_bin = bytearray()
             position_min_max = [[fmax, fmax, fmax], [fmin, fmin, fmin]]
@@ -2414,7 +2507,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     # 頂点のノーマルではなくloopのノーマルを使う。これで失うものはあると
                     # 思うが、glTF 2.0アドオンと同一にしておくのが無難だろうと判断。
                     # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1127
-                    vert_normal = mesh_data.loops[loop.index].normal
+                    vert_normal = main_mesh_data.loops[loop.index].normal
                     vertex_key = (*uv_list, *vert_normal, loop.vert.index)
                     cached_vert_id = unique_vertex_dict.get(
                         vertex_key
@@ -2432,14 +2525,25 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         texcoord_bins[uvlayer_id].extend(
                             float_pair_packer(uv[0], 1 - uv[1])
                         )  # blenderとglbのuvは上下逆
-                    for shape_name in shape_name_to_pos_bin_dict:
-                        shape_layer = bm.verts.layers.shape[shape_name]
-                        morph_pos = self.axis_blender_to_glb(
-                            [
-                                loop.vert[shape_layer][i] - loop.vert.co[i]
-                                for i in range(3)
-                            ]
-                        )
+                    for shape_name in shape_key_names:
+                        co_x, co_y, co_z = loop.vert.co
+                        shape_bm = shape_key_name_to_bmesh.get(shape_name)
+                        if shape_bm is not None and 0 <= loop.vert.index < len(
+                            shape_bm.verts
+                        ):
+                            morph_co_x, morph_co_y, morph_co_z = shape_bm.verts[
+                                loop.vert.index
+                            ].co
+                            morph_pos = self.axis_blender_to_glb(
+                                [
+                                    morph_co_x - co_x,
+                                    morph_co_y - co_y,
+                                    morph_co_z - co_z,
+                                ]
+                            )
+                        else:
+                            # Error!
+                            morph_pos = self.axis_blender_to_glb([co_x, co_y, co_z])
                         shape_name_to_pos_bin_dict[shape_name].extend(
                             float_vec3_packer(*morph_pos)
                         )
@@ -2455,7 +2559,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         self.min_max(shape_name_to_min_max_dict[shape_name], morph_pos)
                     if is_skin_mesh:
                         weight_and_joint_list: list[tuple[float, int]] = []
-                        for v_group in mesh_data.vertices[loop.vert.index].groups:
+                        for v_group in main_mesh_data.vertices[loop.vert.index].groups:
                             v_group_name = v_group_name_dict.get(v_group.group)
                             if v_group_name is None:
                                 continue
@@ -2540,7 +2644,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         joints_bin.extend(unsigned_short_vec4_packer(*joints))
                         weights_bin.extend(float_vec4_packer(*normalized_weights))
 
-                    vert_location = self.axis_blender_to_glb(loop.vert.co)
+                    vert_location = self.axis_blender_to_glb(
+                        main_mesh_data.vertices[loop.vert.index].co
+                    )
                     position_bin.extend(float_vec3_packer(*vert_location))
                     self.min_max(position_min_max, vert_location)
                     normal_bin.extend(
@@ -2569,6 +2675,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
             if not material_index_to_glb_dict:
                 bm.free()
+                for shape_key_bm in shape_key_name_to_bmesh.values():
+                    shape_key_bm.free()
                 continue
 
             mesh_index = len(mesh_dicts)
@@ -2720,7 +2828,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 mesh_dict["extensions"] = {"FB_ngon_encoding": {}}
 
             mesh_dicts.append(mesh_dict)
+
             bm.free()
+            for shape_key_bm in shape_key_name_to_bmesh.values():
+                shape_key_bm.free()
 
             progress.update(float(mesh_index) / len(meshes))
         progress.update(1)
