@@ -27,7 +27,6 @@ jobs:
           git checkout README
           cp -fr ../.github .
           rm .github/workflows/gh-pages.yml
-          rm .github/workflows/extension.yml
           rm .github/workflows/readme.yml
           rm .github/workflows/release.yml
           rm .github/workflows/test.yml

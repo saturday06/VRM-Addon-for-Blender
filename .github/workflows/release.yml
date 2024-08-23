@@ -11,6 +11,8 @@ on:
 jobs:
   release:
     runs-on: ubuntu-24.04
+    env:
+      BLENDER_ARCHIVE_URL: https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.0-linux-x64.tar.xz
     steps:
       - name: Install package
         run: |
@@ -21,6 +23,17 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
+      - name: Cache archive
+        id: cache-archive
+        uses: actions/cache@v4
+        with:
+          path: blender.tar.xz
+          key: ${{ env.BLENDER_ARCHIVE_URL }}-archive-1
+      - name: Download archive
+        if: steps.cache-archive.outputs.cache-hit != 'true'
+        run: |
+          curl --fail --location --show-error --retry 5 --retry-all-errors "$BLENDER_ARCHIVE_URL" -o blender.tar.xz
+          test "$(md5sum blender.tar.xz)" = "d4555313745524a6add308001e3198cf  blender.tar.xz"
       - name: Release
         run: ./tools/release.sh
         env:

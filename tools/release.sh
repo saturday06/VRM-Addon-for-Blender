@@ -40,6 +40,24 @@ for postfix in "$release_postfix" "$tag_name"; do
   cp "${work_dir}/${prefix_name}-${postfix}.zip" .
 done
 
+mkdir -p ~/.local/blender
+if ! tar xf blender.tar.xz -C ~/.local/blender --strip-components=1; then
+  echo "Please upgrade archive URL"
+  exit 1
+fi
+export PATH="$HOME/.local/blender:$PATH"
+hash -r
+test "$HOME/.local/blender/blender" = "$(command -v blender)"
+./tools/build_extension.sh
+extension_path=$(find extension_output -name "vrm_*_*.zip" | sort | head -n 1)
+if [ ! -f "$extension_path" ]; then
+  echo "No extension output"
+  exit 1
+fi
+rm -fr ~/.local/blender
+hash -r
+test "/usr/bin/blender" = "$(command -v blender)"
+
 if ! curl \
   --fail \
   --show-error \
@@ -67,7 +85,23 @@ if ! curl \
   --header "Authorization: Bearer $GITHUB_TOKEN" \
   --header "Content-Type: application/zip" \
   --data-binary "@${prefix_name}-${tag_name}.zip" \
-  "${upload_url}?name=${prefix_name}-${tag_name}.zip&label=VRM%20Add-on%20for%20Blender%20${version}%20(zip)"; then
+  "${upload_url}?name=${prefix_name}-${tag_name}.zip&label=(Blender%202.93%20-%204.1)%20VRM%20Add-on%20for%20Blender%20${version}%20(zip)"; then
+
+  cat release_upload.json
+  exit 1
+fi
+
+if ! curl \
+  --fail \
+  --show-error \
+  --location \
+  --output release_upload.json \
+  --request POST \
+  --header 'Accept: application/vnd.github.v3+json' \
+  --header "Authorization: Bearer $GITHUB_TOKEN" \
+  --header "Content-Type: application/zip" \
+  --data-binary "@${extension_path}" \
+  "${upload_url}?name=${prefix_name}-Extension-${tag_name}.zip&label=(Blender%204.2%20or%20later)%20VRM%20Add-on%20for%20Blender%20Extension%20${version}%20(zip)"; then
 
   cat release_upload.json
   exit 1
