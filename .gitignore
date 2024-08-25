@@ -22,7 +22,6 @@
 !/.gitmodules
 !/.markdownlint.yaml
 !/LICENSE
-!/LICENSE.*
 !/Notice.txt
 !/extension.patch
 !/extension_userpref.blend
