@@ -354,7 +354,6 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("Operator", "Automatic Bone Assignment"): "ボーンの自動割り当て",
     ("Operator", "Export VRM"): "VRMをエクスポート",
     ("Operator", "Import VRM"): "VRMをインポート",
-    ("Operator", "Preview MToon 0.0"): "MToon 0.0のプレビュー",
     ("Operator", "VRM Humanoid"): "VRMヒューマノイド",
     ("Operator", "VRM License Confirmation"): "VRM利用条件の確認",
     ("Operator", "VRM Required Bones Assignment"): "VRM必須ボーンの設定",

@@ -138,7 +138,7 @@ jobs:
       - name: Install deb packages
         run: |
           sudo apt-get update -qq || true
-          sudo apt-get install -y clang-format glslang-tools python3 shellcheck shfmt uchardet
+          sudo apt-get install -y python3 shellcheck shfmt uchardet
         env:
           DEBIAN_FRONTEND: noninteractive
       - uses: actions/checkout@v4
@@ -179,19 +179,6 @@ jobs:
               exit 1
             fi
           done
-      - name: Validate GLSL
-        run: |
-          git ls-files "**.glsl" | while read -r orig; do
-            echo "$orig"
-            versioned="/tmp/$(basename "$orig")"
-            echo "#version 330" > "$versioned"
-            cat "$orig" >> "$versioned"
-            glslangValidator "$versioned"
-          done
-      - name: Format GLSL (May break syntax!)
-        run: |
-          git ls-files "*.glsl" | xargs clang-format -i
-          git diff --exit-code
       - name: Install UV
         run: |
           curl --fail --show-error --location https://astral.sh/uv/install.sh | sh

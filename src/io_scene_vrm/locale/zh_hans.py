@@ -341,7 +341,6 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("Operator", "Automatic Bone Assignment"): "自动骨骼分配",
     ("Operator", "Export VRM"): "导出 VRM",
     ("Operator", "Import VRM"): "导入 VRM",
-    ("Operator", "Preview MToon 0.0"): "MToon 0.0预览",
     ("Operator", "VRM Humanoid"): "VRM人形",
     ("Operator", "VRM License Confirmation"): "查看 VRM 使用条款",
     ("Operator", "VRM Required Bones Assignment"): "配置 VRM 必需骨骼",
