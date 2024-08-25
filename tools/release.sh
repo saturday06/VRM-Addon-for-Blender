@@ -84,8 +84,8 @@ if ! curl \
   --header 'Accept: application/vnd.github.v3+json' \
   --header "Authorization: Bearer $GITHUB_TOKEN" \
   --header "Content-Type: application/zip" \
-  --data-binary "@${prefix_name}-${tag_name}.zip" \
-  "${upload_url}?name=${prefix_name}-${tag_name}.zip&label=(Blender%202.93%20-%204.1)%20VRM%20Add-on%20for%20Blender%20${version}%20(zip)"; then
+  --data-binary "@${extension_path}" \
+  "${upload_url}?name=${prefix_name}-Extension-${tag_name}.zip&label=(Blender%204.2%20or%20later)%20VRM%20Add-on%20for%20Blender%20Extension%20${version}%20(zip)"; then
 
   cat release_upload.json
   exit 1
@@ -100,8 +100,8 @@ if ! curl \
   --header 'Accept: application/vnd.github.v3+json' \
   --header "Authorization: Bearer $GITHUB_TOKEN" \
   --header "Content-Type: application/zip" \
-  --data-binary "@${extension_path}" \
-  "${upload_url}?name=${prefix_name}-Extension-${tag_name}.zip&label=(Blender%204.2%20or%20later)%20VRM%20Add-on%20for%20Blender%20Extension%20${version}%20(zip)"; then
+  --data-binary "@${prefix_name}-${tag_name}.zip" \
+  "${upload_url}?name=${prefix_name}-${tag_name}.zip&label=(Blender%202.93%20-%204.1)%20VRM%20Add-on%20for%20Blender%20${version}%20(zip)"; then
 
   cat release_upload.json
   exit 1
