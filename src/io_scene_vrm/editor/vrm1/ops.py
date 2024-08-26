@@ -1,8 +1,9 @@
+import bpy
 from collections.abc import Set as AbstractSet
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Set, Optional, cast
 
 from bpy.props import IntProperty, StringProperty
-from bpy.types import Armature, Context, Operator
+from bpy.types import Armature, Context, Operator, Event, Object, Material, WindowManager, Scene, Mesh, MeshUVLoopLayer
 
 from ...common import ops
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
@@ -11,7 +12,7 @@ from ...common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
 from ...common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..extension import get_armature_extension
 from ..vrm0.property_group import Vrm0HumanoidPropertyGroup
-from .property_group import Vrm1HumanBonesPropertyGroup
+from .property_group import Vrm1HumanBonesPropertyGroup, Vrm1TextureTransformBindPropertyGroup
 
 logger = get_logger(__name__)
 
@@ -1219,3 +1220,125 @@ class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
                 for _ in range(all_len - ui_len):
                     expressions.expression_ui_list_elements.add()
         return {"FINISHED"}
+    
+
+class VRM_OT_vrm1_texture_transform_preview(bpy.types.Operator):
+    bl_idname = "vrm.texture_transform_preview"
+    bl_label = "Preview Texture Transform"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    armature_name: bpy.props.StringProperty(options={"HIDDEN"})
+    expression_name: bpy.props.StringProperty(options={"HIDDEN"})
+    bind_index: bpy.props.IntProperty(options={"HIDDEN"})
+    update_only: bpy.props.BoolProperty(default=False, options={"HIDDEN"})
+
+    _timer = None
+    _original_uvs = {}
+    is_modal_running = False
+
+    def modal(self, context, event):
+        if event.type == 'ESC':
+            self.cancel(context)
+            return {'CANCELLED'}
+
+        if event.type == 'TIMER':
+            bind = self.get_bind(context)
+            if not bind:
+                self.cancel(context)
+                return {'CANCELLED'}
+
+            self.update_uv_maps(context, bind)
+
+        return {'PASS_THROUGH'}
+
+    def execute(self, context):
+        bind = self.get_bind(context)
+        if not bind:
+            return {'CANCELLED'}
+
+        if self.update_only:
+            self.update_uv_maps(context, bind)
+            return {'FINISHED'}
+
+        if not VRM_OT_vrm1_texture_transform_preview.is_modal_running:
+            self.store_original_uvs(context, bind)
+            wm = context.window_manager
+            self._timer = wm.event_timer_add(0.1, window=context.window)
+            wm.modal_handler_add(self)
+            VRM_OT_vrm1_texture_transform_preview.is_modal_running = True
+            return {'RUNNING_MODAL'}
+        else:
+            self.cancel(context)
+            return {'FINISHED'}
+
+    def cancel(self, context):
+        self.restore_original_uvs(context)
+        if self._timer is not None:
+            wm = context.window_manager
+            wm.event_timer_remove(self._timer)
+        VRM_OT_vrm1_texture_transform_preview.is_modal_running = False
+
+    def get_bind(self, context):
+        armature = bpy.data.objects.get(self.armature_name)
+        if not armature:
+            return None
+        try:
+            extension = get_armature_extension(armature.data)
+            expressions = extension.vrm1.expressions
+            expression = expressions.preset.name_to_expression_dict().get(self.expression_name) or expressions.custom.get(self.expression_name)
+            if not expression:
+                return None
+            return expression.texture_transform_binds[self.bind_index]
+        except TypeError:
+            return None
+
+    def store_original_uvs(self, context, bind):
+        if bind.material is None:
+            return
+        
+        material_name = bind.material.name
+        objects = [obj for obj in bpy.data.objects if obj.type == 'MESH' and material_name in obj.data.materials]
+        
+        for obj in objects:
+            mesh = obj.data
+            uv_layer = mesh.uv_layers.active
+            if uv_layer:
+                self._original_uvs[obj.name] = {loop.index: uv_layer.data[loop.index].uv.copy() for loop in mesh.loops}
+
+    def update_uv_maps(self, context, bind):
+        if bind.material is None:
+            return
+        
+        material_name = bind.material.name
+        objects = [obj for obj in bpy.data.objects if obj.type == 'MESH' and material_name in obj.data.materials]
+        
+        for obj in objects:
+            mesh = obj.data
+            uv_layer = mesh.uv_layers.active
+            if uv_layer and obj.name in self._original_uvs:
+                for loop in mesh.loops:
+                    original_uv = self._original_uvs[obj.name][loop.index]
+                    uv_layer.data[loop.index].uv = (
+                        original_uv[0] * bind.scale[0] + bind.offset[0],
+                        original_uv[1] * bind.scale[1] + bind.offset[1]
+                    )
+        
+        context.area.tag_redraw()
+
+    def restore_original_uvs(self, context):
+        for obj_name, uv_data in self._original_uvs.items():
+            obj = bpy.data.objects.get(obj_name)
+            if obj and obj.type == 'MESH':
+                mesh = obj.data
+                uv_layer = mesh.uv_layers.active
+                if uv_layer:
+                    for loop in mesh.loops:
+                        if loop.index in uv_data:
+                            uv_layer.data[loop.index].uv = uv_data[loop.index]
+        
+        context.area.tag_redraw()
+        self._original_uvs.clear()
+
+    @classmethod
+    def poll(cls, context):
+        return context.mode == 'OBJECT' or context.mode == 'EDIT_MESH'
