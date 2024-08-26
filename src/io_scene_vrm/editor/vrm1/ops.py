@@ -1237,8 +1237,28 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
     _original_active_uv = {}
     is_modal_running = False
 
+    preset_name_mapping = {
+        'neutral': 'neutral',
+        'aa': 'aa',
+        'ih': 'ih',
+        'ou': 'ou',
+        'ee': 'ee',
+        'oh': 'oh',
+        'blink': 'blink',
+        'joy': 'happy',
+        'angry': 'angry',
+        'sorrow': 'sad',
+        'fun': 'surprised',
+        'blinkLeft': 'blink_left',
+        'blinkRight': 'blink_right',
+        'lookUp': 'look_up',
+        'lookDown': 'look_down',
+        'lookLeft': 'look_left',
+        'lookRight': 'look_right'
+    }
+
     def modal(self, context, event):
-        if event.type == 'ESC':
+        if event.type == 'ESC' or context.mode == 'EDIT_MESH':
             self.cancel(context)
             return {'CANCELLED'}
 
@@ -1299,16 +1319,12 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
 
     def create_temp_uv_maps(self, context, bind):
         material = bind.material
-        print(f"Debug: Creating temp UV maps for material: {material.name}")
-        print(f"Debug: Total objects in scene: {len(bpy.data.objects)}")
         
         objects_with_material = []
         for obj in bpy.data.objects:
             if obj.type == 'MESH':
-                print(f"Debug: Checking object: {obj.name}")
                 if material.name in obj.data.materials:
                     objects_with_material.append(obj.name)
-                    print(f"Debug: Object {obj.name} has the material {material.name}")
                     mesh = obj.data
                     temp_uv_name = f"temp_vrm_preview_{obj.name}"
                     temp_uv = mesh.uv_layers.new(name=temp_uv_name)
@@ -1319,8 +1335,6 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                     # Set the new UV map as active for rendering
                     for uv_layer in mesh.uv_layers:
                         uv_layer.active_render = (uv_layer == temp_uv)
-
-                    print(f"Debug: Created temp UV map '{temp_uv_name}' for object {obj.name}")
 
                     # Store original UV positions and copy to temp UV map
                     bm = bmesh.new()
@@ -1347,11 +1361,28 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
             else:
                 print(f"Debug: Object {obj.name} is not a mesh object")
 
-        print(f"Debug: Objects with the material: {', '.join(objects_with_material)}")
-        print(f"Debug: Total objects with the material: {len(objects_with_material)}")
 
     def update_uv_maps(self, context, bind):
         material = bind.material
+        armature = bpy.data.objects.get(self.armature_name)
+        if not armature:
+            return
+
+        # Get the preview value
+        extension = armature.data.vrm_addon_extension
+        expressions = extension.vrm1.expressions
+
+        # Use the mapping to get the correct expression name
+        mapped_name = self.preset_name_mapping.get(self.expression_name, self.expression_name)
+
+        if hasattr(expressions.preset, mapped_name):
+            preview_value = getattr(expressions.preset, mapped_name).preview
+        elif mapped_name in expressions.custom:
+            preview_value = expressions.custom[mapped_name].preview
+        else:
+            print(f"Warning: Expression '{self.expression_name}' not found in preset or custom expressions.")
+            return
+
         for obj in bpy.data.objects:
             if obj.type == 'MESH' and material.name in obj.data.materials:
                 mesh = obj.data
@@ -1374,8 +1405,8 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                         for loop in face.loops:
                             original_uv = self._original_uv_positions[obj.name][loop.index]
                             loop[temp_uv_layer].uv = (
-                                original_uv.x * bind.scale[0] + bind.offset[0],
-                                original_uv.y * bind.scale[1] + bind.offset[1]
+                                original_uv.x * (1 + (bind.scale[0] - 1) * preview_value) + bind.offset[0] * preview_value,
+                                original_uv.y * (1 + (bind.scale[1] - 1) * preview_value) + bind.offset[1] * preview_value
                             )
 
                 bm.to_mesh(mesh)
