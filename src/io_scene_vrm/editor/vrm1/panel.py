@@ -650,7 +650,6 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
         if 0 <= expressions.active_expression_ui_list_element_index < len(all_expressions):
             active_expression = all_expressions[expressions.active_expression_ui_list_element_index]
             expression_name = active_expression.name if hasattr(active_expression, 'name') else active_expression.custom_name
-            bind_index = active_expression.texture_transform_binds.find(bind.name)
         else:
             layout.label(text="No active expression", icon='ERROR')
             return
@@ -672,23 +671,10 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
 
     preview_op.armature_name = armature.name
     preview_op.expression_name = expression_name
-    preview_op.bind_index = bind_index
 
     bind_column.prop_search(bind, "material", context.blend_data, "materials")
     bind_column.prop(bind, "scale")
     bind_column.prop(bind, "offset")
-
-    # Add update button if the modal is running
-    if is_modal_running:
-        update_op = bind_column.operator(
-            vrm1_ops.VRM_OT_vrm1_texture_transform_preview.bl_idname,
-            text="Update Preview",
-            icon='FILE_REFRESH'
-        )
-        update_op.armature_name = armature.name
-        update_op.expression_name = expression_name
-        update_op.bind_index = bind_index
-        update_op.update_only = True
 
 
 def draw_vrm1_expressions_layout(

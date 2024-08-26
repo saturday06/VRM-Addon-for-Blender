@@ -1,9 +1,10 @@
 import bpy
+import bmesh
 from collections.abc import Set as AbstractSet
-from typing import TYPE_CHECKING, Set, Optional, cast
+from typing import TYPE_CHECKING
 
-from bpy.props import IntProperty, StringProperty
-from bpy.types import Armature, Context, Operator, Event, Object, Material, WindowManager, Scene, Mesh, MeshUVLoopLayer
+from bpy.props import IntProperty, StringProperty, BoolProperty
+from bpy.types import Armature, Context, Operator
 
 from ...common import ops
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
@@ -12,7 +13,7 @@ from ...common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
 from ...common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..extension import get_armature_extension
 from ..vrm0.property_group import Vrm0HumanoidPropertyGroup
-from .property_group import Vrm1HumanBonesPropertyGroup, Vrm1TextureTransformBindPropertyGroup
+from .property_group import Vrm1HumanBonesPropertyGroup
 
 logger = get_logger(__name__)
 
@@ -1220,20 +1221,20 @@ class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
                 for _ in range(all_len - ui_len):
                     expressions.expression_ui_list_elements.add()
         return {"FINISHED"}
-    
 
-class VRM_OT_vrm1_texture_transform_preview(bpy.types.Operator):
+class VRM_OT_vrm1_texture_transform_preview(Operator):
     bl_idname = "vrm.texture_transform_preview"
     bl_label = "Preview Texture Transform"
     bl_options = {'REGISTER', 'UNDO'}
 
-    armature_name: bpy.props.StringProperty(options={"HIDDEN"})
-    expression_name: bpy.props.StringProperty(options={"HIDDEN"})
-    bind_index: bpy.props.IntProperty(options={"HIDDEN"})
-    update_only: bpy.props.BoolProperty(default=False, options={"HIDDEN"})
+    armature_name: StringProperty(options={"HIDDEN"})
+    expression_name: StringProperty(options={"HIDDEN"})
+    update_only: BoolProperty(default=False, options={"HIDDEN"})
 
     _timer = None
-    _original_uvs = {}
+    _temp_uv_maps = {}
+    _original_uv_positions = {}
+    _original_active_uv = {}
     is_modal_running = False
 
     def modal(self, context, event):
@@ -1261,7 +1262,7 @@ class VRM_OT_vrm1_texture_transform_preview(bpy.types.Operator):
             return {'FINISHED'}
 
         if not VRM_OT_vrm1_texture_transform_preview.is_modal_running:
-            self.store_original_uvs(context, bind)
+            self.create_temp_uv_maps(context, bind)
             wm = context.window_manager
             self._timer = wm.event_timer_add(0.1, window=context.window)
             wm.modal_handler_add(self)
@@ -1272,73 +1273,137 @@ class VRM_OT_vrm1_texture_transform_preview(bpy.types.Operator):
             return {'FINISHED'}
 
     def cancel(self, context):
-        self.restore_original_uvs(context)
+        self.remove_temp_uv_maps(context)
+        self.reset_active_render_uv(context)
         if self._timer is not None:
             wm = context.window_manager
             wm.event_timer_remove(self._timer)
         VRM_OT_vrm1_texture_transform_preview.is_modal_running = False
+        self._original_uv_positions.clear()
+        self._original_active_uv.clear()
 
     def get_bind(self, context):
         armature = bpy.data.objects.get(self.armature_name)
         if not armature:
             return None
         try:
-            extension = get_armature_extension(armature.data)
+            extension = armature.data.vrm_addon_extension
             expressions = extension.vrm1.expressions
             expression = expressions.preset.name_to_expression_dict().get(self.expression_name) or expressions.custom.get(self.expression_name)
             if not expression:
                 return None
-            return expression.texture_transform_binds[self.bind_index]
-        except TypeError:
+            active_bind_index = expression.active_texture_transform_bind_index
+            return expression.texture_transform_binds[active_bind_index]
+        except (AttributeError, IndexError):
             return None
 
-    def store_original_uvs(self, context, bind):
-        if bind.material is None:
-            return
+    def create_temp_uv_maps(self, context, bind):
+        material = bind.material
+        print(f"Debug: Creating temp UV maps for material: {material.name}")
+        print(f"Debug: Total objects in scene: {len(bpy.data.objects)}")
         
-        material_name = bind.material.name
-        objects = [obj for obj in bpy.data.objects if obj.type == 'MESH' and material_name in obj.data.materials]
-        
-        for obj in objects:
-            mesh = obj.data
-            uv_layer = mesh.uv_layers.active
-            if uv_layer:
-                self._original_uvs[obj.name] = {loop.index: uv_layer.data[loop.index].uv.copy() for loop in mesh.loops}
+        objects_with_material = []
+        for obj in bpy.data.objects:
+            if obj.type == 'MESH':
+                print(f"Debug: Checking object: {obj.name}")
+                if material.name in obj.data.materials:
+                    objects_with_material.append(obj.name)
+                    print(f"Debug: Object {obj.name} has the material {material.name}")
+                    mesh = obj.data
+                    temp_uv_name = f"temp_vrm_preview_{obj.name}"
+                    temp_uv = mesh.uv_layers.new(name=temp_uv_name)
+                    self._temp_uv_maps[obj.name] = temp_uv_name
+                    self._original_active_uv[obj.name] = mesh.uv_layers.active.name
+                    mesh.uv_layers.active = temp_uv
+                    
+                    # Set the new UV map as active for rendering
+                    for uv_layer in mesh.uv_layers:
+                        uv_layer.active_render = (uv_layer == temp_uv)
+
+                    print(f"Debug: Created temp UV map '{temp_uv_name}' for object {obj.name}")
+
+                    # Store original UV positions and copy to temp UV map
+                    bm = bmesh.new()
+                    bm.from_mesh(mesh)
+                    bm.faces.ensure_lookup_table()
+
+                    uv_layer = bm.loops.layers.uv.verify()
+                    temp_uv_layer = bm.loops.layers.uv[temp_uv_name]
+
+                    self._original_uv_positions[obj.name] = {}
+
+                    for face in bm.faces:
+                        if face.material_index < len(obj.data.materials) and obj.data.materials[face.material_index] == material:
+                            for loop in face.loops:
+                                original_uv = loop[uv_layer].uv
+                                loop_index = loop.index
+                                self._original_uv_positions[obj.name][loop_index] = original_uv.copy()
+                                loop[temp_uv_layer].uv = original_uv.copy()
+
+                    bm.to_mesh(mesh)
+                    bm.free()
+                else:
+                    print(f"Debug: Object {obj.name} does not have the material {material.name}")
+            else:
+                print(f"Debug: Object {obj.name} is not a mesh object")
+
+        print(f"Debug: Objects with the material: {', '.join(objects_with_material)}")
+        print(f"Debug: Total objects with the material: {len(objects_with_material)}")
 
     def update_uv_maps(self, context, bind):
-        if bind.material is None:
-            return
-        
-        material_name = bind.material.name
-        objects = [obj for obj in bpy.data.objects if obj.type == 'MESH' and material_name in obj.data.materials]
-        
-        for obj in objects:
-            mesh = obj.data
-            uv_layer = mesh.uv_layers.active
-            if uv_layer and obj.name in self._original_uvs:
-                for loop in mesh.loops:
-                    original_uv = self._original_uvs[obj.name][loop.index]
-                    uv_layer.data[loop.index].uv = (
-                        original_uv[0] * bind.scale[0] + bind.offset[0],
-                        original_uv[1] * bind.scale[1] + bind.offset[1]
-                    )
-        
-        context.area.tag_redraw()
+        material = bind.material
+        for obj in bpy.data.objects:
+            if obj.type == 'MESH' and material.name in obj.data.materials:
+                mesh = obj.data
+                temp_uv_name = self._temp_uv_maps.get(obj.name)
+                if not temp_uv_name:
+                    continue
 
-    def restore_original_uvs(self, context):
-        for obj_name, uv_data in self._original_uvs.items():
+                temp_uv = mesh.uv_layers.get(temp_uv_name)
+                if not temp_uv:
+                    continue
+
+                bm = bmesh.new()
+                bm.from_mesh(mesh)
+                bm.faces.ensure_lookup_table()
+
+                temp_uv_layer = bm.loops.layers.uv[temp_uv_name]
+
+                for face in bm.faces:
+                    if face.material_index < len(obj.data.materials) and obj.data.materials[face.material_index] == material:
+                        for loop in face.loops:
+                            original_uv = self._original_uv_positions[obj.name][loop.index]
+                            loop[temp_uv_layer].uv = (
+                                original_uv.x * bind.scale[0] + bind.offset[0],
+                                original_uv.y * bind.scale[1] + bind.offset[1]
+                            )
+
+                bm.to_mesh(mesh)
+                bm.free()
+
+                mesh.update()
+
+    def remove_temp_uv_maps(self, context):
+        for obj_name, temp_uv_name in self._temp_uv_maps.items():
             obj = bpy.data.objects.get(obj_name)
             if obj and obj.type == 'MESH':
                 mesh = obj.data
-                uv_layer = mesh.uv_layers.active
-                if uv_layer:
-                    for loop in mesh.loops:
-                        if loop.index in uv_data:
-                            uv_layer.data[loop.index].uv = uv_data[loop.index]
-        
-        context.area.tag_redraw()
-        self._original_uvs.clear()
+                temp_uv = mesh.uv_layers.get(temp_uv_name)
+                if temp_uv:
+                    mesh.uv_layers.remove(temp_uv)
+        self._temp_uv_maps.clear()
+
+    def reset_active_render_uv(self, context):
+        for obj_name, original_uv_name in self._original_active_uv.items():
+            obj = bpy.data.objects.get(obj_name)
+            if obj and obj.type == 'MESH':
+                mesh = obj.data
+                original_uv = mesh.uv_layers.get(original_uv_name)
+                if original_uv:
+                    mesh.uv_layers.active = original_uv
+                    for uv_layer in mesh.uv_layers:
+                        uv_layer.active_render = (uv_layer == original_uv)
 
     @classmethod
     def poll(cls, context):
-        return context.mode == 'OBJECT' or context.mode == 'EDIT_MESH'
+        return context.mode == 'OBJECT'
