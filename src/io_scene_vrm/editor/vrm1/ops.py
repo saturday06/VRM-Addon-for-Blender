@@ -1220,7 +1220,7 @@ class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
             if all_len > ui_len:
                 for _ in range(all_len - ui_len):
                     expressions.expression_ui_list_elements.add()
-        return {"FINISHED"}
+        return {"FINISHED"} 
 
 class VRM_OT_vrm1_texture_transform_preview(Operator):
     bl_idname = "vrm.texture_transform_preview"
@@ -1236,6 +1236,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
     _original_uv_positions = {}
     _original_active_uv = {}
     is_modal_running = False
+    is_paused = False
 
     preset_name_mapping = {
         'neutral': 'neutral',
@@ -1262,81 +1263,98 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
             self.cancel(context)
             return {'CANCELLED'}
 
-        if event.type == 'TIMER':
-            bind = self.get_bind(context)
-            if not bind:
-                self.cancel(context)
-                return {'CANCELLED'}
-
-            self.update_uv_maps(context, bind)
+        if event.type == 'TIMER' and not self.is_paused:
+            self.update_all_uv_maps(context)
 
         return {'PASS_THROUGH'}
 
     def execute(self, context):
-        bind = self.get_bind(context)
-        if not bind:
-            return {'CANCELLED'}
+        print(f"Debug: Executing VRM_OT_vrm1_texture_transform_preview")
+        print(f"Debug: Armature name: {self.armature_name}")
+        print(f"Debug: Expression name: {self.expression_name}")
+        print(f"Debug: Update only: {self.update_only}")
 
         if self.update_only:
-            self.update_uv_maps(context, bind)
+            self.update_all_uv_maps(context)
             return {'FINISHED'}
 
         if not VRM_OT_vrm1_texture_transform_preview.is_modal_running:
-            self.create_temp_uv_maps(context, bind)
+            self.create_all_temp_uv_maps(context)
             wm = context.window_manager
             self._timer = wm.event_timer_add(0.1, window=context.window)
             wm.modal_handler_add(self)
             VRM_OT_vrm1_texture_transform_preview.is_modal_running = True
+            self.is_paused = False
             return {'RUNNING_MODAL'}
         else:
-            self.cancel(context)
+            self.is_paused = not self.is_paused
             return {'FINISHED'}
 
     def cancel(self, context):
+        print("Debug: Cancelling operation")
         self.remove_temp_uv_maps(context)
         self.reset_active_render_uv(context)
         if self._timer is not None:
             wm = context.window_manager
             wm.event_timer_remove(self._timer)
         VRM_OT_vrm1_texture_transform_preview.is_modal_running = False
+        self.is_paused = False
         self._original_uv_positions.clear()
         self._original_active_uv.clear()
 
-    def get_bind(self, context):
+    def get_all_expressions(self, context):
         armature = bpy.data.objects.get(self.armature_name)
-        if not armature:
-            return None
-        try:
-            extension = armature.data.vrm_addon_extension
-            expressions = extension.vrm1.expressions
-            expression = expressions.preset.name_to_expression_dict().get(self.expression_name) or expressions.custom.get(self.expression_name)
-            if not expression:
-                return None
-            active_bind_index = expression.active_texture_transform_bind_index
-            return expression.texture_transform_binds[active_bind_index]
-        except (AttributeError, IndexError):
-            return None
+        if not armature or armature.type != 'ARMATURE':
+            print(f"Debug: Armature object not found: {self.armature_name}")
+            return []
+
+        extension = armature.data.vrm_addon_extension
+        expressions = extension.vrm1.expressions
+
+        all_expressions = []
+        for preset_name in self.preset_name_mapping.values():
+            preset_expr = getattr(expressions.preset, preset_name, None)
+            if preset_expr:
+                all_expressions.append((preset_expr, 'preset', preset_name))
+        for i, custom_expr in enumerate(expressions.custom):
+            all_expressions.append((custom_expr, 'custom', i))
+
+        print(f"Debug: Found {len(all_expressions)} expressions")
+        return all_expressions
+
+    def create_all_temp_uv_maps(self, context):
+        print("Debug: Creating all temporary UV maps")
+        armature = bpy.data.objects.get(self.armature_name)
+        if not armature or armature.type != 'ARMATURE':
+            print(f"Debug: Armature object not found: {self.armature_name}")
+            return
+
+        for expression, expr_type, expr_id in self.get_all_expressions(context):
+            print(f"Debug: Processing expression: {expr_id} (Type: {expr_type})")
+            binds = expression.texture_transform_binds
+            print(f"Debug: Found {len(binds)} texture transform binds for expression {expr_id}")
+            for bind in binds:
+                self.create_temp_uv_maps(context, bind)
 
     def create_temp_uv_maps(self, context, bind):
         material = bind.material
+        print(f"Debug: Creating temp UV maps for material: {material.name}")
         
         objects_with_material = []
         for obj in bpy.data.objects:
-            if obj.type == 'MESH':
-                if material.name in obj.data.materials:
-                    objects_with_material.append(obj.name)
-                    mesh = obj.data
-                    temp_uv_name = f"temp_vrm_preview_{obj.name}"
+            if obj.type == 'MESH' and material.name in obj.data.materials:
+                objects_with_material.append(obj.name)
+                mesh = obj.data
+                temp_uv_name = f"temp_vrm_preview_{obj.name}_{material.name}"
+                if temp_uv_name not in mesh.uv_layers:
                     temp_uv = mesh.uv_layers.new(name=temp_uv_name)
-                    self._temp_uv_maps[obj.name] = temp_uv_name
+                    self._temp_uv_maps.setdefault(obj.name, {})[material.name] = temp_uv_name
                     self._original_active_uv[obj.name] = mesh.uv_layers.active.name
                     mesh.uv_layers.active = temp_uv
                     
-                    # Set the new UV map as active for rendering
                     for uv_layer in mesh.uv_layers:
                         uv_layer.active_render = (uv_layer == temp_uv)
 
-                    # Store original UV positions and copy to temp UV map
                     bm = bmesh.new()
                     bm.from_mesh(mesh)
                     bm.faces.ensure_lookup_table()
@@ -1344,54 +1362,57 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                     uv_layer = bm.loops.layers.uv.verify()
                     temp_uv_layer = bm.loops.layers.uv[temp_uv_name]
 
-                    self._original_uv_positions[obj.name] = {}
+                    self._original_uv_positions.setdefault(obj.name, {}).setdefault(material.name, {})
 
                     for face in bm.faces:
                         if face.material_index < len(obj.data.materials) and obj.data.materials[face.material_index] == material:
                             for loop in face.loops:
                                 original_uv = loop[uv_layer].uv
                                 loop_index = loop.index
-                                self._original_uv_positions[obj.name][loop_index] = original_uv.copy()
+                                self._original_uv_positions[obj.name][material.name][loop_index] = original_uv.copy()
                                 loop[temp_uv_layer].uv = original_uv.copy()
 
                     bm.to_mesh(mesh)
                     bm.free()
+                    print(f"Debug: Created temp UV map '{temp_uv_name}' for object {obj.name}")
                 else:
-                    print(f"Debug: Object {obj.name} does not have the material {material.name}")
+                    print(f"Debug: Temp UV map '{temp_uv_name}' already exists for object {obj.name}")
             else:
-                print(f"Debug: Object {obj.name} is not a mesh object")
+                print(f"Debug: Object {obj.name} does not have the material {material.name}")
 
+        print(f"Debug: Objects with material {material.name}: {', '.join(objects_with_material)}")
 
-    def update_uv_maps(self, context, bind):
-        material = bind.material
+    def update_all_uv_maps(self, context):
+        print("Debug: Updating all UV maps")
         armature = bpy.data.objects.get(self.armature_name)
-        if not armature:
+        if not armature or armature.type != 'ARMATURE':
+            print(f"Debug: Armature object not found: {self.armature_name}")
             return
 
-        # Get the preview value
-        extension = armature.data.vrm_addon_extension
-        expressions = extension.vrm1.expressions
+        for expression, expr_type, expr_id in self.get_all_expressions(context):
+            print(f"Debug: Updating expression: {expr_id} (Type: {expr_type})")
+            binds = expression.texture_transform_binds
+            preview_value = expression.preview
+            
+            for bind in binds:
+                self.update_uv_maps(context, bind, preview_value)
 
-        # Use the mapping to get the correct expression name
-        mapped_name = self.preset_name_mapping.get(self.expression_name, self.expression_name)
-
-        if hasattr(expressions.preset, mapped_name):
-            preview_value = getattr(expressions.preset, mapped_name).preview
-        elif mapped_name in expressions.custom:
-            preview_value = expressions.custom[mapped_name].preview
-        else:
-            print(f"Warning: Expression '{self.expression_name}' not found in preset or custom expressions.")
-            return
+    def update_uv_maps(self, context, bind, preview_value):
+        material = bind.material
+        print(f"Debug: Updating UV maps for material: {material.name}")
+        print(f"Debug: Preview value: {preview_value}")
 
         for obj in bpy.data.objects:
             if obj.type == 'MESH' and material.name in obj.data.materials:
                 mesh = obj.data
-                temp_uv_name = self._temp_uv_maps.get(obj.name)
+                temp_uv_name = self._temp_uv_maps.get(obj.name, {}).get(material.name)
                 if not temp_uv_name:
+                    print(f"Debug: No temp UV map found for object {obj.name} and material {material.name}")
                     continue
 
                 temp_uv = mesh.uv_layers.get(temp_uv_name)
                 if not temp_uv:
+                    print(f"Debug: Temp UV layer '{temp_uv_name}' not found in object {obj.name}")
                     continue
 
                 bm = bmesh.new()
@@ -1403,7 +1424,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                 for face in bm.faces:
                     if face.material_index < len(obj.data.materials) and obj.data.materials[face.material_index] == material:
                         for loop in face.loops:
-                            original_uv = self._original_uv_positions[obj.name][loop.index]
+                            original_uv = self._original_uv_positions[obj.name][material.name][loop.index]
                             loop[temp_uv_layer].uv = (
                                 original_uv.x * (1 + (bind.scale[0] - 1) * preview_value) + bind.offset[0] * preview_value,
                                 original_uv.y * (1 + (bind.scale[1] - 1) * preview_value) + bind.offset[1] * preview_value
@@ -1413,18 +1434,23 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                 bm.free()
 
                 mesh.update()
+                print(f"Debug: Updated UV map for object {obj.name} and material {material.name}")
 
     def remove_temp_uv_maps(self, context):
-        for obj_name, temp_uv_name in self._temp_uv_maps.items():
+        print("Debug: Removing temporary UV maps")
+        for obj_name, material_dict in self._temp_uv_maps.items():
             obj = bpy.data.objects.get(obj_name)
             if obj and obj.type == 'MESH':
                 mesh = obj.data
-                temp_uv = mesh.uv_layers.get(temp_uv_name)
-                if temp_uv:
-                    mesh.uv_layers.remove(temp_uv)
+                for temp_uv_name in material_dict.values():
+                    temp_uv = mesh.uv_layers.get(temp_uv_name)
+                    if temp_uv:
+                        mesh.uv_layers.remove(temp_uv)
+                        print(f"Debug: Removed temp UV map '{temp_uv_name}' from object {obj_name}")
         self._temp_uv_maps.clear()
 
     def reset_active_render_uv(self, context):
+        print("Debug: Resetting active render UV maps")
         for obj_name, original_uv_name in self._original_active_uv.items():
             obj = bpy.data.objects.get(obj_name)
             if obj and obj.type == 'MESH':
@@ -1434,6 +1460,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                     mesh.uv_layers.active = original_uv
                     for uv_layer in mesh.uv_layers:
                         uv_layer.active_render = (uv_layer == original_uv)
+                    print(f"Debug: Reset active render UV for object {obj_name} to {original_uv_name}")
 
     @classmethod
     def poll(cls, context):
