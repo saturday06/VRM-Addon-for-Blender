@@ -676,9 +676,10 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
     # Always show the preview button
     bind_column.separator()
 
-    # Only show material, scale, and offset properties if there's a valid bind
+    
+    bind_column.prop_search(bind, "material", context.blend_data, "materials")
+    # Only show scale, and offset properties if there's a valid bind
     if bind and bind.material:
-        bind_column.prop_search(bind, "material", context.blend_data, "materials")
         bind_column.prop(bind, "scale")
         bind_column.prop(bind, "offset")
     else:
