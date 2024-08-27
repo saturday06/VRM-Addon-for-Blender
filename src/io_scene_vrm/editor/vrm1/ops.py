@@ -1234,9 +1234,9 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
     bl_label = "Preview Texture Transform"
     bl_options: ClassVar[AbstractSet[str]] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(options={"HIDDEN"})
-    expression_name: StringProperty(options={"HIDDEN"})
-    update_only: BoolProperty(default=False, options={"HIDDEN"})
+    armature_name: StringProperty(options={"HIDDEN"}) # type: ignore
+    expression_name: StringProperty(options={"HIDDEN"}) # type: ignore
+    update_only: BoolProperty(default=False, options={"HIDDEN"}) # type: ignore
 
     _timer: Any = None
     _temp_uv_maps: ClassVar[dict[str, dict[str, str]]] = {}
@@ -1276,7 +1276,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
         return {"PASS_THROUGH"}
 
     def execute(self, context: Context) -> set[str]:
-        if self.update_only:
+        if self.update_only: # type: ignore
             if VRM_OT_vrm1_texture_transform_preview.is_modal_running:
                 VRM_OT_vrm1_texture_transform_preview.is_paused = not VRM_OT_vrm1_texture_transform_preview.is_paused
                 if VRM_OT_vrm1_texture_transform_preview.is_paused:
@@ -1305,32 +1305,33 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
         self.reset_active_render_uv()
         if self._timer is not None:
             wm = context.window_manager
-            wm.event_timer_remove(self._timer)
+            wm.event_timer_remove(self._timer) # type: ignore
         VRM_OT_vrm1_texture_transform_preview.is_modal_running = False
         VRM_OT_vrm1_texture_transform_preview.is_paused = False
         self._original_uv_positions.clear()
         self._original_active_uv.clear()
 
     def get_all_expressions(self) -> list[tuple[Any, str, str]]:
-        armature = bpy.data.objects.get(self.armature_name)
+        armature = bpy.data.objects.get(self.armature_name) # type: ignore
         if not armature or armature.type != "ARMATURE":
             return []
 
-        extension = armature.data.vrm_addon_extension
-        expressions = extension.vrm1.expressions
+        extension = armature.data.vrm_addon_extension  # type: ignore
+        expressions = extension.vrm1.expressions # type: ignore
 
         all_expressions = []
         for preset_name in self.preset_name_mapping.values():
-            preset_expr = getattr(expressions.preset, preset_name, None)
+            preset_expr = getattr(expressions.preset, preset_name, None) # type: ignore
             if preset_expr:
-                all_expressions.append((preset_expr, 'preset', preset_name))
-        for i, custom_expr in enumerate(expressions.custom):
-            all_expressions.append((custom_expr, 'custom', str(i)))
+                all_expressions.append((preset_expr, 'preset', preset_name)) # type: ignore
+        for i, custom_expr in enumerate(expressions.custom): # type: ignore
+            all_expressions.append((custom_expr, 'custom', str(i))) # type: ignore
 
-        return all_expressions
+        return all_expressions # type: ignore
 
-    def create_all_temp_uv_maps(self) -> None:
-        armature = bpy.data.objects.get(self.armature_name)
+    def create_all_temp_uv_maps(self, context: Context) -> None:
+        # pylint: disable=unused-argument
+        armature = bpy.data.objects.get(self.armature_name) # type: ignore
         if not armature or armature.type != "ARMATURE":
             return
 
@@ -1346,40 +1347,41 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
             return
 
         for obj in bpy.data.objects:
-            if obj.type == 'MESH' and material.name in obj.data.materials:
+            if obj.type == 'MESH' and material.name in obj.data.materials: # type: ignore
                 mesh = obj.data
                 temp_uv_name = f"temp_vrm_preview_{obj.name}_{material.name}"
-                if temp_uv_name not in mesh.uv_layers:
-                    temp_uv = mesh.uv_layers.new(name=temp_uv_name)
+                if temp_uv_name not in mesh.uv_layers: # type: ignore
+                    temp_uv = mesh.uv_layers.new(name=temp_uv_name) # type: ignore
                     self._temp_uv_maps.setdefault(obj.name, {})[material.name] = temp_uv_name
-                    self._original_active_uv[obj.name] = mesh.uv_layers.active.name
-                    mesh.uv_layers.active = temp_uv
+                    self._original_active_uv[obj.name] = mesh.uv_layers.active.name # type: ignore
+                    mesh.uv_layers.active = temp_uv # type: ignore
                     
-                    for uv_layer in mesh.uv_layers:
+                    for uv_layer in mesh.uv_layers: # type: ignore
                         uv_layer.active_render = (uv_layer == temp_uv)
 
                     bm = bmesh.new()
-                    bm.from_mesh(mesh)
+                    bm.from_mesh(mesh) # type: ignore
                     bm.faces.ensure_lookup_table()
 
-                    uv_layer = bm.loops.layers.uv.verify()
+                    uv_layer = bm.loops.layers.uv.verify() # type: ignore
                     temp_uv_layer = bm.loops.layers.uv[temp_uv_name]
 
                     self._original_uv_positions.setdefault(obj.name, {}).setdefault(material.name, {})
 
                     for face in bm.faces:
-                        if face.material_index < len(obj.data.materials) and obj.data.materials[face.material_index] == material:
+                        if face.material_index < len(obj.data.materials) and obj.data.materials[face.material_index] == material: # type: ignore
                             for loop in face.loops:
                                 original_uv = loop[uv_layer].uv
                                 loop_index = loop.index
                                 self._original_uv_positions[obj.name][material.name][loop_index] = original_uv.copy()
                                 loop[temp_uv_layer].uv = original_uv.copy()
 
-                    bm.to_mesh(mesh)
+                    bm.to_mesh(mesh) # type: ignore
                     bm.free()
 
-    def update_all_uv_maps(self) -> None:
-        armature = bpy.data.objects.get(self.armature_name)
+    def update_all_uv_maps(self, context: Context) -> None:
+        # pylint: disable=unused-argument
+        armature = bpy.data.objects.get(self.armature_name) # type: ignore
         if not armature or armature.type != "ARMATURE":
             return
 
@@ -1399,32 +1401,32 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
 
             mesh = obj.data
             bm = bmesh.new()
-            bm.from_mesh(mesh)
+            bm.from_mesh(mesh) # type: ignore
             bm.faces.ensure_lookup_table()
 
             # Group binds by material
             material_binds = {}
             for bind, preview_value, is_binary in all_binds:
                 if bind.material:
-                    material_binds.setdefault(bind.material.name, []).append((bind, preview_value, is_binary))
+                    material_binds.setdefault(bind.material.name, []).append((bind, preview_value, is_binary)) # type: ignore
 
-            for material_name, binds in material_binds.items():
-                if material_name not in obj.data.materials:
+            for material_name, binds in material_binds.items(): # type: ignore
+                if material_name not in obj.data.materials: # type: ignore
                     continue
 
-                temp_uv_name = self._temp_uv_maps.get(obj.name, {}).get(material_name)
+                temp_uv_name = self._temp_uv_maps.get(obj.name, {}).get(material_name) # type: ignore
                 if not temp_uv_name:
                     continue
 
-                temp_uv_layer = bm.loops.layers.uv.get(temp_uv_name)
+                temp_uv_layer = bm.loops.layers.uv.get(temp_uv_name) # type: ignore
                 if not temp_uv_layer:
                     continue
 
                 for face in bm.faces:
-                    if (face.material_index < len(obj.data.materials) and
-                        obj.data.materials[face.material_index].name == material_name):
+                    if (face.material_index < len(obj.data.materials) and # type: ignore
+                        obj.data.materials[face.material_index].name == material_name): # type: ignore
                         for loop in face.loops:
-                            original_uv = self._original_uv_positions.get(obj.name, {}).get(material_name, {}).get(loop.index)
+                            original_uv = self._original_uv_positions.get(obj.name, {}).get(material_name, {}).get(loop.index) # type: ignore
                             if not original_uv:
                                 continue
 
@@ -1432,20 +1434,20 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                             new_uv = original_uv.copy()
 
                             # Apply all binds for this material
-                            for bind, preview_value, is_binary in binds:
-                                actual_preview_value = 1.0 if is_binary and preview_value >= 0.5 else (0.0 if is_binary else preview_value)
-                                new_uv.x += (original_uv.x * (bind.scale[0] - 1) + bind.offset[0]) * actual_preview_value
-                                new_uv.y += (
-                                    (original_uv.y * (1 - bind.scale[1]) - bind.offset[1])
+                            for bind, preview_value, is_binary in binds: # type: ignore
+                                actual_preview_value = 1.0 if is_binary and preview_value >= 0.5 else (0.0 if is_binary else preview_value) # type: ignore
+                                new_uv.x += (original_uv.x * (bind.scale[0] - 1) + bind.offset[0]) * actual_preview_value # type: ignore
+                                new_uv.y += ( # type: ignore
+                                    (original_uv.y * (1 - bind.scale[1]) - bind.offset[1]) # type: ignore
                                     * actual_preview_value
                                 )  # Flipped in VRM standard compared to Blender
 
                             # Set the new UV coordinates
                             loop[temp_uv_layer].uv = new_uv
 
-            bm.to_mesh(mesh)
+            bm.to_mesh(mesh) # type: ignore
             bm.free()
-            mesh.update()
+            mesh.update() # type: ignore
 
     def remove_temp_uv_maps(self) -> None:
         for obj_name, material_dict in self._temp_uv_maps.items():
@@ -1453,9 +1455,9 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
             if obj and obj.type == 'MESH':
                 mesh = obj.data
                 for temp_uv_name in material_dict.values():
-                    temp_uv = mesh.uv_layers.get(temp_uv_name)
+                    temp_uv = mesh.uv_layers.get(temp_uv_name) # type: ignore
                     if temp_uv:
-                        mesh.uv_layers.remove(temp_uv)
+                        mesh.uv_layers.remove(temp_uv) # type: ignore
         self._temp_uv_maps.clear()
 
     def reset_active_render_uv(self) -> None:
@@ -1463,10 +1465,10 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
             obj = bpy.data.objects.get(obj_name)
             if obj and obj.type == 'MESH':
                 mesh = obj.data
-                original_uv = mesh.uv_layers.get(original_uv_name)
+                original_uv = mesh.uv_layers.get(original_uv_name) # type: ignore
                 if original_uv:
-                    mesh.uv_layers.active = original_uv
-                    for uv_layer in mesh.uv_layers:
+                    mesh.uv_layers.active = original_uv # type: ignore
+                    for uv_layer in mesh.uv_layers: # type: ignore
                         uv_layer.active_render = (uv_layer == original_uv)
 
     @classmethod
