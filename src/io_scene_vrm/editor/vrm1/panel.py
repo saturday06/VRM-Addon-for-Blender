@@ -651,8 +651,7 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
             active_expression = all_expressions[expressions.active_expression_ui_list_element_index]
             expression_name = active_expression.name if hasattr(active_expression, 'name') else active_expression.custom_name
         else:
-            layout.label(text="No active expression", icon='ERROR')
-            return
+            expression_name = ""
     except TypeError:
         layout.label(text="Invalid VRM extension", icon='ERROR')
         return
@@ -674,9 +673,16 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
     preview_op.expression_name = expression_name
     preview_op.update_only = is_modal_running
 
-    bind_column.prop_search(bind, "material", context.blend_data, "materials")
-    bind_column.prop(bind, "scale")
-    bind_column.prop(bind, "offset")
+    # Always show the preview button
+    bind_column.separator()
+
+    # Only show material, scale, and offset properties if there's a valid bind
+    if bind and bind.material:
+        bind_column.prop_search(bind, "material", context.blend_data, "materials")
+        bind_column.prop(bind, "scale")
+        bind_column.prop(bind, "offset")
+    else:
+        bind_column.label(text="No texture transform bind for this expression")
 
 
 def draw_vrm1_expressions_layout(
