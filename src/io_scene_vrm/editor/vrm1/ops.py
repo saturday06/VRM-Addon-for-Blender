@@ -1,7 +1,7 @@
 import bpy
 import bmesh
 from collections.abc import Set as AbstractSet
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, Protocol
 
 from bpy.props import IntProperty, StringProperty, BoolProperty
 from bpy.types import Armature, Context, Operator
@@ -18,7 +18,7 @@ from .property_group import Vrm1HumanBonesPropertyGroup
 logger = get_logger(__name__)
 
 if TYPE_CHECKING:
-    from bpy.types import Event
+    from bpy.types import Event, Material
 
 class VRM_OT_add_vrm1_meta_author(Operator):
     bl_idname = "vrm.add_vrm1_meta_author"
@@ -1224,6 +1224,11 @@ class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
                     expressions.expression_ui_list_elements.add()
         return {"FINISHED"} 
 
+class TextureTransformBind(Protocol):
+    material: "Material"
+    scale: tuple[float, float]
+    offset: tuple[float, float]
+
 class VRM_OT_vrm1_texture_transform_preview(Operator):
     bl_idname = "vrm.texture_transform_preview"
     bl_label = "Preview Texture Transform"
@@ -1324,7 +1329,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
 
         return all_expressions
 
-    def create_all_temp_uv_maps(self, context: Context) -> None:
+    def create_all_temp_uv_maps(self) -> None:
         armature = bpy.data.objects.get(self.armature_name)
         if not armature or armature.type != "ARMATURE":
             return
@@ -1335,7 +1340,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                 if bind.material:
                     self.create_temp_uv_maps(bind)
 
-    def create_temp_uv_maps(self, bind: Any) -> None:
+    def create_temp_uv_maps(self, bind: TextureTransformBind) -> None:
         material = bind.material
         if not material:
             return
@@ -1373,7 +1378,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                     bm.to_mesh(mesh)
                     bm.free()
 
-    def update_all_uv_maps(self, context: Context) -> None:
+    def update_all_uv_maps(self) -> None:
         armature = bpy.data.objects.get(self.armature_name)
         if not armature or armature.type != "ARMATURE":
             return
@@ -1387,7 +1392,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
 
         self.update_uv_maps(all_binds)
 
-    def update_uv_maps(self, all_binds: list[tuple[Any, float, bool]]) -> None:
+    def update_uv_maps(self, all_binds: list[tuple[TextureTransformBind, float, bool]]) -> None:
         for obj in bpy.data.objects:
             if obj.type != "MESH":
                 continue
@@ -1416,7 +1421,8 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                     continue
 
                 for face in bm.faces:
-                    if face.material_index < len(obj.data.materials) and obj.data.materials[face.material_index].name == material_name:
+                    if (face.material_index < len(obj.data.materials) and
+                        obj.data.materials[face.material_index].name == material_name):
                         for loop in face.loops:
                             original_uv = self._original_uv_positions.get(obj.name, {}).get(material_name, {}).get(loop.index)
                             if not original_uv:
@@ -1432,7 +1438,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                                 new_uv.y += (
                                     (original_uv.y * (1 - bind.scale[1]) - bind.offset[1])
                                     * actual_preview_value
-                                )  # This is flipped in VRM standard as compared to blender
+                                )  # Flipped in VRM standard compared to Blender
 
                             # Set the new UV coordinates
                             loop[temp_uv_layer].uv = new_uv
