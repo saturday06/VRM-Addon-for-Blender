@@ -1,7 +1,7 @@
 import bpy
 import bmesh
 from collections.abc import Set as AbstractSet
-from typing import TYPE_CHECKING, List, Tuple, Dict, Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from bpy.props import IntProperty, StringProperty, BoolProperty
 from bpy.types import Armature, Context, Operator
@@ -17,6 +17,8 @@ from .property_group import Vrm1HumanBonesPropertyGroup
 
 logger = get_logger(__name__)
 
+if TYPE_CHECKING:
+    from bpy.types import Event
 
 class VRM_OT_add_vrm1_meta_author(Operator):
     bl_idname = "vrm.add_vrm1_meta_author"
@@ -1225,20 +1227,20 @@ class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
 class VRM_OT_vrm1_texture_transform_preview(Operator):
     bl_idname = "vrm.texture_transform_preview"
     bl_label = "Preview Texture Transform"
-    bl_options: ClassVar[set[str]] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar[AbstractSet[str]] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(options={"HIDDEN"})
     expression_name: StringProperty(options={"HIDDEN"})
     update_only: BoolProperty(default=False, options={"HIDDEN"})
 
     _timer: Any = None
-    _temp_uv_maps: ClassVar[Dict[str, Dict[str, str]]] = {}
-    _original_uv_positions: ClassVar[Dict[str, Dict[str, Dict[int, Any]]]] = {}
-    _original_active_uv: ClassVar[Dict[str, str]] = {}
+    _temp_uv_maps: ClassVar[dict[str, dict[str, str]]] = {}
+    _original_uv_positions: ClassVar[dict[str, dict[str, dict[int, Any]]]] = {}
+    _original_active_uv: ClassVar[dict[str, str]] = {}
     is_modal_running: ClassVar[bool] = False
     is_paused: ClassVar[bool] = False
 
-    preset_name_mapping: ClassVar[Dict[str, str]] = {
+    preset_name_mapping: ClassVar[dict[str, str]] = {
         "neutral": "neutral",
         "aa": "aa",
         "ih": "ih",
@@ -1258,7 +1260,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
         "lookRight": "look_right",
     }
 
-    def modal(self, context: Context, event: Any) -> set[str]:
+    def modal(self, context: Context, event: "Event") -> set[str]:
         if event.type == "ESC" or context.mode == "EDIT_MESH":
             self.cancel(context)
             return {"CANCELLED"}
@@ -1304,7 +1306,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
         self._original_uv_positions.clear()
         self._original_active_uv.clear()
 
-    def get_all_expressions(self, context: Context) -> List[Tuple[Any, str, str]]:
+    def get_all_expressions(self) -> list[tuple[Any, str, str]]:
         armature = bpy.data.objects.get(self.armature_name)
         if not armature or armature.type != "ARMATURE":
             return []
@@ -1327,7 +1329,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
         if not armature or armature.type != "ARMATURE":
             return
 
-        for expression, _, _ in self.get_all_expressions(context):
+        for expression, _, _ in self.get_all_expressions():
             binds = expression.texture_transform_binds
             for bind in binds:
                 if bind.material:
@@ -1376,19 +1378,18 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
         if not armature or armature.type != "ARMATURE":
             return
 
-        all_binds = []
-        for expression, _, _ in self.get_all_expressions(context):
-            preview_value = expression.preview
-            is_binary = getattr(expression, 'is_binary', False)
-            for bind in expression.texture_transform_binds:
-                if bind.material:
-                    all_binds.append((bind, preview_value, is_binary))
+        all_binds = [
+            (bind, expression.preview, getattr(expression, 'is_binary', False))
+            for expression, _, _ in self.get_all_expressions()
+            for bind in expression.texture_transform_binds
+            if bind.material
+        ]
 
         self.update_uv_maps(all_binds)
 
-    def update_uv_maps(self, all_binds: List[Tuple[Any, float, bool]]) -> None:
+    def update_uv_maps(self, all_binds: list[tuple[Any, float, bool]]) -> None:
         for obj in bpy.data.objects:
-            if obj.type != 'MESH':
+            if obj.type != "MESH":
                 continue
 
             mesh = obj.data
@@ -1428,7 +1429,10 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                             for bind, preview_value, is_binary in binds:
                                 actual_preview_value = 1.0 if is_binary and preview_value >= 0.5 else (0.0 if is_binary else preview_value)
                                 new_uv.x += (original_uv.x * (bind.scale[0] - 1) + bind.offset[0]) * actual_preview_value
-                                new_uv.y += (original_uv.y * (bind.scale[1] - 1) - bind.offset[1]) * actual_preview_value # This is flipped in VRM standard as compared to blender
+                                new_uv.y += (
+                                    (original_uv.y * (1 - bind.scale[1]) - bind.offset[1])
+                                    * actual_preview_value
+                                )  # This is flipped in VRM standard as compared to blender
 
                             # Set the new UV coordinates
                             loop[temp_uv_layer].uv = new_uv
