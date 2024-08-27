@@ -1428,7 +1428,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                             for bind, preview_value, is_binary in binds:
                                 actual_preview_value = 1.0 if is_binary and preview_value >= 0.5 else (0.0 if is_binary else preview_value)
                                 new_uv.x += (original_uv.x * (bind.scale[0] - 1) + bind.offset[0]) * actual_preview_value
-                                new_uv.y += (original_uv.y * (bind.scale[1] - 1) + bind.offset[1]) * actual_preview_value
+                                new_uv.y += (original_uv.y * (bind.scale[1] - 1) - bind.offset[1]) * actual_preview_value # This is flipped in VRM standard as compared to blender
 
                             # Set the new UV coordinates
                             loop[temp_uv_layer].uv = new_uv
