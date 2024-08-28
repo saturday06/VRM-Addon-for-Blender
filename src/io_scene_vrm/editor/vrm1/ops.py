@@ -4,7 +4,7 @@ from collections.abc import Set as AbstractSet
 from typing import TYPE_CHECKING, Any, ClassVar, Protocol
 
 from bpy.props import IntProperty, StringProperty, BoolProperty
-from bpy.types import Armature, Context, Operator, Event
+from bpy.types import Armature, Context, Operator, Event, Material
 
 from ...common import ops
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
@@ -1275,7 +1275,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
             return {"CANCELLED"}
 
         if event.type == "TIMER" and not self.is_paused:
-            self.update_all_uv_maps(context)
+            self.update_all_uv_maps()
 
         return {"PASS_THROUGH"}
 
@@ -1287,13 +1287,13 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                     self.remove_temp_uv_maps()
                     self.reset_active_render_uv()
                 else:
-                    self.create_all_temp_uv_maps(context)
+                    self.create_all_temp_uv_maps()
             else:
-                self.update_all_uv_maps(context)
+                self.update_all_uv_maps()
             return {"FINISHED"}
 
         if not VRM_OT_vrm1_texture_transform_preview.is_modal_running:
-            self.create_all_temp_uv_maps(context)
+            self.create_all_temp_uv_maps()
             wm = context.window_manager
             self._timer = wm.event_timer_add(0.1, window=context.window)
             wm.modal_handler_add(self)
@@ -1338,7 +1338,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
 
         return all_expressions
 
-    def create_all_temp_uv_maps(self, context: Context) -> None:
+    def create_all_temp_uv_maps(self) -> None:
         armature = bpy.data.objects.get(self.armature_name)
         if not armature or armature.type != "ARMATURE":
             return
@@ -1349,7 +1349,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                 if bind.material:
                     self.create_temp_uv_maps(bind)
 
-    def create_temp_uv_maps(self, bind: Any) -> None:
+    def create_temp_uv_maps(self, bind: TextureTransformBind) -> None:
         material = bind.material
         if not material:
             return
@@ -1387,7 +1387,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                     bm.to_mesh(mesh)
                     bm.free()
 
-    def update_all_uv_maps(self, context: Context) -> None:
+    def update_all_uv_maps(self) -> None:
         armature = bpy.data.objects.get(self.armature_name)
         if not armature or armature.type != "ARMATURE":
             return
