@@ -1525,4 +1525,3 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         update_only: bool  # type: ignore[no-redef]
-        

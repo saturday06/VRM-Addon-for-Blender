@@ -634,11 +634,11 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
     # Find the armature object
     armature = search.current_armature(context)
     if not armature:
-        layout.label(text="No VRM Armature found in the scene", icon='ERROR')
+        layout.label(text="No VRM Armature found in the scene", icon="ERROR")
         return
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
-        layout.label(text="Invalid armature data", icon='ERROR')
+        layout.label(text="Invalid armature data", icon="ERROR")
         return
 
     try:
@@ -649,11 +649,11 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
         all_expressions = list(expressions.all_name_to_expression_dict().values())
         if 0 <= expressions.active_expression_ui_list_element_index < len(all_expressions):
             active_expression = all_expressions[expressions.active_expression_ui_list_element_index]
-            expression_name = active_expression.name if hasattr(active_expression, 'name') else active_expression.custom_name
+            expression_name = active_expression.name if hasattr(active_expression, "name") else active_expression.custom_name
         else:
             expression_name = ""
     except TypeError:
-        layout.label(text="Invalid VRM extension", icon='ERROR')
+        layout.label(text="Invalid VRM extension", icon="ERROR")
         return
 
     # Add preview toggle
@@ -666,7 +666,7 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
     preview_op = preview_row.operator(
         vrm1_ops.VRM_OT_vrm1_texture_transform_preview.bl_idname,
         text="Resume Preview" if is_paused else ("Pause Preview" if is_modal_running else "Start Preview"),
-        icon='PLAY' if is_paused else ('PAUSE' if is_modal_running else 'PLAY')
+        icon="PLAY" if is_paused else ("PAUSE" if is_modal_running else "PLAY")
     )
 
     preview_op.armature_name = armature.name
