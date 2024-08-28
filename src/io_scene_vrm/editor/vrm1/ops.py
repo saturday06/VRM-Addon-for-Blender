@@ -1,10 +1,10 @@
-import bpy
-import bmesh
 from collections.abc import Set as AbstractSet
 from typing import TYPE_CHECKING, Any, ClassVar, Protocol
 
-from bpy.props import IntProperty, StringProperty, BoolProperty
-from bpy.types import Armature, Context, Operator, Event, Material
+import bmesh
+import bpy
+from bpy.props import BoolProperty, IntProperty, StringProperty
+from bpy.types import Armature, Context, Event, Material, Operator
 
 from ...common import ops
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
@@ -1197,7 +1197,6 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
         # `uv run tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
 
-
 class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
     bl_idname = "vrm.update_vrm1_expression_ui_list_elements"
     bl_label = "Update VRM 1.0 Expression UI List Elements"
@@ -1526,3 +1525,4 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         update_only: bool  # type: ignore[no-redef]
+        
