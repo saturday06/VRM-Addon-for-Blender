@@ -1222,7 +1222,7 @@ class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
         return {"FINISHED"} 
 
 class TextureTransformBind(Protocol):
-    material: "Material"
+    material: Material
     scale: tuple[float, float]
     offset: tuple[float, float]
 
