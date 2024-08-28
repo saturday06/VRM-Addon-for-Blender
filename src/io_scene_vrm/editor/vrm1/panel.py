@@ -645,11 +645,21 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
         extension = get_armature_extension(armature_data)
         vrm1 = extension.vrm1
         expressions = vrm1.expressions
-        
+
         all_expressions = list(expressions.all_name_to_expression_dict().values())
-        if 0 <= expressions.active_expression_ui_list_element_index < len(all_expressions):
-            active_expression = all_expressions[expressions.active_expression_ui_list_element_index]
-            expression_name = active_expression.name if hasattr(active_expression, "name") else active_expression.custom_name
+        if (
+            0
+            <= expressions.active_expression_ui_list_element_index
+            < len(all_expressions)
+        ):
+            active_expression = all_expressions[
+                expressions.active_expression_ui_list_element_index
+            ]
+            expression_name = (
+                active_expression.name
+                if hasattr(active_expression, "name")
+                else active_expression.custom_name
+            )
         else:
             expression_name = ""
     except TypeError:
@@ -658,15 +668,17 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
 
     # Add preview toggle
     preview_row = bind_column.row()
-    
+
     # Check if the modal is running and paused
     is_modal_running = vrm1_ops.VRM_OT_vrm1_texture_transform_preview.is_modal_running
     is_paused = vrm1_ops.VRM_OT_vrm1_texture_transform_preview.is_paused
-    
+
     preview_op = preview_row.operator(
         vrm1_ops.VRM_OT_vrm1_texture_transform_preview.bl_idname,
-        text="Resume Preview" if is_paused else ("Pause Preview" if is_modal_running else "Start Preview"),
-        icon="PLAY" if is_paused else ("PAUSE" if is_modal_running else "PLAY")
+        text="Resume Preview"
+        if is_paused
+        else ("Pause Preview" if is_modal_running else "Start Preview"),
+        icon="PLAY" if is_paused else ("PAUSE" if is_modal_running else "PLAY"),
     )
 
     preview_op.armature_name = armature.name
@@ -676,7 +688,6 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
     # Always show the preview button
     bind_column.separator()
 
-    
     bind_column.prop_search(bind, "material", context.blend_data, "materials")
     # Only show scale, and offset properties if there's a valid bind
     if bind and bind.material:

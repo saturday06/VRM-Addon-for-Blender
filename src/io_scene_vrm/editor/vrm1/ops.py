@@ -17,6 +17,7 @@ from .property_group import Vrm1HumanBonesPropertyGroup
 
 logger = get_logger(__name__)
 
+
 class VRM_OT_add_vrm1_meta_author(Operator):
     bl_idname = "vrm.add_vrm1_meta_author"
     bl_label = "Add Author"
@@ -1197,6 +1198,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
         # `uv run tools/property_typing.py`
         armature_name: str  # type: ignore[no-redef]
 
+
 class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
     bl_idname = "vrm.update_vrm1_expression_ui_list_elements"
     bl_label = "Update VRM 1.0 Expression UI List Elements"
@@ -1218,12 +1220,14 @@ class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
             if all_len > ui_len:
                 for _ in range(all_len - ui_len):
                     expressions.expression_ui_list_elements.add()
-        return {"FINISHED"} 
+        return {"FINISHED"}
+
 
 class TextureTransformBind(Protocol):
     material: Material
     scale: tuple[float, float]
     offset: tuple[float, float]
+
 
 class VRM_OT_vrm1_texture_transform_preview(Operator):
     bl_idname = "vrm.texture_transform_preview"
