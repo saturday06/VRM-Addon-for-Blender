@@ -37,7 +37,7 @@ class VRM_OT_add_spring_bone1_collider(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -101,7 +101,7 @@ class VRM_OT_remove_spring_bone1_collider(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         collider_index: int  # type: ignore[no-redef]
 
@@ -139,7 +139,7 @@ class VRM_OT_move_up_spring_bone1_collider_group(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
 
@@ -177,7 +177,7 @@ class VRM_OT_move_down_spring_bone1_collider_group(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
 
@@ -207,7 +207,7 @@ class VRM_OT_add_spring_bone1_spring(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -244,7 +244,7 @@ class VRM_OT_remove_spring_bone1_spring(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
 
@@ -281,7 +281,7 @@ class VRM_OT_move_up_spring_bone1_spring(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
 
@@ -318,7 +318,7 @@ class VRM_OT_move_down_spring_bone1_spring(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
 
@@ -349,7 +349,7 @@ class VRM_OT_add_spring_bone1_collider_group(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -403,7 +403,7 @@ class VRM_OT_remove_spring_bone1_collider_group(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
 
@@ -440,7 +440,7 @@ class VRM_OT_move_up_spring_bone1_collider(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         collider_index: int  # type: ignore[no-redef]
 
@@ -477,7 +477,7 @@ class VRM_OT_move_down_spring_bone1_collider(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         collider_index: int  # type: ignore[no-redef]
 
@@ -515,7 +515,7 @@ class VRM_OT_add_spring_bone1_collider_group_collider(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
 
@@ -562,7 +562,7 @@ class VRM_OT_remove_spring_bone1_collider_group_collider(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
         collider_index: int  # type: ignore[no-redef]
@@ -606,7 +606,7 @@ class VRM_OT_move_up_spring_bone1_collider_group_collider(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
         collider_index: int  # type: ignore[no-redef]
@@ -650,7 +650,7 @@ class VRM_OT_move_down_spring_bone1_collider_group_collider(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
         collider_index: int  # type: ignore[no-redef]
@@ -687,7 +687,7 @@ class VRM_OT_add_spring_bone1_spring_collider_group(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
 
@@ -731,7 +731,7 @@ class VRM_OT_remove_spring_bone1_spring_collider_group(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
@@ -778,7 +778,7 @@ class VRM_OT_move_up_spring_bone1_spring_collider_group(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
@@ -825,7 +825,7 @@ class VRM_OT_move_down_spring_bone1_spring_collider_group(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
@@ -879,7 +879,7 @@ class VRM_OT_add_spring_bone1_joint(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
         guess_properties: bool  # type: ignore[no-redef]
@@ -924,7 +924,7 @@ class VRM_OT_remove_spring_bone1_joint(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
         joint_index: int  # type: ignore[no-redef]
@@ -969,7 +969,7 @@ class VRM_OT_move_up_spring_bone1_joint(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
         joint_index: int  # type: ignore[no-redef]
@@ -1014,7 +1014,7 @@ class VRM_OT_move_down_spring_bone1_joint(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
         joint_index: int  # type: ignore[no-redef]
@@ -1045,7 +1045,7 @@ class VRM_OT_reset_spring_bone1_animation_state(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -1068,5 +1068,5 @@ class VRM_OT_update_spring_bone1_animation(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         delta_time: float  # type: ignore[no-redef]

@@ -1,10 +1,12 @@
 # This code is auto generated.
-# `uv run tools/property_typing.py`
+# To regenerate, run the `uv run tools/property_typing.py` command.
 
 
 import bpy
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def make_mesh_from_envelopes(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -27,6 +29,8 @@ def make_mesh_from_envelopes(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def make_basic_armature(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -73,6 +77,8 @@ def make_basic_armature(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def make_mesh_detail(
     execution_context: str = "EXEC_DEFAULT",
     /,

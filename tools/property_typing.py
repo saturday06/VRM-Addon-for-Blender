@@ -194,7 +194,8 @@ def update_property_typing(
         another_def_start_index - 1,
         "    if TYPE_CHECKING:\n"
         + "        # This code is auto generated.\n"
-        + "        # `uv run tools/property_typing.py`\n"
+        + "        # To regenerate, run the"
+        + " `uv run tools/property_typing.py` command.\n"
         + typing_code,
     )
 
@@ -245,7 +246,10 @@ def main() -> int:
                 ops_path = ops_dir / Path(*dirs).with_suffix(".py")
                 print(ops_path)
                 ops_code = (
-                    f"def {method}(\n"
+                    "# This code is auto generated.\n"
+                    + "# To regenerate, run the"
+                    + " `uv run tools/property_typing.py` command.\n"
+                    + f"def {method}(\n"
                     + '    execution_context: str = "EXEC_DEFAULT",\n'
                 )
         ops_params: list[str] = []
@@ -317,7 +321,8 @@ def main() -> int:
             if not ops_path.exists():
                 ops_path.write_text(
                     "# This code is auto generated.\n"
-                    + "# `uv run tools/property_typing.py`\n\n"
+                    + "# To regenerate, run the"
+                    + " `uv run tools/property_typing.py` command.\n\n"
                     + "from collections.abc import Mapping, Sequence\n"
                     + "from typing import Optional, Union\n\n"
                     + "import bpy\n\n\n"

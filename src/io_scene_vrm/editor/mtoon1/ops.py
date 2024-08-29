@@ -489,7 +489,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         material_name: str  # type: ignore[no-redef]
 
 
@@ -553,7 +553,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         material_name: str  # type: ignore[no-redef]
 
 
@@ -578,7 +578,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         material_name: str  # type: ignore[no-redef]
 
 
@@ -690,7 +690,7 @@ class VRM_OT_import_mtoon1_texture_image_file(Operator, ImportHelper):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         filepath: str  # type: ignore[no-redef]
         filter_glob: str  # type: ignore[no-redef]
         material_name: str  # type: ignore[no-redef]
@@ -1065,7 +1065,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         material_name: str  # type: ignore[no-redef]
         create_modifier: bool  # type: ignore[no-redef]
 
@@ -1123,5 +1123,5 @@ class VRM_OT_show_material_blender_4_2_warning(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         material_name_lines: str  # type: ignore[no-redef]

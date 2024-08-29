@@ -42,7 +42,7 @@ class VrmValidationError(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         message: str  # type: ignore[no-redef]
         severity: int  # type: ignore[no-redef]
 
@@ -956,7 +956,7 @@ class WM_OT_vrm_validator(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         show_successful_message: bool  # type: ignore[no-redef]
         errors: CollectionPropertyProtocol[  # type: ignore[no-redef]
             VrmValidationError

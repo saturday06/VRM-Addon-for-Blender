@@ -267,7 +267,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         filter_glob: str  # type: ignore[no-redef]
         use_addon_preferences: bool  # type: ignore[no-redef]
         export_invisibles: bool  # type: ignore[no-redef]
@@ -409,7 +409,7 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         filter_glob: str  # type: ignore[no-redef]
         armature_object_name: str  # type: ignore[no-redef]
 
@@ -560,7 +560,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
 
 
@@ -619,7 +619,7 @@ class WM_OT_vrm_export_confirmation(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         errors: CollectionPropertyProtocol[  # type: ignore[no-redef]
             VrmValidationError
         ]
@@ -685,7 +685,7 @@ class WM_OT_vrm_export_armature_selection(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
         armature_object_name_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
             StringPropertyGroup
@@ -796,7 +796,7 @@ class WM_OT_vrma_export_prerequisite(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
         armature_object_name_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
             StringPropertyGroup
