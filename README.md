@@ -18,7 +18,7 @@ VRM Add-on for Blender is an add-on to add VRM-related functions into Blender.
 | <a href="https://vrm-addon-for-blender.info/en/installation?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/installation.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/create-simple-vrm-from-scratch?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/simple.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/create-humanoid-vrm-from-scratch?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/humanoid.gif"></a> |
 | **[Create Physics Based Material](https://vrm-addon-for-blender.info/en/material-pbr?locale_redirection)** | **[Create Anime Style Material](https://vrm-addon-for-blender.info/en/material-mtoon?locale_redirection)** | **[Automation with Python Scripts](https://vrm-addon-for-blender.info/en/scripting-api?locale_redirection)** |
 | <a href="https://vrm-addon-for-blender.info/en/material-pbr?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_pbr.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/material-mtoon?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/material_mtoon.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/scripting-api?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/scripting_api.gif"></a> |
-| **[VRM Animation](https://vrm-addon-for-blender.info/en/animation?locale_redirection)** | **[Development](https://vrm-addon-for-blender.info/en/development?locale_redirection)** | |
+| **[VRM Animation](https://vrm-addon-for-blender.info/en/animation?locale_redirection)** | **[Development How-To](https://vrm-addon-for-blender.info/en/development?locale_redirection)** | |
 | <a href="https://vrm-addon-for-blender.info/en/animation?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/animation.gif"></a> | <a href="https://vrm-addon-for-blender.info/en/development?locale_redirection"><img width="200" src="https://vrm-addon-for-blender.info/images/animation.gif"></a> | |
 
 ## Overview
@@ -89,7 +89,7 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加やM
 
 ## 改造するには
 
-開発用のソースコードは<a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main">`main`</a>ブランチにあります。ブランチ内の <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm">`src/io_scene_vrm`</a> フォルダがアドオン本体です。
+開発用のソースコードは <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main">`main`</a>ブランチにあります。ブランチ内の <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm">`src/io_scene_vrm`</a> フォルダがアドオン本体です。
 そのフォルダへのリンクをBlenderの `addons` フォルダ内に作ることで効率的に開発をすることができます。
 
 テストの実行など、より高度な開発をする場合は[astral.sh/uv](https://docs.astral.sh/uv/)をご利用ください。詳しい情報は[チュートリアル](https://vrm-addon-for-blender.info/en/development?locale_redirection)にあります。
