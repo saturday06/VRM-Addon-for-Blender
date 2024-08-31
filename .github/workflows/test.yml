@@ -235,6 +235,7 @@ jobs:
           VALIDATE_GO: false
           VALIDATE_GO_MODULES: false
           VALIDATE_HTML: false
+          VALIDATE_HTML_PRETTIER: false
           VALIDATE_JSCPD: false
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_ISORT: false
