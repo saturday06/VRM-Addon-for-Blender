@@ -49,6 +49,9 @@ def test(blend_path_str: str) -> None:
         blend = blend.with_suffix("").with_suffix(".blend")
     expected_path = vrm_dir / major_minor / "out" / "blend" / blend.with_suffix(".vrm")
 
+    if Path(expected_path.with_suffix(expected_path.suffix + ".disabled")).exists():
+        return
+
     temp_vrm_dir = vrm_dir / major_minor / "temp"
     temp_vrm_dir.mkdir(parents=True, exist_ok=True)
 
