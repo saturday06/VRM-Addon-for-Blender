@@ -18,6 +18,7 @@
 !/.gitattributes
 !/.github/*.yaml
 !/.github/*.yml
+!/.github/renovate.json5
 !/.github/workflows/*.yml
 !/.gitignore
 !/.gitmodules
