@@ -6,7 +6,7 @@ permissions:
 on:
   push:
     tags:
-      - '*_*_*'
+      - "*_*_*"
 
 jobs:
   release:

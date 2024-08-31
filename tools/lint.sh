@@ -11,3 +11,4 @@ git ls-files "*.py" "*.pyi" | xargs uv run mypy --show-error-codes
 git ls-files "*.py" "*.pyi" | xargs uv run pyright
 git ls-files "*.sh" | xargs shfmt -d -s
 git ls-files "*/Dockerfile" "*.dockerfile" | xargs hadolint
+npm exec --yes -- prettier --check .

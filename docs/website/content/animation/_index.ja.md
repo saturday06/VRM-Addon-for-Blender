@@ -5,6 +5,7 @@ title: "VRMアニメーション"
 VRM Animationのインポートとエクスポートの解説です。執筆時点ではまだ仕様がDraftのため、今後変更される可能性があります。
 
 <!-- TableOfContentsの設定は自動でやりたい -->
+
 - [VRM Animationファイルのエクスポート](#vrm-animationファイルのエクスポート)
 - [VRM Animationファイルのインポート](#vrm-animationファイルのインポート)
 
@@ -15,7 +16,7 @@ VRM Animationのエクスポートには、VRM 1.0のアーマチュアが必要
 - Humanoidボーンの回転値
 - Humanoid Hipsボーンの移動値
 - Expressionのプレビュー値
-(Look At値のエクスポートは現在未対応)
+  (Look At値のエクスポートは現在未対応)
 
 最低限のアニメーションをエクスポートしてみます。
 

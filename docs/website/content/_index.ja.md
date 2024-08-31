@@ -26,14 +26,14 @@ Blender 2.93から4.1をお使いの場合はこちら: **[最新版のダウン
 
 ## 使い方
 
-| [アドオンのインストール]({{< ref "installation" >}}) | [シンプルなVRMモデルを作る]({{< ref "create-simple-vrm-from-scratch" >}}) | [人型のVRMモデルを作る]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
-| --- | --- | --- |
-| [![](installation.png)]({{< ref "installation" >}}) | [![](simple.gif)]({{< ref "create-simple-vrm-from-scratch" >}}) | [![](humanoid.gif)]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
-| | | |
-| [物理ベースのマテリアル設定]({{< ref "material-pbr" >}}) | [アニメ風のマテリアル設定]({{< ref "material-mtoon" >}}) | [Pythonスクリプトによる自動化]({{< ref "scripting-api" >}}) |
-| [![](material_pbr.gif)]({{< ref "material-pbr" >}}) | [![](material_mtoon.gif)]({{< ref "material-mtoon" >}}) | [![](scripting_api.png)]({{< ref "scripting-api" >}}) |
-| [VRMアニメーション]({{< ref "animation" >}}) | [改造するには]({{< ref "development" >}}) | |
-| [![](animation.gif)]({{< ref "animation" >}}) | [![](animation.gif)]({{< ref "development" >}}) | |
+| [アドオンのインストール]({{< ref "installation" >}})     | [シンプルなVRMモデルを作る]({{< ref "create-simple-vrm-from-scratch" >}}) | [人型のVRMモデルを作る]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
+| -------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [![](installation.png)]({{< ref "installation" >}})      | [![](simple.gif)]({{< ref "create-simple-vrm-from-scratch" >}})           | [![](humanoid.gif)]({{< ref "create-humanoid-vrm-from-scratch" >}})     |
+|                                                          |                                                                           |                                                                         |
+| [物理ベースのマテリアル設定]({{< ref "material-pbr" >}}) | [アニメ風のマテリアル設定]({{< ref "material-mtoon" >}})                  | [Pythonスクリプトによる自動化]({{< ref "scripting-api" >}})             |
+| [![](material_pbr.gif)]({{< ref "material-pbr" >}})      | [![](material_mtoon.gif)]({{< ref "material-mtoon" >}})                   | [![](scripting_api.png)]({{< ref "scripting-api" >}})                   |
+| [VRMアニメーション]({{< ref "animation" >}})             | [改造するには]({{< ref "development" >}})                                 |                                                                         |
+| [![](animation.gif)]({{< ref "animation" >}})            | [![](animation.gif)]({{< ref "development" >}})                           |                                                                         |
 
 ## 概要
 

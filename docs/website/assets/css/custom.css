@@ -10,13 +10,15 @@ a {
   word-break: break-all;
 }
 
-.prose th, td {
+.prose th,
+td {
   vertical-align: baseline;
   padding-top: 0;
   padding-bottom: 0;
 }
 
-.prose th, td a {
+.prose th,
+td a {
   font-size: 1.125rem;
   font-weight: bold;
 }

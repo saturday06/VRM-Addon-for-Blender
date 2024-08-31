@@ -13,6 +13,9 @@ echo ### mypy ###
 call uv run mypy --show-error-codes %py_files% %pyi_files%
 echo ### pyright ###
 call uv run pyright %py_files% %pyi_files%
+echo ### prettier ###
+where npm
+if %errorlevel% equ 0 call npm exec --yes -- prettier --write .
 popd
 endlocal
 endlocal

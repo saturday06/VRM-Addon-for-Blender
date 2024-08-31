@@ -26,14 +26,14 @@ For Blender 2.93 to 4.1: **[Download Latest Version {{< release_utc >}}](https:/
 
 ## Tutorials
 
-| [Installation]({{< ref "installation" >}}) | [Create Simple VRM]({{< ref "create-simple-vrm-from-scratch" >}}) | [Create Humanoid VRM]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
-| --- | --- | --- |
-| [![](installation.gif)]({{< ref "installation" >}}) | [![](simple.gif)]({{< ref "create-simple-vrm-from-scratch" >}}) | [![](humanoid.gif)]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
-| | | |
-| [Create Physics Based Material]({{< ref "material-pbr" >}}) | [Create Anime Style Material]({{< ref "material-mtoon" >}}) | [Automation with Python scripts]({{< ref "scripting-api" >}}) |
-| [![](material_pbr.gif)]({{< ref "material-pbr" >}}) | [![](material_mtoon.gif)]({{< ref "material-mtoon" >}}) | [![](scripting_api.gif)]({{< ref "scripting-api" >}}) |
-| [VRM Animation]({{< ref "animation" >}}) | [Development How-To]({{< ref "development" >}}) | |
-| [![](animation.gif)]({{< ref "animation" >}}) | [![](animation.gif)]({{< ref "development" >}}) | |
+| [Installation]({{< ref "installation" >}})                  | [Create Simple VRM]({{< ref "create-simple-vrm-from-scratch" >}}) | [Create Humanoid VRM]({{< ref "create-humanoid-vrm-from-scratch" >}}) |
+| ----------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [![](installation.gif)]({{< ref "installation" >}})         | [![](simple.gif)]({{< ref "create-simple-vrm-from-scratch" >}})   | [![](humanoid.gif)]({{< ref "create-humanoid-vrm-from-scratch" >}})   |
+|                                                             |                                                                   |                                                                       |
+| [Create Physics Based Material]({{< ref "material-pbr" >}}) | [Create Anime Style Material]({{< ref "material-mtoon" >}})       | [Automation with Python scripts]({{< ref "scripting-api" >}})         |
+| [![](material_pbr.gif)]({{< ref "material-pbr" >}})         | [![](material_mtoon.gif)]({{< ref "material-mtoon" >}})           | [![](scripting_api.gif)]({{< ref "scripting-api" >}})                 |
+| [VRM Animation]({{< ref "animation" >}})                    | [Development How-To]({{< ref "development" >}})                   |                                                                       |
+| [![](animation.gif)]({{< ref "animation" >}})               | [![](animation.gif)]({{< ref "development" >}})                   |                                                                       |
 
 ## Overview
 

@@ -22,6 +22,11 @@
 !/.gitignore
 !/.gitmodules
 !/.markdownlint.yaml
+!/.node-version
+!/package.json
+!/package-lock.json
+!/.prettierrc
+!/.prettierignore
 !/LICENSE
 !/LICENSE.*
 !/Notice.txt
@@ -56,4 +61,5 @@ __pycache__/
 /docs/website/.hugo_build.lock
 /docs/website/public/
 /docs/website/resources/_gen/
+/node_modules/
 /tests/test_generated_*

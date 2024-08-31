@@ -5,9 +5,9 @@ permissions: {}
 on:
   push:
     branches:
-      - '**'
+      - "**"
     tags-ignore:
-      - '*_*_*'
+      - "*_*_*"
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -235,7 +235,7 @@ jobs:
           VALIDATE_GO: false
           VALIDATE_GO_MODULES: false
           VALIDATE_HTML: false
-          VALIDATE_HTML_PRETTIER: false
+          VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_JSCPD: false
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_ISORT: false
