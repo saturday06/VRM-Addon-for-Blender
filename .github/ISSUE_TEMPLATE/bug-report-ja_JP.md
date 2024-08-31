@@ -1,9 +1,9 @@
 ---
 name: バグ報告
 about: バグ報告向けテンプレ
-title: 'バグ報告: '
-labels: ''
-assignees: ''
+title: "バグ報告: "
+labels: ""
+assignees: ""
 ---
 
 ## バグについて
