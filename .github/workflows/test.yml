@@ -226,7 +226,7 @@ jobs:
           uv run python -c "import io_scene_vrm; io_scene_vrm.register(); io_scene_vrm.unregister()"
           git reset --hard "$GITHUB_SHA"
       - name: Super-Linter
-        uses: github/super-linter@v6
+        uses: github/super-linter@v7
         env:
           LINTER_RULES_PATH: /
           LOG_LEVEL: NOTICE
