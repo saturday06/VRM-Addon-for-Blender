@@ -9,7 +9,7 @@ VRM Add-on for Blender is an add-on to add VRM-related functions into Blender.
 ## Download
 
 - For Blender 4.2 or later: [🛠️**Blender Extensions Platform**](https://extensions.blender.org/add-ons/vrm). \
-  _⚠️ Due to a change in specifications on Blender Extensions Platform, add-ons currently distributed to Blender Extensions Platform cannot be upgraded. I'm currently working on this issue. In the meantime, if you want to use the latest version, please download the zip file from [GitHub Releases](https://github.com/saturday06/VRM-Addon-for-Blender/releases)._
+  _⚠️ Due to a change in specifications on Blender Extensions Platform, add-ons currently distributed to Blender Extensions Platform cannot be upgraded. I'm currently working on this issue. In the meantime, if you want to use the latest version, please download the ZIP file from [GitHub Releases](https://github.com/saturday06/VRM-Addon-for-Blender/releases)._
 - For Blender 2.93 to 4.1: [🌐**The Official Site**](https://vrm-addon-for-blender.info).
 
 ## Tutorials
