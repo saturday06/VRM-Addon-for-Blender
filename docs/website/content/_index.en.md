@@ -20,9 +20,10 @@ VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blen
 
 ## Download
 
-For Blender 4.2 or later, please download from [**Blender Extensions Platform**](https://extensions.blender.org/add-ons/vrm). \
-For Blender 2.93 to 4.1: **[Download Latest Version {{< release_utc >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)** \
-<small>[Past Releases](https://github.com/saturday06/VRM-Addon-for-Blender/releases)</small>
+- For Blender 4.2 or later, please download from [**Blender Extensions Platform**](https://extensions.blender.org/add-ons/vrm). \
+  _⚠️ Due to a change in specifications on Blender Extensions Platform, add-ons currently distributed to Blender Extensions Platform cannot be upgraded. I'm currently working on this issue. In the meantime, if you want to use the latest version, please download the ZIP file from [GitHub Releases](https://github.com/saturday06/VRM-Addon-for-Blender/releases)._
+- For Blender 2.93 to 4.1: **[Download Latest Version {{< release_utc >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)** \
+  <small>[Past Releases](https://github.com/saturday06/VRM-Addon-for-Blender/releases)</small>
 
 ## Tutorials
 
