@@ -61,6 +61,7 @@ RUN apt-get update \
         moreutils=* \
         ninja-build=* \
         nkf=* \
+        npm=* \
         opencollada-dev=* \
         openssh-client=* \
         patch=* \
