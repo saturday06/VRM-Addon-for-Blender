@@ -161,5 +161,6 @@ class BaseBlenderTestCase(TestCase):
         self.assertEqual(
             completed_process.returncode,
             0,
-            "Failed to execute command:\n" + output,
+            f"Failed to execute command code={completed_process.returncode}:\n"
+            + output,
         )
