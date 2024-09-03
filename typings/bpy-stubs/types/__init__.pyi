@@ -79,6 +79,7 @@ class ID(bpy_struct, __CustomProperty):
     use_fake_user: bool
 
     def animation_data_create(self) -> Optional[AnimData]: ...
+    def user_remap(self, new_id: ID) -> None: ...
 
 class Property(bpy_struct):
     @property
