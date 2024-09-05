@@ -75,7 +75,8 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
     fixup_directory_owner_and_permission(
         workspace_path, warning_messages, uid=uid, gid=gid, umask=umask
     )
-    all_file_paths: list[Path] = []
+    total_progress_count += 1
+    all_file_paths: list[Path] = [workspace_path]
     for root, directory_names, file_names in os.walk(
         workspace_path,
         onerror=functools.partial(print_path_walk_error, warning_messages),
