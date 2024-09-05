@@ -2,6 +2,9 @@
 
 set -eu -o pipefail
 
+# Hyper-Vバックエンドで、ランダムで$PWDフォルダの所有者が変更されてしまい、gitがエラーになる問題を回避
+git config --global --add safe.directory "$PWD"
+
 # いちおうサブモジュールを取得するが、作業フォルダの状態次第で失敗するので `|| true` を付与
 git submodule update --init --recursive || true
 
