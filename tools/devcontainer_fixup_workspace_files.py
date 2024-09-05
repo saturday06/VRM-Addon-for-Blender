@@ -115,7 +115,7 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
 
     progress.reset(total=total_progress_count)
 
-    # ファイルの所有者を自分に設定
+    # ファイルのパーミッションを可能な限り正しく設定
     for file_path in all_file_paths:
         progress.update()
 
