@@ -20,6 +20,7 @@ from bpy.types import (
     DampedTrackConstraint,
     Image,
     Material,
+    Mesh,
     Node,
     Object,
 )
@@ -2755,7 +2756,7 @@ def force_apply_modifiers_to_object(
         return
 
     original_mesh_data = mesh_object.data
-    if not original_mesh_data:
+    if not isinstance(original_mesh_data, Mesh):
         return
 
     armature_modifier_name_to_show_render_and_show_viewport: dict[
@@ -2775,14 +2776,15 @@ def force_apply_modifiers_to_object(
         mesh_data_name = original_mesh_data.name
         original_mesh_data.name = "Backup-Apply-Data-" + uuid4().hex
 
-        mesh_data: Optional[ID] = force_apply_modifiers(context, mesh_object)
+        mesh_data: Optional[ID] = force_apply_modifiers(
+            context, mesh_object, persistent=True
+        )
         if not mesh_data:
             return
 
-        mesh_data.user_remap(original_mesh_data)
-        mesh_data = mesh_object.data
-        if not mesh_data:
-            return
+        original_mesh_data.user_remap(mesh_data)
+        if original_mesh_data.users <= 1:
+            context.blend_data.meshes.remove(original_mesh_data)
 
         mesh_data.name = mesh_data_name
     finally:

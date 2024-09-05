@@ -2316,7 +2316,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
             shape_key_names: Sequence[str] = []
             with save_workspace(self.context):
-                main_mesh_data = force_apply_modifiers(self.context, mesh)
+                main_mesh_data = force_apply_modifiers(
+                    self.context, mesh, persistent=False
+                )
                 if not main_mesh_data:
                     continue
                 shape_key_name_to_mesh_data: dict[str, Mesh] = {}
@@ -2334,7 +2336,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
                         shape_key.value = 1.0
                         self.context.view_layer.update()
-                        shape_mesh = force_apply_modifiers(self.context, mesh)
+                        shape_mesh = force_apply_modifiers(
+                            self.context, mesh, persistent=False
+                        )
                         shape_key.value = 0.0
                         self.context.view_layer.update()
 
