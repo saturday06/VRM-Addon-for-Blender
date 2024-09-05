@@ -9,4 +9,5 @@ uv self update
 
 ./tools/install_hugo.sh
 ./tools/install_hadolint.sh
+./tools/install_shfmt.sh
 ./tools/devcontainer_fixup_workspace.sh
