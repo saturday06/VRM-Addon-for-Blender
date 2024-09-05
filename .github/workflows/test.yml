@@ -57,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: VRMs
+          name: VRMs (${{ github.job }}#${{ strategy.job-index }})
           path: tests/resources/vrm/*/temp
 
   test-macos:
@@ -95,7 +95,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: VRMs
+          name: VRMs (${{ github.job }}#${{ strategy.job-index }})
           path: tests/resources/vrm/*/temp
 
   test-linux:
@@ -129,7 +129,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: VRMs
+          name: VRMs (${{ github.job }}#${{ strategy.job-index }})
           path: tests/resources/vrm/*/temp
 
   lint:
