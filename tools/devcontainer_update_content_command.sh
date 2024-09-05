@@ -3,8 +3,7 @@
 set -eu -o pipefail
 
 # Dockerイメージは積極的にキャッシュされ、パッケージが古いままのことが多いのでここでアップデート
-sudo apt-get update
-sudo apt-get dist-upgrade --yes
+sudo dnf update -y
 
 uv self update
 
