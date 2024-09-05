@@ -1888,6 +1888,12 @@ class BlendDataTexts(bpy_prop_collection[Text]):
 
 class BlendDataMeshes(bpy_prop_collection[Mesh]):
     def new(self, name: str) -> Mesh: ...
+    def new_from_object(
+        self,
+        obj: Object,
+        preserve_all_data_layers: bool = False,
+        depsgraph: Optional[Depsgraph] = None,
+    ) -> Mesh: ...
     def remove(
         self,
         mesh: Mesh,
