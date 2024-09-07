@@ -300,7 +300,7 @@ class AbstractBaseVrmExporter(ABC):
                 mtoon1.extensions.khr_materials_emissive_strength.emissive_strength
             )
             for texture in mtoon1.all_textures(downgrade_to_mtoon0=is_vrm0):
-                texture.source = texture.source
+                texture.source = texture.get_connected_node_image()
 
 
 def assign_dict(

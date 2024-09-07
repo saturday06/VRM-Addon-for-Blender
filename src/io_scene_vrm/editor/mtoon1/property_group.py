@@ -22,6 +22,7 @@ from bpy.types import (
     Image,
     Material,
     Node,
+    NodeReroute,
     NodeSocketColor,
     NodeSocketFloat,
     PropertyGroup,
@@ -727,43 +728,48 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
     def get_connected_node_image(self) -> Optional[Image]:
         material = self.find_material()
+        if not material.use_nodes:
+            return None
+
         node_tree = material.node_tree
         if not node_tree:
             return None
 
-        node_name = self.get_image_texture_node_name()
-
-        node = node_tree.nodes.get(node_name)
-        if not isinstance(node, ShaderNodeTexImage):
-            logger.warning('No shader node tex image "%s"', node_name)
-            return None
-
         texture_info = self.get_texture_info_property_group()
-        output_socket_name_and_node_socket_targets = next(
-            iter(texture_info.node_socket_targets.items()), None
+        node_socket_targets = next(
+            iter(texture_info.node_socket_targets.values()), None
         )
-        if output_socket_name_and_node_socket_targets is None:
-            logger.error("No node socket targets in %s", type(self))
+        if not node_socket_targets:
             return None
 
-        output_socket_name, node_socket_targets = (
-            output_socket_name_and_node_socket_targets
-        )
         node_socket_target = next(iter(node_socket_targets), None)
-        if node_socket_target is None:
-            logger.error("No node socket target in %s", type(self))
+        if not node_socket_target:
             return None
 
-        output_socket = node.outputs.get(output_socket_name)
-        if output_socket is None:
+        node_selector = node_socket_target.create_node_selector(material)
+        node = next((node for node in node_tree.nodes if node_selector(node)), None)
+        if not node:
             return None
 
-        target_node_selector = node_socket_target.create_node_selector(material)
-        for link in output_socket.links:
-            if target_node_selector(link.to_node):
-                return node.image
+        traversing_input_socket = None
+        for input_socket in node.inputs:
+            if input_socket.name == node_socket_target.get_in_socket_name():
+                traversing_input_socket = input_socket
+                break
 
-        return None
+        while True:
+            if not traversing_input_socket:
+                return None
+
+            links_to_input_socket = traversing_input_socket.links
+            traversing_input_socket = None
+            for link_to_input_socket in links_to_input_socket:
+                from_node = link_to_input_socket.from_node
+                if isinstance(from_node, ShaderNodeTexImage):
+                    return from_node.image
+                if isinstance(from_node, NodeReroute):
+                    traversing_input_socket = from_node.inputs[0]
+                    break
 
     def get_texture_uv_int(self, name: str, default_value: int) -> int:
         node_name = self.get_image_texture_uv_node_name()
@@ -1846,7 +1852,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
     def backup(self) -> TextureInfoBackup:
         return Mtoon1TextureInfoPropertyGroup.TextureInfoBackup(
-            source=self.index.source,
+            source=self.index.get_connected_node_image(),
             mag_filter=self.index.sampler.mag_filter,
             min_filter=self.index.sampler.min_filter,
             wrap_s=self.index.sampler.wrap_s,
