@@ -33,14 +33,14 @@ paths.forEach(async (path) => {
       new Uint8Array(fs.readFileSync(path)),
     );
   } catch (e) {
-    console.error(`Errors in ${path}:`);
+    console.error(`Errors in "${path}":`);
     console.error(e);
     process.exitCode = 1;
     return;
   }
 
   if (result.issues.numErrors > 0) {
-    console.error(`Errors in ${path}:`);
+    console.error(`Errors in "${path}":`);
     result.issues.messages.forEach((message) => {
       console.error(message);
     });
