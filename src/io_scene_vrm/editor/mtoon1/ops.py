@@ -1099,11 +1099,7 @@ class VRM_OT_show_material_blender_4_2_warning(Operator):
             + " to implement automatic migration of old settings values because those"
             + " values could no longer be read.\n"
             + 'Please check the "{alpha_mode}" settings for materials that have'
-            + " MToon enabled. "
-            + "Alternatively, if you open and save the \ncurrent file using the latest"
-            + " version of Blender 3.6 and the VRM add-on, the data for automatic"
-            + " migration will be created \ninternally, so that file can be opened in"
-            + " Blender 4.2 or later without losing the material settings.\n"
+            + " MToon enabled.\n"
             + "Materials that may be affected are as follows:"
         ).format(
             blend_mode=pgettext("Blend Mode"),

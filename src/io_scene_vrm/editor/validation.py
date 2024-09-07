@@ -604,12 +604,6 @@ class WM_OT_vrm_validator(Operator):
                     continue
 
                 links = node.inputs["Surface"].links
-                groups = [
-                    "MToon_unversioned",
-                    "GLTF",
-                    "TRANSPARENT_ZWRITE",
-                ]
-
                 if links and links[0].from_node.type == "BSDF_PRINCIPLED":
                     continue
 
@@ -619,7 +613,11 @@ class WM_OT_vrm_validator(Operator):
                         from_node, ShaderNodeGroup
                     ):
                         node_tree = from_node.node_tree
-                        if node_tree and node_tree.get("SHADER") in groups:
+                        if (
+                            node_tree
+                            and node_tree.get("SHADER")
+                            in search.LEGACY_VRM_SHADER_NAMES
+                        ):
                             continue
 
                 skippable_warning_messages.append(

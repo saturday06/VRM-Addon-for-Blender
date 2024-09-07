@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Final, Optional, Union
 
 from bpy.app.translations import pgettext
 from bpy.types import (
@@ -68,6 +68,13 @@ def export_materials(context: Context, objects: list[Object]) -> list[Material]:
                 result.append(material)
 
     return result
+
+
+LEGACY_VRM_SHADER_NAMES: Final = (
+    "MToon_unversioned",
+    "GLTF",
+    "TRANSPARENT_ZWRITE",
+)
 
 
 def vrm_shader_node(
