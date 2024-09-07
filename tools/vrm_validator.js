@@ -18,7 +18,13 @@ function readDirRecursiveSync(dir) {
   return result;
 }
 
-const paths = readDirRecursiveSync(process.cwd());
+const basePath = process.env.BLENDER_VRM_TEST_RESOURCES_PATH || process.cwd();
+if (!fs.existsSync(basePath)) {
+  console.error(`No base path: "${basePath}"`);
+  process.exit(1);
+}
+
+const paths = readDirRecursiveSync(basePath);
 paths.forEach(async (path) => {
   if (basename(dirname(path)) == "in") {
     return;
