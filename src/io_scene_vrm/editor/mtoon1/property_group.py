@@ -1575,13 +1575,20 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
         update=update_source,
     )
 
-    def update_source_not_sync_with_node_tree(self, context: Context) -> None:
-        original_syncing_source_name: Optional[str] = None
-        if self.source_not_sync_with_node_tree:
-            original_syncing_source_name = self.source_not_sync_with_node_tree.name
+    def update_source_for_desynced_node_tree(self, context: Context) -> None:
+        """NodeTreeと同期してしていない場合にprop()に渡すPointerProperty()を更新.
 
-        if self.source_not_sync_with_node_tree is not None:
-            self.source_not_sync_with_node_tree = None  # trigger recursive assignment
+        NodeTreeと同期してしていない場合にprop()のPlaceholder側に正しいImageの名前を表示したい。
+        そのため、次のように動作する。
+        - 必ずPlaceholderを表示するため、値は常にNoneを返すようにする
+        - 値が外部から入力されたら、値をNoneに戻してself.sourceに転送
+        """
+        original_syncing_source_name: Optional[str] = None
+        if self.source_for_desynced_node_tree:
+            original_syncing_source_name = self.source_for_desynced_node_tree.name
+
+        if self.source_for_desynced_node_tree is not None:
+            self.source_for_desynced_node_tree = None  # trigger recursive assignment
 
         if original_syncing_source_name is not None:
             image = context.blend_data.images.get(original_syncing_source_name)
@@ -1590,9 +1597,9 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
         else:
             self.source = None
 
-    source_not_sync_with_node_tree: PointerProperty(  # type: ignore[valid-type]
+    source_for_desynced_node_tree: PointerProperty(  # type: ignore[valid-type]
         type=Image,
-        update=update_source_not_sync_with_node_tree,
+        update=update_source_for_desynced_node_tree,
     )
 
     sampler: PointerProperty(  # type: ignore[valid-type]
@@ -1603,7 +1610,7 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         source: Optional[Image]  # type: ignore[no-redef]
-        source_not_sync_with_node_tree: Optional[Image]  # type: ignore[no-redef]
+        source_for_desynced_node_tree: Optional[Image]  # type: ignore[no-redef]
         sampler: Mtoon1SamplerPropertyGroup  # type: ignore[no-redef]
 
 
