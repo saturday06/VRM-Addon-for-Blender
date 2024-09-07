@@ -13,4 +13,4 @@ git ls-files "*.sh" | xargs shfmt -d -s
 git ls-files "*/Dockerfile" "*.dockerfile" | xargs hadolint
 npm install
 npm exec --yes -- prettier --check .
-npm exec --yes --package=gltf-validator -- node ./tools/vrm-validator.js
+npm exec --yes --package=gltf-validator -- node ./tools/vrm_validator.js

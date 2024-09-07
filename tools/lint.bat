@@ -20,9 +20,9 @@ if %errorlevel% equ 0 call npm install
 echo ### prettier ###
 where npm
 if %errorlevel% equ 0 call npm exec --yes -- prettier --write .
-echo ### vrm-validator ###
+echo ### vrm validator ###
 where npm
-if %errorlevel% equ 0 call npm exec --yes --package=gltf-validator -- node .\tools\vrm-validator.js
+if %errorlevel% equ 0 call npm exec --yes --package=gltf-validator -- node .\tools\vrm_validator.js
 popd
 endlocal
 endlocal
