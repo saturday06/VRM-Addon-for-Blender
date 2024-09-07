@@ -13,9 +13,16 @@ echo ### mypy ###
 call uv run mypy --show-error-codes %py_files% %pyi_files%
 echo ### pyright ###
 call uv run pyright %py_files% %pyi_files%
+
+where npm
+if %errorlevel% equ 0 call npm install
+
 echo ### prettier ###
 where npm
 if %errorlevel% equ 0 call npm exec --yes -- prettier --write .
+echo ### vrm-validator ###
+where npm
+if %errorlevel% equ 0 call npm exec --yes --package=gltf-validator -- node .\tools\vrm-validator.js
 popd
 endlocal
 endlocal
