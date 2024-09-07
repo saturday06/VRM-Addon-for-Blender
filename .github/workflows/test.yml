@@ -15,6 +15,7 @@ jobs:
   test-windows:
     runs-on: windows-2022
     strategy:
+      fail-fast: false
       matrix:
         archive_url:
           - https://mirrors.ocf.berkeley.edu/blender/release/Blender2.93/blender-2.93.9-windows-x64.zip
@@ -63,6 +64,7 @@ jobs:
   test-macos:
     runs-on: macos-14
     strategy:
+      fail-fast: false
       matrix:
         archive_url:
           - https://mirrors.ocf.berkeley.edu/blender/release/Blender2.93/blender-2.93.9-macos-arm64.dmg
@@ -101,6 +103,7 @@ jobs:
   test-linux:
     runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
         archive_url:
           - https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.0-linux-x64.tar.xz
