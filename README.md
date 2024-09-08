@@ -34,7 +34,6 @@ For more advanced development, such as running tests, please use [astral.sh/uv](
 
 ```text
 git checkout main
-git submodule update --init
 
 # Blender 4.2 or later
 
@@ -98,7 +97,6 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加やM
 
 ```text
 git checkout main
-git submodule update --init
 
 # Blender 4.2以上の場合
 
