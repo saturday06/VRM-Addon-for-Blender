@@ -4,7 +4,6 @@ set -eu -o pipefail
 
 # Hyper-Vバックエンドで、ランダムで$PWDフォルダの所有者が変更されてしまい、gitがエラーになる問題を回避
 git config --global --add safe.directory "$PWD"
-git config --global --add safe.directory "$PWD/tests/resources"
 
 # システムのBlenderから開発中のアドオンをすぐに動作確認できるようにする
 for blender_version in \
