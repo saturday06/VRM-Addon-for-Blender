@@ -26,8 +26,6 @@ jobs:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - name: Cache archive
         id: cache-archive
         uses: actions/cache@v4
@@ -76,8 +74,6 @@ jobs:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - name: Cache archive
         id: cache-archive
         uses: actions/cache@v4
@@ -111,8 +107,6 @@ jobs:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - name: Cache archive
         id: cache-archive
         uses: actions/cache@v4
@@ -146,7 +140,6 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
       - uses: actions/checkout@v4
         with:
-          submodules: recursive
           fetch-depth: 0 # for super-linter
       - name: Disable git config core.quotepath
         run: git config core.quotepath off

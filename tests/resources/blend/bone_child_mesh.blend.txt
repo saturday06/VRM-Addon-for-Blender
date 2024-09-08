@@ -1,0 +1,22 @@
+Bones
+
+| parent bone | location | rotation | scale | bone rotation |
+| =========== | ======== | ======== | ===== | ============= |
+| head        |          |          |       |               |
+| neck        | apply    | apply    | apply | 45            |
+| chest       | apply    | apply    | apply |               |
+| spine       | apply    | apply    |       | 45            |
+| hips        | apply    | apply    |       |               |
+| upper arm R | apply    |          | apply | 45            |
+| lower arm R | apply    |          | apply |               |
+| hand R      | apply    |          |       | 45            |
+| upper leg R | apply    |          |       |               |
+| lower leg R |          | apply    | apply | 45            |
+| foot R      |          | apply    | apply |               |
+| upper arm L |          | apply    |       | 45            |
+| lower arm L |          | apply    |       |               |
+| hand L      |          |          | apply | 45            |
+| upper leg L |          |          | apply |               |
+| lower leg L |          |          |       | 45            |
+| foot L      |          |          |       |               |
+

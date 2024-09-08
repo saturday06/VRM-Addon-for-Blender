@@ -14,7 +14,6 @@ The source code for development is in the [main](https://github.com/saturday06/V
 ```text
 # Repository setup
 git checkout main
-git submodule update --init
 
 # Blender 4.2 or later
 
@@ -67,19 +66,17 @@ The same result can be achieved by using the `Ruff` extension of Visual Studio C
 ## To run the software test of the code, follow these steps
 
 1. install [astral-sh/uv](https://docs.astral.sh/uv/).
-2. in your terminal, run the command `git submodule update --init --recursive`.
-3. double-click `tools\test.bat` in the repository and run it.
-4. if you get the error `Blender not found`, set the environment variable `BLENDER_VRM_TEST_BLENDER_PATH` to the path of the Blender 4.2 or 3.6 or 3.3 or 2.93 exe file.
+2. double-click `tools\test.bat` in the repository and run it.
+3. if you get the error `Blender not found`, set the environment variable `BLENDER_VRM_TEST_BLENDER_PATH` to the path of the Blender 4.2 or 3.6 or 3.3 or 2.93 exe file.
 
 ## To run the software test of the code in Visual Studio Code, follow these steps
 
 1. install [astral-sh/uv](https://docs.astral.sh/uv/).
 2. in the Visual Studio Code terminal, run the `uv sync` command.
-3. in the Visual Studio Code terminal, run the command `git submodule update --init --recursive`.
-4. select `Testing` from the left icon in Visual Studio Code
-5. select `Configure Python Tests.
-6. select `unittests` as the test library.
-7. select `Root Directory` as test folder.
-8. select `test_*` as test file pattern.
-9. press `Run Tests`
-10. if you get the error `Blender not found`, set the environment variable `BLENDER_VRM_TEST_BLENDER_PATH` to the path of the Blender 4.2 or 3.6 or 3.3 or 2.93 exe file.
+3. select `Testing` from the left icon in Visual Studio Code
+4. select `Configure Python Tests.
+5. select `unittests` as the test library.
+6. select `Root Directory` as test folder.
+7. select `test_*` as test file pattern.
+8. press `Run Tests`
+9. if you get the error `Blender not found`, set the environment variable `BLENDER_VRM_TEST_BLENDER_PATH` to the path of the Blender 4.2 or 3.6 or 3.3 or 2.93 exe file.

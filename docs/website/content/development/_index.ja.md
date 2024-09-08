@@ -14,7 +14,6 @@ title: "開発環境のセットアップ"
 ```text
 # レポジトリのセットアップ
 git checkout main
-git submodule update --init
 
 # Blender 4.2以上の場合
 
@@ -67,19 +66,17 @@ Visual Studio Code の `Ruff` 拡張機能を使っても同じ結果が得ら�
 ## ソフトウェアテストの実行方法
 
 1. [astral-sh/uv](https://docs.astral.sh/uv/) をインストールする。
-2. ターミナルで `git submodule update --init --recursive` コマンドを実行する。
-3. リポジトリの `tools\test.bat` をダブルクリックして実行する。
-4. Blenderが見つからないという趣旨のエラーが表示されたら、環境変数 `BLENDER_VRM_TEST_BLENDER_PATH` に Blender 4.2 または 3.6 または 3.3 または 2.93 の exe ファイルのパスを設定する。
+2. リポジトリの `tools\test.bat` をダブルクリックして実行する。
+3. Blenderが見つからないという趣旨のエラーが表示されたら、環境変数 `BLENDER_VRM_TEST_BLENDER_PATH` に Blender 4.2 または 3.6 または 3.3 または 2.93 の exe ファイルのパスを設定する。
 
 ## Visual Studio Codeでのソフトウェアテストを実行方法
 
 1. [astral-sh/uv](https://docs.astral.sh/uv/) をインストールする。
 2. Visual Studio Code のターミナルで `uv sync` コマンドを実行する。
-3. Visual Studio Code のターミナルで、`git submodule update --init --recursive` コマンドを実行する。
-4. Visual Studio Code の左のアイコンから `Testing` を選択する。
-5. `Configure Python Tests` を選択する。
-6. テストライブラリとして `unittests` を選択する。
-7. テストフォルダとして `Root Directory` を選択する。
-8. テストファイルパターンとして `test_*` を選択する。
-9. `Run Tests` を押す。
-10. `Blender not found` というエラーが表示されたら、環境変数 `BLENDER_VRM_TEST_BLENDER_PATH` に Blender 4.2 または 3.6 または 3.3 または 2.93 の exe ファイルのパスを設定する。
+3. Visual Studio Code の左のアイコンから `Testing` を選択する。
+4. `Configure Python Tests` を選択する。
+5. テストライブラリとして `unittests` を選択する。
+6. テストフォルダとして `Root Directory` を選択する。
+7. テストファイルパターンとして `test_*` を選択する。
+8. `Run Tests` を押す。
+9. `Blender not found` というエラーが表示されたら、環境変数 `BLENDER_VRM_TEST_BLENDER_PATH` に Blender 4.2 または 3.6 または 3.3 または 2.93 の exe ファイルのパスを設定する。
