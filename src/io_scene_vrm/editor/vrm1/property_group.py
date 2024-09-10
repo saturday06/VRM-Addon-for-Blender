@@ -1093,10 +1093,6 @@ class Vrm1TextureTransformBindPropertyGroup(PropertyGroup):
         size=2,
         default=(0, 0),
     )
-    preview: BoolProperty(  # type: ignore[valid-type]
-        name="Preview",
-        default=False,
-    )
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -1104,7 +1100,6 @@ class Vrm1TextureTransformBindPropertyGroup(PropertyGroup):
         material: Optional[Material]  # type: ignore[no-redef]
         scale: Sequence[float]  # type: ignore[no-redef]
         offset: Sequence[float]  # type: ignore[no-redef]
-        preview: bool  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.schema.json
@@ -1152,8 +1147,8 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
                 armature = search_armature
                 break
 
-        if not armature:
-            logger.error("No armature for %s", triggered_expression.name)
+        if not armature:  # This is getting triggered after importing VRMA files
+            # logger.error("No armature for %s", triggered_expression.name)
             return
 
         expressions = get_armature_vrm1_extension(armature).expressions
