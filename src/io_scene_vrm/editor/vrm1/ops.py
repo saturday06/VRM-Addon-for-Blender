@@ -1278,48 +1278,61 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
     }
 
     def modal(self, context: Context, event: Event) -> set[str]:
-        if event.type == "ESC" or context.mode == "EDIT_MESH":
+        if (
+            event.type == "ESC"
+            or context.mode == "EDIT_MESH"
+            or VRM_OT_vrm1_texture_transform_preview.is_paused
+            or self.update_only
+        ):
             self.cancel(context)
             return {"CANCELLED"}
 
-        if event.type == "TIMER" and not self.is_paused:
+        if (
+            event.type == "TIMER"
+            and not VRM_OT_vrm1_texture_transform_preview.is_paused
+        ):
+            self._update_precomputed_data()
             self.update_all_uv_maps()
+            context.area.tag_redraw()
 
         return {"PASS_THROUGH"}
 
     @classmethod
-    def get_instance(cls) -> "VRM_OT_vrm1_texture_transform_preview":
-        return cls._instance
-
-    def __init__(self) -> None:
-        super().__init__()
-        VRM_OT_vrm1_texture_transform_preview._instance = self
+    def update_ui(cls, context: Context) -> None:
+        for area in context.screen.areas:
+            area.tag_redraw()
 
     def execute(self, context: Context) -> set[str]:
+        print(
+            f"Execute called. update_only: {self.update_only}, is_modal_running: {self.__class__.is_modal_running}, is_paused: {self.__class__.is_paused}"
+        )
         if self.update_only:
-            if self.is_modal_running:
-                self.is_paused = not self.is_paused
-                if self.is_paused:
-                    self.remove_temp_uv_maps()
-                    self.reset_active_render_uv()
+            if self.__class__.is_modal_running:
+                self.__class__.is_paused = not self.__class__.is_paused
+                if self.__class__.is_paused:
+                    self.cancel(context)
+                    self.update_ui(context)
+                    return {"CANCELLED"}
                 else:
-                    self.create_all_temp_uv_maps()
+                    return self.start_modal(context)
             else:
-                self.update_all_uv_maps()
-            return {"FINISHED"}
+                return self.start_modal(context)
+        else:
+            return self.start_modal(context)
 
-        if not self.is_modal_running:
-            self.initialize_affected_objects()
-            self.create_all_temp_uv_maps()
-            wm = context.window_manager
-            self._timer = wm.event_timer_add(0.1, window=context.window)
-            wm.modal_handler_add(self)
-            self.is_modal_running = True
-            self.is_paused = False
-            context.area.tag_redraw()
-            return {"RUNNING_MODAL"}
+    def start_modal(self, context: Context) -> set[str]:
+        # Ensure we're starting with a clean slate
         self.cancel(context)
-        return {"FINISHED"}
+
+        self.initialize_affected_objects()
+        self.create_all_temp_uv_maps()
+        wm = context.window_manager
+        self._timer = wm.event_timer_add(0.1, window=context.window)
+        wm.modal_handler_add(self)
+        self.__class__.is_modal_running = True
+        self.__class__.is_paused = False
+        self.update_ui(context)
+        return {"RUNNING_MODAL"}
 
     def cancel(self, context: Context) -> None:
         self.remove_temp_uv_maps()
@@ -1327,14 +1340,31 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
         if self._timer is not None:
             wm = context.window_manager
             wm.event_timer_remove(self._timer)
-        self.is_modal_running = False
-        self.is_paused = False
+            self._timer = None
+        self.__class__.is_modal_running = False
+        self.__class__.is_paused = False
         self._original_uv_positions.clear()
         self._original_active_uv.clear()
         self._affected_objects.clear()
         self._vertex_material_map.clear()
         self._material_binds.clear()
-        context.area.tag_redraw()
+        self.update_ui(context)
+        self.update_only = False
+
+    def _update_precomputed_data(self) -> None:
+        # Update _material_binds with current expression values
+        all_binds = []
+        for expression, _, _ in self.get_all_expressions():
+            for bind in expression.texture_transform_binds:
+                if bind.material:
+                    all_binds.append(
+                        (
+                            bind,
+                            expression.preview,
+                            getattr(expression, "is_binary", False),
+                        )
+                    )
+        self._build_material_binds(all_binds)
 
     def initialize_affected_objects(self) -> None:
         armature = bpy.data.objects.get(self.armature_name)
@@ -1504,32 +1534,58 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                         original_uv[1] * (1 - bind.scale[1]) - bind.offset[1]
                     ) * actual_preview_value
 
-                loop[temp_uv_layer].uv = new_uv
+                if loop[temp_uv_layer].uv != new_uv:
+                    loop[temp_uv_layer].uv = new_uv
 
         bm.to_mesh(mesh)
         bm.free()
         mesh.update()
 
     def remove_temp_uv_maps(self) -> None:
-        for obj in self._affected_objects:
-            mesh = obj.data
-            temp_uv_name = self._temp_uv_maps.get(obj.name)
-            if temp_uv_name:
+        for obj_name, temp_uv_name in self._temp_uv_maps.items():
+            obj = bpy.data.objects.get(obj_name)
+            if obj and obj.type == "MESH":
+                mesh = obj.data
                 temp_uv = mesh.uv_layers.get(temp_uv_name)
                 if temp_uv:
                     mesh.uv_layers.remove(temp_uv)
+                    # Restore original UV coordinates
+                    original_uv_name = self._original_active_uv.get(obj_name)
+                    if original_uv_name:
+                        original_uv = mesh.uv_layers.get(original_uv_name)
+                        if original_uv:
+                            original_uv.active = True
+                            original_uv.active_render = True
+                            self.restore_original_uvs(mesh, original_uv, obj_name)
+                else:
+                    print(f"Temp UV not found in mesh for object: {obj_name}")
+            else:
+                print(f"Object not found or not a mesh: {obj_name}")
         self._temp_uv_maps.clear()
 
+    def restore_original_uvs(
+        self, mesh: bpy.types.Mesh, uv_layer: bpy.types.MeshUVLoopLayer, obj_name: str
+    ) -> None:
+        original_positions = self._original_uv_positions.get(obj_name, {})
+        for loop in mesh.loops:
+            original_uv = original_positions.get(loop.index)
+            if original_uv:
+                uv_layer.data[loop.index].uv = original_uv
+
     def reset_active_render_uv(self) -> None:
-        for obj in self._affected_objects:
-            mesh = obj.data
-            original_uv_name = self._original_active_uv.get(obj.name)
-            if original_uv_name:
+        for obj_name, original_uv_name in self._original_active_uv.items():
+            obj = bpy.data.objects.get(obj_name)
+            if obj and obj.type == "MESH":
+                mesh = obj.data
                 original_uv = mesh.uv_layers.get(original_uv_name)
                 if original_uv:
                     mesh.uv_layers.active = original_uv
                     for uv_layer in mesh.uv_layers:
                         uv_layer.active_render = uv_layer == original_uv
+                else:
+                    print(f"Original UV not found for object: {obj_name}")
+            else:
+                print(f"Object not found or not a mesh: {obj_name}")
 
     @classmethod
     def poll(cls, context: Context) -> bool:

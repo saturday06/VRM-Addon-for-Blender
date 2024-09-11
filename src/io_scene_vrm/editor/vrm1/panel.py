@@ -669,35 +669,21 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
     # Add preview toggle
     preview_row = bind_column.row()
 
-    # Get the operator instance
+    # Check if the modal is running and paused
+    is_modal_running = vrm1_ops.VRM_OT_vrm1_texture_transform_preview.is_modal_running
+    is_paused = vrm1_ops.VRM_OT_vrm1_texture_transform_preview.is_paused
+
     preview_op = preview_row.operator(
         vrm1_ops.VRM_OT_vrm1_texture_transform_preview.bl_idname,
-        text="Start Preview",
-        icon="PLAY",
+        text="Resume Preview"
+        if is_paused
+        else ("Pause Preview" if is_modal_running else "Start Preview"),
+        icon="PLAY" if is_paused else ("PAUSE" if is_modal_running else "PLAY"),
     )
 
     preview_op.armature_name = armature.name
     preview_op.expression_name = expression_name
-    preview_op.update_only = False
-
-    # Check if the modal is running and update the button accordingly
-    op_instance = vrm1_ops.VRM_OT_vrm1_texture_transform_preview.get_instance()
-    if op_instance:
-        print(op_instance.is_modal_running)
-        if op_instance.is_modal_running:
-            if op_instance.is_paused:
-                preview_op.text = "Resume Preview"
-                preview_op.icon = "PLAY"
-            else:
-                preview_op.text = "Pause Preview"
-                preview_op.icon = "PAUSE"
-            preview_op.update_only = True
-        else:
-            preview_op.text = "Start Preview"
-            preview_op.icon = "PLAY"
-            preview_op.update_only = False
-    else:
-        print("No operator instance found")
+    preview_op.update_only = is_modal_running
 
     # Always show the preview button
     bind_column.separator()
