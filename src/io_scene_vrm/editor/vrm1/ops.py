@@ -1291,27 +1291,18 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
             event.type == "TIMER"
             and not VRM_OT_vrm1_texture_transform_preview.is_paused
         ):
-            self._update_precomputed_data()
-            self.update_all_uv_maps()
+            self._update_precomputed_data(context)
+            self.update_all_uv_maps(context)
             context.area.tag_redraw()
 
         return {"PASS_THROUGH"}
 
-    @classmethod
-    def update_ui(cls, context: Context) -> None:
-        for area in context.screen.areas:
-            area.tag_redraw()
-
     def execute(self, context: Context) -> set[str]:
-        print(
-            f"Execute called. update_only: {self.update_only}, is_modal_running: {self.__class__.is_modal_running}, is_paused: {self.__class__.is_paused}"
-        )
         if self.update_only:
             if self.__class__.is_modal_running:
                 self.__class__.is_paused = not self.__class__.is_paused
                 if self.__class__.is_paused:
                     self.cancel(context)
-                    self.update_ui(context)
                     return {"CANCELLED"}
                 else:
                     return self.start_modal(context)
@@ -1323,15 +1314,13 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
     def start_modal(self, context: Context) -> set[str]:
         # Ensure we're starting with a clean slate
         self.cancel(context)
-
-        self.initialize_affected_objects()
-        self.create_all_temp_uv_maps()
+        self.initialize_affected_objects(context)
+        self.create_all_temp_uv_maps(context)
         wm = context.window_manager
         self._timer = wm.event_timer_add(0.1, window=context.window)
         wm.modal_handler_add(self)
         self.__class__.is_modal_running = True
         self.__class__.is_paused = False
-        self.update_ui(context)
         return {"RUNNING_MODAL"}
 
     def cancel(self, context: Context) -> None:
@@ -1348,11 +1337,9 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
         self._affected_objects.clear()
         self._vertex_material_map.clear()
         self._material_binds.clear()
-        self.update_ui(context)
         self.update_only = False
 
-    def _update_precomputed_data(self) -> None:
-        # Update _material_binds with current expression values
+    def _update_precomputed_data(self, context: Context) -> None:
         all_binds = []
         for expression, _, _ in self.get_all_expressions():
             for bind in expression.texture_transform_binds:
@@ -1365,8 +1352,9 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
                         )
                     )
         self._build_material_binds(all_binds)
+        self.update_affected_objects(context)
 
-    def initialize_affected_objects(self) -> None:
+    def initialize_affected_objects(self, context: Context) -> None:
         armature = bpy.data.objects.get(self.armature_name)
         if not armature or armature.type != "ARMATURE":
             return
@@ -1389,6 +1377,8 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
             obj
             for obj in bpy.data.objects
             if obj.type == "MESH"
+            and obj.name in context.view_layer.objects
+            and obj.visible_get()
             and isinstance(obj.data, bpy.types.Mesh)
             and any(
                 mat and mat.name in affected_materials for mat in obj.data.materials
@@ -1397,6 +1387,13 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
 
         self._build_vertex_material_map()
         self._build_material_binds(all_binds)
+
+    def update_affected_objects(self, context: Context) -> None:
+        self._affected_objects = [
+            obj
+            for obj in self._affected_objects
+            if obj.visible_get() and obj.name in context.view_layer.objects
+        ]
 
     def _build_vertex_material_map(self) -> None:
         for obj in self._affected_objects:
@@ -1452,9 +1449,10 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
 
         return all_expressions
 
-    def create_all_temp_uv_maps(self) -> None:
+    def create_all_temp_uv_maps(self, context: Context) -> None:
         for obj in self._affected_objects:
-            self.create_temp_uv_map(obj)
+            if obj.visible_get() and obj.name in context.view_layer.objects:
+                self.create_temp_uv_map(obj)
 
     def create_temp_uv_map(self, obj: bpy.types.Object) -> None:
         mesh = obj.data
@@ -1490,9 +1488,10 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
             bm.to_mesh(mesh)
             bm.free()
 
-    def update_all_uv_maps(self) -> None:
+    def update_all_uv_maps(self, context: Context) -> None:
         for obj in self._affected_objects:
-            self.update_uv_map(obj)
+            if obj.visible_get() and obj.name in context.view_layer.objects:
+                self.update_uv_map(obj)
 
     def update_uv_map(self, obj: bpy.types.Object) -> None:
         mesh = obj.data
