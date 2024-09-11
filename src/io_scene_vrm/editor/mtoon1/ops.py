@@ -489,7 +489,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         material_name: str  # type: ignore[no-redef]
 
 
@@ -553,7 +553,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         material_name: str  # type: ignore[no-redef]
 
 
@@ -578,7 +578,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         material_name: str  # type: ignore[no-redef]
 
 
@@ -690,7 +690,7 @@ class VRM_OT_import_mtoon1_texture_image_file(Operator, ImportHelper):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         filepath: str  # type: ignore[no-redef]
         filter_glob: str  # type: ignore[no-redef]
         material_name: str  # type: ignore[no-redef]
@@ -1065,7 +1065,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         material_name: str  # type: ignore[no-redef]
         create_modifier: bool  # type: ignore[no-redef]
 
@@ -1099,11 +1099,7 @@ class VRM_OT_show_material_blender_4_2_warning(Operator):
             + " to implement automatic migration of old settings values because those"
             + " values could no longer be read.\n"
             + 'Please check the "{alpha_mode}" settings for materials that have'
-            + " MToon enabled. "
-            + "Alternatively, if you open and save the \ncurrent file using the latest"
-            + " version of Blender 3.6 and the VRM add-on, the data for automatic"
-            + " migration will be created \ninternally, so that file can be opened in"
-            + " Blender 4.2 or later without losing the material settings.\n"
+            + " MToon enabled.\n"
             + "Materials that may be affected are as follows:"
         ).format(
             blend_mode=pgettext("Blend Mode"),
@@ -1123,5 +1119,5 @@ class VRM_OT_show_material_blender_4_2_warning(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         material_name_lines: str  # type: ignore[no-redef]

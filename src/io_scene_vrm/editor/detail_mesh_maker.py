@@ -645,7 +645,7 @@ class ICYP_OT_detail_mesh_maker(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         face_center_ratio: float  # type: ignore[no-redef]
         eye_width_ratio: float  # type: ignore[no-redef]
         nose_head_height: float  # type: ignore[no-redef]

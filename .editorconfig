@@ -9,15 +9,6 @@ indent_style = space
 tab_width = 4
 trim_trailing_whitespace = true
 
-[*.{blend,gif,ico,jpg,png,pptx}]
-charset = unset
-end_of_line = unset
-insert_final_newline = unset
-indent_size = unset
-indent_style = unset
-tab_width = unset
-trim_trailing_whitespace = unset
-
 [*.bat]
 charset = latin1
 end_of_line = crlf
@@ -41,7 +32,7 @@ indent_size = 2
 [*.rb]
 indent_size = 2
 
-[*.{js,json}]
+[*.{js,json,json5}]
 indent_size = 2
 
 [*.md]
@@ -64,3 +55,30 @@ indent_size = 1
 
 [/docs/website/static/CNAME]
 insert_final_newline = false
+
+[*.{blend,gif,ico,jpg,png,pptx,pyc}]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+indent_size = unset
+indent_style = unset
+tab_width = unset
+trim_trailing_whitespace = unset
+
+[{.git,.venv}/**]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+indent_size = unset
+indent_style = unset
+tab_width = unset
+trim_trailing_whitespace = unset
+
+[**/{.ruff_cache,.mypy_cache}/**]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+indent_size = unset
+indent_style = unset
+tab_width = unset
+trim_trailing_whitespace = unset

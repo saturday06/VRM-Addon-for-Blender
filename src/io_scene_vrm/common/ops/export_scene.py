@@ -1,5 +1,5 @@
 # This code is auto generated.
-# `uv run tools/property_typing.py`
+# To regenerate, run the `uv run tools/property_typing.py` command.
 
 from collections.abc import Mapping, Sequence
 from typing import Optional, Union
@@ -7,6 +7,8 @@ from typing import Optional, Union
 import bpy
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def vrma(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -25,6 +27,8 @@ def vrma(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def vrm(
     execution_context: str = "EXEC_DEFAULT",
     /,

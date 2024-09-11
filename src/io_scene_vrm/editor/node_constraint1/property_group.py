@@ -18,7 +18,7 @@ class NodeConstraint1NodeConstraintPropertyGroup(PropertyGroup):
     )
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         show_expanded_roll_constraints: bool  # type: ignore[no-redef]
         show_expanded_aim_constraints: bool  # type: ignore[no-redef]
         show_expanded_rotation_constraints: bool  # type: ignore[no-redef]

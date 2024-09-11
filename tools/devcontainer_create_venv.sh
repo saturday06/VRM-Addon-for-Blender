@@ -28,7 +28,7 @@ else
   fi
 fi
 
-if [ "$create" = "yes" ] && ! create_venv; then
+if ([ "$create" = "yes" ] && ! create_venv) || ! uv run --isolated -- python -c ""; then
   if ! sudo rm -fr .venv; then
     # Docker for Windowsバックエンド切り替え時などに消せないファイルが残ることがある
     echo >&2 # ログ表示成形のため改行出力

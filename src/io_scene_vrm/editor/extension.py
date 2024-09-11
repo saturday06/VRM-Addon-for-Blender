@@ -143,7 +143,7 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         vrm0_material_gltf_property_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
             StringPropertyGroup
         ]
@@ -312,7 +312,7 @@ class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         uuid: str  # type: ignore[no-redef]
         axis_translation: str  # type: ignore[no-redef]
 
@@ -325,7 +325,7 @@ class VrmAddonObjectExtensionPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         axis_translation: str  # type: ignore[no-redef]
 
 
@@ -406,7 +406,7 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         addon_version: Sequence[int]  # type: ignore[no-redef]
         vrm0: Vrm0PropertyGroup  # type: ignore[no-redef]
         vrm1: Vrm1PropertyGroup  # type: ignore[no-redef]
@@ -433,7 +433,7 @@ class VrmAddonMaterialExtensionPropertyGroup(PropertyGroup):
     )
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         mtoon1: Mtoon1MaterialPropertyGroup  # type: ignore[no-redef]
 
 
@@ -446,7 +446,7 @@ class VrmAddonNodeTreeExtensionPropertyGroup(PropertyGroup):
     )
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         addon_version: Sequence[int]  # type: ignore[no-redef]
 
 

@@ -5,18 +5,23 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Optional, Union
 
+import bmesh
 import bpy
-from bpy.types import Armature, Context, NodesModifier, Object
+from bpy.types import Armature, Context, Mesh, NodesModifier, Object
 from mathutils import Quaternion
 
 from ..common import ops, shader
 from ..common.convert import Json
 from ..common.deep import make_json
+from ..common.logging import get_logger
 from ..common.workspace import save_workspace
 from ..editor.extension import get_armature_extension, get_material_extension
+from ..editor.search import MESH_CONVERTIBLE_OBJECT_TYPES
 from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
 from ..editor.vrm1.property_group import Vrm1HumanoidPropertyGroup
 from ..external import io_scene_gltf2_support
+
+logger = get_logger(__name__)
 
 
 class AbstractBaseVrmExporter(ABC):
@@ -295,7 +300,7 @@ class AbstractBaseVrmExporter(ABC):
                 mtoon1.extensions.khr_materials_emissive_strength.emissive_strength
             )
             for texture in mtoon1.all_textures(downgrade_to_mtoon0=is_vrm0):
-                texture.source = texture.source
+                texture.source = texture.get_connected_node_image()
 
 
 def assign_dict(
@@ -308,3 +313,45 @@ def assign_dict(
         return False
     target[key] = make_json(value)
     return True
+
+
+def force_apply_modifiers(
+    context: Context, obj: Object, *, persistent: bool
+) -> Optional[Mesh]:
+    if obj.type not in MESH_CONVERTIBLE_OBJECT_TYPES:
+        return None
+    obj_data = obj.data
+    if obj_data is None:
+        return None
+
+    # https://docs.blender.org/api/2.80/Depsgraph.html
+    # TODO: シェイプキーが壊れることがあるらしい
+    depsgraph = context.evaluated_depsgraph_get()
+    evaluated_obj = obj.evaluated_get(depsgraph)
+    evaluated_temporary_mesh = evaluated_obj.to_mesh(
+        preserve_all_data_layers=True, depsgraph=depsgraph
+    )
+    if not evaluated_temporary_mesh:
+        return None
+
+    if not persistent:
+        return evaluated_temporary_mesh.copy()
+
+    # ドキュメントにはBlendDataMeshes.new_from_object()を使うべきと書いてあるが、
+    # それだとシェイプキーが保持されない。
+    if isinstance(obj_data, Mesh):
+        evaluated_mesh = obj_data.copy()
+    else:
+        logger.error(
+            "Unexpected object type: %s name=%s",
+            type(obj_data),
+            obj_data.name,
+        )
+        evaluated_mesh = context.blend_data.meshes.new(name=obj_data.name)
+    bm = bmesh.new()
+    try:
+        bm.from_mesh(evaluated_temporary_mesh)
+        bm.to_mesh(evaluated_mesh)
+    finally:
+        bm.free()
+    return evaluated_mesh

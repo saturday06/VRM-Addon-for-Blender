@@ -147,11 +147,6 @@ class BaseBlenderTestCase(TestCase):
             cwd=self.repository_root_dir,
             env=env,
         )
-        if completed_process.returncode not in [0, error_exit_code]:
-            message = "test process failed with return code " + str(
-                completed_process.returncode
-            )
-            raise AssertionError(message)
 
         stdout_str = self.process_output_to_str(completed_process.stdout)
         stderr_str = self.process_output_to_str(completed_process.stderr)
@@ -166,5 +161,6 @@ class BaseBlenderTestCase(TestCase):
         self.assertEqual(
             completed_process.returncode,
             0,
-            "Failed to execute command:\n" + output,
+            f"Failed to execute command code={completed_process.returncode}:\n"
+            + output,
         )

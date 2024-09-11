@@ -87,7 +87,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -126,7 +126,7 @@ class VRM_OT_add_human_bone_custom_property(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         bone_name: str  # type: ignore[no-redef]
 
@@ -217,7 +217,7 @@ class VRM_OT_save_human_bone_mappings(Operator, ExportHelper):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         filter_glob: str  # type: ignore[no-redef]
 
 
@@ -279,7 +279,7 @@ class VRM_OT_load_human_bone_mappings(Operator, ImportHelper):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         filter_glob: str  # type: ignore[no-redef]
 
 
@@ -364,7 +364,7 @@ class VRM_OT_open_url_in_web_browser(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         url: str  # type: ignore[no-redef]
 
 
@@ -410,7 +410,7 @@ class VRM_OT_show_blend_file_compatibility_warning(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         file_version: str  # type: ignore[no-redef]
         app_version: str  # type: ignore[no-redef]
 
@@ -452,7 +452,7 @@ class VRM_OT_show_blend_file_addon_compatibility_warning(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         file_addon_version: str  # type: ignore[no-redef]
         installed_addon_version: str  # type: ignore[no-redef]
 
@@ -963,5 +963,5 @@ class VRM_OT_make_estimated_humanoid_t_pose(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]

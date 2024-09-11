@@ -1,5 +1,5 @@
 # This code is auto generated.
-# `uv run tools/property_typing.py`
+# To regenerate, run the `uv run tools/property_typing.py` command.
 
 from collections.abc import Mapping, Sequence
 from typing import Optional, Union
@@ -7,6 +7,8 @@ from typing import Optional, Union
 import bpy
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def model_validate(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -23,6 +25,8 @@ def model_validate(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def make_estimated_humanoid_t_pose(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -35,6 +39,8 @@ def make_estimated_humanoid_t_pose(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def show_blend_file_addon_compatibility_warning(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -49,6 +55,8 @@ def show_blend_file_addon_compatibility_warning(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def show_blend_file_compatibility_warning(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -63,6 +71,8 @@ def show_blend_file_compatibility_warning(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def load_human_bone_mappings(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -77,6 +87,8 @@ def load_human_bone_mappings(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def save_human_bone_mappings(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -93,6 +105,8 @@ def save_human_bone_mappings(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def open_url_in_web_browser(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -105,6 +119,8 @@ def open_url_in_web_browser(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def lipsync_vrm(
     execution_context: str = "EXEC_DEFAULT",
 ) -> set[str]:
@@ -113,6 +129,8 @@ def lipsync_vrm(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def bones_rename(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -125,6 +143,8 @@ def bones_rename(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm_req_humanbone_prop(
     execution_context: str = "EXEC_DEFAULT",
 ) -> set[str]:
@@ -133,6 +153,8 @@ def add_vrm_req_humanbone_prop(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm_extensions(
     execution_context: str = "EXEC_DEFAULT",
 ) -> set[str]:
@@ -141,6 +163,8 @@ def add_vrm_extensions(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm_def_humanbone_prop(
     execution_context: str = "EXEC_DEFAULT",
 ) -> set[str]:
@@ -149,6 +173,8 @@ def add_vrm_def_humanbone_prop(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm_humanbone_custom_property(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -163,6 +189,8 @@ def add_vrm_humanbone_custom_property(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def model_draw_remove(
     execution_context: str = "EXEC_DEFAULT",
 ) -> set[str]:
@@ -171,6 +199,8 @@ def model_draw_remove(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def model_draw(
     execution_context: str = "EXEC_DEFAULT",
 ) -> set[str]:
@@ -179,6 +209,8 @@ def model_draw(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def show_material_blender_4_2_warning(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -191,6 +223,8 @@ def show_material_blender_4_2_warning(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def refresh_mtoon1_outline(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -205,6 +239,8 @@ def refresh_mtoon1_outline(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def import_mtoon1_texture_image_file(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -223,6 +259,8 @@ def import_mtoon1_texture_image_file(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def reset_mtoon1_material_shader_node_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -235,6 +273,8 @@ def reset_mtoon1_material_shader_node_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def convert_mtoon1_to_bsdf_principled(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -247,6 +287,8 @@ def convert_mtoon1_to_bsdf_principled(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def convert_material_to_mtoon1(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -259,6 +301,8 @@ def convert_material_to_mtoon1(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def update_spring_bone1_animation(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -271,6 +315,8 @@ def update_spring_bone1_animation(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def reset_spring_bone1_animation_state(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -283,6 +329,8 @@ def reset_spring_bone1_animation_state(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_spring_bone1_joint(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -299,6 +347,8 @@ def move_down_spring_bone1_joint(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_spring_bone1_joint(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -315,6 +365,8 @@ def move_up_spring_bone1_joint(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_spring_bone1_spring_joint(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -331,6 +383,8 @@ def remove_spring_bone1_spring_joint(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_spring_bone1_spring_joint(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -347,6 +401,8 @@ def add_spring_bone1_spring_joint(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_spring_bone1_spring_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -363,6 +419,8 @@ def move_down_spring_bone1_spring_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_spring_bone1_spring_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -379,6 +437,8 @@ def move_up_spring_bone1_spring_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_spring_bone1_spring_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -395,6 +455,8 @@ def remove_spring_bone1_spring_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_spring_bone1_spring_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -409,6 +471,8 @@ def add_spring_bone1_spring_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_spring_bone1_spring(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -423,6 +487,8 @@ def move_down_spring_bone1_spring(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_spring_bone1_spring(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -437,6 +503,8 @@ def move_up_spring_bone1_spring(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_spring_bone1_spring(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -451,6 +519,8 @@ def remove_spring_bone1_spring(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_spring_bone1_spring(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -463,6 +533,8 @@ def add_spring_bone1_spring(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_spring_bone1_collider_group_collider(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -479,6 +551,8 @@ def move_down_spring_bone1_collider_group_collider(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_spring_bone1_collider_group_collider(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -495,6 +569,8 @@ def move_up_spring_bone1_collider_group_collider(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_spring_bone1_collider_group_collider(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -511,6 +587,8 @@ def remove_spring_bone1_collider_group_collider(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_spring_bone1_collider_group_collider(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -525,6 +603,8 @@ def add_spring_bone1_collider_group_collider(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_spring_bone1_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -539,6 +619,8 @@ def move_down_spring_bone1_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_spring_bone1_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -553,6 +635,8 @@ def move_up_spring_bone1_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_spring_bone1_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -567,6 +651,8 @@ def remove_spring_bone1_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_spring_bone1_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -579,6 +665,8 @@ def add_spring_bone1_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_spring_bone1_collider(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -593,6 +681,8 @@ def move_down_spring_bone1_collider(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_spring_bone1_collider(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -607,6 +697,8 @@ def move_up_spring_bone1_collider(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_spring_bone1_collider(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -621,6 +713,8 @@ def remove_spring_bone1_collider(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_spring_bone1_collider(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -633,6 +727,8 @@ def add_spring_bone1_collider(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def update_vrm1_expression_ui_list_elements(
     execution_context: str = "EXEC_DEFAULT",
 ) -> set[str]:
@@ -641,6 +737,8 @@ def update_vrm1_expression_ui_list_elements(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def assign_vrm1_humanoid_human_bones_automatically(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -653,6 +751,8 @@ def assign_vrm1_humanoid_human_bones_automatically(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm1_first_person_mesh_annotation(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -667,6 +767,8 @@ def move_down_vrm1_first_person_mesh_annotation(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm1_first_person_mesh_annotation(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -681,6 +783,8 @@ def move_up_vrm1_first_person_mesh_annotation(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm1_first_person_mesh_annotation(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -695,6 +799,8 @@ def remove_vrm1_first_person_mesh_annotation(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm1_first_person_mesh_annotation(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -707,6 +813,8 @@ def add_vrm1_first_person_mesh_annotation(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm1_expression_texture_transform_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -723,6 +831,8 @@ def move_down_vrm1_expression_texture_transform_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm1_expression_texture_transform_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -739,6 +849,8 @@ def move_up_vrm1_expression_texture_transform_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm1_expression_texture_transform_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -755,6 +867,8 @@ def remove_vrm1_expression_texture_transform_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm1_expression_texture_transform_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -769,6 +883,8 @@ def add_vrm1_expression_texture_transform_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm1_expression_material_color_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -785,6 +901,8 @@ def move_down_vrm1_expression_material_color_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm1_expression_material_color_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -801,6 +919,8 @@ def move_up_vrm1_expression_material_color_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm1_expression_material_color_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -817,6 +937,8 @@ def remove_vrm1_expression_material_color_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm1_expression_material_color_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -831,6 +953,8 @@ def add_vrm1_expression_material_color_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm1_expression_morph_target_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -847,6 +971,8 @@ def move_down_vrm1_expression_morph_target_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm1_expression_morph_target_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -863,6 +989,8 @@ def move_up_vrm1_expression_morph_target_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm1_expression_morph_target_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -879,6 +1007,8 @@ def remove_vrm1_expression_morph_target_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm1_expression_morph_target_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -893,6 +1023,8 @@ def add_vrm1_expression_morph_target_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm1_expressions_custom_expression(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -907,6 +1039,8 @@ def move_down_vrm1_expressions_custom_expression(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm1_expressions_custom_expression(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -921,6 +1055,8 @@ def move_up_vrm1_expressions_custom_expression(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm1_expressions_custom_expression(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -935,6 +1071,8 @@ def remove_vrm1_expressions_custom_expression(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm1_expressions_custom_expression(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -949,6 +1087,8 @@ def add_vrm1_expressions_custom_expression(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm1_meta_reference(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -963,6 +1103,8 @@ def move_down_vrm1_meta_reference(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm1_meta_reference(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -977,6 +1119,8 @@ def move_up_vrm1_meta_reference(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm1_meta_reference(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -991,6 +1135,8 @@ def remove_vrm1_meta_reference(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm1_meta_reference(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1003,6 +1149,8 @@ def add_vrm1_meta_reference(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm1_meta_author(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1017,6 +1165,8 @@ def move_down_vrm1_meta_author(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm1_meta_author(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1031,6 +1181,8 @@ def move_up_vrm1_meta_author(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm1_meta_author(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1045,6 +1197,8 @@ def remove_vrm1_meta_author(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm1_meta_author(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1057,6 +1211,8 @@ def add_vrm1_meta_author(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def assign_vrm0_humanoid_human_bones_automatically(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1069,6 +1225,8 @@ def assign_vrm0_humanoid_human_bones_automatically(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm0_secondary_animation_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1083,6 +1241,8 @@ def move_down_vrm0_secondary_animation_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm0_secondary_animation_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1097,6 +1257,8 @@ def move_up_vrm0_secondary_animation_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm0_secondary_animation_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1111,6 +1273,8 @@ def remove_vrm0_secondary_animation_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm0_secondary_animation_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1123,6 +1287,8 @@ def add_vrm0_secondary_animation_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm0_secondary_animation_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1137,6 +1303,8 @@ def move_down_vrm0_secondary_animation_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm0_secondary_animation_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1151,6 +1319,8 @@ def move_up_vrm0_secondary_animation_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm0_secondary_animation_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1165,6 +1335,8 @@ def remove_vrm0_secondary_animation_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm0_secondary_animation_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1179,6 +1351,8 @@ def add_vrm0_secondary_animation_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm0_secondary_animation_group_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1195,6 +1369,8 @@ def move_down_vrm0_secondary_animation_group_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm0_secondary_animation_group_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1211,6 +1387,8 @@ def move_up_vrm0_secondary_animation_group_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm0_secondary_animation_group_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1227,6 +1405,8 @@ def remove_vrm0_secondary_animation_group_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm0_secondary_animation_group_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1241,6 +1421,8 @@ def add_vrm0_secondary_animation_group_collider_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm0_secondary_animation_group_bone(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1257,6 +1439,8 @@ def move_down_vrm0_secondary_animation_group_bone(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm0_secondary_animation_group_bone(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1273,6 +1457,8 @@ def move_up_vrm0_secondary_animation_group_bone(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm0_secondary_animation_group_bone(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1289,6 +1475,8 @@ def remove_vrm0_secondary_animation_group_bone(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm0_secondary_animation_group_bone(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1303,6 +1491,8 @@ def add_vrm0_secondary_animation_group_bone(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm0_secondary_animation_collider_group_coll(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1319,6 +1509,8 @@ def move_down_vrm0_secondary_animation_collider_group_coll(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm0_secondary_animation_collider_group_coll(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1335,6 +1527,8 @@ def move_up_vrm0_secondary_animation_collider_group_coll(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm0_secondary_animation_collider_group_collider(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1351,6 +1545,8 @@ def remove_vrm0_secondary_animation_collider_group_collider(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm0_secondary_animation_collider_group_collider(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1367,6 +1563,8 @@ def add_vrm0_secondary_animation_collider_group_collider(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm0_blend_shape_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1383,6 +1581,8 @@ def move_up_vrm0_blend_shape_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm0_blend_shape_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1399,6 +1599,8 @@ def move_down_vrm0_blend_shape_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm0_blend_shape_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1415,6 +1617,8 @@ def remove_vrm0_blend_shape_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm0_blend_shape_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1429,6 +1633,8 @@ def add_vrm0_blend_shape_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm0_blend_shape_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1443,6 +1649,8 @@ def move_down_vrm0_blend_shape_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm0_blend_shape_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1457,6 +1665,8 @@ def move_up_vrm0_blend_shape_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm0_blend_shape_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1471,6 +1681,8 @@ def remove_vrm0_blend_shape_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm0_blend_shape_group(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1485,6 +1697,8 @@ def add_vrm0_blend_shape_group(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm0_material_value_bind_target_value(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1503,6 +1717,8 @@ def remove_vrm0_material_value_bind_target_value(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm0_material_value_bind_target_value(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1519,6 +1735,8 @@ def add_vrm0_material_value_bind_target_value(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm0_material_value_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1535,6 +1753,8 @@ def move_down_vrm0_material_value_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm0_material_value_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1551,6 +1771,8 @@ def move_up_vrm0_material_value_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm0_material_value_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1567,6 +1789,8 @@ def remove_vrm0_material_value_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm0_material_value_bind(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1581,6 +1805,8 @@ def add_vrm0_material_value_bind(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_down_vrm0_first_person_mesh_annotation(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1595,6 +1821,8 @@ def move_down_vrm0_first_person_mesh_annotation(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def move_up_vrm0_first_person_mesh_annotation(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1609,6 +1837,8 @@ def move_up_vrm0_first_person_mesh_annotation(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm0_first_person_mesh_annotation(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1623,6 +1853,8 @@ def remove_vrm0_first_person_mesh_annotation(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm0_first_person_mesh_annotation(
     execution_context: str = "EXEC_DEFAULT",
     /,

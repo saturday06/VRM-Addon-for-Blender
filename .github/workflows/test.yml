@@ -5,9 +5,9 @@ permissions: {}
 on:
   push:
     branches:
-      - '**'
+      - "**"
     tags-ignore:
-      - '*_*_*'
+      - "*_*_*"
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -15,6 +15,7 @@ jobs:
   test-windows:
     runs-on: windows-2022
     strategy:
+      fail-fast: false
       matrix:
         archive_url:
           - https://mirrors.ocf.berkeley.edu/blender/release/Blender2.93/blender-2.93.9-windows-x64.zip
@@ -25,8 +26,6 @@ jobs:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - name: Cache archive
         id: cache-archive
         uses: actions/cache@v4
@@ -57,12 +56,13 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: VRMs
+          name: VRMs (${{ github.job }}#${{ strategy.job-index }})
           path: tests/resources/vrm/*/temp
 
   test-macos:
     runs-on: macos-14
     strategy:
+      fail-fast: false
       matrix:
         archive_url:
           - https://mirrors.ocf.berkeley.edu/blender/release/Blender2.93/blender-2.93.9-macos-arm64.dmg
@@ -74,8 +74,6 @@ jobs:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - name: Cache archive
         id: cache-archive
         uses: actions/cache@v4
@@ -95,12 +93,13 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: VRMs
+          name: VRMs (${{ github.job }}#${{ strategy.job-index }})
           path: tests/resources/vrm/*/temp
 
   test-linux:
     runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
         archive_url:
           - https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.0-linux-x64.tar.xz
@@ -108,8 +107,6 @@ jobs:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - name: Cache archive
         id: cache-archive
         uses: actions/cache@v4
@@ -129,7 +126,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: VRMs
+          name: VRMs (${{ github.job }}#${{ strategy.job-index }})
           path: tests/resources/vrm/*/temp
 
   lint:
@@ -143,7 +140,6 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
       - uses: actions/checkout@v4
         with:
-          submodules: recursive
           fetch-depth: 0 # for super-linter
       - name: Disable git config core.quotepath
         run: git config core.quotepath off
@@ -226,7 +222,7 @@ jobs:
           uv run python -c "import io_scene_vrm; io_scene_vrm.register(); io_scene_vrm.unregister()"
           git reset --hard "$GITHUB_SHA"
       - name: Super-Linter
-        uses: github/super-linter@v6
+        uses: github/super-linter@v7
         env:
           LINTER_RULES_PATH: /
           LOG_LEVEL: NOTICE
@@ -235,8 +231,10 @@ jobs:
           VALIDATE_GO: false
           VALIDATE_GO_MODULES: false
           VALIDATE_HTML: false
+          VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_JSCPD: false
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_ISORT: false
+          VALIDATE_PYTHON_PYINK: false
           VALIDATE_PYTHON_PYLINT: false
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

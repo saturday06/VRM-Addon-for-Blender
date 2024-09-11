@@ -18,10 +18,16 @@
 !/.gitattributes
 !/.github/*.yaml
 !/.github/*.yml
+!/.github/renovate.json5
 !/.github/workflows/*.yml
 !/.gitignore
 !/.gitmodules
 !/.markdownlint.yaml
+!/.node-version
+!/package.json
+!/package-lock.json
+!/.prettierrc
+!/.prettierignore
 !/LICENSE
 !/LICENSE.*
 !/Notice.txt
@@ -38,6 +44,7 @@
 !/pyproject.toml
 !/tools/*.bat
 !/tools/*.dockerfile
+!/tools/*.js
 !/tools/*.sh
 !/tools/*.wsb
 !/tests/resources
@@ -49,6 +56,8 @@
 
 .DS_Store
 __pycache__/
+.mypy_cache/
+.ruff_cache/
 
 /.idea/
 /.venv/
@@ -56,4 +65,5 @@ __pycache__/
 /docs/website/.hugo_build.lock
 /docs/website/public/
 /docs/website/resources/_gen/
+/node_modules/
 /tests/test_generated_*

@@ -22,6 +22,7 @@ from bpy.types import (
     Image,
     Material,
     Node,
+    NodeReroute,
     NodeSocketColor,
     NodeSocketFloat,
     PropertyGroup,
@@ -727,43 +728,48 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
     def get_connected_node_image(self) -> Optional[Image]:
         material = self.find_material()
+        if not material.use_nodes:
+            return None
+
         node_tree = material.node_tree
         if not node_tree:
             return None
 
-        node_name = self.get_image_texture_node_name()
-
-        node = node_tree.nodes.get(node_name)
-        if not isinstance(node, ShaderNodeTexImage):
-            logger.warning('No shader node tex image "%s"', node_name)
-            return None
-
         texture_info = self.get_texture_info_property_group()
-        output_socket_name_and_node_socket_targets = next(
-            iter(texture_info.node_socket_targets.items()), None
+        node_socket_targets = next(
+            iter(texture_info.node_socket_targets.values()), None
         )
-        if output_socket_name_and_node_socket_targets is None:
-            logger.error("No node socket targets in %s", type(self))
+        if not node_socket_targets:
             return None
 
-        output_socket_name, node_socket_targets = (
-            output_socket_name_and_node_socket_targets
-        )
         node_socket_target = next(iter(node_socket_targets), None)
-        if node_socket_target is None:
-            logger.error("No node socket target in %s", type(self))
+        if not node_socket_target:
             return None
 
-        output_socket = node.outputs.get(output_socket_name)
-        if output_socket is None:
+        node_selector = node_socket_target.create_node_selector(material)
+        node = next((node for node in node_tree.nodes if node_selector(node)), None)
+        if not node:
             return None
 
-        target_node_selector = node_socket_target.create_node_selector(material)
-        for link in output_socket.links:
-            if target_node_selector(link.to_node):
-                return node.image
+        traversing_input_socket = None
+        for input_socket in node.inputs:
+            if input_socket.name == node_socket_target.get_in_socket_name():
+                traversing_input_socket = input_socket
+                break
 
-        return None
+        while True:
+            if not traversing_input_socket:
+                return None
+
+            links_to_input_socket = traversing_input_socket.links
+            traversing_input_socket = None
+            for link_to_input_socket in links_to_input_socket:
+                from_node = link_to_input_socket.from_node
+                if isinstance(from_node, ShaderNodeTexImage):
+                    return from_node.image
+                if isinstance(from_node, NodeReroute):
+                    traversing_input_socket = from_node.inputs[0]
+                    break
 
     def get_texture_uv_int(self, name: str, default_value: int) -> int:
         node_name = self.get_image_texture_uv_node_name()
@@ -932,7 +938,7 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         offset: Sequence[float]  # type: ignore[no-redef]
         scale: Sequence[float]  # type: ignore[no-redef]
 
@@ -1071,7 +1077,7 @@ class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         offset: Sequence[float]  # type: ignore[no-redef]
         scale: Sequence[float]  # type: ignore[no-redef]
 
@@ -1095,7 +1101,7 @@ class Mtoon1TextureInfoExtensionsPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         khr_texture_transform: (  # type: ignore[no-redef]
             Mtoon1KhrTextureTransformPropertyGroup
         )
@@ -1110,7 +1116,7 @@ class Mtoon1BaseColorTextureInfoExtensionsPropertyGroup(
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         khr_texture_transform: (  # type: ignore[no-redef]
             Mtoon1BaseColorKhrTextureTransformPropertyGroup
         )
@@ -1125,7 +1131,7 @@ class Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup(
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         khr_texture_transform: (  # type: ignore[no-redef]
             Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup
         )
@@ -1140,7 +1146,7 @@ class Mtoon1NormalTextureInfoExtensionsPropertyGroup(
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         khr_texture_transform: (  # type: ignore[no-redef]
             Mtoon1NormalKhrTextureTransformPropertyGroup
         )
@@ -1155,7 +1161,7 @@ class Mtoon1ShadingShiftTextureInfoExtensionsPropertyGroup(
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         khr_texture_transform: (  # type: ignore[no-redef]
             Mtoon1ShadingShiftKhrTextureTransformPropertyGroup
         )
@@ -1170,7 +1176,7 @@ class Mtoon1EmissiveTextureInfoExtensionsPropertyGroup(
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         khr_texture_transform: (  # type: ignore[no-redef]
             Mtoon1EmissiveKhrTextureTransformPropertyGroup
         )
@@ -1185,7 +1191,7 @@ class Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup(
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         khr_texture_transform: (  # type: ignore[no-redef]
             Mtoon1RimMultiplyKhrTextureTransformPropertyGroup
         )
@@ -1200,7 +1206,7 @@ class Mtoon1MatcapTextureInfoExtensionsPropertyGroup(
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         khr_texture_transform: (  # type: ignore[no-redef]
             Mtoon1MatcapKhrTextureTransformPropertyGroup
         )
@@ -1215,7 +1221,7 @@ class Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup(
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         khr_texture_transform: (  # type: ignore[no-redef]
             Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup
         )
@@ -1230,7 +1236,7 @@ class Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup(
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         khr_texture_transform: (  # type: ignore[no-redef]
             Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup
         )
@@ -1470,7 +1476,7 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         mag_filter: str  # type: ignore[no-redef]
         min_filter: str  # type: ignore[no-redef]
         wrap_s: str  # type: ignore[no-redef]
@@ -1575,13 +1581,20 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
         update=update_source,
     )
 
-    def update_source_not_sync_with_node_tree(self, context: Context) -> None:
-        original_syncing_source_name: Optional[str] = None
-        if self.source_not_sync_with_node_tree:
-            original_syncing_source_name = self.source_not_sync_with_node_tree.name
+    def update_source_for_desynced_node_tree(self, context: Context) -> None:
+        """NodeTreeと同期してしていない場合にprop()に渡すPointerProperty()を更新.
 
-        if self.source_not_sync_with_node_tree is not None:
-            self.source_not_sync_with_node_tree = None  # trigger recursive assignment
+        NodeTreeと同期してしていない場合にprop()のPlaceholder側に正しいImageの名前を表示したい。
+        そのため、次のように動作する。
+        - 必ずPlaceholderを表示するため、値は常にNoneを返すようにする
+        - 値が外部から入力されたら、値をNoneに戻してself.sourceに転送
+        """
+        original_syncing_source_name: Optional[str] = None
+        if self.source_for_desynced_node_tree:
+            original_syncing_source_name = self.source_for_desynced_node_tree.name
+
+        if self.source_for_desynced_node_tree is not None:
+            self.source_for_desynced_node_tree = None  # trigger recursive assignment
 
         if original_syncing_source_name is not None:
             image = context.blend_data.images.get(original_syncing_source_name)
@@ -1590,9 +1603,9 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
         else:
             self.source = None
 
-    source_not_sync_with_node_tree: PointerProperty(  # type: ignore[valid-type]
+    source_for_desynced_node_tree: PointerProperty(  # type: ignore[valid-type]
         type=Image,
-        update=update_source_not_sync_with_node_tree,
+        update=update_source_for_desynced_node_tree,
     )
 
     sampler: PointerProperty(  # type: ignore[valid-type]
@@ -1601,9 +1614,9 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         source: Optional[Image]  # type: ignore[no-redef]
-        source_not_sync_with_node_tree: Optional[Image]  # type: ignore[no-redef]
+        source_for_desynced_node_tree: Optional[Image]  # type: ignore[no-redef]
         sampler: Mtoon1SamplerPropertyGroup  # type: ignore[no-redef]
 
 
@@ -1633,7 +1646,7 @@ class Mtoon1BaseColorTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         sampler: Mtoon1BaseColorSamplerPropertyGroup  # type: ignore[no-redef]
 
 
@@ -1655,7 +1668,7 @@ class Mtoon1ShadeMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         sampler: Mtoon1ShadeMultiplySamplerPropertyGroup  # type: ignore[no-redef]
 
 
@@ -1675,7 +1688,7 @@ class Mtoon1NormalTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         sampler: Mtoon1NormalSamplerPropertyGroup  # type: ignore[no-redef]
 
 
@@ -1697,7 +1710,7 @@ class Mtoon1ShadingShiftTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         sampler: Mtoon1ShadingShiftSamplerPropertyGroup  # type: ignore[no-redef]
 
 
@@ -1717,7 +1730,7 @@ class Mtoon1EmissiveTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         sampler: Mtoon1EmissiveSamplerPropertyGroup  # type: ignore[no-redef]
 
 
@@ -1739,7 +1752,7 @@ class Mtoon1RimMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         sampler: Mtoon1RimMultiplySamplerPropertyGroup  # type: ignore[no-redef]
 
 
@@ -1761,7 +1774,7 @@ class Mtoon1MatcapTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         sampler: Mtoon1MatcapSamplerPropertyGroup  # type: ignore[no-redef]
 
 
@@ -1788,7 +1801,7 @@ class Mtoon1OutlineWidthMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup)
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         sampler: (  # type: ignore[no-redef]
             Mtoon1OutlineWidthMultiplySamplerPropertyGroup
         )
@@ -1812,7 +1825,7 @@ class Mtoon1UvAnimationMaskTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         sampler: Mtoon1UvAnimationMaskSamplerPropertyGroup  # type: ignore[no-redef]
 
 
@@ -1839,7 +1852,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
     def backup(self) -> TextureInfoBackup:
         return Mtoon1TextureInfoPropertyGroup.TextureInfoBackup(
-            source=self.index.source,
+            source=self.index.get_connected_node_image(),
             mag_filter=self.index.sampler.mag_filter,
             min_filter=self.index.sampler.min_filter,
             wrap_s=self.index.sampler.wrap_s,
@@ -2007,7 +2020,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         index: Mtoon1TexturePropertyGroup  # type: ignore[no-redef]
         extensions: Mtoon1TextureInfoExtensionsPropertyGroup  # type: ignore[no-redef]
         show_expanded: bool  # type: ignore[no-redef]
@@ -2047,7 +2060,7 @@ class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         index: Mtoon1BaseColorTexturePropertyGroup  # type: ignore[no-redef]
         extensions: (  # type: ignore[no-redef]
             Mtoon1BaseColorTextureInfoExtensionsPropertyGroup
@@ -2079,7 +2092,7 @@ class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         index: Mtoon1ShadeMultiplyTexturePropertyGroup  # type: ignore[no-redef]
         extensions: (  # type: ignore[no-redef]
             Mtoon1ShadeMultiplyTextureInfoExtensionsPropertyGroup
@@ -2145,7 +2158,7 @@ class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         index: Mtoon1NormalTexturePropertyGroup  # type: ignore[no-redef]
         scale: float  # type: ignore[no-redef]
         extensions: (  # type: ignore[no-redef]
@@ -2201,7 +2214,7 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         index: Mtoon1ShadingShiftTexturePropertyGroup  # type: ignore[no-redef]
         scale: float  # type: ignore[no-redef]
         extensions: (  # type: ignore[no-redef]
@@ -2235,7 +2248,7 @@ class Mtoon1EmissiveTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         index: Mtoon1EmissiveTexturePropertyGroup  # type: ignore[no-redef]
         extensions: (  # type: ignore[no-redef]
             Mtoon1EmissiveTextureInfoExtensionsPropertyGroup
@@ -2267,7 +2280,7 @@ class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         index: Mtoon1RimMultiplyTexturePropertyGroup  # type: ignore[no-redef]
         extensions: (  # type: ignore[no-redef]
             Mtoon1RimMultiplyTextureInfoExtensionsPropertyGroup
@@ -2299,7 +2312,7 @@ class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         index: Mtoon1MatcapTexturePropertyGroup  # type: ignore[no-redef]
         extensions: (  # type: ignore[no-redef]
             Mtoon1MatcapTextureInfoExtensionsPropertyGroup
@@ -2333,7 +2346,7 @@ class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         index: Mtoon1OutlineWidthMultiplyTexturePropertyGroup  # type: ignore[no-redef]
         extensions: (  # type: ignore[no-redef]
             Mtoon1OutlineWidthMultiplyTextureInfoExtensionsPropertyGroup
@@ -2365,7 +2378,7 @@ class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGro
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         index: Mtoon1UvAnimationMaskTexturePropertyGroup  # type: ignore[no-redef]
         extensions: (  # type: ignore[no-redef]
             Mtoon1UvAnimationMaskTextureInfoExtensionsPropertyGroup
@@ -2397,7 +2410,7 @@ class Mtoon0SamplerPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         mag_filter: str  # type: ignore[no-redef]
         min_filter: str  # type: ignore[no-redef]
         wrap_s: str  # type: ignore[no-redef]
@@ -2422,7 +2435,7 @@ class Mtoon0TexturePropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         source: Optional[Image]  # type: ignore[no-redef]
         sampler: Mtoon0SamplerPropertyGroup  # type: ignore[no-redef]
         show_expanded: bool  # type: ignore[no-redef]
@@ -2509,7 +2522,7 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         base_color_factor: Sequence[float]  # type: ignore[no-redef]
         base_color_texture: (  # type: ignore[no-redef]
             Mtoon1BaseColorTextureInfoPropertyGroup
@@ -3014,7 +3027,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         transparent_with_z_write: bool  # type: ignore[no-redef]
         render_queue_offset_number: int  # type: ignore[no-redef]
         shade_multiply_texture: (  # type: ignore[no-redef]
@@ -3111,7 +3124,7 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         emissive_strength: float  # type: ignore[no-redef]
 
 
@@ -3125,7 +3138,7 @@ class Mtoon1MaterialExtensionsPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         vrmc_materials_mtoon: (  # type: ignore[no-redef]
             Mtoon1VrmcMaterialsMtoonPropertyGroup
         )
@@ -3727,7 +3740,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         addon_version: Sequence[int]  # type: ignore[no-redef]
         pbr_metallic_roughness: (  # type: ignore[no-redef]
             Mtoon1PbrMetallicRoughnessPropertyGroup

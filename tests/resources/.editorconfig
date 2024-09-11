@@ -1,0 +1,65 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_size = 4
+indent_style = space
+tab_width = 4
+trim_trailing_whitespace = true
+
+[*.{blend,tga,vrm}]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+indent_size = unset
+indent_style = unset
+tab_width = unset
+trim_trailing_whitespace = unset
+
+[*.asmdef]
+end_of_line = crlf
+insert_final_newline = unset
+
+[*.cs]
+end_of_line = crlf
+
+[*.csproj]
+indent_size = 2
+end_of_line = crlf
+
+[*.sln]
+indent_size = 2
+end_of_line = crlf
+
+[*.json]
+indent_size = 2
+insert_final_newline = unset
+
+[*.{asset,mat,meta,unity}]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+indent_size = unset
+indent_style = unset
+tab_width = unset
+trim_trailing_whitespace = unset
+
+[unity/*/{Library,Logs,Temp,UserSettings}/**]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+indent_size = unset
+indent_style = unset
+tab_width = unset
+trim_trailing_whitespace = unset
+
+[unity/*/*.{csproj,sln}]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+indent_size = unset
+indent_style = unset
+tab_width = unset
+trim_trailing_whitespace = unset

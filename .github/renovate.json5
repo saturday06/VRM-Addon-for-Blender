@@ -1,0 +1,25 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["config:recommended", ":disableDependencyDashboard"],
+  baseBranches: ["main"],
+  lockFileMaintenance: {
+    enabled: true,
+    automerge: true,
+  },
+  packageRules: [
+    {
+      matchUpdateTypes: ["major", "minor", "patch"],
+      automerge: true,
+    },
+    {
+      matchManagers: ["github-actions"],
+      matchUpdateTypes: ["major", "minor", "patch", "digest"],
+      automerge: true,
+    },
+    {
+      matchPackageNames: ["bpy"],
+      rangeStrategy: "in-range-only",
+      automerge: true,
+    },
+  ],
+}

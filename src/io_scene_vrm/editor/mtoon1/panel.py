@@ -51,7 +51,7 @@ def draw_texture_info(
         source_prop_name = "source"
         placeholder = ""
     else:
-        source_prop_name = "source_not_sync_with_node_tree"
+        source_prop_name = "source_for_desynced_node_tree"
         placeholder = node_image.name if node_image else ""
 
     if bpy.app.version >= (4, 1):

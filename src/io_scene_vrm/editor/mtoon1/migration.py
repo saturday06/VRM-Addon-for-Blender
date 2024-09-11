@@ -17,6 +17,7 @@ from ...common import convert, ops, shader, version
 from ...common.gl import GL_LINEAR, GL_NEAREST
 from ...common.logging import get_logger
 from ...common.progress import create_progress
+from .. import search
 from ..extension import get_material_extension
 from .property_group import (
     GL_LINEAR_IMAGE_INTERPOLATIONS,
@@ -88,6 +89,13 @@ def migrate_material(
     material: Material,
     blender_4_2_migrated_material_names: list[str],
 ) -> None:
+    _, legacy_vrm_shader_name = search.vrm_shader_node(material)
+    if legacy_vrm_shader_name in search.LEGACY_VRM_SHADER_NAMES:
+        # 古いシェーダーノードグループはそのままではBlender 4.2に未対応なので、
+        # Blender 4.2以降へのバージョンアップ時は必ず警告する
+        blender_4_2_migrated_material_names.append(material.name)
+        return
+
     if not material.use_nodes:
         return
     node_tree = material.node_tree

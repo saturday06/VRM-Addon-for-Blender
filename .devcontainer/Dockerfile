@@ -1,96 +1,101 @@
-FROM buildpack-deps:noble-curl
+FROM rockylinux:9
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# https://discourse.ubuntu.com/t/spec-apt-deb822-sources-by-default/29333#rationale-2
-RUN sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
-
-# https://www.jetbrains.com/help/idea/prerequisites-for-dev-containers.html#remote_container
-RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get build-dep --yes --no-install-recommends \
+RUN dnf update -y \
+    && dnf install-n -y "dnf-command(config-manager)" \
+    && dnf config-manager --set-enabled crb \
+    && dnf install-n -y epel-release \
+    && dnf update -y \
+    && dnf install-n -y --setopt=install_weak_deps=False --allowerasing \
+        ImageMagick \
+        ShellCheck \
         blender \
-    && DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends \
-        alembic=* \
-        bison=* \
-        blender=* \
-        build-essential=* \
-        ca-certificates=* \
-        cmake=* \
-        curl=* \
-        file=* \
-        git=* \
-        golang-go=* \
-        less=* \
-        libboost-dev=* \
-        libbz2-dev=* \
-        libdbus-1-dev=* \
-        libdecor-0-dev=* \
-        libegl-dev=* \
-        libembree-dev=* \
-        libepoxy-dev=* \
-        libffi-dev=* \
-        libfreetype6=* \
-        libgl-dev=* \
-        libjpeg-dev=* \
-        liblzma-dev=* \
-        libnanovdb-dev=* \
-        libncurses-dev=* \
-        libopenimageio-dev=* \
-        libopenvdb-dev=* \
-        libopenxr-dev=* \
-        libreadline-dev=* \
-        libsm6=* \
-        libsqlite3-dev=* \
-        libssl-dev=* \
-        libwayland-dev=* \
-        libx11-dev=* \
-        libxcursor-dev=* \
-        libxext6=* \
-        libxi-dev=* \
-        libxinerama-dev=* \
-        libxkbcommon-dev=* \
-        libxml2-dev=* \
-        libxmlsec1-dev=* \
-        libxrandr-dev=* \
-        libxrender1=* \
-        libxtst6=* \
-        libxxf86vm-dev=* \
-        libzstd-dev=* \
-        locales=* \
-        moreutils=* \
-        ninja-build=* \
-        nkf=* \
-        opencollada-dev=* \
-        openssh-client=* \
-        patch=* \
-        patchelf=* \
-        procps=* \
-        python3-dulwich=* \
-        python3-numpy=* \
-        python3-tqdm=* \
-        python3-typing-extensions=* \
-        ruby-rmagick=* \
-        ruby=* \
-        shellcheck=* \
-        shfmt=* \
-        subversion=* \
-        sudo=* \
-        tk-dev=* \
-        unzip=* \
-        wayland-protocols=* \
-        xz-utils=* \
-        yasm=* \
-        zlib1g-dev=* \
-        zopfli=* \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# https://askubuntu.com/a/227513
-RUN locale-gen en_US.UTF-8
+        curl \
+        file \
+        git \
+        less \
+        libSM \
+        libXi \
+        libxkbcommon \
+        moreutils \
+        nkf \
+        npm \
+        openssh-clients \
+        patchutils \
+        python3-dulwich \
+        python3-numpy \
+        python3-tqdm \
+        python3-typing-extensions \
+        ruby \
+        sudo \
+        unzip \
+        xz \
+        zopfli \
+    && if [ "$(uname -m)" != "x86_64" ]; then \
+            dnf install-n -y --setopt=install_weak_deps=False --allowerasing \
+                OpenImageIO-devel \
+                bison \
+                boost-devel \
+                bzip2-devel \
+                cmake \
+                dbus-devel \
+                fftw-devel \
+                freetype \
+                g++ \
+                gcc \
+                glfw-devel \
+                libSM \
+                libX11-devel \
+                libXcursor-devel \
+                libXext \
+                libXi-devel \
+                libXinerama-devel \
+                libXrandr-devel \
+                libXtst-devel \
+                libXxf86vm-devel \
+                libdecor-devel \
+                libepoxy-devel \
+                libffi-devel \
+                libjpeg-turbo-devel \
+                libxkbcommon-devel \
+                libxml2-devel \
+                libzstd-devel \
+                make \
+                mesa-libEGL-devel \
+                mesa-libGL-devel \
+                ncurses-devel \
+                ninja-build \
+                openCOLLADA-devel \
+                openssl-devel \
+                openvdb-devel \
+                openxr-devel \
+                patchelf \
+                pugixml-devel \
+                readline-devel \
+                sqlite-devel \
+                subversion \
+                tbb-devel \
+                tk-devel \
+                wayland-devel \
+                wayland-protocols-devel \
+                yasm \
+                zlib-devel \
+        ; fi \
+    && dnf clean all
 
 WORKDIR /root/src
 
+# Linux用のbpyはx86_64版だけしかpypiに上がっていないため、それ以外の場合は自前でビルドしてシステムにインストールする。
+# https://developer.blender.org/docs/handbook/building_blender/python_module/
+RUN if [ "$(uname -m)" != "x86_64" ]; then \
+        for path in /usr/local/lib /usr/local/lib64; do \
+            mkdir -p "$path" \
+            && echo "$path" >> /etc/ld.so.conf.d/vrm.conf \
+        ; done \
+        && ldconfig \
+    ; fi
 RUN if [ "$(uname -m)" = "aarch64" ]; then \
         curl --fail --show-error --location --output sse2neon.tar.gz https://github.com/DLTcollab/sse2neon/archive/refs/tags/v1.7.0.tar.gz \
         && test "$(md5sum sse2neon.tar.gz)" = "09e0a5ac47f852862c5c0e754462bc81  sse2neon.tar.gz" \
@@ -103,18 +108,6 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
         && popd \
         && rm -fr sse2neon \
     ; fi
-
-# Linux用のbpyはx86_64版だけしかpypiに上がっていないため、それ以外の場合は自前でビルドしてシステムにインストールする。
-# https://developer.blender.org/docs/handbook/building_blender/python_module/
-# ceresのビルド中にビルドが失敗することがある。失敗した場合はNPROCS=1を付与することで解決した。
-# 発生していたエラーは次のとおり:
-# [ 66%] Building C object source/blender/editors/animation/CMakeFiles/bf_editor_animation.dir/anim_channels_edit.c.o
-# c++: fatal error: Killed signal terminated program cc1plus
-# compilation terminated.
-# make[3]: *** [extern/ceres/CMakeFiles/extern_ceres.dir/build.make:1952: extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o] Error 1
-# make[3]: *** Deleting file 'extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o'
-# 一般的には `make bpy || make NPROCS=1 bpy` という対応をするが、Parallels Desktop上のUbuntu Arm64 22.04だと
-# GUI全体を巻き込んでクラッシュしたのでNPROCS=1で決め打ちする。
 RUN if [ "$(uname -m)" != "x86_64" ]; then \
         curl --fail --show-error --location --output Python.tar.xz https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tar.xz \
         && test "$(md5sum Python.tar.xz)" = "05148354ce821ba7369e5b7958435400  Python.tar.xz" \
@@ -129,6 +122,27 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
         && ln -s /usr/local/bin/python3 /usr/local/bin/python \
         && /usr/local/bin/pip3 install numpy requests zstandard \
     ; fi
+RUN if [ "$(uname -m)" != "x86_64" ]; then \
+        curl --fail --show-error --location --output embree.tar.gz https://github.com/RenderKit/embree/archive/refs/tags/v4.3.3.tar.gz \
+        && test "$(md5sum embree.tar.gz)" = "170a7f8042fa89930f464cda0a0a63fc  embree.tar.gz" \
+        && mkdir -p embree \
+        && pushd embree \
+        && tar zxf ../embree.tar.gz --strip-components=1 \
+        && cmake . \
+        && make \
+        && make install \
+        && popd \
+        && rm -fr embree \
+    ; fi
+# ceresのビルド中にビルドが失敗することがある。失敗した場合はNPROCS=1を付与することで解決した。
+# 発生していたエラーは次のとおり:
+# [ 66%] Building C object source/blender/editors/animation/CMakeFiles/bf_editor_animation.dir/anim_channels_edit.c.o
+# c++: fatal error: Killed signal terminated program cc1plus
+# compilation terminated.
+# make[3]: *** [extern/ceres/CMakeFiles/extern_ceres.dir/build.make:1952: extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o] Error 1
+# make[3]: *** Deleting file 'extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o'
+# 一般的には `make bpy || make NPROCS=1 bpy` という対応をするが、Parallels Desktop上のUbuntu Arm64 22.04だと
+# GUI全体を巻き込んでクラッシュしたのでNPROCS=1で決め打ちする。
 RUN if [ "$(uname -m)" != "x86_64" ]; then \
         curl --fail --show-error --location --output blender.tar.xz https://download.blender.org/source/blender-3.6.14.tar.xz \
         && test "$(md5sum blender.tar.xz)" = "e78b7af0307584551759e742dd70970f  blender.tar.xz" \
@@ -147,7 +161,7 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
     ; fi
 
 RUN useradd --create-home --user-group --shell /bin/bash developer \
-    && echo "developer ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/developer
+    && usermod --append --groups wheel developer
 USER developer
 WORKDIR /home/developer
 

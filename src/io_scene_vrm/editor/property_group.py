@@ -112,7 +112,7 @@ class StringPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         value: str  # type: ignore[no-redef]
 
 
@@ -135,7 +135,7 @@ class FloatPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         value: float  # type: ignore[no-redef]
 
 
@@ -195,7 +195,7 @@ class MeshObjectPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         mesh_object_name: str  # type: ignore[no-redef]
         value: str  # type: ignore[no-redef]
         bpy_object: Optional[Object]  # type: ignore[no-redef]
@@ -451,7 +451,7 @@ class BonePropertyGroup(PropertyGroup):
     search_one_time_uuid: StringProperty()  # type: ignore[valid-type]
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         bone_name: str  # type: ignore[no-redef]
         value: str  # type: ignore[no-redef]
         bone_uuid: str  # type: ignore[no-redef]

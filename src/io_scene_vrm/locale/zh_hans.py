@@ -550,11 +550,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " to implement automatic migration of old settings values because those"
         + " values could no longer be read.\n"
         + 'Please check the "{alpha_mode}" settings for materials that have'
-        + " MToon enabled. "
-        + "Alternatively, if you open and save the \ncurrent file using the latest"
-        + " version of Blender 3.6 and the VRM add-on, the data for automatic"
-        + " migration will be created \ninternally, so that file can be opened in"
-        + " Blender 4.2 or later without losing the material settings.\n"
+        + " MToon enabled.\n"
         + "Materials that may be affected are as follows:",
     ): "升级到 Blender 4.2可能会无意间改变一些MOOT材质的"
     + "「{alpha_mode}」为「{transparent}」\n"
@@ -564,9 +560,5 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "但是无法自动迁移旧的配置 因为这些参数无法读取了\n"
     + "请检查材质「{alpha_mode}」设置中。"
     + "具有MToon启动\n"
-    + "或者，您可以使用最新版本的 Blender 3.6 和 VRM 插件将当前文件复制 "
-    + "打开并保存后，将在内部创建数据以进行自动迁移\n"
-    + "以便可以在Blender 4.2 或更高版本"
-    + "不会丢失材质设置\n"
     + "可能受影响的材质如下。",
 }

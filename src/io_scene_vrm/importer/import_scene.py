@@ -47,7 +47,7 @@ class LicenseConfirmation(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         message: str  # type: ignore[no-redef]
         url: str  # type: ignore[no-redef]
         json_key: str  # type: ignore[no-redef]
@@ -161,7 +161,7 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         filter_glob: str  # type: ignore[no-redef]
         use_addon_preferences: bool  # type: ignore[no-redef]
         extract_textures_into_folder: bool  # type: ignore[no-redef]
@@ -302,7 +302,7 @@ class WM_OT_vrm_license_confirmation(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         filepath: str  # type: ignore[no-redef]
         license_confirmations: CollectionPropertyProtocol[  # type: ignore[no-redef]
             LicenseConfirmation
@@ -407,7 +407,7 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         filter_glob: str  # type: ignore[no-redef]
         armature_object_name: str  # type: ignore[no-redef]
 
@@ -507,7 +507,7 @@ class WM_OT_vrma_import_prerequisite(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
         armature_object_name_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
             StringPropertyGroup

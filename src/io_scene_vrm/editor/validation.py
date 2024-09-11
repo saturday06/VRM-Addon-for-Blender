@@ -42,7 +42,7 @@ class VrmValidationError(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         message: str  # type: ignore[no-redef]
         severity: int  # type: ignore[no-redef]
 
@@ -604,12 +604,6 @@ class WM_OT_vrm_validator(Operator):
                     continue
 
                 links = node.inputs["Surface"].links
-                groups = [
-                    "MToon_unversioned",
-                    "GLTF",
-                    "TRANSPARENT_ZWRITE",
-                ]
-
                 if links and links[0].from_node.type == "BSDF_PRINCIPLED":
                     continue
 
@@ -619,7 +613,11 @@ class WM_OT_vrm_validator(Operator):
                         from_node, ShaderNodeGroup
                     ):
                         node_tree = from_node.node_tree
-                        if node_tree and node_tree.get("SHADER") in groups:
+                        if (
+                            node_tree
+                            and node_tree.get("SHADER")
+                            in search.LEGACY_VRM_SHADER_NAMES
+                        ):
                             continue
 
                 skippable_warning_messages.append(
@@ -956,7 +954,7 @@ class WM_OT_vrm_validator(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         show_successful_message: bool  # type: ignore[no-redef]
         errors: CollectionPropertyProtocol[  # type: ignore[no-redef]
             VrmValidationError

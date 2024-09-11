@@ -169,7 +169,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         offset: Sequence[float]  # type: ignore[no-redef]
         radius: float  # type: ignore[no-redef]
         fallback_offset: Sequence[float]  # type: ignore[no-redef]
@@ -377,7 +377,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         offset: Sequence[float]  # type: ignore[no-redef]
         radius: float  # type: ignore[no-redef]
         tail: Sequence[float]  # type: ignore[no-redef]
@@ -406,7 +406,7 @@ class SpringBone1ExtendedColliderShapeSpherePropertyGroup(
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         inside: bool  # type: ignore[no-redef]
 
 
@@ -430,7 +430,7 @@ class SpringBone1ExtendedColliderShapeCapsulePropertyGroup(
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         inside: bool  # type: ignore[no-redef]
 
 
@@ -547,7 +547,7 @@ class SpringBone1ExtendedColliderShapePlanePropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         offset: Sequence[float]  # type: ignore[no-redef]
         normal: Sequence[float]  # type: ignore[no-redef]
 
@@ -563,7 +563,7 @@ class SpringBone1ColliderShapePropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         sphere: SpringBone1ColliderShapeSpherePropertyGroup  # type: ignore[no-redef]
         capsule: SpringBone1ColliderShapeCapsulePropertyGroup  # type: ignore[no-redef]
 
@@ -582,7 +582,7 @@ class SpringBone1ExtendedColliderShapePropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         sphere: (  # type: ignore[no-redef]
             SpringBone1ExtendedColliderShapeSpherePropertyGroup
         )
@@ -640,7 +640,7 @@ class SpringBone1VrmcSpringBoneExtendedColliderPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         enabled: bool  # type: ignore[no-redef]
         automatic_fallback_generation: bool  # type: ignore[no-redef]
         shape: SpringBone1ExtendedColliderShapePropertyGroup  # type: ignore[no-redef]
@@ -654,7 +654,7 @@ class SpringBone1ColliderExtensionsPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         vrmc_spring_bone_extended_collider: (  # type: ignore[no-redef]
             SpringBone1VrmcSpringBoneExtendedColliderPropertyGroup
         )
@@ -900,7 +900,7 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         node: BonePropertyGroup  # type: ignore[no-redef]
         shape: SpringBone1ColliderShapePropertyGroup  # type: ignore[no-redef]
         extensions: SpringBone1ColliderExtensionsPropertyGroup  # type: ignore[no-redef]
@@ -951,7 +951,7 @@ class SpringBone1ColliderReferencePropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         collider_name: str  # type: ignore[no-redef]
         collider_uuid: str  # type: ignore[no-redef]
         search_one_time_uuid: str  # type: ignore[no-redef]
@@ -1013,7 +1013,7 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         vrm_name: str  # type: ignore[no-redef]
         colliders: CollectionPropertyProtocol[  # type: ignore[no-redef]
             SpringBone1ColliderReferencePropertyGroup
@@ -1033,7 +1033,7 @@ class SpringBone1JointAnimationStatePropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         initialized_as_tail: bool  # type: ignore[no-redef]
         previous_world_translation: Sequence[float]  # type: ignore[no-redef]
         current_world_translation: Sequence[float]  # type: ignore[no-redef]
@@ -1098,7 +1098,7 @@ class SpringBone1JointPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         node: BonePropertyGroup  # type: ignore[no-redef]
         hit_radius: float  # type: ignore[no-redef]
         stiffness: float  # type: ignore[no-redef]
@@ -1151,7 +1151,7 @@ class SpringBone1ColliderGroupReferencePropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         collider_group_name: str  # type: ignore[no-redef]
         collider_group_uuid: str  # type: ignore[no-redef]
         search_one_time_uuid: str  # type: ignore[no-redef]
@@ -1164,7 +1164,7 @@ class SpringBone1SpringAnimationStatePropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         use_center_space: bool  # type: ignore[no-redef]
         previous_center_world_translation: Sequence[float]  # type: ignore[no-redef]
 
@@ -1202,7 +1202,7 @@ class SpringBone1SpringPropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         vrm_name: str  # type: ignore[no-redef]
         joints: CollectionPropertyProtocol[  # type: ignore[no-redef]
             SpringBone1JointPropertyGroup
@@ -1260,7 +1260,7 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         colliders: CollectionPropertyProtocol[  # type: ignore[no-redef]
             SpringBone1ColliderPropertyGroup
         ]

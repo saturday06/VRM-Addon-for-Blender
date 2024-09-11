@@ -43,7 +43,7 @@ class VRM_OT_add_vrm1_meta_author(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -80,7 +80,7 @@ class VRM_OT_remove_vrm1_meta_author(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         author_index: int  # type: ignore[no-redef]
 
@@ -116,7 +116,7 @@ class VRM_OT_move_up_vrm1_meta_author(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         author_index: int  # type: ignore[no-redef]
 
@@ -152,7 +152,7 @@ class VRM_OT_move_down_vrm1_meta_author(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         author_index: int  # type: ignore[no-redef]
 
@@ -182,7 +182,7 @@ class VRM_OT_add_vrm1_meta_reference(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -219,7 +219,7 @@ class VRM_OT_remove_vrm1_meta_reference(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         reference_index: int  # type: ignore[no-redef]
 
@@ -255,7 +255,7 @@ class VRM_OT_move_up_vrm1_meta_reference(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         reference_index: int  # type: ignore[no-redef]
 
@@ -291,7 +291,7 @@ class VRM_OT_move_down_vrm1_meta_reference(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         reference_index: int  # type: ignore[no-redef]
 
@@ -327,7 +327,7 @@ class VRM_OT_add_vrm1_expressions_custom_expression(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         custom_expression_name: str  # type: ignore[no-redef]
 
@@ -367,7 +367,7 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         custom_expression_name: str  # type: ignore[no-redef]
 
@@ -412,7 +412,7 @@ class VRM_OT_move_up_vrm1_expressions_custom_expression(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         custom_expression_name: str  # type: ignore[no-redef]
 
@@ -457,7 +457,7 @@ class VRM_OT_move_down_vrm1_expressions_custom_expression(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         custom_expression_name: str  # type: ignore[no-redef]
 
@@ -488,7 +488,7 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -525,7 +525,7 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         mesh_annotation_index: int  # type: ignore[no-redef]
 
@@ -563,7 +563,7 @@ class VRM_OT_move_up_vrm1_first_person_mesh_annotation(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         mesh_annotation_index: int  # type: ignore[no-redef]
 
@@ -601,7 +601,7 @@ class VRM_OT_move_down_vrm1_first_person_mesh_annotation(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         mesh_annotation_index: int  # type: ignore[no-redef]
 
@@ -638,7 +638,7 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
 
@@ -682,7 +682,7 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -725,7 +725,7 @@ class VRM_OT_move_up_vrm1_expression_morph_target_bind(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -768,7 +768,7 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -808,7 +808,7 @@ class VRM_OT_add_vrm1_expression_material_color_bind(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
 
@@ -852,7 +852,7 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -895,7 +895,7 @@ class VRM_OT_move_up_vrm1_expression_material_color_bind(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -938,7 +938,7 @@ class VRM_OT_move_down_vrm1_expression_material_color_bind(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -976,7 +976,7 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
 
@@ -1020,7 +1020,7 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -1063,7 +1063,7 @@ class VRM_OT_move_up_vrm1_expression_texture_transform_bind(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -1106,7 +1106,7 @@ class VRM_OT_move_down_vrm1_expression_texture_transform_bind(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -1195,7 +1195,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
 
     if TYPE_CHECKING:
         # This code is auto generated.
-        # `uv run tools/property_typing.py`
+        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
 
 

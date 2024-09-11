@@ -1,5 +1,5 @@
 # This code is auto generated.
-# `uv run tools/property_typing.py`
+# To regenerate, run the `uv run tools/property_typing.py` command.
 
 from collections.abc import Mapping, Sequence
 from typing import Optional, Union
@@ -7,6 +7,8 @@ from typing import Optional, Union
 import bpy
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def vrma_import_prerequisite(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -25,6 +27,8 @@ def vrma_import_prerequisite(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def vrm_license_warning(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -59,6 +63,8 @@ def vrm_license_warning(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def vrma_export_prerequisite(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -77,6 +83,8 @@ def vrma_export_prerequisite(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def vrm_export_armature_selection(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -95,6 +103,8 @@ def vrm_export_armature_selection(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def vrm_export_confirmation(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -111,6 +121,8 @@ def vrm_export_confirmation(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def vrm_export_human_bones_assignment(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -123,6 +135,8 @@ def vrm_export_human_bones_assignment(
     )
 
 
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def vrm_gltf2_addon_disabled_warning(
     execution_context: str = "EXEC_DEFAULT",
 ) -> set[str]:
