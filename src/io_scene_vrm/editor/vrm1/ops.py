@@ -1,10 +1,10 @@
 from collections.abc import Set as AbstractSet
-from typing import TYPE_CHECKING, Any, ClassVar, Protocol
+from typing import TYPE_CHECKING, Protocol, ClassVar
 
 import bmesh
 import bpy
-from bpy.props import BoolProperty, IntProperty, StringProperty
-from bpy.types import Armature, Context, Event, Material, Operator
+from bpy.props import IntProperty, StringProperty, CollectionProperty
+from bpy.types import Armature, Context, Material, Operator, NodeTree
 
 from ...common import ops
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
@@ -13,7 +13,11 @@ from ...common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
 from ...common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..extension import get_armature_extension
 from ..vrm0.property_group import Vrm0HumanoidPropertyGroup
-from .property_group import Vrm1HumanBonesPropertyGroup
+from .property_group import (
+    Vrm1HumanBonesPropertyGroup,
+    Vrm1ExpressionPropertyGroup,
+    Vrm1TextureTransformBindPropertyGroup,
+)
 
 logger = get_logger(__name__)
 
@@ -1229,33 +1233,18 @@ class TextureTransformBind(Protocol):
     offset: tuple[float, float]
 
 
-class VRM_OT_vrm1_texture_transform_preview(Operator):
-    bl_idname = "vrm.texture_transform_preview"
-    bl_label = "Preview Texture Transform"
+class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
+    bl_idname = "vrm.refresh_vrm1_expression_texture_transform_bind_preview"
+    bl_label = "Refresh Texture Transform Bind Preview"
+    bl_description = "Refresh VRM 1.0 Expression Texture Transform Bind Preview"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
     expression_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
+        options={"HIDDEN"}
     )
-    update_only: BoolProperty(  # type: ignore[valid-type]
-        default=False,
-        options={"HIDDEN"},
-    )
-
-    _timer: Any = None
-    _temp_uv_maps: ClassVar[dict[str, str]] = {}
-    _original_uv_positions: ClassVar[dict[str, dict[int, tuple[float, float]]]] = {}
-    _original_active_uv: ClassVar[dict[str, str]] = {}
-    _affected_objects: ClassVar[list[bpy.types.Object]] = []
-    _vertex_material_map: ClassVar[dict[str, dict[int, str]]] = {}
-    _material_binds: ClassVar[
-        dict[str, list[tuple[TextureTransformBind, float, bool]]]
-    ] = {}
-    is_modal_running: ClassVar[bool] = False
-    is_paused: ClassVar[bool] = False
 
     preset_name_mapping: ClassVar[dict[str, str]] = {
         "neutral": "neutral",
@@ -1269,6 +1258,7 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
         "angry": "angry",
         "sorrow": "sad",
         "fun": "surprised",
+        "relaxed": "relaxed",
         "blinkLeft": "blink_left",
         "blinkRight": "blink_right",
         "lookUp": "look_up",
@@ -1277,322 +1267,313 @@ class VRM_OT_vrm1_texture_transform_preview(Operator):
         "lookRight": "look_right",
     }
 
-    def modal(self, context: Context, event: Event) -> set[str]:
-        if (
-            event.type == "ESC"
-            or context.mode == "EDIT_MESH"
-            or VRM_OT_vrm1_texture_transform_preview.is_paused
-            or self.update_only
-        ):
-            self.cancel(context)
-            return {"CANCELLED"}
-
-        if (
-            event.type == "TIMER"
-            and not VRM_OT_vrm1_texture_transform_preview.is_paused
-        ):
-            self._update_precomputed_data(context)
-            self.update_all_uv_maps(context)
-            context.area.tag_redraw()
-
-        return {"PASS_THROUGH"}
-
     def execute(self, context: Context) -> set[str]:
-        if self.update_only:
-            if self.__class__.is_modal_running:
-                self.__class__.is_paused = not self.__class__.is_paused
-                if self.__class__.is_paused:
-                    self.cancel(context)
-                    return {"CANCELLED"}
-                else:
-                    return self.start_modal(context)
-            else:
-                return self.start_modal(context)
-        else:
-            return self.start_modal(context)
+        armature = context.blend_data.objects.get(self.armature_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, bpy.types.Armature):
+            return {"CANCELLED"}
+        expressions = get_armature_extension(armature_data).vrm1.expressions
+        all_expressions = self.get_all_expressions(expressions)
 
-    def start_modal(self, context: Context) -> set[str]:
-        # Ensure we're starting with a clean slate
-        self.cancel(context)
-        self.initialize_affected_objects(context)
-        self.create_all_temp_uv_maps(context)
-        wm = context.window_manager
-        self._timer = wm.event_timer_add(0.1, window=context.window)
-        wm.modal_handler_add(self)
-        self.__class__.is_modal_running = True
-        self.__class__.is_paused = False
-        return {"RUNNING_MODAL"}
-
-    def cancel(self, context: Context) -> None:
-        self.remove_temp_uv_maps()
-        self.reset_active_render_uv()
-        if self._timer is not None:
-            wm = context.window_manager
-            wm.event_timer_remove(self._timer)
-            self._timer = None
-        self.__class__.is_modal_running = False
-        self.__class__.is_paused = False
-        self._original_uv_positions.clear()
-        self._original_active_uv.clear()
-        self._affected_objects.clear()
-        self._vertex_material_map.clear()
-        self._material_binds.clear()
-        self.update_only = False
-
-    def _update_precomputed_data(self, context: Context) -> None:
-        all_binds = []
-        for expression, _, _ in self.get_all_expressions():
+        materials_to_update = set()
+        for expression, expr_type, expr_name in all_expressions:
             for bind in expression.texture_transform_binds:
                 if bind.material:
-                    all_binds.append(
-                        (
-                            bind,
-                            expression.preview,
-                            getattr(expression, "is_binary", False),
-                        )
-                    )
-        self._build_material_binds(all_binds)
-        self.update_affected_objects(context)
+                    materials_to_update.add(bind.material)
 
-    def initialize_affected_objects(self, context: Context) -> None:
-        armature = bpy.data.objects.get(self.armature_name)
-        if not armature or armature.type != "ARMATURE":
-            return
+        for material in materials_to_update:
+            self.setup_uv_offset_nodes(context, armature, material, all_expressions)
+            new_item = expression.materials_to_update.add()
+            new_item.name = material.name
+            material.update_tag()
 
-        affected_materials = set()
-        all_binds = []
-        for expression, _, _ in self.get_all_expressions():
-            for bind in expression.texture_transform_binds:
-                if bind.material:
-                    affected_materials.add(bind.material.name)
-                    all_binds.append(
-                        (
-                            bind,
-                            expression.preview,
-                            getattr(expression, "is_binary", False),
-                        )
-                    )
+        return {"FINISHED"}
 
-        self._affected_objects = [
-            obj
-            for obj in bpy.data.objects
-            if obj.type == "MESH"
-            and obj.name in context.view_layer.objects
-            and obj.visible_get()
-            and isinstance(obj.data, bpy.types.Mesh)
-            and any(
-                mat and mat.name in affected_materials for mat in obj.data.materials
-            )
-        ]
-
-        self._build_vertex_material_map()
-        self._build_material_binds(all_binds)
-
-    def update_affected_objects(self, context: Context) -> None:
-        self._affected_objects = [
-            obj
-            for obj in self._affected_objects
-            if obj.visible_get() and obj.name in context.view_layer.objects
-        ]
-
-    def _build_vertex_material_map(self) -> None:
-        for obj in self._affected_objects:
-            self._vertex_material_map[obj.name] = {}
-            mesh = obj.data
-
-            bm = bmesh.new()
-            bm.from_mesh(mesh)
-            bm.faces.ensure_lookup_table()
-
-            for face in bm.faces:
-                material = obj.material_slots[face.material_index].material
-                if material:
-                    for vert in face.verts:
-                        self._vertex_material_map[obj.name][vert.index] = material.name
-
-            bm.free()
-
-    def _build_material_binds(
-        self, all_binds: list[tuple[TextureTransformBind, float, bool]]
-    ) -> None:
-        self._material_binds.clear()
-        for bind, preview_value, is_binary in all_binds:
-            if bind.material:
-                self._material_binds.setdefault(bind.material.name, []).append(
-                    (bind, preview_value, is_binary)
-                )
-
-    def get_all_expressions(self) -> list[tuple[Any, str, str]]:
-        armature = bpy.data.objects.get(self.armature_name)
-        if not armature or armature.type != "ARMATURE":
-            return []
-
-        extension = getattr(armature.data, "vrm_addon_extension", None)
-        if (
-            extension is not None
-            and extension.vrm1 is not None
-            and extension.vrm1.expressions is not None
-        ):
-            expressions = extension.vrm1.expressions
-        else:
-            expressions = None
-
-        all_expressions: list[tuple[Any, str, str]] = []
+    def get_all_expressions(
+        self, expressions
+    ) -> list[tuple[Vrm1ExpressionPropertyGroup, str, str]]:
+        all_expressions: list[tuple[Vrm1ExpressionPropertyGroup, str, str]] = []
         if expressions is not None:
             for preset_name in self.preset_name_mapping.values():
                 preset_expr = getattr(expressions.preset, preset_name, None)
-                if preset_expr:
+                if preset_expr and any(
+                    bind.material for bind in preset_expr.texture_transform_binds
+                ):
                     all_expressions.append((preset_expr, "preset", preset_name))
-        if expressions is not None:
             for i, custom_expr in enumerate(expressions.custom):
-                all_expressions.append((custom_expr, "custom", str(i)))
-
+                if any(bind.material for bind in custom_expr.texture_transform_binds):
+                    all_expressions.append((custom_expr, "custom", str(i)))
         return all_expressions
 
-    def create_all_temp_uv_maps(self, context: Context) -> None:
-        for obj in self._affected_objects:
-            if obj.visible_get() and obj.name in context.view_layer.objects:
-                self.create_temp_uv_map(obj)
+    def setup_uv_offset_nodes(
+        self,
+        context: Context,
+        armature: bpy.types.Object,
+        material: Material,
+        all_expressions: list[tuple[Vrm1ExpressionPropertyGroup, str, str]],
+    ) -> None:
+        if not material.use_nodes:
+            material.use_nodes = True
 
-    def create_temp_uv_map(self, obj: bpy.types.Object) -> None:
-        mesh = obj.data
-        temp_uv_name = f"temp_vrm_preview_{obj.name}"
-        if temp_uv_name not in mesh.uv_layers:
-            temp_uv = mesh.uv_layers.new(name=temp_uv_name)
-            self._temp_uv_maps[obj.name] = temp_uv_name
-            self._original_active_uv[obj.name] = mesh.uv_layers.active.name
-            mesh.uv_layers.active = temp_uv
-
-            for uv_layer in mesh.uv_layers:
-                uv_layer.active_render = uv_layer == temp_uv
-
-            bm = bmesh.new()
-            bm.from_mesh(mesh)
-            bm.faces.ensure_lookup_table()
-
-            uv_layer = bm.loops.layers.uv.verify()
-            temp_uv_layer = bm.loops.layers.uv[temp_uv_name]
-
-            self._original_uv_positions[obj.name] = {}
-
-            for face in bm.faces:
-                for loop in face.loops:
-                    original_uv = loop[uv_layer].uv
-                    loop_index = loop.index
-                    self._original_uv_positions[obj.name][loop_index] = (
-                        original_uv.x,
-                        original_uv.y,
-                    )
-                    loop[temp_uv_layer].uv = original_uv.copy()
-
-            bm.to_mesh(mesh)
-            bm.free()
-
-    def update_all_uv_maps(self, context: Context) -> None:
-        for obj in self._affected_objects:
-            if obj.visible_get() and obj.name in context.view_layer.objects:
-                self.update_uv_map(obj)
-
-    def update_uv_map(self, obj: bpy.types.Object) -> None:
-        mesh = obj.data
-        temp_uv_name = self._temp_uv_maps.get(obj.name)
-        if not temp_uv_name:
+        node_tree = material.node_tree
+        if not isinstance(node_tree, bpy.types.ShaderNodeTree):
             return
 
-        bm = bmesh.new()
-        bm.from_mesh(mesh)
-        bm.faces.ensure_lookup_table()
+        self.remove_existing_nodes(node_tree)
 
-        temp_uv_layer = bm.loops.layers.uv[temp_uv_name]
+        # Create a new node group
+        group_name = f"VRM_TextureTransform_{material.name}"
+        node_group = bpy.data.node_groups.new(type="ShaderNodeTree", name=group_name)
 
-        for face in bm.faces:
-            for loop in face.loops:
-                vert_index = loop.vert.index
-                material_name = self._vertex_material_map[obj.name].get(vert_index)
-                if not material_name or material_name not in self._material_binds:
-                    continue
+        # Create input and output sockets for the node group
+        node_group.interface.new_socket(
+            name="UV", in_out="INPUT", socket_type="NodeSocketVector"
+        )
+        node_group.interface.new_socket(
+            name="Vector", in_out="OUTPUT", socket_type="NodeSocketVector"
+        )
 
-                original_uv = self._original_uv_positions[obj.name].get(loop.index)
-                if not original_uv:
-                    continue
+        # Add nodes to the group
+        group_input = node_group.nodes.new("NodeGroupInput")
+        group_output = node_group.nodes.new("NodeGroupOutput")
 
-                new_uv = list(original_uv)
+        # Create a single UV Map node
+        uv_map_node = node_group.nodes.new(type="ShaderNodeUVMap")
+        uv_map_node.name = "VRM_TextureTransform_UVMap"
 
-                for bind, preview_value, is_binary in self._material_binds[
-                    material_name
-                ]:
-                    actual_preview_value = (
-                        1.0
-                        if is_binary and preview_value >= 0.5
-                        else (0.0 if is_binary else preview_value)
+        mapping_nodes = self.setup_drivers(
+            context, armature, node_group, material, all_expressions
+        )
+
+        # Create cascading vector math add nodes
+        last_add_node = None
+        for i, mapping_node in enumerate(mapping_nodes):
+            add_node = node_group.nodes.new(type="ShaderNodeVectorMath")
+            add_node.operation = "ADD"
+            node_group.links.new(uv_map_node.outputs[0], mapping_node.inputs["Vector"])
+            node_group.links.new(mapping_node.outputs[0], add_node.inputs[0])
+            if last_add_node:
+                node_group.links.new(last_add_node.outputs[0], add_node.inputs[1])
+            elif i == 0:  # Only for the first add node, connect it to the group input
+                node_group.links.new(group_input.outputs[0], add_node.inputs[1])
+            last_add_node = add_node
+
+        # Connect the last add node to the group output
+        if last_add_node:
+            node_group.links.new(last_add_node.outputs[0], group_output.inputs[0])
+        else:
+            node_group.links.new(group_input.outputs[0], group_output.inputs[0])
+
+        # Add the group node to the material
+        group_node = node_tree.nodes.new(type="ShaderNodeGroup")
+        group_node.node_tree = node_group
+        group_node.name = "VRM_TextureTransform_Group"
+
+        # Connect the group node to texture nodes
+        for node in node_tree.nodes:
+            if node.type == "TEX_IMAGE":
+                self.connect_group_to_image_node(node_tree, group_node, node)
+
+    def setup_drivers(
+        self,
+        context: Context,
+        armature: bpy.types.Object,
+        node_group: bpy.types.ShaderNodeTree,
+        material: Material,
+        all_expressions: list[tuple[Vrm1ExpressionPropertyGroup, str, str]],
+    ) -> list[bpy.types.ShaderNodeMapping]:
+        base_path = "vrm_addon_extension.vrm1.expressions"
+        mapping_nodes = []
+
+        for i, axis in enumerate(["X", "Y"]):
+            expressions_data = []
+            for expression, expr_type, expr_name in all_expressions:
+                for bind_index, bind in enumerate(expression.texture_transform_binds):
+                    if bind.material == material:
+                        offset_var_name = (
+                            f"offset_{axis.lower()}_{expr_type}_{expr_name}"
+                        )
+                        scale_var_name = f"scale_{axis.lower()}_{expr_type}_{expr_name}"
+                        preview_var_name = f"preview_{expr_type}_{expr_name}"
+                        is_binary_var_name = f"is_binary_{expr_type}_{expr_name}"
+
+                        if axis.lower() == "x":
+                            location_term = f"({offset_var_name} * (1.0 if {is_binary_var_name} and {preview_var_name} >= 0.5 else (0.0 if {is_binary_var_name} else {preview_var_name})))"
+                        else:
+                            location_term = f"(-{offset_var_name} * (1.0 if {is_binary_var_name} and {preview_var_name} >= 0.5 else (0.0 if {is_binary_var_name} else {preview_var_name})))"
+                        scale_term = f"(({scale_var_name} - 1) * (1.0 if {is_binary_var_name} and {preview_var_name} >= 0.5 else (0.0 if {is_binary_var_name} else {preview_var_name})))"
+
+                        custom_index = (
+                            f"[{expr_name}]"
+                            if expr_type == "custom"
+                            else f".{expr_name}"
+                        )
+                        variables = [
+                            (
+                                offset_var_name,
+                                f"{base_path}.{expr_type}{custom_index}.texture_transform_binds[{bind_index}].offset[{i}]",
+                            ),
+                            (
+                                scale_var_name,
+                                f"{base_path}.{expr_type}{custom_index}.texture_transform_binds[{bind_index}].scale[{i}]",
+                            ),
+                            (
+                                preview_var_name,
+                                f"{base_path}.{expr_type}{custom_index}.preview",
+                            ),
+                            (
+                                is_binary_var_name,
+                                f"{base_path}.{expr_type}{custom_index}.is_binary",
+                            ),
+                        ]
+                        expressions_data.append((location_term, scale_term, variables))
+
+            current_mapping_node = None
+            location_expression = ""
+            scale_expression = ""
+            current_variables = []
+
+            for location_term, scale_term, variables in expressions_data:
+                temp_location_expr = (
+                    location_expression
+                    + (" + " if location_expression else "")
+                    + location_term
+                )
+                temp_scale_expr = (
+                    scale_expression + (" + " if scale_expression else "") + scale_term
+                )
+                temp_variables = current_variables + variables
+
+                if (
+                    len(temp_location_expr) <= 255
+                    and len(temp_scale_expr) <= 255
+                    and len(temp_variables) <= 32
+                ):
+                    location_expression = temp_location_expr
+                    scale_expression = temp_scale_expr
+                    current_variables = temp_variables
+                else:
+                    if current_mapping_node:
+                        self.finalize_mapping_node(
+                            current_mapping_node,
+                            i,
+                            location_expression,
+                            scale_expression,
+                            current_variables,
+                            armature,
+                        )
+
+                    current_mapping_node = node_group.nodes.new(
+                        type="ShaderNodeMapping"
                     )
-                    new_uv[0] += (
-                        original_uv[0] * (bind.scale[0] - 1) + bind.offset[0]
-                    ) * actual_preview_value
-                    new_uv[1] += (
-                        original_uv[1] * (1 - bind.scale[1]) - bind.offset[1]
-                    ) * actual_preview_value
+                    current_mapping_node.name = (
+                        f"VRM_TextureTransform_Mapping_{len(mapping_nodes)}"
+                    )
+                    current_mapping_node.inputs["Scale"].default_value = (0, 0, 0)
+                    mapping_nodes.append(current_mapping_node)
 
-                if loop[temp_uv_layer].uv != new_uv:
-                    loop[temp_uv_layer].uv = new_uv
+                    location_expression = location_term
+                    scale_expression = scale_term
+                    current_variables = variables
 
-        bm.to_mesh(mesh)
-        bm.free()
-        mesh.update()
+            if current_mapping_node:
+                self.finalize_mapping_node(
+                    current_mapping_node,
+                    i,
+                    location_expression,
+                    scale_expression,
+                    current_variables,
+                    armature,
+                )
 
-    def remove_temp_uv_maps(self) -> None:
-        for obj_name, temp_uv_name in self._temp_uv_maps.items():
-            obj = bpy.data.objects.get(obj_name)
-            if obj and obj.type == "MESH":
-                mesh = obj.data
-                temp_uv = mesh.uv_layers.get(temp_uv_name)
-                if temp_uv:
-                    mesh.uv_layers.remove(temp_uv)
-                    # Restore original UV coordinates
-                    original_uv_name = self._original_active_uv.get(obj_name)
-                    if original_uv_name:
-                        original_uv = mesh.uv_layers.get(original_uv_name)
-                        if original_uv:
-                            original_uv.active = True
-                            original_uv.active_render = True
-                            self.restore_original_uvs(mesh, original_uv, obj_name)
-                else:
-                    print(f"Temp UV not found in mesh for object: {obj_name}")
-            else:
-                print(f"Object not found or not a mesh: {obj_name}")
-        self._temp_uv_maps.clear()
+        return mapping_nodes
 
-    def restore_original_uvs(
-        self, mesh: bpy.types.Mesh, uv_layer: bpy.types.MeshUVLoopLayer, obj_name: str
+    def finalize_mapping_node(
+        self,
+        mapping_node,
+        axis_index,
+        location_expression,
+        scale_expression,
+        variables,
+        armature,
+    ):
+        location_driver = (
+            mapping_node.inputs["Location"]
+            .driver_add("default_value", axis_index)
+            .driver
+        )
+        scale_driver = (
+            mapping_node.inputs["Scale"].driver_add("default_value", axis_index).driver
+        )
+
+        for driver in [location_driver, scale_driver]:
+            driver.type = "SCRIPTED"
+            driver.use_self = True
+            for var_name, data_path in variables:
+                self.create_driver_variable(driver, var_name, armature, data_path)
+
+        location_driver.expression = location_expression
+        scale_driver.expression = scale_expression
+
+    def create_driver_variable(self, driver, var_name, armature, data_path):
+        var = driver.variables.new()
+        var.name = var_name
+        var.type = "SINGLE_PROP"
+        var.targets[0].id_type = "ARMATURE"
+        var.targets[0].id = armature.data
+        var.targets[0].data_path = data_path
+        var.targets[0].use_fallback_value = True
+        return var
+
+    def remove_existing_nodes(self, node_tree: bpy.types.ShaderNodeTree) -> None:
+        nodes_to_remove = [
+            node
+            for node in node_tree.nodes
+            if node.type
+            in [
+                "ShaderNodeUVMap",
+                "ShaderNodeMapping",
+                "ShaderNodeVectorMath",
+                "ShaderNodeGroup",
+            ]
+            and node.name.startswith("VRM_TextureTransform_")
+        ]
+        for node in nodes_to_remove:
+            node_tree.nodes.remove(node)
+
+    def connect_group_to_image_node(
+        self,
+        node_tree: bpy.types.ShaderNodeTree,
+        group_node: bpy.types.ShaderNodeGroup,
+        image_node: bpy.types.ShaderNodeTexImage,
     ) -> None:
-        original_positions = self._original_uv_positions.get(obj_name, {})
-        for loop in mesh.loops:
-            original_uv = original_positions.get(loop.index)
-            if original_uv:
-                uv_layer.data[loop.index].uv = original_uv
+        vector_input = image_node.inputs["Vector"]
+        existing_links = vector_input.links
 
-    def reset_active_render_uv(self) -> None:
-        for obj_name, original_uv_name in self._original_active_uv.items():
-            obj = bpy.data.objects.get(obj_name)
-            if obj and obj.type == "MESH":
-                mesh = obj.data
-                original_uv = mesh.uv_layers.get(original_uv_name)
-                if original_uv:
-                    mesh.uv_layers.active = original_uv
-                    for uv_layer in mesh.uv_layers:
-                        uv_layer.active_render = uv_layer == original_uv
-                else:
-                    print(f"Original UV not found for object: {obj_name}")
-            else:
-                print(f"Object not found or not a mesh: {obj_name}")
+        if not existing_links:
+            node_tree.links.new(group_node.outputs[0], vector_input)
+        else:
+            vector_math_node = node_tree.nodes.new(type="ShaderNodeVectorMath")
+            vector_math_node.name = f"VRM_TextureTransform_VectorMath_{image_node.name}"
+            vector_math_node.operation = "ADD"
 
-    @classmethod
-    def poll(cls, context: Context) -> bool:
-        return context.mode != "EDIT_MESH"
+            node_tree.links.new(group_node.outputs[0], vector_math_node.inputs[0])
+            node_tree.links.new(
+                existing_links[0].from_socket, vector_math_node.inputs[1]
+            )
+            node_tree.links.remove(existing_links[0])
+            node_tree.links.new(vector_math_node.outputs[0], vector_input)
 
-    if TYPE_CHECKING:
-        # This code is auto generated.
-        # `uv run tools/property_typing.py`
-        armature_name: str  # type: ignore[no-redef]
-        expression_name: str  # type: ignore[no-redef]
-        update_only: bool  # type: ignore[no-redef]
+
+def update_materials_handler(scene) -> None:
+    for window in bpy.context.window_manager.windows:
+        screen = window.screen
+        for area in screen.areas:
+            if area.type == "VIEW_3D":
+                for space in area.spaces:
+                    if space.type == "VIEW_3D":
+                        for material in space.shading.materials_to_update:
+                            material.update_tag()
+                        space.shading.materials_to_update.clear()

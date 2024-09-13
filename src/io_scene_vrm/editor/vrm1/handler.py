@@ -37,6 +37,9 @@ def frame_change_post(_unused: object) -> None:
         key_block.value = value
     Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.clear()
 
+    # Update materials
+    Vrm1ExpressionPropertyGroup.update_materials(context)
+
 
 def update_look_at_preview() -> Optional[float]:
     context = bpy.context

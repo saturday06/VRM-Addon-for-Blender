@@ -666,26 +666,16 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
         layout.label(text="Invalid VRM extension", icon="ERROR")
         return
 
-    # Add preview toggle
-    preview_row = bind_column.row()
-
-    # Check if the modal is running and paused
-    is_modal_running = vrm1_ops.VRM_OT_vrm1_texture_transform_preview.is_modal_running
-    is_paused = vrm1_ops.VRM_OT_vrm1_texture_transform_preview.is_paused
-
-    preview_op = preview_row.operator(
-        vrm1_ops.VRM_OT_vrm1_texture_transform_preview.bl_idname,
-        text="Resume Preview"
-        if is_paused
-        else ("Pause Preview" if is_modal_running else "Start Preview"),
-        icon="PLAY" if is_paused else ("PAUSE" if is_modal_running else "PLAY"),
+    # Add refresh preview button
+    refresh_row = bind_column.row()
+    refresh_op = refresh_row.operator(
+        vrm1_ops.VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview.bl_idname,
+        text="Refresh Preview",
+        icon="FILE_REFRESH",
     )
+    refresh_op.armature_name = armature.name
+    refresh_op.expression_name = expression_name
 
-    preview_op.armature_name = armature.name
-    preview_op.expression_name = expression_name
-    preview_op.update_only = is_modal_running
-
-    # Always show the preview button
     bind_column.separator()
 
     bind_column.prop_search(bind, "material", context.blend_data, "materials")

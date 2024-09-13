@@ -1116,6 +1116,12 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
     is_binary: BoolProperty(  # type: ignore[valid-type]
         name="Is Binary"
     )
+    materials_to_update: CollectionProperty(  # type: ignore[valid-type]
+        type=bpy.types.PropertyGroup, options={"HIDDEN"}
+    )
+    original_material_data: CollectionProperty(  # type: ignore[valid-type]
+        type=bpy.types.PropertyGroup
+    )
 
     expression_override_type_enum, __expression_override_types = property_group_enum(
         ("none", "None", "", "NONE", 0),
@@ -1325,6 +1331,19 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         get=get_preview,
         set=set_preview,
     )
+
+    @classmethod
+    def update_materials(cls, context: Context) -> None:
+        for armature in context.blend_data.armatures:
+            ext = get_armature_vrm1_extension(armature)
+            expressions = ext.expressions
+            for expression in expressions.all_name_to_expression_dict().values():
+                for material in expression.materials_to_update:
+                    if material:
+                        material.update_tag()
+                        if material.node_tree:
+                            material.node_tree.update()
+                expression.materials_to_update.clear()
 
     active_morph_target_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
     active_material_color_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
