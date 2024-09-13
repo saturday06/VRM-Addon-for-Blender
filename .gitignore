@@ -67,3 +67,4 @@ __pycache__/
 /docs/website/resources/_gen/
 /node_modules/
 /tests/test_generated_*
+/tests/resources/vrm/*/temp/
