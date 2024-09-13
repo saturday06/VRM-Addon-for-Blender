@@ -56,7 +56,7 @@ indent_size = 1
 [/docs/website/static/CNAME]
 insert_final_newline = false
 
-[*.{blend,gif,ico,jpg,png,pptx,pyc}]
+[*.{blend,gif,glb,ico,jpg,png,pptx,pyc,tga,vrm}]
 charset = unset
 end_of_line = unset
 insert_final_newline = unset
@@ -65,7 +65,7 @@ indent_style = unset
 tab_width = unset
 trim_trailing_whitespace = unset
 
-[{.git,.venv}/**]
+[{.git,.venv,node_modules}/**]
 charset = unset
 end_of_line = unset
 insert_final_newline = unset
