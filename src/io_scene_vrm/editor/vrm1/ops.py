@@ -1205,7 +1205,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
 
 class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
     bl_idname = "vrm.update_vrm1_expression_ui_list_elements"
-    bl_label = "Update VRM 1.0 Expression UI List Elements"
+    bl_label = "Update VRM 1.0 Expression UI list Elements"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context) -> set[str]:
@@ -1213,7 +1213,7 @@ class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
             expressions = get_armature_extension(armature).vrm1.expressions
 
             # Set the number of elements equal to the number of elements wanted to show
-            # in the UIList.
+            # in the UIlist.
             ui_len = len(expressions.expression_ui_list_elements)
             all_len = len(expressions.all_name_to_expression_dict())
             if ui_len == all_len:
@@ -1275,7 +1275,7 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         if not isinstance(armature_data, bpy.types.Armature):
             return {"CANCELLED"}
         expressions = get_armature_extension(armature_data).vrm1.expressions
-        all_expressions = self.get_all_expressions(expressions)
+        all_expressions = self.get_all_expressions()  # Remove the argument here
 
         materials_to_update = set()
         for expression, expr_type, expr_name in all_expressions:
@@ -1291,21 +1291,112 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
 
         return {"FINISHED"}
 
-    def get_all_expressions(
-        self, expressions
-    ) -> list[tuple[Vrm1ExpressionPropertyGroup, str, str]]:
+    def get_all_expressions(self) -> list[tuple[Vrm1ExpressionPropertyGroup, str, str]]:
+        armature = bpy.data.objects.get(self.armature_name)
+        if not armature or armature.type != "ARMATURE":
+            return []
+
+        extension = getattr(armature.data, "vrm_addon_extension", None)
+        if (
+            extension is not None
+            and extension.vrm1 is not None
+            and extension.vrm1.expressions is not None
+        ):
+            expressions = extension.vrm1.expressions
+        else:
+            return []
+
         all_expressions: list[tuple[Vrm1ExpressionPropertyGroup, str, str]] = []
         if expressions is not None:
             for preset_name in self.preset_name_mapping.values():
                 preset_expr = getattr(expressions.preset, preset_name, None)
-                if preset_expr and any(
-                    bind.material for bind in preset_expr.texture_transform_binds
-                ):
+                if preset_expr:
                     all_expressions.append((preset_expr, "preset", preset_name))
             for i, custom_expr in enumerate(expressions.custom):
-                if any(bind.material for bind in custom_expr.texture_transform_binds):
-                    all_expressions.append((custom_expr, "custom", str(i)))
+                all_expressions.append((custom_expr, "custom", str(i)))
+
         return all_expressions
+
+    def _update_precomputed_data(self, context: Context) -> None:
+        all_binds: list[tuple[TextureTransformBind, float, bool]] = []
+        for expression, expr_type, expr_name in self.get_all_expressions():
+            preview_value = self.get_expression_preview_value(
+                expression, expr_type, expr_name
+            )
+            for bind in expression.texture_transform_binds:
+                if bind.material:
+                    all_binds.append(
+                        (
+                            bind,
+                            preview_value,
+                            getattr(expression, "is_binary", False),
+                        )
+                    )
+        self._build_material_binds(all_binds)
+        self.update_affected_objects(context)
+
+    def _build_material_binds(
+        self, all_binds: list[tuple[TextureTransformBind, float, bool]]
+    ) -> None:
+        self._material_binds.clear()
+        for bind, preview_value, is_binary in all_binds:
+            if bind.material:
+                self._material_binds.setdefault(bind.material.name, []).append(
+                    (bind, preview_value, is_binary)
+                )
+
+    def get_expression_preview_value(
+        self, expression: Vrm1ExpressionPropertyGroup, expr_type: str, expr_name: str
+    ) -> float:
+        if expr_type == "preset":
+            if expr_name in ["blink", "blink_left", "blink_right"]:
+                return max(expression.preview, self.get_blink_override_value(expr_name))
+            elif expr_name in ["look_up", "look_down", "look_left", "look_right"]:
+                return max(expression.preview, self.get_look_override_value(expr_name))
+            elif expr_name in ["aa", "ih", "ou", "ee", "oh"]:
+                return max(expression.preview, self.get_mouth_override_value(expr_name))
+        return expression.preview
+
+    def get_blink_override_value(self, expr_name):
+        armature = bpy.data.objects.get(self.armature_name)
+        if not armature or not hasattr(armature.data, "vrm_addon_extension"):
+            return 0.0
+        blink_override = (
+            armature.data.vrm_addon_extension.vrm1.expressions.override.blink
+        )
+        if expr_name == "blink":
+            return blink_override.preset
+        elif expr_name == "blink_left":
+            return blink_override.custom_blink_left
+        elif expr_name == "blink_right":
+            return blink_override.custom_blink_right
+        return 0.0
+
+    def get_look_override_value(self, expr_name):
+        armature = bpy.data.objects.get(self.armature_name)
+        if not armature or not hasattr(armature.data, "vrm_addon_extension"):
+            return 0.0
+        look_override = (
+            armature.data.vrm_addon_extension.vrm1.expressions.override.look_at
+        )
+        if expr_name == "look_up":
+            return look_override.preset
+        elif expr_name == "look_down":
+            return look_override.preset
+        elif expr_name == "look_left":
+            return look_override.custom_look_left
+        elif expr_name == "look_right":
+            return look_override.custom_look_right
+        return 0.0
+
+    def get_mouth_override_value(self, expr_name):
+        armature = bpy.data.objects.get(self.armature_name)
+        if not armature or not hasattr(armature.data, "vrm_addon_extension"):
+            return 0.0
+        mouth_override = (
+            armature.data.vrm_addon_extension.vrm1.expressions.override.mouth
+        )
+        return mouth_override.preset
 
     def setup_uv_offset_nodes(
         self,
@@ -1528,20 +1619,51 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         return var
 
     def remove_existing_nodes(self, node_tree: bpy.types.ShaderNodeTree) -> None:
-        nodes_to_remove = [
-            node
-            for node in node_tree.nodes
-            if node.type
-            in [
-                "ShaderNodeUVMap",
-                "ShaderNodeMapping",
-                "ShaderNodeVectorMath",
-                "ShaderNodeGroup",
-            ]
-            and node.name.startswith("VRM_TextureTransform_")
-        ]
+        nodes_to_remove = []
+        links_to_restore = []
+
+        for node in node_tree.nodes:
+            if node.name.startswith("VRM_TextureTransform_"):
+                nodes_to_remove.append(node)
+                # Store information about links to restore
+                for output in node.outputs:
+                    for link in output.links:
+                        if not link.to_node.name.startswith("VRM_TextureTransform_"):
+                            # Find the first input that doesn't start with VRM_TextureTransform_
+                            for input in node.inputs:
+                                if input.is_linked and not input.links[
+                                    0
+                                ].from_node.name.startswith("VRM_TextureTransform_"):
+                                    links_to_restore.append(
+                                        (input.links[0].from_socket, link.to_socket)
+                                    )
+                                    break
+            elif (
+                node.type == "GROUP"
+                and node.node_tree
+                and node.node_tree.name.startswith("VRM_TextureTransform_")
+            ):
+                nodes_to_remove.append(node)
+                # Handle links for group nodes
+                for output in node.outputs:
+                    for link in output.links:
+                        if not link.to_node.name.startswith("VRM_TextureTransform_"):
+                            links_to_restore.append(  # noqa: PERF401
+                                (node.inputs[0].links[0].from_socket, link.to_socket)
+                            )
+
+        # Remove nodes
         for node in nodes_to_remove:
             node_tree.nodes.remove(node)
+
+        # Restore links
+        for from_socket, to_socket in links_to_restore:
+            node_tree.links.new(from_socket, to_socket)
+
+        # Remove orphaned node groups
+        for group in bpy.data.node_groups:
+            if group.name.startswith("VRM_TextureTransform_") and group.users == 0:
+                bpy.data.node_groups.remove(group)
 
     def connect_group_to_image_node(
         self,

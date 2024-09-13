@@ -1119,9 +1119,6 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
     materials_to_update: CollectionProperty(  # type: ignore[valid-type]
         type=bpy.types.PropertyGroup, options={"HIDDEN"}
     )
-    original_material_data: CollectionProperty(  # type: ignore[valid-type]
-        type=bpy.types.PropertyGroup
-    )
 
     expression_override_type_enum, __expression_override_types = property_group_enum(
         ("none", "None", "", "NONE", 0),
