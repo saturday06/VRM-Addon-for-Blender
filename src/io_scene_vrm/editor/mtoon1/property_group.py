@@ -88,6 +88,10 @@ ALPHA_CLIP_OUTPUT_NODE_NAME: Final = "Mtoon1Material.AlphaClip.Output"
 ALPHA_CLIP_OUTPUT_NODE_SOCKET_NAME: Final = "Value"
 
 
+class UnassignedImage:
+    pass
+
+
 def get_gltf_emissive_node(material: Material) -> Optional[ShaderNodeEmission]:
     node_tree = material.node_tree
     if not node_tree:
@@ -805,7 +809,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
         texture_info.setup_drivers(material)
 
-    def get_connected_node_image(self) -> Optional[Image]:
+    def get_connected_node_image(self) -> Union[Image, UnassignedImage, None]:
         material = self.find_material()
         if not material.use_nodes:
             return None
@@ -845,7 +849,8 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             for link_to_input_socket in links_to_input_socket:
                 from_node = link_to_input_socket.from_node
                 if isinstance(from_node, ShaderNodeTexImage):
-                    return from_node.image
+                    image = from_node.image
+                    return image if image else UnassignedImage()
                 if isinstance(from_node, NodeReroute):
                     traversing_input_socket = from_node.inputs[0]
                     break
@@ -2501,7 +2506,7 @@ class Mtoon0TexturePropertyGroup(PropertyGroup):
     panel_label = ""
     colorspace = "sRGB"
 
-    def get_connected_node_image(self) -> Optional[Image]:
+    def get_connected_node_image(self) -> Union[Image, UnassignedImage, None]:
         return self.source if isinstance(self.source, Image) else None
 
     source: PointerProperty(  # type: ignore[valid-type]
