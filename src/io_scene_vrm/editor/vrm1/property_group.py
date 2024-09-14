@@ -1336,10 +1336,8 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             expressions = ext.expressions
             for expression in expressions.all_name_to_expression_dict().values():
                 for material in expression.materials_to_update:
-                    if material:
-                        material.update_tag()
-                        if material.node_tree:
-                            material.node_tree.update()
+                    if material and material.node_tree:
+                        material.node_tree.update()
                 expression.materials_to_update.clear()
 
     active_morph_target_bind_index: IntProperty(min=0)  # type: ignore[valid-type]

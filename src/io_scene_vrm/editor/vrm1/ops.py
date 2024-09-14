@@ -1275,7 +1275,7 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         if not isinstance(armature_data, bpy.types.Armature):
             return {"CANCELLED"}
         expressions = get_armature_extension(armature_data).vrm1.expressions
-        all_expressions = self.get_all_expressions()  # Remove the argument here
+        all_expressions = self.get_all_expressions()
 
         materials_to_update = set()
         for expression, expr_type, expr_name in all_expressions:
@@ -1317,87 +1317,6 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
 
         return all_expressions
 
-    def _update_precomputed_data(self, context: Context) -> None:
-        all_binds: list[tuple[TextureTransformBind, float, bool]] = []
-        for expression, expr_type, expr_name in self.get_all_expressions():
-            preview_value = self.get_expression_preview_value(
-                expression, expr_type, expr_name
-            )
-            for bind in expression.texture_transform_binds:
-                if bind.material:
-                    all_binds.append(
-                        (
-                            bind,
-                            preview_value,
-                            getattr(expression, "is_binary", False),
-                        )
-                    )
-        self._build_material_binds(all_binds)
-        self.update_affected_objects(context)
-
-    def _build_material_binds(
-        self, all_binds: list[tuple[TextureTransformBind, float, bool]]
-    ) -> None:
-        self._material_binds.clear()
-        for bind, preview_value, is_binary in all_binds:
-            if bind.material:
-                self._material_binds.setdefault(bind.material.name, []).append(
-                    (bind, preview_value, is_binary)
-                )
-
-    def get_expression_preview_value(
-        self, expression: Vrm1ExpressionPropertyGroup, expr_type: str, expr_name: str
-    ) -> float:
-        if expr_type == "preset":
-            if expr_name in ["blink", "blink_left", "blink_right"]:
-                return max(expression.preview, self.get_blink_override_value(expr_name))
-            elif expr_name in ["look_up", "look_down", "look_left", "look_right"]:
-                return max(expression.preview, self.get_look_override_value(expr_name))
-            elif expr_name in ["aa", "ih", "ou", "ee", "oh"]:
-                return max(expression.preview, self.get_mouth_override_value(expr_name))
-        return expression.preview
-
-    def get_blink_override_value(self, expr_name):
-        armature = bpy.data.objects.get(self.armature_name)
-        if not armature or not hasattr(armature.data, "vrm_addon_extension"):
-            return 0.0
-        blink_override = (
-            armature.data.vrm_addon_extension.vrm1.expressions.override.blink
-        )
-        if expr_name == "blink":
-            return blink_override.preset
-        elif expr_name == "blink_left":
-            return blink_override.custom_blink_left
-        elif expr_name == "blink_right":
-            return blink_override.custom_blink_right
-        return 0.0
-
-    def get_look_override_value(self, expr_name):
-        armature = bpy.data.objects.get(self.armature_name)
-        if not armature or not hasattr(armature.data, "vrm_addon_extension"):
-            return 0.0
-        look_override = (
-            armature.data.vrm_addon_extension.vrm1.expressions.override.look_at
-        )
-        if expr_name == "look_up":
-            return look_override.preset
-        elif expr_name == "look_down":
-            return look_override.preset
-        elif expr_name == "look_left":
-            return look_override.custom_look_left
-        elif expr_name == "look_right":
-            return look_override.custom_look_right
-        return 0.0
-
-    def get_mouth_override_value(self, expr_name):
-        armature = bpy.data.objects.get(self.armature_name)
-        if not armature or not hasattr(armature.data, "vrm_addon_extension"):
-            return 0.0
-        mouth_override = (
-            armature.data.vrm_addon_extension.vrm1.expressions.override.mouth
-        )
-        return mouth_override.preset
-
     def setup_uv_offset_nodes(
         self,
         context: Context,
@@ -1434,28 +1353,23 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         uv_map_node = node_group.nodes.new(type="ShaderNodeUVMap")
         uv_map_node.name = "VRM_TextureTransform_UVMap"
 
+        # Setup drivers and create mapping nodes
         mapping_nodes = self.setup_drivers(
             context, armature, node_group, material, all_expressions
         )
 
-        # Create cascading vector math add nodes
-        last_add_node = None
-        for i, mapping_node in enumerate(mapping_nodes):
-            add_node = node_group.nodes.new(type="ShaderNodeVectorMath")
-            add_node.operation = "ADD"
-            node_group.links.new(uv_map_node.outputs[0], mapping_node.inputs["Vector"])
-            node_group.links.new(mapping_node.outputs[0], add_node.inputs[0])
-            if last_add_node:
-                node_group.links.new(last_add_node.outputs[0], add_node.inputs[1])
-            elif i == 0:  # Only for the first add node, connect it to the group input
-                node_group.links.new(group_input.outputs[0], add_node.inputs[1])
-            last_add_node = add_node
+        # Create blocking multiply chains
+        multiply_chains = self.create_blocking_multiply_chains(
+            node_group, all_expressions, armature, mapping_nodes
+        )
 
-        # Connect the last add node to the group output
-        if last_add_node:
-            node_group.links.new(last_add_node.outputs[0], group_output.inputs[0])
-        else:
-            node_group.links.new(group_input.outputs[0], group_output.inputs[0])
+        # Create the final add chain
+        final_add_node = self.create_final_add_chain(
+            node_group, mapping_nodes, multiply_chains, all_expressions
+        )
+
+        # Connect the final add node to the group output
+        node_group.links.new(final_add_node.outputs[0], group_output.inputs[0])
 
         # Add the group node to the material
         group_node = node_tree.nodes.new(type="ShaderNodeGroup")
@@ -1474,149 +1388,251 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         node_group: bpy.types.ShaderNodeTree,
         material: Material,
         all_expressions: list[tuple[Vrm1ExpressionPropertyGroup, str, str]],
-    ) -> list[bpy.types.ShaderNodeMapping]:
-        base_path = "vrm_addon_extension.vrm1.expressions"
-        mapping_nodes = []
+    ) -> dict:
+        mapping_nodes = self.create_mapping_nodes(
+            node_group, all_expressions, armature, material
+        )
+        return mapping_nodes
 
-        for i, axis in enumerate(["X", "Y"]):
-            expressions_data = []
-            for expression, expr_type, expr_name in all_expressions:
-                for bind_index, bind in enumerate(expression.texture_transform_binds):
-                    if bind.material == material:
-                        offset_var_name = (
-                            f"offset_{axis.lower()}_{expr_type}_{expr_name}"
-                        )
-                        scale_var_name = f"scale_{axis.lower()}_{expr_type}_{expr_name}"
-                        preview_var_name = f"preview_{expr_type}_{expr_name}"
-                        is_binary_var_name = f"is_binary_{expr_type}_{expr_name}"
-
-                        if axis.lower() == "x":
-                            location_term = f"({offset_var_name} * (1.0 if {is_binary_var_name} and {preview_var_name} >= 0.5 else (0.0 if {is_binary_var_name} else {preview_var_name})))"
-                        else:
-                            location_term = f"(-{offset_var_name} * (1.0 if {is_binary_var_name} and {preview_var_name} >= 0.5 else (0.0 if {is_binary_var_name} else {preview_var_name})))"
-                        scale_term = f"(({scale_var_name} - 1) * (1.0 if {is_binary_var_name} and {preview_var_name} >= 0.5 else (0.0 if {is_binary_var_name} else {preview_var_name})))"
-
-                        custom_index = (
-                            f"[{expr_name}]"
-                            if expr_type == "custom"
-                            else f".{expr_name}"
-                        )
-                        variables = [
-                            (
-                                offset_var_name,
-                                f"{base_path}.{expr_type}{custom_index}.texture_transform_binds[{bind_index}].offset[{i}]",
-                            ),
-                            (
-                                scale_var_name,
-                                f"{base_path}.{expr_type}{custom_index}.texture_transform_binds[{bind_index}].scale[{i}]",
-                            ),
-                            (
-                                preview_var_name,
-                                f"{base_path}.{expr_type}{custom_index}.preview",
-                            ),
-                            (
-                                is_binary_var_name,
-                                f"{base_path}.{expr_type}{custom_index}.is_binary",
-                            ),
-                        ]
-                        expressions_data.append((location_term, scale_term, variables))
-
-            current_mapping_node = None
-            location_expression = ""
-            scale_expression = ""
-            current_variables = []
-
-            for location_term, scale_term, variables in expressions_data:
-                temp_location_expr = (
-                    location_expression
-                    + (" + " if location_expression else "")
-                    + location_term
-                )
-                temp_scale_expr = (
-                    scale_expression + (" + " if scale_expression else "") + scale_term
-                )
-                temp_variables = current_variables + variables
-
-                if (
-                    len(temp_location_expr) <= 255
-                    and len(temp_scale_expr) <= 255
-                    and len(temp_variables) <= 32
-                ):
-                    location_expression = temp_location_expr
-                    scale_expression = temp_scale_expr
-                    current_variables = temp_variables
-                else:
-                    if current_mapping_node:
-                        self.finalize_mapping_node(
-                            current_mapping_node,
-                            i,
-                            location_expression,
-                            scale_expression,
-                            current_variables,
-                            armature,
-                        )
-
-                    current_mapping_node = node_group.nodes.new(
-                        type="ShaderNodeMapping"
+    def create_mapping_nodes(self, node_group, all_expressions, armature, material):
+        mapping_nodes = {}
+        for expression, expr_type, expr_name in all_expressions:
+            for bind_index, bind in enumerate(expression.texture_transform_binds):
+                if bind.material == material:
+                    mapping_node = node_group.nodes.new(type="ShaderNodeMapping")
+                    mapping_node.name = (
+                        f"VRM_TextureTransform_Mapping_{expr_type}_{expr_name}"
                     )
-                    current_mapping_node.name = (
-                        f"VRM_TextureTransform_Mapping_{len(mapping_nodes)}"
+                    mapping_node.inputs["Scale"].default_value = (1, 1, 1)
+                    mapping_nodes[f"{expr_type}_{expr_name}"] = mapping_node
+
+                    self.setup_mapping_node_drivers(
+                        mapping_node,
+                        expression,
+                        expr_type,
+                        expr_name,
+                        bind_index,
+                        armature,
                     )
-                    current_mapping_node.inputs["Scale"].default_value = (0, 0, 0)
-                    mapping_nodes.append(current_mapping_node)
-
-                    location_expression = location_term
-                    scale_expression = scale_term
-                    current_variables = variables
-
-            if current_mapping_node:
-                self.finalize_mapping_node(
-                    current_mapping_node,
-                    i,
-                    location_expression,
-                    scale_expression,
-                    current_variables,
-                    armature,
-                )
 
         return mapping_nodes
 
-    def finalize_mapping_node(
-        self,
-        mapping_node,
-        axis_index,
-        location_expression,
-        scale_expression,
-        variables,
-        armature,
+    def setup_mapping_node_drivers(
+        self, mapping_node, expression, expr_type, expr_name, bind_index, armature
     ):
-        location_driver = (
-            mapping_node.inputs["Location"]
-            .driver_add("default_value", axis_index)
-            .driver
+        base_path = f"vrm_addon_extension.vrm1.expressions.{expr_type}"
+        custom_index = f"[{expr_name}]" if expr_type == "custom" else f".{expr_name}"
+
+        for i, axis in enumerate(["X", "Y"]):
+            for input_name, property_name in [
+                ("Location", "offset"),
+                ("Scale", "scale"),
+            ]:
+                driver = (
+                    mapping_node.inputs[input_name]
+                    .driver_add("default_value", i)
+                    .driver
+                )
+                driver.type = "SCRIPTED"
+
+                var = driver.variables.new()
+                var.name = f"{property_name}_{axis.lower()}"
+                var.type = "SINGLE_PROP"
+                var.targets[0].id_type = "ARMATURE"
+                var.targets[0].id = armature.data
+                var.targets[
+                    0
+                ].data_path = f"{base_path}{custom_index}.texture_transform_binds[{bind_index}].{property_name}[{i}]"
+
+                preview_var = driver.variables.new()
+                preview_var.name = "preview"
+                preview_var.type = "SINGLE_PROP"
+                preview_var.targets[0].id_type = "ARMATURE"
+                preview_var.targets[0].id = armature.data
+                preview_var.targets[0].data_path = f"{base_path}{custom_index}.preview"
+
+                is_binary_var = driver.variables.new()
+                is_binary_var.name = "is_binary"
+                is_binary_var.type = "SINGLE_PROP"
+                is_binary_var.targets[0].id_type = "ARMATURE"
+                is_binary_var.targets[0].id = armature.data
+                is_binary_var.targets[
+                    0
+                ].data_path = f"{base_path}{custom_index}.is_binary"
+
+                if input_name == "Location":
+                    if axis == "X":  # Offset UV as expected
+                        driver.expression = f"{property_name}_{axis.lower()} * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview))"
+                    else:  # Offset UV in the opposite direction (this is a quirk of VRM standard)
+                        driver.expression = f"-{property_name}_{axis.lower()} * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview))"
+                else:  # Scale
+                    driver.expression = f"1.0 + ({property_name}_{axis.lower()} - 1) * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview))"
+
+    def create_blocking_multiply_chains(
+        self, node_group, all_expressions, armature, mapping_nodes
+    ):
+        multiply_chains = {}
+        blockable_types = ["blink", "look", "mouth"]
+
+        for blockable_type in blockable_types:
+            chain = self.create_blocking_multiply_chain(
+                node_group, blockable_type, all_expressions, armature, mapping_nodes
+            )
+            multiply_chains[blockable_type] = chain
+
+        return multiply_chains
+
+    def create_blocking_multiply_chain(
+        self, node_group, blockable_type, all_expressions, armature, mapping_nodes
+    ):
+        blockable_expressions = self.get_blockable_expressions(blockable_type)
+
+        # Add blockable expressions together
+        blockable_add_node = self.add_blockable_expressions(
+            node_group, blockable_expressions, mapping_nodes
         )
-        scale_driver = (
-            mapping_node.inputs["Scale"].driver_add("default_value", axis_index).driver
+
+        # Create blocking value nodes
+        value_nodes = self.create_blocking_value_nodes(
+            node_group, blockable_type, all_expressions, armature
         )
 
-        for driver in [location_driver, scale_driver]:
-            driver.type = "SCRIPTED"
-            driver.use_self = True
-            for var_name, data_path in variables:
-                self.create_driver_variable(driver, var_name, armature, data_path)
+        # Create and link multiply nodes
+        last_multiply = None
+        for i, value_node in enumerate(value_nodes):
+            multiply_node = node_group.nodes.new(type="ShaderNodeVectorMath")
+            multiply_node.operation = "MULTIPLY"
+            multiply_node.name = (
+                f"VRM_TextureTransform_BlockingMultiply_{blockable_type}_{i}"
+            )
 
-        location_driver.expression = location_expression
-        scale_driver.expression = scale_expression
+            if last_multiply:
+                node_group.links.new(last_multiply.outputs[0], multiply_node.inputs[0])
+            elif blockable_add_node:
+                # Connect the blockable add node to the first multiply node
+                node_group.links.new(
+                    blockable_add_node.outputs[0], multiply_node.inputs[0]
+                )
 
-    def create_driver_variable(self, driver, var_name, armature, data_path):
-        var = driver.variables.new()
-        var.name = var_name
-        var.type = "SINGLE_PROP"
-        var.targets[0].id_type = "ARMATURE"
-        var.targets[0].id = armature.data
-        var.targets[0].data_path = data_path
-        var.targets[0].use_fallback_value = True
-        return var
+            node_group.links.new(value_node.outputs[0], multiply_node.inputs[1])
+            last_multiply = multiply_node
+
+        return (
+            last_multiply or blockable_add_node
+        )  # Return blockable_add_node if no multiply nodes were created
+
+    def add_blockable_expressions(
+        self, node_group, blockable_expressions, mapping_nodes
+    ):
+        add_node = None
+        for i, expr_name in enumerate(blockable_expressions):
+            mapping_node = mapping_nodes.get(f"preset_{expr_name}")
+            if mapping_node:
+                if add_node is None:
+                    add_node = node_group.nodes.new(type="ShaderNodeVectorMath")
+                    add_node.operation = "ADD"
+                    add_node.name = f"VRM_TextureTransform_BlockableAdd_{expr_name}"
+                    node_group.links.new(mapping_node.outputs[0], add_node.inputs[0])
+                else:
+                    new_add_node = node_group.nodes.new(type="ShaderNodeVectorMath")
+                    new_add_node.operation = "ADD"
+                    new_add_node.name = f"VRM_TextureTransform_BlockableAdd_{expr_name}"
+                    node_group.links.new(add_node.outputs[0], new_add_node.inputs[0])
+                    node_group.links.new(
+                        mapping_node.outputs[0], new_add_node.inputs[1]
+                    )
+                    add_node = new_add_node
+
+        return add_node
+
+    def create_blocking_value_nodes(
+        self, node_group, blockable_type, all_expressions, armature
+    ):
+        value_nodes = []
+        for expr, expr_type, expr_name in all_expressions:
+            if (
+                expr_type == "preset"
+                and expr_name not in self.get_blockable_expressions(blockable_type)
+            ):
+                override_path = f"vrm_addon_extension.vrm1.expressions.preset.{expr_name}.override_{blockable_type}"
+                include_expression = (
+                    self.get_property_value(armature, override_path) != "none"
+                )
+
+                if include_expression:
+                    value_node = node_group.nodes.new(type="ShaderNodeValue")
+                    value_node.name = f"VRM_TextureTransform_BlockingValue_{blockable_type}_{expr_name}"
+                    value_nodes.append(value_node)
+
+                    driver = value_node.outputs[0].driver_add("default_value").driver
+                    driver.type = "SCRIPTED"
+                    preview_var = driver.variables.new()
+                    preview_var.name = "preview"
+                    preview_var.type = "SINGLE_PROP"
+                    preview_var.targets[0].id_type = "ARMATURE"
+                    preview_var.targets[0].id = armature.data
+                    preview_var.targets[
+                        0
+                    ].data_path = f"vrm_addon_extension.vrm1.expressions.preset.{expr_name}.preview"
+                    driver.expression = "0 if preview >= 0.5 else 1"
+
+        return value_nodes
+
+    def create_add_node(self, node_group, input_node, previous_add_node):
+        add_node = node_group.nodes.new(type="ShaderNodeVectorMath")
+        add_node.operation = "ADD"
+        add_node.name = f"VRM_TextureTransform_Add_{input_node.name}"
+
+        node_group.links.new(input_node.outputs[0], add_node.inputs[0])
+        if previous_add_node:
+            node_group.links.new(previous_add_node.outputs[0], add_node.inputs[1])
+
+        return add_node
+
+    def create_final_add_chain(
+        self, node_group, mapping_nodes, multiply_chains, all_expressions
+    ):
+        add_nodes = []
+        last_add = None
+
+        # Add non-blockable mapping nodes
+        for expr, expr_type, expr_name in all_expressions:
+            if not self.is_blockable_expression(expr_name):
+                mapping_node = mapping_nodes.get(f"{expr_type}_{expr_name}")
+                if mapping_node:
+                    add_node = self.create_add_node(node_group, mapping_node, last_add)
+                    last_add = add_node
+                    add_nodes.append(add_node)
+
+        # Add results from multiply chains
+        for blockable_type, last_multiply in multiply_chains.items():
+            if last_multiply:
+                add_node = self.create_add_node(node_group, last_multiply, last_add)
+                last_add = add_node
+                add_nodes.append(add_node)
+
+        return last_add
+
+    def is_blockable_expression(self, expr_name):
+        blockable_types = ["blink", "look", "mouth"]
+        return any(
+            expr_name in self.get_blockable_expressions(bt) for bt in blockable_types
+        )
+
+    def get_property_value(self, armature, data_path):
+        try:
+            return eval(f"armature.data.{data_path}")
+        except:  # noqa: E722
+            return None
+
+    def get_blockable_expressions(self, blockable_type):
+        if blockable_type == "blink":
+            return ["blink", "blink_left", "blink_right"]
+        elif blockable_type == "look":
+            return ["look_up", "look_down", "look_left", "look_right"]
+        elif blockable_type == "mouth":
+            return ["aa", "ih", "ee", "oh", "ou"]
+        return []
 
     def remove_existing_nodes(self, node_tree: bpy.types.ShaderNodeTree) -> None:
         nodes_to_remove = []
@@ -1687,15 +1703,3 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
             )
             node_tree.links.remove(existing_links[0])
             node_tree.links.new(vector_math_node.outputs[0], vector_input)
-
-
-def update_materials_handler(scene) -> None:
-    for window in bpy.context.window_manager.windows:
-        screen = window.screen
-        for area in screen.areas:
-            if area.type == "VIEW_3D":
-                for space in area.spaces:
-                    if space.type == "VIEW_3D":
-                        for material in space.shading.materials_to_update:
-                            material.update_tag()
-                        space.shading.materials_to_update.clear()
