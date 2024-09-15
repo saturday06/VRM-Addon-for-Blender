@@ -56,6 +56,34 @@ indent_size = 1
 [/docs/website/static/CNAME]
 insert_final_newline = false
 
+[/tests/resources/unity/**.asmdef]
+insert_final_newline = unset
+
+[/tests/resources/unity/**.{asset,meta,unity}]
+indent_size = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+
+[/tests/resources/unity/*/*.sln]
+indent_style = tab
+end_of_line = crlf
+
+[/tests/resources/unity/*/*.csproj]
+end_of_line = crlf
+indent_size = 2
+
+[/tests/resources/unity/*/ProjectSettings/**/*.json]
+indent_size = 4
+
+[/tests/resources/unity/*/{Library,Logs,Temp,UserSettings,obj,.idea,.vscode,.vs}/**]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+indent_size = unset
+indent_style = unset
+tab_width = unset
+trim_trailing_whitespace = unset
+
 [*.{blend,gif,glb,ico,jpg,png,pptx,pyc,tga,vrm}]
 charset = unset
 end_of_line = unset

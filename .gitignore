@@ -47,7 +47,7 @@
 !/tools/*.js
 !/tools/*.sh
 !/tools/*.wsb
-!/tests/resources
+!/tests/resources/**
 !/typings/pyproject.toml
 !/uv.lock
 
@@ -68,3 +68,16 @@ __pycache__/
 /node_modules/
 /tests/test_generated_*
 /tests/resources/vrm/*/temp/
+/tests/resources/unity/*/Assets/StreamingAssets/Temp/
+/tests/resources/unity/*/Library/
+/tests/resources/unity/*/Logs/
+/tests/resources/unity/*/Temp/
+/tests/resources/unity/*/UserSettings/
+/tests/resources/unity/*/obj/
+/tests/resources/unity/*/.idea/
+/tests/resources/unity/*/.vscode/
+/tests/resources/unity/*/.vs/
+/tests/resources/unity/*/*.csproj
+/tests/resources/unity/*/*.sln
+
+!/tests/resources/unity/*/Assets/StreamingAssets/Temp/.gitkeep
