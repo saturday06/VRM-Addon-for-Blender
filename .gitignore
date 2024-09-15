@@ -68,7 +68,7 @@ __pycache__/
 /node_modules/
 /tests/test_generated_*
 /tests/resources/vrm/*/temp/
-/tests/resources/unity/*/Assets/StreamingAssets/Temp/
+/tests/resources/unity/*/Assets/StreamingAssets/External/**
 /tests/resources/unity/*/Library/
 /tests/resources/unity/*/Logs/
 /tests/resources/unity/*/Temp/
@@ -80,4 +80,4 @@ __pycache__/
 /tests/resources/unity/*/*.csproj
 /tests/resources/unity/*/*.sln
 
-!/tests/resources/unity/*/Assets/StreamingAssets/Temp/.gitkeep
+!/tests/resources/unity/VrmaInspector/Assets/StreamingAssets/External/.gitkeep

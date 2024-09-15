@@ -44,6 +44,9 @@ trim_trailing_whitespace = false
 [*.sh]
 indent_size = 2
 
+[*.txt]
+indent_size = unset
+
 [*.wsb]
 indent_size = 2
 
