@@ -574,22 +574,11 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
         select_in_node = node_socket_target.create_node_selector(material)
         in_socket_name = node_socket_target.get_in_socket_name()
-        if any(
-            1
-            for link in material.node_tree.links
-            if isinstance(link.from_node, out_node_type)
-            and link.from_node.name == out_node_name
-            and link.from_socket
-            and link.from_socket.name == out_node_socket_name
-            and select_in_node(link.to_node)
-            and link.to_socket
-            and link.to_socket.name == in_socket_name
-        ):
-            return
 
-        disconnecting_link = next(
+        # 既につながっている場合は何もしない
+        connection_check_node = next(
             (
-                link
+                link.from_node
                 for link in material.node_tree.links
                 if select_in_node(link.to_node)
                 and link.to_socket
@@ -597,9 +586,54 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             ),
             None,
         )
-        if disconnecting_link:
-            material.node_tree.links.remove(disconnecting_link)
+        while connection_check_node:
+            if (
+                isinstance(connection_check_node, out_node_type)
+                and connection_check_node.name == out_node_name
+            ):
+                return
+            if isinstance(connection_check_node, NodeReroute):
+                connection_check_inputs = connection_check_node.inputs
+                if len(connection_check_inputs) == 0:
+                    break
+                connection_check_links = connection_check_inputs[0].links
+                if len(connection_check_links) == 0:
+                    break
+                connection_check_link = connection_check_links[0]
+                connection_check_node = connection_check_link.from_node
+                continue
+            break
 
+        # 関係ないノードとつながっている場合はリンクを切断
+        cls.unlink_nodes(material, node_socket_target)
+
+        # 出力ノードとソケットを探す
+        out_node = material.node_tree.nodes.get(out_node_name)
+        if not isinstance(out_node, out_node_type):
+            logger.error("No output node: %s", out_node_name)
+            return
+        out_socket = out_node.outputs.get(out_node_socket_name)
+        if not out_socket:
+            logger.error("No output node socket: %s", out_node_socket_name)
+            return
+        traversing_sockets = [out_socket]
+        while traversing_sockets:
+            traversing_socket = traversing_sockets.pop()
+            for connection_check_link in traversing_socket.links:
+                connection_check_node = connection_check_link.to_node
+                if not isinstance(connection_check_node, NodeReroute):
+                    continue
+                if connection_check_node.label != in_socket_name:
+                    traversing_sockets.extend(connection_check_node.outputs)
+                    continue
+                traversing_outputs = connection_check_node.outputs
+                if len(traversing_outputs) == 0:
+                    continue
+                out_socket = traversing_outputs[0]
+                out_node = connection_check_node
+                break
+
+        # 入力ノードとソケットを探す
         in_node = next(
             (n for n in material.node_tree.nodes if select_in_node(n)),
             None,
@@ -613,25 +647,12 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             logger.error("No input socket: %s", in_socket_name)
             return
 
-        out_node = material.node_tree.nodes.get(out_node_name)
-        if not isinstance(out_node, out_node_type):
-            logger.error("No output node: %s", out_node_name)
-            return
-
-        out_socket = out_node.outputs.get(out_node_socket_name)
-        if not out_socket:
-            logger.error("No output node socket: %s", out_node_socket_name)
-            return
-
         material.node_tree.links.new(in_socket, out_socket)
 
     @classmethod
     def unlink_nodes(
         cls,
         material: Material,
-        out_node_name: str,
-        out_node_type: type[Node],
-        out_node_socket_name: str,
         node_socket_target: NodeSocketTarget,
     ) -> None:
         while True:
@@ -645,11 +666,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
                 (
                     link
                     for link in material.node_tree.links
-                    if isinstance(link.from_node, out_node_type)
-                    and link.from_node.name == out_node_name
-                    and link.from_socket
-                    and link.from_socket.name == out_node_socket_name
-                    and select_in_node(link.to_node)
+                    if select_in_node(link.to_node)
                     and link.to_socket
                     and link.to_socket.name == in_socket_name
                 ),
@@ -682,9 +699,6 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         else:
             cls.unlink_nodes(
                 material,
-                out_node_name,
-                out_node_type,
-                out_node_socket_name,
                 node_socket_target,
             )
 
@@ -3202,9 +3216,6 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         if alpha_mode_value != mtoon1.ALPHA_MODE_MASK.value:
             TextureTraceablePropertyGroup.unlink_nodes(
                 material,
-                tex_image_node_name,
-                ShaderNodeTexImage,
-                TEX_IMAGE_ALPHA_OUTPUT_KEY,
                 StaticNodeSocketTarget(
                     in_node_name=ALPHA_CLIP_INPUT_NODE_NAME,
                     in_node_type=ShaderNodeMath,
@@ -3213,9 +3224,6 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             )
             TextureTraceablePropertyGroup.unlink_nodes(
                 material,
-                ALPHA_CLIP_OUTPUT_NODE_NAME,
-                ShaderNodeMath,
-                ALPHA_CLIP_OUTPUT_NODE_SOCKET_NAME,
                 PrincipledBsdfNodeSocketTarget(
                     in_socket_name=PRINCIPLED_BSDF_ALPHA_INPUT_KEY
                 ),
@@ -3226,9 +3234,6 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         ):
             TextureTraceablePropertyGroup.unlink_nodes(
                 material,
-                tex_image_node_name,
-                ShaderNodeTexImage,
-                TEX_IMAGE_ALPHA_OUTPUT_KEY,
                 PrincipledBsdfNodeSocketTarget(
                     in_socket_name=PRINCIPLED_BSDF_ALPHA_INPUT_KEY
                 ),
