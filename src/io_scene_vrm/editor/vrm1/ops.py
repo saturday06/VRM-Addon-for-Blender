@@ -1471,12 +1471,23 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
                     if axis == "X":  # Offset UV as expected
                         driver.expression = f"{property_name}_{axis.lower()} * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview)) - 1"
                     else:  # Offset UV in the opposite direction (this is a quirk of VRM standard)
-                        driver.expression = f"-{property_name}_{axis.lower()} * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview)) - 1"
+                        driver.expression = f"(-{property_name}_{axis.lower()} + (1 - scale_y)) * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview)) - 1"
                 else:  # Scale
                     if axis == "X":
                         driver.expression = f"({property_name}_{axis.lower()} - 1) * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview))"
                     else:
-                        driver.expression = f"-({property_name}_{axis.lower()} - 1) * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview))"
+                        driver.expression = f"-(2 - {property_name}_{axis.lower()} - 1) * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview))"
+
+                # Add scale_y variable for Y offset calculation
+                if input_name == "Location" and axis == "Y":
+                    scale_y_var = driver.variables.new()
+                    scale_y_var.name = "scale_y"
+                    scale_y_var.type = "SINGLE_PROP"
+                    scale_y_var.targets[0].id_type = "ARMATURE"
+                    scale_y_var.targets[0].id = armature.data
+                    scale_y_var.targets[
+                        0
+                    ].data_path = f"{base_path}{custom_index}.texture_transform_binds[{bind_index}].scale[1]"
 
     def create_blocking_multiply_chains(
         self, node_group, all_expressions, armature, mapping_nodes
