@@ -1358,6 +1358,10 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
             context, armature, node_group, material, all_expressions
         )
 
+        # Link the UV Map node to all mapping nodes
+        for mapping_node in mapping_nodes.values():
+            node_group.links.new(uv_map_node.outputs[0], mapping_node.inputs[0])
+
         # Create blocking multiply chains
         multiply_chains = self.create_blocking_multiply_chains(
             node_group, all_expressions, armature, mapping_nodes
@@ -1423,6 +1427,9 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         base_path = f"vrm_addon_extension.vrm1.expressions.{expr_type}"
         custom_index = f"[{expr_name}]" if expr_type == "custom" else f".{expr_name}"
 
+        # Set all scale values to 0.0
+        mapping_node.inputs["Scale"].default_value = (0.0, 0.0, 0.0)
+
         for i, axis in enumerate(["X", "Y"]):
             for input_name, property_name in [
                 ("Location", "offset"),
@@ -1462,11 +1469,14 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
 
                 if input_name == "Location":
                     if axis == "X":  # Offset UV as expected
-                        driver.expression = f"{property_name}_{axis.lower()} * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview))"
+                        driver.expression = f"{property_name}_{axis.lower()} * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview)) - 1"
                     else:  # Offset UV in the opposite direction (this is a quirk of VRM standard)
-                        driver.expression = f"-{property_name}_{axis.lower()} * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview))"
+                        driver.expression = f"-{property_name}_{axis.lower()} * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview)) - 1"
                 else:  # Scale
-                    driver.expression = f"1.0 + ({property_name}_{axis.lower()} - 1) * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview))"
+                    if axis == "X":
+                        driver.expression = f"({property_name}_{axis.lower()} - 1) * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview))"
+                    else:
+                        driver.expression = f"-({property_name}_{axis.lower()} - 1) * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview))"
 
     def create_blocking_multiply_chains(
         self, node_group, all_expressions, armature, mapping_nodes
