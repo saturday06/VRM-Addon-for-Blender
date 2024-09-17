@@ -576,6 +576,7 @@ def draw_vrm1_expressions_morph_target_bind_layout(
     blend_data = context.blend_data
 
     bind_column = layout.column()
+
     bind_column.prop(
         bind.node,
         "bpy_object",
@@ -628,12 +629,62 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
     layout: UILayout,
     bind: Vrm1TextureTransformBindPropertyGroup,
 ) -> None:
-    blend_data = context.blend_data
-
     bind_column = layout.column()
-    bind_column.prop_search(bind, "material", blend_data, "materials")
-    bind_column.prop(bind, "scale")
-    bind_column.prop(bind, "offset")
+
+    # Find the armature object
+    armature = search.current_armature(context)
+    if not armature:
+        layout.label(text="No VRM Armature found in the scene", icon="ERROR")
+        return
+    armature_data = armature.data
+    if not isinstance(armature_data, Armature):
+        layout.label(text="Invalid armature data", icon="ERROR")
+        return
+
+    try:
+        extension = get_armature_extension(armature_data)
+        vrm1 = extension.vrm1
+        expressions = vrm1.expressions
+
+        all_expressions = list(expressions.all_name_to_expression_dict().values())
+        if (
+            0
+            <= expressions.active_expression_ui_list_element_index
+            < len(all_expressions)
+        ):
+            active_expression = all_expressions[
+                expressions.active_expression_ui_list_element_index
+            ]
+            expression_name = (
+                active_expression.name
+                if hasattr(active_expression, "name")
+                else active_expression.custom_name
+            )
+        else:
+            expression_name = ""
+    except TypeError:
+        layout.label(text="Invalid VRM extension", icon="ERROR")
+        return
+
+    # Add refresh preview button
+    refresh_row = bind_column.row()
+    refresh_op = refresh_row.operator(
+        vrm1_ops.VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview.bl_idname,
+        text="Refresh Preview",
+        icon="FILE_REFRESH",
+    )
+    refresh_op.armature_name = armature.name
+    refresh_op.expression_name = expression_name
+
+    bind_column.separator()
+
+    bind_column.prop_search(bind, "material", context.blend_data, "materials")
+    # Only show scale, and offset properties if there's a valid bind
+    if bind and bind.material:
+        bind_column.prop(bind, "scale")
+        bind_column.prop(bind, "offset")
+    else:
+        bind_column.label(text="No texture transform bind for this expression")
 
 
 def draw_vrm1_expressions_layout(

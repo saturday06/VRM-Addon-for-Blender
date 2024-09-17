@@ -378,6 +378,7 @@ classes: list[
     vrm1_ops.VRM_OT_move_down_vrm1_first_person_mesh_annotation,
     vrm1_ops.VRM_OT_assign_vrm1_humanoid_human_bones_automatically,
     vrm1_ops.VRM_OT_update_vrm1_expression_ui_list_elements,
+    vrm1_ops.VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview,
     spring_bone1_ops.VRM_OT_add_spring_bone1_collider,
     spring_bone1_ops.VRM_OT_remove_spring_bone1_collider,
     spring_bone1_ops.VRM_OT_move_up_spring_bone1_collider,
