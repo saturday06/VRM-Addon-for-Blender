@@ -122,6 +122,8 @@ class AbstractBaseVrmImporter(ABC):
                     else:
                         self.assign_packed_image_filepaths()
 
+                self.save_t_pose_action()
+                progress.update(0.97)
                 self.setup_object_selection_and_activation()
                 progress.update(0.98)
         finally:
@@ -1229,6 +1231,30 @@ class AbstractBaseVrmImporter(ABC):
                 for space in area.spaces:
                     if space.type == "VIEW_3D" and isinstance(space, SpaceView3D):
                         space.shading.type = "MATERIAL"
+
+    def save_t_pose_action(self) -> None:
+        if self.armature is None:
+            return
+
+        t_pose_action = self.context.blend_data.actions.new(name="T-Pose")
+        t_pose_action.use_fake_user = True
+        if not self.armature.animation_data:
+            self.armature.animation_data_create()
+        if not self.armature.animation_data:
+            message = "armature.animation_data is None"
+            raise ValueError(message)
+        self.armature.animation_data.action = t_pose_action
+
+        for bone in self.armature.pose.bones:
+            for data_path in ["location", "rotation_quaternion", "scale"]:
+                bone.keyframe_insert(data_path=data_path, frame=1)
+
+        ext = get_armature_extension(self.armature_data)
+        ext.vrm0.humanoid.pose = ext.vrm0.humanoid.POSE_CUSTOM_POSE.identifier
+        ext.vrm1.humanoid.pose = ext.vrm1.humanoid.POSE_CUSTOM_POSE.identifier
+        ext.vrm0.humanoid.pose_library = t_pose_action
+        ext.vrm1.humanoid.pose_library = t_pose_action
+        self.armature.animation_data.action = None
 
     def setup_object_selection_and_activation(self) -> None:
         if self.imported_object_names is not None:
