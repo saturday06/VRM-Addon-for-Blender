@@ -14,6 +14,7 @@ from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
 from ..search import active_object_is_vrm1_armature
 from . import ops as vrm1_ops
 from .property_group import (
+    Vrm1CustomExpressionPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
     Vrm1FirstPersonPropertyGroup,
     Vrm1HumanBonePropertyGroup,
@@ -655,11 +656,10 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
             active_expression = all_expressions[
                 expressions.active_expression_ui_list_element_index
             ]
-            expression_name = (
-                active_expression.name
-                if hasattr(active_expression, "name")
-                else active_expression.custom_name
-            )
+            if isinstance(active_expression, Vrm1CustomExpressionPropertyGroup):
+                expression_name = active_expression.custom_name
+            else:
+                expression_name = active_expression.name
         else:
             expression_name = ""
     except TypeError:
@@ -668,8 +668,9 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
 
     # Add refresh preview button
     refresh_row = bind_column.row()
-    refresh_op = refresh_row.operator(
-        vrm1_ops.VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview.bl_idname,
+    refresh_op = layout_operator(
+        refresh_row,
+        vrm1_ops.VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview,
         text="Refresh Preview",
         icon="FILE_REFRESH",
     )

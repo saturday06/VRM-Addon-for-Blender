@@ -39,6 +39,7 @@ from ...common.vrm1.human_bone import (
 )
 from ..property_group import (
     BonePropertyGroup,
+    MaterialPropertyGroup,
     MeshObjectPropertyGroup,
     StringPropertyGroup,
     property_group_enum,
@@ -1117,7 +1118,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         name="Is Binary"
     )
     materials_to_update: CollectionProperty(  # type: ignore[valid-type]
-        type=bpy.types.PropertyGroup, options={"HIDDEN"}
+        type=MaterialPropertyGroup, options={"HIDDEN"}
     )
 
     expression_override_type_enum, __expression_override_types = property_group_enum(
@@ -1335,9 +1336,14 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             ext = get_armature_vrm1_extension(armature)
             expressions = ext.expressions
             for expression in expressions.all_name_to_expression_dict().values():
-                for material in expression.materials_to_update:
-                    if material and material.node_tree:
-                        material.node_tree.update()
+                for material_property_group in expression.materials_to_update:
+                    material = material_property_group.material
+                    if not material:
+                        continue
+                    node_tree = material.node_tree
+                    if not node_tree:
+                        continue
+                    node_tree.update()
                 expression.materials_to_update.clear()
 
     active_morph_target_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
@@ -1357,6 +1363,9 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             Vrm1TextureTransformBindPropertyGroup
         ]
         is_binary: bool  # type: ignore[no-redef]
+        materials_to_update: CollectionPropertyProtocol[  # type: ignore[no-redef]
+            MaterialPropertyGroup
+        ]
         override_blink: str  # type: ignore[no-redef]
         override_look_at: str  # type: ignore[no-redef]
         override_mouth: str  # type: ignore[no-redef]

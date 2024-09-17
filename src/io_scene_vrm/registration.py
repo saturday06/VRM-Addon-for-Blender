@@ -148,6 +148,7 @@ classes: list[
     property_group.FloatPropertyGroup,
     property_group.BonePropertyGroup,
     property_group.MeshObjectPropertyGroup,
+    property_group.MaterialPropertyGroup,
     vrm0_property_group.Vrm0MaterialValueBindPropertyGroup,
     vrm0_property_group.Vrm0BlendShapeBindPropertyGroup,
     vrm0_property_group.Vrm0BlendShapeGroupPropertyGroup,

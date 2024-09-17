@@ -729,6 +729,22 @@ def add_spring_bone1_collider(
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
+def refresh_vrm1_expression_texture_transform_bind_preview(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_name: str = "",
+    expression_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.refresh_vrm1_expression_texture_transform_bind_preview(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_name=armature_name,
+        expression_name=expression_name,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def update_vrm1_expression_ui_list_elements(
     execution_context: str = "EXEC_DEFAULT",
 ) -> set[str]:
@@ -1864,20 +1880,4 @@ def add_vrm0_first_person_mesh_annotation(
     return bpy.ops.vrm.add_vrm0_first_person_mesh_annotation(  # type: ignore[attr-defined, no-any-return]
         execution_context,
         armature_name=armature_name,
-    )
-
-
-def texture_transform_preview(
-    execution_context: str = "EXEC_DEFAULT",
-    /,
-    *,
-    armature_name: str = "",
-    expression_name: str = "",
-    update_only: bool = False,
-) -> set[str]:
-    return bpy.ops.vrm.texture_transform_preview(  # type: ignore[attr-defined, no-any-return]
-        execution_context,
-        armature_name=armature_name,
-        expression_name=expression_name,
-        update_only=update_only,
     )
