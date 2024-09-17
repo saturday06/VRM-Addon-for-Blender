@@ -1337,7 +1337,8 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             for expression in expressions.all_name_to_expression_dict().values():
                 for material in expression.materials_to_update:
                     if material and material.node_tree:
-                        material.node_tree.update()
+                        # material.node_tree.update() # This doesn't exist in API, TODO: find alternative to ensure things update on frame changes
+                        pass
                 expression.materials_to_update.clear()
 
     active_morph_target_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
