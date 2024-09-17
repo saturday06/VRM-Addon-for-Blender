@@ -1469,9 +1469,9 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
 
                 if input_name == "Location":
                     if axis == "X":  # Offset UV as expected
-                        driver.expression = f"{property_name}_{axis.lower()} * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview)) - 1"
+                        driver.expression = f"{property_name}_{axis.lower()} * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview))"
                     else:  # Offset UV in the opposite direction (this is a quirk of VRM standard)
-                        driver.expression = f"(-{property_name}_{axis.lower()} + (1 - scale_y)) * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview)) - 1"
+                        driver.expression = f"(-{property_name}_{axis.lower()} + (0 if scale_y == 1 else (1 - scale_y))) * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview)) - (0 if scale_y == 1 else 1)"
                 else:  # Scale
                     if axis == "X":
                         driver.expression = f"({property_name}_{axis.lower()} - 1) * (1.0 if is_binary and preview >= 0.5 else (0.0 if is_binary else preview))"
