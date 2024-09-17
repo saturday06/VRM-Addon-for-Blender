@@ -52,6 +52,7 @@
 !/uv.lock
 
 *.blend1
+*.temp*.blend
 *~
 
 .DS_Store
