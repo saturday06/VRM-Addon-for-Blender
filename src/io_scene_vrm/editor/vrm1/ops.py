@@ -1304,9 +1304,7 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         for material in materials_to_update:
             self.setup_uv_offset_nodes(context, armature, material, all_expressions)
             new_item = expression.materials_to_update.add()
-            if not new_item:
-                raise TypeError
-            new_item.name = material.name
+            new_item.material = material
             material.update_tag()
 
         return {"FINISHED"}
