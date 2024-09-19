@@ -4,8 +4,9 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 import bpy
-from bpy.types import Context, Mesh
+from bpy.types import Context, Mesh, ShaderNodeGroup, ShaderNodeOutputMaterial
 
+from ...common import ops
 from ...common.logger import get_logger
 from ...common.scene_watcher import RunState, SceneWatcher
 from ..extension import get_material_extension
@@ -178,6 +179,117 @@ class OutlineUpdater(SceneWatcher):
             return RunState.FINISH
 
         VRM_OT_refresh_mtoon1_outline.refresh(context, create_modifier=create_modifier)
+        return RunState.FINISH
+
+    def create_fast_path_performance_test_objects(self, context: Context) -> None:
+        blend_data = context.blend_data
+
+        for i in range(100):
+            blend_data.materials.new(f"Material#{i}")
+
+        for i in range(100):
+            mesh = blend_data.meshes.new(f"Mesh#{i}")
+            blend_data.objects.new(f"Object#{i}", mesh)
+            for k in range(50):
+                material = blend_data.materials[(k * 3) % len(blend_data.materials)]
+                mesh.materials.append(material)
+                if k % 5 == 0:
+                    get_material_extension(material).mtoon1.enabled = True
+
+
+@dataclass
+class MToon1AutoSetup(SceneWatcher):
+    last_material_index: int = 0
+    last_node_index: int = 0
+
+    def reset_run_progress(self) -> None:
+        self.last_material_index: int = 0
+        self.last_node_index: int = 0
+
+    def run(self, context: Context) -> RunState:
+        """MToon自動セットアップノードグループの出現を監視し、発見したら自動でセットアップ.
+
+        この関数は高頻度で呼ばれるので、処理は軽量にし、IOやGC Allocationを
+        最小にするように気を付ける。
+        """
+        # この値が0以下になったら処理を中断
+        search_preempt_countdown = 100
+
+        materials = context.blend_data.materials
+
+        # マテリアルの巡回開始位置を前回中断した状態から復元する。
+        end_material_index = len(materials)
+        start_material_index = self.last_material_index
+        if start_material_index >= end_material_index:
+            self.last_material_index = 0
+            self.last_node_index = 0
+            start_material_index = 0
+
+        # マテリアルを巡回し、MToonを有効化する必要がある場合は有効化する。
+        for material_index in range(start_material_index, end_material_index):
+            self.last_material_index = material_index
+
+            search_preempt_countdown -= 1
+            if search_preempt_countdown <= 0:
+                return RunState.PREEMPT
+
+            material = materials[material_index]
+            if not material.use_nodes:
+                continue
+            node_tree = material.node_tree
+            if node_tree is None:
+                continue
+
+            nodes = node_tree.nodes
+
+            # ノードの巡回開始位置を前回中断した状態から復元する。
+            end_node_index = len(nodes)
+            start_node_index = self.last_node_index
+            if start_node_index >= end_node_index:
+                start_node_index = 0
+
+            # ノードを巡回し、MToonのプレースホルダのノードがShaderNodeOutputMaterialに
+            # 接続されていたらマテリアルをMToonに変換する。
+            for node_index in range(start_node_index, end_node_index):
+                self.last_node_index = node_index
+
+                search_preempt_countdown -= 1
+                if search_preempt_countdown <= 0:
+                    return RunState.PREEMPT
+
+                node = nodes[node_index]
+                if not isinstance(node, ShaderNodeGroup):
+                    continue
+
+                group_node_tree = node.node_tree
+                if group_node_tree is None:
+                    continue
+
+                if not group_node_tree.get("VRM Add-on MToon1 Auto Setup Placeholder"):
+                    continue
+
+                found = False
+                for output in node.outputs:
+                    for link in output.links:
+                        if isinstance(link.to_node, ShaderNodeOutputMaterial):
+                            found = True
+                            break
+                    if found:
+                        break
+                if not found:
+                    continue
+
+                mtoon1 = get_material_extension(material).mtoon1
+                if mtoon1.enabled:
+                    ops.vrm.reset_mtoon1_material_shader_node_group(
+                        material_name=material.name
+                    )
+                else:
+                    mtoon1.enabled = True
+                break
+            self.last_node_index = 0
+        self.last_material_index = 0
+
         return RunState.FINISH
 
     def create_fast_path_performance_test_objects(self, context: Context) -> None:
