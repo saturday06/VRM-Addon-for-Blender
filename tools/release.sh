@@ -18,14 +18,19 @@ if [ -z "$tag_name" ]; then
   exit 1
 fi
 
+head_hash=$(git rev-parse HEAD)
+if [ -z "$head_hash" ]; then
+  exit 1
+fi
+
 version=$(ruby -e "puts ARGV[0].split('_', 3).join('.')" "$tag_name")
 bl_info_version=$(cd src && python3 -c 'import io_scene_vrm; print(str(".".join(map(str, io_scene_vrm.bl_info["version"]))))')
 if [ "$version" != "$bl_info_version" ]; then
   release_postfix=draft
-elif [ "$(git rev-parse origin/main)" != "$(git rev-parse HEAD)" ]; then
-  release_postfix=develop
-else
+elif [ "$(git rev-parse origin/main)" = "$head_hash" ] || [ "$(git rev-parse origin/unplanned-release)" = "$head_hash" ]; then
   release_postfix=release
+else
+  release_postfix=develop
 fi
 
 for postfix in "$release_postfix" "$tag_name"; do
