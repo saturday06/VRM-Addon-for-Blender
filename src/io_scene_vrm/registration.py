@@ -76,6 +76,7 @@ def setup(*, load_post: bool) -> None:
     migration.migrate_all_objects(context, show_progress=True)
     mtoon1_property_group.setup_drivers(context)
     subscription.setup_subscription(load_post=load_post)
+    mtoon1_handler.trigger_watch_auto_setup_mtoon1_shader()
 
 
 @persistent

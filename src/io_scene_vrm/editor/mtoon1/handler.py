@@ -5,8 +5,9 @@ from typing import Optional
 
 import bpy
 from bpy.app.handlers import persistent
-from bpy.types import Mesh
+from bpy.types import Mesh, ShaderNodeGroup, ShaderNodeOutputMaterial
 
+from ...common import ops
 from ...common.logging import get_logger
 from ..extension import get_material_extension
 from . import migration
@@ -84,6 +85,108 @@ def trigger_update_mtoon1_outline() -> None:
     if bpy.app.timers.is_registered(update_mtoon1_outline):
         return
     bpy.app.timers.register(update_mtoon1_outline, first_interval=0.2)
+
+
+@dataclass
+class WatchAutoSetupMtoon1ShaderContinuation:
+    last_material_index: int = 0
+    last_node_index: int = 0
+
+
+watch_auto_setup_mtoon1_shader_continuation = WatchAutoSetupMtoon1ShaderContinuation()
+
+
+def watch_auto_setup_mtoon1_shader() -> Optional[float]:
+    """MToon自動セットアップノードグループの出現を監視し、発見したら自動セットアップを行う.
+
+    この関数は高頻度で呼ばれるので、処理は軽量にし、IOやGC Allocationを最小にするように
+    気を付ける。
+    """
+    context = bpy.context
+    interval_seconds = 0.5
+    # この値が0以下になったら処理を中断して、次のインターバルで再開する。
+    search_tick = 50
+
+    materials = context.blend_data.materials
+
+    # マテリアルの検索開始位置を前回の状態から復元する。
+    end_material_index = len(materials)
+    start_material_index = (
+        watch_auto_setup_mtoon1_shader_continuation.last_material_index
+    )
+    if start_material_index >= end_material_index:
+        start_material_index = 0
+
+    for material_index in range(start_material_index, end_material_index):
+        watch_auto_setup_mtoon1_shader_continuation.last_material_index = material_index
+
+        if search_tick <= 0:
+            return interval_seconds
+        search_tick -= 1
+
+        material = materials[material_index]
+        if not material.use_nodes:
+            continue
+        node_tree = material.node_tree
+        if node_tree is None:
+            continue
+
+        nodes = node_tree.nodes
+
+        # ノードの検索開始位置を前回の状態から復元する。
+        end_node_index = len(nodes)
+        start_node_index = watch_auto_setup_mtoon1_shader_continuation.last_node_index
+        if start_node_index >= end_node_index:
+            start_node_index = 0
+
+        for node_index in range(start_node_index, end_node_index):
+            watch_auto_setup_mtoon1_shader_continuation.last_node_index = node_index
+
+            if search_tick <= 0:
+                return interval_seconds
+            search_tick -= 1
+
+            node = nodes[node_index]
+            if not isinstance(node, ShaderNodeGroup):
+                continue
+
+            group_node_tree = node.node_tree
+            if group_node_tree is None:
+                continue
+
+            if not group_node_tree.get("VRM Add-on MToon1 Auto Setup Placeholder"):
+                continue
+
+            found = False
+            for output in node.outputs:
+                for link in output.links:
+                    search_tick -= 1
+                    if isinstance(link.to_node, ShaderNodeOutputMaterial):
+                        found = True
+                        break
+                if found:
+                    break
+            if not found:
+                continue
+
+            mtoon1 = get_material_extension(material).mtoon1
+            if mtoon1.enabled:
+                ops.vrm.reset_mtoon1_material_shader_node_group(
+                    material_name=material.name
+                )
+            else:
+                mtoon1.enabled = True
+            break
+        watch_auto_setup_mtoon1_shader_continuation.last_node_index = 0
+    watch_auto_setup_mtoon1_shader_continuation.last_material_index = 0
+
+    return interval_seconds
+
+
+def trigger_watch_auto_setup_mtoon1_shader() -> None:
+    if bpy.app.timers.is_registered(watch_auto_setup_mtoon1_shader):
+        return
+    bpy.app.timers.register(watch_auto_setup_mtoon1_shader, first_interval=0.5)
 
 
 @persistent

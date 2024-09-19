@@ -247,19 +247,20 @@ def generate_backup_suffix() -> str:
 
 
 def add_shaders(context: Context) -> None:
-    blend_path = Path(__file__).with_name("mtoon0.blend")
+    blend_path = Path(__file__).with_name("mtoon_auto_setup.blend")
     node_tree_path = str(blend_path) + "/NodeTree"
 
-    for shader_node_group_name in ["matcap_vector", "MToon_unversioned"]:
-        if shader_node_group_name in context.blend_data.node_groups:
-            continue
-        wm_append_without_library(
-            context,
-            blend_path,
-            append_filepath=node_tree_path + "/" + shader_node_group_name,
-            append_filename=shader_node_group_name,
-            append_directory=node_tree_path,
-        )
+    shader_node_group_name = "MToon"
+    if shader_node_group_name in context.blend_data.node_groups:
+        return
+
+    wm_append_without_library(
+        context,
+        blend_path,
+        append_filepath=node_tree_path + "/" + shader_node_group_name,
+        append_filename=shader_node_group_name,
+        append_directory=node_tree_path,
+    )
 
 
 def load_mtoon1_node_group(
