@@ -58,8 +58,10 @@ jobs:
 
           git fetch --depth=1 origin main website
           case "$GITHUB_SHA" in
+            "") exit 0;;
             "$(git rev-parse origin/main)");;
-            "$(git rev-parse origin/website)");;
+            "$(git rev-parse origin/website || true)");;
+            "$(git rev-parse origin/unplanned-release || true)");;
             *) exit 0;;
           esac
 
