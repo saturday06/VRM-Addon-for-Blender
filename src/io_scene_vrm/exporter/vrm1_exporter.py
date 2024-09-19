@@ -17,12 +17,14 @@ from bpy.types import (
     Bone,
     Context,
     CopyRotationConstraint,
+    Curve,
     DampedTrackConstraint,
     Image,
     Material,
     Mesh,
     Node,
     Object,
+    VectorFont,
 )
 from mathutils import Matrix, Quaternion, Vector
 
@@ -162,23 +164,23 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             backup_obj_name = "Backup-Object-" + uuid4().hex
             original_obj_name = obj.name
             backup_obj_name_to_original_obj_name[backup_obj_name] = original_obj_name
+
+            export_obj = obj.copy()
             obj.name = backup_obj_name
+            export_obj.name = original_obj_name
 
             backup_data_name = "Backup-Data-" + uuid4().hex
             original_data_name = None
-            obj_data = obj.data
-            if obj_data:
-                original_data_name = obj_data.name
+            original_data = obj.data
+            if original_data:
+                original_data_name = original_data.name
                 backup_data_name_to_original_data_name[backup_data_name] = (
                     original_data_name
                 )
-                obj_data.name = backup_data_name
-
-            export_obj = obj.copy()
-            export_obj.name = original_obj_name
-            export_obj_data = export_obj.data
-            if export_obj_data and original_data_name is not None:
+                export_obj_data = original_data.copy()
+                original_data.name = backup_data_name
                 export_obj_data.name = original_data_name
+                export_obj.data = export_obj_data
 
             active_layer_objects.link(export_obj)
             export_obj.select_set(True)
@@ -200,6 +202,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     original_obj_name
                 )
                 if restored_export_obj:
+                    restored_export_obj_data = restored_export_obj.data
                     restored_export_obj.name = "Export-" + uuid4().hex
                     if restored_export_obj.name in active_layer_objects:
                         active_layer_objects.unlink(restored_export_obj)
@@ -212,6 +215,33 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                             restored_export_obj.name,
                             restored_export_obj.users,
                             original_obj_name,
+                        )
+                    if restored_export_obj_data is None:
+                        pass
+                    elif restored_export_obj_data.users <= 1:
+                        if isinstance(restored_export_obj_data, Mesh):
+                            self.context.blend_data.meshes.remove(
+                                restored_export_obj_data
+                            )
+                        elif isinstance(restored_export_obj_data, Curve):
+                            self.context.blend_data.curves.remove(
+                                restored_export_obj_data
+                            )
+                        elif isinstance(restored_export_obj_data, VectorFont):
+                            self.context.blend_data.fonts.remove(
+                                restored_export_obj_data
+                            )
+                        else:
+                            logger.warning(
+                                'Failed to remove "%s" with %d users. Not implemented.',
+                                restored_export_obj_data.name,
+                                restored_export_obj_data.users,
+                            )
+                    else:
+                        logger.warning(
+                            'Failed to remove "%s" with %d users',
+                            restored_export_obj_data.name,
+                            restored_export_obj_data.users,
                         )
 
                 restored_obj = self.context.blend_data.objects.get(backup_obj_name)
