@@ -56,7 +56,9 @@ jobs:
         run: |
           set -x
 
-          git fetch --depth=1 origin main website
+          git fetch --depth=1 origin main
+          git fetch --depth=1 origin website || true
+          git fetch --depth=1 origin unplanned-release || true
           case "$GITHUB_SHA" in
             "") exit 0;;
             "$(git rev-parse origin/main)");;
