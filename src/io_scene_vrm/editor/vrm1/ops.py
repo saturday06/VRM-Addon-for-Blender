@@ -1675,14 +1675,19 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
                 expr_type == "preset"
                 and expr_name not in self.get_blockable_expressions(blockable_type)
             ):
-                override_path = (
-                    "vrm_addon_extension.vrm1.expressions.preset"
-                    f".{expr_name}.override_{blockable_type}"
+                armature_data = armature.data
+                if not isinstance(armature_data, Armature):
+                    raise TypeError
+                override_blockable_type = getattr(
+                    getattr(
+                        get_armature_extension(armature_data).vrm1.expressions.preset,
+                        expr_name,
+                        None,
+                    ),
+                    "override_{blockable_type}",
+                    None,
                 )
-                include_expression = (
-                    self.get_property_value(armature, override_path) != "none"
-                )
-
+                include_expression = override_blockable_type != "none"
                 if include_expression:
                     value_node = node_group.nodes.new(type="ShaderNodeValue")
                     if not isinstance(value_node, ShaderNodeValue):
