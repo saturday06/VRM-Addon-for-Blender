@@ -98,10 +98,10 @@ class SceneWatcherScheduler:
 
     @staticmethod
     def get_all_scene_watcher_types() -> Sequence[type[SceneWatcher]]:
-        from ..editor.mtoon1.scene_watcher import OutlineUpdater
+        from ..editor.mtoon1.scene_watcher import MToon1AutoSetup, OutlineUpdater
         from ..editor.vrm1.scene_watcher import LookAtPreviewUpdater
 
-        return [OutlineUpdater, LookAtPreviewUpdater]
+        return [OutlineUpdater, LookAtPreviewUpdater, MToon1AutoSetup]
 
     def process(self, context: Context) -> bool:
         """SceneWatcherを一つ実行する.
