@@ -19,7 +19,10 @@ jobs:
         run: |
           set -x
 
-          git fetch --depth=1 origin main website README
+          git fetch --depth=1 origin main
+          git fetch --depth=1 origin README
+          git fetch --depth=1 origin website || true
+          git fetch --depth=1 origin unplanned-release || true
 
           mkdir readme
           cd readme
@@ -44,8 +47,10 @@ jobs:
           git commit -m "docs: update README to $GITHUB_SHA [BOT]"
 
           case "$GITHUB_SHA" in
+            "") exit 0;;
             "$(git rev-parse origin/main)");;
-            "$(git rev-parse origin/website)");;
+            "$(git rev-parse origin/website || true)");;
+            "$(git rev-parse origin/unplanned-release || true)");;
             *) exit 0;;
           esac
 
