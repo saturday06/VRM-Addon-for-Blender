@@ -6,19 +6,14 @@ from contextlib import contextmanager
 from typing import Optional, Union
 
 import bmesh
-import bpy
 from bpy.types import Armature, Context, Mesh, NodesModifier, Object
-from mathutils import Quaternion
 
-from ..common import ops, shader
+from ..common import shader
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.logging import get_logger
-from ..common.workspace import save_workspace
 from ..editor.extension import get_armature_extension, get_material_extension
 from ..editor.search import MESH_CONVERTIBLE_OBJECT_TYPES
-from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
-from ..editor.vrm1.property_group import Vrm1HumanoidPropertyGroup
 from ..external import io_scene_gltf2_support
 
 logger = get_logger(__name__)
@@ -40,132 +35,6 @@ class AbstractBaseVrmExporter(ABC):
     @abstractmethod
     def export_vrm(self) -> Optional[bytes]:
         pass
-
-    @contextmanager
-    def setup_pose(
-        self,
-        armature: Object,
-        armature_data: Armature,
-        humanoid: Union[Vrm0HumanoidPropertyGroup, Vrm1HumanoidPropertyGroup],
-    ) -> Iterator[None]:
-        pose = humanoid.pose
-        action = humanoid.pose_library
-        pose_marker_name = humanoid.pose_marker_name
-
-        if pose != humanoid.POSE_CUSTOM_POSE.identifier:
-            action = None
-            pose_marker_name = ""
-
-        if (
-            pose == humanoid.POSE_CURRENT_POSE.identifier
-            and armature_data.pose_position == "REST"
-        ):
-            yield
-            return
-
-        if pose == humanoid.POSE_REST_POSITION_POSE.identifier or (
-            pose == humanoid.POSE_CUSTOM_POSE.identifier
-            and not (action and action.name in self.context.blend_data.actions)
-        ):
-            saved_pose_position = armature_data.pose_position
-            armature_data.pose_position = "REST"
-            try:
-                yield
-            finally:
-                armature_data.pose_position = saved_pose_position
-            return
-
-        with save_workspace(self.context, armature):
-            bpy.ops.object.select_all(action="DESELECT")
-            bpy.ops.object.mode_set(mode="POSE")
-
-            saved_pose_position = armature_data.pose_position
-            if armature_data.pose_position != "POSE":
-                armature_data.pose_position = "POSE"
-
-            self.context.view_layer.update()
-            saved_current_pose_matrix_basis_dict = {
-                bone.name: bone.matrix_basis.copy() for bone in armature.pose.bones
-            }
-            saved_current_pose_matrix_dict = {
-                bone.name: bone.matrix.copy() for bone in armature.pose.bones
-            }
-
-            ext = get_armature_extension(armature_data)
-            saved_vrm1_look_at_preview = ext.vrm1.look_at.enable_preview
-            if ext.is_vrm1() and ext.vrm1.look_at.enable_preview:
-                # TODO: エクスポート時にここに到達する場合は事前に警告をすると親切
-                ext.vrm1.look_at.enable_preview = False
-                if ext.vrm1.look_at.type == ext.vrm1.look_at.TYPE_BONE.identifier:
-                    human_bones = ext.vrm1.humanoid.human_bones
-
-                    left_eye_bone_name = human_bones.left_eye.node.bone_name
-                    left_eye_bone = armature.pose.bones.get(left_eye_bone_name)
-                    if left_eye_bone:
-                        if left_eye_bone.rotation_mode != "QUATERNION":
-                            left_eye_bone.rotation_mode = "QUATERNION"
-                        left_eye_bone.rotation_quaternion = Quaternion()
-
-                    right_eye_bone_name = human_bones.right_eye.node.bone_name
-                    right_eye_bone = armature.pose.bones.get(right_eye_bone_name)
-                    if right_eye_bone:
-                        if right_eye_bone.rotation_mode != "QUATERNION":
-                            right_eye_bone.rotation_mode = "QUATERNION"
-                        right_eye_bone.rotation_quaternion = Quaternion()
-
-            if pose == humanoid.POSE_AUTO_POSE.identifier:
-                ops.vrm.make_estimated_humanoid_t_pose(armature_name=armature.name)
-            elif pose == humanoid.POSE_CUSTOM_POSE.identifier:
-                if action and action.name in self.context.blend_data.actions:
-                    pose_marker_frame = 0
-                    if pose_marker_name:
-                        for search_pose_marker in action.pose_markers.values():
-                            if search_pose_marker.name == pose_marker_name:
-                                pose_marker_frame = search_pose_marker.frame
-                                break
-                    armature.pose.apply_pose_from_action(
-                        action, evaluation_time=pose_marker_frame
-                    )
-                else:
-                    # TODO: エクスポート時にここに到達する場合は事前に警告をすると親切
-                    ops.vrm.make_estimated_humanoid_t_pose(armature_name=armature.name)
-
-        self.context.view_layer.update()
-
-        try:
-            yield
-        finally:
-            with save_workspace(self.context, armature):
-                bpy.ops.object.select_all(action="DESELECT")
-                bpy.ops.object.mode_set(mode="POSE")
-
-                bones = [bone for bone in armature.pose.bones if not bone.parent]
-                while bones:
-                    bone = bones.pop()
-                    matrix_basis = saved_current_pose_matrix_basis_dict.get(bone.name)
-                    if matrix_basis is not None:
-                        bone.matrix_basis = matrix_basis
-                    bones.extend(bone.children)
-                self.context.view_layer.update()
-
-                bones = [bone for bone in armature.pose.bones if not bone.parent]
-                while bones:
-                    bone = bones.pop()
-                    matrix = saved_current_pose_matrix_dict.get(bone.name)
-                    if matrix is not None:
-                        bone.matrix = matrix
-                    bones.extend(bone.children)
-                self.context.view_layer.update()
-
-                armature_data.pose_position = saved_pose_position
-                bpy.ops.object.mode_set(mode="OBJECT")
-
-                ext = get_armature_extension(armature_data)
-                if (
-                    ext.is_vrm1()
-                    and ext.vrm1.look_at.enable_preview != saved_vrm1_look_at_preview
-                ):
-                    ext.vrm1.look_at.enable_preview = saved_vrm1_look_at_preview
 
     @contextmanager
     def clear_blend_shape_proxy_previews(

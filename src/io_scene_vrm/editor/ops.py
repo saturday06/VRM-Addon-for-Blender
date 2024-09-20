@@ -2,14 +2,11 @@
 # SPDX-FileCopyrightText: 2018 iCyP
 
 import json
-import math
 import re
 import webbrowser
 from collections.abc import Set as AbstractSet
-from dataclasses import dataclass
 from pathlib import Path
-from sys import float_info
-from typing import TYPE_CHECKING, Optional, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Optional, TypeVar, cast
 from urllib.parse import urlparse
 
 import bpy
@@ -20,22 +17,18 @@ from bpy.types import (
     Context,
     Event,
     Mesh,
-    Object,
     Operator,
-    PoseBone,
     UILayout,
 )
 from bpy_extras.io_utils import ExportHelper, ImportHelper
-from mathutils import Quaternion, Vector
 
 from ..common.deep import make_json
-from ..common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
 from ..common.vrm0.human_bone import HumanBoneSpecifications
-from ..common.vrm1.human_bone import HumanBoneName as Vrm1HumanBoneName
 from ..common.workspace import save_workspace
 from . import search
 from .extension import get_armature_extension
 from .make_armature import ICYP_OT_make_armature
+from .t_pose import set_estimated_humanoid_t_pose
 
 
 class VRM_OT_simplify_vroid_bones(Operator):
@@ -498,133 +491,6 @@ def layout_operator(
     return cast(__Operator, operator)
 
 
-@dataclass(frozen=True)
-class ChainSingleChild:
-    direction: Vector
-    vrm0_human_bone_names: tuple[Vrm0HumanBoneName, ...]
-    vrm1_human_bone_names: tuple[Vrm1HumanBoneName, ...]
-
-    def execute(self, context: Context, armature: Object) -> None:
-        armature_data = armature.data
-        if not isinstance(armature_data, Armature):
-            raise TypeError
-
-        ext = get_armature_extension(armature_data)
-        if ext.is_vrm0():
-            humanoid = ext.vrm0.humanoid
-            bones: list[PoseBone] = []
-            for human_bone in humanoid.human_bones:
-                human_bone_name = Vrm0HumanBoneName.from_str(human_bone.bone)
-                if not human_bone_name:
-                    continue
-                if human_bone_name not in self.vrm0_human_bone_names:
-                    continue
-                bone = armature.pose.bones.get(human_bone.node.bone_name)
-                if not bone:
-                    continue
-                bones.append(bone)
-        else:
-            human_bones = ext.vrm1.humanoid.human_bones
-            human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
-            bones = [
-                bone
-                for bone in [
-                    armature.pose.bones.get(human_bone.node.bone_name)
-                    for human_bone in [
-                        human_bone_name_to_human_bone.get(human_bone_name)
-                        for human_bone_name in self.vrm1_human_bone_names
-                    ]
-                    if human_bone
-                ]
-                if bone
-            ]
-
-        if len(bones) < 2:
-            return
-
-        root_bone = bones[0]
-        tip_bone = bones[-1]
-
-        chained_bones: list[PoseBone] = []
-        searching_bone: Optional[PoseBone] = tip_bone
-        while True:
-            if not searching_bone:
-                return
-            chained_bones.insert(0, searching_bone)
-            if searching_bone == root_bone:
-                break
-            searching_bone = searching_bone.parent
-
-        for bone, child_bone in zip(chained_bones, chained_bones[1:]):
-            VRM_OT_make_estimated_humanoid_t_pose.set_bone_direction_to_align_child_bone(
-                context, armature, self.direction, bone, child_bone
-            )
-
-
-@dataclass(frozen=True)
-class ChainHorizontalMultipleChildren:
-    direction: Vector
-    vrm0_parent_human_bone_name: Vrm0HumanBoneName
-    vrm0_human_bone_names: tuple[Vrm0HumanBoneName, ...]
-    vrm1_parent_human_bone_name: Vrm1HumanBoneName
-    vrm1_human_bone_names: tuple[Vrm1HumanBoneName, ...]
-
-    def execute(self, context: Context, armature: Object) -> None:
-        armature_data = armature.data
-        if not isinstance(armature_data, Armature):
-            raise TypeError
-
-        ext = get_armature_extension(armature_data)
-        if ext.is_vrm0():
-            humanoid = ext.vrm0.humanoid
-            bones: list[PoseBone] = []
-            parent_bone: Optional[PoseBone] = None
-            for human_bone in humanoid.human_bones:
-                human_bone_name = Vrm0HumanBoneName.from_str(human_bone.bone)
-                if not human_bone_name:
-                    continue
-                if human_bone_name == self.vrm0_parent_human_bone_name:
-                    parent_bone = armature.pose.bones.get(human_bone.node.bone_name)
-                elif human_bone_name in self.vrm0_human_bone_names:
-                    bone = armature.pose.bones.get(human_bone.node.bone_name)
-                    if bone:
-                        bones.append(bone)
-        else:
-            human_bones = ext.vrm1.humanoid.human_bones
-            human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
-            bones = [
-                bone
-                for bone in [
-                    armature.pose.bones.get(human_bone.node.bone_name)
-                    for human_bone in [
-                        human_bone_name_to_human_bone.get(human_bone_name)
-                        for human_bone_name in self.vrm1_human_bone_names
-                    ]
-                    if human_bone
-                ]
-                if bone
-            ]
-            parent_human_bone = human_bone_name_to_human_bone.get(
-                self.vrm1_parent_human_bone_name
-            )
-            parent_bone = None
-            if parent_human_bone:
-                parent_bone = armature.pose.bones.get(parent_human_bone.node.bone_name)
-        if not bones:
-            return
-        world_location = Vector((0, 0, 0))
-        for bone in bones:
-            world_location += (armature.matrix_world @ bone.matrix).to_translation()
-        world_location /= len(bones)
-
-        if not parent_bone:
-            return
-
-        VRM_OT_make_estimated_humanoid_t_pose.set_bone_direction_to_align_z_world_location(
-            context, armature, self.direction, parent_bone, world_location
-        )
-
-
 class VRM_OT_make_estimated_humanoid_t_pose(Operator):
     bl_idname = "vrm.make_estimated_humanoid_t_pose"
     bl_label = "Make Estimated T-Pose"
@@ -635,330 +501,12 @@ class VRM_OT_make_estimated_humanoid_t_pose(Operator):
         options={"HIDDEN"},
     )
 
-    @staticmethod
-    def set_bone_direction_to_align_child_bone(
-        context: Context,
-        armature: Object,
-        direction: Vector,
-        bone: PoseBone,
-        child_bone: PoseBone,
-    ) -> None:
-        world_bone_matrix = armature.matrix_world @ bone.matrix
-        world_child_bone_matrix = armature.matrix_world @ child_bone.matrix
-
-        world_bone_length = (
-            world_child_bone_matrix.translation - world_bone_matrix.translation
-        ).length
-
-        world_child_bone_from_translation = world_child_bone_matrix.translation
-        world_child_bone_to_translation = (
-            world_bone_matrix.translation + direction * world_bone_length
-        )
-
-        bone_local_child_bone_from_translation = (
-            armature.matrix_world @ bone.matrix
-        ).inverted_safe() @ world_child_bone_from_translation
-        bone_local_child_bone_to_translation = (
-            armature.matrix_world @ bone.matrix
-        ).inverted_safe() @ world_child_bone_to_translation
-
-        if bone_local_child_bone_from_translation.length_squared < float_info.epsilon:
-            return
-        if bone_local_child_bone_to_translation.length_squared < float_info.epsilon:
-            return
-
-        rotation = bone_local_child_bone_from_translation.rotation_difference(
-            bone_local_child_bone_to_translation
-        )
-
-        if bone.rotation_mode != "QUATERNION":
-            bone.rotation_mode = "QUATERNION"
-        bone.rotation_quaternion = rotation @ bone.rotation_quaternion
-        context.view_layer.update()
-
-    @staticmethod
-    def set_bone_direction_to_align_z_world_location(
-        context: Context,
-        armature: Object,
-        direction: Vector,
-        bone: PoseBone,
-        from_world_location: Vector,
-    ) -> None:
-        world_bone_translation = (armature.matrix_world @ bone.matrix).to_translation()
-        aligned_from_world_location = Vector(
-            (
-                from_world_location.x,
-                world_bone_translation.y,
-                from_world_location.z,
-            )
-        )
-        aligned_to_world_location = world_bone_translation + direction
-
-        bone_local_aligned_from_world_location = (
-            armature.matrix_world @ bone.matrix
-        ).inverted_safe() @ aligned_from_world_location
-        bone_local_aligned_to_world_location = (
-            armature.matrix_world @ bone.matrix
-        ).inverted_safe() @ aligned_to_world_location
-
-        if bone_local_aligned_from_world_location.length_squared < float_info.epsilon:
-            return
-        if bone_local_aligned_to_world_location.length_squared < float_info.epsilon:
-            return
-
-        rotation = bone_local_aligned_from_world_location.rotation_difference(
-            bone_local_aligned_to_world_location
-        )
-
-        if bone.rotation_mode != "QUATERNION":
-            bone.rotation_mode = "QUATERNION"
-        bone.rotation_quaternion = rotation @ bone.rotation_quaternion
-        context.view_layer.update()
-
     def execute(self, context: Context) -> set[str]:
         armature = context.blend_data.objects.get(self.armature_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
-        armature_data = armature.data
-        if not isinstance(armature_data, Armature):
+        if not set_estimated_humanoid_t_pose(context, armature):
             return {"CANCELLED"}
-
-        ext = get_armature_extension(armature_data)
-        if ext.is_vrm0():
-            if not ext.vrm0.humanoid.all_required_bones_are_assigned():
-                return {"CANCELLED"}
-        else:
-            human_bones = ext.vrm1.humanoid.human_bones
-            if not human_bones.all_required_bones_are_assigned():
-                return {"CANCELLED"}
-
-        for bone in armature.pose.bones:
-            bone.rotation_mode = "QUATERNION"
-            bone.rotation_quaternion = Quaternion()
-        context.view_layer.update()
-
-        # https://github.com/vrm-c/vrm-specification/blob/73855bb77d431a3374212551a4fa48e043be3ced/specification/VRMC_vrm-1.0/tpose.md
-        chains: tuple[Union[ChainSingleChild, ChainHorizontalMultipleChildren], ...] = (
-            ChainSingleChild(
-                Vector((-1, 0, 0)),
-                (
-                    Vrm0HumanBoneName.RIGHT_UPPER_ARM,
-                    Vrm0HumanBoneName.RIGHT_LOWER_ARM,
-                    Vrm0HumanBoneName.RIGHT_HAND,
-                ),
-                (
-                    Vrm1HumanBoneName.RIGHT_UPPER_ARM,
-                    Vrm1HumanBoneName.RIGHT_LOWER_ARM,
-                    Vrm1HumanBoneName.RIGHT_HAND,
-                ),
-            ),
-            ChainHorizontalMultipleChildren(
-                Vector((-1, 0, 0)),
-                Vrm0HumanBoneName.RIGHT_HAND,
-                (
-                    Vrm0HumanBoneName.RIGHT_INDEX_PROXIMAL,
-                    Vrm0HumanBoneName.RIGHT_MIDDLE_PROXIMAL,
-                    Vrm0HumanBoneName.RIGHT_RING_PROXIMAL,
-                    Vrm0HumanBoneName.RIGHT_LITTLE_PROXIMAL,
-                ),
-                Vrm1HumanBoneName.RIGHT_HAND,
-                (
-                    Vrm1HumanBoneName.RIGHT_INDEX_PROXIMAL,
-                    Vrm1HumanBoneName.RIGHT_MIDDLE_PROXIMAL,
-                    Vrm1HumanBoneName.RIGHT_RING_PROXIMAL,
-                    Vrm1HumanBoneName.RIGHT_LITTLE_PROXIMAL,
-                ),
-            ),
-            ChainSingleChild(
-                Vector((-math.sqrt(0.5), -math.sqrt(0.5), 0)),
-                (
-                    Vrm0HumanBoneName.RIGHT_THUMB_PROXIMAL,
-                    Vrm0HumanBoneName.RIGHT_THUMB_INTERMEDIATE,
-                    Vrm0HumanBoneName.RIGHT_THUMB_DISTAL,
-                ),
-                (
-                    Vrm1HumanBoneName.RIGHT_THUMB_METACARPAL,
-                    Vrm1HumanBoneName.RIGHT_THUMB_PROXIMAL,
-                    Vrm1HumanBoneName.RIGHT_THUMB_DISTAL,
-                ),
-            ),
-            ChainSingleChild(
-                Vector((-1, 0, 0)),
-                (
-                    Vrm0HumanBoneName.RIGHT_INDEX_PROXIMAL,
-                    Vrm0HumanBoneName.RIGHT_INDEX_INTERMEDIATE,
-                    Vrm0HumanBoneName.RIGHT_INDEX_DISTAL,
-                ),
-                (
-                    Vrm1HumanBoneName.RIGHT_INDEX_PROXIMAL,
-                    Vrm1HumanBoneName.RIGHT_INDEX_INTERMEDIATE,
-                    Vrm1HumanBoneName.RIGHT_INDEX_DISTAL,
-                ),
-            ),
-            ChainSingleChild(
-                Vector((-1, 0, 0)),
-                (
-                    Vrm0HumanBoneName.RIGHT_MIDDLE_PROXIMAL,
-                    Vrm0HumanBoneName.RIGHT_MIDDLE_INTERMEDIATE,
-                    Vrm0HumanBoneName.RIGHT_MIDDLE_DISTAL,
-                ),
-                (
-                    Vrm1HumanBoneName.RIGHT_MIDDLE_PROXIMAL,
-                    Vrm1HumanBoneName.RIGHT_MIDDLE_INTERMEDIATE,
-                    Vrm1HumanBoneName.RIGHT_MIDDLE_DISTAL,
-                ),
-            ),
-            ChainSingleChild(
-                Vector((-1, 0, 0)),
-                (
-                    Vrm0HumanBoneName.RIGHT_RING_PROXIMAL,
-                    Vrm0HumanBoneName.RIGHT_RING_INTERMEDIATE,
-                    Vrm0HumanBoneName.RIGHT_RING_DISTAL,
-                ),
-                (
-                    Vrm1HumanBoneName.RIGHT_RING_PROXIMAL,
-                    Vrm1HumanBoneName.RIGHT_RING_INTERMEDIATE,
-                    Vrm1HumanBoneName.RIGHT_RING_DISTAL,
-                ),
-            ),
-            ChainSingleChild(
-                Vector((-1, 0, 0)),
-                (
-                    Vrm0HumanBoneName.RIGHT_LITTLE_PROXIMAL,
-                    Vrm0HumanBoneName.RIGHT_LITTLE_INTERMEDIATE,
-                    Vrm0HumanBoneName.RIGHT_LITTLE_DISTAL,
-                ),
-                (
-                    Vrm1HumanBoneName.RIGHT_LITTLE_PROXIMAL,
-                    Vrm1HumanBoneName.RIGHT_LITTLE_INTERMEDIATE,
-                    Vrm1HumanBoneName.RIGHT_LITTLE_DISTAL,
-                ),
-            ),
-            ChainSingleChild(
-                Vector((0, 0, -1)),
-                (
-                    Vrm0HumanBoneName.RIGHT_UPPER_LEG,
-                    Vrm0HumanBoneName.RIGHT_LOWER_LEG,
-                    Vrm0HumanBoneName.RIGHT_FOOT,
-                ),
-                (
-                    Vrm1HumanBoneName.RIGHT_UPPER_LEG,
-                    Vrm1HumanBoneName.RIGHT_LOWER_LEG,
-                    Vrm1HumanBoneName.RIGHT_FOOT,
-                ),
-            ),
-            ChainSingleChild(
-                Vector((1, 0, 0)),
-                (
-                    Vrm0HumanBoneName.LEFT_UPPER_ARM,
-                    Vrm0HumanBoneName.LEFT_LOWER_ARM,
-                    Vrm0HumanBoneName.LEFT_HAND,
-                ),
-                (
-                    Vrm1HumanBoneName.LEFT_UPPER_ARM,
-                    Vrm1HumanBoneName.LEFT_LOWER_ARM,
-                    Vrm1HumanBoneName.LEFT_HAND,
-                ),
-            ),
-            ChainHorizontalMultipleChildren(
-                Vector((1, 0, 0)),
-                Vrm0HumanBoneName.LEFT_HAND,
-                (
-                    Vrm0HumanBoneName.LEFT_INDEX_PROXIMAL,
-                    Vrm0HumanBoneName.LEFT_MIDDLE_PROXIMAL,
-                    Vrm0HumanBoneName.LEFT_RING_PROXIMAL,
-                    Vrm0HumanBoneName.LEFT_LITTLE_PROXIMAL,
-                ),
-                Vrm1HumanBoneName.LEFT_HAND,
-                (
-                    Vrm1HumanBoneName.LEFT_INDEX_PROXIMAL,
-                    Vrm1HumanBoneName.LEFT_MIDDLE_PROXIMAL,
-                    Vrm1HumanBoneName.LEFT_RING_PROXIMAL,
-                    Vrm1HumanBoneName.LEFT_LITTLE_PROXIMAL,
-                ),
-            ),
-            ChainSingleChild(
-                Vector((math.sqrt(0.5), -math.sqrt(0.5), 0)),
-                (
-                    Vrm0HumanBoneName.LEFT_THUMB_PROXIMAL,
-                    Vrm0HumanBoneName.LEFT_THUMB_INTERMEDIATE,
-                    Vrm0HumanBoneName.LEFT_THUMB_DISTAL,
-                ),
-                (
-                    Vrm1HumanBoneName.LEFT_THUMB_METACARPAL,
-                    Vrm1HumanBoneName.LEFT_THUMB_PROXIMAL,
-                    Vrm1HumanBoneName.LEFT_THUMB_DISTAL,
-                ),
-            ),
-            ChainSingleChild(
-                Vector((1, 0, 0)),
-                (
-                    Vrm0HumanBoneName.LEFT_INDEX_PROXIMAL,
-                    Vrm0HumanBoneName.LEFT_INDEX_INTERMEDIATE,
-                    Vrm0HumanBoneName.LEFT_INDEX_DISTAL,
-                ),
-                (
-                    Vrm1HumanBoneName.LEFT_INDEX_PROXIMAL,
-                    Vrm1HumanBoneName.LEFT_INDEX_INTERMEDIATE,
-                    Vrm1HumanBoneName.LEFT_INDEX_DISTAL,
-                ),
-            ),
-            ChainSingleChild(
-                Vector((1, 0, 0)),
-                (
-                    Vrm0HumanBoneName.LEFT_MIDDLE_PROXIMAL,
-                    Vrm0HumanBoneName.LEFT_MIDDLE_INTERMEDIATE,
-                    Vrm0HumanBoneName.LEFT_MIDDLE_DISTAL,
-                ),
-                (
-                    Vrm1HumanBoneName.LEFT_MIDDLE_PROXIMAL,
-                    Vrm1HumanBoneName.LEFT_MIDDLE_INTERMEDIATE,
-                    Vrm1HumanBoneName.LEFT_MIDDLE_DISTAL,
-                ),
-            ),
-            ChainSingleChild(
-                Vector((1, 0, 0)),
-                (
-                    Vrm0HumanBoneName.LEFT_RING_PROXIMAL,
-                    Vrm0HumanBoneName.LEFT_RING_INTERMEDIATE,
-                    Vrm0HumanBoneName.LEFT_RING_DISTAL,
-                ),
-                (
-                    Vrm1HumanBoneName.LEFT_RING_PROXIMAL,
-                    Vrm1HumanBoneName.LEFT_RING_INTERMEDIATE,
-                    Vrm1HumanBoneName.LEFT_RING_DISTAL,
-                ),
-            ),
-            ChainSingleChild(
-                Vector((1, 0, 0)),
-                (
-                    Vrm0HumanBoneName.LEFT_LITTLE_PROXIMAL,
-                    Vrm0HumanBoneName.LEFT_LITTLE_INTERMEDIATE,
-                    Vrm0HumanBoneName.LEFT_LITTLE_DISTAL,
-                ),
-                (
-                    Vrm1HumanBoneName.LEFT_LITTLE_PROXIMAL,
-                    Vrm1HumanBoneName.LEFT_LITTLE_INTERMEDIATE,
-                    Vrm1HumanBoneName.LEFT_LITTLE_DISTAL,
-                ),
-            ),
-            ChainSingleChild(
-                Vector((0, 0, -1)),
-                (
-                    Vrm0HumanBoneName.LEFT_UPPER_LEG,
-                    Vrm0HumanBoneName.LEFT_LOWER_LEG,
-                    Vrm0HumanBoneName.LEFT_FOOT,
-                ),
-                (
-                    Vrm1HumanBoneName.LEFT_UPPER_LEG,
-                    Vrm1HumanBoneName.LEFT_LOWER_LEG,
-                    Vrm1HumanBoneName.LEFT_FOOT,
-                ),
-            ),
-        )
-        for chain in chains:
-            chain.execute(context, armature)
-
         return {"FINISHED"}
 
     if TYPE_CHECKING:
