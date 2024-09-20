@@ -63,12 +63,41 @@ def test(blend_path_str: str) -> None:
     if actual_path.exists():
         actual_path.unlink()
 
-    ops.export_scene.vrm(filepath=str(actual_path))
+    actual_second_path = temp_vrm_dir / ("test_blend_export.2nd." + expected_path.name)
+    if actual_second_path.exists():
+        actual_second_path.unlink()
+
+    assert ops.export_scene.vrm(filepath=str(actual_path)) == {"FINISHED"}
+    assert ops.export_scene.vrm(filepath=str(actual_second_path)) == {"FINISHED"}
 
     if not expected_path.exists():
         message = f"No expected result file: {expected_path}"
         raise FileNotFoundError(message)
 
+    vrm_bin_diff(
+        in_path,
+        actual_path,
+        expected_path,
+        "Whether the export result is correct",
+        update_failed_vrm=update_failed_vrm,
+    )
+    vrm_bin_diff(
+        in_path,
+        actual_path,
+        actual_second_path,
+        "The results of multiple exports are the same",
+        update_failed_vrm=False,
+    )
+
+
+def vrm_bin_diff(
+    in_path: Path,
+    actual_path: Path,
+    expected_path: Path,
+    what: str,
+    *,
+    update_failed_vrm: bool,
+) -> None:
     float_tolerance = 0.00015
 
     diffs = vrm_diff(
@@ -84,7 +113,8 @@ def test(blend_path_str: str) -> None:
 
     diffs_str = "\n".join(diffs)
     message = (
-        f"Exceeded the VRM diff threshold:{float_tolerance:19.17f}\n"
+        f"{what}\n"
+        + f"Exceeded the VRM diff threshold:{float_tolerance:19.17f}\n"
         + f"input={in_path}\n"
         + f"left ={actual_path}\n"
         + f"right={expected_path}\n"
