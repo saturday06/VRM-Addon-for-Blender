@@ -44,6 +44,7 @@ from ..editor.mtoon1.property_group import (
     Mtoon1TextureInfoPropertyGroup,
 )
 from ..editor.spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
+from ..editor.t_pose import setup_humanoid_t_pose
 from ..editor.vrm1.property_group import (
     Vrm1ExpressionPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
@@ -2216,12 +2217,11 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         self.setup_mtoon_gltf_fallback_nodes(self.context, is_vrm0=False)
 
-        vrm = get_armature_extension(armature_data).vrm1
         with (
             save_workspace(self.context),
             self.setup_dummy_human_bones(self.context, self.armature, armature_data),
             self.clear_blend_shape_proxy_previews(armature_data),
-            self.setup_pose(self.armature, armature_data, vrm.humanoid),
+            setup_humanoid_t_pose(self.context, self.armature),
             self.overwrite_object_visibility_and_selection(),
         ):
             with (

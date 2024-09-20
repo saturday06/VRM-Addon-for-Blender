@@ -67,6 +67,7 @@ from ..editor.mtoon1.property_group import (
     Mtoon1TextureInfoPropertyGroup,
     Mtoon1TexturePropertyGroup,
 )
+from ..editor.t_pose import setup_humanoid_t_pose
 from ..editor.vrm0.property_group import Vrm0BlendShapeGroupPropertyGroup
 from ..external import io_scene_gltf2_support
 from .abstract_base_vrm_exporter import (
@@ -133,11 +134,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             self.clear_shape_key_values() as mesh_name_and_shape_key_name_to_value,
             self.clear_blend_shape_proxy_previews(self.armature_data),
             self.hide_mtoon1_outline_geometry_nodes(self.context),
-            self.setup_pose(
-                self.armature,
-                self.armature_data,
-                get_armature_extension(self.armature_data).vrm0.humanoid,
-            ),
+            setup_humanoid_t_pose(self.context, self.armature),
         ):
             self.setup_mtoon_gltf_fallback_nodes(self.context, is_vrm0=True)
             progress.update(0.1)
