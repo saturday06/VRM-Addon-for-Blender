@@ -1238,11 +1238,14 @@ class AbstractBaseVrmImporter(ABC):
 
         t_pose_action = self.context.blend_data.actions.new(name="T-Pose")
         t_pose_action.use_fake_user = True
+        animation_data_created = False
         if not self.armature.animation_data:
             self.armature.animation_data_create()
+            animation_data_created = True
         if not self.armature.animation_data:
             message = "armature.animation_data is None"
             raise ValueError(message)
+        original_action = self.armature.animation_data.action
         self.armature.animation_data.action = t_pose_action
 
         for bone in self.armature.pose.bones:
@@ -1254,7 +1257,10 @@ class AbstractBaseVrmImporter(ABC):
         ext.vrm1.humanoid.pose = ext.vrm1.humanoid.POSE_CUSTOM_POSE.identifier
         ext.vrm0.humanoid.pose_library = t_pose_action
         ext.vrm1.humanoid.pose_library = t_pose_action
-        self.armature.animation_data.action = None
+        if animation_data_created:
+            self.armature.animation_data_clear()
+        else:
+            self.armature.animation_data.action = original_action
 
     def setup_object_selection_and_activation(self) -> None:
         if self.imported_object_names is not None:
