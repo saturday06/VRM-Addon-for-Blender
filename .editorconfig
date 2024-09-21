@@ -86,6 +86,7 @@ indent_size = unset
 indent_style = unset
 tab_width = unset
 trim_trailing_whitespace = unset
+generated_code = true
 
 [*.{blend,gif,glb,ico,jpg,png,pptx,pyc,tga,vrm}]
 charset = unset
