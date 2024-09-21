@@ -109,8 +109,8 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
         && rm -fr sse2neon \
     ; fi
 RUN if [ "$(uname -m)" != "x86_64" ]; then \
-        curl --fail --show-error --location --output Python.tar.xz https://www.python.org/ftp/python/3.10.14/Python-3.10.14.tar.xz \
-        && test "$(md5sum Python.tar.xz)" = "05148354ce821ba7369e5b7958435400  Python.tar.xz" \
+        curl --fail --show-error --location --output Python.tar.xz https://www.python.org/ftp/python/3.10.15/Python-3.10.15.tar.xz \
+        && test "$(md5sum Python.tar.xz)" = "8b1faa1b193e4e90c0f17eb2decd89b5  Python.tar.xz" \
         && mkdir -p python \
         && pushd python \
         && tar Jxf ../Python.tar.xz --strip-components=1 \
@@ -144,8 +144,8 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
 # 一般的には `make bpy || make NPROCS=1 bpy` という対応をするが、Parallels Desktop上のUbuntu Arm64 22.04だと
 # GUI全体を巻き込んでクラッシュしたのでNPROCS=1で決め打ちする。
 RUN if [ "$(uname -m)" != "x86_64" ]; then \
-        curl --fail --show-error --location --output blender.tar.xz https://download.blender.org/source/blender-3.6.14.tar.xz \
-        && test "$(md5sum blender.tar.xz)" = "e78b7af0307584551759e742dd70970f  blender.tar.xz" \
+        curl --fail --show-error --location --output blender.tar.xz https://download.blender.org/source/blender-3.6.15.tar.xz \
+        && test "$(md5sum blender.tar.xz)" = "1355336856533437349907ad61d1a610  blender.tar.xz" \
         && mkdir -p blender/blender \
         && pushd blender/blender \
         && tar Jxf ../../blender.tar.xz --strip-components=1 \
@@ -157,7 +157,7 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
         && popd \
         && popd \
         && rm -fr blender \
-        && python3 -c 'import bpy; assert(bpy.app.version == (3, 6, 14))' \
+        && python3 -c 'import bpy; assert(bpy.app.version == (3, 6, 15))' \
     ; fi
 
 RUN useradd --create-home --user-group --shell /bin/bash developer \
