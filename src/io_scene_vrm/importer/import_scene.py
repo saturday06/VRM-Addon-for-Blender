@@ -384,15 +384,33 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
             context, self.armature_object_name
         ):
             return {"CANCELLED"}
+
         filepath = Path(self.filepath)
         if not filepath.is_file():
             return {"CANCELLED"}
-        if not self.armature_object_name:
-            armature = search.current_armature(context)
-        else:
+
+        armature = None
+        if self.armature_object_name:
             armature = context.blend_data.objects.get(self.armature_object_name)
+            if not armature:
+                return {"CANCELLED"}
+
         if not armature:
-            return {"CANCELLED"}
+            armature = search.current_armature(context)
+
+        if not armature:
+            added = ops.icyp.make_basic_armature()
+            if added != {"FINISHED"}:
+                return added
+            armature = search.current_armature(context)
+            if not armature:
+                return {"CANCELLED"}
+            armature_data = armature.data
+            if not isinstance(armature_data, Armature):
+                return {"CANCELLED"}
+            ext = get_armature_extension(armature_data)
+            ext.spec_version = ext.SPEC_VERSION_VRM1
+
         return VrmAnimationImporter.execute(context, filepath, armature)
 
     def invoke(self, context: Context, event: Event) -> set[str]:
@@ -435,12 +453,10 @@ class WM_OT_vrma_import_prerequisite(Operator):
             armature = context.blend_data.objects.get(armature_object_name)
 
         if not armature:
-            error_messages.append(pgettext("Armature not found"))
             return error_messages
 
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
-            error_messages.append(pgettext("Armature not found"))
             return error_messages
 
         ext = get_armature_extension(armature_data)
