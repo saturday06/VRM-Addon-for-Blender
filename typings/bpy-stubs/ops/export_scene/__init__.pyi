@@ -49,6 +49,7 @@ def gltf(
     export_nla_strips_merged_animation_name: str = "Animation",
     export_def_bones: bool = False,
     export_hierarchy_flatten_bones: bool = False,
+    export_armature_object_remove: bool = False,
     export_optimize_animation_size: bool = True,
     export_optimize_animation_keep_anim_armature: bool = True,
     export_optimize_animation_keep_anim_object: bool = False,
