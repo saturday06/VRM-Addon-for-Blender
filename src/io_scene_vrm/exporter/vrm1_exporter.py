@@ -2240,6 +2240,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         export_def_bones=True,
                         export_current_frame=True,
                         use_selection=True,
+                        use_active_scene=True,
                         export_animations=True,
                         export_armature_object_remove=True,
                         export_rest_position_armature=False,
