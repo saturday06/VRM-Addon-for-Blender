@@ -2241,6 +2241,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         export_current_frame=True,
                         use_selection=True,
                         export_animations=True,
+                        export_armature_object_remove=True,
                         export_rest_position_armature=False,
                         export_apply=False,
                         # Models may appear incorrectly in many viewers
@@ -2341,9 +2342,18 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     find_node_world_matrix(node_dicts, node_index, None) or Matrix()
                 )
 
-                # シーンにメインアーマチュアが存在したら置換する
+                # シーンにメインアーマチュアが存在したら削除し、代わりに子ノードを
+                # シーンに配置。これはBlenderで再インポートした際に、Armatureの
+                # オブジェクトがボーン扱いされるのを防ぐため。
+                # ただしメインアーマチュアにトランスフォームが入っている場合、
+                # Blender 4.2.1やUniVRM 0.126.0でうまく処理できないためやらない
+                # TODO: 本当はskin.skeletonなどを使って賢く処理するべき
                 scene_dicts = json_dict.get("scenes")
-                if isinstance(scene_dicts, list):
+                if (
+                    bpy.app.version < (4, 2)
+                    and is_identity_matrix(armature_world_matrix)
+                    and isinstance(scene_dicts, list)
+                ):
                     armature_replaced = False
                     for scene_dict in scene_dicts:
                         if not isinstance(scene_dict, dict):
@@ -2826,3 +2836,15 @@ def force_apply_modifiers_to_object(
             if show_render_and_show_viewport is None:
                 continue
             modifier.show_render, modifier.show_viewport = show_render_and_show_viewport
+
+
+def is_identity_matrix(matrix: Matrix) -> bool:
+    for row_index, row in enumerate(matrix):
+        for column_index, value in enumerate(row):
+            if row_index == column_index:
+                if abs(value - 1) < float_info.epsilon:
+                    continue
+            elif abs(value) < float_info.epsilon:
+                continue
+            return False
+    return True

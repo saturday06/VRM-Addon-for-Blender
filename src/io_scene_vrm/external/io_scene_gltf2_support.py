@@ -155,6 +155,7 @@ class ExportSceneGltfArguments:
     export_current_frame: bool
     use_selection: bool
     export_animations: bool
+    export_armature_object_remove: bool
     export_rest_position_armature: bool
     export_all_influences: bool
     export_lights: bool
@@ -194,6 +195,23 @@ def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
             export_apply=arguments.export_apply,
         )
 
+    if bpy.app.version < (4, 2):
+        return bpy.ops.export_scene.gltf(
+            filepath=arguments.filepath,
+            check_existing=arguments.check_existing,
+            export_format=arguments.export_format,
+            export_extras=arguments.export_extras,
+            export_def_bones=arguments.export_def_bones,
+            export_current_frame=arguments.export_current_frame,
+            use_selection=arguments.use_selection,
+            export_animations=arguments.export_animations,
+            export_rest_position_armature=arguments.export_rest_position_armature,
+            export_try_sparse_sk=arguments.export_try_sparse_sk,
+            export_all_influences=arguments.export_all_influences,
+            export_lights=arguments.export_lights,
+            export_apply=arguments.export_apply,
+        )
+
     return bpy.ops.export_scene.gltf(
         filepath=arguments.filepath,
         check_existing=arguments.check_existing,
@@ -203,6 +221,7 @@ def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
         export_current_frame=arguments.export_current_frame,
         use_selection=arguments.use_selection,
         export_animations=arguments.export_animations,
+        export_armature_object_remove=arguments.export_armature_object_remove,
         export_rest_position_armature=arguments.export_rest_position_armature,
         export_try_sparse_sk=arguments.export_try_sparse_sk,
         export_all_influences=arguments.export_all_influences,
