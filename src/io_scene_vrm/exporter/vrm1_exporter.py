@@ -151,9 +151,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         # https://projects.blender.org/blender/blender/issues/113378
         self.context.view_layer.update()
 
-        active_layer_objects = (
-            self.context.view_layer.active_layer_collection.collection.objects
-        )
+        scene_collection_objects = self.context.scene.collection.objects
         for obj in self.context.view_layer.objects:
             if obj not in self.export_objects:
                 continue
@@ -183,7 +181,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 export_obj_data.name = original_data_name
                 export_obj.data = export_obj_data
 
-            active_layer_objects.link(export_obj)
+            scene_collection_objects.link(export_obj)
             export_obj.select_set(True)
             obj.select_set(False)
 
@@ -191,9 +189,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             yield list(backup_obj_name_to_original_obj_name.values())
         finally:
             # いちおう、取得しなおす
-            active_layer_objects = (
-                self.context.view_layer.active_layer_collection.collection.objects
-            )
+            scene_collection_objects = self.context.scene.collection.objects
 
             for (
                 backup_obj_name,
@@ -205,8 +201,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 if restored_export_obj:
                     restored_export_obj_data = restored_export_obj.data
                     restored_export_obj.name = "Export-" + uuid4().hex
-                    if restored_export_obj.name in active_layer_objects:
-                        active_layer_objects.unlink(restored_export_obj)
+                    if restored_export_obj.name in scene_collection_objects:
+                        scene_collection_objects.unlink(restored_export_obj)
                     if restored_export_obj.users <= 1:
                         self.context.blend_data.objects.remove(restored_export_obj)
                     else:
@@ -2244,7 +2240,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         export_def_bones=True,
                         export_current_frame=True,
                         use_selection=True,
+                        use_active_scene=True,
                         export_animations=True,
+                        export_armature_object_remove=True,
                         export_rest_position_armature=False,
                         export_apply=False,
                         # Models may appear incorrectly in many viewers
@@ -2345,9 +2343,18 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     find_node_world_matrix(node_dicts, node_index, None) or Matrix()
                 )
 
-                # シーンにメインアーマチュアが存在したら置換する
+                # シーンにメインアーマチュアが存在したら削除し、代わりに子ノードを
+                # シーンに配置。これはBlenderで再インポートした際に、Armatureの
+                # オブジェクトがボーン扱いされるのを防ぐため。
+                # ただしメインアーマチュアにトランスフォームが入っている場合、
+                # Blender 4.2.1やUniVRM 0.126.0でうまく処理できないためやらない
+                # TODO: 本当はskin.skeletonなどを使って賢く処理するべき
                 scene_dicts = json_dict.get("scenes")
-                if isinstance(scene_dicts, list):
+                if (
+                    bpy.app.version < (4, 2)
+                    and is_identity_matrix(armature_world_matrix)
+                    and isinstance(scene_dicts, list)
+                ):
                     armature_replaced = False
                     for scene_dict in scene_dicts:
                         if not isinstance(scene_dict, dict):
@@ -2830,3 +2837,15 @@ def force_apply_modifiers_to_object(
             if show_render_and_show_viewport is None:
                 continue
             modifier.show_render, modifier.show_viewport = show_render_and_show_viewport
+
+
+def is_identity_matrix(matrix: Matrix) -> bool:
+    for row_index, row in enumerate(matrix):
+        for column_index, value in enumerate(row):
+            if row_index == column_index:
+                if abs(value - 1) < float_info.epsilon:
+                    continue
+            elif abs(value) < float_info.epsilon:
+                continue
+            return False
+    return True

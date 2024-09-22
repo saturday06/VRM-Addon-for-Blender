@@ -33,7 +33,7 @@ extend-ignore = [
 ]
 
 [tool.ruff.lint.pylint]
-max-args = 75
+max-args = 80
 
 [build-system]
 requires = ["hatchling"]
