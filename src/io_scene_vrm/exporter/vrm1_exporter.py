@@ -151,9 +151,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         # https://projects.blender.org/blender/blender/issues/113378
         self.context.view_layer.update()
 
-        active_layer_objects = (
-            self.context.view_layer.active_layer_collection.collection.objects
-        )
+        scene_collection_objects = self.context.scene.collection.objects
         for obj in self.context.view_layer.objects:
             if obj not in self.export_objects:
                 continue
@@ -183,7 +181,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 export_obj_data.name = original_data_name
                 export_obj.data = export_obj_data
 
-            active_layer_objects.link(export_obj)
+            scene_collection_objects.link(export_obj)
             export_obj.select_set(True)
             obj.select_set(False)
 
@@ -191,9 +189,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             yield list(backup_obj_name_to_original_obj_name.values())
         finally:
             # いちおう、取得しなおす
-            active_layer_objects = (
-                self.context.view_layer.active_layer_collection.collection.objects
-            )
+            scene_collection_objects = self.context.scene.collection.objects
 
             for (
                 backup_obj_name,
@@ -205,8 +201,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 if restored_export_obj:
                     restored_export_obj_data = restored_export_obj.data
                     restored_export_obj.name = "Export-" + uuid4().hex
-                    if restored_export_obj.name in active_layer_objects:
-                        active_layer_objects.unlink(restored_export_obj)
+                    if restored_export_obj.name in scene_collection_objects:
+                        scene_collection_objects.unlink(restored_export_obj)
                     if restored_export_obj.users <= 1:
                         self.context.blend_data.objects.remove(restored_export_obj)
                     else:
