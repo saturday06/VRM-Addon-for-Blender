@@ -21,7 +21,6 @@ dev-dependencies = [
     "codespell >= 2.3.0",
     "dulwich >= 0.22.1",
     "mypy >= 1.11.1",
-    "pyright >= 1.1.377",
     "ruff >= 0.6.1",
     "starry-bpy-typings",
     "tqdm >= 4.66.5",

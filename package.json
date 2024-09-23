@@ -3,6 +3,7 @@
   "private": true,
   "devDependencies": {
     "gltf-validator": "*",
-    "prettier": "*"
+    "prettier": "*",
+    "pyright": "*"
   }
 }
