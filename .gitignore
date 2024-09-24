@@ -80,5 +80,7 @@ __pycache__/
 /tests/resources/unity/*/.vs/
 /tests/resources/unity/*/*.csproj
 /tests/resources/unity/*/*.sln
+/tests/resources/unity/*/.vsconfig
+/tests/resources/unity/*/UpgradeLog.htm
 
 !/tests/resources/unity/VrmaInspector/Assets/StreamingAssets/External/.gitkeep
