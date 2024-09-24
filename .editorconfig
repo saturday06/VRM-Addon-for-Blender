@@ -59,6 +59,10 @@ indent_size = 1
 [/docs/website/static/CNAME]
 insert_final_newline = false
 
+[/tests/resources/unity/**/Directory.Build.props]
+indent_size = 2
+end_of_line = crlf
+
 [/tests/resources/unity/**.asmdef]
 insert_final_newline = unset
 

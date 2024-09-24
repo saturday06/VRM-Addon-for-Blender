@@ -26,6 +26,7 @@ uv.lock text eol=lf
 /tests/resources/unity/**/*.unity text eol=lf
 /tests/resources/unity/**/*.asmdef text eol=lf
 /tests/resources/unity/**/csc.rsp text eol=lf
+/tests/resources/unity/**/Directory.Build.props text eol=crlf
 
 # 昔はGitHubの "Code" -> "Download ZIP" からダウンロードしたファイルをアドオンとして扱う方式を採用していたが、現在は廃止している。
 # しかし、その昔の廃止した方式でダウンロードしてしまい、結果アドオンがうまく動かないという報告が多数あがって来てしまった。
