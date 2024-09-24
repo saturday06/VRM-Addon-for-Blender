@@ -44,6 +44,10 @@ from ..common.preferences import ImportPreferencesProtocol
 from ..common.progress import PartialProgress, create_progress
 from ..common.workspace import save_workspace
 from ..editor.extension import get_armature_extension
+from ..external.io_scene_gltf2_support import (
+    ImportSceneGltfArguments,
+    import_scene_gltf,
+)
 from .gltf2_addon_importer_user_extension import Gltf2AddonImporterUserExtension
 from .vrm_parser import ParseResult, remove_unsafe_path_chars
 
@@ -902,11 +906,14 @@ class AbstractBaseVrmImporter(ABC):
             indexed_vrm_filepath = Path(temp_dir, "indexed.vrm")
             indexed_vrm_filepath.write_bytes(pack_glb(json_dict, body_binary))
             try:
-                bpy.ops.import_scene.gltf(
-                    filepath=str(indexed_vrm_filepath),
-                    import_pack_images=True,
-                    bone_heuristic=bone_heuristic,
-                    guess_original_bind_pose=False,
+                import_scene_gltf(
+                    ImportSceneGltfArguments(
+                        filepath=str(indexed_vrm_filepath),
+                        import_pack_images=True,
+                        bone_heuristic=bone_heuristic,
+                        guess_original_bind_pose=False,
+                        disable_bone_shape=True,
+                    )
                 )
                 full_vrm_import_success = True
             except RuntimeError:
@@ -925,11 +932,14 @@ class AbstractBaseVrmImporter(ABC):
                 indexed_vrm_filepath = Path(temp_dir, "indexed.vrm")
                 indexed_vrm_filepath.write_bytes(pack_glb(json_dict, body_binary))
                 try:
-                    bpy.ops.import_scene.gltf(
-                        filepath=str(indexed_vrm_filepath),
-                        import_pack_images=True,
-                        bone_heuristic=bone_heuristic,
-                        guess_original_bind_pose=False,
+                    import_scene_gltf(
+                        ImportSceneGltfArguments(
+                            filepath=str(indexed_vrm_filepath),
+                            import_pack_images=True,
+                            bone_heuristic=bone_heuristic,
+                            guess_original_bind_pose=False,
+                            disable_bone_shape=True,
+                        )
                     )
                 except RuntimeError:
                     logger.exception(

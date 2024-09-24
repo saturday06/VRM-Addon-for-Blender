@@ -15,4 +15,5 @@ def gltf(
     import_shading: str = "NORMALS",
     bone_heuristic: str = "TEMPERANCE",
     guess_original_bind_pose: bool = True,
+    disable_bone_shape: bool = False,
 ) -> set[str]: ...

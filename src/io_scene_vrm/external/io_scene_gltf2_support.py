@@ -146,6 +146,33 @@ def create_export_settings() -> dict[str, object]:
 
 
 @dataclasses.dataclass
+class ImportSceneGltfArguments:
+    filepath: str
+    import_pack_images: bool
+    bone_heuristic: str
+    guess_original_bind_pose: bool
+    disable_bone_shape: bool
+
+
+def import_scene_gltf(arguments: ImportSceneGltfArguments) -> set[str]:
+    if bpy.app.version < (4, 2):
+        return bpy.ops.import_scene.gltf(
+            filepath=arguments.filepath,
+            import_pack_images=arguments.import_pack_images,
+            bone_heuristic=arguments.bone_heuristic,
+            guess_original_bind_pose=arguments.guess_original_bind_pose,
+        )
+
+    return bpy.ops.import_scene.gltf(
+        filepath=arguments.filepath,
+        import_pack_images=arguments.import_pack_images,
+        bone_heuristic=arguments.bone_heuristic,
+        guess_original_bind_pose=arguments.guess_original_bind_pose,
+        disable_bone_shape=arguments.disable_bone_shape,
+    )
+
+
+@dataclasses.dataclass
 class ExportSceneGltfArguments:
     filepath: str
     check_existing: bool
