@@ -130,7 +130,7 @@ jobs:
           path: tests/resources/vrm/*/temp
 
   lint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Install deb packages
         run: |
