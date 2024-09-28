@@ -1,4 +1,5 @@
 import time
+from dataclasses import dataclass, field
 from typing import Optional
 
 import bpy
@@ -13,7 +14,13 @@ from .ops import VRM_OT_refresh_mtoon1_outline
 logger = get_logger(__name__)
 
 
-previous_object_material_state: list[list[Optional[tuple[str, bool, bool]]]] = []
+@dataclass
+class OutlineUpdateState:
+    object_state: list[tuple[bool, list[Optional[str]]]] = field(default_factory=list)
+    material_state: list[bool] = field(default_factory=list)
+
+
+outline_update_state = OutlineUpdateState()
 
 
 def update_mtoon1_outline() -> Optional[float]:
@@ -23,23 +30,35 @@ def update_mtoon1_outline() -> Optional[float]:
 
     # Optimize appropriately.
     has_auto_smooth = tuple(bpy.app.version) < (4, 1)
-    object_material_state = [
-        [
-            (
-                material_slot.material.name,
-                get_material_extension(
-                    material_slot.material
-                ).mtoon1.get_enabled_in_material(material_slot.material),
-                has_auto_smooth and obj.data.use_auto_smooth,
-            )
-            if material_slot.material
-            else None
-            for material_slot in obj.material_slots
-        ]
+    object_state = [
+        (
+            has_auto_smooth and obj.data.use_auto_smooth,
+            [
+                material_slot.material.name if material_slot.material else None
+                for material_slot in obj.material_slots
+            ],
+        )
         for obj in context.blend_data.objects
         if isinstance(obj.data, Mesh)
     ]
-    not_changed = object_material_state == previous_object_material_state
+    material_state = [
+        get_material_extension(material).mtoon1.get_enabled_in_material(material)
+        for material in [
+            context.blend_data.materials.get(material_name)
+            for material_name in {
+                material_name
+                for _, material_names in object_state
+                for material_name in material_names
+                if material_name is not None
+            }
+        ]
+        if material is not None
+    ]
+
+    not_changed = (
+        outline_update_state.object_state,
+        outline_update_state.material_state,
+    ) == (object_state, material_state)
 
     compare_end_time = time.perf_counter()
 
@@ -50,8 +69,9 @@ def update_mtoon1_outline() -> Optional[float]:
 
     if not_changed:
         return None
-    previous_object_material_state.clear()
-    previous_object_material_state.extend(object_material_state)
+
+    outline_update_state.object_state = object_state
+    outline_update_state.material_state = material_state
 
     VRM_OT_refresh_mtoon1_outline.refresh(bpy.context, create_modifier=False)
     return None
