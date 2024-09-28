@@ -93,7 +93,6 @@ class ExportPreferencesProtocol(Protocol):
     export_invisibles: bool
     export_only_selections: bool
     enable_advanced_preferences: bool
-    export_fb_ngon_encoding: bool
     export_all_influences: bool
     export_lights: bool
 
@@ -105,14 +104,12 @@ def copy_export_preferences(
         destination.export_invisibles,
         destination.export_only_selections,
         destination.enable_advanced_preferences,
-        destination.export_fb_ngon_encoding,
         destination.export_all_influences,
         destination.export_lights,
     ) = (
         source.export_invisibles,
         source.export_only_selections,
         source.enable_advanced_preferences,
-        source.export_fb_ngon_encoding,
         source.export_all_influences,
         destination.export_lights,
     )
@@ -129,7 +126,6 @@ def draw_export_preferences_layout(
     layout.prop(preferences, "enable_advanced_preferences")
     if preferences.enable_advanced_preferences:
         advanced_options_box = layout.box()
-        advanced_options_box.prop(preferences, "export_fb_ngon_encoding")
         advanced_options_box.prop(preferences, "export_all_influences")
         advanced_options_box.prop(preferences, "export_lights")
 
@@ -182,10 +178,6 @@ class VrmAddonPreferences(AddonPreferences):
     enable_advanced_preferences: BoolProperty(  # type: ignore[valid-type]
         name="Enable Advanced Options",
     )
-    export_fb_ngon_encoding: BoolProperty(  # type: ignore[valid-type]
-        name="Try the FB_ngon_encoding under development"
-        + " (Exported meshes can be corrupted)",
-    )
     export_all_influences: BoolProperty(  # type: ignore[valid-type]
         name="Export All Bone Influences",
         description="Don't limit to 4, most viewers truncate to 4, "
@@ -234,7 +226,6 @@ class VrmAddonPreferences(AddonPreferences):
         export_invisibles: bool  # type: ignore[no-redef]
         export_only_selections: bool  # type: ignore[no-redef]
         enable_advanced_preferences: bool  # type: ignore[no-redef]
-        export_fb_ngon_encoding: bool  # type: ignore[no-redef]
         export_all_influences: bool  # type: ignore[no-redef]
         export_lights: bool  # type: ignore[no-redef]
 

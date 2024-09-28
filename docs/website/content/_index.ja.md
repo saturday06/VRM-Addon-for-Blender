@@ -39,19 +39,3 @@ VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや
 ## 概要
 
 BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加などのVRM関連機能を追加するアドオンです。バグ報告、機能要望、Pull Request等歓迎します。[バージョン 0.79](https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8/releases/tag/0.79)以降の開発を作者である[@iCyP](https://github.com/iCyP)さんから引き継ぎました。
-
-## インポート
-
-- VRM 0.0, 1.0のインポート
-
-## 編集
-
-- VRMエクステンションの編集パネル
-- VRM向けシェーダーノードグループ(※モックアップ程度の出来)
-  - MToon_unversioned
-- VRM向けHumanoid Armature追加機能
-  - (これを使わないとエクスポート出来ません)(絶対に出来ないとは言ってないけど圧倒的に楽)
-
-## エクスポート
-
-- VRM 0.0, 1.0のエクスポート

@@ -219,10 +219,6 @@ class WM_OT_vrm_validator(Operator):
 
         # export object seeking
         preferences = get_preferences(context)
-        if preferences.enable_advanced_preferences:
-            export_fb_ngon_encoding = preferences.export_fb_ngon_encoding
-        else:
-            export_fb_ngon_encoding = False
 
         version_warning_message = version.validation_warning_message()
         if version_warning_message is not None:
@@ -773,14 +769,6 @@ class WM_OT_vrm_validator(Operator):
             and isinstance(armature.data, Armature)
             and get_armature_extension(armature.data).is_vrm0()
         ):
-            if export_fb_ngon_encoding:
-                warning_messages.append(
-                    pgettext(
-                        "FB_ngon_encoding extension under development will be used."
-                        + " The exported mesh may be corrupted."
-                    )
-                )
-
             # first_person
             first_person = get_armature_extension(armature.data).vrm0.first_person
             if not first_person.first_person_bone.bone_name:

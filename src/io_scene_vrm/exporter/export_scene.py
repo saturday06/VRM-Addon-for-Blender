@@ -90,11 +90,6 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         name="Enable Advanced Options",
         update=export_vrm_update_addon_preferences,
     )
-    export_fb_ngon_encoding: BoolProperty(  # type: ignore[valid-type]
-        name="Try the FB_ngon_encoding under development"
-        + " (Exported meshes can be corrupted)",
-        update=export_vrm_update_addon_preferences,
-    )
     export_all_influences: BoolProperty(  # type: ignore[valid-type]
         name="Export All Bone Influences",
         description="Don't limit to 4, most viewers truncate to 4, "
@@ -133,11 +128,6 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         ) != {"FINISHED"}:
             return {"CANCELLED"}
 
-        if self.enable_advanced_preferences:
-            export_fb_ngon_encoding = self.export_fb_ngon_encoding
-        else:
-            export_fb_ngon_encoding = False
-
         export_objects = search.export_objects(
             context,
             self.armature_object_name,
@@ -163,7 +153,6 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
             vrm_exporter = Vrm0Exporter(
                 context,
                 export_objects,
-                export_fb_ngon_encoding=export_fb_ngon_encoding,
             )
 
         vrm_bin = vrm_exporter.export_vrm()
@@ -273,7 +262,6 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         export_invisibles: bool  # type: ignore[no-redef]
         export_only_selections: bool  # type: ignore[no-redef]
         enable_advanced_preferences: bool  # type: ignore[no-redef]
-        export_fb_ngon_encoding: bool  # type: ignore[no-redef]
         export_all_influences: bool  # type: ignore[no-redef]
         export_lights: bool  # type: ignore[no-redef]
         errors: CollectionPropertyProtocol[  # type: ignore[no-redef]

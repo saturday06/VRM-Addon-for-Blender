@@ -3,8 +3,6 @@ from sys import float_info
 
 from ..common import deep, gltf
 from ..common.convert import Json
-from ..common.deep import make_json
-from .vrm_parser import decode_bin
 
 
 def human_bone_sort_key(human_bone_dict: Json) -> int:
@@ -28,9 +26,7 @@ fixed_asset_generator_value = (
 
 
 def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
-    vrm_json, binary_chunk = gltf.parse_glb(data)
-
-    vrm_json["~accessors_decoded"] = make_json(decode_bin(vrm_json, binary_chunk))
+    vrm_json, _binary_chunk = gltf.parse_glb(data)
 
     asset_dict = vrm_json.get("asset")
     if isinstance(asset_dict, dict):

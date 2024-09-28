@@ -72,12 +72,6 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Enable Advanced Options"): "高度なオプションを有効にする",
     (
         "*",
-        "Try the FB_ngon_encoding under development"
-        + " (Exported meshes can be corrupted)",
-    ): "開発中のFB_ngon_encodingエクステンションを試してみる"
-    + "(エクスポートされるメッシュが壊れることがあります)",
-    (
-        "*",
         "Export All Bone Influences",
     ): "全てのボーンウェイトをエクスポートする",
     (
@@ -147,12 +141,6 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " No derivative works are allowed.",
     ): "指定されたVRMには改変不可ライセンス「{license_name}」が設定されています。"
     + "改変することはできません。",
-    (
-        "*",
-        "FB_ngon_encoding extension under development will be used."
-        + " The exported mesh may be corrupted.",
-    ): "開発中のFB_ngon_encodingエクステンションが有効です。"
-    + "エクスポートされるメッシュが壊れることがあります。",
     (
         "*",
         "Nodes(mesh,bones) require unique names for VRM export."

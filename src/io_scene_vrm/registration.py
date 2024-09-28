@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 # SPDX-FileCopyrightText: 2018 iCyP
+# SPDX-FileCopyrightText: 2024 saturday06
 
 from typing import Union
 
@@ -31,11 +32,9 @@ from .common import preferences, shader
 from .common.logging import get_logger
 from .common.version import trigger_clear_addon_version_cache
 from .editor import (
-    detail_mesh_maker,
     extension,
     handler,
     make_armature,
-    make_mesh_from_bone_envelopes,
     migration,
     ops,
     panel,
@@ -43,7 +42,6 @@ from .editor import (
     subscription,
     validation,
 )
-from .editor.mtoon0 import glsl_drawer
 from .editor.mtoon1 import handler as mtoon1_handler
 from .editor.mtoon1 import ops as mtoon1_ops
 from .editor.mtoon1 import panel as mtoon1_panel
@@ -79,6 +77,7 @@ def setup(*, load_post: bool) -> None:
     migration.migrate_all_objects(context, show_progress=True)
     mtoon1_property_group.setup_drivers(context)
     subscription.setup_subscription(load_post=load_post)
+    mtoon1_handler.trigger_watch_auto_setup_mtoon1_shader()
 
 
 @persistent
@@ -412,17 +411,8 @@ classes: list[
     mtoon1_ops.VRM_OT_import_mtoon1_texture_image_file,
     mtoon1_ops.VRM_OT_refresh_mtoon1_outline,
     mtoon1_ops.VRM_OT_show_material_blender_4_2_warning,
-    detail_mesh_maker.ICYP_OT_detail_mesh_maker,
-    glsl_drawer.ICYP_OT_draw_model,
-    glsl_drawer.ICYP_OT_remove_draw_model,
     make_armature.ICYP_OT_make_armature,
-    make_mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes,
-    ops.VRM_OT_add_human_bone_custom_property,
-    ops.VRM_OT_add_defined_human_bone_custom_property,  # deprecated
-    ops.VRM_OT_add_extensions_to_armature,
-    ops.VRM_OT_add_required_human_bone_custom_property,  # deprecated
     ops.VRM_OT_simplify_vroid_bones,
-    ops.VRM_OT_vroid2vrc_lipsync_from_json_recipe,
     ops.VRM_OT_open_url_in_web_browser,
     ops.VRM_OT_save_human_bone_mappings,
     ops.VRM_OT_load_human_bone_mappings,

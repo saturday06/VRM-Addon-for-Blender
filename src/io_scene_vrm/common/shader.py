@@ -135,7 +135,7 @@ COLOR_SOCKET_CLASSES: Final = (NodeSocketColor,)
 STRING_SOCKET_CLASSES: Final = (NodeSocketString,)
 
 file_names = [
-    "mtoon0.blend",
+    "mtoon_auto_setup.blend",
 ]
 
 OUTLINE_GEOMETRY_GROUP_NAME: Final = "VRM Add-on MToon 1.0 Outline Geometry Revision 1"

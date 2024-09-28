@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 # SPDX-FileCopyrightText: 2018 iCyP
+# SPDX-FileCopyrightText: 2024 saturday06
 
 import json
 import re
@@ -9,14 +10,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional, TypeVar, cast
 from urllib.parse import urlparse
 
-import bpy
 from bpy.app.translations import pgettext
 from bpy.props import StringProperty
 from bpy.types import (
     Armature,
     Context,
     Event,
-    Mesh,
     Operator,
     UILayout,
 )
@@ -27,7 +26,6 @@ from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..common.workspace import save_workspace
 from . import search
 from .extension import get_armature_extension
-from .make_armature import ICYP_OT_make_armature
 from .t_pose import set_estimated_humanoid_t_pose
 
 
@@ -82,86 +80,6 @@ class VRM_OT_simplify_vroid_bones(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_name: str  # type: ignore[no-redef]
-
-
-# deprecated
-class VRM_OT_add_extensions_to_armature(Operator):
-    bl_idname = "vrm.add_vrm_extensions"
-    bl_label = "Add VRM attributes"
-    bl_description = "Add VRM extensions & metas to armature"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
-
-    def execute(self, context: Context) -> set[str]:
-        obj = context.view_layer.objects.active
-        if not obj:
-            return {"CANCELLED"}
-        ICYP_OT_make_armature.make_extension_setting_and_metas(obj)
-        return {"FINISHED"}
-
-
-# deprecated
-class VRM_OT_add_human_bone_custom_property(Operator):
-    bl_idname = "vrm.add_vrm_humanbone_custom_property"
-    bl_label = "Add VRM Human Bone prop"
-    bl_description = ""
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
-
-    armature_name: StringProperty()  # type: ignore[valid-type]
-    bone_name: StringProperty()  # type: ignore[valid-type]
-
-    def execute(self, context: Context) -> set[str]:
-        if self.armature_name not in context.blend_data.armatures:
-            return {"CANCELLED"}
-        armature = context.blend_data.armatures[self.armature_name]
-        if self.bone_name not in armature:
-            armature[self.bone_name] = ""
-        return {"FINISHED"}
-
-    if TYPE_CHECKING:
-        # This code is auto generated.
-        # To regenerate, run the `uv run tools/property_typing.py` command.
-        armature_name: str  # type: ignore[no-redef]
-        bone_name: str  # type: ignore[no-redef]
-
-
-# deprecated
-class VRM_OT_add_required_human_bone_custom_property(Operator):
-    bl_idname = "vrm.add_vrm_req_humanbone_prop"
-    bl_label = "Add vrm human_bone_prop"
-    bl_description = ""
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
-
-    def execute(self, context: Context) -> set[str]:
-        obj = context.view_layer.objects.active
-        if not obj:
-            return {"CANCELLED"}
-        armature = obj.data
-        if not isinstance(armature, Armature):
-            return {"CANCELLED"}
-        for bone_name in HumanBoneSpecifications.required_names:
-            if bone_name not in armature:
-                armature[bone_name] = ""
-        return {"FINISHED"}
-
-
-# deprecated
-class VRM_OT_add_defined_human_bone_custom_property(Operator):
-    bl_idname = "vrm.add_vrm_def_humanbone_prop"
-    bl_label = "Add vrm human_bone_prop"
-    bl_description = ""
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
-
-    def execute(self, context: Context) -> set[str]:
-        obj = context.view_layer.objects.active
-        if not obj:
-            return {"CANCELLED"}
-        armature = obj.data
-        if not isinstance(armature, Armature):
-            return {"CANCELLED"}
-        for bone_name in HumanBoneSpecifications.optional_names:
-            if bone_name not in armature:
-                armature[bone_name] = ""
-        return {"FINISHED"}
 
 
 class VRM_OT_save_human_bone_mappings(Operator, ExportHelper):
@@ -274,60 +192,6 @@ class VRM_OT_load_human_bone_mappings(Operator, ImportHelper):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         filter_glob: str  # type: ignore[no-redef]
-
-
-class VRM_OT_vroid2vrc_lipsync_from_json_recipe(Operator):
-    bl_idname = "vrm.lipsync_vrm"
-    bl_label = "Make lipsync4VRC"
-    bl_description = "Make lipsync from VRoid to VRC by json"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
-
-    @classmethod
-    def poll(cls, context: Context) -> bool:
-        obj = context.active_object
-        if not obj:
-            return False
-        data = obj.data
-        if not isinstance(data, Mesh):
-            return False
-        shape_keys = data.shape_keys
-        if not shape_keys:
-            return False
-        return bool(shape_keys.key_blocks)
-
-    def execute(self, context: Context) -> set[str]:
-        recipe = json.loads(
-            Path(__file__)
-            .with_name("vroid2vrc_lipsync_recipe.json")
-            .read_text(encoding="UTF-8")
-        )
-
-        obj = context.active_object
-        if not obj:
-            return {"CANCELLED"}
-        data = obj.data
-        if not isinstance(data, Mesh):
-            return {"CANCELLED"}
-        shape_keys = data.shape_keys
-        if not shape_keys:
-            return {"CANCELLED"}
-        for shapekey_name, based_values in recipe["shapekeys"].items():
-            for k in shape_keys.key_blocks:
-                k.value = 0.0
-            for based_shapekey_name, based_val in based_values.items():
-                # if M_F00_000+_00
-                if based_shapekey_name not in shape_keys.key_blocks:
-                    vroid_shapekey_name = based_shapekey_name.replace(
-                        "M_F00_000", "M_F00_000_00"
-                    )  # Renamed since VRoid Studio 0.6.4
-                else:
-                    vroid_shapekey_name = based_shapekey_name
-                shape_keys.key_blocks[vroid_shapekey_name].value = based_val
-            bpy.ops.object.shape_key_add(from_mix=True)
-            shape_keys.key_blocks[-1].name = shapekey_name
-        for k in shape_keys.key_blocks:
-            k.value = 0.0
-        return {"FINISHED"}
 
 
 class VRM_OT_open_url_in_web_browser(Operator):
