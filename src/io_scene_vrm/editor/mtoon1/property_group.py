@@ -3537,20 +3537,26 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     def get_enabled_in_material(self, material: Material) -> bool:
         if self.is_outline_material:
             return False
+
         if not material.use_nodes:
             return False
-        if not material.node_tree:
+
+        node_tree = material.node_tree
+        if not node_tree:
             return False
 
-        group_node = material.node_tree.nodes.get("Mtoon1Material.Mtoon1Output")
-        if (
-            isinstance(group_node, ShaderNodeGroup)
-            and group_node.node_tree
-            and group_node.node_tree.name == shader.OUTPUT_GROUP_NAME
-        ):
-            return bool(self.get("enabled"))
+        group_node = node_tree.nodes.get("Mtoon1Material.Mtoon1Output")
+        if not isinstance(group_node, ShaderNodeGroup):
+            return False
 
-        return False
+        group_node_tree = group_node.node_tree
+        if not group_node_tree:
+            return False
+
+        if group_node_tree.name != shader.OUTPUT_GROUP_NAME:
+            return False
+
+        return bool(self.get("enabled"))
 
     def get_enabled(self) -> bool:
         return self.get_enabled_in_material(self.find_material())
