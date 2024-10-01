@@ -74,11 +74,6 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Don't overwrite existing texture folder"): "不要覆盖现有纹理文件夹",
     (
         "*",
-        "Try the FB_ngon_encoding under development"
-        + " (Exported meshes can be corrupted)",
-    ): "试试开发中的 FB_ngon_encoding 扩展" + "(导出的网格可能已损坏)",
-    (
-        "*",
         "Export All Bone Influences",
     ): "导出所有骨骼重量",
     (
@@ -142,11 +137,6 @@ translation_dictionary: dict[tuple[str, str], str] = {
         'The VRM is licensed by "{license_name}".'
         + " No derivative works are allowed.",
     ): "指定 VRM 的不可修改许可证。「{license_name}」设置为。" + "不允许衍生作品。。",
-    (
-        "*",
-        "FB_ngon_encoding extension under development will be used."
-        + " The exported mesh may be corrupted.",
-    ): "正在开发的 FB_ngon_encoding 扩展已启用。" + "导出的网格可能已损坏。",
     (
         "*",
         "Nodes(mesh,bones) require unique names for VRM export."

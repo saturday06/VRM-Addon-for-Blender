@@ -104,12 +104,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         self,
         context: Context,
         export_objects: list[Object],
-        *,
-        export_fb_ngon_encoding: bool,
     ) -> None:
         super().__init__(context)
         self.export_objects = export_objects
-        self.export_fb_ngon_encoding = export_fb_ngon_encoding
         self.json_dict: dict[str, Json] = {}
         self.glb_bin_collector = GlbBinCollection()
         self.mesh_name_to_index: dict[str, int] = {}
@@ -2106,78 +2103,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         minmax[1][1] = max(minmax[1][1], position[1])
         minmax[1][2] = max(minmax[1][2], position[2])
 
-    # FB_ngon_encodeのため、ngonを扇状に割る。また、分割前の連続したポリゴンが
-    # 最初の頂点を共有する場合、ポリゴンごとに最初の頂点を別の構成する頂点に変更する
-    # import時に、起点が同じ連続した三角を一つのngonとして結合することで、ngonを
-    # 再生できる
-    # メリット:
-    #   ポリゴンのインデックスにトリックがあるだけで基本的に容量が変わらず、
-    #   拡張非対応であればそのまま読めば普通に三角として表示できる
-    # 欠点:
-    #   ngon対応がない場合、扇状分割はtriangulate("Beautiful")等に比して分割後が
-    #   汚く見える可能性が高い。また、ngonが凸包ポリゴンで無い場合、見た目が破綻する
-    #   (例: 鈍角三角形の底辺を接合した4角形)
     @staticmethod
-    def tessface_fan(
-        bm: BMesh, *, export_fb_ngon_encoding: bool
-    ) -> list[tuple[int, tuple[BMLoop, ...]]]:
-        if not export_fb_ngon_encoding:
-            return [
-                (loops[0].face.material_index, loops)
-                for loops in bm.calc_loop_triangles()
-                if loops
-            ]
-
-        # TODO: 凹や穴の空いたNゴンに対応
-        faces = bm.faces
-        sorted_faces = sorted(
-            faces,
-            key=lambda f: f.material_index,
-        )
-        polys: list[tuple[int, tuple[BMLoop, ...]]] = []
-        for face in sorted_faces:
-            if len(face.loops) <= 3:
-                if polys and face.loops[0].vert.index == polys[-1][1][0].vert.index:
-                    polys.append(
-                        (
-                            face.material_index,
-                            (
-                                face.loops[1],
-                                face.loops[2],
-                                face.loops[0],
-                            ),
-                        )
-                    )
-                else:
-                    polys.append((face.material_index, tuple(face.loops)))
-                continue
-
-            if polys and face.loops[0].vert.index == polys[-1][1][0].vert.index:
-                polys.extend(
-                    (
-                        face.material_index,
-                        (
-                            face.loops[-1],
-                            face.loops[i],
-                            face.loops[i + 1],
-                        ),
-                    )
-                    for i in range(len(face.loops) - 2)
-                )
-                continue
-
-            polys.extend(
-                (
-                    face.material_index,
-                    (
-                        face.loops[0],
-                        face.loops[i],
-                        face.loops[i + 1],
-                    ),
-                )
-                for i in range(1, len(face.loops) - 1)
-            )
-        return polys
+    def tessface_fan(bm: BMesh) -> list[tuple[int, tuple[BMLoop, ...]]]:
+        return [
+            (loops[0].face.material_index, loops)
+            for loops in bm.calc_loop_triangles()
+            if loops
+        ]
 
     def mesh_to_bin_and_dict(
         self,
@@ -2449,9 +2381,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             unsigned_int_scalar_packer = struct.Struct("<I").pack
             unsigned_short_vec4_packer = struct.Struct("<HHHH").pack
 
-            for material_slot_index, loops in self.tessface_fan(
-                bm, export_fb_ngon_encoding=self.export_fb_ngon_encoding
-            ):
+            for material_slot_index, loops in self.tessface_fan(bm):
                 material_name = material_slot_index_to_material_name_dict.get(
                     material_slot_index
                 )
@@ -2825,8 +2755,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             }
             if mesh.data:
                 mesh_dict["name"] = mesh.data.name
-            if self.export_fb_ngon_encoding:
-                mesh_dict["extensions"] = {"FB_ngon_encoding": {}}
 
             mesh_dicts.append(mesh_dict)
 
