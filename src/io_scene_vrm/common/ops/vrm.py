@@ -121,16 +121,6 @@ def open_url_in_web_browser(
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
-def lipsync_vrm(
-    execution_context: str = "EXEC_DEFAULT",
-) -> set[str]:
-    return bpy.ops.vrm.lipsync_vrm(  # type: ignore[attr-defined, no-any-return]
-        execution_context,
-    )
-
-
-# This code is auto generated.
-# To regenerate, run the `uv run tools/property_typing.py` command.
 def bones_rename(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -140,72 +130,6 @@ def bones_rename(
     return bpy.ops.vrm.bones_rename(  # type: ignore[attr-defined, no-any-return]
         execution_context,
         armature_name=armature_name,
-    )
-
-
-# This code is auto generated.
-# To regenerate, run the `uv run tools/property_typing.py` command.
-def add_vrm_req_humanbone_prop(
-    execution_context: str = "EXEC_DEFAULT",
-) -> set[str]:
-    return bpy.ops.vrm.add_vrm_req_humanbone_prop(  # type: ignore[attr-defined, no-any-return]
-        execution_context,
-    )
-
-
-# This code is auto generated.
-# To regenerate, run the `uv run tools/property_typing.py` command.
-def add_vrm_extensions(
-    execution_context: str = "EXEC_DEFAULT",
-) -> set[str]:
-    return bpy.ops.vrm.add_vrm_extensions(  # type: ignore[attr-defined, no-any-return]
-        execution_context,
-    )
-
-
-# This code is auto generated.
-# To regenerate, run the `uv run tools/property_typing.py` command.
-def add_vrm_def_humanbone_prop(
-    execution_context: str = "EXEC_DEFAULT",
-) -> set[str]:
-    return bpy.ops.vrm.add_vrm_def_humanbone_prop(  # type: ignore[attr-defined, no-any-return]
-        execution_context,
-    )
-
-
-# This code is auto generated.
-# To regenerate, run the `uv run tools/property_typing.py` command.
-def add_vrm_humanbone_custom_property(
-    execution_context: str = "EXEC_DEFAULT",
-    /,
-    *,
-    armature_name: str = "",
-    bone_name: str = "",
-) -> set[str]:
-    return bpy.ops.vrm.add_vrm_humanbone_custom_property(  # type: ignore[attr-defined, no-any-return]
-        execution_context,
-        armature_name=armature_name,
-        bone_name=bone_name,
-    )
-
-
-# This code is auto generated.
-# To regenerate, run the `uv run tools/property_typing.py` command.
-def model_draw_remove(
-    execution_context: str = "EXEC_DEFAULT",
-) -> set[str]:
-    return bpy.ops.vrm.model_draw_remove(  # type: ignore[attr-defined, no-any-return]
-        execution_context,
-    )
-
-
-# This code is auto generated.
-# To regenerate, run the `uv run tools/property_typing.py` command.
-def model_draw(
-    execution_context: str = "EXEC_DEFAULT",
-) -> set[str]:
-    return bpy.ops.vrm.model_draw(  # type: ignore[attr-defined, no-any-return]
-        execution_context,
     )
 
 

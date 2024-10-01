@@ -13,13 +13,7 @@ from bpy.types import (
 
 from ..common import version
 from ..common.preferences import get_preferences
-from . import (
-    detail_mesh_maker,
-    make_armature,
-    make_mesh_from_bone_envelopes,
-    search,
-    validation,
-)
+from . import make_armature, search, validation
 from .extension import get_armature_extension
 from .ops import layout_operator
 
@@ -194,20 +188,6 @@ def add_armature(add_armature_op: Operator, _context: Context) -> None:
         text="VRM Humanoid",
         icon="OUTLINER_OB_ARMATURE",
     ).skip_heavy_armature_setup = True
-
-
-def make_mesh(make_mesh_op: Operator, _context: Context) -> None:
-    make_mesh_op.layout.separator()
-    make_mesh_op.layout.operator(
-        make_mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes.bl_idname,
-        text="Mesh from selected armature",
-        icon="PLUGIN",
-    )
-    make_mesh_op.layout.operator(
-        detail_mesh_maker.ICYP_OT_detail_mesh_maker.bl_idname,
-        text="(WIP)Face mesh from selected armature and bound mesh",
-        icon="PLUGIN",
-    )
 
 
 class VRM_PT_current_selected_armature(Panel):

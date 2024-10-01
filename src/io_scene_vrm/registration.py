@@ -31,11 +31,9 @@ from .common import preferences, shader
 from .common.logging import get_logger
 from .common.version import trigger_clear_addon_version_cache
 from .editor import (
-    detail_mesh_maker,
     extension,
     handler,
     make_armature,
-    make_mesh_from_bone_envelopes,
     migration,
     ops,
     panel,
@@ -411,15 +409,8 @@ classes: list[
     mtoon1_ops.VRM_OT_import_mtoon1_texture_image_file,
     mtoon1_ops.VRM_OT_refresh_mtoon1_outline,
     mtoon1_ops.VRM_OT_show_material_blender_4_2_warning,
-    detail_mesh_maker.ICYP_OT_detail_mesh_maker,
     make_armature.ICYP_OT_make_armature,
-    make_mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes,
-    ops.VRM_OT_add_human_bone_custom_property,
-    ops.VRM_OT_add_defined_human_bone_custom_property,  # deprecated
-    ops.VRM_OT_add_extensions_to_armature,
-    ops.VRM_OT_add_required_human_bone_custom_property,  # deprecated
     ops.VRM_OT_simplify_vroid_bones,
-    ops.VRM_OT_vroid2vrc_lipsync_from_json_recipe,
     ops.VRM_OT_open_url_in_web_browser,
     ops.VRM_OT_save_human_bone_mappings,
     ops.VRM_OT_load_human_bone_mappings,
