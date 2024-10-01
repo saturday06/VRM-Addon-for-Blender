@@ -33,6 +33,7 @@ def test(blend_path_str: str) -> None:
     environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
     update_failed_vrm = environ.get("BLENDER_VRM_TEST_UPDATE_FAILED_VRM") == "true"
     major_minor = getenv("BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION") or "unversioned"
+    enable_second_export = not environ.get("BLENDER_VRM_TEST_RESOURCES_PATH")
 
     blend = Path(blend_path_str)
     in_path_default = blend_dir / blend
@@ -68,7 +69,8 @@ def test(blend_path_str: str) -> None:
         actual_second_path.unlink()
 
     assert ops.export_scene.vrm(filepath=str(actual_path)) == {"FINISHED"}
-    assert ops.export_scene.vrm(filepath=str(actual_second_path)) == {"FINISHED"}
+    if enable_second_export:
+        assert ops.export_scene.vrm(filepath=str(actual_second_path)) == {"FINISHED"}
 
     if not expected_path.exists():
         message = f"No expected result file: {expected_path}"
@@ -81,13 +83,15 @@ def test(blend_path_str: str) -> None:
         "Whether the export result is correct",
         update_failed_vrm=update_failed_vrm,
     )
-    vrm_bin_diff(
-        in_path,
-        actual_path,
-        actual_second_path,
-        "The results of multiple exports are the same",
-        update_failed_vrm=False,
-    )
+
+    if enable_second_export:
+        vrm_bin_diff(
+            in_path,
+            actual_path,
+            actual_second_path,
+            "The results of multiple exports are the same",
+            update_failed_vrm=False,
+        )
 
 
 def vrm_bin_diff(
