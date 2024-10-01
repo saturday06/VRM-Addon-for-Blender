@@ -23,5 +23,6 @@
 /tests/resources/unity/*/UserSettings/
 /tests/resources/unity/*/obj/
 /tests/resources/vrm/*/temp/
+/tests/resources/vrm/in/*.temp*.blend
 /tests/test_generated_*
 __pycache__/
