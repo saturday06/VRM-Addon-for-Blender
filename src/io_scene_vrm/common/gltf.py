@@ -1,8 +1,8 @@
 import json
 import struct
-from typing import Final, Optional, Union
+from io import BytesIO
+from typing import Final, Union
 
-from .binary_reader import BinaryReader
 from .convert import Json
 from .deep import make_json
 
@@ -12,84 +12,131 @@ FLOAT_NEGATIVE_MAX: Final = -FLOAT_POSITIVE_MAX
 
 
 def parse_glb(data: bytes) -> tuple[dict[str, Json], bytes]:
-    reader = BinaryReader(data)
-    magic = reader.read_str(4)
-    if magic != "glTF":
-        message = f"glTF header signature not found: #{magic}"
-        raise ValueError(message)
-
-    version = reader.read_unsigned_int()
-    if version != 2:
-        message = f"version #{version} found. This plugin only supports version 2"
-        raise ValueError(message)
-
-    size = reader.read_unsigned_int()
-    size -= 12
-
-    json_str: Optional[str] = None
-    body: Optional[bytes] = None
-    while size > 0:
-        if json_str is not None and body is not None:
-            message = "This VRM has multiple chunks, this plugin reads one chunk only."
+    with BytesIO(data) as glb:
+        header_bytes = glb.read(12)
+        if len(header_bytes) != 12:
+            message = "Failed to read VRM glTF header: " + ",".join(
+                chr(b) for b in header_bytes
+            )
             raise ValueError(message)
 
-        chunk_size = reader.read_unsigned_int()
-        size -= 4
+        header: tuple[bytes, int, int] = struct.unpack("<4sII", header_bytes)
+        magic, version, length = header
+        if magic != b"glTF":
+            message = "Invalid VRM glTF magic bytes: " + ",".join(chr(b) for b in magic)
+            raise ValueError(message)
 
-        chunk_type = reader.read_str(4)
-        size -= 4
+        if version != 2:
+            message = f"Unsupported VRM glTF Version: {version}"
+            raise ValueError(message)
 
-        chunk_data = reader.read_binary(chunk_size)
-        size -= chunk_size
+        chunks_bytes_length = length - 12
+        if chunks_bytes_length < 0:
+            message = f"Invalid VRM glTF length: {length}"
+            raise ValueError(message)
 
-        if chunk_type == "BIN\x00":
-            body = chunk_data
-            continue
-        if chunk_type == "JSON":
-            json_str = chunk_data.decode()
-            continue
+        chunks_bytes = glb.read(chunks_bytes_length)
+        if len(chunks_bytes) != chunks_bytes_length:
+            message = "Failed to read VRM chunks bytes"
+            raise ValueError(message)
 
-        message = f"unknown chunk_type: {chunk_type}"
-        raise ValueError(message)
+    with BytesIO(chunks_bytes) as chunks:
+        json_chunk_length_bytes = chunks.read(4)
+        if len(json_chunk_length_bytes) != 4:
+            message = "Failed to read VRM json chunk length bytes"
+            raise ValueError(message)
 
-    if not json_str:
-        message = "failed to read json chunk"
-        raise ValueError(message)
+        json_chunk_type_bytes = chunks.read(4)
+        if len(json_chunk_type_bytes) != 4:
+            message = "Failed to read VRM json chunk type bytes"
+            raise ValueError(message)
 
-    json_obj = make_json(json.loads(json_str))
-    if not isinstance(json_obj, dict):
-        raise TypeError("VRM has invalid json: " + str(json_obj))
-    if body is None:
-        body = b""
-    return json_obj, body
+        if json_chunk_type_bytes != b"JSON":
+            message = "Invalid VRM json chunk type bytes: " + ",".join(
+                chr(b) for b in json_chunk_type_bytes
+            )
+            raise ValueError(message)
+
+        json_chunk_data_length: int = struct.unpack("<I", json_chunk_length_bytes)[0]
+        json_chunk_data_bytes = chunks.read(json_chunk_data_length)
+        if len(json_chunk_data_bytes) != json_chunk_data_length:
+            message = "Failed to read VRM json chunk"
+            raise ValueError(message)
+
+        raw_json = json.loads(json_chunk_data_bytes)  # raises json.JSONDecodeError
+        json_obj = make_json(raw_json)
+        if not isinstance(json_obj, dict):
+            message = f"Unexpected VRM json format: {type(json_obj)}"
+            raise TypeError(message)
+
+        bin_chunk_length_bytes = chunks.read(4)
+        if not bin_chunk_length_bytes:
+            return json_obj, b""
+        if len(bin_chunk_length_bytes) != 4:
+            message = "Failed to read VRM bin chunk length bytes"
+            raise ValueError(message)
+
+        bin_chunk_type_bytes = chunks.read(4)
+        if len(bin_chunk_type_bytes) != 4:
+            message = "Failed to read VRM bin chunk type bytes"
+            raise ValueError(message)
+
+        if bin_chunk_type_bytes != b"BIN\x00":
+            message = "Invalid VRM bin chunk type bytes: " + ",".join(
+                chr(b) for b in bin_chunk_type_bytes
+            )
+            raise ValueError(message)
+
+        bin_chunk_data_length: int = struct.unpack("<I", bin_chunk_length_bytes)[0]
+        bin_chunk_data_bytes = chunks.read(bin_chunk_data_length)
+        if len(bin_chunk_data_bytes) != bin_chunk_data_length:
+            message = "Failed to read VRM bin chunk"
+            raise ValueError(message)
+
+    return json_obj, bin_chunk_data_bytes
 
 
 def pack_glb(
-    json_dict: dict[str, Json], binary_chunk: Union[bytes, bytearray]
+    json_dict: dict[str, Json], bin_chunk_bytes: Union[bytes, bytearray]
 ) -> bytes:
-    magic = b"glTF" + struct.pack("<I", 2)
-    json_str = json.dumps(
+    # https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#binary-gltf-layout
+    json_chunk_bytes = json.dumps(
         json_dict,
         # UniVRM 0.56.3 cannot import a json containing unicode escape chars into
         # Unity Editor.
         ensure_ascii=False,
-    ).encode("utf-8")
-    if len(json_str) % 4 != 0:
-        json_str += b"\x20" * (4 - len(json_str) % 4)
-    json_size = struct.pack("<I", len(json_str))
-    if len(binary_chunk) % 4 != 0:
-        binary_chunk += b"\x00" * (4 - len(binary_chunk) % 4)
-    bin_size = struct.pack("<I", len(binary_chunk))
-    total_size = struct.pack(
-        "<I", len(json_str) + len(binary_chunk) + 28
-    )  # include header size
-    return (
-        magic
-        + total_size
-        + json_size
-        + b"JSON"
-        + json_str
-        + bin_size
-        + b"BIN\x00"
-        + binary_chunk
+    ).encode()
+
+    while len(json_chunk_bytes) % 4 != 0:
+        json_chunk_bytes += b"\x20"
+
+    while len(bin_chunk_bytes) % 4 != 0:
+        bin_chunk_bytes += b"\x00"
+
+    glb = bytearray()
+
+    glb.extend(b"glTF")  # magic
+    glb.extend(struct.pack("<I", 2))  # version
+    glb.extend(  # length
+        struct.pack(
+            "<I",
+            # header
+            12
+            # json chunk
+            + 8
+            + len(json_chunk_bytes)
+            # binary chunk
+            + 8
+            + len(bin_chunk_bytes),
+        )
     )
+
+    glb.extend(struct.pack("<I", len(json_chunk_bytes)))
+    glb.extend(b"JSON")
+    glb.extend(json_chunk_bytes)
+
+    glb.extend(struct.pack("<I", len(bin_chunk_bytes)))
+    glb.extend(b"BIN\x00")
+    glb.extend(bin_chunk_bytes)
+
+    return bytes(glb)
