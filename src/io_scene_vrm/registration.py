@@ -43,7 +43,6 @@ from .editor import (
     subscription,
     validation,
 )
-from .editor.mtoon0 import glsl_drawer
 from .editor.mtoon1 import handler as mtoon1_handler
 from .editor.mtoon1 import ops as mtoon1_ops
 from .editor.mtoon1 import panel as mtoon1_panel
@@ -413,8 +412,6 @@ classes: list[
     mtoon1_ops.VRM_OT_refresh_mtoon1_outline,
     mtoon1_ops.VRM_OT_show_material_blender_4_2_warning,
     detail_mesh_maker.ICYP_OT_detail_mesh_maker,
-    glsl_drawer.ICYP_OT_draw_model,
-    glsl_drawer.ICYP_OT_remove_draw_model,
     make_armature.ICYP_OT_make_armature,
     make_mesh_from_bone_envelopes.ICYP_OT_make_mesh_from_bone_envelopes,
     ops.VRM_OT_add_human_bone_custom_property,
