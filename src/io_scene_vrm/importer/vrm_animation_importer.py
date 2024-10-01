@@ -1,12 +1,8 @@
-import base64
 import itertools
 import math
-import struct
 from dataclasses import dataclass
 from pathlib import Path
 from sys import float_info
-from typing import Optional, Union
-from urllib.parse import urlparse
 
 import bpy
 from bpy.types import Armature, Context, Object
@@ -15,16 +11,12 @@ from mathutils import Matrix, Quaternion, Vector
 from ..common import convert
 from ..common.convert import Json
 from ..common.debug import dump
-from ..common.gl import (
-    GL_BYTE,
-    GL_FLOAT,
-    GL_INT,
-    GL_SHORT,
-    GL_UNSIGNED_BYTE,
-    GL_UNSIGNED_INT,
-    GL_UNSIGNED_SHORT,
+from ..common.gltf import (
+    parse_glb,
+    read_accessor_as_animation_sampler_input,
+    read_accessor_as_animation_sampler_rotation_output,
+    read_accessor_as_animation_sampler_translation_output,
 )
-from ..common.gltf import parse_glb
 from ..common.logging import get_logger
 from ..common.vrm1.human_bone import HumanBoneName
 from ..common.workspace import save_workspace
@@ -134,175 +126,6 @@ def find_root_node_index(
                 node_dicts, parent_node_index, skip_node_indices
             )
     return node_index
-
-
-def read_accessor_as_bytes(
-    accessor_dict: dict[str, Json],
-    buffer_view_dicts: list[Json],
-    buffer_dicts: list[Json],
-    buffer0_bytes: bytes,
-) -> Optional[bytes]:
-    buffer_view_index = accessor_dict.get("bufferView")
-    if not isinstance(buffer_view_index, int):
-        return None
-    if not 0 <= buffer_view_index < len(buffer_view_dicts):
-        return None
-    buffer_view_dict = buffer_view_dicts[buffer_view_index]
-    if not isinstance(buffer_view_dict, dict):
-        return None
-    buffer_index = buffer_view_dict.get("buffer")
-    if not isinstance(buffer_index, int):
-        return None
-    if not 0 <= buffer_index < len(buffer_dicts):
-        return None
-
-    if buffer_index == 0:
-        buffer_bytes = buffer0_bytes
-    else:
-        prefix = "application/gltf-buffer;base64,"
-
-        buffer_dict = buffer_dicts[buffer_index]
-        if not isinstance(buffer_dict, dict):
-            return None
-        uri = buffer_dict.get("uri")
-
-        if not isinstance(uri, str):
-            return None
-        try:
-            parsed_url = urlparse(uri)
-        except ValueError:
-            return None
-        if parsed_url.scheme != "data":
-            return None
-        if not parsed_url.path.startswith(prefix):  # TODO: all variants
-            return None
-        buffer_base64 = parsed_url.path.removeprefix(prefix)
-        buffer_bytes = base64.b64decode(buffer_base64)
-
-    byte_offset = buffer_view_dict.get("byteOffset", 0)
-    if not isinstance(byte_offset, int):
-        return None
-    if not 0 <= byte_offset < len(buffer_bytes):
-        return None
-    byte_length = buffer_view_dict.get("byteLength")
-    if not isinstance(byte_length, int):
-        return None
-    if not 0 <= byte_offset + byte_length <= len(buffer_bytes):
-        return None
-    return buffer_bytes[slice(byte_offset, byte_offset + byte_length)]
-
-
-def read_accessor_as_animation_sampler_input(
-    accessor_dict: dict[str, Json],
-    buffer_view_dicts: list[Json],
-    buffer_dicts: list[Json],
-    buffer0_bytes: bytes,
-) -> Optional[list[float]]:
-    if accessor_dict.get("type") != "SCALAR":
-        return None
-    if accessor_dict.get("componentType") != GL_FLOAT:
-        return None
-    buffer_bytes = read_accessor_as_bytes(
-        accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
-    )
-    if buffer_bytes is None:
-        return None
-    count = accessor_dict.get("count")
-    if not isinstance(count, int):
-        return None
-    if count == 0:
-        return []
-    if not 1 <= count * 4 <= len(buffer_bytes):
-        return None
-    floats = struct.unpack("<" + "f" * count, buffer_bytes)
-    return list(floats)
-
-
-def unpack_component(
-    component_type: int, unpack_count: int, buffer_bytes: bytes
-) -> Optional[Union[tuple[int, ...], tuple[float, ...]]]:
-    for search_component_type, component_count, unpack_symbol in [
-        (GL_BYTE, 1, "b"),
-        (GL_UNSIGNED_BYTE, 1, "B"),
-        (GL_SHORT, 2, "h"),
-        (GL_UNSIGNED_SHORT, 2, "H"),
-        (GL_INT, 4, "i"),
-        (GL_UNSIGNED_INT, 4, "I"),
-        (GL_FLOAT, 4, "f"),
-    ]:
-        if search_component_type != component_type:
-            continue
-        if unpack_count == 0:
-            return ()
-        if not 1 <= unpack_count * component_count <= len(buffer_bytes):
-            return None
-        return struct.unpack("<" + unpack_symbol * unpack_count, buffer_bytes)
-    return None
-
-
-def unpack_vector_accessor(
-    accessor_dict: dict[str, Json], buffer_bytes: bytes
-) -> Union[tuple[tuple[int, ...], ...], tuple[tuple[float, ...], ...], None]:
-    if accessor_dict.get("type") == "VEC2":
-        vector_dimension = 2
-    elif accessor_dict.get("type") == "VEC3":
-        vector_dimension = 3
-    elif accessor_dict.get("type") == "VEC4":
-        vector_dimension = 4
-    else:
-        return None
-    vector_count = accessor_dict.get("count")
-    if not isinstance(vector_count, int):
-        return None
-    component_type = accessor_dict.get("componentType")
-    if not isinstance(component_type, int):
-        return None
-    unpack_count = vector_dimension * vector_count
-    unpacked_values = unpack_component(component_type, unpack_count, buffer_bytes)
-    if unpacked_values is None:
-        return None
-    return tuple(
-        unpacked_values[slice(i, i + vector_dimension)]
-        for i in range(0, unpack_count, vector_dimension)
-    )
-
-
-def read_accessor_as_animation_sampler_translation_output(
-    accessor_dict: dict[str, Json],
-    buffer_view_dicts: list[Json],
-    buffer_dicts: list[Json],
-    buffer0_bytes: bytes,
-) -> Optional[list[Vector]]:
-    if accessor_dict.get("type") != "VEC3":
-        return None
-    buffer_bytes = read_accessor_as_bytes(
-        accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
-    )
-    if buffer_bytes is None:
-        return None
-    unpacked_values = unpack_vector_accessor(accessor_dict, buffer_bytes)
-    if unpacked_values is None:
-        return None
-    return [Vector((x, -z, y)) for x, y, z in unpacked_values]
-
-
-def read_accessor_as_animation_sampler_rotation_output(
-    accessor_dict: dict[str, Json],
-    buffer_view_dicts: list[Json],
-    buffer_dicts: list[Json],
-    buffer0_bytes: bytes,
-) -> Optional[list[Quaternion]]:
-    if accessor_dict.get("type") != "VEC4":
-        return None
-    buffer_bytes = read_accessor_as_bytes(
-        accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
-    )
-    if buffer_bytes is None:
-        return None
-    unpacked_values = unpack_vector_accessor(accessor_dict, buffer_bytes)
-    if not unpacked_values:
-        return None
-    return [Quaternion((w, x, -z, y)).normalized() for x, y, z, w in unpacked_values]
 
 
 def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]:

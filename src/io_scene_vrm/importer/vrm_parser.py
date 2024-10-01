@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Optional, Union
 
 from ..common import deep
-from ..common.binary_reader import BinaryReader
 from ..common.convert import Json
 from ..common.gltf import parse_glb
 from ..common.logging import get_logger
@@ -192,66 +191,6 @@ def remove_unsafe_path_chars(filename: str) -> str:
     )
     safe_filename = filename.translate(remove_table)
     return safe_filename
-
-
-def decode_bin(
-    json_dict: dict[str, Json], binary: bytes
-) -> list[list[Union[int, float, list[int], list[float]]]]:
-    """Decode bin and index by accessor indices."""
-    br = BinaryReader(binary)
-    decoded_binary: list[list[Union[int, float, list[int], list[float]]]] = []
-    buffer_view_dicts = json_dict.get("bufferViews")
-    if not isinstance(buffer_view_dicts, list):
-        buffer_view_dicts = []
-    accessor_dicts = json_dict.get("accessors")
-    if not isinstance(accessor_dicts, list):
-        return []
-    type_num_dict = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4, "MAT4": 16}
-    for accessor_index, accessor_dict in enumerate(accessor_dicts):
-        if not isinstance(accessor_dict, dict):
-            continue
-        accessor_type = accessor_dict.get("type")
-        if not isinstance(accessor_type, str):
-            continue
-        type_num = type_num_dict.get(accessor_type)
-        if not isinstance(type_num, int):
-            logger.warning("Unrecognized accessor type: %s", accessor_type)
-            continue
-        buffer_view_index = accessor_dict.get("bufferView")
-        if not isinstance(buffer_view_index, int):
-            logger.warning(
-                "accessors[%s] doesn't have bufferView that is not implemented yet",
-                accessor_index,
-            )
-            decoded_binary.append([])
-            continue
-        buffer_view_dict = buffer_view_dicts[buffer_view_index]
-        if not isinstance(buffer_view_dict, dict):
-            continue
-        buffer_view_byte_offset = buffer_view_dict.get("byteOffset")
-        if not isinstance(buffer_view_byte_offset, int):
-            buffer_view_byte_offset = 0
-        br.set_pos(buffer_view_byte_offset)
-        data_list: list[Union[int, float, list[int], list[float]]] = []
-        accessor_count = accessor_dict.get("count")
-        if not isinstance(accessor_count, int):
-            accessor_count = 0
-        component_type = accessor_dict.get("componentType")
-        if not isinstance(component_type, int):
-            message = f"Unsupported component type: {component_type}"
-            raise TypeError(message)
-        for _ in range(accessor_count):
-            if type_num == 1:
-                single_data = br.read_as_data_type(component_type)
-                data_list.append(single_data)
-            else:
-                multiple_data = [
-                    br.read_as_data_type(component_type) for _ in range(type_num)
-                ]
-                data_list.append(multiple_data)
-        decoded_binary.append(data_list)
-
-    return decoded_binary
 
 
 @dataclass
