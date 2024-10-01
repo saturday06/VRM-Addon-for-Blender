@@ -211,32 +211,6 @@ def read_accessor_as_bytes(
     return buffer_bytes[slice(byte_offset, byte_offset + byte_length)]
 
 
-def read_accessor_as_animation_sampler_input(
-    accessor_dict: dict[str, Json],
-    buffer_view_dicts: list[Json],
-    buffer_dicts: list[Json],
-    buffer0_bytes: bytes,
-) -> Optional[list[float]]:
-    if accessor_dict.get("type") != "SCALAR":
-        return None
-    if accessor_dict.get("componentType") != GL_FLOAT:
-        return None
-    buffer_bytes = read_accessor_as_bytes(
-        accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
-    )
-    if buffer_bytes is None:
-        return None
-    count = accessor_dict.get("count")
-    if not isinstance(count, int):
-        return None
-    if count == 0:
-        return []
-    if not 1 <= count * 4 <= len(buffer_bytes):
-        return None
-    floats = struct.unpack("<" + "f" * count, buffer_bytes)
-    return list(floats)
-
-
 def unpack_component(
     component_type: int, unpack_count: int, buffer_bytes: bytes
 ) -> Optional[Union[tuple[int, ...], tuple[float, ...]]]:
@@ -259,35 +233,154 @@ def unpack_component(
     return None
 
 
-def unpack_vector_accessor(
-    accessor_dict: dict[str, Json], buffer_bytes: bytes
-) -> Union[tuple[tuple[int, ...], ...], tuple[tuple[float, ...], ...], None]:
-    if accessor_dict.get("type") == "VEC2":
-        vector_dimension = 2
-    elif accessor_dict.get("type") == "VEC3":
-        vector_dimension = 3
-    elif accessor_dict.get("type") == "VEC4":
-        vector_dimension = 4
-    else:
-        return None
-    vector_count = accessor_dict.get("count")
-    if not isinstance(vector_count, int):
-        return None
+def unpack_accessor_as_scalar_components(
+    accessor_dict: dict[str, Json],
+    buffer_view_dicts: list[Json],
+    buffer_dicts: list[Json],
+    buffer0_bytes: bytes,
+    unpack_count: int,
+) -> Union[tuple[int, ...], tuple[float, ...], None]:
     component_type = accessor_dict.get("componentType")
     if not isinstance(component_type, int):
         return None
-    unpack_count = vector_dimension * vector_count
-    unpacked_values = unpack_component(component_type, unpack_count, buffer_bytes)
-    if unpacked_values is None:
+
+    raw_bytes = read_accessor_as_bytes(
+        accessor_dict,
+        buffer_view_dicts,
+        buffer_dicts,
+        buffer0_bytes,
+    )
+    if not raw_bytes:
         return None
-    return tuple(
-        unpacked_values[slice(i, i + vector_dimension)]
-        for i in range(0, unpack_count, vector_dimension)
+
+    return unpack_component(component_type, unpack_count, raw_bytes)
+
+
+def read_scalar_accessor(
+    accessor_dict: dict[str, Json],
+    buffer_view_dicts: list[Json],
+    buffer_dicts: list[Json],
+    buffer0_bytes: bytes,
+) -> Union[tuple[int, ...], tuple[float, ...], None]:
+    accessor_type = accessor_dict.get("type")
+    if accessor_type != "SCALAR":
+        return None
+    count = accessor_dict.get("count")
+    if not isinstance(count, int):
+        return None
+    return unpack_accessor_as_scalar_components(
+        accessor_dict,
+        buffer_view_dicts,
+        buffer_dicts,
+        buffer0_bytes,
+        count,
     )
 
 
-def unpack_matrix4_accessor(
-    accessor_dict: dict[str, Json], buffer_bytes: bytes
+def read_vec2_accessor(
+    accessor_dict: dict[str, Json],
+    buffer_view_dicts: list[Json],
+    buffer_dicts: list[Json],
+    buffer0_bytes: bytes,
+) -> Union[tuple[tuple[int, int], ...], tuple[tuple[float, float], ...], None]:
+    accessor_type = accessor_dict.get("type")
+    if accessor_type != "VEC2":
+        return None
+    count = accessor_dict.get("count")
+    if not isinstance(count, int):
+        return None
+    components = unpack_accessor_as_scalar_components(
+        accessor_dict,
+        buffer_view_dicts,
+        buffer_dicts,
+        buffer0_bytes,
+        count * 2,
+    )
+    if components is None:
+        return None
+    return tuple(
+        (
+            components[i],
+            components[i + 1],
+        )
+        for i in range(0, count * 2, 2)
+    )
+
+
+def read_vec3_accessor(
+    accessor_dict: dict[str, Json],
+    buffer_view_dicts: list[Json],
+    buffer_dicts: list[Json],
+    buffer0_bytes: bytes,
+) -> Union[
+    tuple[tuple[int, int, int], ...], tuple[tuple[float, float, float], ...], None
+]:
+    accessor_type = accessor_dict.get("type")
+    if accessor_type != "VEC3":
+        return None
+    count = accessor_dict.get("count")
+    if not isinstance(count, int):
+        return None
+    components = unpack_accessor_as_scalar_components(
+        accessor_dict,
+        buffer_view_dicts,
+        buffer_dicts,
+        buffer0_bytes,
+        count * 3,
+    )
+    if components is None:
+        return None
+    return tuple(
+        (
+            components[i],
+            components[i + 1],
+            components[i + 2],
+        )
+        for i in range(0, count * 3, 3)
+    )
+
+
+def read_vec4_accessor(
+    accessor_dict: dict[str, Json],
+    buffer_view_dicts: list[Json],
+    buffer_dicts: list[Json],
+    buffer0_bytes: bytes,
+) -> Union[
+    tuple[tuple[int, int, int, int], ...],
+    tuple[tuple[float, float, float, float], ...],
+    None,
+]:
+    accessor_type = accessor_dict.get("type")
+    if accessor_type != "VEC4":
+        return None
+    count = accessor_dict.get("count")
+    if not isinstance(count, int):
+        return None
+    components = unpack_accessor_as_scalar_components(
+        accessor_dict,
+        buffer_view_dicts,
+        buffer_dicts,
+        buffer0_bytes,
+        count * 4,
+    )
+    if components is None:
+        return None
+    return tuple(
+        (
+            components[i],
+            components[i + 1],
+            components[i + 2],
+            components[i + 3],
+        )
+        for i in range(0, count * 4, 4)
+    )
+
+
+def read_mat4_accessor(
+    accessor_dict: dict[str, Json],
+    buffer_view_dicts: list[Json],
+    buffer_dicts: list[Json],
+    buffer0_bytes: bytes,
 ) -> Union[
     tuple[
         tuple[
@@ -309,85 +402,50 @@ def unpack_matrix4_accessor(
     ],
     None,
 ]:
-    if accessor_dict.get("type") != "MAT4":
+    accessor_type = accessor_dict.get("type")
+    if accessor_type != "MAT4":
         return None
-    matrix_count = accessor_dict.get("count")
-    if not isinstance(matrix_count, int):
+    count = accessor_dict.get("count")
+    if not isinstance(count, int):
         return None
-    component_type = accessor_dict.get("componentType")
-    if not isinstance(component_type, int):
-        return None
-    unpack_count = 4 * 4 * matrix_count
-    unpacked_values = unpack_component(component_type, unpack_count, buffer_bytes)
-    if unpacked_values is None:
+    components = unpack_accessor_as_scalar_components(
+        accessor_dict,
+        buffer_view_dicts,
+        buffer_dicts,
+        buffer0_bytes,
+        count * 16,
+    )
+    if components is None:
         return None
     return tuple(
         (
             (
-                unpacked_values[i],
-                unpacked_values[i + 1],
-                unpacked_values[i + 2],
-                unpacked_values[i + 3],
+                components[i],
+                components[i + 1],
+                components[i + 2],
+                components[i + 3],
             ),
             (
-                unpacked_values[i + 4],
-                unpacked_values[i + 5],
-                unpacked_values[i + 6],
-                unpacked_values[i + 7],
+                components[i + 4],
+                components[i + 5],
+                components[i + 6],
+                components[i + 7],
             ),
             (
-                unpacked_values[i + 8],
-                unpacked_values[i + 9],
-                unpacked_values[i + 10],
-                unpacked_values[i + 11],
+                components[i + 8],
+                components[i + 9],
+                components[i + 10],
+                components[i + 11],
             ),
             (
-                unpacked_values[i + 12],
-                unpacked_values[i + 13],
-                unpacked_values[i + 14],
-                unpacked_values[i + 15],
+                components[i + 12],
+                components[i + 13],
+                components[i + 14],
+                components[i + 15],
             ),
         )
-        for i in range(0, unpack_count, 16)
+        for i in range(0, count * 16, 16)
     )
-
-
-def read_accessor_as_animation_sampler_translation_output(
-    accessor_dict: dict[str, Json],
-    buffer_view_dicts: list[Json],
-    buffer_dicts: list[Json],
-    buffer0_bytes: bytes,
-) -> Optional[list[Vector]]:
-    if accessor_dict.get("type") != "VEC3":
-        return None
-    buffer_bytes = read_accessor_as_bytes(
-        accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
-    )
-    if buffer_bytes is None:
-        return None
-    unpacked_values = unpack_vector_accessor(accessor_dict, buffer_bytes)
-    if unpacked_values is None:
-        return None
-    return [Vector((x, -z, y)) for x, y, z in unpacked_values]
-
-
-def read_accessor_as_animation_sampler_rotation_output(
-    accessor_dict: dict[str, Json],
-    buffer_view_dicts: list[Json],
-    buffer_dicts: list[Json],
-    buffer0_bytes: bytes,
-) -> Optional[list[Quaternion]]:
-    if accessor_dict.get("type") != "VEC4":
-        return None
-    buffer_bytes = read_accessor_as_bytes(
-        accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
-    )
-    if buffer_bytes is None:
-        return None
-    unpacked_values = unpack_vector_accessor(accessor_dict, buffer_bytes)
-    if not unpacked_values:
-        return None
-    return [Quaternion((w, x, -z, y)).normalized() for x, y, z, w in unpacked_values]
 
 
 def read_accessor(
@@ -424,39 +482,27 @@ def read_accessor(
     ],
     None,
 ]:
-    buffer_bytes = read_accessor_as_bytes(
-        accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
-    )
-    if buffer_bytes is None:
-        return None
-
     accessor_type = accessor_dict.get("type")
-    component_type = accessor_dict.get("componentType")
-    if not isinstance(component_type, int):
-        return None
-
     if accessor_type == "SCALAR":
-        count = accessor_dict.get("count")
-        if not isinstance(count, int):
-            return None
-        return unpack_component(component_type, count, buffer_bytes)
+        return read_scalar_accessor(
+            accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
+        )
     if accessor_type == "VEC2":
-        unpacked_values = unpack_vector_accessor(accessor_dict, buffer_bytes)
-        if not unpacked_values:
-            return None
-        return tuple((x, y) for x, y in unpacked_values)
+        return read_vec2_accessor(
+            accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
+        )
     if accessor_type == "VEC3":
-        unpacked_values = unpack_vector_accessor(accessor_dict, buffer_bytes)
-        if not unpacked_values:
-            return None
-        return tuple((x, y, z) for x, y, z in unpacked_values)
+        return read_vec3_accessor(
+            accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
+        )
     if accessor_type == "VEC4":
-        unpacked_values = unpack_vector_accessor(accessor_dict, buffer_bytes)
-        if not unpacked_values:
-            return None
-        return tuple((x, y, z, w) for x, y, z, w in unpacked_values)
+        return read_vec4_accessor(
+            accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
+        )
     if accessor_type == "MAT4":
-        return unpack_matrix4_accessor(accessor_dict, buffer_bytes)
+        return read_mat4_accessor(
+            accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
+        )
     return None
 
 
@@ -512,3 +558,45 @@ def read_accessors(
         for accessor_dict in accessor_dicts
         if isinstance(accessor_dict, dict)
     )
+
+
+def read_accessor_as_animation_sampler_input(
+    accessor_dict: dict[str, Json],
+    buffer_view_dicts: list[Json],
+    buffer_dicts: list[Json],
+    buffer0_bytes: bytes,
+) -> Optional[list[float]]:
+    scalar_accessor = read_scalar_accessor(
+        accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
+    )
+    if scalar_accessor is None:
+        return None
+    return [float(v) for v in scalar_accessor]
+
+
+def read_accessor_as_animation_sampler_translation_output(
+    accessor_dict: dict[str, Json],
+    buffer_view_dicts: list[Json],
+    buffer_dicts: list[Json],
+    buffer0_bytes: bytes,
+) -> Optional[list[Vector]]:
+    vec3_accessor = read_vec3_accessor(
+        accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
+    )
+    if vec3_accessor is None:
+        return None
+    return [Vector((x, -z, y)) for x, y, z in vec3_accessor]
+
+
+def read_accessor_as_animation_sampler_rotation_output(
+    accessor_dict: dict[str, Json],
+    buffer_view_dicts: list[Json],
+    buffer_dicts: list[Json],
+    buffer0_bytes: bytes,
+) -> Optional[list[Quaternion]]:
+    vec4_accessor = read_vec4_accessor(
+        accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
+    )
+    if vec4_accessor is None:
+        return None
+    return [Quaternion((w, x, -z, y)).normalized() for x, y, z, w in vec4_accessor]
