@@ -115,6 +115,7 @@ def pack_glb(
     # https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#binary-gltf-layout
     json_chunk_bytes = json.dumps(
         json_dict,
+        separators=(",", ":"),
         # UniVRM 0.56.3 cannot import a json containing unicode escape chars into
         # Unity Editor.
         ensure_ascii=False,
