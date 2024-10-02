@@ -19,6 +19,7 @@ from typing import Optional
 
 import bpy
 import mathutils
+from bpy.path import clean_name
 from bpy.types import (
     Armature,
     Context,
@@ -49,7 +50,7 @@ from ..external.io_scene_gltf2_support import (
     import_scene_gltf,
 )
 from .gltf2_addon_importer_user_extension import Gltf2AddonImporterUserExtension
-from .vrm_parser import ParseResult, remove_unsafe_path_chars
+from .vrm_parser import ParseResult
 
 logger = get_logger(__name__)
 
@@ -233,7 +234,7 @@ class AbstractBaseVrmImporter(ABC):
                 continue
             image_name = Path(image.filepath_from_user()).stem
             if not image_name:
-                image_name = remove_unsafe_path_chars(image.name)
+                image_name = clean_name(image.name)
             image_type = image.file_format.lower()
             if bpy.app.version >= (3, 4):
                 image.filepath_raw = f"//textures{os.sep}{image_name}.{image_type}"
@@ -287,7 +288,7 @@ class AbstractBaseVrmImporter(ABC):
                 )
                 image_name = new_image_name
 
-            image_name = remove_unsafe_path_chars(image_name)
+            image_name = clean_name(image_name)
             if not image_name:
                 image_name = "_"
             image_path = dir_path / image_name

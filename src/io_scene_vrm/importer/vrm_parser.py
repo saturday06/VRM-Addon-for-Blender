@@ -3,7 +3,6 @@
 
 import sys
 from dataclasses import dataclass, field
-from itertools import repeat
 from pathlib import Path
 from typing import Optional, Union
 
@@ -139,58 +138,6 @@ class ParseResult:
     )
     skins_joints_list: list[list[int]] = field(init=False, default_factory=list)
     skins_root_node_list: list[int] = field(init=False, default_factory=list)
-
-
-def remove_unsafe_path_chars(filename: str) -> str:
-    unsafe_chars = {
-        0: "\x00",
-        1: "\x01",
-        2: "\x02",
-        3: "\x03",
-        4: "\x04",
-        5: "\x05",
-        6: "\x06",
-        7: "\x07",
-        8: "\x08",
-        9: "\t",
-        10: "\n",
-        11: "\x0b",
-        12: "\x0c",
-        13: "\r",
-        14: "\x0e",
-        15: "\x0f",
-        16: "\x10",
-        17: "\x11",
-        18: "\x12",
-        19: "\x13",
-        20: "\x14",
-        21: "\x15",
-        22: "\x16",
-        23: "\x17",
-        24: "\x18",
-        25: "\x19",
-        26: "\x1a",
-        27: "\x1b",
-        28: "\x1c",
-        29: "\x1d",
-        30: "\x1e",
-        31: "\x1f",
-        34: '"',
-        42: "*",
-        47: "/",
-        58: ":",
-        60: "<",
-        62: ">",
-        63: "?",
-        92: "\\",
-        124: "|",
-    }  # 32:space #33:!
-    remove_table = str.maketrans(
-        "".join([chr(unsafe_char) for unsafe_char in unsafe_chars]),
-        "".join(repeat("_", len(unsafe_chars))),
-    )
-    safe_filename = filename.translate(remove_table)
-    return safe_filename
 
 
 @dataclass
