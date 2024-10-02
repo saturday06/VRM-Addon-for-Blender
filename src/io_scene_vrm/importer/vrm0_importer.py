@@ -41,8 +41,7 @@ from ..editor.vrm0.property_group import (
     Vrm0MetaPropertyGroup,
     Vrm0SecondaryAnimationPropertyGroup,
 )
-from .abstract_base_vrm_importer import AbstractBaseVrmImporter
-from .vrm_parser import Vrm0MaterialProperty
+from .abstract_base_vrm_importer import AbstractBaseVrmImporter, Vrm0MaterialProperty
 
 logger = get_logger(__name__)
 
@@ -487,7 +486,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         if self.parse_result.spec_version_number >= (1, 0):
             return
 
-        vrm0_extension = self.parse_result.vrm0_extension
+        vrm0_extension = self.parse_result.vrm0_extension_dict
 
         addon_extension.addon_version = addon_version()
 
@@ -1021,7 +1020,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
 
     def find_vrm0_bone_node_indices(self) -> list[int]:
         result: list[int] = []
-        vrm0_dict = self.parse_result.vrm0_extension
+        vrm0_dict = self.parse_result.vrm0_extension_dict
 
         first_person_bone_index = deep.get(
             vrm0_dict, ["firstPerson", "firstPersonBone"]

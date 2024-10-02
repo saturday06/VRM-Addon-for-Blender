@@ -384,7 +384,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
     def find_vrm1_bone_node_indices(self) -> list[int]:
         result: list[int] = []
-        vrm1_dict = self.parse_result.vrm1_extension
+        vrm1_dict = self.parse_result.vrm1_extension_dict
         human_bones_dict = deep.get(vrm1_dict, ["humanoid", "humanBones"])
         if isinstance(human_bones_dict, dict):
             for human_bone_dict in human_bones_dict.values():
@@ -835,7 +835,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         vrm1 = addon_extension.vrm1
 
         addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM1
-        vrm1_extension_dict = self.parse_result.vrm1_extension
+        vrm1_extension_dict = self.parse_result.vrm1_extension_dict
 
         addon_extension.addon_version = addon_version()
 

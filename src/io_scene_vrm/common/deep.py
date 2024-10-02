@@ -1,5 +1,6 @@
 import difflib
 import math
+from collections.abc import Mapping
 from json import dumps as json_dumps
 from typing import Union
 
@@ -41,7 +42,7 @@ def make_json(v: object) -> Json:
 
 
 def get(
-    json: Json,
+    json: Union[Json, Mapping[str, Json]],
     attrs: list[Union[int, str]],
     default: Json = None,
 ) -> Json:

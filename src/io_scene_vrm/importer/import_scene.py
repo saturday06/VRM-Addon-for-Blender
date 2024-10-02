@@ -30,12 +30,11 @@ from ..editor import search
 from ..editor.extension import get_armature_extension
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
-from .abstract_base_vrm_importer import AbstractBaseVrmImporter
+from .abstract_base_vrm_importer import AbstractBaseVrmImporter, parse_vrm_json
 from .license_validation import LicenseConfirmationRequiredError
 from .vrm0_importer import Vrm0Importer
 from .vrm1_importer import Vrm1Importer
 from .vrm_animation_importer import VrmAnimationImporter
-from .vrm_parser import VrmParser
 
 logger = get_logger(__name__)
 
@@ -324,13 +323,7 @@ def import_vrm(
     *,
     license_validation: bool,
 ) -> set[str]:
-    parse_result = VrmParser(
-        filepath,
-        preferences.extract_textures_into_folder,
-        preferences.make_new_texture_folder,
-        license_validation=license_validation,
-    ).parse()
-
+    parse_result = parse_vrm_json(filepath, license_validation=license_validation)
     if parse_result.spec_version_number >= (1,):
         vrm_importer: AbstractBaseVrmImporter = Vrm1Importer(
             context,
