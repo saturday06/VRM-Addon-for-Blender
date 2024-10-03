@@ -42,7 +42,7 @@ fi
 
 # 環境によってはパッケージのインストールは5%くらいの頻度で失敗するのでリトライする
 for _ in $(seq 5); do
-  if uv sync; then
+  if uv sync --reinstall; then
     break
   fi
   sleep 10
