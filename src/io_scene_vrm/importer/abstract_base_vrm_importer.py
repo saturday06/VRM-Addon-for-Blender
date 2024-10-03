@@ -13,7 +13,7 @@ import shutil
 import struct
 import tempfile
 from abc import ABC, abstractmethod
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -57,104 +57,6 @@ logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
-class Vrm0MaterialProperty:
-    name: str
-    shader: str
-    render_queue: Optional[int]
-    keyword_map: Mapping[str, bool]
-    tag_map: Mapping[str, str]
-    float_properties: Mapping[str, float]
-    vector_properties: Mapping[str, Sequence[float]]
-    texture_properties: Mapping[str, int]
-
-    @staticmethod
-    def create(json_dict: Json) -> "Vrm0MaterialProperty":
-        fallback = Vrm0MaterialProperty(
-            name="Undefined",
-            shader="VRM_USE_GLTFSHADER",
-            render_queue=None,
-            keyword_map={},
-            tag_map={},
-            float_properties={},
-            vector_properties={},
-            texture_properties={},
-        )
-        if not isinstance(json_dict, dict):
-            return fallback
-
-        name = json_dict.get("name")
-        if not isinstance(name, str):
-            name = fallback.name
-
-        shader = json_dict.get("shader")
-        if not isinstance(shader, str):
-            shader = fallback.shader
-
-        render_queue = json_dict.get("renderQueue")
-        if not isinstance(render_queue, int):
-            render_queue = fallback.render_queue
-
-        raw_keyword_map = json_dict.get("keywordMap")
-        if isinstance(raw_keyword_map, dict):
-            keyword_map: Mapping[str, bool] = {
-                k: v for k, v in raw_keyword_map.items() if isinstance(v, bool)
-            }
-        else:
-            keyword_map = fallback.keyword_map
-
-        raw_tag_map = json_dict.get("tagMap")
-        if isinstance(raw_tag_map, dict):
-            tag_map: Mapping[str, str] = {
-                k: v for k, v in raw_tag_map.items() if isinstance(v, str)
-            }
-        else:
-            tag_map = fallback.tag_map
-
-        raw_float_properties = json_dict.get("floatProperties")
-        if isinstance(raw_float_properties, dict):
-            float_properties: Mapping[str, float] = {
-                k: float(v)
-                for k, v in raw_float_properties.items()
-                if isinstance(v, (float, int))
-            }
-        else:
-            float_properties = fallback.float_properties
-
-        raw_vector_properties = json_dict.get("vectorProperties")
-        if isinstance(raw_vector_properties, dict):
-            vector_properties: Mapping[str, Sequence[float]] = {
-                k: [
-                    vector_element
-                    for vector_element in vector
-                    if isinstance(vector_element, (float, int))
-                ]
-                for k, vector in raw_vector_properties.items()
-                if isinstance(vector, list)
-            }
-        else:
-            vector_properties = fallback.vector_properties
-
-        raw_texture_properties = json_dict.get("textureProperties")
-        if isinstance(raw_texture_properties, dict):
-            texture_properties: Mapping[str, int] = {
-                k: v for k, v in raw_texture_properties.items() if isinstance(v, int)
-            }
-        else:
-            texture_properties = fallback.texture_properties
-
-        return Vrm0MaterialProperty(
-            name=name,
-            shader=shader,
-            render_queue=render_queue,
-            keyword_map=keyword_map,
-            tag_map=tag_map,
-            float_properties=float_properties,
-            vector_properties=vector_properties,
-            texture_properties=texture_properties,
-        )
-
-
-@dataclass(frozen=True)
 class ParseResult:
     filepath: Path
     json_dict: Mapping[str, Json]
@@ -164,7 +66,6 @@ class ParseResult:
     vrm0_extension_dict: Mapping[str, Json]
     vrm1_extension_dict: Mapping[str, Json]
     hips_node_index: Optional[int]
-    vrm0_material_properties: Sequence[Vrm0MaterialProperty]
 
 
 class AbstractBaseVrmImporter(ABC):
@@ -1403,7 +1304,6 @@ def parse_vrm_json(filepath: Path, *, license_validation: bool) -> ParseResult:
 
     vrm1_extension_dict = deep.get(json_dict, ["extensions", "VRMC_vrm"])
     vrm0_extension_dict = deep.get(json_dict, ["extensions", "VRM"])
-    vrm0_material_properties: Sequence[Vrm0MaterialProperty] = []
     if isinstance(vrm1_extension_dict, dict):
         (
             spec_version_number,
@@ -1419,7 +1319,6 @@ def parse_vrm_json(filepath: Path, *, license_validation: bool) -> ParseResult:
             spec_version_is_stable,
             hips_node_index,
         ) = read_vrm0_extension(vrm0_extension_dict)
-        vrm0_material_properties = read_vrm0_material_properties(json_dict)
         vrm1_extension_dict = {}
     else:
         spec_version_number = (0, 0)
@@ -1438,7 +1337,6 @@ def parse_vrm_json(filepath: Path, *, license_validation: bool) -> ParseResult:
         vrm0_extension_dict=vrm0_extension_dict,
         vrm1_extension_dict=vrm1_extension_dict,
         hips_node_index=hips_node_index,
-        vrm0_material_properties=vrm0_material_properties,
     )
 
 
@@ -1485,20 +1383,3 @@ def read_vrm1_extension(
         spec_version_is_stable,
         hips_node_index,
     )
-
-
-def read_vrm0_material_properties(
-    json_dict: dict[str, Json],
-) -> Sequence[Vrm0MaterialProperty]:
-    material_dicts = json_dict.get("materials")
-    if not isinstance(material_dicts, list):
-        return []
-    return [
-        Vrm0MaterialProperty.create(
-            deep.get(
-                json_dict,
-                ["extensions", "VRM", "materialProperties", index],
-            )
-        )
-        for index in range(len(material_dicts))
-    ]

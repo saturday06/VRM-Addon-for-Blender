@@ -4,6 +4,8 @@
 import json
 import math
 import uuid
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from typing import Optional, Union
 
 from bpy.types import (
@@ -41,9 +43,107 @@ from ..editor.vrm0.property_group import (
     Vrm0MetaPropertyGroup,
     Vrm0SecondaryAnimationPropertyGroup,
 )
-from .abstract_base_vrm_importer import AbstractBaseVrmImporter, Vrm0MaterialProperty
+from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 
 logger = get_logger(__name__)
+
+
+@dataclass(frozen=True)
+class MaterialProperty:
+    name: str
+    shader: str
+    render_queue: Optional[int]
+    keyword_map: Mapping[str, bool]
+    tag_map: Mapping[str, str]
+    float_properties: Mapping[str, float]
+    vector_properties: Mapping[str, Sequence[float]]
+    texture_properties: Mapping[str, int]
+
+    @staticmethod
+    def create(json_dict: Json) -> "MaterialProperty":
+        fallback = MaterialProperty(
+            name="Undefined",
+            shader="VRM_USE_GLTFSHADER",
+            render_queue=None,
+            keyword_map={},
+            tag_map={},
+            float_properties={},
+            vector_properties={},
+            texture_properties={},
+        )
+        if not isinstance(json_dict, dict):
+            return fallback
+
+        name = json_dict.get("name")
+        if not isinstance(name, str):
+            name = fallback.name
+
+        shader = json_dict.get("shader")
+        if not isinstance(shader, str):
+            shader = fallback.shader
+
+        render_queue = json_dict.get("renderQueue")
+        if not isinstance(render_queue, int):
+            render_queue = fallback.render_queue
+
+        raw_keyword_map = json_dict.get("keywordMap")
+        if isinstance(raw_keyword_map, dict):
+            keyword_map: Mapping[str, bool] = {
+                k: v for k, v in raw_keyword_map.items() if isinstance(v, bool)
+            }
+        else:
+            keyword_map = fallback.keyword_map
+
+        raw_tag_map = json_dict.get("tagMap")
+        if isinstance(raw_tag_map, dict):
+            tag_map: Mapping[str, str] = {
+                k: v for k, v in raw_tag_map.items() if isinstance(v, str)
+            }
+        else:
+            tag_map = fallback.tag_map
+
+        raw_float_properties = json_dict.get("floatProperties")
+        if isinstance(raw_float_properties, dict):
+            float_properties: Mapping[str, float] = {
+                k: float(v)
+                for k, v in raw_float_properties.items()
+                if isinstance(v, (float, int))
+            }
+        else:
+            float_properties = fallback.float_properties
+
+        raw_vector_properties = json_dict.get("vectorProperties")
+        if isinstance(raw_vector_properties, dict):
+            vector_properties: Mapping[str, Sequence[float]] = {
+                k: [
+                    vector_element
+                    for vector_element in vector
+                    if isinstance(vector_element, (float, int))
+                ]
+                for k, vector in raw_vector_properties.items()
+                if isinstance(vector, list)
+            }
+        else:
+            vector_properties = fallback.vector_properties
+
+        raw_texture_properties = json_dict.get("textureProperties")
+        if isinstance(raw_texture_properties, dict):
+            texture_properties: Mapping[str, int] = {
+                k: v for k, v in raw_texture_properties.items() if isinstance(v, int)
+            }
+        else:
+            texture_properties = fallback.texture_properties
+
+        return MaterialProperty(
+            name=name,
+            shader=shader,
+            render_queue=render_queue,
+            keyword_map=keyword_map,
+            tag_map=tag_map,
+            float_properties=float_properties,
+            vector_properties=vector_properties,
+            texture_properties=texture_properties,
+        )
 
 
 class Vrm0Importer(AbstractBaseVrmImporter):
@@ -53,9 +153,21 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             "VRM/UnlitTransparentZWrite": self.build_material_from_transparent_z_write,
         }
 
-        for index, material_property in enumerate(
-            self.parse_result.vrm0_material_properties
-        ):
+        material_dicts = self.parse_result.json_dict.get("materials")
+        if not isinstance(material_dicts, list):
+            return
+
+        material_properties = [
+            MaterialProperty.create(
+                deep.get(
+                    self.parse_result.json_dict,
+                    ["extensions", "VRM", "materialProperties", index],
+                )
+            )
+            for index in range(len(material_dicts))
+        ]
+
+        for index, material_property in enumerate(material_properties):
             build_method = shader_to_build_method.get(material_property.shader)
             if not build_method:
                 continue
@@ -67,9 +179,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
 
             self.reset_material(material)
             build_method(material, material_property)
-            progress.update(
-                float(index) / len(self.parse_result.vrm0_material_properties)
-            )
+            progress.update(float(index) / len(material_properties))
 
         progress.update(1)
 
@@ -160,7 +270,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         )
 
     def build_material_from_mtoon0(
-        self, material: Material, vrm0_material_property: Vrm0MaterialProperty
+        self, material: Material, material_property: MaterialProperty
     ) -> None:
         # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_15_26/io_scene_vrm/editor/mtoon1/ops.py#L98
         material.use_backface_culling = True
@@ -172,7 +282,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         mtoon = gltf.extensions.vrmc_materials_mtoon
 
         gltf.alpha_mode = gltf.ALPHA_MODE_OPAQUE.identifier
-        blend_mode = vrm0_material_property.float_properties.get("_BlendMode")
+        blend_mode = material_property.float_properties.get("_BlendMode")
         if blend_mode is not None:
             if math.fabs(blend_mode - 1) < 0.001:
                 gltf.alpha_mode = gltf.ALPHA_MODE_MASK.identifier
@@ -182,12 +292,12 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 gltf.alpha_mode = gltf.ALPHA_MODE_BLEND.identifier
                 mtoon.transparent_with_z_write = True
 
-        cutoff = vrm0_material_property.float_properties.get("_Cutoff")
+        cutoff = material_property.float_properties.get("_Cutoff")
         if cutoff is not None:
             gltf.alpha_cutoff = cutoff
 
         gltf.double_sided = True
-        cull_mode = vrm0_material_property.float_properties.get("_CullMode")
+        cull_mode = material_property.float_properties.get("_CullMode")
         if cull_mode is not None:
             if math.fabs(cull_mode - 1) < 0.001:
                 gltf.mtoon0_front_cull_mode = True
@@ -195,12 +305,12 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 gltf.double_sided = False
 
         base_color_factor = shader.rgba_or_none(
-            vrm0_material_property.vector_properties.get("_Color")
+            material_property.vector_properties.get("_Color")
         )
         if base_color_factor:
             gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
 
-        raw_uv_transform = vrm0_material_property.vector_properties.get("_MainTex")
+        raw_uv_transform = material_property.vector_properties.get("_MainTex")
         if raw_uv_transform is None or len(raw_uv_transform) != 4:
             uv_transform = (0.0, 0.0, 1.0, 1.0)
         else:
@@ -213,36 +323,36 @@ class Vrm0Importer(AbstractBaseVrmImporter):
 
         self.assign_mtoon0_texture_info(
             gltf.pbr_metallic_roughness.base_color_texture,
-            vrm0_material_property.texture_properties.get("_MainTex"),
+            material_property.texture_properties.get("_MainTex"),
             uv_transform,
         )
 
         shade_color_factor = shader.rgb_or_none(
-            vrm0_material_property.vector_properties.get("_ShadeColor")
+            material_property.vector_properties.get("_ShadeColor")
         )
         if shade_color_factor:
             mtoon.shade_color_factor = shade_color_factor
 
         self.assign_mtoon0_texture_info(
             mtoon.shade_multiply_texture,
-            vrm0_material_property.texture_properties.get("_ShadeTexture"),
+            material_property.texture_properties.get("_ShadeTexture"),
             uv_transform,
         )
 
         self.assign_mtoon0_texture_info(
             gltf.normal_texture,
-            vrm0_material_property.texture_properties.get("_BumpMap"),
+            material_property.texture_properties.get("_BumpMap"),
             uv_transform,
         )
-        normal_texture_scale = vrm0_material_property.float_properties.get("_BumpScale")
+        normal_texture_scale = material_property.float_properties.get("_BumpScale")
         if isinstance(normal_texture_scale, (float, int)):
             gltf.normal_texture.scale = float(normal_texture_scale)
 
-        shading_shift_0x = vrm0_material_property.float_properties.get("_ShadeShift")
+        shading_shift_0x = material_property.float_properties.get("_ShadeShift")
         if shading_shift_0x is None:
             shading_shift_0x = 0
 
-        shading_toony_0x = vrm0_material_property.float_properties.get("_ShadeToony")
+        shading_toony_0x = material_property.float_properties.get("_ShadeToony")
         if shading_toony_0x is None:
             shading_toony_0x = 0
 
@@ -254,7 +364,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             shading_toony_0x, shading_shift_0x
         )
 
-        indirect_light_intensity = vrm0_material_property.float_properties.get(
+        indirect_light_intensity = material_property.float_properties.get(
             "_IndirectLightIntensity"
         )
         if indirect_light_intensity is not None:
@@ -265,7 +375,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             mtoon.gi_equalization_factor = 0.5
 
         raw_emissive_factor = shader.rgb_or_none(
-            vrm0_material_property.vector_properties.get("_EmissionColor")
+            material_property.vector_properties.get("_EmissionColor")
         ) or (0, 0, 0)
         max_color_component_value = max(raw_emissive_factor)
         if max_color_component_value > 1:
@@ -280,45 +390,43 @@ class Vrm0Importer(AbstractBaseVrmImporter):
 
         self.assign_mtoon0_texture_info(
             gltf.emissive_texture,
-            vrm0_material_property.texture_properties.get("_EmissionMap"),
+            material_property.texture_properties.get("_EmissionMap"),
             uv_transform,
         )
 
         self.assign_mtoon0_texture_info(
             mtoon.matcap_texture,
-            vrm0_material_property.texture_properties.get("_SphereAdd"),
+            material_property.texture_properties.get("_SphereAdd"),
             (0, 0, 1, 1),
         )
 
         parametric_rim_color_factor = shader.rgb_or_none(
-            vrm0_material_property.vector_properties.get("_RimColor")
+            material_property.vector_properties.get("_RimColor")
         )
         if parametric_rim_color_factor:
             mtoon.parametric_rim_color_factor = parametric_rim_color_factor
 
-        parametric_rim_fresnel_power_factor = (
-            vrm0_material_property.float_properties.get("_RimFresnelPower")
+        parametric_rim_fresnel_power_factor = material_property.float_properties.get(
+            "_RimFresnelPower"
         )
         if isinstance(parametric_rim_fresnel_power_factor, (float, int)):
             mtoon.parametric_rim_fresnel_power_factor = (
                 parametric_rim_fresnel_power_factor
             )
 
-        mtoon.parametric_rim_lift_factor = vrm0_material_property.float_properties.get(
+        mtoon.parametric_rim_lift_factor = material_property.float_properties.get(
             "_RimLift", 0
         )
 
         self.assign_mtoon0_texture_info(
             mtoon.rim_multiply_texture,
-            vrm0_material_property.texture_properties.get("_RimTexture"),
+            material_property.texture_properties.get("_RimTexture"),
             uv_transform,
         )
 
         # https://github.com/vrm-c/UniVRM/blob/7c9919ef47a25c04100a2dcbe6a75dff49ef4857/Assets/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs#L287-L290
         mtoon.rim_lighting_mix_factor = 1.0
-        rim_lighting_mix = vrm0_material_property.float_properties.get(
-            "_RimLightingMix"
-        )
+        rim_lighting_mix = material_property.float_properties.get("_RimLightingMix")
         if rim_lighting_mix is not None:
             gltf.mtoon0_rim_lighting_mix = rim_lighting_mix
 
@@ -326,10 +434,10 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         one_hundredth = 0.01
 
         outline_width_mode = int(
-            round(vrm0_material_property.float_properties.get("_OutlineWidthMode", 0))
+            round(material_property.float_properties.get("_OutlineWidthMode", 0))
         )
 
-        outline_width = vrm0_material_property.float_properties.get("_OutlineWidth")
+        outline_width = material_property.float_properties.get("_OutlineWidth")
         if outline_width is None:
             outline_width = 0.0
 
@@ -345,7 +453,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 mtoon.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES.identifier
             )
             mtoon.outline_width_factor = max(0.0, outline_width * one_hundredth * 0.5)
-            outline_scaled_max_distance = vrm0_material_property.float_properties.get(
+            outline_scaled_max_distance = material_property.float_properties.get(
                 "_OutlineScaledMaxDistance"
             )
             if outline_scaled_max_distance is not None:
@@ -353,60 +461,58 @@ class Vrm0Importer(AbstractBaseVrmImporter):
 
         self.assign_mtoon0_texture_info(
             mtoon.outline_width_multiply_texture,
-            vrm0_material_property.texture_properties.get("_OutlineWidthTexture"),
+            material_property.texture_properties.get("_OutlineWidthTexture"),
             uv_transform,
         )
 
         outline_color_factor = shader.rgb_or_none(
-            vrm0_material_property.vector_properties.get("_OutlineColor")
+            material_property.vector_properties.get("_OutlineColor")
         )
         if outline_color_factor:
             mtoon.outline_color_factor = outline_color_factor
 
-        outline_color_mode = vrm0_material_property.float_properties.get(
-            "_OutlineColorMode"
-        )
+        outline_color_mode = material_property.float_properties.get("_OutlineColorMode")
         if (
             outline_color_mode is not None
             and math.fabs(outline_color_mode - 1) < 0.00001
         ):
             mtoon.outline_lighting_mix_factor = (
-                vrm0_material_property.float_properties.get("_OutlineLightingMix") or 1
+                material_property.float_properties.get("_OutlineLightingMix") or 1
             )
         else:
             mtoon.outline_lighting_mix_factor = 0  # Fixed Color
 
         self.assign_mtoon0_texture_info(
             mtoon.uv_animation_mask_texture,
-            vrm0_material_property.texture_properties.get("_UvAnimMaskTexture"),
+            material_property.texture_properties.get("_UvAnimMaskTexture"),
             uv_transform,
         )
 
-        uv_animation_rotation_speed_factor = (
-            vrm0_material_property.float_properties.get("_UvAnimRotation")
+        uv_animation_rotation_speed_factor = material_property.float_properties.get(
+            "_UvAnimRotation"
         )
         if isinstance(uv_animation_rotation_speed_factor, (float, int)):
             mtoon.uv_animation_rotation_speed_factor = (
                 uv_animation_rotation_speed_factor
             )
 
-        uv_animation_scroll_x_speed_factor = (
-            vrm0_material_property.float_properties.get("_UvAnimScrollX")
+        uv_animation_scroll_x_speed_factor = material_property.float_properties.get(
+            "_UvAnimScrollX"
         )
         if isinstance(uv_animation_scroll_x_speed_factor, (float, int)):
             mtoon.uv_animation_scroll_x_speed_factor = (
                 uv_animation_scroll_x_speed_factor
             )
 
-        uv_animation_scroll_y_speed_factor = (
-            vrm0_material_property.float_properties.get("_UvAnimScrollY")
+        uv_animation_scroll_y_speed_factor = material_property.float_properties.get(
+            "_UvAnimScrollY"
         )
         if isinstance(uv_animation_scroll_y_speed_factor, (float, int)):
             mtoon.uv_animation_scroll_y_speed_factor = (
                 -uv_animation_scroll_y_speed_factor
             )
 
-        light_color_attenuation = vrm0_material_property.float_properties.get(
+        light_color_attenuation = material_property.float_properties.get(
             "_LightColorAttenuation"
         )
         if light_color_attenuation is not None:
@@ -414,35 +520,35 @@ class Vrm0Importer(AbstractBaseVrmImporter):
 
         self.assign_mtoon0_texture(
             gltf.mtoon0_receive_shadow_texture,
-            vrm0_material_property.texture_properties.get("_ReceiveShadowTexture"),
+            material_property.texture_properties.get("_ReceiveShadowTexture"),
         )
 
-        gltf.mtoon0_receive_shadow_rate = vrm0_material_property.float_properties.get(
+        gltf.mtoon0_receive_shadow_rate = material_property.float_properties.get(
             "_ReceiveShadowRate", 0.5
         )
 
         self.assign_mtoon0_texture(
             gltf.mtoon0_shading_grade_texture,
-            vrm0_material_property.texture_properties.get("_ShadingGradeTexture"),
+            material_property.texture_properties.get("_ShadingGradeTexture"),
         )
 
-        gltf.mtoon0_shading_grade_rate = vrm0_material_property.float_properties.get(
+        gltf.mtoon0_shading_grade_rate = material_property.float_properties.get(
             "_ShadingGradeRate", 0.5
         )
 
-        if vrm0_material_property.render_queue is not None:
-            gltf.mtoon0_render_queue = vrm0_material_property.render_queue
+        if material_property.render_queue is not None:
+            gltf.mtoon0_render_queue = material_property.render_queue
 
     def build_material_from_transparent_z_write(
         self,
         material: Material,
-        vrm0_material_property: Vrm0MaterialProperty,
+        material_property: MaterialProperty,
     ) -> None:
         gltf = get_material_extension(material).mtoon1
         gltf.enabled = True
         mtoon = gltf.extensions.vrmc_materials_mtoon
 
-        main_texture_index = vrm0_material_property.texture_properties.get("_MainTex")
+        main_texture_index = material_property.texture_properties.get("_MainTex")
         main_texture_image = None
         if isinstance(main_texture_index, int):
             texture_dicts = self.parse_result.json_dict.get("textures")
