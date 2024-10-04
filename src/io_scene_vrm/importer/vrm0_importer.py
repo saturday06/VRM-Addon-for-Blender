@@ -147,10 +147,10 @@ class MaterialProperty:
 
 
 class Vrm0Importer(AbstractBaseVrmImporter):
-    def make_materials(self, progress: PartialProgress) -> None:
-        shader_to_build_method = {
-            "VRM/MToon": self.build_material_from_mtoon0,
-            "VRM/UnlitTransparentZWrite": self.build_material_from_transparent_z_write,
+    def load_materials(self, progress: PartialProgress) -> None:
+        shader_to_assignment_method = {
+            "VRM/MToon": self.assign_mtoon0_property,
+            "VRM/UnlitTransparentZWrite": self.assign_transparent_z_write_property,
         }
 
         material_dicts = self.parse_result.json_dict.get("materials")
@@ -168,8 +168,10 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         ]
 
         for index, material_property in enumerate(material_properties):
-            build_method = shader_to_build_method.get(material_property.shader)
-            if not build_method:
+            assignment_method = shader_to_assignment_method.get(
+                material_property.shader
+            )
+            if not assignment_method:
                 continue
 
             material = self.materials.get(index)
@@ -178,7 +180,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 self.materials[index] = material
 
             self.reset_material(material)
-            build_method(material, material_property)
+            assignment_method(material, material_property)
             progress.update(float(index) / len(material_properties))
 
         progress.update(1)
@@ -269,7 +271,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             uv_transform[3],
         )
 
-    def build_material_from_mtoon0(
+    def assign_mtoon0_property(
         self, material: Material, material_property: MaterialProperty
     ) -> None:
         # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_15_26/io_scene_vrm/editor/mtoon1/ops.py#L98
@@ -539,7 +541,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         if material_property.render_queue is not None:
             gltf.mtoon0_render_queue = material_property.render_queue
 
-    def build_material_from_transparent_z_write(
+    def assign_transparent_z_write_property(
         self,
         material: Material,
         material_property: MaterialProperty,

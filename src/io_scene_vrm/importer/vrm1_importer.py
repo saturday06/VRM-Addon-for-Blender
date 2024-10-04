@@ -371,7 +371,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 uv_animation_scroll_y_speed_factor
             )
 
-    def make_materials(self, progress: PartialProgress) -> None:
+    def load_materials(self, progress: PartialProgress) -> None:
         material_dicts = self.parse_result.json_dict.get("materials")
         if not isinstance(material_dicts, list):
             progress.update(1)

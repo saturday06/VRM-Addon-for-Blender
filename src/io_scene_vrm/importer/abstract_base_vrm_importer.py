@@ -92,7 +92,7 @@ class AbstractBaseVrmImporter(ABC):
         self.imported_object_names: Optional[list[str]] = None
 
     @abstractmethod
-    def make_materials(self, progress: PartialProgress) -> None:
+    def load_materials(self, progress: PartialProgress) -> None:
         pass
 
     @abstractmethod
@@ -109,7 +109,6 @@ class AbstractBaseVrmImporter(ABC):
                 with save_workspace(self.context):
                     progress.update(0.1)
                     self.import_gltf2_with_indices()
-                    progress.update(0.2)
                     progress.update(0.3)
                     self.use_fake_user_for_thumbnail()
                     progress.update(0.4)
@@ -117,7 +116,7 @@ class AbstractBaseVrmImporter(ABC):
                         self.parse_result.vrm1_extension_dict
                         or self.parse_result.vrm0_extension_dict
                     ):
-                        self.make_materials(progress.partial_progress(0.9))
+                        self.load_materials(progress.partial_progress(0.9))
                     if (
                         self.parse_result.vrm1_extension_dict
                         or self.parse_result.vrm0_extension_dict
@@ -199,24 +198,33 @@ class AbstractBaseVrmImporter(ABC):
         # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtexture
         # のインデックスになっている
         # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterself.context.cs#L308
-        json_texture_index = deep.get(
+        thumbnail_texture_index = deep.get(
             self.parse_result.vrm0_extension_dict, ["meta", "texture"]
         )
-        if not isinstance(json_texture_index, int):
+        if not isinstance(thumbnail_texture_index, int):
             return
-        json_textures = self.parse_result.json_dict.get("textures", [])
-        if not isinstance(json_textures, list):
+
+        texture_dicts = self.parse_result.json_dict.get("textures", [])
+        if not isinstance(texture_dicts, list):
             logger.warning('json["textures"] is not list')
             return
-        if json_texture_index not in (-1, None) and (
-            "textures" in self.parse_result.json_dict
-            and len(json_textures) > json_texture_index
-        ):
-            json_texture = json_textures[json_texture_index]
-            if isinstance(json_texture, dict):
-                image_index = json_texture.get("source")
-                if isinstance(image_index, int) and image_index in self.images:
-                    self.images[image_index].use_fake_user = True
+
+        if not (0 <= thumbnail_texture_index < len(texture_dicts)):
+            return
+
+        thumbnail_texture_dict = texture_dicts[thumbnail_texture_index]
+        if not isinstance(thumbnail_texture_dict, dict):
+            return
+
+        thumbnail_image_index = thumbnail_texture_dict.get("source")
+        if not isinstance(thumbnail_image_index, int):
+            return
+
+        thumbnail_image = self.images.get(thumbnail_image_index)
+        if not thumbnail_image:
+            return
+
+        thumbnail_image.use_fake_user = True
 
     @staticmethod
     def reset_material(material: Material) -> None:
@@ -268,19 +276,20 @@ class AbstractBaseVrmImporter(ABC):
         if bpy.app.version >= (3, 1) and not self.context.blend_data.filepath:
             temp_blend_path = None
             for _ in range(10000):
-                suffix = (
+                image_suffix = (
                     ".temp"
                     + "".join(str(secrets.randbelow(10)) for _ in range(10))
                     + ".blend"
                 )
-                temp_blend_path = self.parse_result.filepath.with_suffix(suffix)
+                temp_blend_path = self.parse_result.filepath.with_suffix(image_suffix)
                 if not temp_blend_path.exists():
                     break
             if temp_blend_path is not None:
                 bpy.ops.wm.save_as_mainfile(filepath=str(temp_blend_path))
 
         for image_index, image in self.images.items():
-            image_name = Path(image.filepath_from_user()).name
+            original_image_path = Path(image.filepath_from_user())
+            image_name = original_image_path.stem
             if image_name:
                 legacy_image_name_prefix = self.import_id + "Image"
                 if image_name.startswith(legacy_image_name_prefix):
@@ -291,24 +300,21 @@ class AbstractBaseVrmImporter(ABC):
                             slice(len(legacy_image_name_prefix), len(image_name))
                         ],
                     )
+
             if not image_name:
                 image_name = image.name
-            image_type = image.file_format.lower()
-            if len(image_name) >= 100:
-                new_image_name = "texture_too_long_name_" + str(image_index)
-                logger.warning(
-                    "too long name image: %s is named %s", image_name, new_image_name
-                )
-                image_name = new_image_name
-
-            image_name = clean_name(image_name)
+            image_name = clean_name(image_name[:100])
             if not image_name:
-                image_name = "_"
-            image_path = dir_path / image_name
-            if not image_name.lower().endswith("." + image_type.lower()) and not (
-                image_name.lower().endswith(".jpg") and image_type.lower() == "jpeg"
-            ):
-                image_path = image_path.with_name(image_path.name + "." + image_type)
+                image_name = f"Image_{image_index}"
+
+            image_suffix = "." + image.file_format.lower()
+            if (original_image_path.suffix.lower(), image_suffix) in [
+                (".jpg", ".jpeg"),
+                (".jpeg", ".jpg"),
+            ]:
+                image_suffix = original_image_path.suffix
+
+            image_path = dir_path / (image_name + "." + image_suffix)
 
             try:
                 image.unpack(method="WRITE_ORIGINAL")
