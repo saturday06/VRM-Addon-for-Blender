@@ -42,7 +42,7 @@ fi
 
 # 環境によってはパッケージのインストールは5%くらいの頻度で失敗するのでリトライする
 for _ in $(seq 5); do
-  if uv sync --reinstall; then
+  if uv sync --reinstall-package starry-bpy-typings; then
     break
   fi
   sleep 10
