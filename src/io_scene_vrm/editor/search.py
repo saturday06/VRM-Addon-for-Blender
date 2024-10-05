@@ -48,8 +48,7 @@ def export_materials(context: Context, objects: list[Object]) -> list[Material]:
                 material = context.blend_data.materials.get(material_ref.name)
                 if not isinstance(material, Material):
                     continue
-                if material not in result:
-                    result.append(material)
+                result.append(material)
         else:
             logger.error(
                 "Unexpected mesh convertible object type: %s", type(mesh_convertible)
@@ -64,10 +63,9 @@ def export_materials(context: Context, objects: list[Object]) -> list[Material]:
             material = context.blend_data.materials.get(material_ref.name)
             if not isinstance(material, Material):
                 continue
-            if material not in result:
-                result.append(material)
+            result.append(material)
 
-    return result
+    return list(dict.fromkeys(result))  # 重複削除
 
 
 LEGACY_VRM_SHADER_NAMES: Final = (
@@ -334,7 +332,7 @@ def export_objects(
             continue
         objects.append(obj)
 
-    return objects
+    return list(dict.fromkeys(objects).keys())  # 重複削除
 
 
 @dataclass(frozen=True)

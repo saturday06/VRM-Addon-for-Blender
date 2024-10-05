@@ -323,6 +323,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         ):
             used_images.append(ext.vrm0.meta.texture)
 
+        used_images = list(dict.fromkeys(used_images))  # 重複削除
+
         for image in used_images:
             image_bin, filetype = io_scene_gltf2_support.image_to_image_bytes(
                 image, self.gltf2_addon_export_settings
