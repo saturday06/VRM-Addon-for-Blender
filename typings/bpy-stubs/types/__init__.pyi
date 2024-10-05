@@ -1435,11 +1435,18 @@ class UIList(bpy_struct):
     layout_type: str
 
 class NodeLink(bpy_struct):
+    @property
+    def from_node(self) -> Node: ...
+    @property
+    def from_socket(self) -> NodeSocket: ...
+    @property
+    def is_hidden(self) -> bool: ...
+    is_muted: bool
     is_valid: bool
-    to_socket: NodeSocket
-    from_socket: NodeSocket
-    from_node: Node
-    to_node: Node
+    @property
+    def to_node(self) -> Node: ...
+    @property
+    def to_socket(self) -> NodeSocket: ...
 
 class NodeLinks(bpy_prop_collection[NodeLink]):
     def new(
