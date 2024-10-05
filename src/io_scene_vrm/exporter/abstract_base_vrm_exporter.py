@@ -1,7 +1,7 @@
 import secrets
 import string
 from abc import ABC, abstractmethod
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from typing import Optional, Union
 
@@ -23,8 +23,12 @@ class AbstractBaseVrmExporter(ABC):
     def __init__(
         self,
         context: Context,
+        export_objects: Sequence[Object],
+        armature: Object,
     ) -> None:
         self.context = context
+        self.export_objects = export_objects
+        self.armature = armature
         self.export_id = "BlenderVrmAddonExport" + (
             "".join(secrets.choice(string.digits) for _ in range(10))
         )

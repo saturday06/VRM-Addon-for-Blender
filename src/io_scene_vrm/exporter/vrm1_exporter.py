@@ -74,22 +74,16 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         self,
         context: Context,
         export_objects: Sequence[Object],
+        armature: Object,
         *,
         export_all_influences: bool,
         export_lights: bool,
     ) -> None:
-        super().__init__(context)
+        super().__init__(context, export_objects, armature)
 
         self.export_all_influences = export_all_influences
         self.export_lights = export_lights
 
-        armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
-        if not armatures:
-            raise NotImplementedError(
-                "Export without armature is not yet supported.\n"
-                + "アーマチュア無しエクスポートはまだ未対応。"
-            )
-        self.armature = armatures[0]
         armature_data = self.armature.data
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
@@ -102,7 +96,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             collider_bpy_objects.append(collider.bpy_object)
             collider_bpy_objects.extend(collider.bpy_object.children)
 
-        self.export_objects: Sequence[Object] = [
+        self.export_objects = [
             export_object
             for export_object in export_objects
             if export_object not in collider_bpy_objects

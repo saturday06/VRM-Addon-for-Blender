@@ -34,7 +34,7 @@ MESH_CONVERTIBLE_OBJECT_TYPES = [
 ]
 
 
-def export_materials(context: Context, objects: list[Object]) -> list[Material]:
+def export_materials(context: Context, objects: Sequence[Object]) -> Sequence[Material]:
     result: list[Material] = []
     for obj in objects:
         if obj.type not in MESH_CONVERTIBLE_OBJECT_TYPES:
@@ -104,8 +104,8 @@ def vrm_shader_node(
 
 
 def shader_nodes_and_materials(
-    materials: list[Material],
-) -> list[tuple[ShaderNodeGroup, str, Material]]:
+    materials: Sequence[Material],
+) -> Sequence[tuple[ShaderNodeGroup, str, Material]]:
     result: list[tuple[ShaderNodeGroup, str, Material]] = []
     for material in materials:
         node, vrm_shader_name = vrm_shader_node(material)

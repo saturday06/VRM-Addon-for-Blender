@@ -31,7 +31,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Vector
 
-from ..common import convert, deep, ops, shader
+from ..common import convert, deep, shader
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.gl import (
@@ -58,7 +58,7 @@ from ..common.progress import PartialProgress, create_progress
 from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..common.workspace import save_workspace
-from ..editor import migration, search
+from ..editor import search
 from ..editor.extension import get_armature_extension, get_material_extension
 from ..editor.mtoon1.property_group import (
     Mtoon0TexturePropertyGroup,
@@ -104,9 +104,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         self,
         context: Context,
         export_objects: list[Object],
+        armature: Object,
     ) -> None:
-        super().__init__(context)
-        self.export_objects = export_objects
+        super().__init__(context, export_objects, armature)
         self.json_dict: dict[str, Json] = {}
         self.glb_bin_collector = GlbBinCollection()
         self.mesh_name_to_index: dict[str, int] = {}
@@ -127,7 +127,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         with (
             create_progress(self.context) as progress,
             save_workspace(self.context),
-            self.setup_armature(),
             self.clear_shape_key_values() as mesh_name_and_shape_key_name_to_value,
             self.clear_blend_shape_proxy_previews(self.armature_data),
             self.hide_mtoon1_outline_geometry_nodes(self.context),
@@ -162,33 +161,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             vec3[2],
             vec3[1],
         )
-
-    @contextmanager
-    def setup_armature(self) -> Iterator[None]:
-        armatures = [obj for obj in self.export_objects if obj.type == "ARMATURE"]
-        if armatures:
-            self.armature = armatures[0]
-            use_dummy_armature = False
-        else:
-            dummy_armature_key = self.export_id + "DummyArmatureKey"
-            ops.icyp.make_basic_armature(
-                "EXEC_DEFAULT", custom_property_name=dummy_armature_key
-            )
-            for obj in self.context.selectable_objects:
-                if obj.type == "ARMATURE" and dummy_armature_key in obj:
-                    self.export_objects.append(obj)
-                    self.armature = obj
-            if not self.armature:
-                message = "Failed to generate default armature"
-                raise RuntimeError(message)
-            use_dummy_armature = True
-        migration.migrate(self.context, self.armature.name)
-        try:
-            with save_workspace(self.context, self.armature):
-                yield
-        finally:
-            if use_dummy_armature:
-                self.context.blend_data.objects.remove(self.armature, do_unlink=True)
 
     @contextmanager
     def clear_shape_key_values(self) -> Iterator[dict[tuple[str, str], float]]:

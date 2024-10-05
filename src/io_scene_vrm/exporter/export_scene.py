@@ -1,6 +1,6 @@
 from collections.abc import Set as AbstractSet
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import bpy
 from bpy.app.translations import pgettext
@@ -20,11 +20,13 @@ from bpy_extras.io_utils import ExportHelper
 from ..common import ops, version
 from ..common.logging import get_logger
 from ..common.preferences import (
+    ExportPreferencesProtocol,
     copy_export_preferences,
     draw_export_preferences_layout,
     get_preferences,
 )
-from ..editor import search, validation
+from ..common.workspace import save_workspace
+from ..editor import migration, search, validation
 from ..editor.extension import get_armature_extension
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
@@ -121,45 +123,12 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         if self.use_addon_preferences:
             copy_export_preferences(source=get_preferences(context), destination=self)
 
-        if ops.vrm.model_validate(
-            "INVOKE_DEFAULT",
-            show_successful_message=False,
-            armature_object_name=self.armature_object_name,
-        ) != {"FINISHED"}:
-            return {"CANCELLED"}
-
-        export_objects = search.export_objects(
+        return export_vrm(
+            Path(self.filepath),
+            self,
             context,
-            self.armature_object_name,
-            export_invisibles=self.export_invisibles,
-            export_only_selections=self.export_only_selections,
-            export_lights=self.export_lights,
+            armature_object_name=self.armature_object_name,
         )
-        is_vrm1 = any(
-            obj.type == "ARMATURE"
-            and isinstance(obj.data, Armature)
-            and get_armature_extension(obj.data).is_vrm1()
-            for obj in export_objects
-        )
-
-        if is_vrm1:
-            vrm_exporter: AbstractBaseVrmExporter = Vrm1Exporter(
-                context,
-                export_objects,
-                export_all_influences=self.export_all_influences,
-                export_lights=self.export_lights,
-            )
-        else:
-            vrm_exporter = Vrm0Exporter(
-                context,
-                export_objects,
-            )
-
-        vrm_bin = vrm_exporter.export_vrm()
-        if vrm_bin is None:
-            return {"CANCELLED"}
-        Path(self.filepath).write_bytes(vrm_bin)
-        return {"FINISHED"}
 
     def invoke(self, context: Context, event: Event) -> set[str]:
         self.use_addon_preferences = True
@@ -269,6 +238,84 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         ]
         armature_object_name: str  # type: ignore[no-redef]
         ignore_warning: bool  # type: ignore[no-redef]
+
+
+def export_vrm(
+    filepath: Path,
+    export_preferences: ExportPreferencesProtocol,
+    context: Context,
+    *,
+    armature_object_name: str,
+) -> set[str]:
+    if ops.vrm.model_validate(
+        "INVOKE_DEFAULT",
+        show_successful_message=False,
+        armature_object_name=armature_object_name,
+    ) != {"FINISHED"}:
+        return {"CANCELLED"}
+
+    export_objects = search.export_objects(
+        context,
+        armature_object_name,
+        export_invisibles=export_preferences.export_invisibles,
+        export_only_selections=export_preferences.export_only_selections,
+        export_lights=export_preferences.export_lights,
+    )
+
+    armature_object: Optional[Object] = next(
+        (obj for obj in export_objects if obj.type == "ARMATURE"), None
+    )
+    is_vrm1 = False
+
+    with save_workspace(
+        context,
+        # アクティブオブジェクト変更しても元に戻せるようにする
+        armature_object,
+    ):
+        if armature_object:
+            armature_object_is_temporary = False
+            armature_data = armature_object.data
+            if isinstance(armature_data, Armature):
+                is_vrm1 = get_armature_extension(armature_data).is_vrm1()
+        else:
+            armature_object_is_temporary = True
+            ops.icyp.make_basic_armature("EXEC_DEFAULT")
+            armature_object = context.view_layer.objects.active
+            if not armature_object or armature_object.type != "ARMATURE":
+                message = "Failed to generate temporary armature"
+                raise RuntimeError(message)
+
+        migration.migrate(context, armature_object.name)
+
+        if is_vrm1:
+            vrm_exporter: AbstractBaseVrmExporter = Vrm1Exporter(
+                context,
+                export_objects,
+                armature_object,
+                export_all_influences=export_preferences.export_all_influences,
+                export_lights=export_preferences.export_lights,
+            )
+        else:
+            vrm_exporter = Vrm0Exporter(
+                context,
+                export_objects,
+                armature_object,
+            )
+
+        vrm_bytes = vrm_exporter.export_vrm()
+        if vrm_bytes is None:
+            return {"CANCELLED"}
+
+    Path(filepath).write_bytes(vrm_bytes)
+
+    if armature_object_is_temporary:
+        if armature_object.users <= 1:
+            # アクティブオブジェクトから外れた後にremoveする
+            context.blend_data.objects.remove(armature_object)
+        else:
+            logger.warning("Failed to remove temporary armature")
+
+    return {"FINISHED"}
 
 
 class VRM_PT_export_file_browser_tool_props(Panel):
