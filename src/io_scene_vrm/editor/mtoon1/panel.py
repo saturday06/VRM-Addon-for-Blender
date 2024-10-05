@@ -399,11 +399,11 @@ def draw_material(context: Context, layout: UILayout) -> None:
 
     draw_mtoon1_material(context, layout)
 
-    node, vrm_shader_name = search.vrm_shader_node(material)
-    if ext.mtoon1.enabled or (node and vrm_shader_name == "MToon_unversioned"):
+    node, legacy_shader_name = search.legacy_shader_node(material)
+    if ext.mtoon1.enabled or (node and legacy_shader_name == "MToon_unversioned"):
         layout.prop(ext.mtoon1, "export_shape_key_normals")
         return
-    if node and vrm_shader_name in ["TRANSPARENT_ZWRITE", "GLTF"]:
+    if node and legacy_shader_name in ["TRANSPARENT_ZWRITE", "GLTF"]:
         return
 
     help_column = layout.box().column(align=True)

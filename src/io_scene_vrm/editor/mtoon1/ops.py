@@ -104,8 +104,8 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
         texture_info.index.sampler.wrap_t = wrap
 
     def convert_material_to_mtoon1(self, context: Context, material: Material) -> None:
-        node, vrm_shader_name = search.vrm_shader_node(material)
-        if isinstance(node, Node) and vrm_shader_name == "MToon_unversioned":
+        node, legacy_shader_name = search.legacy_shader_node(material)
+        if isinstance(node, Node) and legacy_shader_name == "MToon_unversioned":
             self.convert_mtoon_unversioned_to_mtoon1(context, material, node)
             return
 

@@ -717,9 +717,9 @@ def draw_vrm0_blend_shape_master_layout(
             else:
                 material = material_value.material
                 ext = get_material_extension(material)
-                node, vrm_shader_name = search.vrm_shader_node(material)
+                node, legacy_shader_name = search.legacy_shader_node(material)
                 if ext.mtoon1.enabled or (
-                    node and vrm_shader_name == "MToon_unversioned"
+                    node and legacy_shader_name == "MToon_unversioned"
                 ):
                     if bpy.app.version >= (3, 2):
                         material_value_column.prop_search(

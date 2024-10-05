@@ -198,106 +198,121 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     continue
                 key_block.value = value
 
-    def image_to_bin(self) -> None:
-        # collect used image
-        used_images: list[Image] = []
-        used_materials = search.export_materials(self.context, self.export_objects)
-        for mat in used_materials:
-            mat.pop("vrm_shader", None)
+    def get_legacy_shader_images(self, material: Material) -> Sequence[Image]:
+        node, legacy_shader_name = search.legacy_shader_node(material)
+        if not node or not legacy_shader_name:
+            return []
 
-        # image fetching
-        for node, vrm_shader_name, mat in search.shader_nodes_and_materials(
-            used_materials
-        ):
-            if vrm_shader_name == "MToon_unversioned":
-                mat["vrm_shader"] = "MToon_unversioned"
-                for (
-                    raw_shader_vals
-                ) in MtoonUnversioned.texture_kind_exchange_dict.values():
-                    # Support models that were loaded by earlier versions
-                    # (1.3.5 or earlier), which had this typo
-                    #
-                    # Those models have node.inputs["NomalmapTexture"] instead of
-                    # "NormalmapTexture". But 'shader_vals' which comes from
-                    # MaterialMtoon.texture_kind_exchange_dict is "NormalmapTexture".
-                    # if script reference node.inputs["NormalmapTexture"] in that
-                    # situation, it will occur error. So change it to "NomalmapTexture"
-                    # which is typo but points to the same thing in those models.
-                    if (
-                        raw_shader_vals == "NormalmapTexture"
-                        and "NormalmapTexture" not in node.inputs
-                        and "NomalmapTexture" in node.inputs
-                    ):
-                        shader_vals = "NomalmapTexture"
-                    else:
-                        shader_vals = raw_shader_vals
+        images: list[Image] = []
+        if legacy_shader_name == "MToon_unversioned":
+            material["vrm_shader"] = "MToon_unversioned"
+            for (
+                raw_input_socket_name
+            ) in MtoonUnversioned.texture_kind_exchange_dict.values():
+                # Support models that were loaded by earlier versions
+                # (1.3.5 or earlier), which had this typo
+                #
+                # Those models have node.inputs["NomalmapTexture"] instead of
+                # "NormalmapTexture". But 'shader_vals' which comes from
+                # MaterialMtoon.texture_kind_exchange_dict is "NormalmapTexture".
+                # if script reference node.inputs["NormalmapTexture"] in that
+                # situation, it will occur error. So change it to "NomalmapTexture"
+                # which is typo but points to the same thing in those models.
+                if (
+                    raw_input_socket_name == "NormalmapTexture"
+                    and "NormalmapTexture" not in node.inputs
+                    and "NomalmapTexture" in node.inputs
+                ):
+                    input_socket_name = "NomalmapTexture"
+                elif raw_input_socket_name == "ReceiveShadow_Texture":
+                    input_socket_name = "ReceiveShadow_Texture_alpha"
+                else:
+                    input_socket_name = raw_input_socket_name
 
-                    if shader_vals == "ReceiveShadow_Texture":
-                        if node.inputs[shader_vals + "_alpha"].links:
-                            n = node.inputs[shader_vals + "_alpha"].links[0].from_node
-                            if (
-                                isinstance(n, ShaderNodeTexImage)
-                                and n.image
-                                and n.image not in used_images
-                            ):
-                                used_images.append(n.image)
-                    elif node.inputs[shader_vals].links:
-                        n = node.inputs[shader_vals].links[0].from_node
-                        if (
-                            isinstance(n, ShaderNodeTexImage)
-                            and n.image
-                            and n.image not in used_images
-                        ):
-                            used_images.append(n.image)
-            elif vrm_shader_name == "GLTF":
-                mat["vrm_shader"] = "GLTF"
-                for k in TEXTURE_INPUT_NAMES:
-                    if node.inputs[k].links:
-                        n = node.inputs[k].links[0].from_node
-                        if (
-                            isinstance(n, ShaderNodeTexImage)
-                            and n.image
-                            and n.image not in used_images
-                        ):
-                            used_images.append(n.image)
+                input_socket = node.inputs.get(input_socket_name)
+                if not input_socket:
+                    continue
 
-            elif vrm_shader_name == "TRANSPARENT_ZWRITE":
-                mat["vrm_shader"] = "TRANSPARENT_ZWRITE"
-                if node.inputs["Main_Texture"].links:
-                    n = node.inputs["Main_Texture"].links[0].from_node
-                    if (
-                        isinstance(n, ShaderNodeTexImage)
-                        and n.image
-                        and n.image not in used_images
-                    ):
-                        used_images.append(n.image)
-            else:
-                # ?
-                pass
+                image_node = shader.search_input_node(input_socket, ShaderNodeTexImage)
+                if not image_node:
+                    continue
+
+                image = image_node.image
+                if not image:
+                    continue
+
+                images.append(image)
+        elif legacy_shader_name == "GLTF":
+            material["vrm_shader"] = "GLTF"
+            for input_socket_name in TEXTURE_INPUT_NAMES:
+                input_socket = node.inputs.get(input_socket_name)
+                if not input_socket:
+                    continue
+
+                image_node = shader.search_input_node(input_socket, ShaderNodeTexImage)
+                if not image_node:
+                    continue
+
+                image = image_node.image
+                if not image:
+                    continue
+
+                images.append(image)
+
+        elif legacy_shader_name == "TRANSPARENT_ZWRITE":
+            material["vrm_shader"] = "TRANSPARENT_ZWRITE"
+
+            input_socket = node.inputs.get("Main_Texture")
+            if not input_socket:
+                return []
+
+            image_node = shader.search_input_node(input_socket, ShaderNodeTexImage)
+            if not image_node:
+                return []
+
+            image = image_node.image
+            if not image:
+                return []
+
+            return [image]
+
+        return list(dict.fromkeys(images).keys())  # 重複削除
+
+    def get_images(self) -> Sequence[Image]:
+        images: list[Image] = []
+        materials = search.export_materials(self.context, self.export_objects)
+        for material in materials:
+            material.pop("vrm_shader", None)
+
+        non_mtoon1_materials: list[Material] = []
 
         # MToon 1.0 downgraded
-        for mat in used_materials:
-            if not get_material_extension(mat).mtoon1.enabled:
+        for material in materials:
+            if not get_material_extension(material).mtoon1.enabled:
+                non_mtoon1_materials.append(material)
                 continue
-            for texture in get_material_extension(mat).mtoon1.all_textures(
+            for texture in get_material_extension(material).mtoon1.all_textures(
                 downgrade_to_mtoon0=True
             ):
                 source = texture.get_connected_node_image()
-                if source and source not in used_images:
-                    used_images.append(source)
+                if source and source not in images:
+                    images.append(source)
 
-        # thumbnail
+        # Non MToon 1.0 materials
+        for non_mtoon1_material in non_mtoon1_materials:
+            images.extend(self.get_legacy_shader_images(non_mtoon1_material))
+
+        # Thumbnail
         ext = get_armature_extension(self.armature_data)
-        if (
-            ext.vrm0.meta.texture
-            and ext.vrm0.meta.texture.name
-            and ext.vrm0.meta.texture not in used_images
-        ):
-            used_images.append(ext.vrm0.meta.texture)
+        texture_image = ext.vrm0.meta.texture
+        if texture_image:
+            images.append(texture_image)
 
-        used_images = list(dict.fromkeys(used_images))  # 重複削除
+        images = list(dict.fromkeys(images))  # 重複削除
+        return images
 
-        for image in used_images:
+    def image_to_bin(self) -> None:
+        for image in self.get_images():
             image_bin, filetype = io_scene_gltf2_support.image_to_image_bytes(
                 image, self.gltf2_addon_export_settings
             )
@@ -1979,10 +1994,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if material_extension.mtoon1.enabled:
                 exclusion_vertex_indices.update(polygon.vertices)
                 continue
-            node, vrm_shader_name = search.vrm_shader_node(material)
+            node, legacy_shader_name = search.legacy_shader_node(material)
             if not node:
                 continue
-            if vrm_shader_name == "MToon_unversioned":
+            if legacy_shader_name == "MToon_unversioned":
                 exclusion_vertex_indices.update(polygon.vertices)
 
         # シェイプキーごとの法線の値を集める

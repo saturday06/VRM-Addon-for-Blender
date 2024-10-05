@@ -89,8 +89,8 @@ def migrate_material(
     material: Material,
     blender_4_2_migrated_material_names: list[str],
 ) -> None:
-    _, legacy_vrm_shader_name = search.vrm_shader_node(material)
-    if legacy_vrm_shader_name in search.LEGACY_VRM_SHADER_NAMES:
+    _, legacy_legacy_shader_name = search.legacy_shader_node(material)
+    if legacy_legacy_shader_name in search.LEGACY_SHADER_NAMES:
         # 古いシェーダーノードグループはそのままではBlender 4.2に未対応なので、
         # Blender 4.2以降へのバージョンアップ時は必ず警告する
         blender_4_2_migrated_material_names.append(material.name)

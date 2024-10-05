@@ -68,14 +68,14 @@ def export_materials(context: Context, objects: Sequence[Object]) -> Sequence[Ma
     return list(dict.fromkeys(result))  # 重複削除
 
 
-LEGACY_VRM_SHADER_NAMES: Final = (
+LEGACY_SHADER_NAMES: Final = (
     "MToon_unversioned",
     "GLTF",
     "TRANSPARENT_ZWRITE",
 )
 
 
-def vrm_shader_node(
+def legacy_shader_node(
     material: Material,
 ) -> tuple[Optional[ShaderNodeGroup], Optional[str]]:
     if not material.use_nodes:
@@ -115,11 +115,11 @@ def vrm_shader_node(
         if not group_node_tree:
             continue
 
-        vrm_shader_name = group_node_tree.get("SHADER")
-        if not isinstance(vrm_shader_name, str):
+        legacy_shader_name = group_node_tree.get("SHADER")
+        if not isinstance(legacy_shader_name, str):
             continue
 
-        return (group_node, vrm_shader_name)
+        return (group_node, legacy_shader_name)
 
     return (None, None)
 
@@ -129,9 +129,9 @@ def shader_nodes_and_materials(
 ) -> Sequence[tuple[ShaderNodeGroup, str, Material]]:
     result: list[tuple[ShaderNodeGroup, str, Material]] = []
     for material in materials:
-        node, vrm_shader_name = vrm_shader_node(material)
-        if node is not None and vrm_shader_name is not None:
-            result.append((node, vrm_shader_name, material))
+        node, legacy_shader_name = legacy_shader_node(material)
+        if node is not None and legacy_shader_name is not None:
+            result.append((node, legacy_shader_name, material))
     return result
 
 

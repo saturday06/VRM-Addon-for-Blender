@@ -5,7 +5,7 @@ import time
 from copy import deepcopy
 from pathlib import Path
 from sys import float_info
-from typing import Final, Optional, Union
+from typing import Final, Optional, TypeVar, Union
 
 import bpy
 from bpy.types import (
@@ -17,6 +17,7 @@ from bpy.types import (
     NodeFrame,
     NodeGroup,
     NodeGroupOutput,
+    NodeReroute,
     NodeSocket,
     NodeSocketBool,
     NodeSocketColor,
@@ -1760,3 +1761,31 @@ def setup_frame_count_driver(context: Context) -> None:
                 target.id = context.scene
         if target.data_path != target_data_path:
             target.data_path = target_data_path
+
+
+__NodeType = TypeVar("__NodeType", bound=Node)
+
+
+def search_input_node(
+    node_socket: NodeSocket, node_type: type[__NodeType]
+) -> Optional[__NodeType]:
+    searching_node_sockets = [node_socket]
+    while searching_node_sockets:
+        searching_node_socket = searching_node_sockets.pop()
+        for link in searching_node_socket.links:
+            if not link.is_valid or link.is_muted:
+                continue
+
+            from_node = link.from_node
+            if from_node.mute:
+                continue
+
+            if isinstance(from_node, node_type):
+                return from_node
+
+            if not isinstance(from_node, NodeReroute):
+                continue
+
+            searching_node_sockets.extend(from_node.inputs)
+
+    return None

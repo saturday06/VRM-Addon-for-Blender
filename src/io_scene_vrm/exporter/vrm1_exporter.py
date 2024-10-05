@@ -1842,10 +1842,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 continue
 
             # MToon_unversioned (MToon for VRM 0.0)
-            node, vrm_shader_name = search.vrm_shader_node(material)
+            node, legacy_shader_name = search.legacy_shader_node(material)
             if not isinstance(node, Node):
                 continue
-            if vrm_shader_name == "MToon_unversioned":
+            if legacy_shader_name == "MToon_unversioned":
                 material_dicts[index] = cls.create_mtoon_unversioned_material_dict(
                     context,
                     json_dict,
@@ -1855,7 +1855,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     image_name_to_index_dict,
                     gltf2_addon_export_settings,
                 )
-            elif vrm_shader_name == "GLTF":
+            elif legacy_shader_name == "GLTF":
                 material_dicts[index] = cls.create_legacy_gltf_material_dict(
                     context,
                     json_dict,
@@ -1865,7 +1865,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     image_name_to_index_dict,
                     gltf2_addon_export_settings,
                 )
-            elif vrm_shader_name == "TRANSPARENT_ZWRITE":
+            elif legacy_shader_name == "TRANSPARENT_ZWRITE":
                 material_dicts[index] = (
                     cls.create_legacy_transparent_zwrite_material_dict(
                         context,
@@ -1941,10 +1941,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     if get_material_extension(material).mtoon1.enabled:
                         skip = False
                         break
-                    node, vrm_shader_name = search.vrm_shader_node(material)
+                    node, legacy_shader_name = search.legacy_shader_node(material)
                     if not node:
                         continue
-                    if vrm_shader_name == "MToon_unversioned":
+                    if legacy_shader_name == "MToon_unversioned":
                         skip = False
                         break
                 if skip:
