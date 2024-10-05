@@ -78,28 +78,49 @@ LEGACY_VRM_SHADER_NAMES: Final = (
 def vrm_shader_node(
     material: Material,
 ) -> tuple[Optional[ShaderNodeGroup], Optional[str]]:
-    if not material.node_tree or not material.node_tree.nodes:
+    if not material.use_nodes:
         return (None, None)
-    for node in material.node_tree.nodes:
+
+    node_tree = material.node_tree
+    if not node_tree:
+        return (None, None)
+
+    for node in node_tree.nodes:
+        if node.mute:
+            continue
+
         if not isinstance(node, ShaderNodeOutputMaterial):
             continue
-        surface = node.inputs.get("Surface")
-        if not surface:
+
+        surface_socket = node.inputs.get("Surface")
+        if not surface_socket:
             continue
-        links = surface.links
+
+        links = surface_socket.links
         if not links:
             continue
+
         link = links[0]
+        if not link.is_valid or link.is_muted:
+            continue
+
         group_node = link.from_node
+        if group_node.mute:
+            continue
+
         if not isinstance(group_node, ShaderNodeGroup):
             continue
-        node_tree = group_node.node_tree
-        if not node_tree:
+
+        group_node_tree = group_node.node_tree
+        if not group_node_tree:
             continue
-        vrm_shader_name = node_tree.get("SHADER")
+
+        vrm_shader_name = group_node_tree.get("SHADER")
         if not isinstance(vrm_shader_name, str):
             continue
+
         return (group_node, vrm_shader_name)
+
     return (None, None)
 
 
