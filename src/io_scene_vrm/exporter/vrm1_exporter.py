@@ -84,24 +84,6 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         self.export_all_influences = export_all_influences
         self.export_lights = export_lights
 
-        armature_data = self.armature.data
-        if not isinstance(armature_data, Armature):
-            message = f"{type(armature_data)} is not an Armature"
-            raise TypeError(message)
-
-        collider_bpy_objects: list[Object] = []
-        for collider in get_armature_extension(armature_data).spring_bone1.colliders:
-            if not collider.bpy_object:
-                continue
-            collider_bpy_objects.append(collider.bpy_object)
-            collider_bpy_objects.extend(collider.bpy_object.children)
-
-        self.export_objects = [
-            export_object
-            for export_object in export_objects
-            if export_object not in collider_bpy_objects
-        ]
-
         self.extras_main_armature_key = (
             INTERNAL_NAME_PREFIX + self.export_id + "MainArmature"
         )

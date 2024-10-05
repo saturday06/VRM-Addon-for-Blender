@@ -36,6 +36,11 @@ class AbstractBaseVrmExporter(ABC):
             io_scene_gltf2_support.create_export_settings()
         )
 
+        armature_data = self.armature.data
+        if not isinstance(armature_data, Armature):
+            message = f"{type(armature_data)} is not an Armature"
+            raise TypeError(message)
+
     @abstractmethod
     def export_vrm(self) -> Optional[bytes]:
         pass

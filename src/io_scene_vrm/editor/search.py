@@ -335,7 +335,22 @@ def export_objects(
             objects.append(armature_object)
         else:
             armature_object = None
-    if not armature_object:
+
+    collider_bpy_objects: list[Optional[Object]] = []
+    if armature_object:
+        armature_data = armature_object.data
+        if isinstance(armature_data, Armature):
+            ext = get_armature_extension(armature_data)
+            for spring_bone1_collider in ext.spring_bone1.colliders:
+                if not spring_bone1_collider.bpy_object:
+                    continue
+                collider_bpy_objects.append(spring_bone1_collider.bpy_object)
+                collider_bpy_objects.extend(spring_bone1_collider.bpy_object.children)
+            for collider_group in ext.vrm0.secondary_animation.collider_groups:
+                collider_bpy_objects.extend(
+                    collider.bpy_object for collider in collider_group.colliders
+                )
+    else:
         objects.extend(
             obj
             for obj in context.blend_data.objects
@@ -353,7 +368,12 @@ def export_objects(
             continue
         objects.append(obj)
 
-    return list(dict.fromkeys(objects).keys())  # 重複削除
+    return [
+        # コライダーと重複の削除
+        obj
+        for obj in dict.fromkeys(objects)
+        if obj not in collider_bpy_objects
+    ]
 
 
 @dataclass(frozen=True)
