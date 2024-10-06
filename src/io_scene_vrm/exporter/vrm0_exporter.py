@@ -2312,9 +2312,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 if isinstance(material_dict, dict)
             }
             material_slot_index_to_material_name_dict = {
-                i: material_slot.material.name
+                i: material_ref.name
                 for i, material_slot in enumerate(mesh.material_slots)
-                if material_slot.material
+                if (material_ref := material_slot.material)
             }
             node_name_to_index_dict: dict[str, int] = {
                 str(node_dict.get("name")): i

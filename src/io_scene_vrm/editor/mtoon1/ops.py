@@ -984,14 +984,16 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
         if bpy.app.version < (3, 3):
             return
         for material_slot in obj.material_slots:
-            if not material_slot.material:
+            material_ref = material_slot.material
+            if not material_ref:
                 continue
-            material = context.blend_data.materials.get(material_slot.material.name)
+
+            material = context.blend_data.materials.get(material_ref.name)
             if not material:
                 continue
-            if not get_material_extension(material).mtoon1.enabled:
-                continue
-            if get_material_extension(material).mtoon1.is_outline_material:
+
+            mtoon1 = get_material_extension(material).mtoon1
+            if not mtoon1.enabled or mtoon1.is_outline_material:
                 continue
 
             VRM_OT_refresh_mtoon1_outline.assign(
@@ -1012,19 +1014,19 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
                 continue
             outline_material_names: list[str] = []
             for material_slot in obj.material_slots:
-                if not material_slot.material:
+                material_ref = material_slot.material
+                if not material_ref:
                     continue
-                if (
-                    material_name is not None
-                    and material_name != material_slot.material.name
-                ):
+
+                if material_name is not None and material_name != material_ref.name:
                     continue
-                material = context.blend_data.materials.get(material_slot.material.name)
+
+                material = context.blend_data.materials.get(material_ref.name)
                 if not material:
                     continue
-                if not get_material_extension(material).mtoon1.enabled:
-                    continue
-                if get_material_extension(material).mtoon1.is_outline_material:
+
+                mtoon1 = get_material_extension(material).mtoon1
+                if not mtoon1.enabled or mtoon1.is_outline_material:
                     continue
 
                 VRM_OT_refresh_mtoon1_outline.assign(

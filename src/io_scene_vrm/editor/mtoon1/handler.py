@@ -34,7 +34,7 @@ def update_mtoon1_outline() -> Optional[float]:
         (
             has_auto_smooth and obj.data.use_auto_smooth,
             [
-                material_slot.material.name if material_slot.material else None
+                material_ref.name if (material_ref := material_slot.material) else None
                 for material_slot in obj.material_slots
             ],
         )
