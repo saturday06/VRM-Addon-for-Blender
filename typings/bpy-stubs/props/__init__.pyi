@@ -1,12 +1,14 @@
 from collections.abc import Sequence
 from typing import Callable, Optional, TypeVar, Union
 
-from bpy.types import Context, Operator, PropertyGroup
+from bpy.types import AddonPreferences, Context, Operator, PropertyGroup
 from mathutils import Vector
 
 __PointerPropertyTarget = TypeVar("__PointerPropertyTarget", bound=type)
 __CollectionPropertyElement = TypeVar("__CollectionPropertyElement", bound=type)
-__CallbackSelf = TypeVar("__CallbackSelf", bound=Union[PropertyGroup, Operator])
+__CallbackSelf = TypeVar(
+    "__CallbackSelf", bound=Union[AddonPreferences, Operator, PropertyGroup]
+)
 
 def BoolProperty(
     *,
