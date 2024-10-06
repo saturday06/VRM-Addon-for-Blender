@@ -2,6 +2,7 @@ import math
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Optional
 
+import bpy
 from bpy.props import (
     CollectionProperty,
     EnumProperty,
@@ -46,13 +47,20 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
     )
 
     @staticmethod
-    def update_vrm0_material_property_names(context: Context, scene_name: str) -> None:
-        scene = context.blend_data.scenes.get(scene_name)
-        if not scene:
-            logger.error('No scene "%s"', scene_name)
-            return
-        ext = get_scene_extension(scene)
+    def update_vrm0_material_property_names_timer_callback() -> None:
+        context = bpy.context
 
+        VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(context)
+
+    @staticmethod
+    def defer_update_vrm0_material_property_names() -> None:
+        s = VrmAddonSceneExtensionPropertyGroup
+        bpy.app.timers.register(s.update_vrm0_material_property_names_timer_callback)
+
+    @staticmethod
+    def update_vrm0_material_property_names(
+        context: Context, scene_name: Optional[str] = None
+    ) -> None:
         # Unity 2022.3.4 + UniVRM 0.112.0
         gltf_property_names = [
             "_Color",
@@ -85,14 +93,6 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
             "_DetailNormalMap_ST_S",
             "_DetailNormalMap_ST_T",
         ]
-
-        if gltf_property_names != [
-            str(n.value) for n in ext.vrm0_material_gltf_property_names
-        ]:
-            ext.vrm0_material_gltf_property_names.clear()
-            for gltf_property_name in gltf_property_names:
-                n = ext.vrm0_material_gltf_property_names.add()
-                n.value = gltf_property_name
 
         # UniVRM 0.112.0
         mtoon0_property_names = [
@@ -133,13 +133,33 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
             "_UvAnimMaskTexture_ST_T",
         ]
 
-        if mtoon0_property_names != [
-            str(n.value) for n in ext.vrm0_material_mtoon0_property_names
-        ]:
-            ext.vrm0_material_mtoon0_property_names.clear()
-            for mtoon0_property_name in mtoon0_property_names:
-                n = ext.vrm0_material_mtoon0_property_names.add()
-                n.value = mtoon0_property_name
+        if scene_name is None:
+            scenes: Sequence[Scene] = list(context.blend_data.scenes)
+        else:
+            scene = context.blend_data.scenes.get(scene_name)
+            if not scene:
+                logger.error('No scene "%s"', scene_name)
+                return
+            scenes = [scene]
+
+        for scene in scenes:
+            ext = get_scene_extension(scene)
+
+            if gltf_property_names != [
+                n.value for n in ext.vrm0_material_gltf_property_names
+            ]:
+                ext.vrm0_material_gltf_property_names.clear()
+                for gltf_property_name in gltf_property_names:
+                    n = ext.vrm0_material_gltf_property_names.add()
+                    n.value = gltf_property_name
+
+            if mtoon0_property_names != [
+                n.value for n in ext.vrm0_material_mtoon0_property_names
+            ]:
+                ext.vrm0_material_mtoon0_property_names.clear()
+                for mtoon0_property_name in mtoon0_property_names:
+                    n = ext.vrm0_material_mtoon0_property_names.add()
+                    n.value = mtoon0_property_name
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -422,9 +442,7 @@ def update_internal_cache(context: Context) -> None:
     for armature in context.blend_data.armatures:
         Vrm0HumanoidPropertyGroup.update_all_node_candidates(context, armature.name)
         Vrm1HumanBonesPropertyGroup.update_all_node_candidates(context, armature.name)
-    VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(
-        context, context.scene.name
-    )
+    VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(context)
 
 
 class VrmAddonMaterialExtensionPropertyGroup(PropertyGroup):
