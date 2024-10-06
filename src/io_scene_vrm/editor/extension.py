@@ -47,10 +47,11 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
     )
 
     @staticmethod
-    def update_vrm0_material_property_names_timer_callback() -> None:
+    def update_vrm0_material_property_names_timer_callback() -> Optional[float]:
         context = bpy.context
 
         VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(context)
+        return None
 
     @staticmethod
     def defer_update_vrm0_material_property_names() -> None:
