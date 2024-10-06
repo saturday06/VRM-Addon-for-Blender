@@ -111,7 +111,7 @@ def copy_export_preferences(
         source.export_only_selections,
         source.enable_advanced_preferences,
         source.export_all_influences,
-        destination.export_lights,
+        source.export_lights,
     )
 
 
