@@ -288,33 +288,35 @@ class AbstractBaseVrmImporter(ABC):
                 bpy.ops.wm.save_as_mainfile(filepath=str(temp_blend_path))
 
         for image_index, image in self.images.items():
-            original_image_path = Path(image.filepath_from_user())
-            image_name = original_image_path.stem
-            if image_name:
+            image_original_file_path = Path(image.filepath_from_user())
+            image_path_stem = image_original_file_path.stem
+            if image_path_stem:
                 legacy_image_name_prefix = self.import_id + "Image"
-                if image_name.startswith(legacy_image_name_prefix):
-                    image_name = re.sub(
+                if image_path_stem.startswith(legacy_image_name_prefix):
+                    image_path_stem = re.sub(
                         r"^\d+_",
                         "",
-                        image_name[
-                            slice(len(legacy_image_name_prefix), len(image_name))
+                        image_path_stem[
+                            slice(len(legacy_image_name_prefix), len(image_path_stem))
                         ],
                     )
+            if not image_path_stem:
+                image_path_stem = image.name
+            if not image_path_stem:
+                image_path_stem = f"Image_{image_index}"
+            image_path_stem = clean_name(image_path_stem[:100])
 
-            if not image_name:
-                image_name = image.name
-            image_name = clean_name(image_name[:100])
-            if not image_name:
-                image_name = f"Image_{image_index}"
+            original_image_path_suffix = image_original_file_path.suffix
+            detected_image_path_suffix = "." + image.file_format.lower()
+            if original_image_path_suffix.lower() != detected_image_path_suffix and (
+                original_image_path_suffix.lower(),
+                detected_image_path_suffix,
+            ) != (".jpg", ".jpeg"):
+                image_path_suffix = detected_image_path_suffix
+            else:
+                image_path_suffix = original_image_path_suffix
 
-            image_suffix = "." + image.file_format.lower()
-            if (original_image_path.suffix.lower(), image_suffix) in [
-                (".jpg", ".jpeg"),
-                (".jpeg", ".jpg"),
-            ]:
-                image_suffix = original_image_path.suffix
-
-            image_path = dir_path / (image_name + "." + image_suffix)
+            image_path = dir_path / (image_path_stem + image_path_suffix)
 
             try:
                 image.unpack(method="WRITE_ORIGINAL")
@@ -322,15 +324,16 @@ class AbstractBaseVrmImporter(ABC):
                 logger.exception("Failed to unpack %s", image.name)
                 continue
 
-            image_original_path_str = image.filepath_from_user()
-            if not image_original_path_str:
+            image_unpacked_path_str = image.filepath_from_user()
+            if not image_unpacked_path_str:
                 continue
-            image_original_file_path = Path(image_original_path_str)
-            if not image_original_file_path.exists():
+            image_unpacked_file_path = Path(image_unpacked_path_str)
+            if not image_unpacked_file_path.exists():
                 continue
-            image_bytes = image_original_file_path.read_bytes()
+
+            image_bytes = image_unpacked_file_path.read_bytes()
             with contextlib.suppress(OSError):
-                image_original_file_path.unlink()
+                image_unpacked_file_path.unlink()
             image_path = create_unique_indexed_file_path(image_path, image_bytes)
             if image.filepath != str(image_path):
                 image.filepath = str(image_path)
