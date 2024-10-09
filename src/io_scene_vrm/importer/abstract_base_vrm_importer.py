@@ -32,7 +32,7 @@ from bpy.types import (
 )
 from mathutils import Matrix
 
-from ..common import deep, shader
+from ..common import shader
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.fs import (
@@ -198,9 +198,11 @@ class AbstractBaseVrmImporter(ABC):
         # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtexture
         # のインデックスになっている
         # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterself.context.cs#L308
-        thumbnail_texture_index = deep.get(
-            self.parse_result.vrm0_extension_dict, ["meta", "texture"]
-        )
+        meta_dict = self.parse_result.vrm0_extension_dict.get("meta")
+        if not isinstance(meta_dict, dict):
+            return
+
+        thumbnail_texture_index = meta_dict.get("texture")
         if not isinstance(thumbnail_texture_index, int):
             return
 
@@ -1308,11 +1310,14 @@ class AbstractBaseVrmImporter(ABC):
 def parse_vrm_json(filepath: Path, *, license_validation: bool) -> ParseResult:
     json_dict, _ = parse_glb(filepath.read_bytes())
 
-    if license_validation:
-        validate_license(json_dict)
+    extensions_dict = json_dict.get("extensions")
+    if isinstance(extensions_dict, dict):
+        vrm1_extension_dict = extensions_dict.get("VRMC_vrm")
+        vrm0_extension_dict = extensions_dict.get("VRM")
+    else:
+        vrm1_extension_dict = None
+        vrm0_extension_dict = None
 
-    vrm1_extension_dict = deep.get(json_dict, ["extensions", "VRMC_vrm"])
-    vrm0_extension_dict = deep.get(json_dict, ["extensions", "VRM"])
     if isinstance(vrm1_extension_dict, dict):
         (
             spec_version_number,
@@ -1336,6 +1341,9 @@ def parse_vrm_json(filepath: Path, *, license_validation: bool) -> ParseResult:
         hips_node_index = None
         vrm0_extension_dict = {}
         vrm1_extension_dict = {}
+
+    if license_validation:
+        validate_license(json_dict, spec_version_number)
 
     return ParseResult(
         filepath=filepath,
@@ -1361,13 +1369,18 @@ def read_vrm0_extension(
     if isinstance(spec_version, str):
         spec_version_str = spec_version
 
-    human_bones = deep.get(vrm0_dict, ["humanoid", "humanBones"], [])
-    if isinstance(human_bones, list):
-        for human_bone in human_bones:
-            if isinstance(human_bone, dict) and human_bone.get("bone") == "hips":
-                index = human_bone.get("node")
-                if isinstance(index, int):
-                    hips_node_index = index
+    humanoid_dict = vrm0_dict.get("humanoid")
+    if isinstance(humanoid_dict, dict):
+        human_bone_dicts = humanoid_dict.get("humanBones")
+        if isinstance(human_bone_dicts, list):
+            for human_bone_dict in human_bone_dicts:
+                if not isinstance(human_bone_dict, dict):
+                    continue
+                if human_bone_dict.get("bone") != "hips":
+                    continue
+                node_index = human_bone_dict.get("node")
+                if isinstance(node_index, int):
+                    hips_node_index = node_index
 
     return (
         spec_version_number,
@@ -1383,9 +1396,18 @@ def read_vrm1_extension(
     spec_version_number = (1, 0)
     spec_version_str = "1.0"
     spec_version_is_stable = True
-    hips_node_index = deep.get(vrm1_dict, ["humanoid", "humanBones", "hips", "node"])
-    if not isinstance(hips_node_index, int):
-        hips_node_index = None
+    hips_node_index = None
+
+    humanoid_dict = vrm1_dict.get("humanoid")
+    if isinstance(humanoid_dict, dict):
+        human_bones_dict = humanoid_dict.get("humanBones")
+        if isinstance(human_bones_dict, dict):
+            hips_dict = human_bones_dict.get("hips")
+            if isinstance(hips_dict, dict):
+                node_index = hips_dict.get("node")
+                if isinstance(node_index, int):
+                    hips_node_index = node_index
+
     return (
         spec_version_number,
         spec_version_str,

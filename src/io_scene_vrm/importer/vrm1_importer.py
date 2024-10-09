@@ -14,7 +14,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Vector
 
-from ..common import convert, deep, ops, shader
+from ..common import convert, ops, shader
 from ..common.convert import Json
 from ..common.logging import get_logger
 from ..common.progress import PartialProgress
@@ -153,21 +153,30 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 if isinstance(texture_dict, dict):
                     self.assign_texture(texture_info.index, texture_dict)
 
-        khr_texture_transform_dict = deep.get(
-            texture_info_dict, ["extensions", "KHR_texture_transform"]
+        extensions_dict = texture_info_dict.get("extensions")
+        if not isinstance(extensions_dict, dict):
+            return
+
+        khr_texture_transform_dict = extensions_dict.get("KHR_texture_transform")
+        if not isinstance(khr_texture_transform_dict, dict):
+            return
+
+        self.assign_khr_texture_transform(
+            texture_info.extensions.khr_texture_transform,
+            khr_texture_transform_dict,
         )
-        if isinstance(khr_texture_transform_dict, dict):
-            self.assign_khr_texture_transform(
-                texture_info.extensions.khr_texture_transform,
-                khr_texture_transform_dict,
-            )
 
     def make_mtoon1_material(
         self, material_index: int, gltf_dict: dict[str, Json]
     ) -> None:
-        mtoon_dict = deep.get(gltf_dict, ["extensions", "VRMC_materials_mtoon"])
+        extensions_dict = gltf_dict.get("extensions")
+        if not isinstance(extensions_dict, dict):
+            return
+
+        mtoon_dict = extensions_dict.get("VRMC_materials_mtoon")
         if not isinstance(mtoon_dict, dict):
             return
+
         material = self.materials.get(material_index)
         if not material:
             name = gltf_dict.get("name")
@@ -384,26 +393,38 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
     def find_vrm1_bone_node_indices(self) -> list[int]:
         result: list[int] = []
+
         vrm1_dict = self.parse_result.vrm1_extension_dict
-        human_bones_dict = deep.get(vrm1_dict, ["humanoid", "humanBones"])
-        if isinstance(human_bones_dict, dict):
-            for human_bone_dict in human_bones_dict.values():
-                if not isinstance(human_bone_dict, dict):
-                    continue
-                node_index = human_bone_dict.get("node")
-                if isinstance(node_index, int):
-                    result.append(node_index)
+        if not isinstance(vrm1_dict, dict):
+            return result
+
+        humanoid_dict = vrm1_dict.get("humanoid")
+        if not isinstance(humanoid_dict, dict):
+            return result
+
+        human_bones_dict = humanoid_dict.get("humanBones")
+        if not isinstance(human_bones_dict, dict):
+            return result
+
+        for human_bone_dict in human_bones_dict.values():
+            if not isinstance(human_bone_dict, dict):
+                continue
+            node_index = human_bone_dict.get("node")
+            if isinstance(node_index, int):
+                result.append(node_index)
+
         return list(dict.fromkeys(result))  # Remove duplicates
 
     def find_spring_bone1_bone_node_indices(self) -> list[int]:
-        spring_bone1_dict = deep.get(
-            self.parse_result.json_dict,
-            ["extensions", "VRMC_springBone"],
-        )
-        if not isinstance(spring_bone1_dict, dict):
-            return []
-
         result: list[int] = []
+
+        extensions_dict = self.parse_result.json_dict.get("extensions")
+        if not isinstance(extensions_dict, dict):
+            return result
+
+        spring_bone1_dict = extensions_dict.get("VRMC_springBone")
+        if not isinstance(spring_bone1_dict, dict):
+            return result
 
         collider_dicts = spring_bone1_dict.get("colliders")
         if isinstance(collider_dicts, list):
@@ -583,9 +604,17 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 if not isinstance(node_dict, dict):
                     continue
 
-                constraint_dict = deep.get(
-                    node_dict, ["extensions", "VRMC_node_constraint", "constraint"]
+                node_extensions_dict = node_dict.get("extensions")
+                if not isinstance(node_extensions_dict, dict):
+                    continue
+
+                vrmc_node_constraint_dict = node_extensions_dict.get(
+                    "VRMC_node_constraint"
                 )
+                if not isinstance(vrmc_node_constraint_dict, dict):
+                    continue
+
+                constraint_dict = vrmc_node_constraint_dict.get("constraint")
                 if not isinstance(constraint_dict, dict):
                     continue
 
@@ -593,15 +622,26 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 if not object_or_bone:
                     continue
 
-                source = deep.get(constraint_dict, ["roll", "source"])
-                if not isinstance(source, int):
-                    source = deep.get(constraint_dict, ["aim", "source"])
-                if not isinstance(source, int):
-                    source = deep.get(constraint_dict, ["rotation", "source"])
-                if not isinstance(source, int):
-                    continue
+                roll_dict = constraint_dict.get("roll")
+                if isinstance(roll_dict, dict):
+                    source = roll_dict.get("source")
+                    if isinstance(source, int):
+                        constraint_node_index_to_source_index[node_index] = source
+                        continue
 
-                constraint_node_index_to_source_index[node_index] = source
+                aim_dict = constraint_dict.get("aim")
+                if isinstance(aim_dict, dict):
+                    source = aim_dict.get("source")
+                    if isinstance(source, int):
+                        constraint_node_index_to_source_index[node_index] = source
+                        continue
+
+                rotation_dict = constraint_dict.get("rotation")
+                if isinstance(rotation_dict, dict):
+                    source = rotation_dict.get("source")
+                    if isinstance(source, int):
+                        constraint_node_index_to_source_index[node_index] = source
+                        continue
 
             node_indices = list(constraint_node_index_to_source_index.keys())
             while node_indices:
@@ -852,10 +892,13 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         self.load_vrm1_expressions(
             vrm1.expressions, vrm1_extension_dict.get("expressions")
         )
-        self.load_spring_bone1(
-            addon_extension.spring_bone1,
-            deep.get(self.parse_result.json_dict, ["extensions", "VRMC_springBone"]),
-        )
+
+        extensions_dict = self.parse_result.json_dict.get("extensions")
+        if isinstance(extensions_dict, dict):
+            self.load_spring_bone1(
+                addon_extension.spring_bone1, extensions_dict.get("VRMC_springBone")
+            )
+
         self.load_node_constraint1()
         migration.migrate(self.context, armature.name)
 
@@ -1692,9 +1735,15 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             if not isinstance(node_dict, dict):
                 continue
 
-            constraint_dict = deep.get(
-                node_dict, ["extensions", "VRMC_node_constraint", "constraint"]
-            )
+            node_extensions_dict = node_dict.get("extensions")
+            if not isinstance(node_extensions_dict, dict):
+                continue
+
+            vrmc_node_constraint = node_extensions_dict.get("VRMC_node_constraint")
+            if not isinstance(vrmc_node_constraint, dict):
+                continue
+
+            constraint_dict = vrmc_node_constraint.get("constraint")
             if not isinstance(constraint_dict, dict):
                 continue
 

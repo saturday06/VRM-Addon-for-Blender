@@ -17,7 +17,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Vector
 
-from ..common import convert, deep, shader
+from ..common import convert, shader
 from ..common.convert import Json
 from ..common.logging import get_logger
 from ..common.progress import PartialProgress
@@ -60,7 +60,7 @@ class MaterialProperty:
     texture_properties: Mapping[str, int]
 
     @staticmethod
-    def create(json_dict: Json) -> "MaterialProperty":
+    def create(json_dict: Mapping[str, Json], i: int) -> "MaterialProperty":
         fallback = MaterialProperty(
             name="Undefined",
             shader="VRM_USE_GLTFSHADER",
@@ -71,22 +71,39 @@ class MaterialProperty:
             vector_properties={},
             texture_properties={},
         )
-        if not isinstance(json_dict, dict):
+
+        extensions_dict = json_dict.get("extensions")
+        if not isinstance(extensions_dict, dict):
             return fallback
 
-        name = json_dict.get("name")
+        vrm_dict = extensions_dict.get("VRM")
+        if not isinstance(vrm_dict, dict):
+            return fallback
+
+        material_property_dicts = vrm_dict.get("materialProperties")
+        if not isinstance(material_property_dicts, list):
+            return fallback
+
+        if not 0 <= i < len(material_property_dicts):
+            return fallback
+
+        material_property_dict = material_property_dicts[i]
+        if not isinstance(material_property_dict, dict):
+            return fallback
+
+        name = material_property_dict.get("name")
         if not isinstance(name, str):
             name = fallback.name
 
-        shader = json_dict.get("shader")
+        shader = material_property_dict.get("shader")
         if not isinstance(shader, str):
             shader = fallback.shader
 
-        render_queue = json_dict.get("renderQueue")
+        render_queue = material_property_dict.get("renderQueue")
         if not isinstance(render_queue, int):
             render_queue = fallback.render_queue
 
-        raw_keyword_map = json_dict.get("keywordMap")
+        raw_keyword_map = material_property_dict.get("keywordMap")
         if isinstance(raw_keyword_map, dict):
             keyword_map: Mapping[str, bool] = {
                 k: v for k, v in raw_keyword_map.items() if isinstance(v, bool)
@@ -94,7 +111,7 @@ class MaterialProperty:
         else:
             keyword_map = fallback.keyword_map
 
-        raw_tag_map = json_dict.get("tagMap")
+        raw_tag_map = material_property_dict.get("tagMap")
         if isinstance(raw_tag_map, dict):
             tag_map: Mapping[str, str] = {
                 k: v for k, v in raw_tag_map.items() if isinstance(v, str)
@@ -102,7 +119,7 @@ class MaterialProperty:
         else:
             tag_map = fallback.tag_map
 
-        raw_float_properties = json_dict.get("floatProperties")
+        raw_float_properties = material_property_dict.get("floatProperties")
         if isinstance(raw_float_properties, dict):
             float_properties: Mapping[str, float] = {
                 k: float(v)
@@ -112,7 +129,7 @@ class MaterialProperty:
         else:
             float_properties = fallback.float_properties
 
-        raw_vector_properties = json_dict.get("vectorProperties")
+        raw_vector_properties = material_property_dict.get("vectorProperties")
         if isinstance(raw_vector_properties, dict):
             vector_properties: Mapping[str, Sequence[float]] = {
                 k: [
@@ -126,7 +143,7 @@ class MaterialProperty:
         else:
             vector_properties = fallback.vector_properties
 
-        raw_texture_properties = json_dict.get("textureProperties")
+        raw_texture_properties = material_property_dict.get("textureProperties")
         if isinstance(raw_texture_properties, dict):
             texture_properties: Mapping[str, int] = {
                 k: v for k, v in raw_texture_properties.items() if isinstance(v, int)
@@ -158,12 +175,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             return
 
         material_properties = [
-            MaterialProperty.create(
-                deep.get(
-                    self.parse_result.json_dict,
-                    ["extensions", "VRM", "materialProperties", index],
-                )
-            )
+            MaterialProperty.create(self.parse_result.json_dict, index)
             for index in range(len(material_dicts))
         ]
 
@@ -1130,47 +1142,49 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         result: list[int] = []
         vrm0_dict = self.parse_result.vrm0_extension_dict
 
-        first_person_bone_index = deep.get(
-            vrm0_dict, ["firstPerson", "firstPersonBone"]
-        )
-        if isinstance(first_person_bone_index, int):
-            result.append(first_person_bone_index)
+        first_person_dict = vrm0_dict.get("firstPerson")
+        if isinstance(first_person_dict, dict):
+            first_person_bone_index = first_person_dict.get("firstPersonBone")
+            if isinstance(first_person_bone_index, int):
+                result.append(first_person_bone_index)
 
-        human_bone_dicts = deep.get(vrm0_dict, ["humanoid", "humanBones"])
-        if isinstance(human_bone_dicts, list):
-            for human_bone_dict in human_bone_dicts:
-                if not isinstance(human_bone_dict, dict):
-                    continue
-                node_index = human_bone_dict.get("node")
-                if isinstance(node_index, int):
-                    result.append(node_index)
+        humanoid_dict = vrm0_dict.get("humanoid")
+        if isinstance(humanoid_dict, dict):
+            human_bone_dicts = humanoid_dict.get("humanBones")
+            if isinstance(human_bone_dicts, list):
+                for human_bone_dict in human_bone_dicts:
+                    if not isinstance(human_bone_dict, dict):
+                        continue
+                    node_index = human_bone_dict.get("node")
+                    if isinstance(node_index, int):
+                        result.append(node_index)
 
-        collider_group_dicts = deep.get(
-            vrm0_dict, ["secondaryAnimation", "colliderGroups"]
-        )
-        if isinstance(collider_group_dicts, list):
-            for collider_group_dict in collider_group_dicts:
-                if not isinstance(collider_group_dict, dict):
-                    continue
-                node_index = collider_group_dict.get("node")
-                if isinstance(node_index, int):
-                    result.append(node_index)
+        secondary_animation_dict = vrm0_dict.get("secondaryAnimation")
+        if isinstance(secondary_animation_dict, dict):
+            collider_group_dicts = secondary_animation_dict.get("colliderGroups")
+            if isinstance(collider_group_dicts, list):
+                for collider_group_dict in collider_group_dicts:
+                    if not isinstance(collider_group_dict, dict):
+                        continue
+                    node_index = collider_group_dict.get("node")
+                    if isinstance(node_index, int):
+                        result.append(node_index)
 
-        bone_group_dicts = deep.get(vrm0_dict, ["secondaryAnimation", "boneGroups"])
-        if isinstance(bone_group_dicts, list):
-            for bone_group_dict in bone_group_dicts:
-                if not isinstance(bone_group_dict, dict):
-                    continue
-                center_index = bone_group_dict.get("center")
-                if isinstance(center_index, int):
-                    result.append(center_index)
-                bone_indices = bone_group_dict.get("bones")
-                if isinstance(bone_indices, list):
-                    result.extend(
-                        bone_index
-                        for bone_index in bone_indices
-                        if isinstance(bone_index, int)
-                    )
+            bone_group_dicts = secondary_animation_dict.get("boneGroups")
+            if isinstance(bone_group_dicts, list):
+                for bone_group_dict in bone_group_dicts:
+                    if not isinstance(bone_group_dict, dict):
+                        continue
+                    center_index = bone_group_dict.get("center")
+                    if isinstance(center_index, int):
+                        result.append(center_index)
+                    bone_indices = bone_group_dict.get("bones")
+                    if isinstance(bone_indices, list):
+                        result.extend(
+                            bone_index
+                            for bone_index in bone_indices
+                            if isinstance(bone_index, int)
+                        )
         return list(dict.fromkeys(result))  # Remove duplicates
 
     def find_vrm_bone_node_indices(self) -> list[int]:

@@ -2,7 +2,7 @@ import tempfile
 from pathlib import Path
 from unittest import TestCase
 
-from io_scene_vrm.common import deep, version
+from io_scene_vrm.common import version
 from io_scene_vrm.common.blender_manifest import BlenderManifest
 from io_scene_vrm.common.fs import (
     create_unique_indexed_directory_path,
@@ -39,14 +39,6 @@ class TestBlenderManifest(TestCase):
         self.assertEqual(blender_manifest.version, (1, 23, 456))
         self.assertEqual(blender_manifest.blender_version_min, (9, 8, 7))
         self.assertEqual(blender_manifest.blender_version_max, (12, 34, 56))
-
-
-class TestDeep(TestCase):
-    def test_nested_json_value_getter(self) -> None:
-        self.assertEqual(
-            123,
-            deep.get({"foo": [{"bar": 123}]}, ["foo", 0, "bar"]),
-        )
 
 
 class TestPath(TestCase):

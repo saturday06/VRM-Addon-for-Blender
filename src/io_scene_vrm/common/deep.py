@@ -1,8 +1,6 @@
 import difflib
 import math
-from collections.abc import Mapping
 from json import dumps as json_dumps
-from typing import Union
 
 from . import convert
 from .convert import Json
@@ -39,40 +37,6 @@ def make_json(v: object) -> Json:
 
     logger.warning("%s %s is unrecognized type", v, type(v))
     return None
-
-
-def get(
-    json: Union[Json, Mapping[str, Json]],
-    attrs: list[Union[int, str]],
-    default: Json = None,
-) -> Json:
-    if json is None:
-        return default
-
-    attr = attrs.pop(0)
-
-    if isinstance(json, list) and isinstance(attr, int) and 0 <= attr < len(json):
-        if not attrs:
-            return json[attr]
-        return get(json[attr], attrs, default)
-
-    if isinstance(json, dict) and isinstance(attr, str) and attr in json:
-        if not attrs:
-            return json[attr]
-        return get(json[attr], attrs, default)
-
-    return default
-
-
-def get_list(
-    json: Json,
-    attrs: list[Union[int, str]],
-    default: list[Json],
-) -> list[Json]:
-    result = get(json, attrs, default)
-    if not isinstance(result, list):
-        return default
-    return result
 
 
 def diff(

@@ -31,7 +31,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Vector
 
-from ..common import convert, deep, shader
+from ..common import convert, shader
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.gl import (
@@ -2170,7 +2170,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             node_index = len(node_dicts) - 1
 
             if is_skin_mesh:
-                first_scene_nodes = deep.get(self.json_dict, ["scenes", 0, "nodes"])
+                first_scene_nodes = deep_get(self.json_dict, ["scenes", 0, "nodes"])
                 if isinstance(first_scene_nodes, list):
                     first_scene_nodes.append(node_index)
             else:
@@ -2213,7 +2213,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     else:
                         pass  # never
                 else:
-                    first_scene_nodes = deep.get(self.json_dict, ["scenes", 0, "nodes"])
+                    first_scene_nodes = deep_get(self.json_dict, ["scenes", 0, "nodes"])
                     if isinstance(first_scene_nodes, list):
                         first_scene_nodes.append(node_index)
                 mesh_pos = mesh.matrix_world.to_translation()
@@ -2765,17 +2765,17 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         base_extensions_dicts: list[Json] = []
         base_extensions_dicts.append(self.json_dict)
-        base_extensions_dicts.extend(deep.get_list(self.json_dict, ["meshes"], []))
+        base_extensions_dicts.extend(deep_get_list(self.json_dict, ["meshes"], []))
 
-        for material_dict in deep.get_list(self.json_dict, ["materials"], []):
+        for material_dict in deep_get_list(self.json_dict, ["materials"], []):
             if not isinstance(material_dict, dict):
                 continue
             base_extensions_dicts.append(material_dict)
             base_extensions_dicts.append(
-                deep.get(material_dict, ["pbrMetallicRoughness", "baseColorTexture"])
+                deep_get(material_dict, ["pbrMetallicRoughness", "baseColorTexture"])
             )
             base_extensions_dicts.append(
-                deep.get(
+                deep_get(
                     material_dict, ["pbrMetallicRoughness", "metallicRoughnessTexture"]
                 )
             )
@@ -3050,7 +3050,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     continue
                 bind_dict["mesh"] = mesh
 
-                target_names = deep.get_list(
+                target_names = deep_get_list(
                     self.json_dict,
                     ["meshes", mesh, "primitives", 0, "extras", "targetNames"],
                     [],
@@ -3224,7 +3224,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 "scale": [1.0, 1.0, 1.0],
             }
         )
-        first_scene_nodes = deep.get(self.json_dict, ["scenes", 0, "nodes"])
+        first_scene_nodes = deep_get(self.json_dict, ["scenes", 0, "nodes"])
         if isinstance(first_scene_nodes, list):
             first_scene_nodes.append(len(node_dicts) - 1)
 
@@ -3260,3 +3260,37 @@ def normalize_weights_compatible_with_gl_float(
             break
 
     return weights
+
+
+def deep_get(
+    json: Union[Json, Mapping[str, Json]],
+    attrs: list[Union[int, str]],
+    default: Json = None,
+) -> Json:
+    if json is None:
+        return default
+
+    attr = attrs.pop(0)
+
+    if isinstance(json, list) and isinstance(attr, int) and 0 <= attr < len(json):
+        if not attrs:
+            return json[attr]
+        return deep_get(json[attr], attrs, default)
+
+    if isinstance(json, dict) and isinstance(attr, str) and attr in json:
+        if not attrs:
+            return json[attr]
+        return deep_get(json[attr], attrs, default)
+
+    return default
+
+
+def deep_get_list(
+    json: Json,
+    attrs: list[Union[int, str]],
+    default: list[Json],
+) -> list[Json]:
+    result = deep_get(json, attrs, default)
+    if not isinstance(result, list):
+        return default
+    return result

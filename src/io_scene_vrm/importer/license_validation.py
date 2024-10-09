@@ -1,11 +1,9 @@
 import contextlib
-import re
 from typing import Optional
 from urllib.parse import ParseResult, parse_qsl, urlparse
 
 from bpy.app.translations import pgettext
 
-from ..common import deep
 from ..common.convert import Json
 
 
@@ -115,14 +113,41 @@ def validate_uni_virtual_license_url(
     return True
 
 
-def validate_license(json_dict: dict[str, Json]) -> None:
-    """Validate that the license is not a non-modifiable license, such as CC_ND."""
-    confirmations: list[LicenseConfirmationRequiredProp] = []
+def validate_vrm1_license(
+    json_dict: dict[str, Json], _confirmations: list[LicenseConfirmationRequiredProp]
+) -> None:
+    extensions_dict = json_dict.get("extensions")
+    if not isinstance(extensions_dict, dict):
+        return
 
-    license_name = str(
-        deep.get(json_dict, ["extensions", "VRM", "meta", "licenseName"], "")
-    )
-    if re.match("CC(.*)ND(.*)", license_name):  # codespell-ignore
+    vrmc_vrm_dict = extensions_dict.get("VRMC_vrm")
+    if not isinstance(vrmc_vrm_dict, dict):
+        return
+
+    return
+
+
+def validate_vrm0_license(
+    json_dict: dict[str, Json], confirmations: list[LicenseConfirmationRequiredProp]
+) -> None:
+    extensions_dict = json_dict.get("extensions")
+    if not isinstance(extensions_dict, dict):
+        return
+
+    vrm_dict = extensions_dict.get("VRM")
+    if not isinstance(vrm_dict, dict):
+        return
+
+    meta_dict = vrm_dict.get("meta")
+    if not isinstance(meta_dict, dict):
+        return
+
+    license_name = meta_dict.get("licenseName")
+    if license_name in [
+        # https://github.com/vrm-c/vrm-specification/blob/master/specification/0.0/schema/vrm.meta.schema.json#L56
+        "CC_BY_ND",
+        "CC_BY_NC_ND",
+    ]:
         confirmations.append(
             LicenseConfirmationRequiredProp(
                 None,
@@ -134,19 +159,9 @@ def validate_license(json_dict: dict[str, Json]) -> None:
             )
         )
 
-    validate_license_url(
-        str(
-            deep.get(json_dict, ["extensions", "VRM", "meta", "otherPermissionUrl"], "")
-        ),
-        "otherPermissionUrl",
-        confirmations,
-    )
-
     if license_name == "Other":
-        other_license_url_str = str(
-            deep.get(json_dict, ["extensions", "VRM", "meta", "otherLicenseUrl"], "")
-        )
-        if not other_license_url_str:
+        other_license_url = meta_dict.get("otherLicenseUrl")
+        if other_license_url is None:
             confirmations.append(
                 LicenseConfirmationRequiredProp(
                     None,
@@ -158,8 +173,28 @@ def validate_license(json_dict: dict[str, Json]) -> None:
             )
         else:
             validate_license_url(
-                other_license_url_str, "otherLicenseUrl", confirmations
+                str(other_license_url), "otherLicenseUrl", confirmations
             )
+
+    other_permission_url = meta_dict.get("otherPermissionUrl")
+    if other_permission_url is not None:
+        validate_license_url(
+            str(other_permission_url),
+            "otherPermissionUrl",
+            confirmations,
+        )
+
+
+def validate_license(
+    json_dict: dict[str, Json], spec_version_number: tuple[int, int]
+) -> None:
+    """Validate that the license is not a non-modifiable license, such as CC_ND."""
+    confirmations: list[LicenseConfirmationRequiredProp] = []
+
+    if tuple(spec_version_number) >= (1, 0):
+        validate_vrm1_license(json_dict, confirmations)
+    else:
+        validate_vrm0_license(json_dict, confirmations)
 
     if confirmations:
         raise LicenseConfirmationRequiredError(confirmations)

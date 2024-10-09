@@ -28,11 +28,18 @@ fixed_asset_generator_value = (
 
 
 def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
-    vrm_json, binary_chunk = gltf.parse_glb(data)
+    json_dict, binary_chunk = gltf.parse_glb(data)
+    json_dict["__decoded_accessors"] = make_json(
+        read_accessors(json_dict, binary_chunk)
+    )
 
-    vrm_json["__decoded_accessors"] = make_json(read_accessors(vrm_json, binary_chunk))
+    extensions_dict = json_dict.get("extensions")
+    if isinstance(extensions_dict, dict):
+        is_vrm0 = bool(extensions_dict.get("VRM"))
+    else:
+        is_vrm0 = False
 
-    asset_dict = vrm_json.get("asset")
+    asset_dict = json_dict.get("asset")
     if isinstance(asset_dict, dict):
         asset_generator = asset_dict.get("generator")
         if isinstance(asset_generator, str):
@@ -42,16 +49,16 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
                 asset_generator,
             )
 
-    node_dicts = vrm_json.get("nodes")
+    node_dicts = json_dict.get("nodes")
     if isinstance(node_dicts, list):
         for node_dict in node_dicts:
             if not isinstance(node_dict, dict):
                 continue
 
-            if deep.get(vrm_json, ["extensions", "VRM"]):
+            if is_vrm0:
                 skin_index = node_dict.get("skin")
                 if isinstance(skin_index, int):
-                    skin_dicts = vrm_json.get("skins")
+                    skin_dicts = json_dict.get("skins")
                     if (
                         isinstance(skin_dicts, list)
                         and skin_dicts
@@ -65,8 +72,8 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
 
             node_dict["scale"] = [1.0, 1.0, 1.0]
 
-        if deep.get(vrm_json, ["extensions", "VRM"]):
-            skin_dicts = vrm_json.get("skins")
+        if is_vrm0:
+            skin_dicts = json_dict.get("skins")
             if isinstance(skin_dicts, list) and skin_dicts:
                 first_skin_dict = skin_dicts[0]
                 if all(
@@ -77,7 +84,7 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
                     while len(skin_dicts) > 1:
                         skin_dicts.pop()
 
-    scene_dicts = vrm_json.get("scenes")
+    scene_dicts = json_dict.get("scenes")
     if isinstance(scene_dicts, list):
         for scene_dict in scene_dicts:
             if not isinstance(scene_dict, dict):
@@ -90,20 +97,20 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
             if not scene_extras_dict:
                 scene_dict.pop("extras", None)
 
-    extensions_dict = vrm_json.get("extensions")
+    extensions_dict = json_dict.get("extensions")
     if not isinstance(extensions_dict, dict):
-        return vrm_json
+        return json_dict
 
-    vrm0_extension = extensions_dict.get("VRM")
-    if not isinstance(vrm0_extension, dict):
-        return vrm_json
+    vrm0_extension_dict = extensions_dict.get("VRM")
+    if not isinstance(vrm0_extension_dict, dict):
+        return json_dict
 
-    vrm0_first_person_dict = vrm0_extension.get("firstPerson")
+    vrm0_first_person_dict = vrm0_extension_dict.get("firstPerson")
     if not isinstance(vrm0_first_person_dict, dict):
         vrm0_first_person_dict = {}
-        vrm0_extension["firstPerson"] = vrm0_first_person_dict
+        vrm0_extension_dict["firstPerson"] = vrm0_first_person_dict
 
-    vrm0_humanoid_dict = vrm0_extension.get("humanoid")
+    vrm0_humanoid_dict = vrm0_extension_dict.get("humanoid")
     if isinstance(vrm0_humanoid_dict, dict):
         vrm0_human_bone_dicts = vrm0_humanoid_dict.get("humanBones")
         if isinstance(vrm0_human_bone_dicts, list):
@@ -137,7 +144,7 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
         if "curve" not in look_at_dict:
             look_at_dict["curve"] = [0, 0, 0, 1, 1, 1, 1, 0]
 
-    vrm0_blend_shape_master_dict = vrm0_extension.get("blendShapeMaster")
+    vrm0_blend_shape_master_dict = vrm0_extension_dict.get("blendShapeMaster")
     if isinstance(vrm0_blend_shape_master_dict, dict):
         vrm0_blend_shape_group_dicts = vrm0_blend_shape_master_dict.get(
             "blendShapeGroups"
@@ -153,7 +160,7 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
                 if "materialValues" not in vrm0_blend_shape_group_dict:
                     vrm0_blend_shape_group_dict["materialValues"] = []
 
-    vrm0_secondary_animation = vrm0_extension.get("secondaryAnimation")
+    vrm0_secondary_animation = vrm0_extension_dict.get("secondaryAnimation")
     if isinstance(vrm0_secondary_animation, dict):
         vrm0_collider_group_dicts = vrm0_secondary_animation.get("colliderGroups")
         if isinstance(vrm0_collider_group_dicts, list):
@@ -204,7 +211,7 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
                             collider_group
                         ]
 
-    vrm0_material_properties = vrm0_extension.get("materialProperties")
+    vrm0_material_properties = vrm0_extension_dict.get("materialProperties")
     if isinstance(vrm0_material_properties, list):
         for vrm0_material_property in vrm0_material_properties:
             if not isinstance(vrm0_material_property, dict):
@@ -257,7 +264,7 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
                 ):
                     vrm0_outline_color[3] = 1
 
-    return vrm_json
+    return json_dict
 
 
 def vrm_diff(before: bytes, after: bytes, float_tolerance: float) -> list[str]:

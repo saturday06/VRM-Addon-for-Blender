@@ -28,7 +28,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Quaternion, Vector
 
-from ..common import convert, deep, shader
+from ..common import convert, shader
 from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.convert import Json
 from ..common.deep import make_json
@@ -2403,13 +2403,16 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 and 0 <= mesh_index < len(mesh_dicts)
             ):
                 mesh_object_name_to_node_index_dict[object_name] = node_index
-                target_names = deep.get(
-                    mesh_dicts, [mesh_index, "extras", "targetNames"]
-                )
-                if isinstance(target_names, list):
-                    mesh_object_name_to_morph_target_names_dict[object_name] = [
-                        str(target_name) for target_name in target_names
-                    ]
+                mesh_dict = mesh_dicts[mesh_index]
+                if isinstance(mesh_dict, dict):
+                    mesh_extras_dict = mesh_dict.get("extras")
+                    if isinstance(mesh_extras_dict, dict):
+                        target_names = mesh_extras_dict.get("targetNames")
+                        if isinstance(target_names, list):
+                            mesh_object_name_to_morph_target_names_dict[object_name] = [
+                                str(target_name) for target_name in target_names
+                            ]
+
             if isinstance(object_name, str) and (
                 object_name.startswith(INTERNAL_NAME_PREFIX + "VrmAddonLinkTo")
                 # or object_name == dummy_skinned_mesh_object_name
