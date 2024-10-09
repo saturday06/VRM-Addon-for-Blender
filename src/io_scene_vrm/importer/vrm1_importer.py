@@ -17,6 +17,7 @@ from mathutils import Matrix, Vector
 from ..common import convert, ops, shader
 from ..common.convert import Json
 from ..common.logging import get_logger
+from ..common.preferences import get_preferences
 from ..common.progress import PartialProgress
 from ..common.version import addon_version
 from ..common.vrm1 import human_bone as vrm1_human_bone
@@ -323,6 +324,10 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         rim_lighting_mix_factor = mtoon_dict.get("rimLightingMixFactor")
         if isinstance(rim_lighting_mix_factor, (float, int)):
             mtoon.rim_lighting_mix_factor = float(rim_lighting_mix_factor)
+
+        mtoon.enable_outline_preview = get_preferences(
+            self.context
+        ).enable_mtoon_outline_preview
 
         outline_width_mode = mtoon_dict.get("outlineWidthMode")
         if outline_width_mode in mtoon.outline_width_mode_enum.identifiers():

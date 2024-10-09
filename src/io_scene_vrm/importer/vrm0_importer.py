@@ -20,6 +20,7 @@ from mathutils import Matrix, Vector
 from ..common import convert, shader
 from ..common.convert import Json
 from ..common.logging import get_logger
+from ..common.preferences import get_preferences
 from ..common.progress import PartialProgress
 from ..common.version import addon_version
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
@@ -443,6 +444,10 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         rim_lighting_mix = material_property.float_properties.get("_RimLightingMix")
         if rim_lighting_mix is not None:
             gltf.mtoon0_rim_lighting_mix = rim_lighting_mix
+
+        mtoon.enable_outline_preview = get_preferences(
+            self.context
+        ).enable_mtoon_outline_preview
 
         centimeter_to_meter = 0.01
         one_hundredth = 0.01

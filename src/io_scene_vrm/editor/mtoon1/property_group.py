@@ -2973,6 +2973,26 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         set=set_outline_lighting_mix_factor,
     )
 
+    def update_enable_outline_preview(self, context: Context) -> None:
+        material_name = self.find_material().name
+        ops.vrm.refresh_mtoon1_outline(
+            material_name=material_name, create_modifier=True
+        )
+        for material in context.blend_data.materials:
+            if material.name == material_name:
+                continue
+            ext = get_material_mtoon1_extension(material)
+            if not ext.enabled:
+                continue
+            mtoon = ext.extensions.vrmc_materials_mtoon
+            if mtoon.enable_outline_preview != self.enable_outline_preview:
+                mtoon.enable_outline_preview = self.enable_outline_preview
+
+    enable_outline_preview: BoolProperty(  # type: ignore[valid-type]
+        default=True,
+        update=update_enable_outline_preview,
+    )
+
     uv_animation_mask_texture: PointerProperty(  # type: ignore[valid-type]
         type=Mtoon1UvAnimationMaskTextureInfoPropertyGroup
     )
@@ -3070,6 +3090,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         )
         outline_color_factor: Sequence[float]  # type: ignore[no-redef]
         outline_lighting_mix_factor: float  # type: ignore[no-redef]
+        enable_outline_preview: bool  # type: ignore[no-redef]
         uv_animation_mask_texture: (  # type: ignore[no-redef]
             Mtoon1UvAnimationMaskTextureInfoPropertyGroup
         )
@@ -3828,6 +3849,7 @@ def reset_shader_node_group(
     rim_lighting_mix_factor = mtoon.rim_lighting_mix_factor
     parametric_rim_fresnel_power_factor = mtoon.parametric_rim_fresnel_power_factor
     parametric_rim_lift_factor = mtoon.parametric_rim_lift_factor
+    enable_outline_preview = mtoon.enable_outline_preview
     outline_width_mode = mtoon.outline_width_mode
     outline_width_factor = mtoon.outline_width_factor
     outline_width_multiply_texture = mtoon.outline_width_multiply_texture.backup()
@@ -3886,6 +3908,7 @@ def reset_shader_node_group(
     mtoon.rim_lighting_mix_factor = rim_lighting_mix_factor
     mtoon.parametric_rim_fresnel_power_factor = parametric_rim_fresnel_power_factor
     mtoon.parametric_rim_lift_factor = parametric_rim_lift_factor
+    mtoon.enable_outline_preview = enable_outline_preview
     mtoon.outline_width_mode = outline_width_mode
     mtoon.outline_width_factor = outline_width_factor
     mtoon.outline_width_multiply_texture.restore(outline_width_multiply_texture)

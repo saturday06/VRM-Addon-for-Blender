@@ -346,6 +346,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         )
         outline_box.row().prop(mtoon, "outline_color_factor")
         outline_box.prop(mtoon, "outline_lighting_mix_factor", slider=True)
+    outline_box.prop(mtoon, "enable_outline_preview", text="Enable Preview")
 
     layout.label(text="UV Animation", translate=False)
     uv_animation_box = layout.box().column()

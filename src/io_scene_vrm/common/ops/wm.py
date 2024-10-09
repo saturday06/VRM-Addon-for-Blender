@@ -45,6 +45,7 @@ def vrm_license_warning(
     set_armature_display_to_wire: bool = False,
     set_armature_display_to_show_in_front: bool = False,
     set_armature_bone_shape_to_default: bool = False,
+    enable_mtoon_outline_preview: bool = False,
 ) -> set[str]:
     return bpy.ops.wm.vrm_license_warning(  # type: ignore[attr-defined, no-any-return]
         execution_context,
@@ -60,6 +61,7 @@ def vrm_license_warning(
         set_armature_display_to_wire=set_armature_display_to_wire,
         set_armature_display_to_show_in_front=set_armature_display_to_show_in_front,
         set_armature_bone_shape_to_default=set_armature_bone_shape_to_default,
+        enable_mtoon_outline_preview=enable_mtoon_outline_preview,
     )
 
 

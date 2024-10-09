@@ -20,6 +20,7 @@ class ImportPreferencesProtocol(Protocol):
     set_armature_display_to_wire: bool
     set_armature_display_to_show_in_front: bool
     set_armature_bone_shape_to_default: bool
+    enable_mtoon_outline_preview: bool
 
 
 class ImportPreferencesDict(TypedDict):
@@ -30,6 +31,7 @@ class ImportPreferencesDict(TypedDict):
     set_armature_display_to_wire: bool
     set_armature_display_to_show_in_front: bool
     set_armature_bone_shape_to_default: bool
+    enable_mtoon_outline_preview: bool
 
 
 def create_import_preferences_dict(
@@ -49,6 +51,7 @@ def create_import_preferences_dict(
             source.set_armature_display_to_show_in_front
         ),
         "set_armature_bone_shape_to_default": source.set_armature_bone_shape_to_default,
+        "enable_mtoon_outline_preview": source.enable_mtoon_outline_preview,
     }
 
 
@@ -63,6 +66,7 @@ def copy_import_preferences(
         destination.set_armature_display_to_wire,
         destination.set_armature_display_to_show_in_front,
         destination.set_armature_bone_shape_to_default,
+        destination.enable_mtoon_outline_preview,
     ) = (
         source.extract_textures_into_folder,
         source.make_new_texture_folder,
@@ -71,6 +75,7 @@ def copy_import_preferences(
         source.set_armature_display_to_wire,
         source.set_armature_display_to_show_in_front,
         source.set_armature_bone_shape_to_default,
+        source.enable_mtoon_outline_preview,
     )
 
 
@@ -87,6 +92,7 @@ def draw_import_preferences_layout(
     layout.prop(preferences, "set_armature_display_to_wire")
     layout.prop(preferences, "set_armature_display_to_show_in_front")
     layout.prop(preferences, "set_armature_bone_shape_to_default")
+    layout.prop(preferences, "enable_mtoon_outline_preview")
 
 
 class ExportPreferencesProtocol(Protocol):
@@ -169,6 +175,11 @@ class VrmAddonPreferences(AddonPreferences):
         default=True,
     )
 
+    enable_mtoon_outline_preview: BoolProperty(  # type: ignore[valid-type]
+        name="Enable MToon Outline Preview",
+        default=True,
+    )
+
     export_invisibles: BoolProperty(  # type: ignore[valid-type]
         name="Export Invisible Objects",
     )
@@ -223,6 +234,7 @@ class VrmAddonPreferences(AddonPreferences):
         set_armature_display_to_wire: bool  # type: ignore[no-redef]
         set_armature_display_to_show_in_front: bool  # type: ignore[no-redef]
         set_armature_bone_shape_to_default: bool  # type: ignore[no-redef]
+        enable_mtoon_outline_preview: bool  # type: ignore[no-redef]
         export_invisibles: bool  # type: ignore[no-redef]
         export_only_selections: bool  # type: ignore[no-redef]
         enable_advanced_preferences: bool  # type: ignore[no-redef]

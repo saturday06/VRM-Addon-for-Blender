@@ -38,6 +38,7 @@ def vrm(
     set_armature_display_to_wire: bool = True,
     set_armature_display_to_show_in_front: bool = True,
     set_armature_bone_shape_to_default: bool = True,
+    enable_mtoon_outline_preview: bool = True,
     filepath: str = "",
 ) -> set[str]:
     return bpy.ops.import_scene.vrm(  # type: ignore[attr-defined, no-any-return]
@@ -51,5 +52,6 @@ def vrm(
         set_armature_display_to_wire=set_armature_display_to_wire,
         set_armature_display_to_show_in_front=set_armature_display_to_show_in_front,
         set_armature_bone_shape_to_default=set_armature_bone_shape_to_default,
+        enable_mtoon_outline_preview=enable_mtoon_outline_preview,
         filepath=filepath,
     )

@@ -111,6 +111,10 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
         update=import_vrm_update_addon_preferences,
         default=True,
     )
+    enable_mtoon_outline_preview: BoolProperty(  # type: ignore[valid-type]
+        name="Enable MToon Outline Preview",
+        default=True,
+    )
 
     def execute(self, context: Context) -> set[str]:
         filepath = Path(self.filepath)
@@ -170,6 +174,7 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
         set_armature_display_to_wire: bool  # type: ignore[no-redef]
         set_armature_display_to_show_in_front: bool  # type: ignore[no-redef]
         set_armature_bone_shape_to_default: bool  # type: ignore[no-redef]
+        enable_mtoon_outline_preview: bool  # type: ignore[no-redef]
 
 
 class VRM_PT_import_file_browser_tool_props(Panel):
@@ -251,6 +256,7 @@ class WM_OT_vrm_license_confirmation(Operator):
     set_armature_display_to_wire: BoolProperty()  # type: ignore[valid-type]
     set_armature_display_to_show_in_front: BoolProperty()  # type: ignore[valid-type]
     set_armature_bone_shape_to_default: BoolProperty()  # type: ignore[valid-type]
+    enable_mtoon_outline_preview: BoolProperty()  # type: ignore[valid-type]
 
     def execute(self, context: Context) -> set[str]:
         filepath = Path(self.filepath)
@@ -314,6 +320,7 @@ class WM_OT_vrm_license_confirmation(Operator):
         set_armature_display_to_wire: bool  # type: ignore[no-redef]
         set_armature_display_to_show_in_front: bool  # type: ignore[no-redef]
         set_armature_bone_shape_to_default: bool  # type: ignore[no-redef]
+        enable_mtoon_outline_preview: bool  # type: ignore[no-redef]
 
 
 def import_vrm(

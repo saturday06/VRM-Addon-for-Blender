@@ -24,6 +24,7 @@ from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 
 from ...common import convert, shader
 from ...common.logging import get_logger
+from ...common.preferences import get_preferences
 from .. import search
 from ..extension import get_material_extension
 from .property_group import (
@@ -435,6 +436,10 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
         centimeter_to_meter = 0.01
         one_hundredth = 0.01
 
+        mtoon.enable_outline_preview = get_preferences(
+            context
+        ).enable_mtoon_outline_preview
+
         if outline_width_mode_float is not None:
             outline_width_mode = int(round(outline_width_mode_float))
         else:
@@ -783,7 +788,8 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
             mtoon.OUTLINE_WIDTH_MODE_NONE.value,
         )
         no_outline = (
-            outline_width_mode_value == mtoon.OUTLINE_WIDTH_MODE_NONE.value
+            not mtoon.enable_outline_preview
+            or outline_width_mode_value == mtoon.OUTLINE_WIDTH_MODE_NONE.value
             or mtoon.outline_width_factor < float_info.epsilon
         )
         cleanup = no_outline
@@ -1062,7 +1068,10 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
                 obj.modifiers.remove(search_modifier)
 
     def execute(self, context: Context) -> set[str]:
-        self.refresh(context, self.material_name, create_modifier=self.create_modifier)
+        material_name: Optional[str] = self.material_name
+        if not material_name:
+            material_name = None
+        self.refresh(context, material_name, create_modifier=self.create_modifier)
         return {"FINISHED"}
 
     if TYPE_CHECKING:
