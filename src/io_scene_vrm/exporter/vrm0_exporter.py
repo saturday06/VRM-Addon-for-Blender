@@ -31,7 +31,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Vector
 
-from ..common import convert, shader
+from ..common import convert, gltf, shader
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.gl import (
@@ -111,6 +111,22 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         self.glb_bin_collector = GlbBinCollection()
         self.mesh_name_to_index: dict[str, int] = {}
         self.result: Optional[bytes] = None
+
+    def export_vrm2(self) -> Optional[bytes]:
+        armature_data = self.armature.data
+        if not isinstance(armature_data, Armature):
+            message = f"{type(armature_data)} is not an Armature"
+            raise TypeError(message)
+
+        with (
+            save_workspace(self.context),
+            self.clear_blend_shape_proxy_previews(armature_data),
+            setup_humanoid_t_pose(self.context, self.armature),
+            self.hide_mtoon1_outline_geometry_nodes(self.context),
+        ):
+            json_dict: dict[str, Json] = {}
+            buffer0 = bytearray()
+            return gltf.pack_glb(json_dict, buffer0)
 
     @property
     def armature_data(self) -> Armature:
