@@ -34,7 +34,7 @@ from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.gltf import pack_glb, parse_glb
 from ..common.logging import get_logger
-from ..common.version import addon_version
+from ..common.version import get_addon_version
 from ..common.vrm1.human_bone import HumanBoneName
 from ..common.workspace import save_workspace
 from ..editor import search
@@ -2594,7 +2594,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         json_dict["extensions"] = extensions
         json_dict["extensionsUsed"] = extensions_used
 
-        v = addon_version()
+        v = get_addon_version()
         if environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
             v = (999, 999, 999)
 

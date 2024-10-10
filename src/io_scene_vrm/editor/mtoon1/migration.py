@@ -433,7 +433,7 @@ def migrate_material(
         )
 
     typed_mtoon1.setup_drivers()
-    updated_addon_version = version.addon_version()
+    updated_addon_version = version.get_addon_version()
     if tuple(typed_mtoon1.addon_version) != updated_addon_version:
         typed_mtoon1.addon_version = updated_addon_version
 

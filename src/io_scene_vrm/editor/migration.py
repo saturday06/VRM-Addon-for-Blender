@@ -8,7 +8,7 @@ from bpy.types import Armature, Context
 from ..common import ops
 from ..common.logging import get_logger
 from ..common.preferences import get_preferences
-from ..common.version import addon_version
+from ..common.version import get_addon_version
 from .extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     VrmAddonSceneExtensionPropertyGroup,
@@ -38,7 +38,7 @@ state: Final = State()
 def is_unnecessary(armature_data: Armature) -> bool:
     ext = get_armature_extension(armature_data)
     return (
-        tuple(ext.addon_version) >= addon_version()
+        tuple(ext.addon_version) >= get_addon_version()
         and armature_data.name == ext.armature_data_name
         and vrm0_migration.is_unnecessary(ext.vrm0)
     )
@@ -94,7 +94,7 @@ def migrate(context: Optional[Context], armature_object_name: str) -> bool:
     vrm1_migration.migrate(context, ext.vrm1, armature)
     spring_bone1_migration.migrate(context, armature)
 
-    updated_addon_version = addon_version()
+    updated_addon_version = get_addon_version()
     logger.info(
         "Upgrade armature %s %s to %s",
         armature_object_name,
@@ -133,7 +133,7 @@ def migrate_all_objects(
 
     preferences = get_preferences(context)
 
-    updated_addon_version = addon_version()
+    updated_addon_version = get_addon_version()
     logger.debug(
         "Upgrade preferences %s to %s",
         tuple(preferences.addon_version),
@@ -195,7 +195,7 @@ def validate_blend_file_addon_compatibility(context: Context) -> None:
     """新しいVRMアドオンで作成されたファイルを古いVRMアドオンで編集しようとした場合に警告をする."""
     if not context.blend_data.filepath:
         return
-    installed_addon_version = addon_version()
+    installed_addon_version = get_addon_version()
 
     # TODO: これはSceneあたりにバージョンを生やしたほうが良いかも
     up_to_date = True

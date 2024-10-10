@@ -96,7 +96,7 @@ from . import convert
 from .char import INTERNAL_NAME_PREFIX
 from .gl import GL_CLAMP_TO_EDGE, GL_LINEAR, GL_NEAREST, GL_REPEAT
 from .logging import get_logger
-from .version import addon_version
+from .version import get_addon_version
 from .workspace import save_workspace
 
 logger = get_logger(__name__)
@@ -335,7 +335,7 @@ def load_mtoon1_node_group(
             )
             clear_node_tree(node_group, clear_inputs_outputs=True)
         copy_node_tree(context, template_node_group, node_group)
-        get_node_tree_extension(node_group).addon_version = addon_version()
+        get_node_tree_extension(node_group).addon_version = get_addon_version()
     finally:
         if template_node_group and template_node_group.users <= 1:
             context.blend_data.node_groups.remove(template_node_group)

@@ -8,7 +8,7 @@ from io_scene_vrm.common.blender_manifest import BlenderManifest
 class TestLegacyAddonInit(TestCase):
     def test_version(self) -> None:
         self.assertEqual(
-            version.addon_version(),
+            version.get_addon_version(),
             bl_info.get("version"),
         )
 

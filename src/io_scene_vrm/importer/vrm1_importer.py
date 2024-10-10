@@ -19,7 +19,7 @@ from ..common.convert import Json
 from ..common.logging import get_logger
 from ..common.preferences import get_preferences
 from ..common.progress import PartialProgress
-from ..common.version import addon_version
+from ..common.version import get_addon_version
 from ..common.vrm1 import human_bone as vrm1_human_bone
 from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration
@@ -188,7 +188,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         material.use_backface_culling = True
 
         gltf = get_material_extension(material).mtoon1
-        gltf.addon_version = addon_version()
+        gltf.addon_version = get_addon_version()
         gltf.enabled = True
         mtoon = gltf.extensions.vrmc_materials_mtoon
 
@@ -882,7 +882,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM1
         vrm1_extension_dict = self.parse_result.vrm1_extension_dict
 
-        addon_extension.addon_version = addon_version()
+        addon_extension.addon_version = get_addon_version()
 
         textblock = self.context.blend_data.texts.new(name="vrm.json")
         textblock.write(json.dumps(self.parse_result.json_dict, indent=4))

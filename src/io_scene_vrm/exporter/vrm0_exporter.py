@@ -55,7 +55,7 @@ from ..common.legacy_gltf import TEXTURE_INPUT_NAMES
 from ..common.logging import get_logger
 from ..common.mtoon_unversioned import MtoonUnversioned
 from ..common.progress import PartialProgress, create_progress
-from ..common.version import addon_version
+from ..common.version import get_addon_version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..common.workspace import save_workspace
 from ..editor import search
@@ -2755,7 +2755,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         progress.update(1)
 
     def exporter_name(self) -> str:
-        v = addon_version()
+        v = get_addon_version()
         if environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
             v = (999, 999, 999)
         return "saturday06_blender_vrm_exporter_experimental_" + ".".join(map(str, v))

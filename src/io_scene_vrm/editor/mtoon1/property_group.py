@@ -50,7 +50,7 @@ from ...common.gl import (
 )
 from ...common.logging import get_logger
 from ...common.preferences import VrmAddonPreferences
-from ...common.version import addon_version
+from ...common.version import get_addon_version
 from ..property_group import property_group_enum
 
 logger = get_logger(__name__)
@@ -3920,7 +3920,7 @@ def reset_shader_node_group(
     mtoon.uv_animation_rotation_speed_factor = uv_animation_rotation_speed_factor
 
     gltf.setup_drivers()
-    gltf.addon_version = addon_version()
+    gltf.addon_version = get_addon_version()
 
 
 def get_material_mtoon1_extension(material: Material) -> Mtoon1MaterialPropertyGroup:

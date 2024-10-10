@@ -15,7 +15,7 @@ from io_scene_vrm.common.vrm1 import human_bone as vrm1_human_bone
 class TestVersion(TestCase):
     def test_version(self) -> None:
         self.assertEqual(
-            version.addon_version(),
+            version.get_addon_version(),
             (2, 20, 88),
         )
 

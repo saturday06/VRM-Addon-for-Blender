@@ -286,7 +286,7 @@ index a55ec9ff..00000000
 -class TestLegacyAddonInit(TestCase):
 -    def test_version(self) -> None:
 -        self.assertEqual(
--            version.addon_version(),
+-            version.get_addon_version(),
 -            bl_info.get("version"),
 -        )
 -

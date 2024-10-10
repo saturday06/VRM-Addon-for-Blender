@@ -838,7 +838,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
 
     buffer_dicts: list[dict[str, Json]] = [{"byteLength": len(buffer0_bytearray)}]
 
-    addon_version = version.addon_version()
+    addon_version = version.get_addon_version()
     if environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
         addon_version = (999, 999, 999)
 

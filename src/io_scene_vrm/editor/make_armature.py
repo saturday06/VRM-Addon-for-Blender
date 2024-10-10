@@ -8,7 +8,7 @@ from bpy.props import BoolProperty, FloatProperty, StringProperty
 from bpy.types import Armature, Context, EditBone, Object, Operator
 from mathutils import Matrix, Vector
 
-from ..common.version import addon_version
+from ..common.version import get_addon_version
 from ..common.workspace import save_workspace
 from . import migration
 from .extension import get_armature_extension
@@ -171,7 +171,7 @@ class ICYP_OT_make_armature(Operator):
         if not isinstance(armature_data, Armature):
             message = "armature data is not an Armature"
             raise TypeError(message)
-        get_armature_extension(armature_data).addon_version = addon_version()
+        get_armature_extension(armature_data).addon_version = get_addon_version()
 
         bone_dict: dict[str, EditBone] = {}
 

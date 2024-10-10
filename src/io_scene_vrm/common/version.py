@@ -48,7 +48,7 @@ def max_supported_blender_major_minor_version() -> Optional[tuple[int, int]]:
     return (blender_version_max[0], blender_version_max[1])
 
 
-def addon_version() -> tuple[int, int, int]:
+def get_addon_version() -> tuple[int, int, int]:
     return BlenderManifest.read().version
 
 

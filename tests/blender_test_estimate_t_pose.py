@@ -11,7 +11,7 @@ from io_scene_vrm.editor.extension import (
     get_armature_extension,
 )
 
-addon_version = version.addon_version()
+addon_version = version.get_addon_version()
 spec_version = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1
 
 
