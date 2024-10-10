@@ -503,7 +503,7 @@ class AbstractBaseVrmImporter(ABC):
         return result
 
     def import_gltf2_with_indices(self) -> None:
-        json_dict, body_binary = parse_glb(self.parse_result.filepath.read_bytes())
+        json_dict, buffer0_bytes = parse_glb(self.parse_result.filepath.read_bytes())
 
         for key in ["nodes", "materials", "meshes"]:
             if key not in json_dict or not isinstance(json_dict[key], list):
@@ -929,7 +929,7 @@ class AbstractBaseVrmImporter(ABC):
         full_vrm_import_success = False
         with tempfile.TemporaryDirectory() as temp_dir:
             indexed_vrm_filepath = Path(temp_dir, "indexed.vrm")
-            indexed_vrm_filepath.write_bytes(pack_glb(json_dict, body_binary))
+            indexed_vrm_filepath.write_bytes(pack_glb(json_dict, buffer0_bytes))
             try:
                 import_scene_gltf(
                     ImportSceneGltfArguments(
@@ -955,7 +955,7 @@ class AbstractBaseVrmImporter(ABC):
             json_dict.pop("animations", None)
             with tempfile.TemporaryDirectory() as temp_dir:
                 indexed_vrm_filepath = Path(temp_dir, "indexed.vrm")
-                indexed_vrm_filepath.write_bytes(pack_glb(json_dict, body_binary))
+                indexed_vrm_filepath.write_bytes(pack_glb(json_dict, buffer0_bytes))
                 try:
                     import_scene_gltf(
                         ImportSceneGltfArguments(

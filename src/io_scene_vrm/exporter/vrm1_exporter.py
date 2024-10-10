@@ -287,7 +287,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         cls,
         meta: Vrm1MetaPropertyGroup,
         json_dict: dict[str, Json],
-        body_binary: bytearray,
+        buffer0: bytearray,
         image_name_to_index_dict: dict[str, int],
         gltf2_addon_export_settings: dict[str, object],
     ) -> dict[str, Json]:
@@ -329,7 +329,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         if meta.thumbnail_image:
             meta_dict["thumbnailImage"] = cls.find_or_create_image(
                 json_dict,
-                body_binary,
+                buffer0,
                 image_name_to_index_dict,
                 meta.thumbnail_image,
                 gltf2_addon_export_settings,
@@ -890,14 +890,14 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def find_or_create_image(
         cls,
         json_dict: dict[str, Json],
-        body_binary: bytearray,
+        buffer0: bytearray,
         image_name_to_index_dict: dict[str, int],
         image: Image,
         gltf2_addon_export_settings: dict[str, object],
     ) -> int:
         # TODO: Verify alignment requirement and optimize
-        while len(body_binary) % 32 == 0:
-            body_binary.append(0)
+        while len(buffer0) % 32 == 0:
+            buffer0.append(0)
 
         image_bytes, mime = image_to_image_bytes(image, gltf2_addon_export_settings)
         buffer_view_dicts = json_dict.get("bufferViews")
@@ -908,7 +908,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         buffer_view_dicts.append(
             {
                 "buffer": 0,
-                "byteOffset": len(body_binary),
+                "byteOffset": len(buffer0),
                 "byteLength": len(image_bytes),
             }
         )
@@ -934,10 +934,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             )
             image_name_to_index_dict[image.name] = image_index
 
-        body_binary.extend(image_bytes)
+        buffer0.extend(image_bytes)
         # TODO: Verify alignment requirement and optimize
-        while len(body_binary) % 32 == 0:
-            body_binary.append(0)
+        while len(buffer0) % 32 == 0:
+            buffer0.append(0)
 
         return image_index
 
@@ -945,7 +945,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def create_mtoon1_texture_info_dict(
         cls,
         json_dict: dict[str, Json],
-        body_binary: bytearray,
+        buffer0: bytearray,
         texture_info: Mtoon1TextureInfoPropertyGroup,
         image_name_to_index_dict: dict[str, int],
         gltf2_addon_export_settings: dict[str, object],
@@ -956,7 +956,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         image_index = cls.find_or_create_image(
             json_dict,
-            body_binary,
+            buffer0,
             image_name_to_index_dict,
             image,
             gltf2_addon_export_settings,
@@ -1041,7 +1041,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         cls,
         context: Context,
         json_dict: dict[str, Json],
-        body_binary: bytearray,
+        buffer0: bytearray,
         node: Node,
         texture_input_name: str,
         image_name_to_index_dict: dict[str, int],
@@ -1056,7 +1056,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         image_name, wrap_type, filter_type = image_name_and_sampler_type
         image_index = cls.find_or_create_image(
             json_dict,
-            body_binary,
+            buffer0,
             image_name_to_index_dict,
             context.blend_data.images[image_name],
             gltf2_addon_export_settings,
@@ -1116,7 +1116,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def create_mtoon1_material_dict(
         cls,
         json_dict: dict[str, Json],
-        body_binary: bytearray,
+        buffer0: bytearray,
         material: Material,
         image_name_to_index_dict: dict[str, int],
         gltf2_addon_export_settings: dict[str, object],
@@ -1168,7 +1168,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             "baseColorTexture",
             cls.create_mtoon1_texture_info_dict(
                 json_dict,
-                body_binary,
+                buffer0,
                 gltf.pbr_metallic_roughness.base_color_texture,
                 image_name_to_index_dict,
                 gltf2_addon_export_settings,
@@ -1180,7 +1180,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             "shadeMultiplyTexture",
             cls.create_mtoon1_texture_info_dict(
                 json_dict,
-                body_binary,
+                buffer0,
                 mtoon.shade_multiply_texture,
                 image_name_to_index_dict,
                 gltf2_addon_export_settings,
@@ -1191,7 +1191,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             "normalTexture",
             cls.create_mtoon1_texture_info_dict(
                 json_dict,
-                body_binary,
+                buffer0,
                 gltf.normal_texture,
                 image_name_to_index_dict,
                 gltf2_addon_export_settings,
@@ -1206,7 +1206,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             "shadingShiftTexture",
             cls.create_mtoon1_texture_info_dict(
                 json_dict,
-                body_binary,
+                buffer0,
                 mtoon.shading_shift_texture,
                 image_name_to_index_dict,
                 gltf2_addon_export_settings,
@@ -1223,7 +1223,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             "emissiveTexture",
             cls.create_mtoon1_texture_info_dict(
                 json_dict,
-                body_binary,
+                buffer0,
                 gltf.emissive_texture,
                 image_name_to_index_dict,
                 gltf2_addon_export_settings,
@@ -1234,7 +1234,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             "matcapTexture",
             cls.create_mtoon1_texture_info_dict(
                 json_dict,
-                body_binary,
+                buffer0,
                 mtoon.matcap_texture,
                 image_name_to_index_dict,
                 gltf2_addon_export_settings,
@@ -1252,7 +1252,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             "rimMultiplyTexture",
             cls.create_mtoon1_texture_info_dict(
                 json_dict,
-                body_binary,
+                buffer0,
                 mtoon.rim_multiply_texture,
                 image_name_to_index_dict,
                 gltf2_addon_export_settings,
@@ -1266,7 +1266,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             "outlineWidthMultiplyTexture",
             cls.create_mtoon1_texture_info_dict(
                 json_dict,
-                body_binary,
+                buffer0,
                 mtoon.outline_width_multiply_texture,
                 image_name_to_index_dict,
                 gltf2_addon_export_settings,
@@ -1279,7 +1279,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             "uvAnimationMaskTexture",
             cls.create_mtoon1_texture_info_dict(
                 json_dict,
-                body_binary,
+                buffer0,
                 mtoon.uv_animation_mask_texture,
                 image_name_to_index_dict,
                 gltf2_addon_export_settings,
@@ -1308,7 +1308,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         cls,
         context: Context,
         json_dict: dict[str, Json],
-        body_binary: bytearray,
+        buffer0: bytearray,
         material: Material,
         node: Node,
         image_name_to_index_dict: dict[str, int],
@@ -1335,7 +1335,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         base_color_texture_dict = cls.create_mtoon0_texture_info_dict(
             context,
             json_dict,
-            body_binary,
+            buffer0,
             node,
             "color_texture",
             image_name_to_index_dict,
@@ -1363,7 +1363,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             cls.create_mtoon0_texture_info_dict(
                 context,
                 json_dict,
-                body_binary,
+                buffer0,
                 node,
                 "emissive_texture",
                 image_name_to_index_dict,
@@ -1374,7 +1374,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         normal_texture_dict = cls.create_mtoon0_texture_info_dict(
             context,
             json_dict,
-            body_binary,
+            buffer0,
             node,
             "normal",
             image_name_to_index_dict,
@@ -1393,7 +1393,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             cls.create_mtoon0_texture_info_dict(
                 context,
                 json_dict,
-                body_binary,
+                buffer0,
                 node,
                 "emissive_texture",
                 image_name_to_index_dict,
@@ -1407,7 +1407,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             cls.create_mtoon0_texture_info_dict(
                 context,
                 json_dict,
-                body_binary,
+                buffer0,
                 node,
                 "occlusion_texture",
                 image_name_to_index_dict,
@@ -1437,7 +1437,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         cls,
         context: Context,
         json_dict: dict[str, Json],
-        body_binary: bytearray,
+        buffer0: bytearray,
         material: Material,
         node: Node,
         image_name_to_index_dict: dict[str, int],
@@ -1479,7 +1479,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         base_color_texture_dict = cls.create_mtoon0_texture_info_dict(
             context,
             json_dict,
-            body_binary,
+            buffer0,
             node,
             "Main_Texture",
             image_name_to_index_dict,
@@ -1505,7 +1505,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         cls,
         context: Context,
         json_dict: dict[str, Json],
-        body_binary: bytearray,
+        buffer0: bytearray,
         material: Material,
         node: Node,
         image_name_to_index_dict: dict[str, int],
@@ -1570,7 +1570,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         base_color_texture_dict = cls.create_mtoon0_texture_info_dict(
             context,
             json_dict,
-            body_binary,
+            buffer0,
             node,
             "MainTexture",
             image_name_to_index_dict,
@@ -1587,7 +1587,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         shade_multiply_texture_dict = cls.create_mtoon0_texture_info_dict(
             context,
             json_dict,
-            body_binary,
+            buffer0,
             node,
             "ShadeTexture",
             image_name_to_index_dict,
@@ -1601,7 +1601,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         normal_texture_dict = cls.create_mtoon0_texture_info_dict(
             context,
             json_dict,
-            body_binary,
+            buffer0,
             node,
             "NormalmapTexture",
             image_name_to_index_dict,
@@ -1611,7 +1611,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             normal_texture_dict = cls.create_mtoon0_texture_info_dict(
                 context,
                 json_dict,
-                body_binary,
+                buffer0,
                 node,
                 "NomalmapTexture",
                 image_name_to_index_dict,
@@ -1657,7 +1657,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             cls.create_mtoon0_texture_info_dict(
                 context,
                 json_dict,
-                body_binary,
+                buffer0,
                 node,
                 "Emission_Texture",
                 image_name_to_index_dict,
@@ -1670,7 +1670,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             cls.create_mtoon0_texture_info_dict(
                 context,
                 json_dict,
-                body_binary,
+                buffer0,
                 node,
                 "SphereAddTexture",
                 image_name_to_index_dict,
@@ -1700,7 +1700,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             cls.create_mtoon0_texture_info_dict(
                 context,
                 json_dict,
-                body_binary,
+                buffer0,
                 node,
                 "RimTexture",
                 image_name_to_index_dict,
@@ -1743,7 +1743,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             cls.create_mtoon0_texture_info_dict(
                 context,
                 json_dict,
-                body_binary,
+                buffer0,
                 node,
                 "OutlineWidthTexture",
                 image_name_to_index_dict,
@@ -1776,7 +1776,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             cls.create_mtoon0_texture_info_dict(
                 context,
                 json_dict,
-                body_binary,
+                buffer0,
                 node,
                 "UV_Animation_Mask_Texture",
                 image_name_to_index_dict,
@@ -1814,7 +1814,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         cls,
         context: Context,
         json_dict: dict[str, Json],
-        body_binary: bytearray,
+        buffer0: bytearray,
         material_name_to_index_dict: Mapping[str, int],
         image_name_to_index_dict: dict[str, int],
         gltf2_addon_export_settings: dict[str, object],
@@ -1834,7 +1834,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if get_material_extension(material).mtoon1.enabled:
                 material_dicts[index] = cls.create_mtoon1_material_dict(
                     json_dict,
-                    body_binary,
+                    buffer0,
                     material,
                     image_name_to_index_dict,
                     gltf2_addon_export_settings,
@@ -1849,7 +1849,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 material_dicts[index] = cls.create_mtoon_unversioned_material_dict(
                     context,
                     json_dict,
-                    body_binary,
+                    buffer0,
                     material,
                     node,
                     image_name_to_index_dict,
@@ -1859,7 +1859,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 material_dicts[index] = cls.create_legacy_gltf_material_dict(
                     context,
                     json_dict,
-                    body_binary,
+                    buffer0,
                     material,
                     node,
                     image_name_to_index_dict,
@@ -1870,7 +1870,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     cls.create_legacy_transparent_zwrite_material_dict(
                         context,
                         json_dict,
-                        body_binary,
+                        buffer0,
                         material,
                         node,
                         image_name_to_index_dict,
@@ -2255,8 +2255,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         vrm = get_armature_extension(armature_data).vrm1
 
-        json_dict, body_binary = parse_glb(extra_name_assigned_glb)
-        body_binary = bytearray(body_binary)
+        json_dict, buffer0_bytes = parse_glb(extra_name_assigned_glb)
+        buffer0 = bytearray(buffer0_bytes)
 
         bone_name_to_index_dict: dict[str, int] = {}
         object_name_to_index_dict: dict[str, int] = {}
@@ -2510,7 +2510,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         self.save_vrm_materials(
             self.context,
             json_dict,
-            body_binary,
+            buffer0,
             material_name_to_index_dict,
             image_name_to_index_dict,
             self.gltf2_addon_export_settings,
@@ -2537,7 +2537,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             "meta": self.create_meta_dict(
                 vrm.meta,
                 json_dict,
-                body_binary,
+                buffer0,
                 image_name_to_index_dict,
                 self.gltf2_addon_export_settings,
             ),
@@ -2611,7 +2611,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         asset_dict["generator"] = generator
 
-        if body_binary:
+        if buffer0:
             buffer_dicts = json_dict.get("buffers")
             if not isinstance(buffer_dicts, list) or not buffer_dicts:
                 buffer_dicts = []
@@ -2622,13 +2622,13 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if not isinstance(buffer_dict, dict):
                 buffer_dict = {}
                 buffer_dicts[0] = buffer_dict
-            buffer_dict["byteLength"] = len(body_binary)
+            buffer_dict["byteLength"] = len(buffer0)
 
         for key in gltf_root_non_empty_array_keys:
             if not json_dict.get(key):
                 json_dict.pop(key, None)
 
-        return pack_glb(json_dict, body_binary)
+        return pack_glb(json_dict, buffer0)
 
 
 def find_node_world_matrix(

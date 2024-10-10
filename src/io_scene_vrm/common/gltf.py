@@ -160,7 +160,7 @@ def read_accessor_as_bytes(
     accessor_dict: dict[str, Json],
     buffer_view_dicts: list[Json],
     buffer_dicts: list[Json],
-    buffer0_bytes: bytes,
+    bin_chunk_bytes: Optional[bytes],
 ) -> Optional[bytes]:
     buffer_view_index = accessor_dict.get("bufferView")
     if not isinstance(buffer_view_index, int):
@@ -176,8 +176,8 @@ def read_accessor_as_bytes(
     if not 0 <= buffer_index < len(buffer_dicts):
         return None
 
-    if buffer_index == 0:
-        buffer_bytes = buffer0_bytes
+    if buffer_index == 0 and bin_chunk_bytes is not None:
+        buffer_bytes = bin_chunk_bytes
     else:
         prefix = "application/gltf-buffer;base64,"
 

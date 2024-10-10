@@ -28,9 +28,9 @@ fixed_asset_generator_value = (
 
 
 def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
-    json_dict, binary_chunk = gltf.parse_glb(data)
+    json_dict, buffer0_bytes = gltf.parse_glb(data)
     json_dict["__decoded_accessors"] = make_json(
-        read_accessors(json_dict, binary_chunk)
+        read_accessors(json_dict, buffer0_bytes)
     )
 
     extensions_dict = json_dict.get("extensions")
