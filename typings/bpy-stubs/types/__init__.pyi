@@ -595,6 +595,7 @@ class MeshUVLoopLayer(bpy_struct):
     active_render: bool
 
 class UVLoopLayers(bpy_prop_collection[MeshUVLoopLayer]):
+    active: Optional[MeshUVLoopLayer]
     def new(self, name: str = "UVMap", do_init: bool = True) -> MeshUVLoopLayer: ...
 
 class MeshLoopTriangle(bpy_struct):
