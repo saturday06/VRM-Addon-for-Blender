@@ -52,8 +52,8 @@ def diff(
             result = [
                 f"{path}: left length is {len(left)} but right length is {len(right)}"
             ]
-            left_json_str = json_dumps(left, indent=4)
-            right_json_str = json_dumps(right, indent=4)
+            left_json_str = json_dumps(left, indent=4, sort_keys=True)
+            right_json_str = json_dumps(right, indent=4, sort_keys=True)
             unified_diff = [
                 line.rstrip()
                 for line in difflib.unified_diff(

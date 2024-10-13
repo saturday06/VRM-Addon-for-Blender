@@ -116,6 +116,7 @@ def pack_glb(
     json_chunk_bytes = json.dumps(
         json_dict,
         separators=(",", ":"),
+        sort_keys=True,
         # UniVRM 0.56.3 cannot import a json containing unicode escape chars into
         # Unity Editor.
         ensure_ascii=False,
