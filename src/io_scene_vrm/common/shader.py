@@ -1543,6 +1543,19 @@ def get_float_value(
     )
 
 
+def get_float_value_or(
+    shader_node: Node,
+    input_socket_name: str,
+    min_value: float = -float_info.max,
+    max_value: float = float_info.max,
+    default_value: float = 0.0,
+) -> float:
+    float_value = get_float_value(shader_node, input_socket_name, min_value, max_value)
+    if float_value is None:
+        return default_value
+    return float_value
+
+
 def rgba_or_none(
     vs: object, min_value: float = -float_info.max, max_value: float = float_info.max
 ) -> Optional[tuple[float, float, float, float]]:
@@ -1607,6 +1620,19 @@ def get_rgba_value(
     )
 
 
+def get_rgba_value_or(
+    shader_node: Node,
+    input_socket_name: str,
+    min_value: float = -float_info.max,
+    max_value: float = float_info.max,
+    default_value: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0),
+) -> tuple[float, float, float, float]:
+    rgba_value = get_rgba_value(shader_node, input_socket_name, min_value, max_value)
+    if rgba_value is None:
+        return default_value
+    return rgba_value
+
+
 def rgb_or_none(
     vs: object, min_value: float = -float_info.max, max_value: float = float_info.max
 ) -> Optional[tuple[float, float, float]]:
@@ -1665,6 +1691,19 @@ def get_rgb_value(
         return default_value
 
     return rgb_or_none(getattr(outputs[0], "default_value", None), min_value, max_value)
+
+
+def get_rgb_value_or(
+    shader_node: Node,
+    input_socket_name: str,
+    min_value: float = -float_info.max,
+    max_value: float = float_info.max,
+    default: tuple[float, float, float] = (0.0, 0.0, 0.0),
+) -> tuple[float, float, float]:
+    rgb_value = get_rgb_value(shader_node, input_socket_name, min_value, max_value)
+    if rgb_value is None:
+        return default
+    return rgb_value
 
 
 def setup_frame_count_driver(context: Context) -> None:

@@ -254,3 +254,11 @@ def str_or(v: object, default: str) -> str:
     if isinstance(v, str):
         return v
     return default
+
+
+def axis_blender_to_gltf(vector3: Sequence[float]) -> tuple[float, float, float]:
+    return (
+        -vector3[0],
+        vector3[2],
+        vector3[1],
+    )
