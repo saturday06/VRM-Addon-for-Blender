@@ -209,21 +209,77 @@ class NodeGroupSocketTarget(NodeSocketTarget):
 
 
 class MaterialTraceablePropertyGroup(PropertyGroup):
+    SELF_KEY_NUMBER_TO_MATERIAL_INDEX_CACHE: Final[dict[int, int]] = {}
+    """selfを示す数値と、それに対応するマテリアルのインデックスのキャッシュ.
+
+    本来ならselfからMaterialを引ける弱参照キャッシュにしたい。しかしそれらは
+    ネイティブオブジェクトであり、そのままキャッシュをするのは非常に危険になる。
+    そのため、代わりにselfに対応する数値からマテリアルのインデックスを引ける
+    キャッシュにした。
+    """
+
+    def match_material(
+        self, material: Material, material_property_chain: Sequence[str]
+    ) -> bool:
+        """selfに対応するマテリアルかどうかを調べる."""
+        property_group: object = get_material_mtoon1_extension(material)
+        for material_property in material_property_chain:
+            property_group = getattr(property_group, material_property, None)
+        return property_group == self
+
     def find_material(self) -> Material:
+        """selfに対応するマテリアルを取得する.
+
+        このメソッドは利用頻度が高いので、プロファイルの結果に気をつける。
+        """
         context = bpy.context
 
         if self.id_data and self.id_data.is_evaluated:
             logger.error("%s is evaluated. May cause a problem.", self)
 
-        chain = self.get_material_property_chain()
-        for material in context.blend_data.materials:
+        material_property_chain = self.get_material_property_chain()
+
+        # この関数を以前実行した際のキャッシュが残っているかを調べる。
+        # キャッシュを使わない場合、リニアサーチが必要になり遅いことがわかっているため、
+        # 結果をキャッシュして再利用を試みる。
+        self_key_number = (
+            # ポインタをそのまま使わないで欲しいという気持ちを込める
+            ~self.as_pointer() ^ 0x01234567_89ABCDEF
+        )
+        cached_material_index = self.SELF_KEY_NUMBER_TO_MATERIAL_INDEX_CACHE.get(
+            self_key_number
+        )
+        if cached_material_index is not None:
+            # キャッシュが残っている場合は、そのキャッシュが現在も有効かをチェックする
+            if (
+                0 <= cached_material_index < len(context.blend_data.materials)
+                and (
+                    cached_material := context.blend_data.materials[
+                        cached_material_index
+                    ]
+                )
+                and self.match_material(cached_material, material_property_chain)
+            ):
+                # キャッシュが有効だった場合はキャッシュから取得したマテリアルを返す
+                return cached_material
+            # キャッシュが無効な場合、その他全てのキャッシュも無効になっている可能性が
+            # 高いので全てのキャッシュを削除する。
+            self.SELF_KEY_NUMBER_TO_MATERIAL_INDEX_CACHE.clear()
+
+        # キャッシュが存在しなかった場合は、全てのマテリアルのリストの先頭からselfに
+        # 対応するものを探す。発見したらキャッシュにマテリアルのインデックスを保存。
+        for material_index, material in enumerate(context.blend_data.materials):
             if not material:
                 continue
-            ext = get_material_mtoon1_extension(material)
-            if functools.reduce(getattr, chain, ext) == self:
+            if cached_material_index == material_index:
+                continue
+            if self.match_material(material, material_property_chain):
+                self.SELF_KEY_NUMBER_TO_MATERIAL_INDEX_CACHE[self_key_number] = (
+                    material_index
+                )
                 return material
 
-        message = f"No matching material: {type(self)} {chain}"
+        message = f"No matching material: {type(self)} {material_property_chain}"
         raise AssertionError(message)
 
     @classmethod
