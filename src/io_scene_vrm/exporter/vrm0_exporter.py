@@ -22,6 +22,7 @@ from bpy.types import (
     Key,
     Material,
     Mesh,
+    MeshUVLoopLayer,
     Node,
     Object,
     PoseBone,
@@ -112,6 +113,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         WEIGHTS_STRUCT: Final = struct.Struct("<ffff")
         JOINTS_STRUCT: Final = struct.Struct("<HHHH")
 
+        IndexSearchKey = tuple[
+            int, tuple[float, float, float], Optional[tuple[float, float]]
+        ]
+
         def __init__(self, target_names: Sequence[str]) -> None:
             self.targets = [
                 Vrm0Exporter.PrimitiveTarget(name=target_name)
@@ -138,7 +143,34 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 int,
             ] = {}
 
-        def find_or_add_vertex(
+        @staticmethod
+        def create_index_search_key(
+            *,
+            blender_vertex_index: int,
+            normal: tuple[float, float, float],
+            texcoord: Optional[tuple[float, float]],
+        ) -> IndexSearchKey:
+            return (
+                # TODO: 旧エクスポーターと互換性のある形式
+                blender_vertex_index,
+                normal,
+                texcoord,
+            )
+
+        def find_added_vertex_index(
+            self,
+            blender_vertex_index: int,
+            normal: tuple[float, float, float],
+            texcoord: Optional[tuple[float, float]],
+        ) -> Optional[int]:
+            index_search_key = self.create_index_search_key(
+                blender_vertex_index=blender_vertex_index,
+                normal=normal,
+                texcoord=texcoord,
+            )
+            return self.index_search_dict.get(index_search_key)
+
+        def add_vertex(
             self,
             *,
             blender_vertex_index: int,
@@ -150,18 +182,14 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             targets_position: Sequence[tuple[float, float, float]],
             targets_normal: Sequence[tuple[float, float, float]],
         ) -> int:
-            index_search_key = (
-                # TODO: 旧エクスポーターと互換性のある形式
-                blender_vertex_index,
-                normal,
-                texcoord,
-            )
-            index = self.index_search_dict.get(index_search_key)
-            if index is not None:
-                return index
-
             index = self.count
             self.count += 1
+
+            index_search_key = self.create_index_search_key(
+                blender_vertex_index=blender_vertex_index,
+                normal=normal,
+                texcoord=texcoord,
+            )
             self.index_search_dict[index_search_key] = index
 
             self.position.extend(self.POSITION_STRUCT.pack(*position))
@@ -2589,6 +2617,197 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         )
         return new_missing_material_index
 
+    def collect_vertex(
+        self,
+        obj: Object,
+        main_mesh_data: Mesh,
+        vertex_index: int,
+        uv_layer: Optional[MeshUVLoopLayer],
+        loop_index: int,
+        vertex_group_index_to_joint: Mapping[int, int],
+        bone_name_to_node_index: Mapping[str, int],
+        skin_joints: Sequence[int],
+        shape_key_name_to_mesh_data: Mapping[str, Mesh],
+        shape_key_name_to_vertex_index_to_morph_normal_diffs: Optional[
+            Mapping[str, tuple[tuple[float, float, float], ...]]
+        ],
+        vertex_attributes_and_targets: VertexAttributeAndTargets,
+        *,
+        have_skin: bool,
+        no_morph_normal_export: bool,
+    ) -> int:
+        texcoord = None
+        if uv_layer:
+            texcoord_u, texcoord_v = uv_layer.data[loop_index].uv
+            texcoord = (texcoord_u, 1 - texcoord_v)
+
+        # 頂点のノーマルではなくloopのノーマルを使う。これで失うものはあると
+        # 思うが、glTF 2.0アドオンと同一にしておくのが無難だろうと判断。
+        # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1127
+        # TODO: この実装は本来はループを回った3つの法線を平均にするべき
+        normal = main_mesh_data.loops[loop_index].normal
+
+        already_added_vertex_index = (
+            vertex_attributes_and_targets.find_added_vertex_index(
+                blender_vertex_index=vertex_index,
+                normal=convert.axis_blender_to_gltf(normal),
+                texcoord=texcoord,
+            )
+        )
+        if isinstance(already_added_vertex_index, int):
+            return already_added_vertex_index
+
+        vertex = main_mesh_data.vertices[vertex_index]
+        position_x, position_y, position_z = vertex.co
+
+        joints: Optional[tuple[int, int, int, int]] = None
+        weights: Optional[tuple[float, float, float, float]] = None
+        if have_skin:
+            weight_and_joint_list: list[tuple[float, int]] = [
+                (weight, joint)
+                for vertex_group_element in vertex.groups
+                if (
+                    (
+                        joint := vertex_group_index_to_joint.get(
+                            vertex_group_element.group
+                        )
+                    )
+                    is not None
+                )
+                # ウエイトがゼロの場合ジョイントもゼロにする
+                # https://github.com/KhronosGroup/glTF/tree/f33f90ad9439a228bf90cde8319d851a52a3f470/specification/2.0#skinned-mesh-attributes
+                and not ((weight := vertex_group_element.weight) < float_info.epsilon)
+            ]
+            weight_and_joint_list.sort(reverse=True)
+            while len(weight_and_joint_list) < 4:
+                weight_and_joint_list.append((0.0, 0))
+
+            weights = (
+                weight_and_joint_list[0][0],
+                weight_and_joint_list[1][0],
+                weight_and_joint_list[2][0],
+                weight_and_joint_list[3][0],
+            )
+            joints = (
+                weight_and_joint_list[0][1],
+                weight_and_joint_list[1][1],
+                weight_and_joint_list[2][1],
+                weight_and_joint_list[3][1],
+            )
+
+            total_weight = sum(weights)
+            if total_weight < float_info.epsilon:
+                logger.debug(
+                    "No weight on vertex index=%d mesh=%s",
+                    vertex_index,
+                    main_mesh_data.name,
+                )
+
+                # Attach near bone
+                joint = None
+                mesh_parent: Optional[Object] = obj
+                while mesh_parent:
+                    if mesh_parent.parent_type == "BONE":
+                        if (
+                            mesh_parent.parent == self.armature
+                            and (
+                                bone_index := bone_name_to_node_index.get(
+                                    mesh_parent.parent_bone
+                                )
+                            )
+                            is not None
+                            and bone_index in skin_joints
+                        ):
+                            joint = skin_joints.index(bone_index)
+                        break
+                    if mesh_parent.parent_type == "OBJECT":
+                        mesh_parent = mesh_parent.parent
+                    else:
+                        break
+
+                if joint is None:
+                    # TODO: たぶんhipsよりはhipsから辿ったルートボーンの方が良い
+                    ext = get_armature_extension(self.armature_data)
+                    for human_bone in ext.vrm0.humanoid.human_bones:
+                        if human_bone.bone != "hips":
+                            continue
+                        if (
+                            bone_index := bone_name_to_node_index.get(
+                                human_bone.node.bone_name
+                            )
+                        ) is not None and bone_index in skin_joints:
+                            joint = skin_joints.index(bone_index)
+
+                if joint is None:
+                    message = "No fallback bone index found"
+                    raise ValueError(message)
+                weights = (1.0, 0, 0, 0)
+                joints = (joint, 0, 0, 0)
+            else:
+                weights = (
+                    weights[0] / total_weight,
+                    weights[1] / total_weight,
+                    weights[2] / total_weight,
+                    weights[3] / total_weight,
+                )
+
+        targets_position: list[tuple[float, float, float]] = []
+        targets_normal: list[tuple[float, float, float]] = []
+        for (
+            shape_key_name,
+            shape_key_mesh_data,
+        ) in shape_key_name_to_mesh_data.items():
+            (
+                shape_key_position_x,
+                shape_key_position_y,
+                shape_key_position_z,
+            ) = shape_key_mesh_data.vertices[vertex_index].co
+            targets_position.append(
+                convert.axis_blender_to_gltf(
+                    (
+                        shape_key_position_x - position_x,
+                        shape_key_position_y - position_y,
+                        shape_key_position_z - position_z,
+                    )
+                )
+            )
+            if no_morph_normal_export:
+                targets_normal.append((0, 0, 0))
+                continue
+
+            if not shape_key_name_to_vertex_index_to_morph_normal_diffs:
+                targets_normal.append((0, 0, 0))
+                logger.error(
+                    "BUG: shape key name to vertex index to morph normal diffs"
+                    " are not created"
+                )
+                continue
+
+            morph_normal_diff = shape_key_name_to_vertex_index_to_morph_normal_diffs[
+                shape_key_name
+            ][vertex_index]
+            # logger.error(
+            #     "MORPH_NORMAL_DIFF: %s %s", vertex_index, morph_normal_diff
+            # )
+            targets_normal.append(convert.axis_blender_to_gltf(morph_normal_diff))
+
+        return vertex_attributes_and_targets.add_vertex(
+            blender_vertex_index=vertex_index,
+            position=convert.axis_blender_to_gltf(
+                (
+                    position_x,
+                    position_y,
+                    position_z,
+                )
+            ),
+            normal=convert.axis_blender_to_gltf(normal),
+            texcoord=texcoord,
+            joints=joints,
+            weights=weights,
+            targets_position=targets_position,
+            targets_normal=targets_normal,
+        )
+
     def write_mesh_node(
         self,
         _progress: Progress,
@@ -2803,189 +3022,35 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 material_index = self.get_or_write_cluster_empty_material(
                     material_dicts, extensions_vrm_material_property_dicts
                 )
+
             no_morph_normal_export = (
                 material_index in no_morph_normal_export_material_indices
             )
+            vertex_indices = material_index_to_vertex_indices.get(material_index)
+            if vertex_indices is None:
+                vertex_indices = bytearray()
+                material_index_to_vertex_indices[material_index] = vertex_indices
 
             for loop_index in loop_triangle.loops:
                 loop = main_mesh_data.loops[loop_index]
-                vertex_index = loop.vertex_index
-                vertex = main_mesh_data.vertices[vertex_index]
-                position_x, position_y, position_z = vertex.co
-
-                texcoord = None
-                if uv_layer:
-                    texcoord_u, texcoord_v = uv_layer.data[loop_index].uv
-                    texcoord = (texcoord_u, 1 - texcoord_v)
-
-                joints: Optional[tuple[int, int, int, int]] = None
-                weights: Optional[tuple[float, float, float, float]] = None
-                if have_skin:
-                    weight_and_joint_list: list[tuple[float, int]] = [
-                        (weight, joint)
-                        for vertex_group_element in vertex.groups
-                        if (
-                            (
-                                joint := vertex_group_index_to_joint.get(
-                                    vertex_group_element.group
-                                )
-                            )
-                            is not None
-                        )
-                        # ウエイトがゼロの場合ジョイントもゼロにする
-                        # https://github.com/KhronosGroup/glTF/tree/f33f90ad9439a228bf90cde8319d851a52a3f470/specification/2.0#skinned-mesh-attributes
-                        and not (
-                            (weight := vertex_group_element.weight) < float_info.epsilon
-                        )
-                    ]
-                    weight_and_joint_list.sort(reverse=True)
-                    while len(weight_and_joint_list) < 4:
-                        weight_and_joint_list.append((0.0, 0))
-
-                    weights = (
-                        weight_and_joint_list[0][0],
-                        weight_and_joint_list[1][0],
-                        weight_and_joint_list[2][0],
-                        weight_and_joint_list[3][0],
-                    )
-                    joints = (
-                        weight_and_joint_list[0][1],
-                        weight_and_joint_list[1][1],
-                        weight_and_joint_list[2][1],
-                        weight_and_joint_list[3][1],
-                    )
-
-                    total_weight = sum(weights)
-                    if total_weight < float_info.epsilon:
-                        logger.debug(
-                            "No weight on vertex index=%d mesh=%s",
-                            vertex_index,
-                            main_mesh_data.name,
-                        )
-
-                        # Attach near bone
-                        joint = None
-                        mesh_parent: Optional[Object] = obj
-                        while mesh_parent:
-                            if mesh_parent.parent_type == "BONE":
-                                if (
-                                    mesh_parent.parent == self.armature
-                                    and (
-                                        bone_index := bone_name_to_node_index.get(
-                                            mesh_parent.parent_bone
-                                        )
-                                    )
-                                    is not None
-                                    and bone_index in skin_joints
-                                ):
-                                    joint = skin_joints.index(bone_index)
-                                break
-                            if mesh_parent.parent_type == "OBJECT":
-                                mesh_parent = mesh_parent.parent
-                            else:
-                                break
-
-                        if joint is None:
-                            # TODO: たぶんhipsよりはhipsから辿ったルートボーンの方が良い
-                            ext = get_armature_extension(self.armature_data)
-                            for human_bone in ext.vrm0.humanoid.human_bones:
-                                if human_bone.bone != "hips":
-                                    continue
-                                if (
-                                    bone_index := bone_name_to_node_index.get(
-                                        human_bone.node.bone_name
-                                    )
-                                ) is not None and bone_index in skin_joints:
-                                    joint = skin_joints.index(bone_index)
-
-                        if joint is None:
-                            message = "No fallback bone index found"
-                            raise ValueError(message)
-                        weights = (1.0, 0, 0, 0)
-                        joints = (joint, 0, 0, 0)
-                    else:
-                        weights = (
-                            weights[0] / total_weight,
-                            weights[1] / total_weight,
-                            weights[2] / total_weight,
-                            weights[3] / total_weight,
-                        )
-
-                # 頂点のノーマルではなくloopのノーマルを使う。これで失うものはあると
-                # 思うが、glTF 2.0アドオンと同一にしておくのが無難だろうと判断。
-                # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1127
-                # TODO: この実装は本来はループを回った3つの法線を平均にするべき
-                normal = main_mesh_data.loops[loop_index].normal
-
-                targets_position: list[tuple[float, float, float]] = []
-                targets_normal: list[tuple[float, float, float]] = []
-                for (
-                    shape_key_name,
-                    shape_key_mesh_data,
-                ) in shape_key_name_to_mesh_data.items():
-                    (
-                        shape_key_position_x,
-                        shape_key_position_y,
-                        shape_key_position_z,
-                    ) = shape_key_mesh_data.vertices[vertex_index].co
-                    targets_position.append(
-                        convert.axis_blender_to_gltf(
-                            (
-                                shape_key_position_x - position_x,
-                                shape_key_position_y - position_y,
-                                shape_key_position_z - position_z,
-                            )
-                        )
-                    )
-                    if no_morph_normal_export:
-                        targets_normal.append((0, 0, 0))
-                        continue
-
-                    if not shape_key_name_to_vertex_index_to_morph_normal_diffs:
-                        targets_normal.append((0, 0, 0))
-                        logger.error(
-                            "BUG: shape key name to vertex index to morph normal diffs"
-                            " are not created"
-                        )
-                        continue
-
-                    morph_normal_diff = (
-                        shape_key_name_to_vertex_index_to_morph_normal_diffs[
-                            shape_key_name
-                        ][vertex_index]
-                    )
-                    # logger.error(
-                    #     "MORPH_NORMAL_DIFF: %s %s", vertex_index, morph_normal_diff
-                    # )
-                    targets_normal.append(
-                        convert.axis_blender_to_gltf(morph_normal_diff)
-                    )
-
-                vertex_indices = material_index_to_vertex_indices.get(material_index)
-                if vertex_indices is None:
-                    vertex_indices = bytearray()
-                    material_index_to_vertex_indices[material_index] = vertex_indices
-
-                vertex_indices.extend(
-                    vertex_indices_struct.pack(
-                        vertex_attributes_and_targets.find_or_add_vertex(
-                            blender_vertex_index=vertex_index,
-                            position=convert.axis_blender_to_gltf(
-                                (
-                                    position_x,
-                                    position_y,
-                                    position_z,
-                                )
-                            ),
-                            normal=convert.axis_blender_to_gltf(normal),
-                            texcoord=texcoord,
-                            joints=joints,
-                            weights=weights,
-                            targets_position=targets_position,
-                            targets_normal=targets_normal,
-                        )
-                    )
+                original_vertex_index = loop.vertex_index
+                vertex_index = self.collect_vertex(
+                    obj,
+                    main_mesh_data,
+                    original_vertex_index,
+                    uv_layer,
+                    loop_index,
+                    vertex_group_index_to_joint,
+                    bone_name_to_node_index,
+                    skin_joints,
+                    shape_key_name_to_mesh_data,
+                    shape_key_name_to_vertex_index_to_morph_normal_diffs,
+                    vertex_attributes_and_targets,
+                    have_skin=have_skin,
+                    no_morph_normal_export=no_morph_normal_export,
                 )
+
+                vertex_indices.extend(vertex_indices_struct.pack(vertex_index))
 
         if not material_index_to_vertex_indices:
             return scene_node_index
@@ -3804,7 +3869,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         context: Context,
         mesh_data: Mesh,
         shape_key_name_to_mesh_data: Mapping[str, Mesh],
-    ) -> dict[str, list[tuple[float, float, float]]]:
+    ) -> Mapping[str, tuple[tuple[float, float, float], ...]]:
         # logger.error("CREATE UNIQ:")
         # 法線の差分を強制的にゼロにする設定が有効な頂点インデックスを集める
         exclusion_vertex_indices: set[int] = set()
@@ -3888,7 +3953,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         # シェイプキーごとに、リファレンスキーとの法線の差分を集める
         shape_key_name_to_vertex_index_to_morph_normal_diffs: dict[
-            str, list[tuple[float, float, float]]
+            str, tuple[tuple[float, float, float], ...]
         ] = {}
 
         # logger.error("REFERENCE_KEY: %s", mesh_data.shape_keys.reference_key.name)
@@ -3907,7 +3972,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         ) in shape_key_name_to_vertex_normal_vectors.items():
             if shape_key_name == reference_key_name:
                 continue
-            vertex_index_to_morph_normal_diffs: list[tuple[float, float, float]] = [
+            vertex_index_to_morph_normal_diffs: tuple[
+                tuple[float, float, float], ...
+            ] = tuple(
                 (
                     vertex_normal_vector.x - reference_vertex_normal_vector.x,
                     vertex_normal_vector.y - reference_vertex_normal_vector.y,
@@ -3917,7 +3984,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     vertex_normal_vectors,
                     reference_vertex_normal_vectors,
                 )
-            ]
+            )
             # logger.error(
             #     "  %s:%s",
             #     shape_key_name,
