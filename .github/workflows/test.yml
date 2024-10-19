@@ -50,8 +50,9 @@ jobs:
       - name: Test
         run: |
           Expand-Archive -LiteralPath blender.zip -DestinationPath "$env:TEMP\blender"
-          & "$env:TEMP\blender\*\blender.exe" --background -noaudio --python-exit-code 1 --python tools\generate_dynamic_tests.py
-          & "$env:TEMP\blender\*\blender.exe" --background -noaudio --python-exit-code 1 --python tools\unittest_discover.py
+          $env:BLENDER_VRM_TEST_BLENDER_PATH = (Get-ChildItem "$env:TEMP\blender\*\blender.exe")[0].FullName
+          & "$env:BLENDER_VRM_TEST_BLENDER_PATH" --background -noaudio --python-exit-code 1 --python tools\generate_dynamic_tests.py
+          & "$env:BLENDER_VRM_TEST_BLENDER_PATH" --background -noaudio --python-exit-code 1 --python tools\unittest_discover.py
       - name: Archive failed io test result
         uses: actions/upload-artifact@v4
         if: failure()
