@@ -49,7 +49,8 @@ def assert_bone_candidates(
 
 
 def test(context: Context) -> None:
-    bpy.ops.object.mode_set(mode="OBJECT")
+    if context.view_layer.objects.active:
+        bpy.ops.object.mode_set(mode="OBJECT")
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
     while context.blend_data.collections:

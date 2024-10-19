@@ -1,14 +1,17 @@
 import contextlib
+import importlib.util
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
 from base64 import urlsafe_b64decode
+from copy import deepcopy
 from os import environ
 from pathlib import Path
 from typing import Optional
 from unittest import TestCase
+
+import bpy
 
 
 class BaseBlenderTestCase(TestCase):
@@ -34,7 +37,12 @@ class BaseBlenderTestCase(TestCase):
         else:
             addon_dir.symlink_to(repository_addon_dir)
 
-        command = [str(self.find_blender_command()), "--version"]
+        blender_path = self.find_blender_path()
+        if not blender_path:
+            self.major_minor = f"{bpy.app.version[0]}.{bpy.app.version[1]}"
+            return
+
+        command = [str(blender_path), "--version"]
         completed_process = subprocess.run(
             command,
             check=False,
@@ -77,52 +85,88 @@ class BaseBlenderTestCase(TestCase):
             output += str.rstrip(line) + "\n"
         return output
 
-    def find_blender_command(self) -> Path:
-        try:
-            import bpy
+    def find_blender_path(self) -> Optional[Path]:
+        bpy_binary_path_str = bpy.app.binary_path
+        if bpy_binary_path_str:
+            bpy_binary_path = Path(bpy_binary_path_str)
+            if bpy_binary_path.exists():
+                return bpy_binary_path
 
-            bpy_binary_path_str = bpy.app.binary_path
-            if bpy_binary_path_str:
-                bpy_binary_path = Path(bpy_binary_path_str)
-                if bpy_binary_path.exists():
-                    return bpy_binary_path
-        except ImportError:
-            pass
         env_blender_path_str = environ.get("BLENDER_VRM_TEST_BLENDER_PATH")
-        if env_blender_path_str:
-            env_blender_path = Path(env_blender_path_str)
-            if env_blender_path.exists():
-                return env_blender_path
+        if not env_blender_path_str:
+            return None
 
-        which_str = shutil.which("blender")
-        if which_str:
-            return Path(which_str)
+        env_blender_path = Path(env_blender_path_str)
+        if env_blender_path.exists():
+            return env_blender_path
 
-        if sys.platform == "darwin":
-            default_path = Path("/Applications/Blender.app/Contents/MacOS/Blender")
-            if default_path.exists():
-                return default_path
-
-        raise RuntimeError(
-            "Failed to discover blender executable. "
-            + "Please set blender executable location to "
-            + 'environment variable "BLENDER_VRM_TEST_BLENDER_PATH"'
+        message = (
+            f'Failed to discover blender executable in "{env_blender_path}"'
+            + ' specified by environment variable "BLENDER_VRM_TEST_BLENDER_PATH"'
         )
+        raise RuntimeError(message)
 
-    def run_script(self, script: str, *args: str) -> None:
-        env = environ.copy()
-        env["BLENDER_USER_SCRIPTS"] = str(self.user_scripts_dir)
-        env["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
-        env["BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION"] = self.major_minor
-        pythonpath = env.get("PYTHONPATH", "")
-        if pythonpath:
-            pythonpath += os.pathsep
-        pythonpath += str(self.addons_pythonpath)
-        env["PYTHONPATH"] = pythonpath
+    def run_script(self, encoded_script_name: str, *encoded_args: str) -> None:
+        script_path = (
+            self.repository_root_dir
+            / "tests"
+            / Path(urlsafe_b64decode(encoded_script_name).decode()).name
+        )
+        args = [urlsafe_b64decode(encoded_arg).decode() for encoded_arg in encoded_args]
+
+        pythonpath = environ.get("PYTHONPATH", "")
+        if not any(
+            path == str(self.addons_pythonpath) for path in pythonpath.split(os.pathsep)
+        ):
+            if pythonpath:
+                pythonpath += os.pathsep
+            pythonpath += str(self.addons_pythonpath)
+
+        additional_env: dict[str, str] = {
+            "BLENDER_USER_SCRIPTS": str(self.user_scripts_dir),
+            "BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION": "true",
+            "BLENDER_VRM_BLENDER_MAJOR_MINOR_VERSION": self.major_minor,
+            "PYTHONPATH": pythonpath,
+        }
+
+        blender_path = self.find_blender_path()
+        if blender_path is None:
+            spec = importlib.util.spec_from_file_location("__main__", script_path)
+            if spec is None:
+                return
+            mod = importlib.util.module_from_spec(spec)
+            if spec.loader is None:
+                return
+
+            bpy.ops.preferences.addon_enable(module="io_scene_vrm")
+            if bpy.context.view_layer.objects.active:
+                bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.object.select_all(action="SELECT")
+            bpy.ops.object.delete()
+            while bpy.context.blend_data.collections:
+                bpy.context.blend_data.collections.remove(
+                    bpy.context.blend_data.collections[0]
+                )
+            bpy.ops.outliner.orphans_purge(do_recursive=True)
+            bpy.context.view_layer.update()
+
+            old_environ = deepcopy(environ)
+            try:
+                environ.update(additional_env)
+                old_argv = deepcopy(sys.argv)
+                try:
+                    sys.argv = [str(script_path), "--", *args]
+                    spec.loader.exec_module(mod)
+                finally:
+                    sys.argv = old_argv
+            finally:
+                environ.clear()
+                environ.update(old_environ)
+            return
 
         error_exit_code = 1
         command = [
-            str(self.find_blender_command()),
+            str(blender_path),
             "-noaudio",
             "--factory-startup",
             "--addons",
@@ -133,12 +177,13 @@ class BaseBlenderTestCase(TestCase):
             "--python-expr",
             "import bpy; bpy.ops.preferences.addon_enable(module='io_scene_vrm')",
             "--python",
-            str(
-                self.repository_root_dir / "tests" / urlsafe_b64decode(script).decode()
-            ),
+            str(script_path),
             "--",
-            *[urlsafe_b64decode(arg).decode() for arg in args],
+            *args,
         ]
+
+        env = environ.copy()
+        env.update(additional_env)
 
         completed_process = subprocess.run(
             command,
