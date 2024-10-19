@@ -4,10 +4,10 @@ set -eu -o pipefail
 
 create_venv() (
   if [ "$(uname -m)" = "x86_64" ]; then
-    uv venv --prompt "(venv) "
+    uv venv --prompt venv
   else
     # x86_64以外の場合はbpyパッケージが存在しないので、システムのものを使う
-    uv venv --prompt "(venv) " --python /usr/local/bin/python3 --system-site-packages
+    uv venv --prompt venv --python /usr/local/bin/python3 --system-site-packages
   fi
 )
 
