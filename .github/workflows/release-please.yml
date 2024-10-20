@@ -15,6 +15,10 @@ jobs:
   release-please:
     runs-on: ubuntu-24.04
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      release_release_created: ${{ steps.release.outputs.release_created }}
+      release_sha: ${{ steps.release.outputs.sha }}
+      release_tag_name: ${{ steps.release.outputs.tag_name }}
     env:
       BLENDER_ARCHIVE_URL: https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz
     steps:
@@ -25,6 +29,15 @@ jobs:
         id: release
         with:
           target-branch: main
+
+  upload-release-archive:
+    runs-on: ubuntu-24.04
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_release_created }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-please.outputs.release_sha }}
       - name: Install package
         run: |
           sudo apt-get update -qq
@@ -43,8 +56,7 @@ jobs:
           test "$(md5sum blender.tar.xz)" = "34fe4456252a703c39cb93efbfa84f8c  blender.tar.xz"
       - name: Release
         run: ./tools/release.sh
-        if: ${{ steps.release.outputs.release_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          RELEASE_TAG_NAME: ${{ steps.release.outputs.tag_name }}
+          RELEASE_TAG_NAME: ${{ needs.release-please.outputs.release_tag_name }}
