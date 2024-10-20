@@ -3,11 +3,14 @@
   "bootstrap-sha": "df16428dcd1822568ce4b9c68bd67336a86f060b",
   "packages": {
     ".": {
-      "release-type": "python",
       "extra-files": [
         {
           "type": "generic",
           "path": "src/io_scene_vrm/__init__.py"
+        },
+        {
+          "type": "generic",
+          "path": "tests/test_common.py"
         },
         {
           "type": "generic",
@@ -17,11 +20,6 @@
           "type": "toml",
           "path": "src/io_scene_vrm/blender_manifest.toml",
           "jsonpath": "$.version"
-        },
-        {
-          "type": "toml",
-          "path": "uv.lock",
-          "jsonpath": "$.package[?(@.name == 'io-scene-vrm')].version"
         }
       ]
     }
