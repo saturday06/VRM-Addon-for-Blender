@@ -14,12 +14,10 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-24.04
+    if: ${{ github.event.workflow_run.conclusion != 'success' }}
     env:
       BLENDER_ARCHIVE_URL: https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz
     steps:
-      - name: Test
-        if: ${{ github.event.workflow_run.conclusion != 'success' }}
-        run: exit 1
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # これをやるとrelease-please-actionが安定する気がする
