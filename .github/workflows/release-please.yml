@@ -20,6 +20,8 @@ jobs:
           fetch-depth: 0 # これをやるとrelease-please-actionが安定する気がする
       - uses: googleapis/release-please-action@v4
         id: release
+        with:
+          target-branch: main
       - name: Install package
         run: |
           sudo apt-get update -qq
