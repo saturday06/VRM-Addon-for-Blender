@@ -17,6 +17,11 @@
           "type": "toml",
           "path": "src/io_scene_vrm/blender_manifest.toml",
           "jsonpath": "$.version"
+        },
+        {
+          "type": "toml",
+          "path": "uv.lock",
+          "jsonpath": "$.package[?(@.name == 'io-scene-vrm')].version"
         }
       ]
     }
