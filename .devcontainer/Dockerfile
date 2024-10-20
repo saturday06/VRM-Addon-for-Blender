@@ -29,6 +29,7 @@ RUN dnf update -y \
         python3-tqdm \
         python3-typing-extensions \
         ruby \
+        rubygems \
         sudo \
         unzip \
         xz \
