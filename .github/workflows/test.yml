@@ -9,17 +9,20 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
+env:
+  BLENDER_ARCHIVE_BASE_URL: https://mirrors.ocf.berkeley.edu/blender/release
+
 jobs:
   test-windows:
     runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
-        archive_url:
-          - https://mirrors.ocf.berkeley.edu/blender/release/Blender2.93/blender-2.93.9-windows-x64.zip
-          - https://mirrors.ocf.berkeley.edu/blender/release/Blender3.3/blender-3.3.0-windows-x64.zip
-          - https://mirrors.ocf.berkeley.edu/blender/release/Blender3.6/blender-3.6.0-windows-x64.zip
-          - https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.0-windows-x64.zip
+        blender_major_minor_bersion:
+          - 2.93
+          - 3.3
+          - 3.6
+          - 4.2
     env:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
@@ -29,14 +32,16 @@ jobs:
         uses: actions/cache@v4
         with:
           path: blender.zip
-          key: ${{ matrix.archive_url }}-archive-3
+          key: ${{ matrix.blender_major_minor_bersion }}-archive-5
       - name: Download archive
         if: steps.cache-archive.outputs.cache-hit != 'true'
         run: |
+          $blender_major_minor_bersion = "${{ matrix.blender_major_minor_bersion }}"
+          $url = "${env:BLENDER_ARCHIVE_BASE_URL}/Blender${blender_major_minor_bersion}/blender-${blender_major_minor_bersion}.0-windows-x64.zip"
           $retry = 10
           for (; $true; $retry--) {
             try {
-              Start-BitsTransfer blender.zip -Source "${{ matrix.archive_url }}"
+              Start-BitsTransfer blender.zip -Source "$url"
               break
             } catch {
               if ($retry -le 0) {
@@ -63,12 +68,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        archive_url:
-          - https://mirrors.ocf.berkeley.edu/blender/release/Blender2.93/blender-2.93.9-macos-arm64.dmg
-          - https://mirrors.ocf.berkeley.edu/blender/release/Blender3.3/blender-3.3.0-macos-arm64.dmg
-          - https://mirrors.ocf.berkeley.edu/blender/release/Blender3.6/blender-3.6.0-macos-arm64.dmg
-          - https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.0-macos-arm64.dmg
-          - https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.0-macos-x64.dmg
+        blender_major_minor_bersion:
+          - 2.93
+          - 3.3
+          - 3.6
+          - 4.2
+        blender_arch:
+          - arm64
+        include:
+          - blender_major_minor_bersion: 4.2
+            blender_arch: x64
     env:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
@@ -78,10 +87,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: blender.dmg
-          key: ${{ matrix.archive_url }}-archive-3
+          key: ${{ matrix.blender_major_minor_bersion }}-archive-5
       - name: Download archive
         if: steps.cache-archive.outputs.cache-hit != 'true'
-        run: curl -fsLS --retry 5 --retry-all-errors "${{ matrix.archive_url }}" -o blender.dmg
+        run: |
+          blender_major_minor_bersion="${{ matrix.blender_major_minor_bersion }}"
+          blender_arch="${{ matrix.blender_arch }}"
+          url="${BLENDER_ARCHIVE_BASE_URL}/Blender${blender_major_minor_bersion}/blender-${blender_major_minor_bersion}.0-macos-${blender_arch}.dmg"
+          curl -fsLS --retry 5 --retry-all-errors "$url" -o blender.dmg
       - name: Test
         run: |
           hdiutil attach blender.dmg
@@ -100,8 +113,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        archive_url:
-          - https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.0-linux-x64.tar.xz
+        blender_major_minor_bersion:
+          - 4.2
     env:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
@@ -111,10 +124,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: blender.dmg
-          key: ${{ matrix.archive_url }}-archive-3
+          key: ${{ matrix.blender_major_minor_bersion }}-archive-5
       - name: Download archive
         if: steps.cache-archive.outputs.cache-hit != 'true'
-        run: curl -fsLS --retry 5 --retry-all-errors "${{ matrix.archive_url }}" -o "$HOME/blender.tar.xz"
+        run: |
+          blender_major_minor_bersion="${{ matrix.blender_major_minor_bersion }}"
+          url="${BLENDER_ARCHIVE_BASE_URL}/Blender${blender_major_minor_bersion}/blender-${blender_major_minor_bersion}.0-linux-x64.tar.xz"
+          curl -fsLS --retry 5 --retry-all-errors "$url" -o "$HOME/blender.tar.xz"
       - name: Test
         run: |
           mkdir -p "$HOME/.local/blender"
