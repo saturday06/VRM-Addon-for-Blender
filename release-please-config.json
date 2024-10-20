@@ -4,7 +4,6 @@
   "packages": {
     ".": {
       "release-type": "python",
-      "draft": true,
       "extra-files": [
         {
           "type": "generic",
