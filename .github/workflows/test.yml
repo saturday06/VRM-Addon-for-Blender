@@ -87,7 +87,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: blender.dmg
-          key: ${{ matrix.blender_major_minor_bersion }}-archive-5
+          key: ${{ matrix.blender_major_minor_bersion }}-${{ matrix.blender_arch }}-archive-5
       - name: Download archive
         if: steps.cache-archive.outputs.cache-hit != 'true'
         run: |
