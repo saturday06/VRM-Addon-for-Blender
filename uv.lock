@@ -149,7 +149,7 @@ wheels = [
 
 [[package]]
 name = "io-scene-vrm"
-version = "2.20.88"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "bpy", marker = "(platform_machine == 'AMD64' and platform_system == 'Windows') or (platform_machine == 'arm64' and platform_system == 'Darwin') or (platform_machine == 'x86_64' and platform_system == 'Darwin') or (platform_machine == 'x86_64' and platform_system == 'Linux')" },
