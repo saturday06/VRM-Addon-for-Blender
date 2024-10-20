@@ -8,7 +8,7 @@
       "extra-files": [
         {
           "type": "generic",
-          "path": "io_scene_vrm/__init__.py"
+          "path": "src/io_scene_vrm/__init__.py"
         },
         {
           "type": "generic",
@@ -16,7 +16,7 @@
         },
         {
           "type": "toml",
-          "path": "io_scene_vrm/blender_manifest.toml",
+          "path": "src/io_scene_vrm/blender_manifest.toml",
           "jsonpath": "$.version"
         }
       ]
