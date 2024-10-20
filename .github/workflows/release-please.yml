@@ -1,13 +1,15 @@
+name: release-please
+
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["test"]
+    branches: [main]
+    types:
+      - completed
 
 permissions:
   contents: write
   pull-requests: write
-
-name: release-please
 
 jobs:
   release-please:
@@ -15,6 +17,9 @@ jobs:
     env:
       BLENDER_ARCHIVE_URL: https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.0-linux-x64.tar.xz
     steps:
+      - name: Test
+        if: ${{ github.event.workflow_run.conclusion != 'success' }}
+        run: exit 1
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # これをやるとrelease-please-actionが安定する気がする
