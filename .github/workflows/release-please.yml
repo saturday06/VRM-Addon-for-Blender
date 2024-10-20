@@ -1,3 +1,5 @@
+name: release-please
+
 on:
   workflow_run:
     workflows: ["test"]
@@ -8,8 +10,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-
-name: release-please
 
 jobs:
   release-please:
