@@ -13,27 +13,12 @@ if ! git status; then
   exit 1
 fi
 
-tag_name=$(git describe --tags --exact-match || true)
-if [ -z "$tag_name" ]; then
-  exit 1
-fi
-
-head_hash=$(git rev-parse HEAD)
-if [ -z "$head_hash" ]; then
-  exit 1
-fi
-
-version=$(ruby -e "puts ARGV[0].split('_', 3).join('.')" "$tag_name")
+underscore_version=$(ruby -e "puts ARGV[0].sub(/^v/, '').split('.', 3).join('_')" "$RELEASE_TAG_NAME")
+version=$(ruby -e "puts ARGV[0].split('_', 3).join('.')" "$underscore_version")
 bl_info_version=$(cd src && python3 -c 'import io_scene_vrm; print(str(".".join(map(str, io_scene_vrm.bl_info["version"]))))')
-if [ "$version" != "$bl_info_version" ]; then
-  release_postfix=draft
-elif [ "$(git rev-parse origin/main)" = "$head_hash" ] || [ "$(git rev-parse origin/unplanned-release)" = "$head_hash" ]; then
-  release_postfix=release
-else
-  release_postfix=develop
-fi
+release_postfix=release
 
-for postfix in "$release_postfix" "$tag_name"; do
+for postfix in "$release_postfix" "$underscore_version"; do
   work_dir=$(mktemp -d)
   base="${prefix_name}-${postfix}"
   cp -r src/io_scene_vrm "${work_dir}/${base}"
@@ -63,54 +48,9 @@ rm -fr ~/.local/blender
 hash -r
 test "/usr/bin/blender" = "$(command -v blender)"
 
-if ! curl \
-  --fail \
-  --show-error \
-  --location \
-  --output release.json \
-  --request POST \
-  --data "{\"tag_name\":\"$tag_name\", \"name\": \"[DRAFT] Version $version\", \"draft\": true, \"prerelease\": true, \"generate_release_notes\": true}" \
-  --header 'Accept: application/vnd.github.v3+json' \
-  --header "Authorization: Bearer $GITHUB_TOKEN" \
-  "https://api.github.com/repos/$GITHUB_REPOSITORY/releases"; then
-
-  cat release.json
-  exit 1
-fi
-
-upload_url=$(ruby -rjson -e "puts JSON.parse(File.read('release.json'))['upload_url'].sub(/{.+}$/, '')")
-
-if ! curl \
-  --fail \
-  --show-error \
-  --location \
-  --output release_upload.json \
-  --request POST \
-  --header 'Accept: application/vnd.github.v3+json' \
-  --header "Authorization: Bearer $GITHUB_TOKEN" \
-  --header "Content-Type: application/zip" \
-  --data-binary "@${extension_path}" \
-  "${upload_url}?name=${prefix_name}-Extension-${tag_name}.zip&label=(Blender%204.2%20or%20later)%20VRM%20Add-on%20for%20Blender%20Extension%20${version}%20(zip)"; then
-
-  cat release_upload.json
-  exit 1
-fi
-
-if ! curl \
-  --fail \
-  --show-error \
-  --location \
-  --output release_upload.json \
-  --request POST \
-  --header 'Accept: application/vnd.github.v3+json' \
-  --header "Authorization: Bearer $GITHUB_TOKEN" \
-  --header "Content-Type: application/zip" \
-  --data-binary "@${prefix_name}-${tag_name}.zip" \
-  "${upload_url}?name=${prefix_name}-${tag_name}.zip&label=(Blender%202.93%20-%204.1)%20VRM%20Add-on%20for%20Blender%20${version}%20(zip)"; then
-
-  cat release_upload.json
-  exit 1
-fi
+gh release upload "$RELEASE_TAG_NAME" \
+  "${extension_path}#(Blender 4.2 or later) VRM Add-on for Blender Extension ${version} (zip)" \
+  "${prefix_name}-${underscore_version}.zip#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
 
 readme_unzip_dir=$(mktemp -d)
 unzip -d "$readme_unzip_dir" "${prefix_name}-${release_postfix}.zip"
@@ -206,3 +146,5 @@ if [ "$release_postfix" = "release" ]; then
     git push origin HEAD
   )
 fi
+
+gh release edit "$RELEASE_TAG_NAME" --draft=false --latest

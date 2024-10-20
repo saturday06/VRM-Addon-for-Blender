@@ -1,15 +1,16 @@
-name: release
+on:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
+  pull-requests: write
 
-on:
-  push:
-    tags:
-      - "*_*_*"
+name: release-please
 
 jobs:
-  release:
+  release-please:
     runs-on: ubuntu-24.04
     env:
       BLENDER_ARCHIVE_URL: https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.0-linux-x64.tar.xz
@@ -21,7 +22,7 @@ jobs:
           sudo apt-get install -y advancecomp blender curl git python3 python3-numpy ruby shellcheck xz-utils
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # これをやるとrelease-please-actionが安定する気がする
       - name: Cache archive
         id: cache-archive
         uses: actions/cache@v4
@@ -33,8 +34,12 @@ jobs:
         run: |
           curl --fail --location --show-error --retry 5 --retry-all-errors "$BLENDER_ARCHIVE_URL" -o blender.tar.xz
           test "$(md5sum blender.tar.xz)" = "d4555313745524a6add308001e3198cf  blender.tar.xz"
+      - uses: googleapis/release-please-action@v4
+        id: release
       - name: Release
         run: ./tools/release.sh
+        if: ${{ steps.release.outputs.release_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          RELEASE_TAG_NAME: ${{ steps.release.outputs.tag_name }}

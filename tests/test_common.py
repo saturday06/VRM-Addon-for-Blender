@@ -16,7 +16,11 @@ class TestVersion(TestCase):
     def test_version(self) -> None:
         self.assertEqual(
             version.get_addon_version(),
-            (2, 20, 88),
+            (
+                2,  # x-release-please-major
+                20,  # x-release-please-minor
+                88,  # x-release-please-patch
+            ),
         )
 
 

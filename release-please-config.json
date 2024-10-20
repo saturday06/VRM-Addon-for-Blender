@@ -1,0 +1,25 @@
+{
+  "draft-pull-request": true,
+  "bootstrap-sha": "df16428dcd1822568ce4b9c68bd67336a86f060b",
+  "packages": {
+    ".": {
+      "release-type": "python",
+      "draft": true,
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "io_scene_vrm/__init__.py"
+        },
+        {
+          "type": "generic",
+          "path": "extension.patch"
+        },
+        {
+          "type": "toml",
+          "path": "io_scene_vrm/blender_manifest.toml",
+          "jsonpath": "$.version"
+        }
+      ]
+    }
+  }
+}

@@ -1,20 +1,20 @@
-From 2d9ed3e5dd81d4415af552b30f207bb512ec27d6 Mon Sep 17 00:00:00 2001
+From 5ed713e505f7005d6c6dcfdcb68521b90cef78e4 Mon Sep 17 00:00:00 2001
 From: Patch <patch@example.com>
 Date: Sun, 23 Jun 2024 10:00:00 +0000
 Subject: [PATCH] feat: extensions.blender.org
 
 ---
- src/io_scene_vrm/__init__.py           | 226 +------------------------
+ src/io_scene_vrm/__init__.py           | 230 +------------------------
  src/io_scene_vrm/blender_manifest.toml |   3 +-
  tests/test_legacy_addon_init.py        |  25 ---
- 3 files changed, 3 insertions(+), 251 deletions(-)
+ 3 files changed, 3 insertions(+), 255 deletions(-)
  delete mode 100644 tests/test_legacy_addon_init.py
 
 diff --git a/src/io_scene_vrm/__init__.py b/src/io_scene_vrm/__init__.py
-index aeecf285..5f4289fb 100644
+index b67a79ec..5f4289fb 100644
 --- a/src/io_scene_vrm/__init__.py
 +++ b/src/io_scene_vrm/__init__.py
-@@ -1,239 +1,17 @@
+@@ -1,243 +1,17 @@
  # SPDX-License-Identifier: MIT
  # SPDX-FileCopyrightText: 2018 iCyP
  
@@ -32,7 +32,11 @@ index aeecf285..5f4289fb 100644
 -bl_info = {
 -    "name": "VRM format",
 -    "author": "saturday06, iCyP",
--    "version": (2, 20, 88),
+-    "version": (
+-        2,  # x-release-please-major
+-        20,  # x-release-please-minor
+-        88,  # x-release-please-patch
+-    ),
 -    "location": "File > Import-Export",
 -    "description": "Import-Edit-Export VRM",
 -    "blender": (2, 93, 0),
@@ -257,7 +261,7 @@ index aeecf285..5f4289fb 100644
  class glTF2ImportUserExtension:
      def __init__(self) -> None:
 diff --git a/src/io_scene_vrm/blender_manifest.toml b/src/io_scene_vrm/blender_manifest.toml
-index 01e01bd1..d7fba6b3 100644
+index 113683f8..3960611d 100644
 --- a/src/io_scene_vrm/blender_manifest.toml
 +++ b/src/io_scene_vrm/blender_manifest.toml
 @@ -11,8 +11,7 @@ website = "https://vrm-addon-for-blender.info"
@@ -272,7 +276,7 @@ index 01e01bd1..d7fba6b3 100644
  
 diff --git a/tests/test_legacy_addon_init.py b/tests/test_legacy_addon_init.py
 deleted file mode 100644
-index a55ec9ff..00000000
+index e04841be..00000000
 --- a/tests/test_legacy_addon_init.py
 +++ /dev/null
 @@ -1,25 +0,0 @@
