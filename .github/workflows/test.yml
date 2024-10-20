@@ -123,18 +123,18 @@ jobs:
         id: cache-archive
         uses: actions/cache@v4
         with:
-          path: blender.dmg
-          key: ${{ matrix.blender_major_minor_bersion }}-archive-5
+          path: blender.tar.gz
+          key: ${{ matrix.blender_major_minor_bersion }}-archive-6
       - name: Download archive
         if: steps.cache-archive.outputs.cache-hit != 'true'
         run: |
           blender_major_minor_bersion="${{ matrix.blender_major_minor_bersion }}"
           url="${BLENDER_ARCHIVE_BASE_URL}/Blender${blender_major_minor_bersion}/blender-${blender_major_minor_bersion}.0-linux-x64.tar.xz"
-          curl -fsLS --retry 5 --retry-all-errors "$url" -o "$HOME/blender.tar.xz"
+          curl -fsLS --retry 5 --retry-all-errors "$url" -o blender.tar.xz
       - name: Test
         run: |
           mkdir -p "$HOME/.local/blender"
-          tar -x --strip-components=1 -f "$HOME/blender.tar.xz" -C "$HOME/.local/blender"
+          tar -x --strip-components=1 -f blender.tar.xz -C "$HOME/.local/blender"
           "$HOME/.local/blender/blender" --background -noaudio --python-exit-code 1 --python tools/generate_dynamic_tests.py
           "$HOME/.local/blender/blender" --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
