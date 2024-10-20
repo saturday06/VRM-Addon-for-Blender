@@ -1,9 +1,10 @@
 {
   "bootstrap-sha": "df16428dcd1822568ce4b9c68bd67336a86f060b",
+  "draft": true,
+  "draft-pull-request": true,
   "packages": {
     ".": {
       "release-type": "simple",
-      "draft": true,
       "extra-files": [
         {
           "type": "generic",
