@@ -230,6 +230,7 @@ jobs:
         uses: github/super-linter@v7
         env:
           LINTER_RULES_PATH: /
+          FILTER_REGEX_EXCLUDE: ^/github/workspace/CHANGELOG\.md$ # CHANGELOG.mdはrelease-pleaseによる自動生成ファイル
           LOG_LEVEL: NOTICE
           MARKDOWN_CONFIG_FILE: .markdownlint.yaml
           GITHUB_ACTIONS_CONFIG_FILE: .github/actionlint.yaml
