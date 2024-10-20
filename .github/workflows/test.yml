@@ -35,9 +35,10 @@ jobs:
           key: ${{ matrix.blender_major_minor_bersion }}-archive-5
       - name: Download archive
         if: steps.cache-archive.outputs.cache-hit != 'true'
+        env:
+          BLENDER_MAJOR_MINOR_VERSION: ${{ matrix.blender_major_minor_bersion }}
         run: |
-          $blender_major_minor_bersion = "${{ matrix.blender_major_minor_bersion }}"
-          $url = "${env:BLENDER_ARCHIVE_BASE_URL}/Blender${blender_major_minor_bersion}/blender-${blender_major_minor_bersion}.0-windows-x64.zip"
+          $url = "${env:BLENDER_ARCHIVE_BASE_URL}/Blender${env:BLENDER_MAJOR_MINOR_VERSION}/blender-${env:BLENDER_MAJOR_MINOR_VERSION}.0-windows-x64.zip"
           $retry = 10
           for (; $true; $retry--) {
             try {
@@ -90,10 +91,11 @@ jobs:
           key: ${{ matrix.blender_major_minor_bersion }}-${{ matrix.blender_arch }}-archive-5
       - name: Download archive
         if: steps.cache-archive.outputs.cache-hit != 'true'
+        env:
+          BLENDER_MAJOR_MINOR_VERSION: ${{ matrix.blender_major_minor_bersion }}
+          BLENDER_ARCH: ${{ matrix.blender_arch }}
         run: |
-          blender_major_minor_bersion="${{ matrix.blender_major_minor_bersion }}"
-          blender_arch="${{ matrix.blender_arch }}"
-          url="${BLENDER_ARCHIVE_BASE_URL}/Blender${blender_major_minor_bersion}/blender-${blender_major_minor_bersion}.0-macos-${blender_arch}.dmg"
+          url="${BLENDER_ARCHIVE_BASE_URL}/Blender${BLENDER_MAJOR_MINOR_VERSION}/blender-${BLENDER_MAJOR_MINOR_VERSION}.0-macos-${BLENDER_ARCH}.dmg"
           curl -fsLS --retry 5 --retry-all-errors "$url" -o blender.dmg
       - name: Test
         run: |
@@ -127,9 +129,10 @@ jobs:
           key: ${{ matrix.blender_major_minor_bersion }}-archive-6
       - name: Download archive
         if: steps.cache-archive.outputs.cache-hit != 'true'
+        env:
+          BLENDER_MAJOR_MINOR_VERSION: ${{ matrix.blender_major_minor_bersion }}
         run: |
-          blender_major_minor_bersion="${{ matrix.blender_major_minor_bersion }}"
-          url="${BLENDER_ARCHIVE_BASE_URL}/Blender${blender_major_minor_bersion}/blender-${blender_major_minor_bersion}.0-linux-x64.tar.xz"
+          url="${BLENDER_ARCHIVE_BASE_URL}/Blender${BLENDER_MAJOR_MINOR_VERSION}/blender-${BLENDER_MAJOR_MINOR_VERSION}.0-linux-x64.tar.xz"
           curl -fsLS --retry 5 --retry-all-errors "$url" -o blender.tar.xz
       - name: Test
         run: |
