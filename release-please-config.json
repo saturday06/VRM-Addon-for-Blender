@@ -2,8 +2,27 @@
   "bootstrap-sha": "df16428dcd1822568ce4b9c68bd67336a86f060b",
   "draft": true,
   "draft-pull-request": true,
+  "changelog-sections": [
+    {
+      "type": "feat",
+      "section": "🚀 Features"
+    },
+    {
+      "type": "fix",
+      "section": "🐞 Bug Fixes"
+    },
+    {
+      "type": "docs",
+      "section": "📝 Documentation"
+    },
+    {
+      "type": "BREAKING CHANGE",
+      "section": "💥 Breaking Changes"
+    }
+  ],
   "packages": {
     ".": {
+      "pull-request-title-pattern": "🚀 Release v${version}",
       "release-type": "simple",
       "extra-files": [
         {
