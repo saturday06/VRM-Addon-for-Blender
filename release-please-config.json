@@ -3,6 +3,7 @@
   "bootstrap-sha": "df16428dcd1822568ce4b9c68bd67336a86f060b",
   "packages": {
     ".": {
+      "draft": true,
       "extra-files": [
         {
           "type": "generic",
