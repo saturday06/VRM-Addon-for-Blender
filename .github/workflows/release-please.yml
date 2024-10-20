@@ -15,7 +15,7 @@ jobs:
   release-please:
     runs-on: ubuntu-24.04
     env:
-      BLENDER_ARCHIVE_URL: https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.0-linux-x64.tar.xz
+      BLENDER_ARCHIVE_URL: https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz
     steps:
       - name: Test
         if: ${{ github.event.workflow_run.conclusion != 'success' }}
@@ -42,7 +42,7 @@ jobs:
         if: steps.cache-archive.outputs.cache-hit != 'true'
         run: |
           curl --fail --location --show-error --retry 5 --retry-all-errors "$BLENDER_ARCHIVE_URL" -o blender.tar.xz
-          test "$(md5sum blender.tar.xz)" = "d4555313745524a6add308001e3198cf  blender.tar.xz"
+          test "$(md5sum blender.tar.xz)" = "34fe4456252a703c39cb93efbfa84f8c  blender.tar.xz"
       - name: Release
         run: ./tools/release.sh
         if: ${{ steps.release.outputs.release_created }}
