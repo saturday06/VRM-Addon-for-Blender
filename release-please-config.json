@@ -4,6 +4,10 @@
   "draft-pull-request": true,
   "changelog-sections": [
     {
+      "type": "BREAKING CHANGE",
+      "section": "💥 Breaking Changes"
+    },
+    {
       "type": "feat",
       "section": "🚀 Features"
     },
@@ -14,10 +18,6 @@
     {
       "type": "docs",
       "section": "📝 Documentation"
-    },
-    {
-      "type": "BREAKING CHANGE",
-      "section": "💥 Breaking Changes"
     }
   ],
   "packages": {
