@@ -48,9 +48,8 @@ rm -fr ~/.local/blender
 hash -r
 test "/usr/bin/blender" = "$(command -v blender)"
 
-gh release upload "$RELEASE_TAG_NAME" \
-  "${extension_path}#(Blender 4.2 or later) VRM Add-on for Blender Extension ${version} (zip)" \
-  "${prefix_name}-${underscore_version}.zip#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
+gh release upload "$RELEASE_TAG_NAME" "${extension_path}#(Blender 4.2 or later) VRM Add-on for Blender Extension ${version} (zip)"
+gh release upload "$RELEASE_TAG_NAME" "${prefix_name}-${underscore_version}.zip#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
 
 readme_unzip_dir=$(mktemp -d)
 unzip -d "$readme_unzip_dir" "${prefix_name}-${release_postfix}.zip"
