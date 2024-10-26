@@ -29,6 +29,17 @@ jobs:
         id: release
         with:
           target-branch: main
+          # 通常の運用ではskip-github-pull-requestは有効化しない。
+          # しかし、このレポジトリの運用ではrelease-please-actionがrelease-prがマージされたかを検知できないため
+          # release-prがマージされたタイミングで、バージョンだけ進んだ全く同一のrelease-prが新規作成されてしまう。
+          # それを防ぐため、はじめにskip-github-pull-request=falseで一度release-please-actionを実行する。
+          # 結果release_createdがfalseの場合ときは再度release-please-actionを実行し、通常通りrelease-prを
+          # 作成したり更新したりする。
+          skip-github-pull-request: true
+      - uses: googleapis/release-please-action@v4
+        if: ${{ !steps.release.outputs.release_created }}
+        with:
+          target-branch: main
 
   upload-release-archive:
     runs-on: ubuntu-24.04
