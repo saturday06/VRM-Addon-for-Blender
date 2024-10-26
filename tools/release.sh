@@ -16,7 +16,7 @@ fi
 underscore_version=$(ruby -e "puts ARGV[0].sub(/^v/, '').split('.', 3).join('_')" "$RELEASE_TAG_NAME")
 version=$(ruby -e "puts ARGV[0].split('_', 3).join('.')" "$underscore_version")
 bl_info_version=$(cd src && python3 -c 'import io_scene_vrm; print(str(".".join(map(str, io_scene_vrm.bl_info["version"]))))')
-release_postfix=debug
+release_postfix=release
 
 for postfix in "$release_postfix" "$underscore_version"; do
   work_dir=$(mktemp -d)
@@ -151,4 +151,4 @@ if [ "$release_postfix" = "release" ]; then
   )
 fi
 
-gh release edit "$RELEASE_TAG_NAME" --draft=false --latest --prerelease
+gh release edit "$RELEASE_TAG_NAME" --draft=false --latest
