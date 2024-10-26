@@ -21,7 +21,7 @@ git --no-pager diff
 
 rm -fr extension_output
 mkdir extension_output
-output_filepath="extension_output/vrm_$(LC_ALL=C date -u +%Y%m%d%H%M%S)_$(git describe --tags).zip"
+output_filepath="extension_output/vrm_$(LC_ALL=C date -u +%Y%m%d%H%M%S)_$(git rev-parse HEAD).zip"
 
 blender --command extension build \
   --source-dir src/io_scene_vrm \
