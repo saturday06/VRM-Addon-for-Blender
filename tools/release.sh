@@ -39,8 +39,8 @@ export PATH="$HOME/.local/blender:$PATH"
 hash -r
 test "$HOME/.local/blender/blender" = "$(command -v blender)"
 ./tools/build_extension.sh
-extension_path=$(find extension_output -name "vrm_*_*.zip" | sort | head -n 1)
-if [ ! -f "$extension_path" ]; then
+original_extension_path=$(find extension_output -name "vrm_*_*.zip" | sort | head -n 1)
+if [ ! -f "$original_extension_path" ]; then
   echo "No extension output"
   exit 1
 fi
@@ -48,6 +48,8 @@ rm -fr ~/.local/blender
 hash -r
 test "/usr/bin/blender" = "$(command -v blender)"
 
+extension_path="${prefix_name}-Extension-${underscore_version}.zip"
+mv -v "$original_extension_path" "$extension_path"
 gh release upload "$RELEASE_TAG_NAME" "${extension_path}#(Blender 4.2 or later) VRM Add-on for Blender Extension ${version} (zip)"
 gh release upload "$RELEASE_TAG_NAME" "${prefix_name}-${underscore_version}.zip#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
 
