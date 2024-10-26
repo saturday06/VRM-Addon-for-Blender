@@ -33,7 +33,7 @@ jobs:
   upload-release-archive:
     runs-on: ubuntu-24.04
     needs: release-please
-    if: ${{ needs.release-please.outputs.release_release_created }}
+    if: ${{ needs.release-please.result == 'success' && needs.release-please.outputs.release_release_created }}
     steps:
       - uses: actions/checkout@v4
         with:
