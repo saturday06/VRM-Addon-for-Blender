@@ -53,9 +53,6 @@ if [ ! -f "$original_extension_path" ]; then
   echo "No extension output"
   exit 1
 fi
-rm -fr ~/.local/blender
-hash -r
-test "/usr/bin/blender" = "$(command -v blender)"
 
 extension_path="${prefix_name}-Extension-${underscore_version}.zip"
 mv -v "$original_extension_path" "$extension_path"

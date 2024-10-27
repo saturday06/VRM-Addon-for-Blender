@@ -48,3 +48,4 @@ find src/io_scene_vrm -name "__pycache__" -type d -exec rm -fr {} \;
   "$output_filepath"
 
 git checkout .
+rm -fr .local/blender
