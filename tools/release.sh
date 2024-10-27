@@ -115,7 +115,9 @@ cp "${prefix_name}-${release_postfix}.zip" "${gh_pages_branch_dir}/releases/"
   git commit -m "docs: deploy the latest release [BOT]"
 )
 
-addon_dir="$HOME/.config/blender/4.0/scripts/addons/${prefix_name}-README"
+blender --background --python-expr "import bpy; from pathlib import Path; Path('blender_major_minor.txt').write_text(f'{bpy.app.version[0]}.{bpy.app.version[1]}')"
+
+addon_dir="$HOME/.config/blender/$(cat blender_major_minor.txt)/scripts/addons/${prefix_name}-README"
 if ! BLENDER_VRM_USE_TEST_EXPORTER_VERSION=true blender \
   --background \
   -noaudio \
