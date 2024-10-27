@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -eux -o pipefail
+shellcheck "$0"
 
 cd "$(dirname "$0")/.."
 
