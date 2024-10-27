@@ -145,17 +145,17 @@ diff -ru "$addon_check_unzip_dir/${prefix_name}-${release_postfix}" "$addon_dir"
 
 (
   cd "${archive_branch_dir}"
-  git push origin HEAD
+  git push origin HEAD:release-archive
 )
 
 if [ "$release_postfix" = "release" ]; then
   (
     cd "$readme_branch_dir"
-    git push origin HEAD
+    git push origin HEAD:README
   )
   (
     cd "$gh_pages_branch_dir"
-    git push origin HEAD
+    git push origin HEAD:gh-pages
   )
   gh release edit "$release_tag_name" --draft=false --latest
 else
