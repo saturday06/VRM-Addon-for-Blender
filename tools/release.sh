@@ -71,7 +71,7 @@ XZ_OPT='-9e' tar -C "$readme_base" -cvJf "$readme_tar_xz_abs_path" .
 
 archive_branch_dir=$(mktemp -d)
 git fetch --depth=1 origin release-archive
-git worktree add "${archive_branch_dir}" release-archive
+git worktree add "${archive_branch_dir}" origin/release-archive
 rm -fr "${archive_branch_dir}/debug"
 mkdir -p "${archive_branch_dir}/debug"
 cp "${prefix_name}-${release_postfix}.zip" "${archive_branch_dir}/"
@@ -88,7 +88,7 @@ fi
 
 readme_branch_dir=$(mktemp -d)
 git fetch --depth=1 origin README
-git worktree add "${readme_branch_dir}" README
+git worktree add "${readme_branch_dir}" origin/README
 readme_addon_dir="${readme_branch_dir}/.github/vrm_addon_for_blender_private"
 find "$readme_addon_dir" -name "*.zip" -exec rm -v {} \;
 find "$readme_addon_dir" -name "*.tar.xz" -exec rm -v {} \;
@@ -106,7 +106,7 @@ github_downloaded_zip_path="${PWD}/readme.zip"
 
 gh_pages_branch_dir=$(mktemp -d)
 git fetch --depth=1 origin gh-pages
-git worktree add "${gh_pages_branch_dir}" gh-pages
+git worktree add "${gh_pages_branch_dir}" origin/gh-pages
 mkdir -p "${gh_pages_branch_dir}/releases"
 cp "${prefix_name}-${release_postfix}.zip" "${gh_pages_branch_dir}/releases/"
 (
