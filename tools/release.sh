@@ -43,14 +43,6 @@ for postfix in "$release_postfix" "$underscore_version"; do
   cp "${work_dir}/${prefix_name}-${postfix}.zip" .
 done
 
-mkdir -p ~/.local/blender
-if ! tar xf blender.tar.xz -C ~/.local/blender --strip-components=1; then
-  echo "Please upgrade archive URL"
-  exit 1
-fi
-export PATH="$HOME/.local/blender:$PATH"
-hash -r
-test "$HOME/.local/blender/blender" = "$(command -v blender)"
 ./tools/build_extension.sh
 original_extension_path=$(find extension_output -name "vrm_*_*.zip" | sort | head -n 1)
 if [ ! -f "$original_extension_path" ]; then

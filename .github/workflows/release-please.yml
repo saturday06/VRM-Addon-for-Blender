@@ -43,8 +43,6 @@ jobs:
     runs-on: ubuntu-24.04
     needs: release-please
     if: ${{ needs.release-please.result == 'success' && needs.release-please.outputs.release_release_created }}
-    env:
-      BLENDER_ARCHIVE_URL: https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,17 +52,6 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get dist-upgrade -y
           sudo apt-get install -y advancecomp blender curl git python3 python3-numpy ruby shellcheck xz-utils
-      - name: Cache archive
-        id: cache-archive
-        uses: actions/cache@v4
-        with:
-          path: blender.tar.xz
-          key: ${{ env.BLENDER_ARCHIVE_URL }}-archive-1
-      - name: Download archive
-        if: steps.cache-archive.outputs.cache-hit != 'true'
-        run: |
-          curl --fail --location --show-error --retry 5 --retry-all-errors "$BLENDER_ARCHIVE_URL" -o blender.tar.xz
-          test "$(md5sum blender.tar.xz)" = "34fe4456252a703c39cb93efbfa84f8c  blender.tar.xz"
       - name: Release
         run: ./tools/release.sh "$RELEASE_TAG_NAME"
         env:
