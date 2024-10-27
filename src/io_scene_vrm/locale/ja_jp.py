@@ -421,10 +421,6 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + " - オーナーはローカル空間\n"
     + " - 循環依存関係が存在しない\n"
     + " - 複数が条件を満たす場合は一番上にあるもの\n",
-    (
-        "*",
-        "This VRM uses Draco compression. Unable to decompress.",
-    ): "Draco圧縮されたVRMは未対応です",
     ("*", "Axis Translation on Export"): "エクスポート時の軸の変換",
     (
         "*",

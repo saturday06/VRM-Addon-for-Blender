@@ -402,10 +402,6 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + " - 由局部空间拥有\n"
     + " - 循环依赖关系不存在\n"
     + " - 满足所有条件的\n",
-    (
-        "*",
-        "This VRM uses Draco compression. Unable to decompress.",
-    ): "不支持 Draco 压缩的 VRM",
     ("*", "Axis Translation on Export"): "导出时转换轴",
     (
         "*",
