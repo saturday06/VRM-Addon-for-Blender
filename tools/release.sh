@@ -35,7 +35,7 @@ else
 fi
 
 for postfix in "$release_postfix" "$underscore_version"; do
-  work_dir=$(mktemp -d)
+  work_dir=$(mktemp -d --suffix=-release-archive-work-dir)
   base="${prefix_name}-${postfix}"
   cp -r src/io_scene_vrm "${work_dir}/${base}"
   cp -r LICENSE* "${work_dir}/${base}/"
@@ -59,7 +59,7 @@ mv -v "$original_extension_path" "$extension_path"
 gh release upload "$release_tag_name" "${extension_path}#(Blender 4.2 or later) VRM Add-on for Blender Extension ${version} (zip)"
 gh release upload "$release_tag_name" "${prefix_name}-${underscore_version}.zip#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
 
-readme_unzip_dir=$(mktemp -d)
+readme_unzip_dir=$(mktemp -d --suffix=-readme-unzip-dir)
 unzip -d "$readme_unzip_dir" "${prefix_name}-${release_postfix}.zip"
 readme_base="${readme_unzip_dir}/${prefix_name}-${release_postfix}"
 rm "$readme_base/__init__.py"
@@ -67,7 +67,7 @@ readme_tar_xz_version=$(ruby -e "puts ARGV[0].split('.', 3).join('_')" "$bl_info
 readme_tar_xz_abs_path="${PWD}/${readme_tar_xz_version}.tar.xz"
 XZ_OPT='-9e' tar -C "$readme_base" -cvJf "$readme_tar_xz_abs_path" .
 
-archive_branch_dir=$(mktemp -d)
+archive_branch_dir=$(mktemp -d --suffix=-branch-release-archive)
 git fetch --depth=1 origin release-archive
 git worktree add "${archive_branch_dir}" origin/release-archive
 rm -fr "${archive_branch_dir}/debug"
@@ -84,7 +84,7 @@ fi
   git commit -m "docs: release $version [BOT]"
 )
 
-readme_branch_dir=$(mktemp -d)
+readme_branch_dir=$(mktemp -d --suffix=-branch-README)
 git fetch --depth=1 origin README
 git worktree add "${readme_branch_dir}" origin/README
 readme_addon_dir="${readme_branch_dir}/.github/vrm_addon_for_blender_private"
@@ -102,7 +102,7 @@ github_downloaded_zip_path="${PWD}/readme.zip"
   git archive HEAD --prefix=${prefix_name}-README/ --output="$github_downloaded_zip_path"
 )
 
-gh_pages_branch_dir=$(mktemp -d)
+gh_pages_branch_dir=$(mktemp -d --suffix=-branch-gh-pages)
 git fetch --depth=1 origin gh-pages
 git worktree add "${gh_pages_branch_dir}" origin/gh-pages
 mkdir -p "${gh_pages_branch_dir}/releases"
@@ -138,7 +138,7 @@ rm -fr "$addon_dir/.github"
 rm "$addon_dir/README.md"
 find "$addon_dir" -name "__pycache__" -type d -print0 | xargs --null rm -fr
 
-addon_check_unzip_dir=$(mktemp -d)
+addon_check_unzip_dir=$(mktemp -d --suffix=-addon-check-unzip)
 unzip -d "$addon_check_unzip_dir" "${prefix_name}-${release_postfix}.zip"
 
 diff -ru "$addon_check_unzip_dir/${prefix_name}-${release_postfix}" "$addon_dir"
