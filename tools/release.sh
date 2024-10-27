@@ -1,22 +1,35 @@
 #!/bin/sh
 
-set -eux
+set -eu
+
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 <release_tag_name>"
+  exit 1
+fi
+
+set -x
 shellcheck "$0"
 
 export PYTHONDONTWRITEBYTECODE=1
 prefix_name=VRM_Addon_for_Blender
+release_tag_name=$1
 
 if ! git status; then
   uname -a
   id
-  ls -alR
+  ls
   exit 1
 fi
 
-underscore_version=$(ruby -e "puts ARGV[0].sub(/^v/, '').split('.', 3).join('_')" "$RELEASE_TAG_NAME")
+underscore_version=$(ruby -e "puts ARGV[0].sub(/^v/, '').split('.', 3).join('_')" "$release_tag_name")
 version=$(ruby -e "puts ARGV[0].split('_', 3).join('.')" "$underscore_version")
 bl_info_version=$(cd src && python3 -c 'import io_scene_vrm; print(str(".".join(map(str, io_scene_vrm.bl_info["version"]))))')
-release_postfix=release
+
+if [ "$version" != "$bl_info_version" ]; then
+  release_postfix=draft
+else
+  release_postfix=release
+fi
 
 for postfix in "$release_postfix" "$underscore_version"; do
   work_dir=$(mktemp -d)
@@ -50,8 +63,8 @@ test "/usr/bin/blender" = "$(command -v blender)"
 
 extension_path="${prefix_name}-Extension-${underscore_version}.zip"
 mv -v "$original_extension_path" "$extension_path"
-gh release upload "$RELEASE_TAG_NAME" "${extension_path}#(Blender 4.2 or later) VRM Add-on for Blender Extension ${version} (zip)"
-gh release upload "$RELEASE_TAG_NAME" "${prefix_name}-${underscore_version}.zip#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
+gh release upload "$release_tag_name" "${extension_path}#(Blender 4.2 or later) VRM Add-on for Blender Extension ${version} (zip)"
+gh release upload "$release_tag_name" "${prefix_name}-${underscore_version}.zip#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
 
 readme_unzip_dir=$(mktemp -d)
 unzip -d "$readme_unzip_dir" "${prefix_name}-${release_postfix}.zip"
@@ -149,6 +162,7 @@ if [ "$release_postfix" = "release" ]; then
     cd "$gh_pages_branch_dir"
     git push origin HEAD
   )
+  gh release edit "$release_tag_name" --draft=false --latest
+else
+  gh release edit "$release_tag_name" --prerelease
 fi
-
-gh release edit "$RELEASE_TAG_NAME" --draft=false --latest

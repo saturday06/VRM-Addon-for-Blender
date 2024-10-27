@@ -66,8 +66,7 @@ jobs:
           curl --fail --location --show-error --retry 5 --retry-all-errors "$BLENDER_ARCHIVE_URL" -o blender.tar.xz
           test "$(md5sum blender.tar.xz)" = "34fe4456252a703c39cb93efbfa84f8c  blender.tar.xz"
       - name: Release
-        run: ./tools/release.sh
+        run: ./tools/release.sh "$RELEASE_TAG_NAME"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
           RELEASE_TAG_NAME: ${{ needs.release-please.outputs.release_tag_name }}
