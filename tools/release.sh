@@ -38,6 +38,7 @@ for postfix in "$release_postfix" "$underscore_version"; do
   cp -r LICENSE* "${work_dir}/${base}/"
   (
     cd "$work_dir"
+    find . -name "__pycache__" -type d -exec rm -fr {} \;
     advzip --add --shrink-insane --iter 20 "${prefix_name}-${postfix}.zip" "${base}"
   )
   cp "${work_dir}/${prefix_name}-${postfix}.zip" .

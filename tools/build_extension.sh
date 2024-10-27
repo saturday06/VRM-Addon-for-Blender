@@ -38,6 +38,8 @@ rm -fr extension_output
 mkdir extension_output
 output_filepath="extension_output/vrm_$(LC_ALL=C date -u +%Y%m%d%H%M%S)_$(git rev-parse HEAD).zip"
 
+find src/io_scene_vrm -name "__pycache__" -type d -exec rm -fr {} \;
+
 ./.local/blender/blender --command extension build \
   --source-dir src/io_scene_vrm \
   --output-filepath "$output_filepath"
