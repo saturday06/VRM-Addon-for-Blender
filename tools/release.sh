@@ -14,6 +14,8 @@ export PYTHONDONTWRITEBYTECODE=1
 prefix_name=VRM_Addon_for_Blender
 release_tag_name=$1
 
+gh release view "$release_tag_name"
+
 if ! git status; then
   uname -a
   id
