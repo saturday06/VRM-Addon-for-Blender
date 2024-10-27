@@ -11,6 +11,7 @@ RUN dnf update -y \
     && dnf install-n -y --setopt=install_weak_deps=False --allowerasing \
         ImageMagick \
         ShellCheck \
+        advancecomp \
         blender \
         curl \
         file \
