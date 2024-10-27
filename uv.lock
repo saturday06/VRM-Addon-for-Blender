@@ -155,7 +155,7 @@ dependencies = [
     { name = "bpy", marker = "(platform_machine == 'AMD64' and platform_system == 'Windows') or (platform_machine == 'arm64' and platform_system == 'Darwin') or (platform_machine == 'x86_64' and platform_system == 'Darwin') or (platform_machine == 'x86_64' and platform_system == 'Linux')" },
 ]
 
-[package.dev-dependencies]
+[package.dependency-groups]
 dev = [
     { name = "codespell" },
     { name = "dulwich" },
@@ -174,7 +174,7 @@ requires-dist = [
     { name = "bpy", marker = "platform_machine == 'x86_64' and platform_system == 'Linux'", specifier = "==3.6.*" },
 ]
 
-[package.metadata.requires-dev]
+[package.metadata.dependency-groups]
 dev = [
     { name = "codespell", specifier = ">=2.3.0" },
     { name = "dulwich", specifier = ">=0.22.1" },
