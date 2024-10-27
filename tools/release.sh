@@ -13,6 +13,7 @@ shellcheck "$0"
 export PYTHONDONTWRITEBYTECODE=1
 prefix_name=VRM_Addon_for_Blender
 release_tag_name=$1
+commit_sha=$(git rev-parse HEAD)
 
 gh release view "$release_tag_name"
 
@@ -100,7 +101,7 @@ github_downloaded_zip_path="${PWD}/readme.zip"
   git add .
   git config --global user.email "isamu@leafytree.jp"
   git config --global user.name "[BOT] Isamu Mogi"
-  git commit -m "docs: update the latest internal partial code to $GITHUB_SHA [BOT]"
+  git commit -m "docs: update the latest internal partial code to $commit_sha [BOT]"
   git archive HEAD --prefix=${prefix_name}-README/ --output="$github_downloaded_zip_path"
 )
 
