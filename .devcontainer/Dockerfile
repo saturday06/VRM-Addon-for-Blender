@@ -6,6 +6,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN dnf update -y \
     && dnf install-n -y "dnf-command(config-manager)" \
     && dnf config-manager --set-enabled crb \
+    && dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo \
     && dnf install-n -y epel-release \
     && dnf update -y \
     && dnf install-n -y --setopt=install_weak_deps=False --allowerasing \
@@ -15,6 +16,7 @@ RUN dnf update -y \
         blender \
         curl \
         file \
+        gh \
         git \
         less \
         libSM \
