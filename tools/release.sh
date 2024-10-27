@@ -33,6 +33,7 @@ if [ "$version" != "$bl_info_version" ]; then
 else
   release_postfix=release
 fi
+release_postfix=debug
 
 for postfix in "$release_postfix" "$underscore_version"; do
   work_dir=$(mktemp -d --suffix=-release-archive-work-dir)
