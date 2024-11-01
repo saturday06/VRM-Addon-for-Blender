@@ -81,6 +81,7 @@ indent_size = 2
 
 [/tests/resources/unity/*/ProjectSettings/**/*.json]
 indent_size = 4
+insert_final_newline = unset
 
 [/tests/resources/unity/*/{Library,Logs,Temp,UserSettings,obj,.idea,.vscode,.vs}/**]
 charset = unset

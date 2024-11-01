@@ -1,2 +1,3 @@
 /docs/website/layouts/**/*.html
+/tests/resources/unity/*/ProjectSettings/*.json
 /CHANGELOG.md
