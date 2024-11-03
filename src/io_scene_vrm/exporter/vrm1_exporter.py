@@ -2179,6 +2179,22 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             for material in self.context.blend_data.materials:
                 material.pop(self.extras_material_name_key, None)
 
+    @staticmethod
+    def gltf_export_armature_object_remove(context: Context) -> bool:
+        for selected_object in context.selected_objects:
+            if selected_object.type != "ARMATURE":
+                continue
+            armature = selected_object.data
+            if not isinstance(armature, Armature):
+                continue
+            for bone in armature.bones:
+                if bone.parent:
+                    continue
+                # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2394
+                if not bone.use_deform:
+                    return False
+        return True
+
     def export_vrm(self) -> Optional[bytes]:
         init_extras_export()
 
@@ -2218,7 +2234,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         use_selection=True,
                         use_active_scene=True,
                         export_animations=True,
-                        export_armature_object_remove=True,
+                        export_armature_object_remove=(
+                            self.gltf_export_armature_object_remove(self.context)
+                        ),
                         export_rest_position_armature=False,
                         export_apply=False,
                         # Models may appear incorrectly in many viewers
@@ -2244,6 +2262,126 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 return None
             logger.info("Generated VRM size: %s bytes", len(vrm_bytes))
         return vrm_bytes
+
+    def remove_exported_armature_object_before_4_2(
+        self,
+        json_dict: dict[str, Json],
+        node_dicts: list[Json],
+        armature_node_index: int,
+    ) -> None:
+        """Blender 4.2未満でシーンのアーマチュアオブジェクトが削除可能なら削除.
+
+        これはBlenderで再インポートした際に、Armatureのオブジェクトがボーン扱いされるのを
+        防ぐため。TODO: 本当はskin.skeletonなどを使って賢く処理するべき
+
+        メインアーマチュアにトランスフォームが入っている場合、現在の方式では
+        Blender 4.2.1やUniVRM 0.126.0などでうまく処理できないためやらない
+
+        Skin Jointが登録されているルートボーンが複数ある場合は、skin.jointsは共通の
+        ルートボーンが必要な制約があるため、削除しない。
+        """
+        if bpy.app.version >= (4, 2):
+            return
+
+        armature_world_matrix = (
+            find_node_world_matrix(node_dicts, armature_node_index, None) or Matrix()
+        )
+
+        if not (0 <= armature_node_index < len(node_dicts)):
+            return
+        armature_node_dict = node_dicts[armature_node_index]
+        if not isinstance(armature_node_dict, dict):
+            return
+
+        if not is_identity_matrix(armature_world_matrix):
+            return
+
+        scene_dicts = json_dict.get("scenes")
+        if not isinstance(scene_dicts, list):
+            return
+
+        all_joint_node_indices: list[Sequence[int]] = []
+
+        skin_dicts = json_dict.get("skins")
+        if isinstance(skin_dicts, list):
+            for skin_dict in skin_dicts:
+                if not isinstance(skin_dict, dict):
+                    continue
+                joints = skin_dict.get("joints")
+                if not isinstance(joints, list):
+                    continue
+                all_joint_node_indices.append(
+                    [
+                        joint_node_index
+                        for joint_node_index in joints
+                        if isinstance(joint_node_index, int)
+                    ]
+                )
+
+        armature_child_indices = (
+            [child for child in children if isinstance(child, int)]
+            if isinstance(children := armature_node_dict.get("children"), Sequence)
+            else []
+        )
+
+        for joint_node_indices in all_joint_node_indices:
+            if len(set(joint_node_indices).intersection(armature_child_indices)) >= 2:
+                return
+
+        armature_replaced = False
+        for scene_dict in scene_dicts:
+            if not isinstance(scene_dict, dict):
+                continue
+            scene_node_indices = scene_dict.get("nodes")
+            if not isinstance(scene_node_indices, list):
+                continue
+
+            # シーンに属するノードのうち、そのアーマチュアの祖先ノードを削除
+            for scene_node_index in list(scene_node_indices):
+                if not isinstance(scene_node_index, int):
+                    continue
+                search_scene_node_indices = [scene_node_index]
+                while search_scene_node_indices:
+                    search_scene_node_index = search_scene_node_indices.pop()
+                    if search_scene_node_index == armature_node_index:
+                        scene_node_indices.remove(scene_node_index)
+                        break
+                    if not 0 <= search_scene_node_index < len(node_dicts):
+                        continue
+                    search_scene_node_dict = node_dicts[search_scene_node_index]
+                    if not isinstance(search_scene_node_dict, dict):
+                        continue
+                    child_indices = search_scene_node_dict.get("children")
+                    if not isinstance(child_indices, list):
+                        continue
+                    for child_index in child_indices:
+                        if not isinstance(child_index, int):
+                            continue
+                        search_scene_node_indices.append(child_index)
+
+            for armature_child_index in armature_child_indices:
+                if (
+                    not 0 <= armature_child_index < len(node_dicts)
+                    or armature_child_index in scene_node_indices
+                ):
+                    continue
+                scene_node_indices.append(armature_child_index)
+                if armature_replaced:
+                    continue
+                # メインアーマチュアまでのワールド行列をその子供に適用
+                child_node_dict = node_dicts[armature_child_index]
+                if not isinstance(child_node_dict, dict):
+                    continue
+                child_matrix = get_node_matrix(child_node_dict)
+                set_node_matrix(
+                    child_node_dict,
+                    armature_world_matrix @ child_matrix,
+                )
+            armature_replaced = True
+
+        if armature_replaced:
+            armature_node_dict.pop("children", None)
+            armature_node_dict["name"] = "secondary"  # Assign dummy name
 
     def add_vrm_extension_to_glb(
         self, extra_name_assigned_glb: bytes
@@ -2314,85 +2452,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if is_main_armature:
                 if not extras_dict:
                     node_dict.pop("extras", None)
-
-                armature_world_matrix = (
-                    find_node_world_matrix(node_dicts, node_index, None) or Matrix()
+                self.remove_exported_armature_object_before_4_2(
+                    json_dict, node_dicts, node_index
                 )
-
-                # シーンにメインアーマチュアが存在したら削除し、代わりに子ノードを
-                # シーンに配置。これはBlenderで再インポートした際に、Armatureの
-                # オブジェクトがボーン扱いされるのを防ぐため。
-                # ただしメインアーマチュアにトランスフォームが入っている場合、
-                # Blender 4.2.1やUniVRM 0.126.0でうまく処理できないためやらない
-                # TODO: 本当はskin.skeletonなどを使って賢く処理するべき
-                scene_dicts = json_dict.get("scenes")
-                if (
-                    bpy.app.version < (4, 2)
-                    and is_identity_matrix(armature_world_matrix)
-                    and isinstance(scene_dicts, list)
-                ):
-                    armature_replaced = False
-                    for scene_dict in scene_dicts:
-                        if not isinstance(scene_dict, dict):
-                            continue
-                        scene_node_indices = scene_dict.get("nodes")
-                        if not isinstance(scene_node_indices, list):
-                            continue
-
-                        # シーンに属するノードのうち、そのアーマチュアの祖先ノードを削除
-                        for scene_node_index in list(scene_node_indices):
-                            if not isinstance(scene_node_index, int):
-                                continue
-                            search_scene_node_indices = [scene_node_index]
-                            while search_scene_node_indices:
-                                search_scene_node_index = (
-                                    search_scene_node_indices.pop()
-                                )
-                                if search_scene_node_index == node_index:
-                                    scene_node_indices.remove(scene_node_index)
-                                    break
-                                if not 0 <= search_scene_node_index < len(node_dicts):
-                                    continue
-                                search_scene_node_dict = node_dicts[
-                                    search_scene_node_index
-                                ]
-                                if not isinstance(search_scene_node_dict, dict):
-                                    continue
-                                child_indices = search_scene_node_dict.get("children")
-                                if not isinstance(child_indices, list):
-                                    continue
-                                for child_index in child_indices:
-                                    if not isinstance(child_index, int):
-                                        continue
-                                    search_scene_node_indices.append(child_index)
-
-                        child_indices = node_dict.get("children")
-                        if not isinstance(child_indices, list):
-                            continue
-                        for child_index in child_indices:
-                            if (
-                                not isinstance(child_index, int)
-                                or not 0 <= child_index < len(node_dicts)
-                                or child_index in scene_node_indices
-                            ):
-                                continue
-                            scene_node_indices.append(child_index)
-                            if armature_replaced:
-                                continue
-                            # メインアーマチュアまでのワールド行列をその子供に適用
-                            child_node_dict = node_dicts[child_index]
-                            if not isinstance(child_node_dict, dict):
-                                continue
-                            child_matrix = get_node_matrix(child_node_dict)
-                            set_node_matrix(
-                                child_node_dict,
-                                armature_world_matrix @ child_matrix,
-                            )
-                        armature_replaced = True
-                    if armature_replaced:
-                        node_dict.pop("children", None)
-                        node_dict["name"] = "secondary"  # Assign dummy name
-                        continue
 
             mesh_index = node_dict.get("mesh")
             mesh_dicts = json_dict.get("meshes")
