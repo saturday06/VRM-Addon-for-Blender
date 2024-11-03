@@ -1,4 +1,4 @@
-name: Close resolved stale issues
+name: close-resolved-stale-issues
 
 permissions: {}
 
