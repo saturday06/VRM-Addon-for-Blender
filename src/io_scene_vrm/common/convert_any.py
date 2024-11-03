@@ -24,7 +24,7 @@ def to_object(  # type: ignore[misc]
 def iterator_to_object_iterator(  # type: ignore[misc]
     any_iterator: Any,  # noqa: ANN401  # Any is allowed only in the module here.
 ) -> Optional[Iterator[object]]:
-    any_iterator_without_type_narrowing = any_iterator
-    if not isinstance(any_iterator_without_type_narrowing, Iterator):
+    any_iterator_without_partial_type_narrowing = any_iterator
+    if not isinstance(any_iterator, Iterator):
         return None
-    return map(to_object, any_iterator)
+    return map(to_object, any_iterator_without_partial_type_narrowing)
