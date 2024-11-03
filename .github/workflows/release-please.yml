@@ -1,15 +1,15 @@
 name: release-please
 
+permissions:
+  contents: write
+  pull-requests: write
+
 on:
   workflow_run:
     workflows: ["test"]
     branches: [main]
     types:
       - completed
-
-permissions:
-  contents: write
-  pull-requests: write
 
 jobs:
   release-please:
