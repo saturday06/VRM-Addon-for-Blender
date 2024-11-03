@@ -355,6 +355,10 @@ class Bone(bpy_struct, __CustomProperty):
     # ドキュメントには3要素のfloat配列と書いてあるが、実際にはVector
     tail_local: Vector
 
+    def use_connect(self) -> bool: ...
+
+    use_deform: bool
+
     # ドキュメントには二次元のfloat配列と書いてあるが、実際にはMatrix
     matrix_local: Matrix
 
@@ -394,6 +398,7 @@ class EditBone(bpy_struct):
     roll: float
     use_local_location: bool
     use_connect: bool
+    use_deform: bool
     head_radius: float
     tail_radius: float
     envelope_distance: float
