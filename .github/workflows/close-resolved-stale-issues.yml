@@ -1,0 +1,21 @@
+name: Close resolved stale issues
+
+permissions: {}
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+
+jobs:
+  close-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/stale@v5
+        with:
+          days-before-stale: -1
+          days-before-close: 120
+          stale-issue-label: "resolved; will close if no new info for 120 days"
+          close-issue-message: "This issue was closed because it has been inactive for 120 days since being marked as resolved."
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
