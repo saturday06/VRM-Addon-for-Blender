@@ -12,7 +12,7 @@ jobs:
     permissions:
       issues: write
     steps:
-      - uses: actions/stale@v5
+      - uses: actions/stale@v9
         with:
           days-before-stale: -1
           days-before-close: 120
