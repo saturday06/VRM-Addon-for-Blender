@@ -26,12 +26,13 @@ jobs:
 
           mkdir readme
           cd readme
-          cp -fr ../.git .git
+          cp -r ../.git .git
           git checkout README
-          cp -fr ../.github .
-          rm -fr .github/workflows/
-          git checkout .github/workflows/close-resolved-stale-issues.yml
-          git checkout .github/workflows/release-please.yml
+          cp -r ../.github .
+          rm -r .github/workflows/
+          mkdir .github/workflows/
+          cp ../.github/workflows/close-resolved-stale-issues.yml .github/workflows/
+          cp ../.github/workflows/release-please.yml .github/workflows/
           cp ../README.md .
           find . -maxdepth 1 -name "LICENSE*" -exec rm {} \;
           find .. -maxdepth 1 -name "LICENSE*" -exec cp {} . \;
