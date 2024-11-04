@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from bpy.types import Armature, Context, Object
 
 from ..extension import get_armature_extension

@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 # frozen_string_literal: true
 
 require "fileutils"

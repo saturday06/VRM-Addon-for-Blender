@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import logging as standard_logging
 import sys
 from collections.abc import Mapping

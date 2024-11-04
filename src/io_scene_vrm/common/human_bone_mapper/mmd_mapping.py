@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from bpy.types import Object
 
 from ..logging import get_logger

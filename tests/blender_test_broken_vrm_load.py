@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import os
 import sys
 from os import environ

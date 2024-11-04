@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 """Legacy glTF shader that existed before version 2.10.5.
 
 https://github.com/saturday06/VRM-Addon-for-Blender/tree/2_10_5

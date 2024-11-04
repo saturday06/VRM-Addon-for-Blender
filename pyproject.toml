@@ -6,7 +6,7 @@ authors = [
     {name = "Isamu Mogi"},
     {name = "iCyP"},
 ]
-license = {file = "LICENSE"}
+license = {text = "SPDX-License-Identifier: MIT OR GPL-3.0-or-later"}
 
 dependencies = [
     # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_35/poetry.lock#L10-L13

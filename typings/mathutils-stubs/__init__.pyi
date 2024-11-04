@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from collections.abc import Iterable, Iterator, Sequence
 from typing import Optional, TypeVar, Union, overload
 

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from unittest import TestCase
 
 from io_scene_vrm import MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION, bl_info

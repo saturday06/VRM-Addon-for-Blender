@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 def addon_install(
     execution_context: str = "EXEC_DEFAULT",
     /,

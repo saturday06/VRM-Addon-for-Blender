@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import platform
 from dataclasses import dataclass
 from importlib import import_module

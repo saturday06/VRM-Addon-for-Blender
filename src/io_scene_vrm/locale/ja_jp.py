@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 locale_key = "ja_JP"
 
 translation_dictionary: dict[tuple[str, str], str] = {

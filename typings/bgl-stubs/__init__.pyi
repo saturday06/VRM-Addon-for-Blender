@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 GL_BACK: int
 GL_BLEND: int
 GL_CLAMP_TO_EDGE: int

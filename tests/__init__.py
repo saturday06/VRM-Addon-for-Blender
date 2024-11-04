@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+
+
 def io_scene_vrm_tests_generate_dynamic_tests() -> None:
     import importlib.util
     from pathlib import Path

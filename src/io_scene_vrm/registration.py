@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 # SPDX-FileCopyrightText: 2018 iCyP
 
 from typing import Union

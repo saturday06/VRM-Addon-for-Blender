@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 
 mapping: dict[str, HumanBoneSpecification] = {

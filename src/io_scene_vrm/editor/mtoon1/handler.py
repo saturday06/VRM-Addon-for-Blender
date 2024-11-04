@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import time
 from dataclasses import dataclass, field
 from typing import Optional

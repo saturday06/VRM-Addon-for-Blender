@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import re
 from dataclasses import dataclass
 from pathlib import Path

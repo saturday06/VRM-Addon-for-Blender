@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from typing import Optional, Union
 
 from bpy.types import Library

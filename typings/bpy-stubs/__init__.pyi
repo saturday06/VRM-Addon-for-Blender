@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from . import app as app
 from . import msgbus as msgbus
 from . import ops as ops

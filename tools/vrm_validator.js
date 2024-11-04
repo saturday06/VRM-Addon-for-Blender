@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 const process = require("node:process");
 const { dirname, basename, resolve } = require("path");
 const fs = require("fs");

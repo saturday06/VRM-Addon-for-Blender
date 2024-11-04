@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 FROM rockylinux:9
 
 # https://github.com/hadolint/hadolint/wiki/DL4006

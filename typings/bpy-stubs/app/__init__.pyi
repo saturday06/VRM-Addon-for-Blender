@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from . import handlers as handlers
 from . import timers as timers
 from . import translations as translations

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from bpy.types import Context, Mesh, UILayout, UIList
 
 from ..extension import get_armature_extension

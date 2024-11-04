@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 """devcontainerの作業フォルダの所有者とパーミッションを正しい値に戻す.
 
 このスクリプトはrootで実行する。rootの権限は強力すぎるため、

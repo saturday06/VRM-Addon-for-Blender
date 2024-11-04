@@ -1,4 +1,4 @@
-From 5ed713e505f7005d6c6dcfdcb68521b90cef78e4 Mon Sep 17 00:00:00 2001
+From 973f783eac5d3d99b9cf4c416e31573b544d7ba3 Mon Sep 17 00:00:00 2001
 From: Patch <patch@example.com>
 Date: Sun, 23 Jun 2024 10:00:00 +0000
 Subject: [PATCH] feat: extensions.blender.org
@@ -6,16 +6,16 @@ Subject: [PATCH] feat: extensions.blender.org
 ---
  src/io_scene_vrm/__init__.py           | 230 +------------------------
  src/io_scene_vrm/blender_manifest.toml |   3 +-
- tests/test_legacy_addon_init.py        |  25 ---
- 3 files changed, 3 insertions(+), 255 deletions(-)
+ tests/test_legacy_addon_init.py        |  26 ---
+ 3 files changed, 3 insertions(+), 256 deletions(-)
  delete mode 100644 tests/test_legacy_addon_init.py
 
 diff --git a/src/io_scene_vrm/__init__.py b/src/io_scene_vrm/__init__.py
-index b67a79ec..5f4289fb 100644
+index 46364128..088fe7c3 100644
 --- a/src/io_scene_vrm/__init__.py
 +++ b/src/io_scene_vrm/__init__.py
 @@ -1,243 +1,17 @@
- # SPDX-License-Identifier: MIT
+ # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
  # SPDX-FileCopyrightText: 2018 iCyP
  
 -#
@@ -261,7 +261,7 @@ index b67a79ec..5f4289fb 100644
  class glTF2ImportUserExtension:
      def __init__(self) -> None:
 diff --git a/src/io_scene_vrm/blender_manifest.toml b/src/io_scene_vrm/blender_manifest.toml
-index 113683f8..3960611d 100644
+index 28b75cf8..73b56a05 100644
 --- a/src/io_scene_vrm/blender_manifest.toml
 +++ b/src/io_scene_vrm/blender_manifest.toml
 @@ -11,8 +11,7 @@ website = "https://vrm-addon-for-blender.info"
@@ -272,14 +272,15 @@ index 113683f8..3960611d 100644
 -blender_version_max = "4.2.999"
 +blender_version_min = "4.2.0"
  
- license = ["SPDX:MIT"]
+ license = ["SPDX:MIT", "SPDX:GPL-3.0-or-later"]
  
 diff --git a/tests/test_legacy_addon_init.py b/tests/test_legacy_addon_init.py
 deleted file mode 100644
-index e04841be..00000000
+index ab36f240..00000000
 --- a/tests/test_legacy_addon_init.py
 +++ /dev/null
-@@ -1,25 +0,0 @@
+@@ -1,26 +0,0 @@
+-# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 -from unittest import TestCase
 -
 -from io_scene_vrm import MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION, bl_info
@@ -306,5 +307,5 @@ index e04841be..00000000
 -            BlenderManifest.read().blender_version_min,
 -        )
 -- 
-2.45.2.windows.1
+2.43.5
 

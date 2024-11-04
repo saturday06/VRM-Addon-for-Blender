@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from collections.abc import Set as AbstractSet
 
 from bpy.types import Armature, Context, GizmoGroup

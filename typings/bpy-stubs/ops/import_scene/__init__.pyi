@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from typing import Optional
 
 from bpy.types import OperatorFileListElement, bpy_prop_collection

@@ -53,7 +53,7 @@ indent_size = 2
 [/.gitmodules]
 indent_style = tab
 
-[/LICENSE]
+[/LICENSE_*.txt]
 indent_size = 1
 
 [/docs/website/static/CNAME]

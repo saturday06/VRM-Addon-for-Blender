@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import difflib
 import math
 from json import dumps as json_dumps

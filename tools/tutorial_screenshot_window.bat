@@ -1,3 +1,5 @@
+@rem SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+
 @echo off
 echo ============== Launching tutorial window ===============
 echo Please check following conditions:

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 """A module provides a function to convert a variable of type Any to a concrete type.
 
 Inevitably, variables of type Any may occur, and such variables cannot be handled

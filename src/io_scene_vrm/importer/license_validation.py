@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import contextlib
 from typing import Optional
 from urllib.parse import ParseResult, parse_qsl, urlparse

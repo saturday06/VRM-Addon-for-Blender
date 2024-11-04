@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from pathlib import Path
 from sys import float_info
 from typing import TYPE_CHECKING, Optional

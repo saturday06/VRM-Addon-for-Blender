@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from dataclasses import dataclass
 from decimal import Decimal
 from sys import float_info

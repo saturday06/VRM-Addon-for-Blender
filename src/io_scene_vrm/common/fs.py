@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import sys
 from pathlib import Path
 from typing import Optional

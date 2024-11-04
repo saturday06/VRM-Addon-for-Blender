@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import math
 from collections.abc import Sequence
 from typing import Union

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import bpy
 
 # https://projects.blender.org/blender/blender/commit/0ce02355c1d0fb676167b7070870c8b5ef6ce048

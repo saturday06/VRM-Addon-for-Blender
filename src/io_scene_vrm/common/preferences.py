@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Protocol, TypedDict
 

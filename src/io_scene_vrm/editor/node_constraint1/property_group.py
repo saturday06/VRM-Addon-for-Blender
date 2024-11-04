@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from typing import TYPE_CHECKING
 
 from bpy.props import BoolProperty

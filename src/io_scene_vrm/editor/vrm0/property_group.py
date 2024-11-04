@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import functools
 from collections.abc import Sequence
 from sys import float_info

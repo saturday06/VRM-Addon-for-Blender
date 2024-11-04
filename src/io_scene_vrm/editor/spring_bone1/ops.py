@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import uuid
 from collections.abc import Set as AbstractSet
 from sys import float_info

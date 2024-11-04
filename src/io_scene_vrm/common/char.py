@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from typing import Final
 
 INTERNAL_NAME_PREFIX: Final = "\N{FULLWIDTH BROKEN BAR}"

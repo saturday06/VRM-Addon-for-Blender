@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import contextlib
 from collections.abc import (
     ItemsView,

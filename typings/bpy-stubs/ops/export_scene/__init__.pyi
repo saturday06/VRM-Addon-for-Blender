@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 def gltf(
     execution_context: str = "EXEC_DEFAULT",
     /,

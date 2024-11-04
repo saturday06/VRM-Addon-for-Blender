@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from collections.abc import Iterator, Mapping, Sequence
 from sys import float_info
 from typing import Optional, Union

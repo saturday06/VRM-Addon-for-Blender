@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 def smart_project(
     execution_context: str = "EXEC_DEFAULT",
     /,
