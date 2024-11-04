@@ -11,7 +11,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     # Simplified Chinese translation has been temporarily disabled. This is to comply
     # with the license requirements of the Blender Extensions platform.
     #
-    # Please check the URL below for more details:
+    # To enable it again, please check the following URL:
     # https://github.com/saturday06/VRM-Addon-for-Blender/issues/627
     #
 }
