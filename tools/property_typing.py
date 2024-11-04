@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# ruff: noqa: T201
 
+import logging
 import re
 import sys
 from argparse import ArgumentParser
@@ -11,6 +11,9 @@ from bpy.types import ID, Operator
 
 from io_scene_vrm import registration
 from io_scene_vrm.common import convert, convert_any
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def write_property_typing(
@@ -23,7 +26,7 @@ def write_property_typing(
     arg_type = None
     arg_default: object = None
 
-    print(f"  ==> prop={n}")
+    logger.info("  ==> prop=%s", n)
     ruff_line_len = 88
     comment = "  # type: ignore[no-redef]"
     if n == "stiffiness" or n.endswith("_ussage_name"):
@@ -117,17 +120,21 @@ def update_property_typing(
     more: bool,
 ) -> None:
     if not typing_code:
-        print(" ==> NO CODE")
+        logger.info(" ==> NO CODE")
         return
 
-    print(f"------------------------------------------\n{c}\n{typing_code}")
+    logger.info(
+        "------------------------------------------\n%s\n%s",
+        c,
+        typing_code,
+    )
 
     # 該当するファイルを探す
     modules = c.__module__.split(".")
     modules.reverse()
     module = modules.pop()
     if module != "io_scene_vrm":
-        print(f"Unexpected module: {module}")
+        logger.info("Unexpected module: %s", module)
         return
 
     path = Path(__file__).parent.parent / "src" / "io_scene_vrm"
@@ -136,7 +143,7 @@ def update_property_typing(
         path = path / module
     path = path.with_suffix(".py")
 
-    print(f"{path}")
+    logger.info("%s", path)
 
     # 該当するクラスの定義の場所を探す
     lines = path.read_text(encoding="UTF-8").splitlines()
@@ -151,7 +158,7 @@ def update_property_typing(
             # クラス定義を探す
             pattern = "^class " + c.__name__ + "[^a-zA-Z0-9_]"
             if re.match(pattern, line):
-                print(f"class def found {class_def_index}")
+                logger.info("class def found %s", class_def_index)
                 class_def_index = line_index
             else:
                 continue
@@ -159,7 +166,7 @@ def update_property_typing(
         if class_def_colon_index is None:
             # : を探す
             if re.match(".*:", line.split("#")[0]):
-                print(f"class colon def found {class_def_colon_index}")
+                logger.info("class colon def found %s", class_def_colon_index)
                 class_def_colon_index = line_index
                 continue
             continue
@@ -183,7 +190,9 @@ def update_property_typing(
         another_def_start_index = len(lines) + 1
 
     if class_type_checking_index is not None:
-        print(f"REMOVE: {another_def_start_index} - {class_type_checking_index}")
+        logger.info(
+            "REMOVE: %s - %s", another_def_start_index, class_type_checking_index
+        )
         for _ in range(another_def_start_index - class_type_checking_index - 1):
             if class_type_checking_index >= len(lines):
                 break
@@ -224,27 +233,27 @@ def main() -> int:
     searching_classes = list(registration.classes)
     while searching_classes:
         c = searching_classes.pop()
-        print(f"Searching {c}")
+        logger.info("Searching %s", c)
         for b in c.__bases__:
-            print(f"++ Searching {b}")
+            logger.info("++ Searching %s", b)
             if b not in classes and b not in searching_classes:
                 searching_classes.append(b)
         if c not in classes:
             classes.append(c)
     for c in classes:
-        print(f"##### {c} #####")
+        logger.info("##### %s #####", c)
         ops_path = None
         ops_code = ""
         ops_code_sep = False
         bl_idname: object = ""
         if issubclass(c, Operator):
-            print("##### ops #####")
+            logger.info("##### ops #####")
             bl_idname = convert_any.to_object(getattr(c, "bl_idname", None))
             if isinstance(bl_idname, str):
                 dirs = bl_idname.split(".")
                 method = dirs.pop()
                 ops_path = ops_dir / Path(*dirs).with_suffix(".py")
-                print(ops_path)
+                logger.info("%s", ops_path)
                 ops_code = (
                     "# This code is auto generated.\n"
                     + "# To regenerate, run the"
@@ -317,7 +326,7 @@ def main() -> int:
             for param in ops_params:
                 ops_code += f"        {param},\n"
             ops_code += "    )\n\n\n"
-            print(ops_code)
+            logger.info("%s", ops_code)
             if not ops_path.exists():
                 ops_path.write_text(
                     "# This code is auto generated.\n"
