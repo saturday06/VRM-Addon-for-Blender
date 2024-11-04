@@ -64,9 +64,7 @@ def validate_license_url(
         LicenseConfirmationRequiredProp(
             url_str,
             json_key,
-            pgettext(
-                'Is this VRM allowed to edited? Please check its "{json_key}" value.'
-            ).format(json_key=json_key),
+            pgettext("Is this VRM allowed to Edit? CHECK IT LICENSE"),
         )
     )
 
@@ -152,10 +150,7 @@ def validate_vrm0_license(
             LicenseConfirmationRequiredProp(
                 None,
                 None,
-                pgettext(
-                    'The VRM is licensed by "{license_name}".'
-                    + " No derivative works are allowed."
-                ).format(license_name=license_name),
+                pgettext("This VRM is not allowed to Edit. CHECK ITS LICENSE"),
             )
         )
 

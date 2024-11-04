@@ -101,7 +101,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "期待通りの出力にはならないかもしれません。",
     ("*", "VRM Export"): "VRMエクスポート",
     ("*", "Create VRM Model"): "VRMモデルを作成",
-    ("*", "Validate VRM Model"): "VRMモデルのチェック",
+    ("*", "check as VRM model"): "VRMモデルのチェック",
     ("*", "Extract texture images into the folder"): "テクスチャ画像をフォルダに展開",
     (
         "*",
@@ -127,11 +127,6 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "License Confirmation"): "ライセンスの確認",
     (
         "*",
-        'Is this VRM allowed to edited? Please check its "{json_key}" value.',
-    ): "指定されたVRMのメタデータ「{json_key}」には"
-    + "独自のライセンスのURLが設定されています。",
-    (
-        "*",
         'This VRM is licensed by VRoid Hub License "Alterations: No".',
     ): "指定されたVRMにはVRoid Hubの「改変: NG」ライセンスが設定されています。",
     (
@@ -145,19 +140,16 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "URLが設定されていません。",
     (
         "*",
-        'The VRM is licensed by "{license_name}".'
-        + " No derivative works are allowed.",
-    ): "指定されたVRMには改変不可ライセンス「{license_name}」が設定されています。"
-    + "改変することはできません。",
+        "This VRM is not allowed to Edit. CHECK ITS LICENSE",
+    ): "改変不可Licenseです。",
     (
         "*",
-        "Nodes(mesh,bones) require unique names for VRM export."
-        + " {name} is duplicated.",
+        "VRM exporter need Nodes(mesh,bones) name is unique." + " {name} is doubled.",
     ): "glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。"
     + "「{name}」が重複しています。",
     (
         "*",
-        'There are not an object on the origin "{name}"',
+        "There are not on origine location object {name}",
     ): "「{name}」が原点座標にありません",
     (
         "*",
@@ -187,7 +179,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "There is no mesh to export."): "エクスポート対象のメッシュがありません。",
     (
         "*",
-        "Only one armature is required for VRM export." + " Multiple armatures found.",
+        "VRM exporter needs only one armature not some armatures",
     ): "VRM出力の際、選択できるアーマチュアは1つのみです。複数選択されています。",
     (
         "*",
@@ -294,7 +286,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         '"{image_name}" is not found in file path "{image_filepath}". '
-        + "Please load file of it in Blender.",
+        + "please load file of it in Blender.",
     ): '「{image_name}」の画像ファイルが指定ファイルパス「"{image_filepath}"」'
     + "に存在しません。画像を読み込み直してください。",
     (
@@ -348,8 +340,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "未割り当てのVRM必須ボーンが存在します。"
     + "全てのVRM必須ボーンを割り当ててください。",
     ("Operator", "Automatic Bone Assignment"): "ボーンの自動割り当て",
-    ("Operator", "Export VRM"): "VRMをエクスポート",
-    ("Operator", "Import VRM"): "VRMをインポート",
+    ("Operator", "export VRM"): "VRMをエクスポート",
+    ("Operator", "import VRM"): "VRMをインポート",
     ("Operator", "Preview MToon 0.0"): "MToon 0.0のプレビュー",
     ("Operator", "VRM Humanoid"): "VRMヒューマノイド",
     ("Operator", "VRM License Confirmation"): "VRM利用条件の確認",

@@ -66,8 +66,8 @@ def export_vrm_update_addon_preferences(
 
 class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
     bl_idname = "export_scene.vrm"
-    bl_label = "Export VRM"
-    bl_description = "Export VRM"
+    bl_label = "export VRM"
+    bl_description = "export VRM"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrm"

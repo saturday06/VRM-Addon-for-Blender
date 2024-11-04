@@ -61,8 +61,8 @@ def import_vrm_update_addon_preferences(
 
 class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
     bl_idname = "import_scene.vrm"
-    bl_label = "Import VRM"
-    bl_description = "Import VRM"
+    bl_label = "import VRM"
+    bl_description = "import VRM"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrm"

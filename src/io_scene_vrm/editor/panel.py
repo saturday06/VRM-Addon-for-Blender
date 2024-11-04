@@ -234,7 +234,7 @@ class VRM_PT_controller(Panel):
         vrm_validator_op = layout_operator(
             layout,
             validation.WM_OT_vrm_validator,
-            text=pgettext("Validate VRM Model"),
+            text=pgettext("check as VRM model"),
             icon="VIEWZOOM",
         )
         vrm_validator_op.show_successful_message = True

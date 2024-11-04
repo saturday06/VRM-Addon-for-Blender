@@ -49,7 +49,7 @@ class VrmValidationError(PropertyGroup):
 
 class WM_OT_vrm_validator(Operator):
     bl_idname = "vrm.model_validate"
-    bl_label = "Validate VRM Model"
+    bl_label = "check as VRM model"
     bl_description = "NO Quad_Poly & N_GON, NO unSkined Mesh etc..."
 
     show_successful_message: BoolProperty(  # type: ignore[valid-type]
@@ -248,10 +248,7 @@ class WM_OT_vrm_validator(Operator):
         armature_count = len([True for obj in export_objects if obj.type == "ARMATURE"])
         if armature_count >= 2:  # only one armature
             error_messages.append(
-                pgettext(
-                    "Only one armature is required for VRM export."
-                    + " Multiple armatures found."
-                )
+                pgettext("VRM exporter needs only one armature not some armatures")
             )
         if armature_count == 0:
             info_messages.append(pgettext("No armature exists."))
@@ -261,8 +258,8 @@ class WM_OT_vrm_validator(Operator):
                 if obj.name in node_names:
                     error_messages.append(
                         pgettext(
-                            "Nodes(mesh,bones) require unique names for VRM export."
-                            + " {name} is duplicated."
+                            "VRM exporter need Nodes(mesh,bones) name is unique. {name}"
+                            + " is doubled."
                         ).format(name=obj.name)
                     )
                 if obj.name not in node_names:
@@ -274,7 +271,7 @@ class WM_OT_vrm_validator(Operator):
                 and obj.location != Vector([0.0, 0.0, 0.0])
             ):  # mesh and armature origin is on [0,0,0]
                 info_messages.append(
-                    pgettext('There are not an object on the origin "{name}"').format(
+                    pgettext("There are not on origine location object {name}").format(
                         name=obj.name
                     )
                 )
@@ -833,7 +830,7 @@ class WM_OT_vrm_validator(Operator):
         error_messages.extend(
             pgettext(
                 '"{image_name}" is not found in file path "{image_filepath}". '
-                + "Please load file of it in Blender."
+                + "please load file of it in Blender."
             ).format(image_name=image.name, image_filepath=image.filepath_from_user())
             for image in used_images
             if (

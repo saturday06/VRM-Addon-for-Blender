@@ -24,7 +24,7 @@ AUTO_BONE_CONNECTION_DISTANCE = 0.000001  # 1μm
 class ICYP_OT_make_armature(Operator):
     bl_idname = "icyp.make_basic_armature"
     bl_label = "Add VRM Humanoid"
-    bl_description = "Create armature along with a simple setup for VRM export"
+    bl_description = "make armature and simple setup for VRM export"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     skip_heavy_armature_setup: BoolProperty(  # type: ignore[valid-type]
