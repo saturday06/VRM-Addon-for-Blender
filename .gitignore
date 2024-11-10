@@ -5,6 +5,8 @@
 /.idea/
 /.venv/
 /.vscode/
+/docs/.vitepress/cache/
+/docs/.vitepress/dist/
 /docs/website/.hugo_build.lock
 /docs/website/public/
 /docs/website/resources/_gen/
