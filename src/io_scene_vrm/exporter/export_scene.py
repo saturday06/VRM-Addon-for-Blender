@@ -67,7 +67,7 @@ def export_vrm_update_addon_preferences(
 
 class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
     bl_idname = "export_scene.vrm"
-    bl_label = "export VRM"
+    bl_label = "Save"
     bl_description = "export VRM"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
@@ -401,7 +401,7 @@ def menu_export(menu_op: Operator, _context: Context) -> None:
 
 class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
     bl_idname = "export_scene.vrma"
-    bl_label = "Export VRM Animation"
+    bl_label = "Save"
     bl_description = "Export VRM Animation"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 

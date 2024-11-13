@@ -62,7 +62,7 @@ def import_vrm_update_addon_preferences(
 
 class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
     bl_idname = "import_scene.vrm"
-    bl_label = "import VRM"
+    bl_label = "Open"
     bl_description = "import VRM"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
@@ -366,7 +366,7 @@ def menu_import(
 
 class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
     bl_idname = "import_scene.vrma"
-    bl_label = "Import VRM Animation"
+    bl_label = "Open"
     bl_description = "Import VRM Animation"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
