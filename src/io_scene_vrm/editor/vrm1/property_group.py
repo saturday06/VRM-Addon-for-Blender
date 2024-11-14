@@ -1157,7 +1157,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
                 break
 
         if not armature:  # This is getting triggered after importing VRMA files
-            # logger.error("No armature for %s", triggered_expression.name)
+            logger.error("No armature for %s", triggered_expression.name)
             return
 
         expressions = get_armature_vrm1_extension(armature).expressions
