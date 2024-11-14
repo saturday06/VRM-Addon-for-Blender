@@ -631,7 +631,20 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
     layout: UILayout,
     bind: Vrm1TextureTransformBindPropertyGroup,
 ) -> None:
+    if not bind.show_experimental_preview_feature:
+        blend_data = context.blend_data
+        bind_column = layout.column()
+        bind_column.prop_search(bind, "material", blend_data, "materials")
+        bind_column.prop(bind, "scale")
+        bind_column.prop(bind, "offset")
+        if bpy.app.version < (4, 2):
+            return
+        bind_column.separator()
+        bind_column.prop(bind, "show_experimental_preview_feature")
+        return
+
     bind_column = layout.column()
+    bind_column.prop(bind, "show_experimental_preview_feature")
 
     # Find the armature object
     armature = search.current_armature(context)
