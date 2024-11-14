@@ -20,8 +20,7 @@ VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや
 
 ## ダウンロード
 
-- Blender 4.2以上をお使いの場合 [**Blender Extensions Platform**](https://extensions.blender.org/add-ons/vrm) 経由でダウンロードをお願いします。 \
-  _⚠️ Blender Extensions Platformの仕様変更により、現在Blender Extensions Platform上へ最新版のアップデートを配信することができていません。現在対応作業中になります。最新のアドオンが必要な場合は[GitHub Releases](https://github.com/saturday06/VRM-Addon-for-Blender/releases)からダウンロードしてください._
+- Blender 4.2以上をお使いの場合 [**Blender Extensions Platform**](https://extensions.blender.org/add-ons/vrm) 経由でダウンロードをお願いします。
 - Blender 2.93から4.1をお使いの場合はこちら: **[最新版のダウンロード {{< release_ja >}}](https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip)** \
   <small>[過去のバージョン一覧](https://github.com/saturday06/VRM-Addon-for-Blender/releases)</small>
 
