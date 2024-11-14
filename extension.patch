@@ -34,7 +34,7 @@ index 46364128..088fe7c3 100644
 -    "author": "saturday06, iCyP",
 -    "version": (
 -        2,  # x-release-please-major
--        26,  # x-release-please-minor
+-        27,  # x-release-please-minor
 -        0,  # x-release-please-patch
 -    ),
 -    "location": "File > Import-Export",
