@@ -2,6 +2,6 @@
 <Configuration>
   <vGpu>Enable</vGpu>
   <LogonCommand>
-    <Command>cmd /c start powershell -c "$blenderUrl = 'https://mirrors.ocf.berkeley.edu/blender/release/Blender4.0/blender-4.0.1-windows-x64.msi'; Write-Output URL=$blenderUrl; Start-Process 'https://vrm-addon-for-blender.info'; Start-BitsTransfer output.msi -Source $blenderUrl; Start-Process msiexec -ArgumentList /i,output.msi,/passive -Wait; pause"</Command>
+    <Command>cmd /c start powershell -c "$blenderUrl = 'https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.3-windows-x64.msi'; Write-Output URL=$blenderUrl; Start-Process 'https://vrm-addon-for-blender.info'; Start-BitsTransfer output.msi -Source $blenderUrl; Start-Process msiexec -ArgumentList /i,output.msi,/passive -Wait; pause"</Command>
   </LogonCommand>
 </Configuration>
