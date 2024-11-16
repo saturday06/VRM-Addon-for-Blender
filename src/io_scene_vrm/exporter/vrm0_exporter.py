@@ -958,7 +958,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         extensions = gltf.pbr_metallic_roughness.base_color_texture.extensions
         khr_texture_transform = extensions.khr_texture_transform
 
-        vector_properties["_Color"] = list(
+        vector_properties["_Color"] = convert.linear_to_srgb(
             gltf.pbr_metallic_roughness.base_color_factor
         )
 
@@ -988,7 +988,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             ]
             extensions_used.append("KHR_texture_transform")
 
-        vector_properties["_ShadeColor"] = [*mtoon.shade_color_factor, 1]
+        vector_properties["_ShadeColor"] = convert.linear_to_srgb(
+            [*mtoon.shade_color_factor, 1]
+        )
         self.create_mtoon1_downgraded_texture(
             mtoon.shade_multiply_texture.index,
             texture_properties,
@@ -1059,7 +1061,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             gltf.extensions.khr_materials_emissive_strength.emissive_strength
         )
         emissive_factor = Vector(gltf.emissive_factor)
-        hdr_emissive_factor = emissive_factor * emissive_strength
+        hdr_emissive_factor = (
+            Vector(convert.linear_to_srgb(emissive_factor)) * emissive_strength
+        )
         vector_properties["_EmissionColor"] = [*hdr_emissive_factor, 1]
         if emissive_factor.length_squared > 0:
             material_dict["emissiveFactor"] = list(emissive_factor)
@@ -1099,7 +1103,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             image_index_to_lazy_bytes,
         )
 
-        vector_properties["_RimColor"] = [*mtoon.parametric_rim_color_factor, 1]
+        vector_properties["_RimColor"] = convert.linear_to_srgb(
+            [*mtoon.parametric_rim_color_factor, 1]
+        )
         self.create_mtoon1_downgraded_texture(
             mtoon.rim_multiply_texture.index,
             texture_properties,
@@ -1114,7 +1120,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             image_index_to_lazy_bytes,
         )
 
-        vector_properties["_OutlineColor"] = [*mtoon.outline_color_factor, 1]
+        vector_properties["_OutlineColor"] = convert.linear_to_srgb(
+            [*mtoon.outline_color_factor, 1]
+        )
         self.create_mtoon1_downgraded_texture(
             mtoon.outline_width_multiply_texture.index,
             texture_properties,

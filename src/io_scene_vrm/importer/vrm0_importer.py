@@ -323,7 +323,9 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             material_property.vector_properties.get("_Color")
         )
         if base_color_factor:
-            gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
+            gltf.pbr_metallic_roughness.base_color_factor = convert.srgb_to_linear(
+                base_color_factor
+            )
 
         raw_uv_transform = material_property.vector_properties.get("_MainTex")
         if raw_uv_transform is None or len(raw_uv_transform) != 4:
@@ -346,7 +348,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             material_property.vector_properties.get("_ShadeColor")
         )
         if shade_color_factor:
-            mtoon.shade_color_factor = shade_color_factor
+            mtoon.shade_color_factor = convert.srgb_to_linear(shade_color_factor)
 
         self.assign_mtoon0_texture_info(
             mtoon.shade_multiply_texture,
@@ -394,14 +396,14 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         ) or (0, 0, 0)
         max_color_component_value = max(raw_emissive_factor)
         if max_color_component_value > 1:
-            gltf.emissive_factor = list(
+            gltf.emissive_factor = convert.srgb_to_linear(
                 Vector(raw_emissive_factor) / max_color_component_value
             )
             gltf.extensions.khr_materials_emissive_strength.emissive_strength = (
                 max_color_component_value
             )
         else:
-            gltf.emissive_factor = raw_emissive_factor
+            gltf.emissive_factor = convert.srgb_to_linear(raw_emissive_factor)
 
         self.assign_mtoon0_texture_info(
             gltf.emissive_texture,
@@ -419,7 +421,9 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             material_property.vector_properties.get("_RimColor")
         )
         if parametric_rim_color_factor:
-            mtoon.parametric_rim_color_factor = parametric_rim_color_factor
+            mtoon.parametric_rim_color_factor = convert.srgb_to_linear(
+                parametric_rim_color_factor
+            )
 
         parametric_rim_fresnel_power_factor = material_property.float_properties.get(
             "_RimFresnelPower"
@@ -488,7 +492,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             material_property.vector_properties.get("_OutlineColor")
         )
         if outline_color_factor:
-            mtoon.outline_color_factor = outline_color_factor
+            mtoon.outline_color_factor = convert.srgb_to_linear(outline_color_factor)
 
         outline_color_mode = material_property.float_properties.get("_OutlineColorMode")
         if (

@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+import math
 from collections.abc import Iterator, Mapping, Sequence
 from sys import float_info
 from typing import Optional, Union
@@ -263,3 +264,21 @@ def axis_blender_to_gltf(vector3: Sequence[float]) -> tuple[float, float, float]
         vector3[2],
         vector3[1],
     )
+
+
+def linear_to_srgb(
+    non_color: Sequence[float],
+) -> Sequence[float]:
+    return [
+        math.pow(channel_value, 1.0 / 2.2) if channel_index < 3 else channel_value
+        for channel_index, channel_value in enumerate(non_color)
+    ]
+
+
+def srgb_to_linear(
+    srgb_color: Sequence[float],
+) -> Sequence[float]:
+    return [
+        math.pow(channel_value, 2.2) if channel_index < 3 else channel_value
+        for channel_index, channel_value in enumerate(srgb_color)
+    ]
