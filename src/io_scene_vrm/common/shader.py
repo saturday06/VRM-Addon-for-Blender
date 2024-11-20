@@ -250,6 +250,13 @@ def add_shaders(context: Context) -> None:
     blend_path = Path(__file__).with_name("mtoon0.blend")
     node_tree_path = str(blend_path) + "/NodeTree"
     library_appended = False
+
+    # 元からあったライブラリかどうかを判別する用
+    # ポインタのデリファレンスはしないように注意
+    existing_library_pointers = [
+        library.as_pointer() for library in context.blend_data.libraries
+    ]
+
     for shader_node_group_name in ["matcap_vector", "MToon_unversioned"]:
         if shader_node_group_name in context.blend_data.node_groups:
             continue
@@ -265,10 +272,14 @@ def add_shaders(context: Context) -> None:
     if not library_appended:
         return
 
-    for library in list(context.blend_data.libraries):
-        if blend_path.samefile(library.filepath) and library.users <= 1:
+    for library in reversed(list(context.blend_data.libraries)):
+        if not blend_path.samefile(library.filepath):
+            continue
+
+        if library.users <= 1 and library.as_pointer() not in existing_library_pointers:
             context.blend_data.libraries.remove(library)
-            return
+
+        return
 
 
 def load_mtoon1_node_group(
