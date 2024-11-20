@@ -136,10 +136,6 @@ VECTOR_SOCKET_CLASSES: Final = (
 COLOR_SOCKET_CLASSES: Final = (NodeSocketColor,)
 STRING_SOCKET_CLASSES: Final = (NodeSocketString,)
 
-file_names = [
-    "mtoon0.blend",
-]
-
 OUTLINE_GEOMETRY_GROUP_NAME: Final = "VRM Add-on MToon 1.0 Outline Geometry Revision 1"
 
 UV_GROUP_NAME: Final = "VRM Add-on MToon 1.0 UV Revision 1"
@@ -251,15 +247,28 @@ def generate_backup_suffix() -> str:
 
 
 def add_shaders(context: Context) -> None:
-    for file_name in file_names:
-        path = Path(__file__).with_name(file_name)
-        with context.blend_data.libraries.load(str(path), link=False) as (
-            data_from,
-            data_to,
-        ):
-            for node_group in data_from.node_groups:
-                if node_group not in context.blend_data.node_groups:
-                    data_to.node_groups.append(node_group)
+    blend_path = Path(__file__).with_name("mtoon0.blend")
+    node_tree_path = str(blend_path) + "/NodeTree"
+    library_appended = False
+    for shader_node_group_name in ["matcap_vector", "MToon_unversioned"]:
+        if shader_node_group_name in context.blend_data.node_groups:
+            continue
+        result = bpy.ops.wm.append(
+            filepath=node_tree_path + "/" + shader_node_group_name,
+            filename=shader_node_group_name,
+            directory=node_tree_path,
+            link=False,
+        )
+        if result == {"FINISHED"}:
+            library_appended = True
+
+    if not library_appended:
+        return
+
+    for library in list(context.blend_data.libraries):
+        if blend_path.samefile(library.filepath) and library.users <= 1:
+            context.blend_data.libraries.remove(library)
+            return
 
 
 def load_mtoon1_node_group(
@@ -1444,18 +1453,6 @@ def copy_node_tree(
                 from_node.location[0],
                 from_node.location[1],
             )
-        )
-
-
-def shader_node_group_import(context: Context, shader_node_group_name: str) -> None:
-    if shader_node_group_name in context.blend_data.node_groups:
-        return
-    for file_name in file_names:
-        path = str(Path(__file__).with_name(file_name)) + "/NodeTree"
-        bpy.ops.wm.append(
-            filepath=path + "/" + shader_node_group_name,
-            filename=shader_node_group_name,
-            directory=path,
         )
 
 
