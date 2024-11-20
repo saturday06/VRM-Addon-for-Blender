@@ -55,10 +55,13 @@ def test(context: Context, vrm: str, extract_textures_str: str) -> None:
         logger.warning("Skipped: %s", vrm)
         return
 
+    if context.view_layer.objects.active:
+        bpy.ops.object.mode_set(mode="OBJECT")
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
     while context.blend_data.collections:
         context.blend_data.collections.remove(context.blend_data.collections[0])
+    bpy.ops.outliner.orphans_purge(do_recursive=True)
 
     ops.import_scene.vrm(
         filepath=str(in_path),
