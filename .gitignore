@@ -1,4 +1,5 @@
 *~
+*.orig
 .DS_Store
 .mypy_cache/
 .ruff_cache/
