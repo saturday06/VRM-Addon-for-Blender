@@ -98,7 +98,7 @@ from .char import INTERNAL_NAME_PREFIX
 from .gl import GL_CLAMP_TO_EDGE, GL_LINEAR, GL_NEAREST, GL_REPEAT
 from .logging import get_logger
 from .version import get_addon_version
-from .workspace import save_workspace
+from .workspace import save_workspace, wm_append_without_library
 
 logger = get_logger(__name__)
 
@@ -249,37 +249,17 @@ def generate_backup_suffix() -> str:
 def add_shaders(context: Context) -> None:
     blend_path = Path(__file__).with_name("mtoon0.blend")
     node_tree_path = str(blend_path) + "/NodeTree"
-    library_appended = False
-
-    # 元からあったライブラリかどうかを判別する用
-    # ポインタのデリファレンスはしないように注意
-    existing_library_pointers = [
-        library.as_pointer() for library in context.blend_data.libraries
-    ]
 
     for shader_node_group_name in ["matcap_vector", "MToon_unversioned"]:
         if shader_node_group_name in context.blend_data.node_groups:
             continue
-        result = bpy.ops.wm.append(
-            filepath=node_tree_path + "/" + shader_node_group_name,
-            filename=shader_node_group_name,
-            directory=node_tree_path,
-            link=False,
+        wm_append_without_library(
+            context,
+            blend_path,
+            append_filepath=node_tree_path + "/" + shader_node_group_name,
+            append_filename=shader_node_group_name,
+            append_directory=node_tree_path,
         )
-        if result == {"FINISHED"}:
-            library_appended = True
-
-    if not library_appended:
-        return
-
-    for library in reversed(list(context.blend_data.libraries)):
-        if not blend_path.samefile(library.filepath):
-            continue
-
-        if library.users <= 1 and library.as_pointer() not in existing_library_pointers:
-            context.blend_data.libraries.remove(library)
-
-        return
 
 
 def load_mtoon1_node_group(
@@ -330,10 +310,12 @@ def load_mtoon1_node_group(
 
     # https://projects.blender.org/blender/blender/src/tag/v2.93.18/source/blender/windowmanager/intern/wm_files_link.c#L85-L90
     with save_workspace(context):
-        node_tree_append_result = bpy.ops.wm.append(
-            filepath=(node_tree_path + "/" + template_node_group_name),
-            filename=template_node_group_name,
-            directory=node_tree_path,
+        node_tree_append_result = wm_append_without_library(
+            context,
+            blend_file_path,
+            append_filepath=(node_tree_path + "/" + template_node_group_name),
+            append_filename=template_node_group_name,
+            append_directory=node_tree_path,
         )
         if node_tree_append_result != {"FINISHED"}:
             raise RuntimeError(
@@ -443,14 +425,17 @@ def load_mtoon1_shader(
                 old_template_group.name, backup_suffix
             )
 
-    material_path = str(Path(__file__).with_name("mtoon1.blend")) + "/Material"
+    blend_file_path = Path(__file__).with_name("mtoon1.blend")
+    material_path = str(blend_file_path) + "/Material"
 
     # https://projects.blender.org/blender/blender/src/tag/v2.93.18/source/blender/windowmanager/intern/wm_files_link.c#L85-L90
     with save_workspace(context):
-        material_append_result = bpy.ops.wm.append(
-            filepath=material_path + "/" + template_material_name,
-            filename=template_material_name,
-            directory=material_path,
+        material_append_result = wm_append_without_library(
+            context,
+            blend_file_path,
+            append_filepath=material_path + "/" + template_material_name,
+            append_filename=template_material_name,
+            append_directory=material_path,
             # do_reuse_local_id=True
         )
         if material_append_result != {"FINISHED"}:

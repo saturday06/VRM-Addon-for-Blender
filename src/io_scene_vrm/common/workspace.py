@@ -3,6 +3,7 @@ import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional
 
 import bpy
@@ -146,3 +147,43 @@ def save_workspace(
         yield
     finally:
         exit_save_workspace(context, saved_workspace)
+
+
+def wm_append_without_library(
+    context: Context,
+    blend_path: Path,
+    *,
+    append_filepath: str,
+    append_filename: str,
+    append_directory: str,
+) -> set[str]:
+    """wm.appendを呼び、追加されたライブラリを削除する.
+
+    wm.appendがライブラリを追加するとアセットライブラリの追加に失敗する問題を回避するために使う。
+    https://github.com/saturday06/VRM-Addon-for-Blender/issues/631
+    https://github.com/saturday06/VRM-Addon-for-Blender/issues/646
+    """
+    # ライブラリの追加検知用のポインタリスト。
+    # 追加検知のみに用いる。特に、デリファレンスは危険なので行わないように注意する。
+    existing_library_pointers = [
+        library.as_pointer() for library in context.blend_data.libraries
+    ]
+
+    result = bpy.ops.wm.append(
+        filepath=append_filepath,
+        filename=append_filename,
+        directory=append_directory,
+        link=False,
+    )
+    if result != {"FINISHED"}:
+        return result
+
+    # 追加されたライブラリを一つ削除。
+    # 再帰的な呼び出しに対応するため逆順にしているが、効果があるかは未確認。
+    for library in reversed(list(context.blend_data.libraries)):
+        if not blend_path.samefile(library.filepath):
+            continue
+        if library.users <= 1 and library.as_pointer() not in existing_library_pointers:
+            context.blend_data.libraries.remove(library)
+        break
+    return result
