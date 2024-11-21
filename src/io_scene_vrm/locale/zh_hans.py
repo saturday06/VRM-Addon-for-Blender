@@ -18,7 +18,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + "on is not compatible with\n"
         + "Blender {blender_version}. Please update.",
     ): "已安装\n"
-    + "VVRM 附加组件是 Blender {blender_version}\n"
+    + "VRM 附加组件是 Blender {blender_version}\n"
     + "尚不支持。 插件。\n"
     + "请更新。",
     (
