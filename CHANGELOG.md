@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.28.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.28.0...v2.28.1) (2024-11-21)
+
+
+### 🐞 Bug Fixes
+
+* incorrect mtoon1 to mtoon0 color conversion ([774457d](https://github.com/saturday06/VRM-Addon-for-Blender/commit/774457d075bc7ce6f9b93c06888182f633c93dc8))
+* remove unnecessary .blend link ([d55bb32](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d55bb322dee5aae67638642d2790ae23c3a41a9e))
+
 ## [2.28.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.27.0...v2.28.0) (2024-11-14)
 
 
