@@ -237,7 +237,7 @@ class AbstractBaseVrmImporter(ABC):
             material.alpha_threshold = 0.5
         if material.blend_method != "OPAQUE":
             material.blend_method = "OPAQUE"
-        if material.shadow_method != "OPAQUE":
+        if bpy.app.version < (4, 3) and material.shadow_method != "OPAQUE":
             material.shadow_method = "OPAQUE"
         if material.use_backface_culling:
             material.use_backface_culling = False

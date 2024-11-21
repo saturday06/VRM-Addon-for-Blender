@@ -869,7 +869,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
             get_material_extension(
                 outline_material
             ).mtoon1.alpha_mode = get_material_extension(material).mtoon1.alpha_mode
-        if outline_material.shadow_method != "NONE":
+        if bpy.app.version < (4, 3) and outline_material.shadow_method != "NONE":
             outline_material.shadow_method = "NONE"
         if not outline_material.use_backface_culling:
             outline_material.use_backface_culling = True

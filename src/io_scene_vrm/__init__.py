@@ -31,7 +31,7 @@ bl_info = {
     "category": "Import-Export",
 }
 
-MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (4, 2)
+MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (4, 4)
 
 
 def cleanse_modules() -> None:
@@ -107,7 +107,7 @@ def raise_error_if_too_old_blender() -> None:
 def raise_error_if_too_new_blender(exception: object) -> None:
     import bpy
 
-    if bpy.app.version[:2] <= MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION:
+    if bpy.app.version[:2] < MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION:
         return
 
     raise_not_implemented_error(

@@ -42,9 +42,13 @@ def image_to_image_bytes(
         gltf2_blender_image = importlib.import_module(
             "io_scene_gltf2.blender.exp.gltf2_blender_image"
         )
-    else:
+    elif bpy.app.version < (4, 3):
         gltf2_blender_image = importlib.import_module(
             "io_scene_gltf2.blender.exp.material.extensions.gltf2_blender_image"
+        )
+    else:
+        gltf2_blender_image = importlib.import_module(
+            "io_scene_gltf2.blender.exp.material.encode_image"
         )
     export_image = gltf2_blender_image.ExportImage.from_blender_image(image)
 
@@ -139,8 +143,12 @@ def create_export_settings() -> dict[str, object]:
     if bpy.app.version < (4, 2):
         return export_settings
 
-    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/b9bdc358ebf41e5f14be397d0d612cc8d645a09e/addons/io_scene_gltf2/__init__.py#L1270-L1271
-    gltf2_io_debug = importlib.import_module("io_scene_gltf2.io.com.gltf2_io_debug")
+    if bpy.app.version < (4, 3):
+        # https://github.com/KhronosGroup/glTF-Blender-IO/blob/b9bdc358ebf41e5f14be397d0d612cc8d645a09e/addons/io_scene_gltf2/__init__.py#L1270-L1271
+        gltf2_io_debug = importlib.import_module("io_scene_gltf2.io.com.gltf2_io_debug")
+    else:
+        # https://github.com/KhronosGroup/glTF-Blender-IO/blob/8630228d9db25a57f21de36329ed0e6d76094efa/addons/io_scene_gltf2/__init__.py#L1305
+        gltf2_io_debug = importlib.import_module("io_scene_gltf2.io.com.debug")
     export_settings["log"] = gltf2_io_debug.Log(loglevel)
 
     return export_settings

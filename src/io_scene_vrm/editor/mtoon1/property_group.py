@@ -3459,7 +3459,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
                 material.shadow_method = "NONE"
             return
 
-        if shadow_method is not None:
+        if bpy.app.version < (4, 3) and shadow_method is not None:
             material.shadow_method = shadow_method
 
         outline_material = self.outline_material
