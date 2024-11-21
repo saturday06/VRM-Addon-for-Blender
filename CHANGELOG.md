@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.29.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.28.1...v2.29.0) (2024-11-21)
+
+
+### 🚀 Features
+
+* restore Simplified Chinese translation with the permission of the original author ([b89b6b9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b89b6b90ae6ee25e5cca3c0f104ed200ff9abe55))
+
 ## [2.28.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.28.0...v2.28.1) (2024-11-21)
 
 
