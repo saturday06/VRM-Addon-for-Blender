@@ -839,7 +839,8 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
         if (
             not extended.enabled
             and self.shape_type == self.SHAPE_TYPE_SPHERE.identifier
-            or extended.enabled
+        ) or (
+            extended.enabled
             and extended.shape_type
             in [
                 extended.SHAPE_TYPE_EXTENDED_SPHERE.identifier,
@@ -863,7 +864,8 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
         elif (
             not extended.enabled
             and self.shape_type == self.SHAPE_TYPE_CAPSULE.identifier
-            or extended.enabled
+        ) or (
+            extended.enabled
             and extended.shape_type == extended.SHAPE_TYPE_EXTENDED_CAPSULE.identifier
         ):
             if self.bpy_object.children:

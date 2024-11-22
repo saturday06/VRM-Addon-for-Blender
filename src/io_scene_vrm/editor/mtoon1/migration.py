@@ -321,8 +321,7 @@ def migrate_material(
     if (
         addon_version < shader.LAST_MODIFIED_VERSION
         # Blender 4.2からノードの仕様変更があるので強制的にリセットする
-        or bpy.app.version >= (4, 2)
-        and tuple(context.blend_data.version) < (4, 2)
+        or (bpy.app.version >= (4, 2) and tuple(context.blend_data.version) < (4, 2))
     ):
         reset_shader_node_group(
             context, material, reset_material_node_tree=True, reset_node_groups=False

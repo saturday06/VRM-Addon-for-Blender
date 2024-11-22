@@ -82,9 +82,9 @@ ignore = [
     # SIM118 does not handle `bpy_prop_collection` correctly.
     "SIM118", # Use `key not in dict` instead of `key not in dict.keys()`
 
-    "TCH001", # Move application import `x` into a type-checking block
-    "TCH002", # Move third-party import `x` into a type-checking block
-    "TCH003", # Move standard library import `x` into a type-checking block
+    "TC001", # Move application import `x` into a type-checking block
+    "TC002", # Move third-party import `x` into a type-checking block
+    "TC003", # Move standard library import `x` into a type-checking block
     "TD002", # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
     "TD003", # Missing issue link on the line following this TODO
 

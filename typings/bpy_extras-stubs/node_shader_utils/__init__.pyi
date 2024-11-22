@@ -31,12 +31,12 @@ def values_clamp(val: float, minv: float, maxv: float) -> float: ...
 class ShaderWrapper:
     NODES_LIST: tuple[str, ...]
     __slots__ = (
+        "_grid_locations",
+        "_node_texcoords",
+        "_textures",
         "is_readonly",
         "material",
-        "_textures",
-        "_grid_locations",
         "node_out",
-        "_node_texcoords",
     )
     is_readonly: bool
     material: Material
@@ -62,12 +62,12 @@ class ShaderWrapper:
 class PrincipledBSDFWrapper(ShaderWrapper):
     NODES_LIST: tuple[str, ...]
     __slots__ = (
+        "_node_normalmap",
+        "_node_texcoords",
         "is_readonly",
         "material",
         "node_out",
         "node_principled_bsdf",
-        "_node_normalmap",
-        "_node_texcoords",
     )
 
     node_principled_bsdf: Optional[ShaderNodeBsdfPrincipled]
@@ -181,16 +181,16 @@ class PrincipledBSDFWrapper(ShaderWrapper):
 class ShaderImageTextureWrapper:
     NODES_LIST: typing_extensions.TypeAlias = tuple[str, ...]
     __slots__ = (
-        "owner_shader",
-        "is_readonly",
-        "grid_row_diff",
-        "use_alpha",
-        "colorspace_is_data",
-        "colorspace_name",
-        "node_dst",
-        "socket_dst",
         "_node_image",
         "_node_mapping",
+        "colorspace_is_data",
+        "colorspace_name",
+        "grid_row_diff",
+        "is_readonly",
+        "node_dst",
+        "owner_shader",
+        "socket_dst",
+        "use_alpha",
     )
 
     owner_shader: ShaderWrapper
