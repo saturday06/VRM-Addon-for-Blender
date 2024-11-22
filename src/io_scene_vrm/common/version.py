@@ -1,14 +1,12 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import platform
 from dataclasses import dataclass
-from importlib import import_module
 from sys import float_info
 from typing import Optional
 
 import bpy
 from bpy.app.translations import pgettext
 
-from . import convert
 from .blender_manifest import BlenderManifest
 from .logging import get_logger
 
@@ -54,10 +52,6 @@ def get_addon_version() -> tuple[int, int, int]:
 
 
 def blender_restart_required() -> bool:
-    if not legacy_addon():
-        # Blender Extensions Platform correctly reloads extensions
-        return False
-
     if cache.use:
         return cache.last_blender_restart_required
 
@@ -87,31 +81,7 @@ def blender_restart_required() -> bool:
     return True
 
 
-def legacy_addon() -> bool:
-    root_module = import_module(".".join(__name__.split(".")[:-2]))
-    bl_info = convert.mapping_or_none(getattr(root_module, "bl_info", None))
-    if bl_info is None:
-        return False
-
-    return (
-        bl_info.get("name"),
-        bl_info.get("location"),
-    ) == (
-        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_49/src/io_scene_vrm/__init__.py#L15
-        "VRM format",
-        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_49/src/io_scene_vrm/__init__.py#L18
-        "File > Import-Export",
-    )
-
-
 def stable_release() -> bool:
-    if (  # for Blender Extensions Platform
-        not legacy_addon()
-        and bpy.app.version == (4, 2, 0)
-        and bpy.app.version_cycle == "rc"
-    ):
-        return True
-
     if bpy.app.version_cycle == "release":
         return True
 
