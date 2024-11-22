@@ -31,7 +31,7 @@ bl_info = {
     "category": "Import-Export",
 }
 
-MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (4, 4)
+MINIMUM_UNSUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (4, 4)
 
 
 def cleanse_modules() -> None:
@@ -83,22 +83,26 @@ def unregister() -> None:
 def raise_error_if_too_old_blender() -> None:
     import bpy
 
-    minimum_version = bl_info["blender"]
-    if not isinstance(minimum_version, tuple) or len(minimum_version) != 3:
+    minimum_supported_version = bl_info["blender"]
+    if (
+        not isinstance(minimum_supported_version, tuple)
+        or len(minimum_supported_version) != 3
+    ):
         # use 'format()' method to support legacy Blender versions
-        message = "Invalid version value: {}".format(minimum_version)
+        message = "Invalid version value: {}".format(minimum_supported_version)
         raise AssertionError(message)
 
-    if bpy.app.version >= minimum_version:
+    if bpy.app.version >= minimum_supported_version:
         return
 
     raise_not_implemented_error(
         default_message=(
-            "This add-on doesn't support Blender version less than {minimum_version}"
-            + " but the current version is {current_version}"
+            "This add-on doesn't support Blender version less than"
+            + " {minimum_supported_version} but the current version is"
+            + " {current_version}"
         ),
         ja_jp_message=(
-            "このアドオンはBlenderのバージョン{minimum_version}未満には未対応です。"
+            "このアドオンはBlenderのバージョン{minimum_supported_version}未満には未対応です。"
             + "お使いのBlenderのバージョンは{current_version}です。"
         ),
     )
@@ -107,17 +111,18 @@ def raise_error_if_too_old_blender() -> None:
 def raise_error_if_too_new_blender(exception: object) -> None:
     import bpy
 
-    if bpy.app.version[:2] < MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION:
+    if bpy.app.version[:2] < MINIMUM_UNSUPPORTED_BLENDER_MAJOR_MINOR_VERSION:
         return
 
     raise_not_implemented_error(
         exception=exception,
         default_message=(
-            "This add-on doesn't support Blender version greater than {maximum_version}"
-            + " but the current version is {current_version}"
+            "This add-on is not compatible with Blender versions"
+            + " {minimum_unsupported_version} or higher. The current version is"
+            + " {current_version}"
         ),
         ja_jp_message=(
-            "このアドオンはBlenderのバージョン{maximum_version}以降には未対応です。"
+            "このアドオンはBlenderのバージョン{minimum_unsupported_version}以降には未対応です。"
             + "お使いのBlenderのバージョンは{current_version}です。"
         ),
     )
@@ -147,10 +152,10 @@ def raise_not_implemented_error(
             ===========================================================
         """.format(
         message=message.format(
-            minimum_version=".".join(map(str, bl_info["blender"])),
+            minimum_supported_version=".".join(map(str, bl_info["blender"])),
             current_version=".".join(map(str, bpy.app.version)),
-            maximum_version=".".join(
-                map(str, MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION)
+            minimum_unsupported_version=".".join(
+                map(str, MINIMUM_UNSUPPORTED_BLENDER_MAJOR_MINOR_VERSION)
             ),
         ),
     )

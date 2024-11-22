@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from unittest import TestCase
 
-from io_scene_vrm import MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION, bl_info
+from io_scene_vrm import MINIMUM_UNSUPPORTED_BLENDER_MAJOR_MINOR_VERSION, bl_info
 from io_scene_vrm.common import version
 from io_scene_vrm.common.blender_manifest import BlenderManifest
 
@@ -15,8 +15,8 @@ class TestLegacyAddonInit(TestCase):
 
     def test_max_supported_blender_major_minor_version(self) -> None:
         self.assertEqual(
-            version.max_supported_blender_major_minor_version(),
-            MAX_SUPPORTED_BLENDER_MAJOR_MINOR_VERSION,
+            version.min_unsupported_blender_major_minor_version(),
+            MINIMUM_UNSUPPORTED_BLENDER_MAJOR_MINOR_VERSION,
         )
 
     def test_min_supported_blender_version(self) -> None:
