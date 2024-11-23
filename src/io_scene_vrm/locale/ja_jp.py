@@ -613,4 +613,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + ' in "VRM" panel → "Humanoid" → "T-Pose".',
     ): "自動Tポーズ化が有効です。"
     + "「VRM」パネルの「Humanoid」→「T-Pose」に設定があります。",
+    (
+        "*",
+        '<Please use "VRM Material" panel instead>',
+    ): "「VRMマテリアル」パネルを使用してください",
 }
