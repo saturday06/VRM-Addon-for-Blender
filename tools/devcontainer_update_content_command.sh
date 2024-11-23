@@ -11,5 +11,6 @@ sudo dnf update -y
 ./tools/install_hugo.sh
 ./tools/install_hadolint.sh
 ./tools/install_shfmt.sh
+./tools/install_editorconfig-checker.sh
 
 uv self update

@@ -27,10 +27,10 @@ curl \
   --location \
   --retry 20 \
   --retry-all-errors \
-  --output editorconfig-checker.tar.gz \
+  --output "$HOME/editorconfig-checker.tar.gz" \
   "$url"
 
-test "$(md5sum editorconfig-checker.tar.gz)" = "$md5  editorconfig-checker.tar.gz"
-tar -x --strip-components=1 -f editorconfig-checker.tar.gz
+test "$(md5sum ~/editorconfig-checker.tar.gz)" = "$md5  $HOME/editorconfig-checker.tar.gz"
+tar -x --strip-components=1 -f ~/editorconfig-checker.tar.gz
 mv "$bin_name" ~/.local/bin/editorconfig-checker
 chmod 755 ~/.local/bin/editorconfig-checker
