@@ -2403,29 +2403,6 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         mesh_object_name_to_node_index_dict: dict[str, int] = {}
         mesh_object_name_to_morph_target_names_dict: dict[str, list[str]] = {}
 
-        # https://github.com/KhronosGroup/glTF/blob/b6e0fcc6d8e9f83347aa8b2e3df085b81590a65c/specification/2.0/schema/glTF.schema.json
-        gltf_root_non_empty_array_keys = [
-            "extensionsUsed",
-            "extensionsRequired",
-            "accessors",
-            "animations",
-            "buffers",
-            "bufferViews",
-            "cameras",
-            "images",
-            "materials",
-            "meshes",
-            "nodes",
-            "samplers",
-            "scenes",
-            "skins",
-            "textures",
-        ]
-
-        for key in gltf_root_non_empty_array_keys:
-            list_value = json_dict.get(key)
-            json_dict[key] = list(list_value) if isinstance(list_value, list) else []
-
         node_dicts = json_dict.get("nodes")
         if not isinstance(node_dicts, list):
             node_dicts = []
@@ -2687,6 +2664,24 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 buffer_dicts[0] = buffer_dict
             buffer_dict["byteLength"] = len(buffer0)
 
+        # https://github.com/KhronosGroup/glTF/blob/b6e0fcc6d8e9f83347aa8b2e3df085b81590a65c/specification/2.0/schema/glTF.schema.json
+        gltf_root_non_empty_array_keys = [
+            "extensionsUsed",
+            "extensionsRequired",
+            "accessors",
+            "animations",
+            "buffers",
+            "bufferViews",
+            "cameras",
+            "images",
+            "materials",
+            "meshes",
+            "nodes",
+            "samplers",
+            "scenes",
+            "skins",
+            "textures",
+        ]
         for key in gltf_root_non_empty_array_keys:
             if not json_dict.get(key):
                 json_dict.pop(key, None)
