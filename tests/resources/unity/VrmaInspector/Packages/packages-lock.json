@@ -58,32 +58,32 @@
       }
     },
     "com.vrmc.gltf": {
-      "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/UniGLTF#v0.127.2",
+      "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/UniGLTF#v0.128.0",
       "depth": 0,
       "source": "git",
       "dependencies": {
         "com.unity.modules.animation": "1.0.0"
       },
-      "hash": "e16c286bb65dcbcb4da67d72999aa74e7489a038"
+      "hash": "264a6bcf7897082ad381a1bccffb31c25f10cab2"
     },
     "com.vrmc.univrm": {
-      "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRM#v0.127.2",
+      "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRM#v0.128.0",
       "depth": 0,
       "source": "git",
       "dependencies": {
-        "com.vrmc.gltf": "0.127.2",
+        "com.vrmc.gltf": "0.128.0",
         "com.unity.ugui": "1.0.0"
       },
-      "hash": "e16c286bb65dcbcb4da67d72999aa74e7489a038"
+      "hash": "264a6bcf7897082ad381a1bccffb31c25f10cab2"
     },
     "com.vrmc.vrm": {
-      "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRM10#v0.127.2",
+      "version": "https://github.com/vrm-c/UniVRM.git?path=/Assets/VRM10#v0.128.0",
       "depth": 0,
       "source": "git",
       "dependencies": {
-        "com.vrmc.gltf": "0.127.2"
+        "com.vrmc.gltf": "0.128.0"
       },
-      "hash": "e16c286bb65dcbcb4da67d72999aa74e7489a038"
+      "hash": "264a6bcf7897082ad381a1bccffb31c25f10cab2"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
