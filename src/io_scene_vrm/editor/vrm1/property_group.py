@@ -1348,7 +1348,10 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
                     node_tree = material.node_tree
                     if not node_tree:
                         continue
-                    node_tree.update()
+
+                    # update()メソッドはドキュメントには存在するが、呼び出し失敗する
+                    # https://docs.blender.org/api/4.2/bpy.types.NodeTree.html#bpy.types.NodeTree.update
+                    # node_tree.update()
                 expression.materials_to_update.clear()
 
     active_morph_target_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
