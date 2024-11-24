@@ -8,6 +8,7 @@ from ..vrm1.human_bone import HumanBoneSpecification
 from . import (
     cats_blender_plugin_fix_model_mapping,
     microsoft_rocketbox_mapping,
+    mixamo_mapping,
     mmd_mapping,
     ready_player_me_mapping,
     rigify_meta_rig_mapping,
@@ -99,6 +100,7 @@ def create_human_bone_mapping(
             (match_counts(armature.data, mapping), name, mapping)
             for name, mapping in [
                 mmd_mapping.create_config(armature),
+                mixamo_mapping.config,
                 ready_player_me_mapping.config,
                 cats_blender_plugin_fix_model_mapping.config,
                 microsoft_rocketbox_mapping.config_bip01,
