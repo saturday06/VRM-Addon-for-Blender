@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.31.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.30.1...v2.31.0) (2024-11-24)
+
+
+### 🚀 Features
+
+* auto mixamo bone assignment ([ffef2dd](https://github.com/saturday06/VRM-Addon-for-Blender/commit/ffef2dd07bf29c1d29462ada4642f78aa803dc87))
+
 ## [2.30.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.30.0...v2.30.1) (2024-11-24)
 
 
