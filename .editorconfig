@@ -38,9 +38,6 @@ indent_size = 2
 [*.md]
 indent_size = 2
 
-[*.patch]
-trim_trailing_whitespace = false
-
 [*.sh]
 indent_size = 2
 

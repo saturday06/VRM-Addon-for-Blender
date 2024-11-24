@@ -3,7 +3,6 @@ from unittest import TestCase
 
 from io_scene_vrm import MINIMUM_UNSUPPORTED_BLENDER_MAJOR_MINOR_VERSION, bl_info
 from io_scene_vrm.common import version
-from io_scene_vrm.common.blender_manifest import BlenderManifest
 
 
 class TestLegacyAddonInit(TestCase):
@@ -17,10 +16,4 @@ class TestLegacyAddonInit(TestCase):
         self.assertEqual(
             version.min_unsupported_blender_major_minor_version(),
             MINIMUM_UNSUPPORTED_BLENDER_MAJOR_MINOR_VERSION,
-        )
-
-    def test_min_supported_blender_version(self) -> None:
-        self.assertEqual(
-            bl_info.get("blender"),
-            BlenderManifest.read().blender_version_min,
         )

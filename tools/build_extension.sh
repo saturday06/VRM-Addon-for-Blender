@@ -32,9 +32,6 @@ pushd src/io_scene_vrm
 git clean -xdff .
 popd
 
-patch -p1 <extension.patch
-git --no-pager diff
-
 rm -fr extension_output
 mkdir extension_output
 output_filepath="extension_output/vrm_$(LC_ALL=C date -u +%Y%m%d%H%M%S)_$(git rev-parse HEAD).zip"

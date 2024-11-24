@@ -34,10 +34,6 @@
           "path": "tests/test_common.py"
         },
         {
-          "type": "generic",
-          "path": "extension.patch"
-        },
-        {
           "type": "toml",
           "path": "src/io_scene_vrm/blender_manifest.toml",
           "jsonpath": "$.version"

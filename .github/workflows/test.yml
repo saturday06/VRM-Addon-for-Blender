@@ -218,15 +218,9 @@ jobs:
         run: ./tools/install_hadolint.sh
       - name: Lint
         run: ./tools/lint.sh
-      - name: Check extension.patch
+      - name: Sanity Check
         run: |
-          patch -p1 <extension.patch
-          git add .
-          ./tools/format.sh
-          git diff --exit-code
-          ./tools/lint.sh
           uv run python -c "import io_scene_vrm; io_scene_vrm.register(); io_scene_vrm.unregister()"
-          git reset --hard "$GITHUB_SHA"
       - name: Super-Linter
         uses: github/super-linter@v7
         env:
