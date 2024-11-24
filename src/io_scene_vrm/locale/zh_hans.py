@@ -67,7 +67,11 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         "Set an imported bone shape to default",
-    ): "默认显示骨骼形状。",
+    ): "默认显示骨骼形状。",    
+    (
+        "*",
+        "Enable MToon Outline Preview",
+    ): "允许MToon轮廓线预览",
     ("*", "Export Invisible Objects"): "包括隐藏对象",
     ("*", "Export Only Selections"): "仅选定对象",
     ("*", "Enable Advanced Options"): "启用高级选项",
@@ -94,7 +98,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "没有错误。、{warning_count}有关于此的警告。。" + "输出结果可能与预期不同。",
     ("*", "VRM Export"): "VRM 输出",
     ("*", "Create VRM Model"): "创建 VRM 模型",
-    ("*", "Validate VRM Model"): "检查 VRM 模型",
+    ("*", "check as VRM model"): "按VRM 模型标准检查",
     ("*", "Extract texture images into the folder"): "将纹理图像解压到文件夹中。",
     (
         "*",
@@ -547,4 +551,67 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "请检查材质「{alpha_mode}」设置中。"
     + "具有MToon启动\n"
     + "可能受影响的材质如下。",
+    (
+        "*",
+        'Contact Information',
+    ): "联系信息",
+    (
+        "*",
+        'Contact Information about the avatar',
+    ): "关于此角色的联系信息",
+    (
+        "*",
+        'Allowed User',
+    ): "许可用户",
+    (
+        "*",
+        'Allowed user of the avatar',
+    ): "允许使用该角色的用户",
+    (
+        "*",
+        'Violent Usage',
+    ): "暴力用途",
+    (
+        "*",
+        'Sexual Usage',
+    ): "性用途",
+    (
+        "*",
+        'Commercial Usage',
+    ): "商业用途",
+    (
+        "*",
+        'Other Permission URL',
+    ): "其他许可链接",   
+    (
+        "*",
+        'First Person Bone Offset',
+    ): "第一人称骨骼偏移",      
+    (
+        "*",
+        'Look At Type Name',
+    ): "注视对象类型名", 
+    (
+        "*",
+        'Mesh Annotations',
+    ): "网格注释", 
+    (
+        "*",
+        'Look At Horizontal Inner',
+    ): "注视水平向内", 
+    (
+        "*",
+        'Look At Horizontal Outer',
+    ): "注视水平向外",
+    (
+        "*",
+        'Look At Vertical Up',
+    ): "注视垂直向上", 
+    (
+        "*",
+        'Look At Vertical Down',
+    ): "注视垂直向下",                  
+
+
+
 }
