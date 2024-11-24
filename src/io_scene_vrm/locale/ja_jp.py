@@ -102,7 +102,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "期待通りの出力にはならないかもしれません。",
     ("*", "VRM Export"): "VRMエクスポート",
     ("*", "Create VRM Model"): "VRMモデルを作成",
-    ("*", "check as VRM model"): "VRMモデルのチェック",
+    ("*", "Check as VRM Model"): "VRMモデルのチェック",
     ("*", "Extract texture images into the folder"): "テクスチャ画像をフォルダに展開",
     (
         "*",

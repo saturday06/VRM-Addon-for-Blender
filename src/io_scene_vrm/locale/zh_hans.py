@@ -98,7 +98,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "没有错误。、{warning_count}有关于此的警告。。" + "输出结果可能与预期不同。",
     ("*", "VRM Export"): "VRM 输出",
     ("*", "Create VRM Model"): "创建 VRM 模型",
-    ("*", "check as VRM model"): "按VRM 模型标准检查",
+    ("*", "Check as VRM Model"): "按VRM 模型标准检查",
     ("*", "Extract texture images into the folder"): "将纹理图像解压到文件夹中。",
     (
         "*",
