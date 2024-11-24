@@ -67,7 +67,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         "Set an imported bone shape to default",
-    ): "默认显示骨骼形状。",    
+    ): "默认显示骨骼形状。",
     (
         "*",
         "Enable MToon Outline Preview",
@@ -179,7 +179,6 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "Only one armature is required for VRM export." + " Multiple armatures found.",
     ): "只能为 VRM 输出选择一个armatures。 可多次选择。",
-
     (
         "*",
         'Required VRM Bone "{humanoid_name}" is'
@@ -467,7 +466,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "Enable Animation",
     ): "使动画有效",
-    (   "*", 
+    (
+        "*",
         "Armature not found",
     ): "未找到骨架",
     (
@@ -549,184 +549,182 @@ translation_dictionary: dict[tuple[str, str], str] = {
     #####################################################新建VR弹窗翻译
     (
         "*",
-        'Add VRM Humanoid',
+        "Add VRM Humanoid",
     ): "添加VRM人形Humanoid",
     (
         "*",
-        'wip_with_template_mesh',
+        "wip_with_template_mesh",
     ): "带有模板网格的WIP",
     (
         "*",
-        'Bone tall',
+        "Bone tall",
     ): "骨骼高度",
     (
         "*",
-        'head_ratio',
+        "head_ratio",
     ): "头部比例",
     (
         "*",
-        'head_width_ratio',
+        "head_width_ratio",
     ): "头部宽度比例",
     (
         "*",
-        'aging_ratio',
+        "aging_ratio",
     ): "老化比例",
     (
         "*",
-        'eye_depth',
+        "eye_depth",
     ): "眼睛深度",
     (
         "*",
-        'shoulder_in_width',
+        "shoulder_in_width",
     ): "肩内宽",
     (
         "*",
-        'shoulder_width',
+        "shoulder_width",
     ): "肩宽",
     (
         "*",
-        'arm_length_ratio',
+        "arm_length_ratio",
     ): "臂长比例",
     (
         "*",
-        'hand_ratio',
+        "hand_ratio",
     ): "手比例",
     (
         "*",
-        'finger_1_2_ratio',
+        "finger_1_2_ratio",
     ): "手指第一与二节比例",
     (
         "*",
-        'finger_2_3_ratio',
+        "finger_2_3_ratio",
     ): "手指第二与三节比例",
     (
         "*",
-        'leg_length_ratio',
+        "leg_length_ratio",
     ): "腿长比例",
     (
         "*",
-        'leg_width_ratio',
+        "leg_width_ratio",
     ): "腿宽比例",
     (
         "*",
-        'leg_size',
+        "leg_size",
     ): "腿大小",
-###############################侧面板
-#Meta
+    ###############################侧面板
+    # Meta
     (
         "*",
-        'Thumbnail:',
-    ): "缩略图 Thumbnail:",    
+        "Thumbnail:",
+    ): "缩略图 Thumbnail:",
     (
         "*",
-        'Contact Information',
+        "Contact Information",
     ): "联系信息",
     (
         "*",
-        'Contact Information about the avatar',
+        "Contact Information about the avatar",
     ): "关于此角色的联系信息",
     (
         "*",
-        'Allowed User',
+        "Allowed User",
     ): "许可用户",
     (
         "*",
-        'Only Author',
+        "Only Author",
     ): "仅作者",
     (
         "*",
-        'Explicitly Licensed Person',
-    ): "明确获得许可的人", 
+        "Explicitly Licensed Person",
+    ): "明确获得许可的人",
     (
         "*",
-        'Everyone',
-    ): "所有人",       
+        "Everyone",
+    ): "所有人",
     (
         "*",
-        'Allowed user of the avatar',
+        "Allowed user of the avatar",
     ): "允许使用该角色的用户",
     (
         "*",
-        'Allow',
-    ): "允许", 
+        "Allow",
+    ): "允许",
     (
         "*",
-        'Disallow',
+        "Disallow",
     ): "禁止",
     (
         "*",
-        'undefined',
-    ): "未定义", 
-          
+        "undefined",
+    ): "未定义",
     (
         "*",
-        'Violent Usage',
+        "Violent Usage",
     ): "暴力用途",
     (
         "*",
-        'Sexual Usage',
+        "Sexual Usage",
     ): "性用途",
     (
         "*",
-        'Commercial Usage',
+        "Commercial Usage",
     ): "商业用途",
     (
         "*",
-        'Other Permission URL',
+        "Other Permission URL",
     ): "其他许可链接",
     (
         "*",
-        'Redistribution Prohibited',
+        "Redistribution Prohibited",
     ): "禁止再分发",
-#Humanoid
+    # Humanoid
     (
         "*",
         "VRM Required Bones",
     ): "VRM必须的骨骼",
-
     (
         "*",
-        'Head:',
+        "Head:",
     ): "头部 Head:",
     (
         "*",
-        'Neck:',
+        "Neck:",
     ): "颈部 Neck:",
     (
         "*",
-        'Chest:',
+        "Chest:",
     ): "胸骨 Chest:",
     (
         "*",
-        'Spine:',
+        "Spine:",
     ): "腰骨 Spine:",
     (
         "*",
-        'Hips:',
+        "Hips:",
     ): "臀部 Hips:",
     (
         "*",
-        'Upper Arm:',
+        "Upper Arm:",
     ): "上臂 Upper Arm:",
     (
         "*",
-        'Lower Arm:',
+        "Lower Arm:",
     ): "前臂 Lower Arm:",
     (
         "*",
-        'Hand:',
+        "Hand:",
     ): "手 Hand:",
     (
         "*",
-        'Upper Leg:',
+        "Upper Leg:",
     ): "大腿 Upper Leg:",
     (
         "*",
-        'Lower Leg:',
+        "Lower Leg:",
     ): "小腿 Lower Leg:",
     (
         "*",
-        'Foot:',
+        "Foot:",
     ): "脚 Foot:",
     (
         "*",
@@ -734,201 +732,201 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "VRM可选的骨骼",
     (
         "*",
-        'Eye:',
+        "Eye:",
     ): "眼睛 Eye:",
     (
         "*",
-        'Jaw:',
+        "Jaw:",
     ): "下巴 Jaw:",
     (
         "*",
-        'Shoulder:',
+        "Shoulder:",
     ): "肩膀 Shoulder:",
     (
         "*",
-        'Upper Chest:',
+        "Upper Chest:",
     ): "上胸部 Upper Chest:",
     (
         "*",
-        'Toes:',
+        "Toes:",
     ): "脚趾 Toes:",
     (
         "*",
-        'Left Thumb:',
+        "Left Thumb:",
     ): "左拇指 Left Thumb:",
     (
         "*",
-        'Left Index:',
+        "Left Index:",
     ): "左食指 Left Index:",
     (
         "*",
-        'Left Middle:',
+        "Left Middle:",
     ): "左中指 Left Middle:",
     (
         "*",
-        'Left Ring:',
+        "Left Ring:",
     ): "左无名指 Left Ring:",
     (
         "*",
-        'Left Little:',
+        "Left Little:",
     ): "左小指 Left Little:",
     (
         "*",
-        'Right Thumb:',
+        "Right Thumb:",
     ): "右拇指 Right Thumb:",
     (
         "*",
-        'Right Index:',
+        "Right Index:",
     ): "右食指 Right Index:",
     (
         "*",
-        'Right Middle:',
+        "Right Middle:",
     ): "右中指 Right Middle:",
     (
         "*",
-        'Right Ring:',
+        "Right Ring:",
     ): "右无名指 Right Ring:",
     (
         "*",
-        'Right Little:',
+        "Right Little:",
     ): "右小指 Right Little:",
     (
         "*",
-        'Arm',
-    ): "胳膊 Arm",    
+        "Arm",
+    ): "胳膊 Arm",
     (
         "*",
-        'Arm Stretch',
+        "Arm Stretch",
     ): "手臂伸展 Arm Stretch",
     (
         "*",
-        'Upper Arm Twist',
+        "Upper Arm Twist",
     ): "上臂扭转 Upper Arm Twist",
     (
         "*",
-        'Lower Arm Twist',
+        "Lower Arm Twist",
     ): "前臂扭转 Lower Arm Twist",
     (
         "*",
-        'Leg',
+        "Leg",
     ): "腿 Leg",
     (
         "*",
-        'Leg Stretch',
+        "Leg Stretch",
     ): "腿部伸展 Leg Stretch",
     (
         "*",
-        'Upper Leg Twist',
+        "Upper Leg Twist",
     ): "大腿扭转 Upper Leg Twist",
     (
         "*",
-        'Lower Leg Twist',
+        "Lower Leg Twist",
     ): "小腿扭转 Lower Leg Twist",
     (
         "*",
-        'Feet Spacing',
+        "Feet Spacing",
     ): "脚间距 Feet Spacing",
-#Blender Shape
+    # Blender Shape
     (
         "*",
-        'Is Binary',
-    ): "是二进制的", 
+        "Is Binary",
+    ): "是二进制的",
     (
         "*",
-        'Use binary change in the blendshape group',
+        "Use binary change in the blendshape group",
     ): "在混合形状组中使用二进制更改",
     (
         "*",
-        'Blink',
+        "Blink",
     ): "眨眼 Blink",
     (
         "*",
-        'Joy',
+        "Joy",
     ): "高兴 Joy",
     (
         "*",
-        'Angry',
+        "Angry",
     ): "生气 Angry",
     (
         "*",
-        'Sorrow',
+        "Sorrow",
     ): "悲伤 Sorrow",
     (
         "*",
-        'Fun',
+        "Fun",
     ): "有趣 Fun",
     (
         "*",
-        'Look Up',
+        "Look Up",
     ): "向上看 Look Up",
     (
         "*",
-        'Look Down',
+        "Look Down",
     ): "向下看 Look Down",
     (
         "*",
-        'Look Left',
+        "Look Left",
     ): "向左看 Look Left",
     (
         "*",
-        'Look Right',
+        "Look Right",
     ): "向右看 Look Right",
     (
         "*",
-        'Blink_L',
+        "Blink_L",
     ): "左眼眨眼 Blink_L",
     (
         "*",
-        'Blink_R',
+        "Blink_R",
     ): "右眼眨眼 Blink_R",
     (
         "*",
-        'Binds',
+        "Binds",
     ): "绑定 Binds",
     (
         "*",
-        'Material Values',
-    ): "材质值 Material Values", 
-#First Person
+        "Material Values",
+    ): "材质值 Material Values",
+    # First Person
     (
         "*",
-        'First Person Bone Offset',
+        "First Person Bone Offset",
     ): "第一人称骨骼偏移",
     (
         "*",
-        'Offset from the first person bone to follow the first person camera.'
-    ): "从第一人称骨骼到跟随第一人称摄像头的偏移",          
+        "Offset from the first person bone to follow the first person camera.",
+    ): "从第一人称骨骼到跟随第一人称摄像头的偏移",
     (
         "*",
-        'Look At Type Name',
-    ): "注视对象类型名", 
+        "Look At Type Name",
+    ): "注视对象类型名",
     (
         "*",
-        'Mesh Annotations',
-    ): "网格注释", 
+        "Mesh Annotations",
+    ): "网格注释",
     (
         "*",
-        'Look At Horizontal Inner',
-    ): "注视水平向内", 
+        "Look At Horizontal Inner",
+    ): "注视水平向内",
     (
         "*",
-        'Look At Horizontal Outer',
+        "Look At Horizontal Outer",
     ): "注视水平向外",
     (
         "*",
-        'Look At Vertical Up',
-    ): "注视垂直向上", 
+        "Look At Vertical Up",
+    ): "注视垂直向上",
     (
         "*",
-        'Look At Vertical Down',
+        "Look At Vertical Down",
     ): "注视垂直向下",
-#Spring Bone                  
+    # Spring Bone
     (
         "*",
-        'Spring Bone Groups',
+        "Spring Bone Groups",
     ): "弹簧骨骼组 Spring Bone Groups",
     (
         "*",
-        'Collider Groups',
+        "Collider Groups",
     ): "碰撞器组 Collider Groups",
 }
