@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.30.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.30.0...v2.30.1) (2024-11-24)
+
+
+### 🐞 Bug Fixes
+
+* run ruff formatter ([4a577b1](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4a577b1b77f9731d17ca9535b7d4bb6b70a60e5f))
+
 ## [2.30.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.29.0...v2.30.0) (2024-11-22)
 
 
