@@ -467,7 +467,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "Enable Animation",
     ): "使动画有效",
-    ("*", "Armature not found"): "我们没有找到骨架",
+    (   "*", 
+        "Armature not found",
+    ): "未找到骨架",
     (
         "*",
         "Please assign required human bones",
@@ -609,7 +611,12 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'leg_size',
     ): "腿大小",
-###############################侧面板    
+###############################侧面板
+#Meta
+    (
+        "*",
+        'Thumbnail:',
+    ): "缩略图 Thumbnail:",    
     (
         "*",
         'Contact Information',
@@ -671,6 +678,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'Redistribution Prohibited',
     ): "禁止再分发",
+#Humanoid
     (
         "*",
         "VRM Required Bones",
@@ -820,7 +828,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'Feet Spacing',
     ): "脚间距 Feet Spacing",
-
+#Blender Shape
     (
         "*",
         'Is Binary',
@@ -828,14 +836,67 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         'Use binary change in the blendshape group',
-    ): "在混合形状组中使用二进制更改", 
+    ): "在混合形状组中使用二进制更改",
+    (
+        "*",
+        'Blink',
+    ): "眨眼 Blink",
+    (
+        "*",
+        'Joy',
+    ): "高兴 Joy",
+    (
+        "*",
+        'Angry',
+    ): "生气 Angry",
+    (
+        "*",
+        'Sorrow',
+    ): "悲伤 Sorrow",
+    (
+        "*",
+        'Fun',
+    ): "有趣 Fun",
+    (
+        "*",
+        'Look Up',
+    ): "向上看 Look Up",
+    (
+        "*",
+        'Look Down',
+    ): "向下看 Look Down",
+    (
+        "*",
+        'Look Left',
+    ): "向左看 Look Left",
+    (
+        "*",
+        'Look Right',
+    ): "向右看 Look Right",
+    (
+        "*",
+        'Blink_L',
+    ): "左眼眨眼 Blink_L",
+    (
+        "*",
+        'Blink_R',
+    ): "右眼眨眼 Blink_R",
+    (
+        "*",
+        'Binds',
+    ): "绑定 Binds",
+    (
+        "*",
+        'Material Values',
+    ): "材质值 Material Values", 
+#First Person
     (
         "*",
         'First Person Bone Offset',
     ): "第一人称骨骼偏移",
     (
         "*",
-        'Offset from the first person bone to follow the first person camera.',
+        'Offset from the first person bone to follow the first person camera.'
     ): "从第一人称骨骼到跟随第一人称摄像头的偏移",          
     (
         "*",
@@ -860,6 +921,14 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         'Look At Vertical Down',
-    ): "注视垂直向下",                  
-
+    ): "注视垂直向下",
+#Spring Bone                  
+    (
+        "*",
+        'Spring Bone Groups',
+    ): "弹簧骨骼组 Spring Bone Groups",
+    (
+        "*",
+        'Collider Groups',
+    ): "碰撞器组 Collider Groups",
 }
