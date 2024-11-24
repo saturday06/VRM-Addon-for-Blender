@@ -179,14 +179,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "Only one armature is required for VRM export." + " Multiple armatures found.",
     ): "只能为 VRM 输出选择一个armatures。 可多次选择。",
-    (
-        "*",
-        "VRM Required Bones",
-    ): "VRM必须的骨骼",
-    (
-        "*",
-        "VRM Optional Bones",
-    ): "VRM可选的骨骼",
+
     (
         "*",
         'Required VRM Bone "{humanoid_name}" is'
@@ -551,6 +544,72 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "请检查材质「{alpha_mode}」设置中。"
     + "具有MToon启动\n"
     + "可能受影响的材质如下。",
+    #####################################################新建VR弹窗翻译
+    (
+        "*",
+        'Add VRM Humanoid',
+    ): "添加VRM人形Humanoid",
+    (
+        "*",
+        'wip_with_template_mesh',
+    ): "带有模板网格的WIP",
+    (
+        "*",
+        'Bone tall',
+    ): "骨骼高度",
+    (
+        "*",
+        'head_ratio',
+    ): "头部比例",
+    (
+        "*",
+        'head_width_ratio',
+    ): "头部宽度比例",
+    (
+        "*",
+        'aging_ratio',
+    ): "老化比例",
+    (
+        "*",
+        'eye_depth',
+    ): "眼睛深度",
+    (
+        "*",
+        'shoulder_in_width',
+    ): "肩内宽",
+    (
+        "*",
+        'shoulder_width',
+    ): "肩宽",
+    (
+        "*",
+        'arm_length_ratio',
+    ): "臂长比例",
+    (
+        "*",
+        'hand_ratio',
+    ): "手比例",
+    (
+        "*",
+        'finger_1_2_ratio',
+    ): "手指第一与二节比例",
+    (
+        "*",
+        'finger_2_3_ratio',
+    ): "手指第二与三节比例",
+    (
+        "*",
+        'leg_length_ratio',
+    ): "腿长比例",
+    (
+        "*",
+        'leg_width_ratio',
+    ): "腿宽比例",
+    (
+        "*",
+        'leg_size',
+    ): "腿大小",
+###############################侧面板    
     (
         "*",
         'Contact Information',
@@ -565,8 +624,33 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "许可用户",
     (
         "*",
+        'Only Author',
+    ): "仅作者",
+    (
+        "*",
+        'Explicitly Licensed Person',
+    ): "明确获得许可的人", 
+    (
+        "*",
+        'Everyone',
+    ): "所有人",       
+    (
+        "*",
         'Allowed user of the avatar',
     ): "允许使用该角色的用户",
+    (
+        "*",
+        'Allow',
+    ): "允许", 
+    (
+        "*",
+        'Disallow',
+    ): "禁止",
+    (
+        "*",
+        'undefined',
+    ): "未定义", 
+          
     (
         "*",
         'Violent Usage',
@@ -582,11 +666,177 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         'Other Permission URL',
-    ): "其他许可链接",   
+    ): "其他许可链接",
+    (
+        "*",
+        'Redistribution Prohibited',
+    ): "禁止再分发",
+    (
+        "*",
+        "VRM Required Bones",
+    ): "VRM必须的骨骼",
+
+    (
+        "*",
+        'Head:',
+    ): "头部 Head:",
+    (
+        "*",
+        'Neck:',
+    ): "颈部 Neck:",
+    (
+        "*",
+        'Chest:',
+    ): "胸骨 Chest:",
+    (
+        "*",
+        'Spine:',
+    ): "腰骨 Spine:",
+    (
+        "*",
+        'Hips:',
+    ): "臀部 Hips:",
+    (
+        "*",
+        'Upper Arm:',
+    ): "上臂 Upper Arm:",
+    (
+        "*",
+        'Lower Arm:',
+    ): "前臂 Lower Arm:",
+    (
+        "*",
+        'Hand:',
+    ): "手 Hand:",
+    (
+        "*",
+        'Upper Leg:',
+    ): "大腿 Upper Leg:",
+    (
+        "*",
+        'Lower Leg:',
+    ): "小腿 Lower Leg:",
+    (
+        "*",
+        'Foot:',
+    ): "脚 Foot:",
+    (
+        "*",
+        "VRM Optional Bones",
+    ): "VRM可选的骨骼",
+    (
+        "*",
+        'Eye:',
+    ): "眼睛 Eye:",
+    (
+        "*",
+        'Jaw:',
+    ): "下巴 Jaw:",
+    (
+        "*",
+        'Shoulder:',
+    ): "肩膀 Shoulder:",
+    (
+        "*",
+        'Upper Chest:',
+    ): "上胸部 Upper Chest:",
+    (
+        "*",
+        'Toes:',
+    ): "脚趾 Toes:",
+    (
+        "*",
+        'Left Thumb:',
+    ): "左拇指 Left Thumb:",
+    (
+        "*",
+        'Left Index:',
+    ): "左食指 Left Index:",
+    (
+        "*",
+        'Left Middle:',
+    ): "左中指 Left Middle:",
+    (
+        "*",
+        'Left Ring:',
+    ): "左无名指 Left Ring:",
+    (
+        "*",
+        'Left Little:',
+    ): "左小指 Left Little:",
+    (
+        "*",
+        'Right Thumb:',
+    ): "右拇指 Right Thumb:",
+    (
+        "*",
+        'Right Index:',
+    ): "右食指 Right Index:",
+    (
+        "*",
+        'Right Middle:',
+    ): "右中指 Right Middle:",
+    (
+        "*",
+        'Right Ring:',
+    ): "右无名指 Right Ring:",
+    (
+        "*",
+        'Right Little:',
+    ): "右小指 Right Little:",
+    (
+        "*",
+        'Arm',
+    ): "胳膊 Arm",    
+    (
+        "*",
+        'Arm Stretch',
+    ): "手臂伸展 Arm Stretch",
+    (
+        "*",
+        'Upper Arm Twist',
+    ): "上臂扭转 Upper Arm Twist",
+    (
+        "*",
+        'Lower Arm Twist',
+    ): "前臂扭转 Lower Arm Twist",
+    (
+        "*",
+        'Leg',
+    ): "腿 Leg",
+    (
+        "*",
+        'Leg Stretch',
+    ): "腿部伸展 Leg Stretch",
+    (
+        "*",
+        'Upper Leg Twist',
+    ): "大腿扭转 Upper Leg Twist",
+    (
+        "*",
+        'Lower Leg Twist',
+    ): "小腿扭转 Lower Leg Twist",
+    (
+        "*",
+        'Feet Spacing',
+    ): "脚间距 Feet Spacing",
+
+    (
+        "*",
+        'Is Binary',
+    ): "是二进制的", 
+    (
+        "*",
+        'Use binary change in the blendshape group',
+    ): "在混合形状组中使用二进制更改", 
     (
         "*",
         'First Person Bone Offset',
-    ): "第一人称骨骼偏移",      
+    ): "第一人称骨骼偏移",
+    (
+        "*",
+        'Offset from the first person bone to follow the first person camera.',
+    ): "从第一人称骨骼到跟随第一人称摄像头的偏移",          
     (
         "*",
         'Look At Type Name',
@@ -611,7 +861,5 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'Look At Vertical Down',
     ): "注视垂直向下",                  
-
-
 
 }
