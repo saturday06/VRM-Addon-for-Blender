@@ -5,7 +5,7 @@ FROM rockylinux:9
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN dnf update -y \
-    && dnf install-n -y "dnf-command(config-manager)" \
+    && dnf install-n -y dnf-plugins-core \
     && dnf config-manager --set-enabled crb \
     && dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo \
     && dnf install-n -y epel-release \
@@ -48,7 +48,7 @@ RUN dnf update -y \
                 dbus-devel \
                 fftw-devel \
                 freetype \
-                g++ \
+                gcc-c++ \
                 gcc \
                 glfw-devel \
                 libSM \
