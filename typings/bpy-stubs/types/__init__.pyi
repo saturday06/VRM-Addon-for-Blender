@@ -434,6 +434,8 @@ class PoseBone(bpy_struct, __CustomProperty):
     def head(
         self,
     ) -> Vector: ...  # ドキュメントには3要素のfloat配列と書いてあるが、実際にはVector
+    rotation_axis_angle: Sequence[float]
+    rotation_euler: Euler
     rotation_mode: str
     rotation_quaternion: Quaternion
     @property
