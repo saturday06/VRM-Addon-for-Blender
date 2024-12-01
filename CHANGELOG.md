@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.31.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.31.0...v2.31.1) (2024-12-01)
+
+
+### 🐞 Bug Fixes
+
+* principled bsdf material export error on Blender 4.3 ([94c1e23](https://github.com/saturday06/VRM-Addon-for-Blender/commit/94c1e235bf662847efcb0075a10df7f6d0215606))
+
 ## [2.31.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.30.1...v2.31.0) (2024-11-24)
 
 
