@@ -2089,10 +2089,12 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         if bpy.app.version < (3, 6):
             module_name = "io_scene_gltf2.blender.exp.gltf2_blender_gather_materials"
-        else:
+        elif bpy.app.version < (4, 3):
             module_name = (
                 "io_scene_gltf2.blender.exp.material.gltf2_blender_gather_materials"
             )
+        else:
+            module_name = "io_scene_gltf2.blender.exp.material.materials"
         try:
             gltf2_blender_gather_materials = importlib.import_module(module_name)
         except ModuleNotFoundError:
