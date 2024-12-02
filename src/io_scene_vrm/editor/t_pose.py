@@ -17,12 +17,15 @@ from bpy.types import (
 from mathutils import Matrix, Quaternion, Vector
 
 from ..common import ops
+from ..common.logging import get_logger
 from ..common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
 from ..common.vrm1.human_bone import HumanBoneName as Vrm1HumanBoneName
 from ..common.workspace import save_workspace
-from .extension import get_armature_extension
+from .extension import VrmAddonArmatureExtensionPropertyGroup, get_armature_extension
 from .vrm0.property_group import Vrm0HumanoidPropertyGroup
 from .vrm1.property_group import Vrm1HumanoidPropertyGroup
+
+logger = get_logger(__name__)
 
 
 def set_bone_direction_to_align_child_bone(
@@ -232,6 +235,37 @@ class ChainHorizontalMultipleChildren:
         )
 
 
+def reset_root_to_human_bone_translation(
+    pose: Pose, ext: VrmAddonArmatureExtensionPropertyGroup
+) -> None:
+    # ルートボーンからいずれかのHumanボーンまでの位置をリセット
+    # 全てのボーンをリセットしない理由は特に無くて勘
+    bones: list[PoseBone] = [bone for bone in pose.bones if not bone.parent]
+    while bones:
+        bone = bones.pop()
+        bone.location = Vector((0, 0, 0))
+
+        if ext.is_vrm1():
+            human_bone_name_to_human_bones = (
+                ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone()
+            )
+            if any(
+                True
+                for human_bone in human_bone_name_to_human_bones.values()
+                if human_bone.node.bone_name == bone.name
+            ):
+                continue
+
+        if ext.is_vrm0() and any(
+            True
+            for human_bone in ext.vrm0.humanoid.human_bones
+            if human_bone.node.bone_name == bone.name
+        ):
+            continue
+
+        bones.extend(bone.children)
+
+
 def set_estimated_humanoid_t_pose(context: Context, armature: Object) -> bool:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
@@ -249,6 +283,9 @@ def set_estimated_humanoid_t_pose(context: Context, armature: Object) -> bool:
     for bone in armature.pose.bones:
         bone.rotation_mode = "QUATERNION"
         bone.rotation_quaternion = Quaternion()
+
+    reset_root_to_human_bone_translation(armature.pose, ext)
+
     context.view_layer.update()
 
     # https://github.com/vrm-c/vrm-specification/blob/73855bb77d431a3374212551a4fa48e043be3ced/specification/VRMC_vrm-1.0/tpose.md
