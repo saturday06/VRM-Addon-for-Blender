@@ -11,9 +11,10 @@ from bpy.types import (
     Armature,
     Context,
     Object,
+    Pose,
     PoseBone,
 )
-from mathutils import Quaternion, Vector
+from mathutils import Matrix, Quaternion, Vector
 
 from ..common import ops
 from ..common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
@@ -475,6 +476,65 @@ def set_estimated_humanoid_t_pose(context: Context, armature: Object) -> bool:
     return True
 
 
+@dataclass(frozen=True)
+class PoseBonePose:
+    matrix_basis: Matrix
+    matrix: Matrix
+    rotation_mode: str
+
+    @staticmethod
+    def save(pose: Pose) -> dict[str, "PoseBonePose"]:
+        return {
+            bone.name: PoseBonePose(
+                matrix_basis=bone.matrix_basis.copy(),
+                matrix=bone.matrix.copy(),
+                rotation_mode=bone.rotation_mode,
+            )
+            for bone in pose.bones
+        }
+
+    @staticmethod
+    def load(
+        context: Context,
+        pose: Pose,
+        bone_name_to_pose_bone_pose: dict[str, "PoseBonePose"],
+    ) -> None:
+        # もともとそうやっていたという理由でmatrix_basisとmatrixとrotation_modeは
+        # 別々のループで復元しているがいっぺんに復元した方が効率が良い気がする
+
+        context.view_layer.update()
+
+        bones = [bone for bone in pose.bones if not bone.parent]
+        while bones:
+            bone = bones.pop()
+            pose_bone_pose = bone_name_to_pose_bone_pose.get(bone.name)
+            if pose_bone_pose:
+                bone.matrix_basis = pose_bone_pose.matrix_basis.copy()
+            bones.extend(bone.children)
+
+        context.view_layer.update()
+
+        bones = [bone for bone in pose.bones if not bone.parent]
+        while bones:
+            bone = bones.pop()
+            pose_bone_pose = bone_name_to_pose_bone_pose.get(bone.name)
+            if pose_bone_pose:
+                bone.matrix = pose_bone_pose.matrix.copy()
+            bones.extend(bone.children)
+
+        context.view_layer.update()
+
+        bones = [bone for bone in pose.bones if not bone.parent]
+        while bones:
+            bone = bones.pop()
+            pose_bone_pose = bone_name_to_pose_bone_pose.get(bone.name)
+            if pose_bone_pose:
+                bone.rotation_mode = pose_bone_pose.rotation_mode
+            bones.extend(bone.children)
+
+        context.view_layer.update()
+
+
 @contextmanager
 def setup_humanoid_t_pose(
     context: Context,
@@ -526,12 +586,8 @@ def setup_humanoid_t_pose(
             armature_data.pose_position = "POSE"
 
         context.view_layer.update()
-        saved_current_pose_matrix_basis_dict = {
-            bone.name: bone.matrix_basis.copy() for bone in armature.pose.bones
-        }
-        saved_current_pose_matrix_dict = {
-            bone.name: bone.matrix.copy() for bone in armature.pose.bones
-        }
+
+        saved_pose_bone_pose = PoseBonePose.save(armature.pose)
 
         ext = get_armature_extension(armature_data)
         saved_vrm1_look_at_preview = ext.vrm1.look_at.enable_preview
@@ -581,23 +637,7 @@ def setup_humanoid_t_pose(
             bpy.ops.object.select_all(action="DESELECT")
             bpy.ops.object.mode_set(mode="POSE")
 
-            bones = [bone for bone in armature.pose.bones if not bone.parent]
-            while bones:
-                bone = bones.pop()
-                matrix_basis = saved_current_pose_matrix_basis_dict.get(bone.name)
-                if matrix_basis is not None:
-                    bone.matrix_basis = matrix_basis
-                bones.extend(bone.children)
-            context.view_layer.update()
-
-            bones = [bone for bone in armature.pose.bones if not bone.parent]
-            while bones:
-                bone = bones.pop()
-                matrix = saved_current_pose_matrix_dict.get(bone.name)
-                if matrix is not None:
-                    bone.matrix = matrix
-                bones.extend(bone.children)
-            context.view_layer.update()
+            PoseBonePose.load(context, armature.pose, saved_pose_bone_pose)
 
             armature_data.pose_position = saved_pose_position
             bpy.ops.object.mode_set(mode="OBJECT")
