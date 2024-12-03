@@ -9,6 +9,10 @@ from bpy.app.handlers import persistent
 from bpy.types import Armature, Context, Object, PoseBone
 from mathutils import Matrix, Quaternion, Vector
 
+from ...common.rotation import (
+    get_rotation_as_quaternion,
+    set_rotation_without_mode_change,
+)
 from ..extension import get_armature_extension
 from .property_group import (
     SpringBone1JointPropertyGroup,
@@ -165,16 +169,13 @@ def update_pose_bone_rotations(context: Context, delta_time: float) -> None:
         calculate_object_pose_bone_rotations(delta_time, obj, pose_bone_and_rotations)
 
     for pose_bone, pose_bone_rotation in pose_bone_and_rotations:
-        if pose_bone.rotation_mode != "QUATERNION":
-            pose_bone.rotation_mode = "QUATERNION"
-
-        # pose_bone.rotation_quaternionの代入は負荷が高いのでできるだけ実行しない
+        # pose_boneへの回転の代入は負荷が高いのでできるだけ実行しない
         angle_diff = pose_bone_rotation.rotation_difference(
-            pose_bone.rotation_quaternion
+            get_rotation_as_quaternion(pose_bone)
         ).angle
         if abs(angle_diff) < float_info.epsilon:
             continue
-        pose_bone.rotation_quaternion = pose_bone_rotation
+        set_rotation_without_mode_change(pose_bone, pose_bone_rotation)
 
 
 def calculate_object_pose_bone_rotations(

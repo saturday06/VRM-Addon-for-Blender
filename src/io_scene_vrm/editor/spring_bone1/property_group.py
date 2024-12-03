@@ -21,6 +21,10 @@ from mathutils import Matrix, Quaternion, Vector
 
 from ...common import convert
 from ...common.logging import get_logger
+from ...common.rotation import (
+    get_rotation_as_quaternion,
+    set_rotation_without_mode_change,
+)
 from ..property_group import BonePropertyGroup, property_group_enum
 
 if TYPE_CHECKING:
@@ -496,13 +500,7 @@ class SpringBone1ExtendedColliderShapePlanePropertyGroup(PropertyGroup):
             return (0.0, 1.0, 0.0)
 
         result = Vector((0.0, 1.0, 0.0))
-        if bpy_object.rotation_mode == "QUATERNION":
-            result.rotate(bpy_object.rotation_quaternion)
-        elif bpy_object.rotation_mode in ["XYZ", "XZY", "YXZ", "YZX", "ZXY", "ZYX"]:
-            result.rotate(bpy_object.rotation_euler.to_quaternion())
-        elif bpy_object.rotation_mode == "AXIS_ANGLE":
-            axis_x, axis_y, axis_z, angle = bpy_object.rotation_axis_angle
-            result.rotate(Quaternion((axis_x, axis_y, axis_z), angle))
+        result.rotate(get_rotation_as_quaternion(bpy_object))
 
         return (
             # use tuple initializer to make type checkers happy
@@ -520,15 +518,13 @@ class SpringBone1ExtendedColliderShapePlanePropertyGroup(PropertyGroup):
         y_up_vec = Vector((0.0, 1.0, 0.0))
         normal_vec = Vector(normal)
         if normal_vec.length_squared > 0:
-            rotation_quaternion = y_up_vec.rotation_difference(normal_vec)
+            rotation = y_up_vec.rotation_difference(normal_vec)
         else:
-            rotation_quaternion = Quaternion()
+            rotation = Quaternion()
 
         bpy_object = collider.bpy_object
         if bpy_object:
-            if bpy_object.rotation_mode != "QUATERNION":
-                bpy_object.rotation_mode = "QUATERNION"
-            bpy_object.rotation_quaternion = rotation_quaternion
+            set_rotation_without_mode_change(bpy_object, rotation)
 
     offset: FloatVectorProperty(  # type: ignore[valid-type]
         size=3,

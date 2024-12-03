@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import Optional
 
 import bpy
-import mathutils
 from bpy.path import clean_name
 from bpy.types import (
     Armature,
@@ -30,7 +29,7 @@ from bpy.types import (
     Object,
     SpaceView3D,
 )
-from mathutils import Matrix
+from mathutils import Euler, Matrix
 
 from ..common import shader
 from ..common.convert import Json
@@ -44,6 +43,10 @@ from ..common.gltf import FLOAT_NEGATIVE_MAX, FLOAT_POSITIVE_MAX, pack_glb, pars
 from ..common.logging import get_logger
 from ..common.preferences import ImportPreferencesProtocol
 from ..common.progress import PartialProgress, create_progress
+from ..common.rotation import (
+    get_rotation_as_quaternion,
+    set_rotation_without_mode_change,
+)
 from ..common.workspace import save_workspace
 from ..editor.extension import get_armature_extension
 from ..external.io_scene_gltf2_support import (
@@ -1036,11 +1039,10 @@ class AbstractBaseVrmImporter(ABC):
                     bone_name_to_roll[edit_bone.name] = edit_bone.roll
 
             with save_workspace(self.context, armature):
-                if armature.rotation_mode != "QUATERNION":
-                    armature.rotation_mode = "QUATERNION"
-                armature.rotation_quaternion.rotate(
-                    mathutils.Euler((0.0, 0.0, math.pi), "XYZ")
-                )
+                armature_rotation = get_rotation_as_quaternion(armature)
+                armature_rotation.rotate(Euler((0.0, 0.0, math.pi), "XYZ"))
+                set_rotation_without_mode_change(armature, armature_rotation)
+
                 bpy.ops.object.select_all(action="DESELECT")
                 armature.select_set(True)
                 bpy.ops.object.transform_apply(
@@ -1284,7 +1286,13 @@ class AbstractBaseVrmImporter(ABC):
         self.armature.animation_data.action = t_pose_action
 
         for bone in self.armature.pose.bones:
-            for data_path in ["location", "rotation_quaternion", "scale"]:
+            for data_path in [
+                "location",
+                "rotation_quaternion",
+                "rotation_axis_angle",
+                "rotation_euler",
+                "scale",
+            ]:
                 bone.keyframe_insert(data_path=data_path, frame=1)
 
         ext = get_armature_extension(self.armature_data)

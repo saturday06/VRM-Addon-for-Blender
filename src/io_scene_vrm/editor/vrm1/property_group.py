@@ -33,6 +33,7 @@ from mathutils import Matrix, Quaternion, Vector
 
 from ...common.char import DISABLE_TRANSLATION
 from ...common.logging import get_logger
+from ...common.rotation import set_rotation_without_mode_change
 from ...common.vrm1.human_bone import (
     HumanBoneName,
     HumanBoneSpecification,
@@ -876,10 +877,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
         ) @ Quaternion(forward_vector.cross(up_vector), math.radians(pitch_degrees))
         # logger.warning(f"rotation={dump(rotation)}")
 
-        if pose_bone.rotation_mode != "QUATERNION":
-            pose_bone.rotation_mode = "QUATERNION"
-
-        pose_bone.rotation_quaternion = rotation
+        set_rotation_without_mode_change(pose_bone, rotation)
 
     # https://github.com/vrm-c/vrm-specification/blob/0861a66eb2f2b76835322d775678047d616536b3/specification/VRMC_vrm-1.0/lookAt.md?plain=1#L258
     def apply_expression_preview(

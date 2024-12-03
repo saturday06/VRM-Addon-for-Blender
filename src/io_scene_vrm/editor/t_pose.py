@@ -18,6 +18,10 @@ from mathutils import Matrix, Quaternion, Vector
 
 from ..common import ops
 from ..common.logging import get_logger
+from ..common.rotation import (
+    get_rotation_as_quaternion,
+    set_rotation_without_mode_change,
+)
 from ..common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
 from ..common.vrm1.human_bone import HumanBoneName as Vrm1HumanBoneName
 from ..common.workspace import save_workspace
@@ -63,9 +67,8 @@ def set_bone_direction_to_align_child_bone(
         bone_local_child_bone_to_translation
     )
 
-    if bone.rotation_mode != "QUATERNION":
-        bone.rotation_mode = "QUATERNION"
-    bone.rotation_quaternion = rotation @ bone.rotation_quaternion
+    set_rotation_without_mode_change(bone, rotation @ get_rotation_as_quaternion(bone))
+
     context.view_layer.update()
 
 
@@ -102,9 +105,8 @@ def set_bone_direction_to_align_z_world_location(
         bone_local_aligned_to_world_location
     )
 
-    if bone.rotation_mode != "QUATERNION":
-        bone.rotation_mode = "QUATERNION"
-    bone.rotation_quaternion = rotation @ bone.rotation_quaternion
+    set_rotation_without_mode_change(bone, rotation @ get_rotation_as_quaternion(bone))
+
     context.view_layer.update()
 
 
@@ -281,8 +283,7 @@ def set_estimated_humanoid_t_pose(context: Context, armature: Object) -> bool:
             return False
 
     for bone in armature.pose.bones:
-        bone.rotation_mode = "QUATERNION"
-        bone.rotation_quaternion = Quaternion()
+        set_rotation_without_mode_change(bone, Quaternion())
 
     reset_root_to_human_bone_translation(armature.pose, ext)
 
@@ -637,16 +638,12 @@ def setup_humanoid_t_pose(
                 left_eye_bone_name = human_bones.left_eye.node.bone_name
                 left_eye_bone = armature.pose.bones.get(left_eye_bone_name)
                 if left_eye_bone:
-                    if left_eye_bone.rotation_mode != "QUATERNION":
-                        left_eye_bone.rotation_mode = "QUATERNION"
-                    left_eye_bone.rotation_quaternion = Quaternion()
+                    set_rotation_without_mode_change(left_eye_bone, Quaternion())
 
                 right_eye_bone_name = human_bones.right_eye.node.bone_name
                 right_eye_bone = armature.pose.bones.get(right_eye_bone_name)
                 if right_eye_bone:
-                    if right_eye_bone.rotation_mode != "QUATERNION":
-                        right_eye_bone.rotation_mode = "QUATERNION"
-                    right_eye_bone.rotation_quaternion = Quaternion()
+                    set_rotation_without_mode_change(right_eye_bone, Quaternion())
 
         if pose == humanoid.POSE_AUTO_POSE.identifier:
             ops.vrm.make_estimated_humanoid_t_pose(armature_name=armature.name)

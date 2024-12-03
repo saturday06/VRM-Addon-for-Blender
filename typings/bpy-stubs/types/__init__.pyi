@@ -1390,7 +1390,7 @@ class Object(ID):
     rotation_mode: str
     rotation_quaternion: Quaternion  # TODO: 型あってる?
     rotation_euler: Euler
-    rotation_axis_angle: bpy_prop_array[float]
+    rotation_axis_angle: Sequence[float]  # 本当はbpy_prop_array[float]
 
     @property
     def bound_box(self) -> bpy_prop_array[bpy_prop_array[float]]: ...
