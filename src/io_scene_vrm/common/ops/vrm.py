@@ -9,6 +9,34 @@ import bpy
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
+def import_vrma_via_file_handler(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    filepath: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.import_vrma_via_file_handler(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        filepath=filepath,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def import_vrm_via_file_handler(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    filepath: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.import_vrm_via_file_handler(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        filepath=filepath,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def model_validate(
     execution_context: str = "EXEC_DEFAULT",
     /,

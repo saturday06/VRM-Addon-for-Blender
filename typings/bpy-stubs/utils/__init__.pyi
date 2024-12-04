@@ -3,6 +3,7 @@ from typing import Union
 
 from bpy.types import (
     AddonPreferences,
+    FileHandler,
     Header,
     KeyingSetInfo,
     Menu,
@@ -16,6 +17,7 @@ from bpy.types import (
 def register_class(
     t: type[
         Union[
+            FileHandler,
             Panel,
             UIList,
             Menu,
@@ -32,6 +34,7 @@ def register_class(
 def unregister_class(
     t: type[
         Union[
+            FileHandler,
             Panel,
             UIList,
             Menu,

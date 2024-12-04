@@ -2136,6 +2136,15 @@ class Header(bpy_struct): ...
 class KeyingSetInfo(bpy_struct): ...
 class RenderEngine(bpy_struct): ...
 
+class FileHandler(bpy_struct):
+    bl_export_operator: str
+    bl_file_extensions: str
+    bl_idname: str
+    bl_import_operator: str
+    bl_label: str
+    @classmethod
+    def poll_drop(cls, context: Context) -> bool: ...
+
 TOPBAR_MT_file_import: MutableSequence[Callable[[Operator, Context], None]]
 TOPBAR_MT_file_export: MutableSequence[Callable[[Operator, Context], None]]
 VIEW3D_MT_armature_add: MutableSequence[Callable[[Operator, Context], None]]

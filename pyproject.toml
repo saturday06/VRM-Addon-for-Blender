@@ -99,6 +99,7 @@ extend-ignore-names = [
     "EXPORT_SCENE_OT_*",
     "IMPORT_SCENE_OT_*",
     "ICYP_OT_*",
+    "VRM_FH_*",
     "VRM_OT_*",
     "VRM_PT_*",
     "VRM_UL_*",
