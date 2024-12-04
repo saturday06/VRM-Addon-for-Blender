@@ -384,7 +384,10 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
         if WM_OT_vrma_import_prerequisite.detect_errors(
             context, self.armature_object_name
         ):
-            return {"CANCELLED"}
+            return ops.wm.vrma_import_prerequisite(
+                "INVOKE_DEFAULT",
+                armature_object_name=self.armature_object_name,
+            )
 
         filepath = Path(self.filepath)
         if not filepath.is_file():
