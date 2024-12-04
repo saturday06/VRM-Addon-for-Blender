@@ -69,8 +69,7 @@ BlenderにVRM関連機能を追加するアドオンです。
 
 ## ダウンロード
 
-- Blender 4.2以上をお使いの場合: [🛠️**Blender Extensions Platform**](https://extensions.blender.org/add-ons/vrm) \
-  _⚠️ Blender Extensions Platformの仕様変更により、現在Blender Extensions Platform上へ最新版のアップデートを配信することができていません。現在対応作業中になります。最新のアドオンが必要な場合は[GitHub Releases](https://github.com/saturday06/VRM-Addon-for-Blender/releases)からダウンロードしてください._
+- Blender 4.2以上をお使いの場合: [🛠️**Blender Extensions Platform**](https://extensions.blender.org/add-ons/vrm)
 - Blender 2.93から4.1をお使いの場合: [🌐**オフィシャルWebサイト**](https://vrm-addon-for-blender.info)
 
 ## チュートリアル
