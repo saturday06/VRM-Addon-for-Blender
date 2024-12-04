@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.32.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.31.1...v2.32.0) (2024-12-04)
+
+
+### 🚀 Features
+
+* completely rework vrma import export matrices calculation ([39caa2f](https://github.com/saturday06/VRM-Addon-for-Blender/commit/39caa2f6bc7fd347ad500bc4a4b598e537bd5ffa))
+* support drag and drop vrm/vrma import ([756081c](https://github.com/saturday06/VRM-Addon-for-Blender/commit/756081c8b31291399cc583fd27a510ead35f1d62))
+
 ## [2.31.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.31.0...v2.31.1) (2024-12-01)
 
 
