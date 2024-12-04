@@ -5,7 +5,6 @@ from os import environ
 from pathlib import Path
 from typing import Optional
 
-import bpy
 from bpy.types import Armature, Context, Object, PoseBone
 from mathutils import Euler, Matrix, Quaternion, Vector
 
@@ -15,13 +14,16 @@ from ..common.deep import make_json
 from ..common.gl import GL_FLOAT
 from ..common.gltf import pack_glb
 from ..common.logging import get_logger
-from ..common.vrm1.human_bone import (
-    HumanBoneName,
-    HumanBoneSpecification,
-    HumanBoneSpecifications,
+from ..common.rotation import (
+    ROTATION_MODE_AXIS_ANGLE,
+    ROTATION_MODE_EULER,
+    ROTATION_MODE_QUATERNION,
+    get_rotation_as_quaternion,
 )
+from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecification
 from ..common.workspace import save_workspace
 from ..editor.extension import get_armature_extension
+from ..editor.t_pose import setup_humanoid_t_pose
 
 logger = get_logger(__name__)
 
@@ -29,7 +31,18 @@ logger = get_logger(__name__)
 class VrmAnimationExporter:
     @staticmethod
     def execute(context: Context, path: Path, armature: Object) -> set[str]:
-        return work_in_progress(context, path, armature)
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+
+        with (
+            setup_humanoid_t_pose(context, armature),
+            save_workspace(context, armature, mode="POSE"),
+        ):
+            output_bytes = export_vrm_animation(context, armature)
+
+        path.write_bytes(output_bytes)
+        return {"FINISHED"}
 
 
 def connect_humanoid_node_dicts(
@@ -61,43 +74,109 @@ def connect_humanoid_node_dicts(
         )
 
 
-def work_in_progress_2(context: Context, armature: Object) -> bytes:
+def create_node_dicts(
+    bone: PoseBone,
+    parent_bone: Optional[PoseBone],
+    node_dicts: list[dict[str, Json]],
+    bone_name_to_node_index: dict[str, int],
+) -> int:
+    node_index = len(node_dicts)
+    node_dict: dict[str, Json] = {"name": bone.name}
+    node_dicts.append(node_dict)
+    bone_name_to_node_index[bone.name] = node_index
+
+    matrix = parent_bone.matrix.inverted() @ bone.matrix if parent_bone else bone.matrix
+    translation = matrix.to_translation()
+    rotation = matrix.to_quaternion()
+    node_dict["translation"] = [
+        translation.x,
+        translation.z,
+        -translation.y,
+    ]
+    node_dict["rotation"] = [
+        rotation.x,
+        rotation.z,
+        -rotation.y,
+        rotation.w,
+    ]
+    children = [
+        create_node_dicts(child_bone, bone, node_dicts, bone_name_to_node_index)
+        for child_bone in bone.children
+    ]
+    if children:
+        node_dict["children"] = make_json(children)
+
+    return node_index
+
+
+def export_vrm_animation(context: Context, armature: Object) -> bytes:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         message = "Armature data is not an Armature"
         raise TypeError(message)
     vrm1 = get_armature_extension(armature_data).vrm1
-    human_bone_name_to_node_dict: dict[HumanBoneName, dict[str, Json]] = {}
-    human_bone_name_to_node_index: dict[HumanBoneName, int] = {}
-    human_bone_name_to_human_bone = (
-        vrm1.humanoid.human_bones.human_bone_name_to_human_bone()
-    )
-    bone_name_to_parent_bone_name_without_non_human_bone: dict[str, str] = {}
+    human_bones = vrm1.humanoid.human_bones
+
+    node_dicts: list[dict[str, Json]] = []
+    bone_name_to_node_index: dict[str, int] = {}
     bone_name_to_base_quaternion: dict[str, Quaternion] = {}
-
+    scene_node_indices: list[int] = [0]
     data_path_to_bone_and_property_name: dict[str, tuple[PoseBone, str]] = {}
-    frame_to_timestamp_factor = context.scene.render.fps_base / float(
-        context.scene.render.fps
-    )
+    root_node_translation = armature.matrix_world.to_translation()
+    root_node_rotation = armature.matrix_world.to_quaternion()
+    root_node_scale = armature.matrix_world.to_scale()
+    root_node_dict: dict[str, Json] = {
+        "name": armature.name,
+        "translation": [
+            root_node_translation.x,
+            root_node_translation.z,
+            -root_node_translation.y,
+        ],
+        "rotation": [
+            root_node_rotation.x,
+            root_node_rotation.z,
+            -root_node_rotation.y,
+            root_node_rotation.w,
+        ],
+        "scale": [
+            root_node_scale.x,
+            root_node_scale.z,
+            root_node_scale.y,
+        ],
+    }
+    root_node_child_indices: list[int] = []
+    node_dicts.append(root_node_dict)
+    for bone in armature.pose.bones:
+        if not bone.parent:
+            root_node_child_indices.append(
+                create_node_dicts(
+                    bone,
+                    None,
+                    node_dicts,
+                    bone_name_to_node_index,
+                )
+            )
 
-    for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
-        if human_bone_name in [HumanBoneName.LEFT_EYE, HumanBoneName.RIGHT_EYE]:
-            continue
-        # 現在注目しているヒューマンボーンに対応するポーズボーンを探す
-        human_bone_specification = HumanBoneSpecifications.get(human_bone_name)
-        bone = armature.pose.bones.get(human_bone.node.bone_name)
-        if not bone:
-            continue
+        base_quaternion: Optional[Quaternion] = None
+        if bone.parent:
+            base_quaternion = (
+                bone.parent.matrix.inverted_safe() @ bone.matrix
+            ).to_quaternion()
+        else:
+            base_quaternion = bone.matrix.to_quaternion()
+        bone_name_to_base_quaternion[bone.name] = (
+            base_quaternion @ get_rotation_as_quaternion(bone).inverted()
+        )
 
-        if bone.rotation_mode == "QUATERNION":
+        if bone.rotation_mode == ROTATION_MODE_QUATERNION:
             data_path_to_bone_and_property_name[
                 bone.path_from_id("rotation_quaternion")
             ] = (bone, "rotation_quaternion")
-        elif bone.rotation_mode == "AXIS_ANGLE":
+        elif bone.rotation_mode == ROTATION_MODE_AXIS_ANGLE:
             data_path_to_bone_and_property_name[
                 bone.path_from_id("rotation_axis_angle")
             ] = (bone, "rotation_axis_angle")
-        elif bone.rotation_mode in ["XYZ", "XZY", "YXZ", "YZX", "ZXY", "ZYX"]:
+        elif bone.rotation_mode in ROTATION_MODE_EULER:
             data_path_to_bone_and_property_name[bone.path_from_id("rotation_euler")] = (
                 bone,
                 "rotation_euler",
@@ -109,71 +188,18 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 bone.rotation_mode,
             )
 
-        if human_bone_name == HumanBoneName.HIPS:
+        if human_bones.hips.node.bone_name == bone.name:
             data_path_to_bone_and_property_name[bone.path_from_id("location")] = (
                 bone,
                 "location",
             )
 
-        # 親ヒューマンボーンに対応するポーズボーンを探す。
-        # 親がいない場合は再帰的に祖先を探す
-        parent_bone = None
-        parent_human_bone_specification = human_bone_specification
-        while True:
-            parent_human_bone_specification_or_none = (
-                parent_human_bone_specification.parent()
-            )
-            if not parent_human_bone_specification_or_none:
-                break
-            parent_human_bone_specification = parent_human_bone_specification_or_none
-            parent_human_bone = human_bone_name_to_human_bone.get(
-                parent_human_bone_specification.name
-            )
-            if not parent_human_bone:
-                continue
-            parent_bone = armature.pose.bones.get(parent_human_bone.node.bone_name)
-            if parent_bone:
-                break
-        if parent_bone:
-            bone_name_to_parent_bone_name_without_non_human_bone[parent_bone.name] = (
-                bone.name
-            )
-            matrix = parent_bone.matrix.inverted_safe() @ bone.matrix
-        else:
-            matrix = bone.matrix
+    if root_node_child_indices:
+        root_node_dict["children"] = make_json(root_node_child_indices)
 
-        # 親ヒューマンボーンに対する相対回転を保存する。ただしスケールは保存しない
-        # "children" は後で付与する
-        translation = matrix.to_translation()
-        rotation = matrix.to_quaternion()
-        bone_name_to_base_quaternion[bone.name] = rotation.copy()
-        human_bone_name_to_node_dict[human_bone_name] = {
-            "name": human_bone_specification.name.value,
-            "translation": [
-                translation.x,
-                translation.z,
-                -translation.y,
-            ],
-            "rotation": [
-                rotation.x,
-                rotation.z,
-                -rotation.y,
-                rotation.w,
-            ],
-        }
-
-    node_dicts: list[dict[str, Json]] = []
-    connect_humanoid_node_dicts(
-        HumanBoneSpecifications.HIPS,
-        human_bone_name_to_node_dict,
-        None,
-        node_dicts,
-        human_bone_name_to_node_index,
+    frame_to_timestamp_factor = context.scene.render.fps_base / float(
+        context.scene.render.fps
     )
-    human_bones_dict: dict[str, Json] = {
-        human_bone_name.value: {"node": node_index}
-        for human_bone_name, node_index in human_bone_name_to_node_index.items()
-    }
 
     buffer0_bytearray = bytearray()
     accessor_dicts: list[dict[str, Json]] = []
@@ -182,8 +208,6 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
     animation_channel_dicts: list[dict[str, Json]] = []
     preset_expression_dict: dict[str, dict[str, Json]] = {}
     custom_expression_dict: dict[str, dict[str, Json]] = {}
-
-    scene_node_indices: list[int] = [human_bone_name_to_node_index[HumanBoneName.HIPS]]
 
     frame_start = context.scene.frame_start
     frame_end = context.scene.frame_end
@@ -238,6 +262,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 )
             expression_export_index += 1
 
+        node_index: Optional[int] = None
         for (
             expression_name,
             expression_translations,
@@ -357,6 +382,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 }
             )
 
+    human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
     if armature.animation_data and armature.animation_data.action:
         bone_name_to_quaternion_offsets: dict[str, list[Quaternion]] = {}
         bone_name_to_euler_offsets: dict[str, list[Euler]] = {}
@@ -461,15 +487,6 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 for axis_angle_offset in axis_angle_offsets
             ]
 
-        # hipsの位置をアーマチュアオブジェクトの原点からの相対座標に変換
-        hips_bone = armature.pose.bones[
-            human_bone_name_to_human_bone[HumanBoneName.HIPS].node.bone_name
-        ]
-        hips_translations = [
-            hips_bone.matrix @ hips_translation_offset
-            for hips_translation_offset in hips_translation_offsets
-        ]
-
         # 回転のエクスポート
         for bone_name, quaternions in bone_name_to_quaternions.items():
             human_bone_name = next(
@@ -485,8 +502,8 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
                 continue
             if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
                 continue
-            human_bone_node_index = human_bone_name_to_node_index.get(human_bone_name)
-            if not isinstance(human_bone_node_index, int):
+            node_index = bone_name_to_node_index.get(bone_name)
+            if not isinstance(node_index, int):
                 logger.error("Failed to find node index for bone %s", bone_name)
                 continue
 
@@ -583,14 +600,27 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
             animation_channel_dicts.append(
                 {
                     "sampler": animation_sampler_index,
-                    "target": {"node": human_bone_node_index, "path": "rotation"},
+                    "target": {"node": node_index, "path": "rotation"},
                 }
             )
 
         # hipsの平行移動のエクスポート
-        if hips_translations:
-            human_bone_node_index = human_bone_name_to_node_index[HumanBoneName.HIPS]
-
+        hips_bone_name = human_bones.hips.node.bone_name
+        hips_bone = armature.pose.bones.get(hips_bone_name)
+        hips_node_index = bone_name_to_node_index.get(hips_bone_name)
+        if hips_bone:
+            if hips_bone.parent:
+                base_matrix = hips_bone.parent.matrix.inverted_safe()
+            else:
+                base_matrix = Matrix()
+            hips_translations = [
+                # TODO: 回転と同じように、RESTポーズとTポーズの差分を取るべき
+                base_matrix @ hips_bone.matrix @ hips_translation_offset
+                for hips_translation_offset in hips_translation_offsets
+            ]
+        else:
+            hips_translations = None
+        if hips_translations and isinstance(hips_node_index, int):
             input_byte_offset = len(buffer0_bytearray)
             input_floats = [
                 frame * frame_to_timestamp_factor
@@ -683,7 +713,7 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
             animation_channel_dicts.append(
                 {
                     "sampler": animation_sampler_index,
-                    "target": {"node": human_bone_node_index, "path": "translation"},
+                    "target": {"node": hips_node_index, "path": "translation"},
                 }
             )
 
@@ -839,6 +869,14 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
 
     buffer_dicts: list[dict[str, Json]] = [{"byteLength": len(buffer0_bytearray)}]
 
+    human_bones_dict: dict[str, Json] = {}
+    for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
+        bone_name = human_bone.node.bone_name
+        node_index = bone_name_to_node_index.get(bone_name)
+        if not isinstance(node_index, int):
+            continue
+        human_bones_dict[human_bone_name.value] = {"node": node_index}
+
     addon_version = version.get_addon_version()
     if environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
         addon_version = (999, 999, 999)
@@ -891,82 +929,3 @@ def work_in_progress_2(context: Context, armature: Object) -> bytes:
         raise TypeError(message)
 
     return pack_glb(vrma_dict, buffer0_bytearray)
-
-
-def work_in_progress(context: Context, path: Path, armature: Object) -> set[str]:
-    armature_data = armature.data
-    if not isinstance(armature_data, Armature):
-        return {"CANCELLED"}
-    humanoid = get_armature_extension(armature_data).vrm1.humanoid
-    if not humanoid.human_bones.all_required_bones_are_assigned():
-        return {"CANCELLED"}
-
-    # saved_current_pose_matrix_basis_dict = {}
-    # saved_current_pose_matrix_dict = {}
-    saved_pose_position = armature_data.pose_position
-    # vrm1 = get_armature_extension(armature.data).vrm1
-    output_bytes = None
-
-    # TODO: 現状restがTポーズの時しか動作しない
-    # TODO: 自動でTポーズを作成する
-    # TODO: Tポーズ取得処理、共通化
-    with save_workspace(context, armature):
-        try:
-            bpy.ops.object.select_all(action="DESELECT")
-            bpy.ops.object.mode_set(mode="POSE")
-
-            armature_data.pose_position = "POSE"
-
-            # t_pose_action = vrm1.humanoid.pose_library
-            # t_pose_pose_marker_name = vrm1.humanoid.pose_marker_name
-            # pose_marker_frame = 0
-            # if t_pose_pose_marker_name:
-            #     for search_pose_marker in t_pose_action.pose_markers.values():
-            #         if search_pose_marker.name == t_pose_pose_marker_name:
-            #             pose_marker_frame = search_pose_marker.frame
-            #             break
-            #
-            # context.view_layer.update()
-            # saved_current_pose_matrix_basis_dict = {
-            #     bone.name: bone.matrix_basis.copy() for bone in armature.pose.bones
-            # }
-            # saved_current_pose_matrix_dict = {
-            #     bone.name: bone.matrix.copy() for bone in armature.pose.bones
-            # }
-
-            # if t_pose_action:
-            #     armature.pose.apply_pose_from_action(
-            #         t_pose_action, evaluation_time=pose_marker_frame
-            #     )
-            # else:
-
-            # TODO: ここのロジックはちゃんと考える
-            armature_data.pose_position = "REST"
-
-            context.view_layer.update()
-
-            output_bytes = work_in_progress_2(context, armature)
-        finally:
-            # TODO: リストア処理、共通化
-            if armature_data.pose_position != saved_pose_position:
-                armature_data.pose_position = saved_pose_position
-
-        # bones = [bone for bone in armature.pose.bones if not bone.parent]
-        # while bones:
-        #     bone = bones.pop()
-        #     matrix_basis = saved_current_pose_matrix_basis_dict.get(bone.name)
-        #     if matrix_basis is not None:
-        #         bone.matrix_basis = matrix_basis
-        #     bones.extend(bone.children)
-        # context.view_layer.update()
-        #
-        # bones = [bone for bone in armature.pose.bones if not bone.parent]
-        # while bones:
-        #     bone = bones.pop()
-        #     matrix = saved_current_pose_matrix_dict.get(bone.name)
-        #     if matrix is not None:
-        #         bone.matrix = matrix
-        #     bones.extend(bone.children)
-
-    path.write_bytes(output_bytes)
-    return {"FINISHED"}
