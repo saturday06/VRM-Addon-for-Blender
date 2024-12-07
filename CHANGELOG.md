@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.32.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.32.0...v2.32.1) (2024-12-07)
+
+
+### 🐞 Bug Fixes
+
+* VRM export causes unexpected constrainted bone rotation ([2425087](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2425087a43b3f29f05a69fbf23745c2590cf54c8))
+
+
+### 📝 Documentation
+
+* remove deunnecessary notice ([24532bf](https://github.com/saturday06/VRM-Addon-for-Blender/commit/24532bf55d9a38420b731dd0d9637207cb57cff2))
+
 ## [2.32.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.31.1...v2.32.0) (2024-12-04)
 
 
