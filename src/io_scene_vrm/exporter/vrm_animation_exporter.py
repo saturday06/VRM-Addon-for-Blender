@@ -5,7 +5,7 @@ from os import environ
 from pathlib import Path
 from typing import Optional
 
-from bpy.types import Armature, Context, Object, PoseBone
+from bpy.types import Action, Armature, Context, Object, PoseBone
 from mathutils import Euler, Matrix, Quaternion, Vector
 
 from ..common import version
@@ -189,11 +189,14 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
                 bone.rotation_mode,
             )
 
-        if human_bones.hips.node.bone_name == bone.name:
-            data_path_to_bone_and_property_name[bone.path_from_id("location")] = (
-                bone,
-                "location",
-            )
+        data_path_to_bone_and_property_name[bone.path_from_id("location")] = (
+            bone,
+            "location",
+        )
+        data_path_to_bone_and_property_name[bone.path_from_id("scale")] = (
+            bone,
+            "scale",
+        )
 
     if root_node_child_indices:
         root_node_dict["children"] = make_json(root_node_child_indices)
@@ -680,6 +683,168 @@ def create_expression_animation(
         )
 
 
+def collect_node_animated_pose(
+    vrm1: Vrm1PropertyGroup,
+    *,
+    frame_start: int,
+    frame_end: int,
+    frame_to_timestamp_factor: float,
+    action: Action,
+    bone: PoseBone,
+    frame_current: int,
+    parent_matrix: Matrix,
+    parent_non_translation_matrix: Matrix,
+    bone_name_to_quaternion_offsets: dict[str, list[Quaternion]],
+    bone_name_to_euler_offsets: dict[str, list[Euler]],
+    bone_name_to_axis_angle_offsets: dict[str, list[list[float]]],
+    hips_translation_offsets: list[Vector],
+    data_path_to_bone_and_property_name: dict[str, tuple[PoseBone, str]],
+    hips_bone_name: str,
+    location_animation_found: bool,
+) -> None:
+    quaternion_offset: Optional[Quaternion] = None
+    axis_angle_offset: Optional[list[float]] = None
+    euler_offset: Optional[Euler] = None
+    translation_offset: Optional[Vector] = None
+    scale_offset: Vector = bone.scale.copy()
+    frame_offset = frame_current - frame_start
+
+    for fcurve in action.fcurves:
+        if fcurve.mute:
+            continue
+        if not fcurve.is_valid:
+            continue
+        fcurve_bone_and_property_name = data_path_to_bone_and_property_name.get(
+            fcurve.data_path
+        )
+        if not fcurve_bone_and_property_name:
+            continue
+        fcurve_bone, fcurve_property_name = fcurve_bone_and_property_name
+        if fcurve_bone != bone:
+            continue
+
+        value = float(fcurve.evaluate(frame_current))
+        if fcurve_property_name == "rotation_quaternion":
+            quaternion_offsets = bone_name_to_quaternion_offsets.get(bone.name)
+            if quaternion_offsets is None:
+                quaternion_offsets = []
+                bone_name_to_quaternion_offsets[bone.name] = quaternion_offsets
+            if frame_offset < len(quaternion_offsets):
+                quaternion_offset = quaternion_offsets[frame_offset]
+            else:
+                quaternion_offset = bone.rotation_quaternion.copy()
+                quaternion_offsets.append(quaternion_offset)
+            quaternion_offset[fcurve.array_index] = value
+        elif fcurve_property_name == "rotation_axis_angle":
+            axis_angle_offsets = bone_name_to_axis_angle_offsets.get(bone.name)
+            if axis_angle_offsets is None:
+                axis_angle_offsets = []
+                bone_name_to_axis_angle_offsets[bone.name] = axis_angle_offsets
+            if frame_offset < len(axis_angle_offsets):
+                axis_angle_offset = axis_angle_offsets[frame_offset]
+            else:
+                axis_angle_offset = list(bone.rotation_axis_angle)
+                axis_angle_offsets.append(axis_angle_offset)
+            axis_angle_offset[fcurve.array_index] = value
+        elif fcurve_property_name == "rotation_euler":
+            euler_offsets = bone_name_to_euler_offsets.get(bone.name)
+            if euler_offsets is None:
+                euler_offsets = []
+                bone_name_to_euler_offsets[bone.name] = euler_offsets
+            if frame_offset < len(euler_offsets):
+                euler_offset = euler_offsets[frame_offset]
+            else:
+                euler_offset = bone.rotation_euler.copy()
+                euler_offsets.append(euler_offset)
+            indices = {
+                "XYZ": [0, 1, 2],
+                "XZY": [0, 2, 1],
+                "YXZ": [1, 0, 2],
+                "YZX": [1, 2, 0],
+                "ZXY": [2, 0, 1],
+                "ZYX": [2, 1, 0],
+            }
+            index = indices.get(bone.rotation_mode)
+            if index is None:
+                continue
+            euler_offset[index[fcurve.array_index]] = value
+        elif fcurve_property_name == "location":
+            location_animation_found = True
+            if bone.name != hips_bone_name:
+                if translation_offset is None:
+                    translation_offset = bone.location.copy()
+            elif frame_offset < len(hips_translation_offsets):
+                translation_offset = hips_translation_offsets[frame_offset]
+            else:
+                translation_offset = bone.location.copy()
+                hips_translation_offsets.append(translation_offset)
+            translation_offset[fcurve.array_index] = value
+        elif fcurve_property_name == "scale":
+            scale_offset[fcurve.array_index] = value
+
+    if quaternion_offset is not None:
+        # ミュートされている項目とかあるとクオータニオンの値がノーマライズされて
+        # いないのでノーマライズしておく
+        quaternion_offset.normalize()
+        local_rotation = quaternion_offset
+    elif axis_angle_offset is not None:
+        axis_x, axis_y, axis_z, angle = axis_angle_offset
+        local_rotation = Quaternion((axis_x, axis_y, axis_z), angle)
+    elif euler_offset is not None:
+        local_rotation = euler_offset.to_quaternion()
+    else:
+        local_rotation = get_rotation_as_quaternion(bone)
+
+    if translation_offset is not None:
+        local_location = translation_offset
+    else:
+        local_location = bone.location
+
+    if bone.name == hips_bone_name and location_animation_found:
+        if frame_offset < len(hips_translation_offsets):
+            hips_translation_offset = hips_translation_offsets[frame_offset]
+        else:
+            hips_translation_offset = bone.location.copy()
+            hips_translation_offsets.append(hips_translation_offset)
+        # Hipsの場合は親の位置を追加する。これは、ルートモーションなどでHipsの親に
+        # アニメーションが入ることが多いが、VRMAはHips以外に位置のアニメーションを
+        # 追加できないため。
+        hips_parent_translation = (
+            parent_non_translation_matrix.inverted_safe() @ parent_matrix
+        ).to_translation()
+        hips_translation_offset.x += hips_parent_translation.x
+        hips_translation_offset.y += hips_parent_translation.y
+        hips_translation_offset.z += hips_parent_translation.z
+
+    matrix = parent_matrix @ (
+        Matrix.Translation(local_location)
+        @ local_rotation.to_matrix().to_4x4()
+        @ Matrix.Diagonal(scale_offset).to_4x4()
+    )
+    non_translation_matrix = parent_non_translation_matrix @ (
+        local_rotation.to_matrix().to_4x4() @ Matrix.Diagonal(scale_offset).to_4x4()
+    )
+    for child_bone in bone.children:
+        collect_node_animated_pose(
+            vrm1,
+            frame_start=frame_start,
+            frame_end=frame_end,
+            frame_to_timestamp_factor=frame_to_timestamp_factor,
+            action=action,
+            bone=child_bone,
+            frame_current=frame_current,
+            parent_matrix=matrix,
+            parent_non_translation_matrix=non_translation_matrix,
+            bone_name_to_quaternion_offsets=bone_name_to_quaternion_offsets,
+            bone_name_to_euler_offsets=bone_name_to_euler_offsets,
+            bone_name_to_axis_angle_offsets=bone_name_to_axis_angle_offsets,
+            hips_translation_offsets=hips_translation_offsets,
+            data_path_to_bone_and_property_name=data_path_to_bone_and_property_name,
+            hips_bone_name=hips_bone_name,
+            location_animation_found=location_animation_found,
+        )
+
+
 def create_node_animation(
     vrm1: Vrm1PropertyGroup,
     *,
@@ -711,72 +876,34 @@ def create_node_animation(
     bone_name_to_euler_offsets: dict[str, list[Euler]] = {}
     bone_name_to_axis_angle_offsets: dict[str, list[list[float]]] = {}
     hips_translation_offsets: list[Vector] = []
-    for fcurve in action.fcurves:
-        if fcurve.mute:
-            continue
-        if not fcurve.is_valid:
-            continue
 
-        bone_and_property_name = data_path_to_bone_and_property_name.get(
-            fcurve.data_path
-        )
-        if not bone_and_property_name:
+    for root_bone in armature.pose.bones:
+        if root_bone.parent:
             continue
-        bone, property_name = bone_and_property_name
-        for frame in range(frame_start, frame_end + 1):
-            offset = frame - frame_start
-            value = float(fcurve.evaluate(frame))
-            if property_name == "rotation_quaternion":
-                quaternion_offsets = bone_name_to_quaternion_offsets.get(bone.name)
-                if quaternion_offsets is None:
-                    quaternion_offsets = []
-                    bone_name_to_quaternion_offsets[bone.name] = quaternion_offsets
-                if offset < len(quaternion_offsets):
-                    quaternion_offset = quaternion_offsets[offset]
-                else:
-                    quaternion_offset = Quaternion()
-                    quaternion_offsets.append(quaternion_offset)
-                quaternion_offset[fcurve.array_index] = value
-            elif property_name == "rotation_axis_angle":
-                axis_angle_offsets = bone_name_to_axis_angle_offsets.get(bone.name)
-                if axis_angle_offsets is None:
-                    axis_angle_offsets = []
-                    bone_name_to_axis_angle_offsets[bone.name] = axis_angle_offsets
-                if offset < len(axis_angle_offsets):
-                    axis_angle_offset = axis_angle_offsets[offset]
-                else:
-                    axis_angle_offset = [0.0, 0.0, 0.0, 0.0]
-                    axis_angle_offsets.append(axis_angle_offset)
-                axis_angle_offset[fcurve.array_index] = value
-            elif property_name == "rotation_euler":
-                euler_offsets = bone_name_to_euler_offsets.get(bone.name)
-                if euler_offsets is None:
-                    euler_offsets = []
-                    bone_name_to_euler_offsets[bone.name] = euler_offsets
-                if offset < len(euler_offsets):
-                    euler_offset = euler_offsets[offset]
-                else:
-                    euler_offset = Euler((0, 0, 0))
-                    euler_offsets.append(euler_offset)
-                indices = {
-                    "XYZ": [0, 1, 2],
-                    "XZY": [0, 2, 1],
-                    "YXZ": [1, 0, 2],
-                    "YZX": [1, 2, 0],
-                    "ZXY": [2, 0, 1],
-                    "ZYX": [2, 1, 0],
-                }
-                index = indices.get(bone.rotation_mode)
-                if index is None:
-                    continue
-                euler_offset[index[fcurve.array_index]] = value
-            elif property_name == "location":
-                if offset < len(hips_translation_offsets):
-                    translation_offset = hips_translation_offsets[offset]
-                else:
-                    translation_offset = Vector((0.0, 0.0, 0.0))
-                    hips_translation_offsets.append(translation_offset)
-                translation_offset[fcurve.array_index] = value
+        for frame_current in range(frame_start, frame_end + 1):
+            matrix = armature.matrix_world
+            _location, rotation, scale = matrix.decompose()
+            non_translation_matrix = (
+                rotation.to_matrix().to_4x4() @ Matrix.Diagonal(scale).to_4x4()
+            )
+            collect_node_animated_pose(
+                vrm1,
+                frame_start=frame_start,
+                frame_end=frame_end,
+                frame_to_timestamp_factor=frame_to_timestamp_factor,
+                action=action,
+                bone=root_bone,
+                frame_current=frame_current,
+                parent_matrix=matrix,
+                parent_non_translation_matrix=non_translation_matrix,
+                bone_name_to_quaternion_offsets=bone_name_to_quaternion_offsets,
+                bone_name_to_euler_offsets=bone_name_to_euler_offsets,
+                bone_name_to_axis_angle_offsets=bone_name_to_axis_angle_offsets,
+                hips_translation_offsets=hips_translation_offsets,
+                data_path_to_bone_and_property_name=data_path_to_bone_and_property_name,
+                hips_bone_name=vrm1.humanoid.human_bones.hips.node.bone_name,
+                location_animation_found=False,
+            )
 
     bone_name_to_quaternions: dict[str, list[Quaternion]] = {}
     for bone_name, quaternion_offsets in bone_name_to_quaternion_offsets.items():
@@ -784,9 +911,7 @@ def create_node_animation(
         if base_quaternion is None:
             continue
         bone_name_to_quaternions[bone_name] = [
-            # ミュートされている項目とかあるとクオータニオンの値がノーマライズされて
-            # いないのでノーマライズしておく
-            base_quaternion @ quaternion_offset.normalized()
+            base_quaternion @ quaternion_offset
             for quaternion_offset in quaternion_offsets
         ]
     for bone_name, euler_offsets in bone_name_to_euler_offsets.items():
