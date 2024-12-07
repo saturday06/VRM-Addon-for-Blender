@@ -14,7 +14,7 @@ from bpy.types import (
     Pose,
     PoseBone,
 )
-from mathutils import Matrix, Quaternion, Vector
+from mathutils import Euler, Matrix, Quaternion, Vector
 
 from ..common import ops
 from ..common.logging import get_logger
@@ -517,16 +517,29 @@ def set_estimated_humanoid_t_pose(context: Context, armature: Object) -> bool:
 @dataclass(frozen=True)
 class PoseBonePose:
     matrix_basis: Matrix
-    matrix: Matrix
     rotation_mode: str
+    rotation_quaternion: Quaternion
+    rotation_axis_angle: tuple[float, float, float, float]
+    rotation_euler: Euler
+    scale: Vector
+    location: Vector
 
     @staticmethod
     def save(pose: Pose) -> dict[str, "PoseBonePose"]:
         return {
             bone.name: PoseBonePose(
                 matrix_basis=bone.matrix_basis.copy(),
-                matrix=bone.matrix.copy(),
                 rotation_mode=bone.rotation_mode,
+                rotation_quaternion=bone.rotation_quaternion.copy(),
+                rotation_axis_angle=(
+                    bone.rotation_axis_angle[0],
+                    bone.rotation_axis_angle[1],
+                    bone.rotation_axis_angle[2],
+                    bone.rotation_axis_angle[3],
+                ),
+                rotation_euler=bone.rotation_euler.copy(),
+                scale=bone.scale.copy(),
+                location=bone.location.copy(),
             )
             for bone in pose.bones
         }
@@ -537,9 +550,6 @@ class PoseBonePose:
         pose: Pose,
         bone_name_to_pose_bone_pose: dict[str, "PoseBonePose"],
     ) -> None:
-        # もともとそうやっていたという理由でmatrix_basisとmatrixとrotation_modeは
-        # 別々のループで復元しているがいっぺんに復元した方が効率が良い気がする
-
         context.view_layer.update()
 
         bones = [bone for bone in pose.bones if not bone.parent]
@@ -548,26 +558,15 @@ class PoseBonePose:
             pose_bone_pose = bone_name_to_pose_bone_pose.get(bone.name)
             if pose_bone_pose:
                 bone.matrix_basis = pose_bone_pose.matrix_basis.copy()
-            bones.extend(bone.children)
-
-        context.view_layer.update()
-
-        bones = [bone for bone in pose.bones if not bone.parent]
-        while bones:
-            bone = bones.pop()
-            pose_bone_pose = bone_name_to_pose_bone_pose.get(bone.name)
-            if pose_bone_pose:
-                bone.matrix = pose_bone_pose.matrix.copy()
-            bones.extend(bone.children)
-
-        context.view_layer.update()
-
-        bones = [bone for bone in pose.bones if not bone.parent]
-        while bones:
-            bone = bones.pop()
-            pose_bone_pose = bone_name_to_pose_bone_pose.get(bone.name)
-            if pose_bone_pose:
+                # bone.matrixを直接復元したほうが効率的に思えるが、それをやると
+                # コンストレイントがついている場合に不具合が発生することがある
+                # https://github.com/saturday06/VRM-Addon-for-Blender/issues/671
                 bone.rotation_mode = pose_bone_pose.rotation_mode
+                bone.rotation_axis_angle = list(pose_bone_pose.rotation_axis_angle)
+                bone.rotation_quaternion = pose_bone_pose.rotation_quaternion.copy()
+                bone.rotation_euler = pose_bone_pose.rotation_euler.copy()
+                bone.scale = pose_bone_pose.scale.copy()
+                bone.location = pose_bone_pose.location.copy()
             bones.extend(bone.children)
 
         context.view_layer.update()
