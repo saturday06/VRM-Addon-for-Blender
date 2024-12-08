@@ -89,6 +89,8 @@ def create_node_dicts(
     matrix = parent_bone.matrix.inverted() @ bone.matrix if parent_bone else bone.matrix
     translation = matrix.to_translation()
     rotation = matrix.to_quaternion()
+    # TODO: Humanoidボーンにはscaleがつけられず、それ以外のボーンのscaleも非推奨
+    # そのため親のscaleをtranslationなどにapplyするべき
     node_dict["translation"] = [
         translation.x,
         translation.z,
