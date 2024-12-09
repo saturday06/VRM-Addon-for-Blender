@@ -16,6 +16,7 @@ from bpy.types import (
     Armature,
     ArmatureModifier,
     Bone,
+    Constraint,
     Context,
     CopyRotationConstraint,
     Curve,
@@ -2147,6 +2148,45 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         armature_data.edit_bones.remove(dummy_edit_bone)
 
     @contextmanager
+    def disable_constraints(self, context: Context) -> Iterator[None]:
+        constraint: Optional[Constraint] = None
+
+        object_constraints, bone_constraints, _ = search.export_constraints(
+            self.export_objects, self.armature
+        )
+        object_name_and_constraint_name: list[tuple[str, str]] = []
+        for object_name, constraint in object_constraints.all_constraints:
+            constraint.mute = True
+            object_name_and_constraint_name.append((object_name, constraint.name))
+
+        bone_name_and_constraint_name: list[tuple[str, str]] = []
+        for bone_name, constraint in bone_constraints.all_constraints:
+            constraint.mute = True
+            bone_name_and_constraint_name.append((bone_name, constraint.name))
+
+        try:
+            yield
+        finally:
+            # ObjectやConstraintが消えている可能性を考慮し、それらを取得し直す
+            for object_name, constraint_name in object_name_and_constraint_name:
+                obj = context.blend_data.objects.get(object_name)
+                if not obj:
+                    continue
+                constraint = obj.constraints.get(constraint_name)
+                if not constraint:
+                    continue
+                constraint.mute = False
+
+            for bone_name, constraint_name in bone_name_and_constraint_name:
+                bone = self.armature.pose.bones.get(bone_name)
+                if not bone:
+                    continue
+                constraint = bone.constraints.get(constraint_name)
+                if not constraint:
+                    continue
+                constraint.mute = False
+
+    @contextmanager
     def assign_export_custom_properties(
         self, armature_data: Armature
     ) -> Iterator[None]:
@@ -2214,6 +2254,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             self.overwrite_object_visibility_and_selection(),
         ):
             with (
+                self.disable_constraints(self.context),
                 self.hide_mtoon1_outline_geometry_nodes(self.context),
                 self.disable_mtoon1_material_nodes(self.context),
                 self.mount_skinned_mesh_parent(),

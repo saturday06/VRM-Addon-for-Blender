@@ -381,6 +381,14 @@ class ExportConstraint:
     aim_constraints: dict[str, DampedTrackConstraint]
     rotation_constraints: dict[str, CopyRotationConstraint]
 
+    @property
+    def all_constraints(self) -> list[tuple[str, Constraint]]:
+        all_constraints: list[tuple[str, Constraint]] = []
+        all_constraints.extend(self.roll_constraints.items())
+        all_constraints.extend(self.aim_constraints.items())
+        all_constraints.extend(self.rotation_constraints.items())
+        return all_constraints
+
 
 def roll_constraint_or_none(
     constraint: Constraint,
