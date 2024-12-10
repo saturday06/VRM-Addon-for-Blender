@@ -36,6 +36,7 @@ from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.gltf import pack_glb, parse_glb
 from ..common.logging import get_logger
+from ..common.rotation import set_rotation_without_mode_change
 from ..common.version import get_addon_version
 from ..common.vrm1.human_bone import HumanBoneName
 from ..common.workspace import save_workspace
@@ -2156,11 +2157,19 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         )
         object_name_and_constraint_name: list[tuple[str, str]] = []
         for object_name, constraint in object_constraints.all_constraints:
+            obj = context.blend_data.objects.get(object_name)
+            if not obj:
+                continue
+            set_rotation_without_mode_change(obj, Quaternion())
             constraint.mute = True
             object_name_and_constraint_name.append((object_name, constraint.name))
 
         bone_name_and_constraint_name: list[tuple[str, str]] = []
         for bone_name, constraint in bone_constraints.all_constraints:
+            bone = self.armature.pose.bones.get(bone_name)
+            if not bone:
+                continue
+            set_rotation_without_mode_change(bone, Quaternion())
             constraint.mute = True
             bone_name_and_constraint_name.append((bone_name, constraint.name))
 
