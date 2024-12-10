@@ -2260,7 +2260,19 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 material.pop(self.extras_material_name_key, None)
 
     @staticmethod
-    def gltf_export_armature_object_remove(context: Context) -> bool:
+    def gltf_export_armature_object_remove(
+        context: Context, mesh_object_names: Sequence[str]
+    ) -> bool:
+        """export_armature_object_removeを有効にするかどうかを返す.
+
+        export_armature_object_removeは非常に便利でぜひ使いたいが、
+        バグも多いので、そのバグの影響を受けない場合のみ有効にする。
+        """
+        if bpy.app.version < (4, 2):
+            return False
+
+        # ルートボーンにnot use_deformのものがあったらFalse
+        # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2394
         for selected_object in context.selected_objects:
             if selected_object.type != "ARMATURE":
                 continue
@@ -2270,9 +2282,50 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             for bone in armature.bones:
                 if bone.parent:
                     continue
-                # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2394
                 if not bone.use_deform:
                     return False
+
+        # Armatureモディファイアがついていて、ウエイトがついていない頂点があったらFalse
+        # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2436
+        for mesh_object_name in mesh_object_names:
+            mesh_object = context.blend_data.objects.get(mesh_object_name)
+            if not mesh_object:
+                continue
+            if mesh_object.type != "MESH":
+                continue
+            mesh = mesh_object.data
+            if not isinstance(mesh, Mesh):
+                continue
+
+            vertex_group_names_sequence: Sequence[set[str]] = [
+                {
+                    mesh_object.vertex_groups[group.group].name
+                    for group in vertex.groups
+                    if group.weight > 0
+                    and 0 <= group.group < len(mesh_object.vertex_groups)
+                }
+                for vertex in mesh.vertices
+            ]
+
+            for modifier in mesh_object.modifiers:
+                if modifier.type != "ARMATURE":
+                    continue
+                if not isinstance(modifier, ArmatureModifier):
+                    continue
+                armature_object = modifier.object
+                if not armature_object:
+                    continue
+                armature_data = armature_object.data
+                if not isinstance(armature_data, Armature):
+                    continue
+                bone_names = set(armature_data.bones.keys())
+                for vertex_group_names in vertex_group_names_sequence:
+                    if all(
+                        vertex_group_name not in bone_names
+                        for vertex_group_name in vertex_group_names
+                    ):
+                        return False
+
         return True
 
     def export_vrm(self) -> Optional[bytes]:
@@ -2316,7 +2369,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         use_active_scene=True,
                         export_animations=True,
                         export_armature_object_remove=(
-                            self.gltf_export_armature_object_remove(self.context)
+                            self.gltf_export_armature_object_remove(
+                                self.context, mesh_compat_object_names
+                            )
                         ),
                         export_rest_position_armature=False,
                         export_apply=False,
