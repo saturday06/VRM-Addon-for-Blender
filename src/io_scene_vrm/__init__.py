@@ -18,7 +18,7 @@ bl_info = {
     "version": (
         2,  # x-release-please-major
         32,  # x-release-please-minor
-        1,  # x-release-please-patch
+        2,  # x-release-please-patch
     ),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
