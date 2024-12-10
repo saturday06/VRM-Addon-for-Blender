@@ -1698,6 +1698,7 @@ class DampedTrackConstraint(Constraint):
     track_axis: str
 
 class CopyRotationConstraint(Constraint):
+    euler_order: str
     target: Optional[Object]
     mix_mode: str
     use_x: bool
