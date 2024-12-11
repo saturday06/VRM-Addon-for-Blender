@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.32.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.32.1...v2.32.2) (2024-12-10)
+
+
+### 🐞 Bug Fixes
+
+* add workaround for non-weighted skinned mesh export error ([a47a0d2](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a47a0d289ea07527da24e63072601ed05eaae357))
+* unexpected constrainted node rotation on export ([90809f0](https://github.com/saturday06/VRM-Addon-for-Blender/commit/90809f03bd3f07a5b8747e56802cd927a425ed73))
+
 ## [2.32.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.32.0...v2.32.1) (2024-12-07)
 
 
