@@ -57,11 +57,13 @@ jobs:
         run: |
           set -x
 
+          git fetch --depth=1 origin README
           git fetch --depth=1 origin main
           git fetch --depth=1 origin website || true
           git fetch --depth=1 origin unplanned-release || true
           case "$GITHUB_SHA" in
             "") exit 0;;
+            "$(git rev-parse origin/README)");;
             "$(git rev-parse origin/main)");;
             "$(git rev-parse origin/website || true)");;
             "$(git rev-parse origin/unplanned-release || true)");;
