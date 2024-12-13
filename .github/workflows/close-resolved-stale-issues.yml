@@ -19,4 +19,5 @@ jobs:
           days-before-close: 120
           stale-issue-label: "resolved; will close if no new info for 120 days"
           close-issue-message: "This issue was closed because it has been inactive for 120 days since being marked as resolved."
+          close-issue-reason: completed
           repo-token: ${{ secrets.GITHUB_TOKEN }}
