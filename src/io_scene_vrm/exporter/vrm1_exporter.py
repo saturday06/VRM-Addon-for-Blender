@@ -251,6 +251,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             yield
             return
 
+        if bpy.app.version >= (3, 2, 1):
+            yield
+            return
+
         # Blender 3.1.2付属アドオンのglTF 2.0エクスポート処理には次の条件をすべて満たす
         # ときinverseBindMatricesが不正なglbが出力される:
         # - アーマチュアの子孫になっていないメッシュがそのアーマチュアのボーンに
