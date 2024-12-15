@@ -32,6 +32,7 @@ jobs:
           cp -r ../.github .
           rm -r .github/workflows/
           mkdir .github/workflows/
+          cp ../.github/workflows/gh-pages.yml .github/workflows/
           cp ../.github/workflows/close-resolved-stale-issues.yml .github/workflows/
           cp ../.github/workflows/release-please.yml .github/workflows/
           cp ../README.md .
