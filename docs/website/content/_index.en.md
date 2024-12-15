@@ -16,7 +16,7 @@ main article.prose section :where(p, img):not(:where([class~=not-prose] *)) {
 
 ![](top.en.png)
 
-VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blender. It supports Blender versions 2.93 to 4.2.
+VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blender. It supports Blender versions 2.93 to 4.3.
 
 ## Download
 

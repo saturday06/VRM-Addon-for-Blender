@@ -16,7 +16,7 @@ main article.prose section :where(p, img):not(:where([class~=not-prose] *)) {
 
 ![](top.ja.png)
 
-VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。バージョン2.93から4.2のBlenderに対応しています。
+VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。バージョン2.93から4.3のBlenderに対応しています。
 
 ## ダウンロード
 
