@@ -2316,6 +2316,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     continue
                 if not isinstance(modifier, ArmatureModifier):
                     continue
+                if not modifier.show_viewport:
+                    continue
                 armature_object = modifier.object
                 if not armature_object:
                     continue
