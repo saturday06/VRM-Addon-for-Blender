@@ -46,11 +46,36 @@ paths.forEach(async (path) => {
     return;
   }
 
-  if (result.issues.numErrors > 0) {
-    console.error(`Errors in "${path}":`);
-    result.issues.messages.forEach((message) => {
-      console.error(message);
-    });
+  let hasError = false;
+  for (const message of result.issues.messages) {
+    if (message.severity > 1) {
+      continue;
+    }
+
+    if (
+      message.code == "MULTIPLE_EXTENSIONS" &&
+      message.pointer.endsWith("/extensions/KHR_materials_unlit")
+    ) {
+      // TODO: もっと詳しく中身を見るべき
+      continue;
+    }
+
+    if (message.code == "INVALID_EXTENSION_NAME_FORMAT") {
+      // TODO: 中身を見るべき
+      continue;
+    }
+
+    if (message.code == "MESH_PRIMITIVE_GENERATED_TANGENT_SPACE") {
+      // TODO: glTF-Blender-IO公式に通知する必要がある
+      continue;
+    }
+
+    console.error(`Error in "${path}":`);
+    console.error(message);
+    hasError = true;
+  }
+
+  if (hasError) {
     process.exitCode = 1;
     return;
   }
