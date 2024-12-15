@@ -761,16 +761,17 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             and (image_index := image_name_to_image_index.get(meta.texture.name))
             is not None
         ):
-            # 旧エクスポーターとの互換性のためサンプラーは強制追加
-            sampler_index = len(sampler_dicts)
-            sampler_dicts.append(
-                {
-                    "magFilter": GL_LINEAR,
-                    "minFilter": GL_LINEAR,
-                    "wrapS": GL_REPEAT,
-                    "wrapT": GL_REPEAT,
-                }
-            )
+            sampler_dict: dict[str, Json] = {
+                "magFilter": GL_LINEAR,
+                "minFilter": GL_LINEAR,
+                "wrapS": GL_REPEAT,
+                "wrapT": GL_REPEAT,
+            }
+            if sampler_dict in sampler_dicts:
+                sampler_index = sampler_dicts.index(sampler_dict)
+            else:
+                sampler_index = len(sampler_dicts)
+                sampler_dicts.append(sampler_dict)
             texture_index = len(texture_dicts)
             texture_dicts.append(
                 {
@@ -907,14 +908,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             )
         )
 
-        secondary_node_index = self.write_secondary_nodes(progress, node_dicts)
-        if secondary_node_index is not None:
-            scene0_nodes.append(secondary_node_index)
         scene_dicts.append({"nodes": scene0_nodes})
-
-        # TODO: 旧エクスポーターとの互換性確保用。将来削除する。
-        if skin_dict and not skin_dicts:
-            skin_dicts.append(dict(skin_dict))
 
     def write_mtoon1_downgraded_material(
         self,
@@ -1473,10 +1467,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             self.create_mtoon0_khr_texture_transform(node, texture_input_name)
         )
 
-        texture_info: dict[str, Json] = {
-            "index": texture_index,
-            "texCoord": 0,  # TODO: 互換性のためのもの。削除予定
-        }
+        texture_info: dict[str, Json] = {"index": texture_index}
 
         if use_khr_texture_transform:
             texture_info["extensions"] = {
@@ -1538,9 +1529,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         if emission_color is None:
             emission_color = (0.0, 0.0, 0.0, 1.0)
         else:
-            # TODO: 互換性のため出力していない。本来は出力するべき。
-            # material_dict["emissiveFactor"] = make_json(emission_color[:3])
-            pass
+            material_dict["emissiveFactor"] = make_json(emission_color[:3])
 
         pbr_metallic_roughness_dict["baseColorFactor"] = make_json(color)
 
@@ -2435,7 +2424,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         buffer_view_dicts: list[dict[str, Json]],
         buffer0: bytearray,
         bone_name_to_node_index: dict[str, int],
-    ) -> tuple[Sequence[int], Mapping[str, Json], Sequence[int]]:
+    ) -> tuple[Sequence[int], Optional[Mapping[str, Json]], Sequence[int]]:
         bones = [bone for bone in self.armature.pose.bones if not bone.parent]
         root_node_index = len(node_dicts)
         if not bones:
@@ -2445,7 +2434,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     "name": self.armature.name,
                 }
             )
-            return [root_node_index], {}, []
+            return [root_node_index], None, []
 
         bone_name_to_inverse_bind_matrix: dict[str, Matrix] = {}
         humanoid_root_bone_index: Optional[int] = None
@@ -2495,7 +2484,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         if humanoid_root_bone is None or humanoid_root_bone_index is None:
             logger.error("No human bone")
-            return [root_node_index], {}, []
+            return [root_node_index], None, []
 
         while len(buffer0) % 4:
             buffer0.append(0)
@@ -2835,7 +2824,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         mesh_convertible_objects: Sequence[Object],
         mesh_object_name_to_mesh_index: dict[str, int],
         material_name_to_material_index: Mapping[str, int],
-        skin_dict: Mapping[str, Json],
+        skin_dict: Optional[Mapping[str, Json]],
         skin_joints: Sequence[int],
     ) -> Optional[int]:
         if obj.type not in MESH_CONVERTIBLE_OBJECT_TYPES:
@@ -2891,10 +2880,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         if not parent_translation:
             parent_translation = Vector((0, 0, 0))
 
-        if have_skin:
-            # TODO: 旧エクスポーターとの互換性のため値を設定しているが、将来的に消す
-            node_dict["translation"] = [0, 0, 0]
-        else:
+        if not have_skin:
             node_dict["translation"] = make_json(
                 convert.axis_blender_to_gltf(
                     obj.matrix_world.to_translation() - parent_translation
@@ -3348,7 +3334,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             }
         )
         mesh_object_name_to_mesh_index[obj.name] = mesh_index
-        if skin_dict and have_skin:
+        if skin_dict is not None and have_skin:
             node_dict["skin"] = len(skin_dicts)
             skin_dicts.append(dict(skin_dict))
 
@@ -3382,7 +3368,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         bone_name_to_node_index: Mapping[str, int],
         mesh_object_name_to_mesh_index: dict[str, int],
         material_name_to_material_index: Mapping[str, int],
-        skin_dict: Mapping[str, Json],
+        skin_dict: Optional[Mapping[str, Json]],
         skin_joints: Sequence[int],
     ) -> list[int]:
         object_name_to_node_index: dict[str, int] = {}
@@ -3441,33 +3427,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             node_indices.append(node_index)
 
         return node_indices
-
-    def write_secondary_nodes(
-        self,
-        _progress: Progress,
-        node_dicts: list[dict[str, Json]],
-    ) -> Optional[int]:
-        """secondaryノードの出力.
-
-        旧エクスポーターとの互換性のために残されている機能のため、削除予定
-        """
-        for node_dict in node_dicts:
-            if node_dict.get("name") != "secondary":
-                continue
-            if node_dict.get("children"):
-                continue
-            return None
-
-        node_index = len(node_dicts)
-        node_dicts.append(
-            {
-                "name": "secondary",
-                "translation": [0, 0, 0],
-                "rotation": [0, 0, 0, 1],
-                "scale": [1, 1, 1],
-            }
-        )
-        return node_index
 
     @property
     def armature_data(self) -> Armature:
@@ -3748,11 +3707,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             texture_index = len(texture_dicts)
             texture_dicts.append(texture_dict)
 
-        texture_info: dict[str, Json] = {
-            "index": texture_index,
-            # TODO: 互換性のためのもの。将来は削除するか、複数のtexCoordをサポートする
-            "texCoord": 0,
-        }
+        texture_info: dict[str, Json] = {"index": texture_index}
 
         texture_info_scale = getattr(gltf2_io_texture_info, "scale", None)
         if isinstance(texture_info_scale, (int, float)):
@@ -3836,10 +3791,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         texture_properties[texture_properties_key] = texture_index
         vector_properties[texture_properties_key] = [0, 0, 1, 1]
 
-        texture_info: dict[str, Json] = {
-            "index": texture_index,
-            "texCoord": 0,  # TODO: 互換性のため
-        }
+        texture_info: dict[str, Json] = {"index": texture_index}
         return texture_info
 
     def create_mtoon1_downgraded_texture_info(
