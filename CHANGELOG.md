@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.33.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.32.2...v2.33.0) (2024-12-15)
+
+
+### 🚀 Features
+
+* skip blender 3.1.2 workaround in new blender ([0dc0b72](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0dc0b721cbd59e166bde35d867a7cf673ff51864))
+
+
+### 🐞 Bug Fixes
+
+* prevent skinned mesh node parenting to make gltf validator happy ([1222f26](https://github.com/saturday06/VRM-Addon-for-Blender/commit/1222f2647d3959005fcba4e59a0797188d30008f))
+
 ## [2.32.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.32.1...v2.32.2) (2024-12-10)
 
 
