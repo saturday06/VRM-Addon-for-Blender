@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        blender_major_minor_bersion:
+        blender_major_minor_version:
           - 2.93
           - 3.3
           - 3.6
@@ -33,11 +33,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: blender.zip
-          key: ${{ matrix.blender_major_minor_bersion }}-archive-5
+          key: ${{ matrix.blender_major_minor_version }}-archive-5
       - name: Download archive
         if: steps.cache-archive.outputs.cache-hit != 'true'
         env:
-          BLENDER_MAJOR_MINOR_VERSION: ${{ matrix.blender_major_minor_bersion }}
+          BLENDER_MAJOR_MINOR_VERSION: ${{ matrix.blender_major_minor_version }}
         run: |
           $url = "${env:BLENDER_ARCHIVE_BASE_URL}/Blender${env:BLENDER_MAJOR_MINOR_VERSION}/blender-${env:BLENDER_MAJOR_MINOR_VERSION}.0-windows-x64.zip"
           $retry = 10
@@ -70,7 +70,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        blender_major_minor_bersion:
+        blender_major_minor_version:
           - 2.93
           - 3.3
           - 3.6
@@ -78,7 +78,7 @@ jobs:
         blender_arch:
           - arm64
         include:
-          - blender_major_minor_bersion: 4.2
+          - blender_major_minor_version: 4.2
             blender_arch: x64
     env:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
@@ -89,11 +89,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: blender.dmg
-          key: ${{ matrix.blender_major_minor_bersion }}-${{ matrix.blender_arch }}-archive-5
+          key: ${{ matrix.blender_major_minor_version }}-${{ matrix.blender_arch }}-archive-5
       - name: Download archive
         if: steps.cache-archive.outputs.cache-hit != 'true'
         env:
-          BLENDER_MAJOR_MINOR_VERSION: ${{ matrix.blender_major_minor_bersion }}
+          BLENDER_MAJOR_MINOR_VERSION: ${{ matrix.blender_major_minor_version }}
           BLENDER_ARCH: ${{ matrix.blender_arch }}
         run: |
           url="${BLENDER_ARCHIVE_BASE_URL}/Blender${BLENDER_MAJOR_MINOR_VERSION}/blender-${BLENDER_MAJOR_MINOR_VERSION}.0-macos-${BLENDER_ARCH}.dmg"
@@ -116,7 +116,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        blender_major_minor_bersion:
+        blender_major_minor_version:
           - 4.2
     env:
       BLENDER_VRM_EXCLUDE_GUI_TEST: true
@@ -127,11 +127,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: blender.tar.gz
-          key: ${{ matrix.blender_major_minor_bersion }}-archive-6
+          key: ${{ matrix.blender_major_minor_version }}-archive-6
       - name: Download archive
         if: steps.cache-archive.outputs.cache-hit != 'true'
         env:
-          BLENDER_MAJOR_MINOR_VERSION: ${{ matrix.blender_major_minor_bersion }}
+          BLENDER_MAJOR_MINOR_VERSION: ${{ matrix.blender_major_minor_version }}
         run: |
           url="${BLENDER_ARCHIVE_BASE_URL}/Blender${BLENDER_MAJOR_MINOR_VERSION}/blender-${BLENDER_MAJOR_MINOR_VERSION}.0-linux-x64.tar.xz"
           curl -fsLS --retry 5 --retry-all-errors "$url" -o blender.tar.xz
