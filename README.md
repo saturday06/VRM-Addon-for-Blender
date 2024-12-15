@@ -2,7 +2,7 @@
 
 [ English / [日本語](#ja_JP) ]
 
-# VRM Add-on for Blender <a href="https://github.com/saturday06/VRM-Addon-for-Blender/actions"><img alt="CI status" src="https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main"></a> [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+# VRM Add-on for Blender [![CI status](https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/saturday06/VRM-Addon-for-Blender/actions) [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 
 VRM Add-on for Blender is an add-on to add VRM-related functions into Blender.
 
@@ -27,7 +27,7 @@ This add-on adds VRM-related functions to Blender, such as importing and exporti
 
 ## Development
 
-The source code for development is in the <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main">`main`</a> branch. Its <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm">`src/io_scene_vrm`</a> folder is a main body of the add-on. For efficient development, you can create a link to that folder in the Blender `addons` folder.
+The source code for development is in the [`main`](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main) branch. Its [`src/io_scene_vrm`](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm) folder is a main body of the add-on. For efficient development, you can create a link to that folder in the Blender `addons` folder.
 
 For more advanced development, such as running tests, please use [astral.sh/uv](https://docs.astral.sh/uv/). See [the tutorial](https://vrm-addon-for-blender.info/en/development?locale_redirection) for more information.
 
@@ -63,7 +63,7 @@ mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\i
 
 [ [English](#en) / 日本語 ]
 
-# VRM Add-on for Blender <a href="https://github.com/saturday06/VRM-Addon-for-Blender/actions"><img alt="CI status" src="https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main"></a> [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+# VRM Add-on for Blender [![CI status](https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/saturday06/VRM-Addon-for-Blender/actions) [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 
 BlenderにVRM関連機能を追加するアドオンです。
 
@@ -88,7 +88,7 @@ BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加やM
 
 ## 改造するには
 
-開発用のソースコードは <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main">`main`</a>ブランチにあります。ブランチ内の <a href="https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm">`src/io_scene_vrm`</a> フォルダがアドオン本体です。
+開発用のソースコードは [`main`](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main)ブランチにあります。ブランチ内の [`src/io_scene_vrm`](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm) フォルダがアドオン本体です。
 そのフォルダへのリンクをBlenderの `addons` フォルダ内に作ることで効率的に開発をすることができます。
 
 テストの実行など、より高度な開発をする場合は[astral.sh/uv](https://docs.astral.sh/uv/)をご利用ください。詳しい情報は[チュートリアル](https://vrm-addon-for-blender.info/en/development?locale_redirection)にあります。
