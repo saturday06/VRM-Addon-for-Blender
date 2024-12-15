@@ -2852,23 +2852,31 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         parent_node_index = None
         parent_translation = None
-        if (
-            obj.parent_type in ["ARMATURE", "OBJECT"]
-            and (parent := self.get_export_parent_object(obj, mesh_convertible_objects))
-            and parent in self.export_objects
-        ):
-            # TODO: 互換性のためネストしたメッシュを復元しないが、将来的には復元する
-            # parent_translation = parent.matrix_world.to_translation()
-            # parent_node_index = object_name_to_node_index.get(parent.name)
+        if have_skin:
+            # スキンがある場合はシーンのルートノードになる
             pass
+        else:
+            if (
+                obj.parent_type in ["ARMATURE", "OBJECT"]
+                and (
+                    parent := self.get_export_parent_object(
+                        obj, mesh_convertible_objects
+                    )
+                )
+                and parent in self.export_objects
+            ):
+                # TODO: 互換性のためネストしたメッシュを復元しないが、将来的には復元する
+                # parent_translation = parent.matrix_world.to_translation()
+                # parent_node_index = object_name_to_node_index.get(parent.name)
+                pass
 
-        if obj.parent_type == "BONE" and (
-            bone := self.armature.pose.bones.get(obj.parent_bone)
-        ):
-            parent_translation = (
-                self.armature.matrix_world @ bone.matrix
-            ).to_translation()
-            parent_node_index = bone_name_to_node_index.get(obj.parent_bone)
+            if obj.parent_type == "BONE" and (
+                bone := self.armature.pose.bones.get(obj.parent_bone)
+            ):
+                parent_translation = (
+                    self.armature.matrix_world @ bone.matrix
+                ).to_translation()
+                parent_node_index = bone_name_to_node_index.get(obj.parent_bone)
 
         if parent_node_index is not None and 0 <= parent_node_index < len(node_dicts):
             parent_node_dict = node_dicts[parent_node_index]
