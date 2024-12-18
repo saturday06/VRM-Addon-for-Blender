@@ -2998,12 +2998,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 no_morph_normal_export_material_indices.add(material_index)
 
         shape_key_name_to_vertex_index_to_morph_normal_diffs = None
-        if shape_key_name_to_mesh_data:
+        if original_shape_keys and shape_key_name_to_mesh_data:
             shape_key_name_to_vertex_index_to_morph_normal_diffs = (
                 self.create_shape_key_name_to_vertex_index_to_morph_normal_diffs(
                     self.context,
                     main_mesh_data,
                     shape_key_name_to_mesh_data,
+                    original_shape_keys.reference_key.name,
                 )
             )
 
@@ -3887,6 +3888,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         context: Context,
         mesh_data: Mesh,
         shape_key_name_to_mesh_data: Mapping[str, Mesh],
+        reference_key_name: str,
     ) -> Mapping[str, tuple[tuple[float, float, float], ...]]:
         # logger.error("CREATE UNIQ:")
         # 法線の差分を強制的にゼロにする設定が有効な頂点インデックスを集める
@@ -3919,10 +3921,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         # シェイプキーごとの法線の値を集める
         shape_key_name_to_vertex_normal_vectors: dict[str, list[Vector]] = {}
-        if not mesh_data.shape_keys:
-            message = "mesh_data.shape_keys is None"
-            raise AssertionError(message)
-        reference_key_name = mesh_data.shape_keys.reference_key.name
         for shape_key_name, shape_key_mesh_data in [
             (reference_key_name, mesh_data),
             *shape_key_name_to_mesh_data.items(),
