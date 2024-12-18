@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.33.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.33.0...v2.33.1) (2024-12-18)
+
+
+### 🐞 Bug Fixes
+
+* export error during automatic modifier application ([48f526b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/48f526b8ca98992f7df1beb19a72a648911506cf))
+
 ## [2.33.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.32.2...v2.33.0) (2024-12-15)
 
 
