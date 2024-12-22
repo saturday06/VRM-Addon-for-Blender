@@ -1,6 +1,6 @@
 [project]
 name = "io_scene_vrm"
-requires-python = "== 3.10.*" # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
+requires-python = "==3.10.*" # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
 version = "1.0.0" # Dummy version. See __init__.bl_info["version"] instead.
 authors = [
     {name = "Isamu Mogi"},
@@ -18,13 +18,13 @@ dependencies = [
 
 [tool.uv]
 dev-dependencies = [
-    "codespell == 2.3.0",
-    "dulwich == 0.22.7",
-    "mypy == 1.13.0",
-    "ruff == 0.8.4",
+    "codespell ==2.3.0",
+    "dulwich ==0.22.7",
+    "mypy ==1.13.0",
+    "ruff ==0.8.4",
     "starry-bpy-typings",
-    "tqdm == 4.67.1",
-    "types-tqdm == 4.67.0.20241221",
+    "tqdm ==4.67.1",
+    "types-tqdm ==4.67.0.20241221",
 ]
 
 [tool.uv.sources]
