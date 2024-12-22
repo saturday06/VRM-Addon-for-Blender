@@ -1827,11 +1827,11 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
                 nodes_to_remove.append(node)
                 # Handle links for group nodes
                 for output in node.outputs:
-                    for link in output.links:
-                        if not link.to_node.name.startswith("VRM_TextureTransform_"):
-                            links_to_restore.append(  # noqa: PERF401
-                                (node.inputs[0].links[0].from_socket, link.to_socket)
-                            )
+                    links_to_restore.extend(
+                        (node.inputs[0].links[0].from_socket, link.to_socket)
+                        for link in output.links
+                        if not link.to_node.name.startswith("VRM_TextureTransform_")
+                    )
 
         # Remove nodes
         for node in nodes_to_remove:
