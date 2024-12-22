@@ -2489,6 +2489,8 @@ class Mtoon0SamplerPropertyGroup(PropertyGroup):
 
 
 class Mtoon0TexturePropertyGroup(PropertyGroup):
+    label = ""
+    panel_label = ""
     colorspace = "sRGB"
 
     def get_connected_node_image(self) -> Optional[Image]:

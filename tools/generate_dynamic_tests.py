@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
-import contextlib
 import re
 import sys
 import uuid
@@ -105,9 +104,7 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
             )
         spec.loader.exec_module(mod)
 
-        func: object = None
-        with contextlib.suppress(AttributeError):
-            func = getattr(mod, "get_test_command_args")  # noqa: B009
+        func: object = getattr(mod, "get_test_command_args", None)
         if callable(func):
             test_command_args_list = convert_any.to_object(func())
     except Exception as e:  # noqa: BLE001

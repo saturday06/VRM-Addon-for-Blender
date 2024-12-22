@@ -14,6 +14,7 @@ from .ops import (
     VRM_OT_reset_mtoon1_material_shader_node_tree,
 )
 from .property_group import (
+    Mtoon0TexturePropertyGroup,
     Mtoon1MaterialPropertyGroup,
     Mtoon1TextureInfoPropertyGroup,
 )
@@ -31,7 +32,7 @@ def draw_texture_info(
     *,
     is_vrm0: bool,
 ) -> UILayout:
-    texture_info = getattr(base_property_group, texture_info_attr_name)
+    texture_info = getattr(base_property_group, texture_info_attr_name, None)
     if not isinstance(texture_info, Mtoon1TextureInfoPropertyGroup):
         raise TypeError
     layout = parent_layout.split(factor=0.3)
@@ -134,7 +135,9 @@ def draw_mtoon0_texture(
     texture_attr_name: str,
     scalar_factor_attr_name: str,
 ) -> UILayout:
-    texture = getattr(base_property_group, texture_attr_name)
+    texture = getattr(base_property_group, texture_attr_name, None)
+    if not isinstance(texture, Mtoon0TexturePropertyGroup):
+        raise TypeError
     layout = parent_layout.split(factor=0.3)
     toggle_layout = layout.row()
     toggle_layout.alignment = "LEFT"
