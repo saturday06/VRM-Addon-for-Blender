@@ -2,9 +2,9 @@
   "name": "node-js-tools-for-vrm-format",
   "private": true,
   "devDependencies": {
-    "gltf-validator": "*",
-    "prettier": "*",
-    "pyright": "*",
+    "gltf-validator": "2.0.0-dev.3.10",
+    "prettier": "3.4.2",
+    "pyright": "1.1.391",
     "vitepress": "^1.5.0"
   },
   "scripts": {
