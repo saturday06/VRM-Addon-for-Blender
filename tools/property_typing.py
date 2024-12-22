@@ -106,10 +106,11 @@ def write_property_typing(
         if arg_default_param is not None:
             arg_default = arg_default_param
             if isinstance(arg_default, str):
-                arg_default = f'"{arg_default}"'
+                if len(n) + len(arg_type) + len(arg_default) + 12 < 89:
+                    arg_default = f'"{arg_default}"'
+                else:
+                    arg_default = f'"{arg_default[:63]}" "{arg_default[63:]}"'
         arg_line = f"    {n}: {arg_type} = {arg_default},"
-        if len(arg_line) > 89:
-            arg_line += "  # noqa: E501"
 
     return (line, arg_line, arg_call_line)
 

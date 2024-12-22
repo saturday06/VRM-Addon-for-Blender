@@ -198,7 +198,8 @@ def import_mtoon1_texture_image_file(
     /,
     *,
     filepath: str = "",
-    filter_glob: str = "*.bmp;*.sgi;*.bw;*.rgb;*.rgba;*.png;*.jpg;*.jpeg;*.jp2;*.tga;*.cin;*.dpx;*.exr;*.hdr;*.tif;*.tiff",  # noqa: E501
+    filter_glob: str = "*.bmp;*.sgi;*.bw;*.rgb;*.rgba;*.png;*.jpg;*.jpeg;*.jp2;*.tga;*."
+    "cin;*.dpx;*.exr;*.hdr;*.tif;*.tiff",
     material_name: str = "",
     target_texture: str = "",
 ) -> set[str]:
