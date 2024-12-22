@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+import re
 from collections.abc import Mapping, Sequence
 from collections.abc import Set as AbstractSet
 from typing import TYPE_CHECKING, ClassVar, Optional, Protocol
@@ -24,7 +25,7 @@ from bpy.types import (
     ShaderNodeVectorMath,
 )
 
-from ...common import convert_any, ops, shader
+from ...common import ops, shader
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
 from ...common.logging import get_logger
 from ...common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
@@ -1775,14 +1776,14 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
             expr_name in self.get_blockable_expressions(bt) for bt in blockable_types
         )
 
-    def get_property_value(self, _armature: Object, data_path: str) -> object:
-        try:
-            # TODO: remove eval()
-            return convert_any.to_object(
-                eval(f"armature.data.{data_path}")  # noqa: S307
-            )
-        except:  # noqa: E722
-            return None
+    def get_property_value(self, armature: Object, data_path: str) -> object:
+        prop: object = armature
+        for prop_name in data_path.split("."):
+            if not re.match(prop_name, "^[a-zA-Z_][a-zA-Z0-9_]*$"):
+                message = f'Invalid prop name: "{prop_name}"'
+                raise AssertionError(message)
+            prop = getattr(prop, prop_name)
+        return prop
 
     def get_blockable_expressions(self, blockable_type: str) -> Sequence[str]:
         if blockable_type == "blink":
