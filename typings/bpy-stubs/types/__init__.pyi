@@ -11,8 +11,8 @@ from collections.abc import (
 )
 from typing import Callable, Generic, Optional, TypeVar, Union, overload
 
-import typing_extensions
 from mathutils import Euler, Matrix, Quaternion, Vector
+from typing_extensions import TypeAlias
 
 class bpy_struct:
     def as_pointer(self) -> int: ...
@@ -2126,7 +2126,7 @@ class Operator(bpy_struct):
     def layout(self) -> UILayout: ...
 
 # この型はUILayout.prop_searchで使うけど、ドキュメントが曖昧なためいまいちな定義になる
-AnyType: typing_extensions.TypeAlias = Union[ID, BlendData, Operator, PropertyGroup]
+AnyType: TypeAlias = Union[ID, BlendData, Operator, PropertyGroup]
 
 class Panel(bpy_struct):
     bl_idname: str

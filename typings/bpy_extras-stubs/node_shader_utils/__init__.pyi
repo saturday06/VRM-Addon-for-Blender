@@ -2,7 +2,6 @@
 from collections.abc import Iterable, Sequence
 from typing import Optional, overload
 
-import typing_extensions
 from bpy.types import (
     Image,
     Material,
@@ -16,6 +15,7 @@ from bpy.types import (
     ShaderNodeTexImage,
 )
 from mathutils import Color
+from typing_extensions import Self, TypeAlias
 
 __all__ = ("PrincipledBSDFWrapper",)
 
@@ -179,7 +179,7 @@ class PrincipledBSDFWrapper(ShaderWrapper):
     def normalmap_texture(self) -> Optional[ShaderImageTextureWrapper]: ...
 
 class ShaderImageTextureWrapper:
-    NODES_LIST: typing_extensions.TypeAlias = tuple[str, ...]
+    NODES_LIST: TypeAlias = tuple[str, ...]
     __slots__ = (
         "_node_image",
         "_node_mapping",
@@ -202,7 +202,7 @@ class ShaderImageTextureWrapper:
     node_dst: ShaderNode
     socket_dst: NodeSocket
 
-    def __new__(  # noqa: PYI034
+    def __new__(
         cls,
         owner_shader: ShaderWrapper,
         node_dst: ShaderNode,
@@ -211,7 +211,7 @@ class ShaderImageTextureWrapper:
         use_alpha: bool = False,
         colorspace_is_data: bool = ...,
         colorspace_name: str = ...,
-    ) -> ShaderImageTextureWrapper: ...
+    ) -> Self: ...
     def __init__(
         self,
         owner_shader: ShaderWrapper,
