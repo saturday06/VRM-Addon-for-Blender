@@ -38,11 +38,6 @@ from ..common.deep import make_json
 from ..common.gl import (
     GL_FLOAT,
     GL_LINEAR,
-    GL_LINEAR_MIPMAP_LINEAR,
-    GL_LINEAR_MIPMAP_NEAREST,
-    GL_NEAREST,
-    GL_NEAREST_MIPMAP_LINEAR,
-    GL_NEAREST_MIPMAP_NEAREST,
     GL_REPEAT,
     GL_UNSIGNED_INT,
     GL_UNSIGNED_SHORT,
@@ -70,7 +65,6 @@ from ..editor.mtoon1.property_group import (
 from ..editor.search import MESH_CONVERTIBLE_OBJECT_TYPES
 from ..editor.t_pose import setup_humanoid_t_pose
 from ..editor.vrm0.property_group import Vrm0BlendShapeGroupPropertyGroup
-from ..external import io_scene_gltf2_support
 from ..external.io_scene_gltf2_support import (
     image_to_image_bytes,
     init_extras_export,
@@ -244,57 +238,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             self.write_glb_structure(progress, json_dict, buffer0)
             return gltf.pack_glb(json_dict, buffer0)
 
-    def write_images(
-        self,
-        _progress: Progress,
-        image_dicts: list[dict[str, Json]],
-        image_name_to_image_index: dict[str, int],
-        image_index_to_lazy_bytes: dict[int, bytes],
-    ) -> None:
-        for image in self.get_images():
-            image_bytes, mime_type = io_scene_gltf2_support.image_to_image_bytes(
-                image, self.gltf2_addon_export_settings
-            )
-            image_index = len(image_dicts)
-            image_dicts.append(
-                {
-                    "name": image.name,
-                    "mimeType": mime_type,
-                }
-            )
-            image_index_to_lazy_bytes[image_index] = image_bytes
-            image_name_to_image_index[image.name] = image_index
-
-    def write_lazy_image_bytes(
-        self,
-        _progress: Progress,
-        image_dicts: list[dict[str, Json]],
-        buffer_view_dicts: list[dict[str, Json]],
-        buffer0: bytearray,
-        image_index_to_lazy_bytes: dict[int, bytes],
-    ) -> None:
-        # TODO: 自然な方式で再実装
-        # 旧エクスポーターは画像のバイト列を保持しておき、最後にbufferViewに追加する
-        # 方式になっていた。互換性のため、画像のバイト列のみ特別に同様の遅延追加をする
-        for image_index, lazy_bytes in image_index_to_lazy_bytes.items():
-            if not (0 <= image_index < len(image_dicts)):
-                continue
-            image_dict = image_dicts[image_index]
-            byte_offset = len(buffer0)
-            buffer0.extend(lazy_bytes)
-            # TODO: byteOffsetにアラインメント要求が無かったか確認
-            # while len(buffer0) % 4 != 0:
-            #     buffer0.append(0)
-            buffer_view_index = len(buffer_view_dicts)
-            buffer_view_dicts.append(
-                {
-                    "buffer": 0,
-                    "byteOffset": byte_offset,
-                    "byteLength": len(lazy_bytes),
-                }
-            )
-            image_dict["bufferView"] = buffer_view_index
-
     def write_glb_structure(
         self, progress: Progress, json_dict: dict[str, Json], buffer0: bytearray
     ) -> None:
@@ -317,15 +260,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         extensions_used: list[str] = []
         material_name_to_material_index: dict[str, int] = {}
         image_name_to_image_index: dict[str, int] = {}
-        image_index_to_lazy_bytes: dict[int, bytes] = {}
-        gltf2_io_texture_images: list[Vrm0Exporter.Gltf2IoTextureImage] = []
-
-        self.write_images(
-            progress,
-            image_dicts,
-            image_name_to_image_index,
-            image_index_to_lazy_bytes,
-        )
 
         self.write_materials(
             progress,
@@ -339,8 +273,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             buffer0,
             material_name_to_material_index,
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
-            gltf2_io_texture_images,
         )
 
         bone_name_to_node_index: dict[str, int] = {}
@@ -365,20 +297,14 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             mesh_dicts,
             texture_dicts,
             sampler_dicts,
+            image_dicts,
+            buffer_view_dicts,
             extensions_vrm_dict,
             extensions_used,
             buffer0,
             image_name_to_image_index,
             bone_name_to_node_index,
             mesh_object_name_to_mesh_index,
-        )
-
-        self.write_lazy_image_bytes(
-            progress,
-            image_dicts,
-            buffer_view_dicts,
-            buffer0,
-            image_index_to_lazy_bytes,
         )
 
         if scene_dicts:
@@ -417,10 +343,12 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         mesh_dicts: list[dict[str, Json]],
         texture_dicts: list[dict[str, Json]],
         sampler_dicts: list[dict[str, Json]],
+        image_dicts: list[dict[str, Json]],
+        buffer_view_dicts: list[dict[str, Json]],
         vrm_dict: dict[str, Json],
         extensions_used: list[str],
-        _buffer0: bytearray,
-        image_name_to_image_index: Mapping[str, int],
+        buffer0: bytearray,
+        image_name_to_image_index: dict[str, int],
         bone_name_to_node_index: Mapping[str, int],
         mesh_object_name_to_mesh_index: Mapping[str, int],
     ) -> None:
@@ -431,7 +359,14 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             progress, vrm_dict, bone_name_to_node_index, mesh_object_name_to_mesh_index
         )
         self.write_extensions_vrm_meta(
-            progress, texture_dicts, sampler_dicts, vrm_dict, image_name_to_image_index
+            progress,
+            texture_dicts,
+            sampler_dicts,
+            image_dicts,
+            buffer_view_dicts,
+            vrm_dict,
+            buffer0,
+            image_name_to_image_index,
         )
         self.write_extensions_vrm_blend_shape_master(
             progress, mesh_dicts, mesh_object_name_to_mesh_index, vrm_dict
@@ -736,8 +671,11 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         _progress: Progress,
         texture_dicts: list[dict[str, Json]],
         sampler_dicts: list[dict[str, Json]],
+        image_dicts: list[dict[str, Json]],
+        buffer_view_dicts: list[dict[str, Json]],
         vrm_dict: dict[str, Json],
-        image_name_to_image_index: Mapping[str, int],
+        buffer0: bytearray,
+        image_name_to_index_dict: dict[str, int],
     ) -> None:
         meta = get_armature_extension(self.armature_data).vrm0.meta
         meta_dict: dict[str, Json] = {
@@ -755,22 +693,25 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             "otherLicenseUrl": meta.other_license_url,
         }
 
-        if (
-            meta.texture
-            and meta.texture.name
-            and (image_index := image_name_to_image_index.get(meta.texture.name))
-            is not None
-        ):
-            # 旧エクスポーターとの互換性のためサンプラーは強制追加
-            sampler_index = len(sampler_dicts)
-            sampler_dicts.append(
-                {
-                    "magFilter": GL_LINEAR,
-                    "minFilter": GL_LINEAR,
-                    "wrapS": GL_REPEAT,
-                    "wrapT": GL_REPEAT,
-                }
+        if meta.texture:
+            image_index = self.find_or_create_image(
+                image_dicts,
+                buffer_view_dicts,
+                buffer0,
+                image_name_to_index_dict,
+                meta.texture,
             )
+            sampler_dict: dict[str, Json] = {
+                "magFilter": GL_LINEAR,
+                "minFilter": GL_LINEAR,
+                "wrapS": GL_REPEAT,
+                "wrapT": GL_REPEAT,
+            }
+            if sampler_dict in sampler_dicts:
+                sampler_index = sampler_dicts.index(sampler_dict)
+            else:
+                sampler_index = len(sampler_dicts)
+                sampler_dicts.append(sampler_dict)
             texture_index = len(texture_dicts)
             texture_dicts.append(
                 {
@@ -907,14 +848,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             )
         )
 
-        secondary_node_index = self.write_secondary_nodes(progress, node_dicts)
-        if secondary_node_index is not None:
-            scene0_nodes.append(secondary_node_index)
         scene_dicts.append({"nodes": scene0_nodes})
-
-        # TODO: 旧エクスポーターとの互換性確保用。将来削除する。
-        if skin_dict and not skin_dicts:
-            skin_dicts.append(dict(skin_dict))
 
     def write_mtoon1_downgraded_material(
         self,
@@ -926,7 +860,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         extensions_used: list[str],
         buffer0: bytearray,
         image_name_to_image_index: dict[str, int],
-        image_index_to_lazy_bytes: dict[int, bytes],
         material: Material,
         material_dict: dict[str, Json],
         vrm_material_property_dict: dict[str, Json],
@@ -976,7 +909,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 buffer_view_dicts,
                 buffer0,
                 image_name_to_image_index,
-                image_index_to_lazy_bytes,
                 khr_texture_transform,
             ),
         ):
@@ -1002,7 +934,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             buffer_view_dicts,
             buffer0,
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
 
         float_properties["_BumpScale"] = gltf.normal_texture.scale
@@ -1020,7 +951,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 buffer_view_dicts,
                 buffer0,
                 image_name_to_image_index,
-                image_index_to_lazy_bytes,
                 khr_texture_transform,
             ),
         ):
@@ -1040,7 +970,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             buffer_view_dicts,
             buffer0,
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
         float_properties["_ShadingGradeRate"] = gltf.mtoon0_shading_grade_rate
 
@@ -1082,7 +1011,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 buffer_view_dicts,
                 buffer0,
                 image_name_to_image_index,
-                image_index_to_lazy_bytes,
                 khr_texture_transform,
             ),
         )
@@ -1100,7 +1028,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             buffer_view_dicts,
             buffer0,
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
 
         vector_properties["_RimColor"] = convert.linear_to_srgb(
@@ -1117,7 +1044,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             buffer_view_dicts,
             buffer0,
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
 
         vector_properties["_OutlineColor"] = convert.linear_to_srgb(
@@ -1134,7 +1060,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             buffer_view_dicts,
             buffer0,
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
 
         float_properties["_UvAnimScrollX"] = mtoon.uv_animation_scroll_x_speed_factor
@@ -1151,7 +1076,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             buffer_view_dicts,
             buffer0,
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
 
         float_properties["_OutlineLightingMix"] = mtoon.outline_lighting_mix_factor
@@ -1248,7 +1172,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             buffer_view_dicts,
             buffer0,
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
         float_properties["_ReceiveShadowRate"] = gltf.mtoon0_receive_shadow_rate
 
@@ -1296,62 +1219,39 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
     def find_or_create_image(
         self,
         image_dicts: list[dict[str, Json]],
-        _buffer_view_dicts: list[dict[str, Json]],
-        _buffer0: bytearray,
+        buffer_view_dicts: list[dict[str, Json]],
+        buffer0: bytearray,
         image_name_to_index_dict: dict[str, int],
-        image_index_to_lazy_bytes: dict[int, bytes],
         image: Image,
     ) -> int:
         image_index = image_name_to_index_dict.get(image.name)
-        if isinstance(image_index, int) and not 0 <= image_index < len(image_dicts):
-            logger.error(
-                "BUG: not 0 <= %d < len(images)) for %s", image_index, image.name
-            )
-            image_index = None
-
-        if image_index is not None:
-            image_bytes = image_index_to_lazy_bytes.get(image_index)
-            if image_bytes is not None:
-                return image_index
-            logger.error(
-                "BUG: image_index_to_lazy_bytes[%d] is None for %s",
-                image_index,
-                image.name,
-            )
-            image_index = None
-
-        # TODO: Verify alignment requirement and optimize
-        # while len(buffer0) % 32 == 0:
-        #    buffer0.append(0)
+        if isinstance(image_index, int):
+            return image_index
 
         image_bytes, mime = image_to_image_bytes(
             image, self.gltf2_addon_export_settings
         )
-        # image_buffer_view_index = len(buffer_view_dicts)
-        # buffer_view_dicts.append(
-        #     {
-        #         "buffer": 0,
-        #         "byteOffset": len(buffer0),
-        #         "byteLength": len(image_bytes),
-        #     }
-        # )
+
+        image_buffer_view_index = len(buffer_view_dicts)
+        buffer_view_dicts.append(
+            {
+                "buffer": 0,
+                "byteOffset": len(buffer0),
+                "byteLength": len(image_bytes),
+            }
+        )
+        buffer0.extend(image_bytes)
 
         image_index = len(image_dicts)
         image_dicts.append(
             {
                 "name": image.name,
                 "mimeType": mime,
-                # TODO: ここでbufferViewを指定する方式が本当は良い
-                # "bufferView": image_buffer_view_index,
+                "bufferView": image_buffer_view_index,
             }
         )
-        image_name_to_index_dict[image.name] = image_index
-        image_index_to_lazy_bytes[image_index] = image_bytes
 
-        # buffer0.extend(image_bytes)
-        # TODO: Verify alignment requirement and optimize
-        # while len(buffer0) % 32 == 0:
-        #     buffer0.append(0)
+        image_name_to_index_dict[image.name] = image_index
 
         return image_index
 
@@ -1426,7 +1326,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         node: Node,
         texture_input_name: str,
         image_name_to_index_dict: dict[str, int],
-        image_index_to_lazy_bytes: dict[int, bytes],
         *,
         use_khr_texture_transform: bool = False,
     ) -> Optional[tuple[dict[str, Json], int, tuple[float, float, float, float]]]:
@@ -1442,7 +1341,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             buffer_view_dicts,
             buffer0,
             image_name_to_index_dict,
-            image_index_to_lazy_bytes,
             context.blend_data.images[image_name],
         )
 
@@ -1473,10 +1371,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             self.create_mtoon0_khr_texture_transform(node, texture_input_name)
         )
 
-        texture_info: dict[str, Json] = {
-            "index": texture_index,
-            "texCoord": 0,  # TODO: 互換性のためのもの。削除予定
-        }
+        texture_info: dict[str, Json] = {"index": texture_index}
 
         if use_khr_texture_transform:
             texture_info["extensions"] = {
@@ -1500,7 +1395,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         extensions_used: list[str],
         buffer0: bytearray,
         image_name_to_image_index: dict[str, int],
-        image_index_to_lazy_bytes: dict[int, bytes],
         material: Material,
         material_dict: dict[str, Json],
         vrm_material_property_dict: dict[str, Json],
@@ -1538,9 +1432,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         if emission_color is None:
             emission_color = (0.0, 0.0, 0.0, 1.0)
         else:
-            # TODO: 互換性のため出力していない。本来は出力するべき。
-            # material_dict["emissiveFactor"] = make_json(emission_color[:3])
-            pass
+            material_dict["emissiveFactor"] = make_json(emission_color[:3])
 
         pbr_metallic_roughness_dict["baseColorFactor"] = make_json(color)
 
@@ -1677,7 +1569,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             node,
             "MainTexture",
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
             use_khr_texture_transform=True,
         )
         if main_tex:
@@ -1704,7 +1595,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             node,
             "ShadeTexture",
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
         if shade_texture:
             _, shade_texture_texture_property, _ = shade_texture
@@ -1725,7 +1615,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             node,
             "NormalmapTexture",
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
             use_khr_texture_transform=True,
         )
         if not bump_map:
@@ -1740,7 +1629,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 node,
                 "NomalmapTexture",
                 image_name_to_image_index,
-                image_index_to_lazy_bytes,
                 use_khr_texture_transform=True,
             )
         if bump_map:
@@ -1766,7 +1654,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 node,
                 socket_name,
                 image_name_to_image_index,
-                image_index_to_lazy_bytes,
             )
             if not texture:
                 continue
@@ -1785,7 +1672,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             node,
             "Emission_Texture",
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
             use_khr_texture_transform=True,
         )
         if emission_map:
@@ -1811,7 +1697,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 node,
                 socket_name,
                 image_name_to_image_index,
-                image_index_to_lazy_bytes,
             )
             if not texture:
                 continue
@@ -1845,7 +1730,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         extensions_used: list[str],
         buffer0: bytearray,
         image_name_to_image_index: dict[str, int],
-        image_index_to_lazy_bytes: dict[int, bytes],
         material: Material,
         material_dict: dict[str, Json],
         vrm_material_property_dict: dict[str, Json],
@@ -1903,7 +1787,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             node,
             "normal",
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
         if normal_texture:
             (normal_texture_dict, _, _) = normal_texture
@@ -1920,7 +1803,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             node,
             "emissive_texture",
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
         if emissive_texture:
             (emissive_texture_dict, _, _) = emissive_texture
@@ -1937,7 +1819,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             node,
             "color_texture",
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
         if base_color_texture:
             (base_color_texture_dict, _, _) = base_color_texture
@@ -1954,7 +1835,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             node,
             "metallic_roughness_texture",
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
         if metallic_roughness_texture:
             (metallic_roughness_texture_dict, _, _) = metallic_roughness_texture
@@ -1973,7 +1853,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             node,
             "occlusion_texture",
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
         if occlusion_texture:
             (occlusion_texture_dict, _, _) = occlusion_texture
@@ -1996,7 +1875,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         extensions_used: list[str],
         buffer0: bytearray,
         image_name_to_image_index: dict[str, int],
-        image_index_to_lazy_bytes: dict[int, bytes],
         material: Material,
         material_dict: dict[str, Json],
         vrm_material_property_dict: dict[str, Json],
@@ -2045,7 +1923,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             node,
             "Main_Texture",
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
         if main_tex:
             (
@@ -2066,10 +1943,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         texture_dicts: list[dict[str, Json]],
         sampler_dicts: list[dict[str, Json]],
         image_dicts: list[dict[str, Json]],
-        _buffer_view_dicts: list[dict[str, Json]],
+        buffer_view_dicts: list[dict[str, Json]],
         extensions_used: list[str],
-        _buffer0: bytearray,
-        image_index_to_lazy_bytes: dict[int, bytes],
+        buffer0: bytearray,
         gltf2_io_texture_images: list[Gltf2IoTextureImage],
         material: Material,
         material_dict: dict[str, Json],
@@ -2148,7 +2024,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     texture_dicts,
                     sampler_dicts,
                     image_dicts,
-                    image_index_to_lazy_bytes,
+                    buffer_view_dicts,
+                    buffer0,
                     gltf2_io_texture_images,
                 ),
             )
@@ -2197,7 +2074,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     texture_dicts,
                     sampler_dicts,
                     image_dicts,
-                    image_index_to_lazy_bytes,
+                    buffer_view_dicts,
+                    buffer0,
                     gltf2_io_texture_images,
                 ),
             )
@@ -2210,7 +2088,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     texture_dicts,
                     sampler_dicts,
                     image_dicts,
-                    image_index_to_lazy_bytes,
+                    buffer_view_dicts,
+                    buffer0,
                     gltf2_io_texture_images,
                 ),
             )
@@ -2237,7 +2116,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         texture_dicts,
                         sampler_dicts,
                         image_dicts,
-                        image_index_to_lazy_bytes,
+                        buffer_view_dicts,
+                        buffer0,
                         gltf2_io_texture_images,
                     ),
                 )
@@ -2258,7 +2138,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         texture_dicts,
                         sampler_dicts,
                         image_dicts,
-                        image_index_to_lazy_bytes,
+                        buffer_view_dicts,
+                        buffer0,
                         gltf2_io_texture_images,
                     ),
                 )
@@ -2287,7 +2168,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         buffer0: bytearray,
         material_name_to_material_index: dict[str, int],
         image_name_to_image_index: dict[str, int],
-        image_index_to_lazy_bytes: dict[int, bytes],
         gltf2_io_texture_images: list[Gltf2IoTextureImage],
         material: Material,
     ) -> None:
@@ -2314,7 +2194,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 extensions_used,
                 buffer0,
                 image_name_to_image_index,
-                image_index_to_lazy_bytes,
                 material,
                 material_dict,
                 vrm_material_property_dict,
@@ -2336,7 +2215,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 extensions_used,
                 buffer0,
                 image_name_to_image_index,
-                image_index_to_lazy_bytes,
                 material,
                 material_dict,
                 vrm_material_property_dict,
@@ -2353,7 +2231,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 extensions_used,
                 buffer0,
                 image_name_to_image_index,
-                image_index_to_lazy_bytes,
                 material,
                 material_dict,
                 vrm_material_property_dict,
@@ -2370,7 +2247,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 extensions_used,
                 buffer0,
                 image_name_to_image_index,
-                image_index_to_lazy_bytes,
                 material,
                 material_dict,
                 vrm_material_property_dict,
@@ -2386,7 +2262,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             buffer_view_dicts,
             extensions_used,
             buffer0,
-            image_index_to_lazy_bytes,
             gltf2_io_texture_images,
             material,
             material_dict,
@@ -2406,9 +2281,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         buffer0: bytearray,
         material_name_to_material_index: dict[str, int],
         image_name_to_image_index: dict[str, int],
-        image_index_to_lazy_bytes: dict[int, bytes],
-        gltf2_io_texture_images: list[Gltf2IoTextureImage],
     ) -> None:
+        gltf2_io_texture_images: list[Vrm0Exporter.Gltf2IoTextureImage] = []
         for material in search.export_materials(self.context, self.export_objects):
             self.write_material(
                 _progress,
@@ -2422,7 +2296,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 buffer0,
                 material_name_to_material_index,
                 image_name_to_image_index,
-                image_index_to_lazy_bytes,
                 gltf2_io_texture_images,
                 material,
             )
@@ -2502,26 +2375,22 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         inverse_bind_matrices_offset = len(buffer0)
 
         skin_joint_node_indices: list[int] = []
-        # 旧エクスポーターの出力結果との互換性のため、
-        # ジョイントのソート順を旧エクスポーターと合わせる
-        # テストデータの更新が終わったらこの処理は削除して
-        # ソート順はbone_name_to_node_indexにする
-        joint_bones = [humanoid_root_bone]
         inverse_bind_matrix_struct = struct.Struct("<16f")
-        while joint_bones:
-            joint_bone = joint_bones.pop()
-            skin_joint_node_indices.append(bone_name_to_node_index[joint_bone.name])
-            inverse_bind_matrix = bone_name_to_inverse_bind_matrix[joint_bone.name]
+        for bone_name, node_index in bone_name_to_node_index.items():
+            skin_joint_node_indices.append(node_index)
+            inverse_bind_matrix = bone_name_to_inverse_bind_matrix.get(bone_name)
+            if inverse_bind_matrix is None:
+                message = f"No inverse bind matrix for {bone_name}"
+                raise AssertionError(message)
             buffer0.extend(
                 inverse_bind_matrix_struct.pack(*itertools.chain(*inverse_bind_matrix))
             )
-            joint_bones.extend(joint_bone.children)
 
         buffer_view_index = len(buffer_view_dicts)
         buffer_view_dicts.append(
             {
                 "buffer": 0,
-                "byteOffset": 0,
+                "byteOffset": inverse_bind_matrices_offset,
                 "byteLength": len(buffer0) - inverse_bind_matrices_offset,
             }
         )
@@ -2534,7 +2403,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 "type": "MAT4",
                 "componentType": GL_FLOAT,
                 "count": len(skin_joint_node_indices),
-                "normalized": False,
             }
         )
 
@@ -2891,10 +2759,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         if not parent_translation:
             parent_translation = Vector((0, 0, 0))
 
-        if have_skin:
-            # TODO: 旧エクスポーターとの互換性のため値を設定しているが、将来的に消す
-            node_dict["translation"] = [0, 0, 0]
-        else:
+        if not have_skin:
             node_dict["translation"] = make_json(
                 convert.axis_blender_to_gltf(
                     obj.matrix_world.to_translation() - parent_translation
@@ -3107,12 +2972,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     "componentType": GL_UNSIGNED_INT,
                     # TODO: 割り算はミスを誘うので避ける
                     "count": int(len(vertex_indices) / 4),
-                    "normalized": False,
                 }
             )
             primitive_dicts.append(
                 {
-                    "mode": 4,  # TRIANGLES, TODO: デフォルト値のため削除予定
                     "material": primitive_material_index,
                     "indices": indices_accessor_index,
                 }
@@ -3142,7 +3005,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 "type": "VEC3",
                 "componentType": GL_FLOAT,
                 "count": vertex_attributes_and_targets.count,
-                "normalized": False,
                 "min": [
                     vertex_attributes_and_targets.position_min_x,
                     vertex_attributes_and_targets.position_min_y,
@@ -3175,7 +3037,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 "type": "VEC3",
                 "componentType": GL_FLOAT,
                 "count": vertex_attributes_and_targets.count,
-                "normalized": False,  # TODO: これはTrueが本当は正しい
+                # "normalized": True, # TODO: 要調査
             }
         )
         primitive_attribute_dict["NORMAL"] = normal_accessor_index
@@ -3200,7 +3062,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     "type": "VEC2",
                     "componentType": GL_FLOAT,
                     "count": vertex_attributes_and_targets.count,
-                    "normalized": False,
                 }
             )
             primitive_attribute_dict["TEXCOORD_0"] = texcoord_accessor_index
@@ -3225,7 +3086,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     "type": "VEC4",
                     "componentType": GL_UNSIGNED_SHORT,
                     "count": vertex_attributes_and_targets.count,
-                    "normalized": False,
                 }
             )
             primitive_attribute_dict["JOINTS_0"] = joints_accessor_index
@@ -3253,7 +3113,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     "type": "VEC4",
                     "componentType": GL_FLOAT,
                     "count": vertex_attributes_and_targets.count,
-                    "normalized": False,
                 }
             )
             primitive_attribute_dict["WEIGHTS_0"] = weights_accessor_index
@@ -3285,7 +3144,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         "type": "VEC3",
                         "componentType": GL_FLOAT,
                         "count": vertex_attributes_and_targets.count,
-                        "normalized": False,
                         "min": [
                             target.position_min_x,
                             target.position_min_y,
@@ -3298,16 +3156,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         ],
                     }
                 )
-                primitive_target_dicts.append(
-                    {
-                        "POSITION": target_position_accessor_index,
-                    }
-                )
 
-            # TODO: 互換性のためにループをPOSITIONと分けているが、将来的には合成する
-            for target, primitive_target_dict in zip(
-                primitive_targets, primitive_target_dicts
-            ):
                 target_normal_buffer_offset = len(buffer0)
                 buffer0.extend(target.normal)
                 target_normal_buffer_view_index = len(buffer_view_dicts)
@@ -3326,10 +3175,15 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         "type": "VEC3",
                         "componentType": GL_FLOAT,
                         "count": vertex_attributes_and_targets.count,
-                        "normalized": False,  # TODO: これはTrueが本当は正しい
                     }
                 )
-                primitive_target_dict["NORMAL"] = target_normal_accessor_index
+
+                primitive_target_dicts.append(
+                    {
+                        "POSITION": target_position_accessor_index,
+                        "NORMAL": target_normal_accessor_index,
+                    }
+                )
 
             for primitive_dict in primitive_dicts:
                 primitive_dict["targets"] = make_json(primitive_target_dicts)
@@ -3339,9 +3193,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     "targetNames": [target.name for target in primitive_targets]
                 }
 
-        while len(buffer0) % 4:
-            buffer0.append(0)
-
         mesh_dicts.append(
             {
                 "name": original_mesh_convertible.name,
@@ -3350,6 +3201,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         )
         mesh_object_name_to_mesh_index[obj.name] = mesh_index
         if skin_dict and have_skin:
+            # TODO: メッシュごとに別々のskinを作る
             node_dict["skin"] = len(skin_dicts)
             skin_dicts.append(dict(skin_dict))
 
@@ -3442,33 +3294,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             node_indices.append(node_index)
 
         return node_indices
-
-    def write_secondary_nodes(
-        self,
-        _progress: Progress,
-        node_dicts: list[dict[str, Json]],
-    ) -> Optional[int]:
-        """secondaryノードの出力.
-
-        旧エクスポーターとの互換性のために残されている機能のため、削除予定
-        """
-        for node_dict in node_dicts:
-            if node_dict.get("name") != "secondary":
-                continue
-            if node_dict.get("children"):
-                continue
-            return None
-
-        node_index = len(node_dicts)
-        node_dicts.append(
-            {
-                "name": "secondary",
-                "translation": [0, 0, 0],
-                "rotation": [0, 0, 0, 1],
-                "scale": [1, 1, 1],
-            }
-        )
-        return node_index
 
     @property
     def armature_data(self) -> Armature:
@@ -3593,46 +3418,14 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         return list(dict.fromkeys(images).keys())  # 重複削除
 
-    def get_images(self) -> Sequence[Image]:
-        images: list[Image] = []
-        materials = search.export_materials(self.context, self.export_objects)
-        for material in materials:
-            material.pop("vrm_shader", None)
-
-        non_mtoon1_materials: list[Material] = []
-
-        # MToon 1.0 downgraded
-        for material in materials:
-            if not get_material_extension(material).mtoon1.enabled:
-                non_mtoon1_materials.append(material)
-                continue
-            for texture in get_material_extension(material).mtoon1.all_textures(
-                downgrade_to_mtoon0=True
-            ):
-                source = texture.get_connected_node_image()
-                if source and source not in images:
-                    images.append(source)
-
-        # Non MToon 1.0 materials
-        for non_mtoon1_material in non_mtoon1_materials:
-            images.extend(self.get_legacy_shader_images(non_mtoon1_material))
-
-        # Thumbnail
-        ext = get_armature_extension(self.armature_data)
-        texture_image = ext.vrm0.meta.texture
-        if texture_image:
-            images.append(texture_image)
-
-        images = list(dict.fromkeys(images))  # 重複削除
-        return images
-
     def create_gltf2_io_texture(
         self,
         gltf2_io_texture_info: object,
         texture_dicts: list[dict[str, Json]],
         sampler_dicts: list[dict[str, Json]],
         image_dicts: list[dict[str, Json]],
-        image_index_to_lazy_bytes: dict[int, bytes],
+        buffer_view_dicts: list[dict[str, Json]],
+        buffer0: bytearray,
         gltf2_io_texture_images: list[Gltf2IoTextureImage],
     ) -> Json:
         source = getattr(getattr(gltf2_io_texture_info, "index", None), "source", None)
@@ -3651,7 +3444,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             getattr(source, "buffer_view", None), "data", None
         )
         if not isinstance(source_buffer_view_data, bytes):
-            source_buffer_view_data = b""
+            return None
 
         export_image_index = None
         for gltf2_io_texture_image in gltf2_io_texture_images:
@@ -3679,15 +3472,24 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 ):
                     break
 
+            image_buffer_view_index = len(buffer_view_dicts)
+            buffer_view_dicts.append(
+                {
+                    "buffer": 0,
+                    "byteOffset": len(buffer0),
+                    "byteLength": len(source_buffer_view_data),
+                }
+            )
+            buffer0.extend(source_buffer_view_data)
+
             export_image_index = len(image_dicts)
             image_dict: dict[str, Json] = {
                 "name": image_name,
                 "mimeType": source_mime_type,
-                # TODO: ここでbufferViewを指定する方式が本当は良い
-                # "bufferView": image_buffer_view_index,
+                "bufferView": image_buffer_view_index,
             }
             image_dicts.append(image_dict)
-            image_index_to_lazy_bytes[export_image_index] = source_buffer_view_data
+
             gltf2_io_texture_images.append(
                 Vrm0Exporter.Gltf2IoTextureImage(
                     name=source_name,
@@ -3714,18 +3516,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         if not isinstance(min_filter, int):
             min_filter = GL_LINEAR
 
-        # VRoid Hub may not support a mipmap
-        if min_filter in [
-            GL_NEAREST_MIPMAP_LINEAR,
-            GL_NEAREST_MIPMAP_NEAREST,
-        ]:
-            min_filter = GL_NEAREST
-        elif min_filter in [
-            GL_LINEAR_MIPMAP_NEAREST,
-            GL_LINEAR_MIPMAP_LINEAR,
-        ]:
-            min_filter = GL_LINEAR
-
         sampler_dict: dict[str, Json] = {
             "magFilter": mag_filter,
             "minFilter": min_filter,
@@ -3749,11 +3539,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             texture_index = len(texture_dicts)
             texture_dicts.append(texture_dict)
 
-        texture_info: dict[str, Json] = {
-            "index": texture_index,
-            # TODO: 互換性のためのもの。将来は削除するか、複数のtexCoordをサポートする
-            "texCoord": 0,
-        }
+        texture_info: dict[str, Json] = {"index": texture_index}
 
         texture_info_scale = getattr(gltf2_io_texture_info, "scale", None)
         if isinstance(texture_info_scale, (int, float)):
@@ -3777,7 +3563,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         buffer_view_dicts: list[dict[str, Json]],
         buffer0: bytearray,
         image_name_to_image_index: dict[str, int],
-        image_index_to_lazy_bytes: dict[int, bytes],
     ) -> Optional[dict[str, Json]]:
         source = texture.get_connected_node_image()
         if not source:
@@ -3820,7 +3605,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             buffer_view_dicts,
             buffer0,
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
             source,
         )
 
@@ -3837,10 +3621,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         texture_properties[texture_properties_key] = texture_index
         vector_properties[texture_properties_key] = [0, 0, 1, 1]
 
-        texture_info: dict[str, Json] = {
-            "index": texture_index,
-            "texCoord": 0,  # TODO: 互換性のため
-        }
+        texture_info: dict[str, Json] = {"index": texture_index}
         return texture_info
 
     def create_mtoon1_downgraded_texture_info(
@@ -3855,7 +3636,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         buffer_view_dicts: list[dict[str, Json]],
         buffer0: bytearray,
         image_name_to_image_index: dict[str, int],
-        image_index_to_lazy_bytes: dict[int, bytes],
         khr_texture_transform: Optional[Mtoon1KhrTextureTransformPropertyGroup],
     ) -> Optional[dict[str, Json]]:
         texture_info_dict = self.create_mtoon1_downgraded_texture(
@@ -3869,7 +3649,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             buffer_view_dicts,
             buffer0,
             image_name_to_image_index,
-            image_index_to_lazy_bytes,
         )
         if texture_info_dict is None:
             return None
