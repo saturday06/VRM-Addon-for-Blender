@@ -222,7 +222,7 @@ jobs:
         run: |
           uv run python -c "import io_scene_vrm; io_scene_vrm.register(); io_scene_vrm.unregister()"
       - name: Super-Linter
-        uses: github/super-linter@v7
+        uses: super-linter/super-linter@v7.2.1
         env:
           LINTER_RULES_PATH: /
           FILTER_REGEX_EXCLUDE: ^/github/workspace/CHANGELOG\.md$ # CHANGELOG.mdはrelease-pleaseによる自動生成ファイル
