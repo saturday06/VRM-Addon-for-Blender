@@ -465,7 +465,7 @@ def calculate_spring_pose_bone_rotations(
                 break
             searching_tail_parent = searching_tail_parent.parent
         if not head_tail_parented:
-            return
+            break
 
         inputs.append(
             (
