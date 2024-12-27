@@ -318,7 +318,7 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
     )
 
     if not isinstance(vrma_dict, dict):
-        message = "vrma_dict is not dict"
+        message = "vrma_dict is not a dict"
         raise TypeError(message)
 
     return pack_glb(vrma_dict, buffer0_bytearray)
