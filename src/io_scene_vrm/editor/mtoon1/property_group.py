@@ -49,7 +49,7 @@ from ...common.gl import (
     GL_NEAREST_MIPMAP_NEAREST,
     GL_REPEAT,
 )
-from ...common.logging import get_logger
+from ...common.logger import get_logger
 from ...common.preferences import VrmAddonPreferences
 from ...common.version import get_addon_version
 from ..property_group import property_group_enum

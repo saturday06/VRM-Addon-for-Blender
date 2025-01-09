@@ -19,7 +19,7 @@ from bpy.types import (
 from bpy_extras.io_utils import ExportHelper
 
 from ..common import ops, version
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 from ..common.preferences import (
     ExportPreferencesProtocol,
     copy_export_preferences,

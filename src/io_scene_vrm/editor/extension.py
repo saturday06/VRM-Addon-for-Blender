@@ -23,7 +23,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Quaternion
 
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 from ..common.preferences import VrmAddonPreferences
 from .mtoon1.property_group import Mtoon1MaterialPropertyGroup
 from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup

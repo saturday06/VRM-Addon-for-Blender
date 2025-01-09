@@ -40,7 +40,7 @@ from ..common.fs import (
 )
 from ..common.gl import GL_FLOAT, GL_LINEAR, GL_REPEAT, GL_UNSIGNED_SHORT
 from ..common.gltf import FLOAT_NEGATIVE_MAX, FLOAT_POSITIVE_MAX, pack_glb, parse_glb
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 from ..common.preferences import ImportPreferencesProtocol
 from ..common.progress import PartialProgress, create_progress
 from ..common.rotation import (

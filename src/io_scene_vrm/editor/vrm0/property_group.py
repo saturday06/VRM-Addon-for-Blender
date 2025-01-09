@@ -27,7 +27,7 @@ from bpy.types import (
 )
 from mathutils import Vector
 
-from ...common.logging import get_logger
+from ...common.logger import get_logger
 from ...common.vrm0.human_bone import (
     HumanBoneName,
     HumanBoneSpecification,

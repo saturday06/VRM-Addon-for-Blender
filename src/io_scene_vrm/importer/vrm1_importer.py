@@ -17,7 +17,7 @@ from mathutils import Matrix, Vector
 
 from ..common import convert, ops, shader
 from ..common.convert import Json
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 from ..common.preferences import get_preferences
 from ..common.progress import PartialProgress
 from ..common.version import get_addon_version

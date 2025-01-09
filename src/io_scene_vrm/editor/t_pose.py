@@ -17,7 +17,7 @@ from bpy.types import (
 from mathutils import Euler, Matrix, Quaternion, Vector
 
 from ..common import ops
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 from ..common.rotation import (
     get_rotation_as_quaternion,
     set_rotation_without_mode_change,

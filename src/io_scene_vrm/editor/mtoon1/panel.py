@@ -5,7 +5,7 @@ import bpy
 from bpy.app.translations import pgettext
 from bpy.types import Context, Panel, PropertyGroup, UILayout
 
-from ...common.logging import get_logger
+from ...common.logger import get_logger
 from .. import search
 from ..extension import get_material_extension
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator

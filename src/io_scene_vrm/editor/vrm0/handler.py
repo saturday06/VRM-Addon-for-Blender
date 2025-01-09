@@ -2,7 +2,7 @@
 import bpy
 from bpy.app.handlers import persistent
 
-from ...common.logging import get_logger
+from ...common.logger import get_logger
 from .property_group import Vrm0BlendShapeGroupPropertyGroup
 
 logger = get_logger(__name__)

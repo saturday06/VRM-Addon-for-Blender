@@ -8,7 +8,7 @@ import bpy
 from bpy.types import Context
 
 from io_scene_vrm.common import ops
-from io_scene_vrm.common.logging import get_logger
+from io_scene_vrm.common.logger import get_logger
 from io_scene_vrm.importer.vrm_diff import vrm_diff
 
 logger = get_logger(__name__)

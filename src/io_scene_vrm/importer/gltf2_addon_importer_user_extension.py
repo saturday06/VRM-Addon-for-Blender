@@ -6,7 +6,7 @@ from typing import Optional
 from bpy.types import Image
 
 from ..common.convert import sequence_or_none
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 
 logger = get_logger(__name__)
 

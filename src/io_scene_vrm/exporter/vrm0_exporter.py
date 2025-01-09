@@ -47,7 +47,7 @@ from ..common.gltf import (
     FLOAT_POSITIVE_MAX,
 )
 from ..common.legacy_gltf import TEXTURE_INPUT_NAMES
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 from ..common.mtoon_unversioned import MtoonUnversioned
 from ..common.progress import Progress, create_progress
 from ..common.version import get_addon_version

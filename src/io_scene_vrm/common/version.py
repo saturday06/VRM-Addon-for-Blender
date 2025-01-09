@@ -8,7 +8,7 @@ import bpy
 from bpy.app.translations import pgettext
 
 from .blender_manifest import BlenderManifest
-from .logging import get_logger
+from .logger import get_logger
 
 logger = get_logger(__name__)
 

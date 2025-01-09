@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from bpy.types import Context, Mesh, UILayout, UIList
 
-from ...common.logging import get_logger
+from ...common.logger import get_logger
 from ..property_group import StringPropertyGroup
 from .property_group import (
     Vrm1ExpressionsPropertyGroup,

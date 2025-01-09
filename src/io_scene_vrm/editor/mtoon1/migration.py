@@ -16,7 +16,7 @@ from idprop.types import IDPropertyGroup
 
 from ...common import convert, ops, shader, version
 from ...common.gl import GL_LINEAR, GL_NEAREST
-from ...common.logging import get_logger
+from ...common.logger import get_logger
 from ...common.progress import create_progress
 from .. import search
 from ..extension import get_material_extension

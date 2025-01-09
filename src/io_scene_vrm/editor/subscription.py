@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import bpy
 from bpy.types import Armature, Bone, Object
 
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 from .migration import (
     on_change_bpy_armature_name,
     on_change_bpy_bone_name,

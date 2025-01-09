@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from bpy.types import Context
 
-from .logging import get_logger
+from .logger import get_logger
 
 logger = get_logger(__name__)
 

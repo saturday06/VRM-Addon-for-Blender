@@ -8,7 +8,7 @@ import bpy
 from bpy.props import FloatProperty, PointerProperty, StringProperty
 from bpy.types import Armature, Bone, Material, Object, PropertyGroup
 
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 from ..common.vrm0 import human_bone as vrm0_human_bone
 from ..common.vrm1 import human_bone as vrm1_human_bone
 

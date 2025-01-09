@@ -32,7 +32,7 @@ from bpy.types import (
 from mathutils import Matrix, Quaternion, Vector
 
 from ...common.char import DISABLE_TRANSLATION
-from ...common.logging import get_logger
+from ...common.logger import get_logger
 from ...common.rotation import set_rotation_without_mode_change
 from ...common.vrm1.human_bone import (
     HumanBoneName,

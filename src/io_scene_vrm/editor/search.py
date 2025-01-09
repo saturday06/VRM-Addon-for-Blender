@@ -21,7 +21,7 @@ from bpy.types import (
     ShaderNodeOutputMaterial,
 )
 
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 from .extension import get_armature_extension
 
 logger = get_logger(__name__)

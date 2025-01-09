@@ -5,7 +5,7 @@ from json import dumps as json_dumps
 
 from . import convert
 from .convert import Json
-from .logging import get_logger
+from .logger import get_logger
 
 logger = get_logger(__name__)
 

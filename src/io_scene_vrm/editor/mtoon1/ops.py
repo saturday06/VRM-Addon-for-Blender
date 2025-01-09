@@ -24,7 +24,7 @@ from bpy_extras.io_utils import ImportHelper
 from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 
 from ...common import convert, shader
-from ...common.logging import get_logger
+from ...common.logger import get_logger
 from ...common.preferences import get_preferences
 from .. import search
 from ..extension import get_material_extension

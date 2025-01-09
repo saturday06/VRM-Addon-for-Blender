@@ -8,7 +8,7 @@ from collections.abc import Set as AbstractSet
 import bpy
 from bpy.types import Context, Event, Image, Operator
 
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 
 #
 # `import io_scene_gltf2` is executed in a function, not here. Importing it in the

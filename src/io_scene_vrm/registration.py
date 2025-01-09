@@ -28,7 +28,7 @@ from bpy.types import (
 )
 
 from .common import preferences, shader
-from .common.logging import get_logger
+from .common.logger import get_logger
 from .common.version import trigger_clear_addon_version_cache
 from .editor import (
     extension,

@@ -7,7 +7,7 @@ import bpy
 from bpy.app.handlers import persistent
 from bpy.types import Mesh
 
-from ...common.logging import get_logger
+from ...common.logger import get_logger
 from ..extension import get_material_extension
 from . import migration
 from .ops import VRM_OT_refresh_mtoon1_outline

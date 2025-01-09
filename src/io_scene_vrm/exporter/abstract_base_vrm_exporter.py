@@ -12,7 +12,7 @@ from bpy.types import Armature, Context, Mesh, NodesModifier, Object
 from ..common import shader
 from ..common.convert import Json
 from ..common.deep import make_json
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 from ..editor.extension import get_armature_extension, get_material_extension
 from ..editor.search import MESH_CONVERTIBLE_OBJECT_TYPES
 from ..external import io_scene_gltf2_support

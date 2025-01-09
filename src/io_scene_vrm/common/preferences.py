@@ -6,7 +6,7 @@ from bpy.props import BoolProperty, IntVectorProperty
 from bpy.types import AddonPreferences, Context, Operator, UILayout
 
 from . import version
-from .logging import get_logger
+from .logger import get_logger
 
 logger = get_logger(__name__)
 

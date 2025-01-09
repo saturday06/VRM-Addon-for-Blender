@@ -3,7 +3,7 @@ from typing import Optional
 
 from bpy.types import Armature, Object
 
-from ..logging import get_logger
+from ..logger import get_logger
 from ..vrm1.human_bone import HumanBoneSpecification
 from . import (
     cats_blender_plugin_fix_model_mapping,

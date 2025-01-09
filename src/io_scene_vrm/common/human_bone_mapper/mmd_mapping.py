@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from bpy.types import Object
 
-from ..logging import get_logger
+from ..logger import get_logger
 from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 
 logger = get_logger(__name__)

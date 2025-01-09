@@ -13,7 +13,7 @@ from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.gl import GL_FLOAT
 from ..common.gltf import pack_glb
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 from ..common.rotation import (
     ROTATION_MODE_AXIS_ANGLE,
     ROTATION_MODE_EULER,

@@ -27,7 +27,7 @@ from bpy.types import (
 
 from ...common import ops, shader
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
-from ...common.logging import get_logger
+from ...common.logger import get_logger
 from ...common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
 from ...common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..extension import get_armature_extension

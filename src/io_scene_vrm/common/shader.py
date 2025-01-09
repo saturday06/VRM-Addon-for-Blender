@@ -96,7 +96,7 @@ from mathutils import Color, Euler, Vector
 from . import convert
 from .char import INTERNAL_NAME_PREFIX
 from .gl import GL_CLAMP_TO_EDGE, GL_LINEAR, GL_NEAREST, GL_REPEAT
-from .logging import get_logger
+from .logger import get_logger
 from .version import get_addon_version
 from .workspace import save_workspace, wm_append_without_library
 

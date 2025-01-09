@@ -6,7 +6,7 @@ import bpy
 from bpy.app.handlers import persistent
 from mathutils import Vector
 
-from ...common.logging import get_logger
+from ...common.logger import get_logger
 from ..extension import get_armature_extension
 from .property_group import Vrm1ExpressionPropertyGroup, Vrm1LookAtPropertyGroup
 

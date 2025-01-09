@@ -16,7 +16,7 @@ from ..common.gltf import (
     read_accessor_as_animation_sampler_rotation_output,
     read_accessor_as_animation_sampler_translation_output,
 )
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 from ..common.rotation import (
     get_rotation_as_quaternion,
     insert_rotation_keyframe,

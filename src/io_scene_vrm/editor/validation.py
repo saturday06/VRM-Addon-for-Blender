@@ -25,7 +25,7 @@ from mathutils import Vector
 
 from ..common import shader, version
 from ..common.legacy_gltf import RGBA_INPUT_NAMES, TEXTURE_INPUT_NAMES, VAL_INPUT_NAMES
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 from ..common.mtoon_unversioned import MtoonUnversioned
 from ..common.preferences import get_preferences
 from ..common.vrm0 import human_bone as vrm0_human_bone

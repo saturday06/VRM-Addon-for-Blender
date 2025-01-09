@@ -7,7 +7,7 @@ import bpy
 from bpy.types import Armature, Context
 
 from ..common import ops
-from ..common.logging import get_logger
+from ..common.logger import get_logger
 from ..common.preferences import get_preferences
 from ..common.version import get_addon_version
 from .extension import (

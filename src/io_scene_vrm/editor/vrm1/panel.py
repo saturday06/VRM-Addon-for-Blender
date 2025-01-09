@@ -5,7 +5,7 @@ import bpy
 from bpy.app.translations import pgettext
 from bpy.types import Armature, Context, Mesh, Object, Panel, UILayout
 
-from ...common.logging import get_logger
+from ...common.logger import get_logger
 from ...common.vrm1.human_bone import HumanBoneSpecifications
 from .. import ops, search
 from ..extension import get_armature_extension, get_bone_extension
