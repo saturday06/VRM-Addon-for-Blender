@@ -979,7 +979,7 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
                 if collider_group.search_one_time_uuid != self.search_one_time_uuid:
                     continue
 
-                name = f"{self.vrm_name} #{index+1}"
+                name = f"{self.vrm_name} #{index + 1}"
                 self.name = name
 
                 for spring in spring_bone.springs:

@@ -29,9 +29,9 @@ def test(context: Context) -> None:
         for human_bone in get_armature_extension(data).vrm0.humanoid.human_bones
         if human_bone.bone == "head"
     )
-    assert (
-        b.node.bone_name == new_head_name
-    ), f"head is expected to {new_head_name} but {b.node.bone_name}"
+    assert b.node.bone_name == new_head_name, (
+        f"head is expected to {new_head_name} but {b.node.bone_name}"
+    )
 
 
 if __name__ == "__main__":

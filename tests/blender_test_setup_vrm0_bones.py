@@ -106,9 +106,9 @@ def test_head_bone_world_plus_z(context: Context) -> None:
         message = "head has no parent"
         raise AssertionError(message)
 
-    assert (
-        head.length - parent.length
-    ) < 0.0001, f"head length {head.length} is same as neck length {parent.length}"
+    assert (head.length - parent.length) < 0.0001, (
+        f"head length {head.length} is same as neck length {parent.length}"
+    )
 
 
 def test_multiple_children_right_toes_direction_is_same_as_foot(
