@@ -730,10 +730,10 @@ def frame_change_pre(_unused: object) -> None:
         # floatの丸め誤差の積算を行うため、delta_timeは 1.0/60.0 を決め打ちせず
         # 前後の時刻の差分を使う
         next_spring_bone_update_time = next_spring_bone_60_fps_update_count / Decimal(
-            60.0
+            60
         )
         current_spring_bone_update_time = (
-            state.spring_bone_60_fps_update_count / Decimal(60.0)
+            state.spring_bone_60_fps_update_count / Decimal(60)
         )
         delta_time = float(next_spring_bone_update_time) - float(
             current_spring_bone_update_time
