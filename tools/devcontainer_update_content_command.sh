@@ -14,3 +14,5 @@ sudo dnf update -y
 ./tools/install_editorconfig-checker.sh
 
 uv self update
+curl --fail --show-error --location https://get.volta.sh | bash
+volta install node

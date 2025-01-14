@@ -25,7 +25,6 @@ RUN dnf update -y \
         libxkbcommon \
         moreutils \
         nkf \
-        npm \
         openssh-clients \
         patchutils \
         python3-dulwich \
@@ -182,3 +181,4 @@ ENV UV_LINK_MODE=copy
 RUN mkdir -p .cache
 
 RUN curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
+RUN curl --fail --show-error --location https://get.volta.sh | bash
