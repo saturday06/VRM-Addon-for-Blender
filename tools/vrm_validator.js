@@ -1,31 +1,16 @@
 // SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-const process = require("node:process");
-const { dirname, basename, resolve } = require("path");
-const fs = require("fs");
-const gltfValidator = require("gltf-validator");
-
-// https://stackoverflow.com/a/45130990
-function readDirRecursiveSync(dir) {
-  const result = [];
-  const dirents = fs.readdirSync(dir, { withFileTypes: true });
-  for (const dirent of dirents) {
-    const resolved = resolve(dir, dirent.name);
-    if (dirent.isDirectory()) {
-      result.push(...readDirRecursiveSync(resolved));
-    } else {
-      result.push(resolved);
-    }
-  }
-  return result;
-}
+import process from "node:process";
+import { dirname, basename } from "path";
+import { existsSync, promises, readFileSync } from "fs";
+import gltfValidator from "gltf-validator";
 
 const basePath = process.env.BLENDER_VRM_TEST_RESOURCES_PATH || process.cwd();
-if (!fs.existsSync(basePath)) {
+if (!existsSync(basePath)) {
   console.error(`No base path: "${basePath}"`);
   process.exit(1);
 }
 
-const paths = readDirRecursiveSync(basePath);
+const paths = await promises.readdir(basePath, { recursive: true });
 paths.forEach(async (path) => {
   if (basename(dirname(path)) == "in") {
     return;
@@ -37,7 +22,7 @@ paths.forEach(async (path) => {
   let result;
   try {
     result = await gltfValidator.validateBytes(
-      new Uint8Array(fs.readFileSync(path)),
+      new Uint8Array(readFileSync(path)),
     );
   } catch (e) {
     console.error(`Errors in "${path}":`);
