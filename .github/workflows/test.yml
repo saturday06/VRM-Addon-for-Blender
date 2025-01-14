@@ -221,13 +221,16 @@ jobs:
       - name: Sanity Check
         run: |
           uv run python -c "import io_scene_vrm; io_scene_vrm.register(); io_scene_vrm.unregister()"
-      - name: VRM Validator
+      - name: Check VRM Validator works correctly
         run: |
-          touch failure.vrm
-          if npm exec --yes --package=gltf-validator -- node ./tools/vrm_validator.js; then
-            echo "VRM Validator dones't work correctly"
-            exit 1
-          fi
+          for failure_vrm_path in failure.vrm tests/failure.vrm; do
+            touch "$failure_vrm_path"
+            if npm exec --yes --package=gltf-validator -- node ./tools/vrm_validator.js; then
+              echo "VRM Validator dones't work correctly"
+              exit 1
+            fi
+            rm "$failure_vrm_path"
+          done
       - name: Super-Linter
         uses: super-linter/super-linter@v7.2.1
         env:
