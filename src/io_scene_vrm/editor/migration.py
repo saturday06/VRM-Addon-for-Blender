@@ -140,6 +140,11 @@ def migrate_all_objects(
         tuple(preferences.addon_version),
         updated_addon_version,
     )
+
+    if tuple(preferences.addon_version) < (2, 34, 0):
+        preferences.enable_advanced_preferences = True
+        preferences.export_gltf_animations = True
+
     preferences.addon_version = updated_addon_version
 
 

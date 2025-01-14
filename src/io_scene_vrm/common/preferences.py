@@ -102,6 +102,7 @@ class ExportPreferencesProtocol(Protocol):
     enable_advanced_preferences: bool
     export_all_influences: bool
     export_lights: bool
+    export_gltf_animations: bool
 
 
 def copy_export_preferences(
@@ -113,12 +114,14 @@ def copy_export_preferences(
         destination.enable_advanced_preferences,
         destination.export_all_influences,
         destination.export_lights,
+        destination.export_gltf_animations,
     ) = (
         source.export_invisibles,
         source.export_only_selections,
         source.enable_advanced_preferences,
         source.export_all_influences,
         source.export_lights,
+        source.export_gltf_animations,
     )
 
 
@@ -135,6 +138,7 @@ def draw_export_preferences_layout(
         advanced_options_box = layout.box()
         advanced_options_box.prop(preferences, "export_all_influences")
         advanced_options_box.prop(preferences, "export_lights")
+        advanced_options_box.prop(preferences, "export_gltf_animations")
 
 
 class VrmAddonPreferences(AddonPreferences):
@@ -201,6 +205,9 @@ class VrmAddonPreferences(AddonPreferences):
     export_lights: BoolProperty(  # type: ignore[valid-type]
         name="Export Lights",
     )
+    export_gltf_animations: BoolProperty(  # type: ignore[valid-type]
+        name="Export glTF Animations",
+    )
 
     def draw(self, _context: Context) -> None:
         layout = self.layout
@@ -241,6 +248,7 @@ class VrmAddonPreferences(AddonPreferences):
         enable_advanced_preferences: bool  # type: ignore[no-redef]
         export_all_influences: bool  # type: ignore[no-redef]
         export_lights: bool  # type: ignore[no-redef]
+        export_gltf_animations: bool  # type: ignore[no-redef]
 
 
 def get_preferences(context: Context) -> VrmAddonPreferences:

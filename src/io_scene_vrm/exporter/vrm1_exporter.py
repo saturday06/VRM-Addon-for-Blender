@@ -86,11 +86,13 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         *,
         export_all_influences: bool,
         export_lights: bool,
+        export_gltf_animations: bool,
     ) -> None:
         super().__init__(context, export_objects, armature)
 
         self.export_all_influences = export_all_influences
         self.export_lights = export_lights
+        self.export_gltf_animations = export_gltf_animations
 
         self.extras_main_armature_key = (
             INTERNAL_NAME_PREFIX + self.export_id + "MainArmature"
@@ -2373,7 +2375,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         export_current_frame=True,
                         use_selection=True,
                         use_active_scene=True,
-                        export_animations=True,
+                        export_animations=self.export_gltf_animations,
                         export_armature_object_remove=(
                             self.gltf_export_armature_object_remove(
                                 self.context, mesh_compat_object_names

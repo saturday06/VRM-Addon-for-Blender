@@ -105,6 +105,9 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
     export_lights: BoolProperty(  # type: ignore[valid-type]
         name="Export Lights",
     )
+    export_gltf_animations: BoolProperty(  # type: ignore[valid-type]
+        name="Export glTF Animations",
+    )
 
     errors: CollectionProperty(  # type: ignore[valid-type]
         type=validation.VrmValidationError,
@@ -234,6 +237,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         enable_advanced_preferences: bool  # type: ignore[no-redef]
         export_all_influences: bool  # type: ignore[no-redef]
         export_lights: bool  # type: ignore[no-redef]
+        export_gltf_animations: bool  # type: ignore[no-redef]
         errors: CollectionPropertyProtocol[  # type: ignore[no-redef]
             VrmValidationError
         ]
@@ -255,12 +259,26 @@ def export_vrm(
     ) != {"FINISHED"}:
         return {"CANCELLED"}
 
+    (
+        export_all_influences,
+        export_lights,
+        export_gltf_animations,
+    ) = (
+        (
+            export_preferences.export_all_influences,
+            export_preferences.export_lights,
+            export_preferences.export_gltf_animations,
+        )
+        if export_preferences.enable_advanced_preferences
+        else (False, False, False)
+    )
+
     export_objects = search.export_objects(
         context,
         armature_object_name,
         export_invisibles=export_preferences.export_invisibles,
         export_only_selections=export_preferences.export_only_selections,
-        export_lights=export_preferences.export_lights,
+        export_lights=export_lights,
     )
 
     armature_object: Optional[Object] = next(
@@ -293,8 +311,9 @@ def export_vrm(
                 context,
                 export_objects,
                 armature_object,
-                export_all_influences=export_preferences.export_all_influences,
-                export_lights=export_preferences.export_lights,
+                export_all_influences=export_all_influences,
+                export_lights=export_lights,
+                export_gltf_animations=export_gltf_animations,
             )
         else:
             vrm_exporter = Vrm0Exporter(
