@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.34.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.33.1...v2.34.0) (2025-01-14)
+
+
+### 🚀 Features
+
+* add a setting to export gltf animation or not ([bd5b2d3](https://github.com/saturday06/VRM-Addon-for-Blender/commit/bd5b2d3d0aaa9819969f4721660439a533ec5849))
+
 ## [2.33.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.33.0...v2.33.1) (2024-12-18)
 
 
