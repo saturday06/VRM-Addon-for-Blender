@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-
 import logging
 import re
 import sys
@@ -8,7 +7,10 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Optional
 
-from bpy.types import ID, Operator
+from bpy.types import (
+    ID,
+    Operator,
+)
 
 from io_scene_vrm import registration
 from io_scene_vrm.common import convert, convert_any
@@ -231,7 +233,7 @@ def main() -> int:
         if generated_py_path.name != "__init__.py":
             generated_py_path.unlink()
 
-    classes: list[type] = []
+    classes = list(registration.classes)
     searching_classes = list(registration.classes)
     while searching_classes:
         c = searching_classes.pop()

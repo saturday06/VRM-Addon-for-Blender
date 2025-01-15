@@ -9,7 +9,49 @@ import bpy
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
-def vrma_import_prerequisite(
+def vrm_gltf2_addon_disabled_warning(
+    execution_context: str = "EXEC_DEFAULT",
+) -> set[str]:
+    return bpy.ops.wm.vrm_gltf2_addon_disabled_warning(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def vrm_export_human_bones_assignment(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+) -> set[str]:
+    return bpy.ops.wm.vrm_export_human_bones_assignment(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def vrm_export_confirmation(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    errors: Optional[Sequence[Mapping[str, Union[str, int, float, bool]]]] = None,
+    armature_object_name: str = "",
+    export_anyway: bool = False,
+) -> set[str]:
+    return bpy.ops.wm.vrm_export_confirmation(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        errors=errors if errors is not None else [],
+        armature_object_name=armature_object_name,
+        export_anyway=export_anyway,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def vrm_export_armature_selection(
     execution_context: str = "EXEC_DEFAULT",
     /,
     *,
@@ -18,7 +60,27 @@ def vrma_import_prerequisite(
         Sequence[Mapping[str, Union[str, int, float, bool]]]
     ] = None,
 ) -> set[str]:
-    return bpy.ops.wm.vrma_import_prerequisite(  # type: ignore[attr-defined, no-any-return]
+    return bpy.ops.wm.vrm_export_armature_selection(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+        armature_object_name_candidates=armature_object_name_candidates
+        if armature_object_name_candidates is not None
+        else [],
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def vrma_export_prerequisite(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+    armature_object_name_candidates: Optional[
+        Sequence[Mapping[str, Union[str, int, float, bool]]]
+    ] = None,
+) -> set[str]:
+    return bpy.ops.wm.vrma_export_prerequisite(  # type: ignore[attr-defined, no-any-return]
         execution_context,
         armature_object_name=armature_object_name,
         armature_object_name_candidates=armature_object_name_candidates
@@ -67,7 +129,7 @@ def vrm_license_warning(
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
-def vrma_export_prerequisite(
+def vrma_import_prerequisite(
     execution_context: str = "EXEC_DEFAULT",
     /,
     *,
@@ -76,72 +138,10 @@ def vrma_export_prerequisite(
         Sequence[Mapping[str, Union[str, int, float, bool]]]
     ] = None,
 ) -> set[str]:
-    return bpy.ops.wm.vrma_export_prerequisite(  # type: ignore[attr-defined, no-any-return]
+    return bpy.ops.wm.vrma_import_prerequisite(  # type: ignore[attr-defined, no-any-return]
         execution_context,
         armature_object_name=armature_object_name,
         armature_object_name_candidates=armature_object_name_candidates
         if armature_object_name_candidates is not None
         else [],
-    )
-
-
-# This code is auto generated.
-# To regenerate, run the `uv run tools/property_typing.py` command.
-def vrm_export_armature_selection(
-    execution_context: str = "EXEC_DEFAULT",
-    /,
-    *,
-    armature_object_name: str = "",
-    armature_object_name_candidates: Optional[
-        Sequence[Mapping[str, Union[str, int, float, bool]]]
-    ] = None,
-) -> set[str]:
-    return bpy.ops.wm.vrm_export_armature_selection(  # type: ignore[attr-defined, no-any-return]
-        execution_context,
-        armature_object_name=armature_object_name,
-        armature_object_name_candidates=armature_object_name_candidates
-        if armature_object_name_candidates is not None
-        else [],
-    )
-
-
-# This code is auto generated.
-# To regenerate, run the `uv run tools/property_typing.py` command.
-def vrm_export_confirmation(
-    execution_context: str = "EXEC_DEFAULT",
-    /,
-    *,
-    errors: Optional[Sequence[Mapping[str, Union[str, int, float, bool]]]] = None,
-    armature_object_name: str = "",
-    export_anyway: bool = False,
-) -> set[str]:
-    return bpy.ops.wm.vrm_export_confirmation(  # type: ignore[attr-defined, no-any-return]
-        execution_context,
-        errors=errors if errors is not None else [],
-        armature_object_name=armature_object_name,
-        export_anyway=export_anyway,
-    )
-
-
-# This code is auto generated.
-# To regenerate, run the `uv run tools/property_typing.py` command.
-def vrm_export_human_bones_assignment(
-    execution_context: str = "EXEC_DEFAULT",
-    /,
-    *,
-    armature_object_name: str = "",
-) -> set[str]:
-    return bpy.ops.wm.vrm_export_human_bones_assignment(  # type: ignore[attr-defined, no-any-return]
-        execution_context,
-        armature_object_name=armature_object_name,
-    )
-
-
-# This code is auto generated.
-# To regenerate, run the `uv run tools/property_typing.py` command.
-def vrm_gltf2_addon_disabled_warning(
-    execution_context: str = "EXEC_DEFAULT",
-) -> set[str]:
-    return bpy.ops.wm.vrm_gltf2_addon_disabled_warning(  # type: ignore[attr-defined, no-any-return]
-        execution_context,
     )
