@@ -14,5 +14,7 @@ sudo dnf update -y
 ./tools/install_editorconfig-checker.sh
 
 uv self update
-curl --fail --show-error --location https://get.volta.sh | bash
-volta install node
+
+# https://github.com/Schniz/fnm/blob/v1.38.1/README.md?plain=1#L35-L39
+curl --fail --show-error --location https://fnm.vercel.app/install | bash -s -- --skip-shell
+fnm install
