@@ -216,6 +216,9 @@ jobs:
           git diff --exit-code
       - name: Install hadolint
         run: ./tools/install_hadolint.sh
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
       - name: Lint
         run: ./tools/lint.sh
       - name: Sanity Check
