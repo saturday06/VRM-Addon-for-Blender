@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.34.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.34.0...v2.34.1) (2025-01-15)
+
+
+### 🐞 Bug Fixes
+
+* regenerate release archives ([12e75bb](https://github.com/saturday06/VRM-Addon-for-Blender/commit/12e75bbc6576effeb61cfe193a6b2efe7bf695e5))
+
 ## [2.34.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.33.1...v2.34.0) (2025-01-14)
 
 
