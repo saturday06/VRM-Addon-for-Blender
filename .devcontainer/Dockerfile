@@ -55,13 +55,9 @@ RUN curl --fail --show-error --location --output /etc/apt/keyrings/githubcli-arc
             libglfw3-dev=* \
             libjpeg62-turbo-dev=* \
             libncurses-dev=* \
-            libopencolorio-dev=* \
-            libopenexr-dev=* \
             libopenimageio-dev=* \
-            libopenjp2-7-dev=* \
             libopenvdb-dev=* \
             libopenxr-dev=* \
-            libpotrace-dev=* \
             libpugixml-dev=* \
             libreadline-dev=* \
             libsqlite3-dev=* \
@@ -93,10 +89,8 @@ RUN curl --fail --show-error --location --output /etc/apt/keyrings/githubcli-arc
 
 WORKDIR /root/src
 
-# bpyを使いたいがLinux用のbpyはx86_64版だけしかpypiに上がっていないため、それ以外の場合は自前でビルドしてシステムにインストールする。
+# Linux用のbpyはx86_64版だけしかpypiに上がっていないため、それ以外の場合は自前でビルドしてシステムにインストールする。
 # https://developer.blender.org/docs/handbook/building_blender/python_module/
-
-# aarch64でBlenderをビルドする場合はsse2neonが必要
 RUN if [ "$(uname -m)" = "aarch64" ]; then \
         curl --fail --show-error --location --output sse2neon.tar.gz https://github.com/DLTcollab/sse2neon/archive/refs/tags/v1.7.0.tar.gz \
         && test "$(md5sum sse2neon.tar.gz)" = "09e0a5ac47f852862c5c0e754462bc81  sse2neon.tar.gz" \
@@ -109,8 +103,6 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
         && popd \
         && rm -fr sse2neon \
     ; fi
-
-# Blenderをビルドする
 # ceresのビルド中にビルドが失敗することがある。失敗した場合はNPROCS=1を付与することで解決した。
 # 発生していたエラーは次のとおり:
 # [ 66%] Building C object source/blender/editors/animation/CMakeFiles/bf_editor_animation.dir/anim_channels_edit.c.o
@@ -121,8 +113,7 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
 # 一般的には `make bpy || make NPROCS=1 bpy` という対応をするが、Parallels Desktop上のUbuntu Arm64 22.04だと
 # GUI全体を巻き込んでクラッシュしたのでNPROCS=1で決め打ちする。
 RUN if [ "$(uname -m)" != "x86_64" ]; then \
-        pip install --no-cache-dir "numpy==1.23.*" "requests==2.27.*" "zstandard==0.16.*" \
-        && curl --fail --show-error --location --output blender.tar.xz https://download.blender.org/source/blender-3.6.16.tar.xz \
+        curl --fail --show-error --location --output blender.tar.xz https://download.blender.org/source/blender-3.6.16.tar.xz \
         && test "$(md5sum blender.tar.xz)" = "72e043d16ea5dd3e7d9ce6a00c623919  blender.tar.xz" \
         && mkdir -p blender/blender \
         && pushd blender/blender \
@@ -135,7 +126,7 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
         && popd \
         && popd \
         && rm -fr blender \
-        && python -c 'import bpy; assert(bpy.app.version == (3, 6, 16))' \
+        && python3 -c 'import bpy; assert(bpy.app.version == (3, 6, 16))' \
     ; fi
 
 RUN useradd --create-home --user-group --shell /bin/bash developer \
