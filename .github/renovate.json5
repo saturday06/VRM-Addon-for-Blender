@@ -18,8 +18,8 @@
     },
     {
       matchFileNames: [".devcontainer/Dockerfile"],
-      matchUpdateTypes: ["major", "minor"],
-      enabled: false,
+      matchUpdateTypes: ["patch", "digest"],
+      automerge: true,
     },
     {
       matchPackageNames: ["bpy"],
