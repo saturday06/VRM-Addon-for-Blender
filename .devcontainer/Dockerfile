@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-FROM mcr.microsoft.com/devcontainers/python:3.13-bookworm
+FROM mcr.microsoft.com/devcontainers/python:3.10-bookworm
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]

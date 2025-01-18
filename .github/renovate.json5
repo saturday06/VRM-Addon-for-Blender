@@ -17,6 +17,11 @@
       automerge: true,
     },
     {
+      matchFileNames: [".devcontainer/Dockerfile"],
+      matchUpdateTypes: ["patch", "digest"],
+      automerge: true,
+    },
+    {
       matchPackageNames: ["bpy"],
       rangeStrategy: "in-range-only",
       automerge: true,
