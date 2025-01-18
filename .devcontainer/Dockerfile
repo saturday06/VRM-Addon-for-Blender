@@ -124,7 +124,7 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
         && popd \
         && rm -fr python \
         && ln -s /usr/local/bin/python3 /usr/local/bin/python \
-        && /usr/local/bin/pip3 install numpy requests zstandard \
+        && /usr/local/bin/pip3 install --no-cache-dir "numpy==1.23.*" "requests==2.27.*" "zstandard==0.16.*" \
     ; fi
 RUN if [ "$(uname -m)" != "x86_64" ]; then \
         curl --fail --show-error --location --output embree.tar.gz https://github.com/RenderKit/embree/archive/refs/tags/v4.3.3.tar.gz \
