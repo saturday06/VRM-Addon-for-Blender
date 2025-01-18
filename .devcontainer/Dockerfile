@@ -46,6 +46,7 @@ RUN curl --fail --show-error --location --output /etc/apt/keyrings/githubcli-arc
             libdbus-1-dev=* \
             libdecor-0-dev=* \
             libegl-dev=* \
+            libembree-dev=* \
             libepoxy-dev=* \
             libffi-dev=* \
             libfftw3-dev=* \
@@ -109,19 +110,6 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
         && cp sse2neon.h /usr/local/include/ \
         && popd \
         && rm -fr sse2neon \
-    ; fi
-
-RUN if [ "$(uname -m)" != "x86_64" ]; then \
-        curl --fail --show-error --location --output embree.tar.gz https://github.com/RenderKit/embree/archive/refs/tags/v4.3.3.tar.gz \
-        && test "$(md5sum embree.tar.gz)" = "170a7f8042fa89930f464cda0a0a63fc  embree.tar.gz" \
-        && mkdir -p embree \
-        && pushd embree \
-        && tar zxf ../embree.tar.gz --strip-components=1 \
-        && cmake . \
-        && make \
-        && make install \
-        && popd \
-        && rm -fr embree \
     ; fi
 
 # ceresのビルド中にビルドが失敗することがある。失敗した場合はNPROCS=1を付与することで解決した。
