@@ -153,6 +153,7 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
         && mkdir -p blender/blender \
         && pushd blender/blender \
         && tar Jxf ../../blender.tar.xz --strip-components=1 \
+        && dnf update -y \
         && ./build_files/build_environment/install_linux_packages.py \
         && make NPROCS=1 bpy \
         && pushd ../build_linux_bpy \
