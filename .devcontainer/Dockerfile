@@ -91,14 +91,6 @@ WORKDIR /root/src
 
 # Linux用のbpyはx86_64版だけしかpypiに上がっていないため、それ以外の場合は自前でビルドしてシステムにインストールする。
 # https://developer.blender.org/docs/handbook/building_blender/python_module/
-RUN if [ "$(uname -m)" != "x86_64" ]; then \
-        for path in /usr/local/lib /usr/local/lib64; do \
-            mkdir -p "$path" \
-            && echo "$path" >> /etc/ld.so.conf.d/vrm.conf \
-        ; done \
-        && ldconfig \
-    ; fi
-
 RUN if [ "$(uname -m)" = "aarch64" ]; then \
         curl --fail --show-error --location --output sse2neon.tar.gz https://github.com/DLTcollab/sse2neon/archive/refs/tags/v1.7.0.tar.gz \
         && test "$(md5sum sse2neon.tar.gz)" = "09e0a5ac47f852862c5c0e754462bc81  sse2neon.tar.gz" \
@@ -111,7 +103,6 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
         && popd \
         && rm -fr sse2neon \
     ; fi
-
 # ceresのビルド中にビルドが失敗することがある。失敗した場合はNPROCS=1を付与することで解決した。
 # 発生していたエラーは次のとおり:
 # [ 66%] Building C object source/blender/editors/animation/CMakeFiles/bf_editor_animation.dir/anim_channels_edit.c.o
