@@ -1,93 +1,90 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-FROM rockylinux:9
+FROM mcr.microsoft.com/devcontainers/python:3.10-bookworm
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN dnf update -y \
-    && dnf install-n -y dnf-plugins-core \
-    && dnf config-manager --set-enabled crb \
-    && dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo \
-    && dnf install-n -y epel-release \
-    && dnf update -y \
-    && dnf install-n -y --setopt=install_weak_deps=False --allowerasing \
-        ImageMagick \
-        ShellCheck \
-        advancecomp \
-        blender \
-        curl \
-        file \
-        gh \
-        git \
-        less \
-        libSM \
-        libXi \
-        libxkbcommon \
-        moreutils \
-        nkf \
-        openssh-clients \
-        patchutils \
-        python3-dulwich \
-        python3-numpy \
-        python3-tqdm \
-        python3-typing-extensions \
-        ruby \
-        rubygems \
-        sudo \
-        unzip \
-        xz \
-        zopfli \
+# https://docs.docker.com/build/building/best-practices/#sort-multi-line-arguments
+# https://github.com/cli/cli/blob/v2.65.0/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt
+RUN curl --fail --show-error --location --output /etc/apt/keyrings/githubcli-archive-keyring.gpg https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+    && chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        advancecomp=* \
+        blender=* \
+        curl=* \
+        file=* \
+        gh=* \
+        git=* \
+        imagemagick=* \
+        less=* \
+        libsm6=* \
+        libxi6=* \
+        libxkbcommon0=* \
+        moreutils=* \
+        nkf=* \
+        patchutils=* \
+        python3-dulwich=* \
+        python3-numpy=* \
+        python3-tqdm=* \
+        python3-typing-extensions=* \
+        ruby=* \
+        shellcheck=* \
+        sudo=* \
+        unzip=* \
+        xz-utils=* \
+        zopfli=* \
     && if [ "$(uname -m)" != "x86_64" ]; then \
-            dnf install-n -y --setopt=install_weak_deps=False --allowerasing \
-                OpenImageIO-devel \
-                bison \
-                boost-devel \
-                bzip2-devel \
-                cmake \
-                dbus-devel \
-                fftw-devel \
-                freetype \
-                gcc-c++ \
-                gcc \
-                glfw-devel \
-                libSM \
-                libX11-devel \
-                libXcursor-devel \
-                libXext \
-                libXi-devel \
-                libXinerama-devel \
-                libXrandr-devel \
-                libXtst-devel \
-                libXxf86vm-devel \
-                libdecor-devel \
-                libepoxy-devel \
-                libffi-devel \
-                libjpeg-turbo-devel \
-                libxkbcommon-devel \
-                libxml2-devel \
-                libzstd-devel \
-                make \
-                mesa-libEGL-devel \
-                mesa-libGL-devel \
-                ncurses-devel \
-                ninja-build \
-                openCOLLADA-devel \
-                openssl-devel \
-                openvdb-devel \
-                openxr-devel \
-                patchelf \
-                pugixml-devel \
-                readline-devel \
-                sqlite-devel \
-                subversion \
-                tbb-devel \
-                tk-devel \
-                wayland-devel \
-                wayland-protocols-devel \
-                yasm \
-                zlib-devel \
-        ; fi \
-    && dnf clean all
+        apt-get install -y --no-install-recommends \
+            bison=* \
+            cmake=* \
+            g++=* \
+            gcc=* \
+            libboost-dev=* \
+            libbz2-dev=* \
+            libdbus-1-dev=* \
+            libdecor-0-dev=* \
+            libegl-dev=* \
+            libepoxy-dev=* \
+            libffi-dev=* \
+            libfftw3-dev=* \
+            libfreetype6=* \
+            libgl-dev=* \
+            libglfw3-dev=* \
+            libjpeg62-turbo-dev=* \
+            libncurses-dev=* \
+            libopenimageio-dev=* \
+            libopenvdb-dev=* \
+            libopenxr-dev=* \
+            libpugixml-dev=* \
+            libreadline-dev=* \
+            libsqlite3-dev=* \
+            libssl-dev=* \
+            libtbb-dev=* \
+            libwayland-dev=* \
+            libx11-dev=* \
+            libxcursor-dev=* \
+            libxext6=* \
+            libxi-dev=* \
+            libxinerama-dev=* \
+            libxkbcommon-dev=* \
+            libxml2-dev=* \
+            libxrandr-dev=* \
+            libxtst-dev=* \
+            libxxf86vm-dev=* \
+            libzstd-dev=* \
+            make=* \
+            ninja-build=* \
+            opencollada-dev=* \
+            patchelf=* \
+            subversion=* \
+            tk-dev=* \
+            wayland-protocols=* \
+            yasm=* \
+            zlib1g-dev=* \
+    ; fi \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /root/src
 
@@ -100,6 +97,7 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
         ; done \
         && ldconfig \
     ; fi
+
 RUN if [ "$(uname -m)" = "aarch64" ]; then \
         curl --fail --show-error --location --output sse2neon.tar.gz https://github.com/DLTcollab/sse2neon/archive/refs/tags/v1.7.0.tar.gz \
         && test "$(md5sum sse2neon.tar.gz)" = "09e0a5ac47f852862c5c0e754462bc81  sse2neon.tar.gz" \
@@ -112,20 +110,7 @@ RUN if [ "$(uname -m)" = "aarch64" ]; then \
         && popd \
         && rm -fr sse2neon \
     ; fi
-RUN if [ "$(uname -m)" != "x86_64" ]; then \
-        curl --fail --show-error --location --output Python.tar.xz https://www.python.org/ftp/python/3.10.15/Python-3.10.15.tar.xz \
-        && test "$(md5sum Python.tar.xz)" = "8b1faa1b193e4e90c0f17eb2decd89b5  Python.tar.xz" \
-        && mkdir -p python \
-        && pushd python \
-        && tar Jxf ../Python.tar.xz --strip-components=1 \
-        && ./configure \
-        && make \
-        && make install \
-        && popd \
-        && rm -fr python \
-        && ln -s /usr/local/bin/python3 /usr/local/bin/python \
-        && /usr/local/bin/pip3 install numpy requests zstandard \
-    ; fi
+
 RUN if [ "$(uname -m)" != "x86_64" ]; then \
         curl --fail --show-error --location --output embree.tar.gz https://github.com/RenderKit/embree/archive/refs/tags/v4.3.3.tar.gz \
         && test "$(md5sum embree.tar.gz)" = "170a7f8042fa89930f464cda0a0a63fc  embree.tar.gz" \
@@ -138,6 +123,7 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
         && popd \
         && rm -fr embree \
     ; fi
+
 # ceresのビルド中にビルドが失敗することがある。失敗した場合はNPROCS=1を付与することで解決した。
 # 発生していたエラーは次のとおり:
 # [ 66%] Building C object source/blender/editors/animation/CMakeFiles/bf_editor_animation.dir/anim_channels_edit.c.o
@@ -165,7 +151,7 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
     ; fi
 
 RUN useradd --create-home --user-group --shell /bin/bash developer \
-    && usermod --append --groups wheel developer
+    && echo "developer ALL=(root) NOPASSWD:ALL" | tee /etc/sudoers.d/developer
 USER developer
 WORKDIR /home/developer
 
