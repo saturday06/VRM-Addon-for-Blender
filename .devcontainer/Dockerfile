@@ -91,7 +91,7 @@ RUN dnf update -y \
 
 WORKDIR /root/src
 
-# Linux用のbpyはx86_64版だけしかpypiに上がっていないため、それ以外の場合は自前でビルドしてシステムにインストールする。
+# bpyを使いたいがLinux用のbpyはx86_64版だけしかpypiに上がっていないため、それ以外の場合は自前でビルドしてシステムにインストールする。
 # https://developer.blender.org/docs/handbook/building_blender/python_module/
 RUN if [ "$(uname -m)" != "x86_64" ]; then \
         for path in /usr/local/lib /usr/local/lib64; do \
