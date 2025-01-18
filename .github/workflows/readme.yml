@@ -12,7 +12,7 @@ on:
     types: [published]
 
 jobs:
-  deploy:
+  deploy-readme:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
