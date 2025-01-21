@@ -18,7 +18,7 @@ dependencies = [
 
 [tool.uv]
 dev-dependencies = [
-    "codespell ==2.3.0",
+    "codespell ==2.4.0",
     "dulwich ==0.22.7",
     "mypy ==1.13.0",
     "ruff ==0.9.2",
