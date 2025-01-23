@@ -128,17 +128,19 @@ def save_pre(_unused: object) -> None:
 
 
 classes: list[
-    Union[
-        type[Panel],
-        type[UIList],
-        type[Menu],
-        type[Header],
-        type[Operator],
-        type[KeyingSetInfo],
-        type[RenderEngine],
-        type[AddonPreferences],
-        type[PropertyGroup],
-        type["bpy.types.FileHandler"],  # bpy.app.version >= (4, 1, 0)
+    type[
+        Union[
+            Panel,
+            UIList,
+            Menu,
+            Header,
+            Operator,
+            KeyingSetInfo,
+            RenderEngine,
+            AddonPreferences,
+            PropertyGroup,
+            "bpy.types.FileHandler",  # bpy.app.version >= (4, 1, 0)
+        ]
     ]
 ] = [
     io_scene_gltf2_support.WM_OT_vrm_io_scene_gltf2_disabled_warning,
