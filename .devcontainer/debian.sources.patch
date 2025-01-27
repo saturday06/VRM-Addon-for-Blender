@@ -1,0 +1,8 @@
+--- debian.sources.orig	2025-01-27 10:21:19.840008767 +0000
++++ debian.sources	2025-01-27 10:21:32.180008772 +0000
+@@ -1,4 +1,4 @@
+-Types: deb
++Types: deb deb-src
+ # http://snapshot.debian.org/archive/debian/20241202T000000Z
+ URIs: http://deb.debian.org/debian
+ Suites: bookworm bookworm-updates

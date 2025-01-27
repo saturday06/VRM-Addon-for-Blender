@@ -4,7 +4,8 @@
 set -eu -o pipefail
 
 # Dockerイメージは積極的にキャッシュされ、パッケージが古いままのことが多いのでここでアップデート
-sudo dnf update -y
+sudo apt update
+sudo apt dist-upgrade --yes
 
 ./tools/devcontainer_fixup_workspace.sh
 
