@@ -80,17 +80,21 @@ def create_node_dicts(
     parent_bone: Optional[PoseBone],
     node_dicts: list[dict[str, Json]],
     bone_name_to_node_index: dict[str, int],
-    armature_world_inverted: Matrix,  # NEW PARAM to allow world-aligned local space
+    armature_world_inverted: Matrix,  # Used only for root bones
 ) -> int:
     node_index = len(node_dicts)
     node_dict: dict[str, Json] = {"name": bone.name}
     node_dicts.append(node_dict)
     bone_name_to_node_index[bone.name] = node_index
 
-    # Changed to export as world-aligned local space
-    # so that each bone's transform is relative to the armature's world,
-    # which is what Unity expects. (Y Up, Z Forward, X Right like Unity)
-    matrix = armature_world_inverted @ bone.matrix
+    # --- FIX: Local transform vs. parent bone ---
+    # If there's no parent, we treat this bone as a root and use the armature-world approach.
+    # Otherwise, we do a local transform by parent_bone.matrix.inverted() @ bone.matrix.
+    if parent_bone is None:
+        matrix = armature_world_inverted @ bone.matrix
+    else:
+        matrix = parent_bone.matrix.inverted() @ bone.matrix
+
     translation = matrix.to_translation()
     rotation = matrix.to_quaternion()
     node_dict["translation"] = [
@@ -104,6 +108,7 @@ def create_node_dicts(
         -rotation.y,
         rotation.w,
     ]
+
     children = [
         create_node_dicts(
             child_bone,
@@ -158,7 +163,7 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
     root_node_child_indices: list[int] = []
     node_dicts.append(root_node_dict)
 
-    # We'll compute this once so all bones can be placed in a "world-aligned local space".
+    # We'll still compute this for root bones inside create_node_dicts
     armature_world_inv = armature.matrix_world.inverted_safe()
 
     for bone in armature.pose.bones:
@@ -169,7 +174,7 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
                     None,
                     node_dicts,
                     bone_name_to_node_index,
-                    armature_world_inv,  # Pass to ensure world-aligned local space
+                    armature_world_inv,
                 )
             )
 
@@ -727,7 +732,7 @@ def create_node_animation(
     bone_name_to_axis_angle_offsets: dict[str, list[list[float]]] = {}
     hips_translation_offsets: list[Vector] = []
 
-    # NEW: For non-humanoid bone translation support
+    # Additional dictionary for non-humanoid bone translations
     bone_name_to_location_offsets_for_non_humanoid: dict[str, list[Vector]] = {}
     for pb in armature.pose.bones:
         bone_name_to_location_offsets_for_non_humanoid[pb.name] = []
@@ -845,7 +850,6 @@ def create_node_animation(
 
     # 回転のエクスポート
     for bone_name, quaternions in bone_name_to_quaternions.items():
-        # We only skip eyes in this code path
         human_bone_name = next(
             (
                 n
@@ -855,7 +859,7 @@ def create_node_animation(
             None,
         )
         if human_bone_name is None:
-            # It's a non-humanoid bone, but we can still export its rotation
+            # It's a non-humanoid bone, but we can still export rotation
             node_index = bone_name_to_node_index.get(bone_name)
             if not isinstance(node_index, int):
                 logger.error(
@@ -970,7 +974,10 @@ def create_node_animation(
         if isinstance(hips_node_index, int):
             # Overriding parent's matrix with world for unity
             # TODO: 回転と同じように、RESTポーズとTポーズの差分を取るべき
-            base_matrix = armature.matrix_world.inverted_safe()
+            if hips_bone.parent:
+                base_matrix = hips_bone.parent.matrix.inverted_safe()
+            else:
+                base_matrix = Matrix()
 
             hips_translations = [
                 base_matrix @ hips_bone.matrix @ hips_translation_offset
@@ -1076,7 +1083,7 @@ def create_node_animation(
                     }
                 )
 
-    # non-humanoid bone translation export
+    # Export non-humanoid bone translations
     for pb in armature.pose.bones:
         if pb.name == hips_bone_name:
             continue
@@ -1090,7 +1097,10 @@ def create_node_animation(
 
         # Overriding parent's matrix with world for unity
         # TODO: 回転と同じように、RESTポーズとTポーズの差分を取るべき
-        base_matrix = armature.matrix_world.inverted_safe()
+        if pb.parent:
+            base_matrix = pb.parent.matrix.inverted_safe()
+        else:
+            base_matrix = Matrix()
 
         bone_translations = [
             base_matrix @ pb.matrix @ translation_offset for translation_offset in locs
@@ -1117,15 +1127,13 @@ def create_node_animation(
         buffer_view_dicts.append(input_buffer_view_dict)
 
         output_byte_offset = len(buffer0_bytearray)
-        gltf_translations = [
-            (trans.x, trans.z, -trans.y) for trans in bone_translations
-        ]
+        gltf_translations = [(t.x, t.z, -t.y) for t in bone_translations]
         translation_floats = list(itertools.chain(*gltf_translations))
         translation_bytes = struct.pack(
             "<" + "f" * len(translation_floats), *translation_floats
         )
         buffer0_bytearray.extend(translation_bytes)
-        while len(buffer0_bytearray) % 32 != 0:  # TODO: 正しいアラインメントを調べる
+        while len(buffer0_bytearray) % 32 != 0:
             buffer0_bytearray.append(0)
         output_buffer_view_index = len(buffer_view_dicts)
         output_buffer_view_dict = {
@@ -1149,17 +1157,17 @@ def create_node_animation(
         )
 
         output_accessor_index = len(accessor_dicts)
-        x_arr = [val[0] for val in gltf_translations]
-        y_arr = [val[1] for val in gltf_translations]
-        z_arr = [val[2] for val in gltf_translations]
+        x_vals = [val[0] for val in gltf_translations]
+        y_vals = [val[1] for val in gltf_translations]
+        z_vals = [val[2] for val in gltf_translations]
         accessor_dicts.append(
             {
                 "bufferView": output_buffer_view_index,
                 "componentType": GL_FLOAT,
                 "count": len(bone_translations),
                 "type": "VEC3",
-                "min": [min(x_arr), min(y_arr), min(z_arr)],
-                "max": [max(x_arr), max(y_arr), max(z_arr)],
+                "min": [min(x_vals), min(y_vals), min(z_vals)],
+                "max": [max(x_vals), max(y_vals), max(z_vals)],
             }
         )
 
