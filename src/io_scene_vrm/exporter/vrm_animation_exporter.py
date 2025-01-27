@@ -1133,7 +1133,7 @@ def create_node_animation(
             "<" + "f" * len(translation_floats), *translation_floats
         )
         buffer0_bytearray.extend(translation_bytes)
-        while len(buffer0_bytearray) % 32 != 0:
+        while len(buffer0_bytearray) % 32 != 0:  # TODO: 正しいアラインメントを調べる
             buffer0_bytearray.append(0)
         output_buffer_view_index = len(buffer_view_dicts)
         output_buffer_view_dict = {
