@@ -178,16 +178,15 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
                 )
             )
 
-        base_quaternion: Optional[Quaternion] = None
+        # --- FIX: Remove T-pose offset from animation ---
+        # Instead of offsetting by T-pose rotation, simply store the bone's local rotation.
         if bone.parent:
-            base_quaternion = (
-                bone.parent.matrix.inverted_safe() @ bone.matrix
-            ).to_quaternion()
+            local_matrix = bone.parent.matrix.inverted_safe() @ bone.matrix
+            base_quaternion = local_matrix.to_quaternion()
         else:
             base_quaternion = bone.matrix.to_quaternion()
-        bone_name_to_base_quaternion[bone.name] = (
-            base_quaternion @ get_rotation_as_quaternion(bone).inverted()
-        )
+
+        bone_name_to_base_quaternion[bone.name] = base_quaternion
 
         if bone.rotation_mode == ROTATION_MODE_QUATERNION:
             data_path_to_bone_and_property_name[
