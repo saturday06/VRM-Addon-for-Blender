@@ -20,7 +20,7 @@ dependencies = [
 dev-dependencies = [
     "codespell ==2.4.1",
     "dulwich ==0.22.7",
-    "mypy ==1.13.0",
+    "mypy ==1.15.0",
     "ruff ==0.9.4",
     "starry-bpy-typings",
     "tqdm ==4.67.1",
