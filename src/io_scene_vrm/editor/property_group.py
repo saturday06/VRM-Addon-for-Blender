@@ -485,7 +485,9 @@ class CollectionPropertyProtocol(Protocol[T_co]):
     def clear(self) -> None: ...  # TODO: undocumented
 
     @overload
-    def __getitem__(self, index: slice) -> tuple[T_co, ...]: ...  # TODO: undocumented
+    def __getitem__(
+        self, index: "slice[Optional[int], Optional[int], Optional[int]]"
+    ) -> tuple[T_co, ...]: ...  # TODO: undocumented
 
     @overload
     def __getitem__(self, index: int) -> T_co: ...  # TODO: undocumented
