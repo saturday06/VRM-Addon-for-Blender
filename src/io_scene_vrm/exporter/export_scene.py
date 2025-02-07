@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from collections.abc import Set as AbstractSet
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Optional
 
 import bpy
@@ -47,7 +48,10 @@ from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 from .vrm0_exporter import Vrm0Exporter
 from .vrm1_exporter import Vrm1Exporter
-from .vrm_animation_exporter import VrmAnimationExporter
+from .vrm_animation_exporter_process import (
+    ExportConfig,
+    run_vrma_export_process_and_show_result_if_error,
+)
 
 logger = get_logger(__name__)
 
@@ -447,7 +451,19 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
             armature = context.blend_data.objects.get(self.armature_object_name)
         if not armature:
             return {"CANCELLED"}
-        return VrmAnimationExporter.execute(context, Path(self.filepath), armature)
+
+        with TemporaryDirectory() as temp_dir:
+            blend_path = Path(temp_dir) / "temp_vrma_export.blend"
+            export_config = ExportConfig(
+                blend_path=str(blend_path),
+                result_path=self.filepath,
+                armature_object_name=self.armature_object_name,
+            )
+
+            config_path = Path(temp_dir) / "config.json"
+            return run_vrma_export_process_and_show_result_if_error(
+                export_config, config_path
+            )
 
     def invoke(self, context: Context, event: Event) -> set[str]:
         if WM_OT_vrma_export_prerequisite.detect_errors(

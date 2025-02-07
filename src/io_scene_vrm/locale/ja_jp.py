@@ -600,6 +600,15 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "VRM Add-on Compatibility Warning",
     ): "VRMアドオンの互換性の警告",
     (
+        "Operator",
+        "Failed to Export VRM Animation",
+    ): "VRM Animationのエクスポートに失敗しました",
+    (
+        "Operator",
+        "Save Error Message",
+    ): "エラーメッセージを保存",
+    ("Operator", "Open Support Site"): "サポートサイトを開く",
+    (
         "*",
         "Automatic T-Pose Conversion is enabled."
         + " There is a setting"
