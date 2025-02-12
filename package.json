@@ -5,7 +5,7 @@
   "devDependencies": {
     "gltf-validator": "2.0.0-dev.3.10",
     "prettier": "3.5.0",
-    "pyright": "1.1.393",
+    "pyright": "1.1.394",
     "vitepress": "^1.5.0"
   },
   "scripts": {
