@@ -1198,5 +1198,3 @@ def create_node_animation(
                 "target": {"node": node_index, "path": "translation"},
             }
         )
-
-    return pack_glb(vrma_dict, buffer0_bytearray)
