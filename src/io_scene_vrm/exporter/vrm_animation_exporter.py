@@ -24,7 +24,7 @@ from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecification
 from ..common.workspace import save_workspace
 from ..editor.extension import get_armature_extension
 from ..editor.t_pose import setup_humanoid_t_pose
-from ..editor.vrm1.property_group import Vrm1PropertyGroup, Vrm1HumanBonesPropertyGroup
+from ..editor.vrm1.property_group import Vrm1PropertyGroup
 
 logger = get_logger(__name__)
 
@@ -130,11 +130,6 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
     if not isinstance(armature_data, Armature):
         message = "Armature data is not an Armature"
         raise TypeError(message)
-
-    # Integrate T Pose offset adjustment from the official exporter.
-    # For VRM 1.0, we fix up the human bones to remove any T-pose offset.
-    Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
-
     vrm1 = get_armature_extension(armature_data).vrm1
     human_bones = vrm1.humanoid.human_bones
 
@@ -183,13 +178,15 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
                 )
             )
 
-        # --- FIX: Remove T-pose offset from animation ---
-        # Instead of offsetting by T-pose rotation, simply store the bone's local rotation.
+        # --- APPLY T-pose offset adjustment ---
+        # Calculate the bone's local rotation and (now) do NOT subtract the T-pose offset,
+        # since the T-pose has already been applied by the t_pose.py code.
         if bone.parent:
-            local_matrix = bone.parent.matrix.inverted_safe() @ bone.matrix
-            base_quaternion = local_matrix.to_quaternion()
+            base_quaternion = (
+                bone.parent.matrix.inverted_safe() @ bone.matrix
+            ).to_quaternion()
         else:
-            base_quaternion = (armature_world_inv @ bone.matrix).to_quaternion()
+            base_quaternion = bone.matrix.to_quaternion()
 
         bone_name_to_base_quaternion[bone.name] = base_quaternion
 
