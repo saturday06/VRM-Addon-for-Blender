@@ -43,7 +43,12 @@ class NodeRestPoseTree:
         node_index: int,
         *,
         is_root: bool,
+        hips_node_index: int,
     ) -> list["NodeRestPoseTree"]:
+        """
+        Essential fix: always convert translation as Vector((x, -z, y))
+        and rotation as Quaternion((w, x, -z, y)). (The exporter did the same.)
+        """
         if not 0 <= node_index < len(node_dicts):
             return []
         node_dict = node_dicts[node_index]
@@ -53,6 +58,7 @@ class NodeRestPoseTree:
         translation_float3 = convert.float3_or_none(node_dict.get("translation"))
         if translation_float3:
             x, y, z = translation_float3
+            # All nodes (including hips) use the same conversion on export.
             translation = Vector((x, -z, y))
         else:
             translation = Vector((0.0, 0.0, 0.0))
@@ -60,14 +66,16 @@ class NodeRestPoseTree:
         rotation_float4 = convert.float4_or_none(node_dict.get("rotation"))
         if rotation_float4:
             x, y, z, w = rotation_float4
+            # Exporter: (rotation.x, rotation.z, -rotation.y, rotation.w)
             rotation = Quaternion((w, x, -z, y)).normalized()
         else:
             rotation = Quaternion()
 
         scale_float3 = convert.float3_or_none(node_dict.get("scale"))
         if scale_float3:
-            x, y, z = scale_float3
-            scale = Vector((x, z, y))
+            sx, sy, sz = scale_float3
+            # Exporter stored scale as (sx, sz, sy)
+            scale = Vector((sx, sz, sy))
         else:
             scale = Vector((1, 1, 1))
 
@@ -77,15 +85,17 @@ class NodeRestPoseTree:
             @ Matrix.Diagonal(scale).to_4x4()
         )
 
-        # TODO: 3要素の場合はオイラー角になるか?
-        # TODO: Matrixだったら分解する
-
         child_indices = node_dict.get("children")
         if isinstance(child_indices, list):
             children = tuple(
                 itertools.chain(
                     *(
-                        NodeRestPoseTree.build(node_dicts, child_index, is_root=False)
+                        NodeRestPoseTree.build(
+                            node_dicts,
+                            child_index,
+                            is_root=False,
+                            hips_node_index=hips_node_index,
+                        )
                         for child_index in child_indices
                         if isinstance(child_index, int)
                     )
@@ -195,52 +205,57 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
         return {"CANCELLED"}
     if not 0 <= hips_node_index < len(node_dicts):
         return {"CANCELLED"}
-    hips_node_dict = node_dicts[hips_node_index]
-    if not isinstance(hips_node_dict, dict):
-        return {"CANCELLED"}
 
     expression_name_to_node_index: dict[str, int] = {}
     expressions_dict = vrmc_vrm_animation_dict.get("expressions")
     if isinstance(expressions_dict, dict):
         preset_dict = expressions_dict.get("preset")
         if isinstance(preset_dict, dict):
-            for name, node_dict in preset_dict.items():
-                if not isinstance(node_dict, dict):
+            for name, node_dict_ in preset_dict.items():
+                if not isinstance(node_dict_, dict):
                     continue
-                node_index = node_dict.get("node")
-                if not isinstance(node_index, int):
-                    continue
-                expression_name_to_node_index[name] = node_index
-
+                node_index_ = node_dict_.get("node")
+                if isinstance(node_index_, int):
+                    expression_name_to_node_index[name] = node_index_
         custom_dict = expressions_dict.get("custom")
         if isinstance(custom_dict, dict):
-            for name, node_dict in custom_dict.items():
-                if not isinstance(node_dict, dict):
+            for name, node_dict_ in custom_dict.items():
+                if not isinstance(node_dict_, dict):
                     continue
                 if name in expression_name_to_node_index:
                     continue
-                node_index = node_dict.get("node")
-                if not isinstance(node_index, int):
-                    continue
-                expression_name_to_node_index[name] = node_index
+                node_index_ = node_dict_.get("node")
+                if isinstance(node_index_, int):
+                    expression_name_to_node_index[name] = node_index_
 
     node_index_to_human_bone_name: dict[int, HumanBoneName] = {}
     for human_bone_name_str, human_bone_dict in human_bones_dict.items():
         if not isinstance(human_bone_dict, dict):
             continue
-        node_index = human_bone_dict.get("node")
-        if not isinstance(node_index, int):
+        node_index_ = human_bone_dict.get("node")
+        if not isinstance(node_index_, int):
             continue
-        if not 0 <= node_index < len(node_dicts):
+        if not 0 <= node_index_ < len(node_dicts):
             continue
-        human_bone_name = HumanBoneName.from_str(human_bone_name_str)
-        if not human_bone_name:
+        bone_name_e = HumanBoneName.from_str(human_bone_name_str)
+        if not bone_name_e:
             continue
-        node_index_to_human_bone_name[node_index] = human_bone_name
+        node_index_to_human_bone_name[node_index_] = bone_name_e
+
+    # Build a mapping from node index -> pose bone name for non-humanoid bones.
+    node_index_to_bone_name: dict[int, str] = {}
+    for i, n_dict in enumerate(node_dicts):
+        if not isinstance(n_dict, dict):
+            continue
+        node_name = n_dict.get("name")
+        if isinstance(node_name, str):
+            if i not in node_index_to_human_bone_name:
+                if armature.pose.bones.get(node_name):
+                    node_index_to_bone_name[i] = node_name
 
     root_node_index = find_root_node_index(node_dicts, hips_node_index, set())
     node_rest_pose_trees = NodeRestPoseTree.build(
-        node_dicts, root_node_index, is_root=True
+        node_dicts, root_node_index, is_root=True, hips_node_index=hips_node_index
     )
     if len(node_rest_pose_trees) != 1:
         return {"CANCELLED"}
@@ -349,16 +364,16 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
     expression_name_to_translation_keyframes: dict[
         str, tuple[tuple[float, Vector], ...]
     ] = {}
-    for expression_name, node_index in expression_name_to_node_index.items():
-        if not 0 <= node_index < len(node_dicts):
+    for expression_name, node_idx in expression_name_to_node_index.items():
+        if not 0 <= node_idx < len(node_dicts):
             continue
-        node_dict = node_dicts[node_index]
-        if not isinstance(node_dict, dict):
+        node_dict_ = node_dicts[node_idx]
+        if not isinstance(node_dict_, dict):
             continue
 
-        translation = node_dict.get("translation")
+        translation = node_dict_.get("translation")
         if isinstance(translation, list) and translation:
-            default_preview_value = translation[0]  # TODO: Matrixだった場合
+            default_preview_value = translation[0]
             if not isinstance(default_preview_value, (float, int)):
                 default_preview_value = 0.0
         else:
@@ -367,13 +382,11 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
             default_preview_value
         )
 
-        expression_translation_keyframes = node_index_to_translation_keyframes.get(
-            node_index
-        )
-        if expression_translation_keyframes is None:
+        expr_translation_keyframes = node_index_to_translation_keyframes.get(node_idx)
+        if expr_translation_keyframes is None:
             continue
         expression_name_to_translation_keyframes[expression_name] = (
-            expression_translation_keyframes
+            expr_translation_keyframes
         )
 
     timestamps = [
@@ -423,21 +436,23 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
                         name=look_at_target_name, object_data=None
                     )
                     look_at_target_object.empty_display_size = 0.125
-                    x, y, z = look_at_target_translation
-                    look_at_target_object.location = Vector((x, -z, y))
+                    x_, y_, z_ = look_at_target_translation
+                    # For look-at target, use the same conversion as exporter: (x, -z, y)
+                    look_at_target_object.location = Vector((x_, -z_, y_))
                     context.scene.collection.objects.link(look_at_target_object)
                     look_at.enable_preview = True
                     look_at.preview_target_bpy_object = look_at_target_object
 
-    first_zero_origin_frame_count: int = math.floor(
+    first_zero_origin_frame_count = math.floor(
         first_timestamp * context.scene.render.fps / context.scene.render.fps_base
     )
     if abs(last_timestamp - first_timestamp) > 0:
-        last_zero_origin_frame_count: int = math.ceil(
+        last_zero_origin_frame_count = math.ceil(
             last_timestamp * context.scene.render.fps / context.scene.render.fps_base
         )
     else:
         last_zero_origin_frame_count = first_zero_origin_frame_count
+
     for zero_origin_frame_count in range(
         first_zero_origin_frame_count, last_zero_origin_frame_count + 1
     ):
@@ -452,6 +467,7 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
             armature,
             node_rest_pose_tree,
             node_index_to_human_bone_name,
+            node_index_to_bone_name,  # mapping for non-humanoid
             node_index_to_translation_keyframes,
             node_index_to_rotation_keyframes,
             frame_count,
@@ -529,12 +545,7 @@ def assign_expression_keyframe(
         expression_name,
         translation_keyframes,
     ) in expression_name_to_translation_keyframes.items():
-        if expression_name in [
-            "lookUp",
-            "lookDown",
-            "lookLeft",
-            "lookRight",
-        ]:
+        if expression_name in ["lookUp", "lookDown", "lookLeft", "lookRight"]:
             continue
         expression = expression_name_to_expression.get(expression_name)
         if not expression:
@@ -575,6 +586,7 @@ def assign_humanoid_keyframe(
     armature: Object,
     node_rest_pose_tree: NodeRestPoseTree,
     node_index_to_human_bone_name: dict[int, HumanBoneName],
+    node_index_to_bone_name: dict[int, str],
     node_index_to_translation_keyframes: dict[int, tuple[tuple[float, Vector], ...]],
     node_index_to_rotation_keyframes: dict[int, tuple[tuple[float, Quaternion], ...]],
     frame_count: int,
@@ -591,17 +603,15 @@ def assign_humanoid_keyframe(
     translation_keyframes = node_index_to_translation_keyframes.get(
         node_rest_pose_tree.node_index
     )
-
     if translation_keyframes:
         keyframe_translation = None
         begin_timestamp, begin_translation = translation_keyframes[0]
         for end_timestamp, end_translation in translation_keyframes:
             if end_timestamp >= timestamp:
-                timestamp_duration = end_timestamp - begin_timestamp
-                if timestamp_duration > 0:
+                dt = end_timestamp - begin_timestamp
+                if dt > 0:
                     keyframe_translation = begin_translation.lerp(
-                        end_translation,
-                        (timestamp - begin_timestamp) / timestamp_duration,
+                        end_translation, (timestamp - begin_timestamp) / dt
                     )
                 else:
                     keyframe_translation = begin_translation
@@ -621,10 +631,10 @@ def assign_humanoid_keyframe(
         begin_timestamp, begin_rotation = rotation_keyframes[0]
         for end_timestamp, end_rotation in rotation_keyframes:
             if end_timestamp >= timestamp:
-                timestamp_duration = end_timestamp - begin_timestamp
-                if timestamp_duration > 0:
+                dt = end_timestamp - begin_timestamp
+                if dt > 0:
                     keyframe_rotation = begin_rotation.slerp(
-                        end_rotation, (timestamp - begin_timestamp) / timestamp_duration
+                        end_rotation, (timestamp - begin_timestamp) / dt
                     )
                 else:
                     keyframe_rotation = begin_rotation
@@ -636,109 +646,102 @@ def assign_humanoid_keyframe(
     else:
         keyframe_rotation = node_rest_pose_tree.local_matrix.to_quaternion()
 
-    humanoid_rest_world_matrix = humanoid_parent_rest_world_matrix
-    rest_local_matrix = (
-        intermediate_rest_local_matrix @ node_rest_pose_tree.local_matrix
+    # Compute world matrices for this node:
+    rest_world_matrix = (
+        parent_node_rest_pose_world_matrix @ node_rest_pose_tree.local_matrix
     )
     pose_local_matrix = (
-        intermediate_pose_local_matrix
-        @ Matrix.Translation(keyframe_translation)
+        Matrix.Translation(keyframe_translation)
         @ keyframe_rotation.to_matrix().to_4x4()
         @ Matrix.Diagonal(node_rest_pose_tree.local_matrix.to_scale()).to_4x4()
     )
+    pose_world_matrix = parent_node_rest_pose_world_matrix @ pose_local_matrix
 
+    # If a humanoid mapping exists, use that branch:
     human_bone_name = node_index_to_human_bone_name.get(node_rest_pose_tree.node_index)
-    human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
-    if (
-        human_bone_name
-        and human_bone_name not in [HumanBoneName.LEFT_EYE, HumanBoneName.RIGHT_EYE]
-        and (
-            human_bone := human_bones.human_bone_name_to_human_bone().get(
-                human_bone_name
-            )
-        )
-        and (bone := armature.pose.bones.get(human_bone.node.bone_name))
-    ):
-        humanoid_rest_world_matrix = humanoid_parent_rest_world_matrix
-        rest_world_matrix = humanoid_rest_world_matrix @ rest_local_matrix
-        pose_world_matrix = humanoid_rest_world_matrix @ pose_local_matrix
-        # rest_to_pose_matrix = rest_world_matrix.inverted() @ pose_world_matrix
-        # rest_to_pose_matrix = rest_local_matrix.inverted() @ pose_local_matrix
-        rest_to_pose_matrix = rest_local_matrix.inverted() @ pose_local_matrix
-        axis, angle = rest_to_pose_matrix.to_quaternion().to_axis_angle()
-        axis.rotate(rest_world_matrix.to_quaternion())
-        rest_to_pose_world_rotation = Quaternion(axis, angle).copy()
-
-        target_axis, target_angle = rest_to_pose_world_rotation.to_axis_angle()
-        target_axis.rotate(bone.matrix.to_quaternion().inverted())
-
-        rest_to_pose_target_local_rotation = Quaternion(
-            target_axis, target_angle
-        ).copy()
-
-        if rotation_keyframes:
-            logger.debug(
-                "================= %s =================", human_bone_name.value
-            )
-            logger.debug("humanoid world matrix = %s", dump(humanoid_rest_world_matrix))
-            logger.debug("rest_local_matrix     = %s", dump(rest_local_matrix))
-            logger.debug("pose_local_matrix     = %s", dump(pose_local_matrix))
-            logger.debug("rest_world_matrix     = %s", dump(rest_world_matrix))
-            logger.debug("pose_world_matrix     = %s", dump(pose_world_matrix))
-            logger.debug("rest_to_pose_matrix  = %s", dump(rest_to_pose_matrix))
-            logger.debug(
-                "rest_to_pose_world_rotation = %s",
-                dump(rest_to_pose_world_rotation),
-            )
-            logger.debug(
-                "rest_to_pose_target_local_rotation = %s",
-                dump(rest_to_pose_target_local_rotation),
-            )
-
-            backup_rotation_quaternion = get_rotation_as_quaternion(bone)
-
-            # logger.debug("parent bone matrix  = %s", dump(parent_matrix))
-            logger.debug("       bone matrix  = %s", dump(bone.matrix))
-            logger.debug("current bone rotation = %s", dump(backup_rotation_quaternion))
-
-            set_rotation_without_mode_change(
-                bone, backup_rotation_quaternion @ rest_to_pose_target_local_rotation
-            )
-            insert_rotation_keyframe(bone, frame=frame_count)
-            set_rotation_without_mode_change(bone, backup_rotation_quaternion)
-
-        if human_bone_name == HumanBoneName.HIPS and translation_keyframes:
-            translation = (
-                bone.matrix.to_quaternion().inverted()
-                @ humanoid_rest_world_matrix.to_quaternion()
-                @ (
-                    pose_local_matrix.to_translation()
-                    - rest_local_matrix.to_translation()
+    if human_bone_name is not None and human_bone_name not in [
+        HumanBoneName.LEFT_EYE,
+        HumanBoneName.RIGHT_EYE,
+    ]:
+        human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
+        human_bone = human_bones.human_bone_name_to_human_bone().get(human_bone_name)
+        if human_bone is not None:
+            bone = armature.pose.bones.get(human_bone.node.bone_name)
+            if bone is not None:
+                rest_to_pose_matrix = (
+                    rest_world_matrix.inverted_safe() @ pose_world_matrix
                 )
-            )
-            # logger.debug(f"translation           = {dump(translation)}")
-            backup_translation = bone.location.copy()
-            bone.location = translation
-            bone.keyframe_insert(data_path="location", frame=frame_count)
-            bone.location = backup_translation
+                rest_to_pose_quat = rest_to_pose_matrix.to_quaternion()
+                rest_to_pose_quat.normalize()
+                backup_rot = get_rotation_as_quaternion(bone)
+                set_rotation_without_mode_change(bone, rest_to_pose_quat)
+                insert_rotation_keyframe(bone, frame=frame_count)
+                set_rotation_without_mode_change(bone, backup_rot)
+                if human_bone_name == HumanBoneName.HIPS and translation_keyframes:
+                    rest_to_pose_trans = rest_to_pose_matrix.to_translation()
+                    backup_loc = bone.location.copy()
+                    bone.location = rest_to_pose_trans
+                    bone.keyframe_insert(data_path="location", frame=frame_count)
+                    bone.location = backup_loc
+                new_parent_world = pose_world_matrix
+                # Pass new_parent_world to children.
+                parent_world = new_parent_world
+                # Continue to children with parent_world unchanged.
+                for child in node_rest_pose_tree.children:
+                    assign_humanoid_keyframe(
+                        armature,
+                        child,
+                        node_index_to_human_bone_name,
+                        node_index_to_bone_name,
+                        node_index_to_translation_keyframes,
+                        node_index_to_rotation_keyframes,
+                        frame_count,
+                        timestamp,
+                        parent_world,
+                        intermediate_rest_local_matrix,
+                        intermediate_pose_local_matrix,
+                        parent_node_rest_pose_world_matrix
+                        @ node_rest_pose_tree.local_matrix,
+                    )
+                return
 
-        humanoid_rest_world_matrix = (
-            humanoid_parent_rest_world_matrix @ rest_local_matrix
-        )
-        rest_local_matrix = Matrix()
-        pose_local_matrix = Matrix()
+    # NON-HUMANOID (or unmapped) branch: use node name lookup.
+    bone_name = node_index_to_bone_name.get(node_rest_pose_tree.node_index)
+    if bone_name:
+        pb = armature.pose.bones.get(bone_name)
+        if pb is not None:
+            rest_to_pose_matrix = rest_world_matrix.inverted_safe() @ pose_world_matrix
+            rest_to_pose_quat = rest_to_pose_matrix.to_quaternion()
+            rest_to_pose_quat.normalize()
+            backup_rot = get_rotation_as_quaternion(pb)
+            set_rotation_without_mode_change(pb, rest_to_pose_quat)
+            insert_rotation_keyframe(pb, frame=frame_count)
+            set_rotation_without_mode_change(pb, backup_rot)
+            if translation_keyframes:
+                rest_to_pose_trans = rest_to_pose_matrix.to_translation()
+                backup_loc = pb.location.copy()
+                pb.location = rest_to_pose_trans
+                pb.keyframe_insert(data_path="location", frame=frame_count)
+                pb.location = backup_loc
+            rest_to_pose_scale = rest_to_pose_matrix.to_scale()
+            backup_scale = pb.scale.copy()
+            pb.scale = rest_to_pose_scale
+            pb.keyframe_insert(data_path="scale", frame=frame_count)
+            pb.scale = backup_scale
 
+    # For any children, continue recursively.
     for child in node_rest_pose_tree.children:
         assign_humanoid_keyframe(
             armature,
             child,
             node_index_to_human_bone_name,
+            node_index_to_bone_name,
             node_index_to_translation_keyframes,
             node_index_to_rotation_keyframes,
             frame_count,
             timestamp,
-            humanoid_rest_world_matrix,
-            rest_local_matrix,
-            pose_local_matrix,
+            parent_node_rest_pose_world_matrix,
+            intermediate_rest_local_matrix,
+            intermediate_pose_local_matrix,
             parent_node_rest_pose_world_matrix @ node_rest_pose_tree.local_matrix,
         )
