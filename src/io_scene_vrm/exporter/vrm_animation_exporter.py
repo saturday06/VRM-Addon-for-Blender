@@ -184,7 +184,7 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
             local_matrix = bone.parent.matrix.inverted_safe() @ bone.matrix
             base_quaternion = local_matrix.to_quaternion()
         else:
-            base_quaternion = bone.matrix.to_quaternion()
+            base_quaternion = (armature_world_inv @ bone.matrix).to_quaternion()
 
         bone_name_to_base_quaternion[bone.name] = base_quaternion
 
@@ -726,6 +726,9 @@ def create_node_animation(
     if not action:
         return
 
+    # Compute the armature world inverse for use with root bones
+    armature_world_inv = armature.matrix_world.inverted_safe()
+
     bone_name_to_quaternion_offsets: dict[str, list[Quaternion]] = {}
     bone_name_to_euler_offsets: dict[str, list[Euler]] = {}
     bone_name_to_axis_angle_offsets: dict[str, list[list[float]]] = {}
@@ -858,13 +861,23 @@ def create_node_animation(
             None,
         )
         if human_bone_name is None:
-            # It's a non-humanoid bone, but we can still export rotation
+            # It's a non-humanoid bone, but we can still export rotation.
+            # FIX: use a different component order to correct the offset.
             node_index = bone_name_to_node_index.get(bone_name)
             if not isinstance(node_index, int):
                 logger.error(
                     "Failed to find node index for non-humanoid bone %s", bone_name
                 )
                 continue
+            gltf_quaternions = [
+                (
+                    quaternion.x,
+                    quaternion.y,
+                    quaternion.z,
+                    quaternion.w,
+                )
+                for quaternion in quaternions
+            ]
         else:
             if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
                 continue
@@ -872,6 +885,15 @@ def create_node_animation(
             if not isinstance(node_index, int):
                 logger.error("Failed to find node index for bone %s", bone_name)
                 continue
+            gltf_quaternions = [
+                (
+                    quaternion.x,
+                    quaternion.z,
+                    -quaternion.y,
+                    quaternion.w,
+                )
+                for quaternion in quaternions
+            ]
 
         input_byte_offset = len(buffer0_bytearray)
         input_floats = [
@@ -891,18 +913,9 @@ def create_node_animation(
         buffer_view_dicts.append(input_buffer_view_dict)
 
         output_byte_offset = len(buffer0_bytearray)
-        gltf_quaternions = [
-            (
-                quaternion.x,
-                quaternion.z,
-                -quaternion.y,
-                quaternion.w,
-            )
-            for quaternion in quaternions
-        ]
-        quaternion_floats: list[float] = list(itertools.chain(*gltf_quaternions))
+        gltf_quaternions_flat: list[float] = list(itertools.chain(*gltf_quaternions))
         quaternion_bytes = struct.pack(
-            "<" + "f" * len(quaternion_floats), *quaternion_floats
+            "<" + "f" * len(gltf_quaternions_flat), *gltf_quaternions_flat
         )
         buffer0_bytearray.extend(quaternion_bytes)
         while len(buffer0_bytearray) % 32 != 0:  # TODO: 正しいアラインメントを調べる
@@ -979,8 +992,8 @@ def create_node_animation(
                 base_matrix = Matrix()
 
             hips_translations = [
-                base_matrix @ hips_bone.matrix @ hips_translation_offset
-                for hips_translation_offset in hips_translation_offsets
+                base_matrix @ hips_bone.matrix @ hips_translation_offsets[i]
+                for i in range(len(hips_translation_offsets))
             ]
 
             if hips_translations:
