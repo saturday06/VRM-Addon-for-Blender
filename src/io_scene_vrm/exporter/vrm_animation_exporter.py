@@ -24,7 +24,7 @@ from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecification
 from ..common.workspace import save_workspace
 from ..editor.extension import get_armature_extension
 from ..editor.t_pose import setup_humanoid_t_pose
-from ..editor.vrm1.property_group import Vrm1PropertyGroup
+from ..editor.vrm1.property_group import Vrm1PropertyGroup, Vrm1HumanBonesPropertyGroup
 
 logger = get_logger(__name__)
 
@@ -130,6 +130,11 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
     if not isinstance(armature_data, Armature):
         message = "Armature data is not an Armature"
         raise TypeError(message)
+
+    # Integrate T Pose offset adjustment from the official exporter.
+    # For VRM 1.0, we fix up the human bones to remove any T-pose offset.
+    Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
+
     vrm1 = get_armature_extension(armature_data).vrm1
     human_bones = vrm1.humanoid.human_bones
 
@@ -1196,3 +1201,5 @@ def create_node_animation(
                 "target": {"node": node_index, "path": "translation"},
             }
         )
+
+    return pack_glb(vrma_dict, buffer0_bytearray)
