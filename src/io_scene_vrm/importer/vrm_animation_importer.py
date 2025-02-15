@@ -120,11 +120,9 @@ class VrmAnimationImporter:
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
-
         humanoid = get_armature_extension(armature_data).vrm1.humanoid
         if not humanoid.human_bones.all_required_bones_are_assigned():
             return {"CANCELLED"}
-
         with (
             setup_humanoid_t_pose(context, armature),
             save_workspace(context, armature, mode="POSE"),
@@ -453,6 +451,9 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
     else:
         last_zero_origin_frame_count = first_zero_origin_frame_count
 
+    # Build human_node_indices from the mapping.
+    human_node_indices = set(node_index_to_human_bone_name.keys())
+
     for zero_origin_frame_count in range(
         first_zero_origin_frame_count, last_zero_origin_frame_count + 1
     ):
@@ -476,6 +477,8 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
             intermediate_rest_local_matrix=Matrix(),
             intermediate_pose_local_matrix=Matrix(),
             parent_node_rest_pose_world_matrix=Matrix(),
+            node_dicts=node_dicts,
+            human_node_indices=human_node_indices,
         )
         assign_expression_keyframe(
             armature_data,
@@ -508,13 +511,13 @@ def assign_look_at_keyframe(
     begin_timestamp, begin_translation = translation_keyframes[0]
     for end_timestamp, end_translation in translation_keyframes:
         if end_timestamp >= timestamp:
-            timestamp_duration = end_timestamp - begin_timestamp
-            if timestamp_duration > 0:
+            dt = end_timestamp - begin_timestamp
+            if dt > 0:
                 animation_translation = (
                     begin_translation
                     + (end_translation - begin_translation)
                     * (timestamp - begin_timestamp)
-                    / timestamp_duration
+                    / dt
                 )
             else:
                 animation_translation = begin_translation
@@ -556,13 +559,13 @@ def assign_expression_keyframe(
             begin_timestamp, begin_translation = translation_keyframes[0]
             for end_timestamp, end_translation in translation_keyframes:
                 if end_timestamp >= timestamp:
-                    timestamp_duration = end_timestamp - begin_timestamp
-                    if timestamp_duration > 0:
+                    dt = end_timestamp - begin_timestamp
+                    if dt > 0:
                         preview = (
                             begin_translation.x
                             + (end_translation.x - begin_translation.x)
                             * (timestamp - begin_timestamp)
-                            / timestamp_duration
+                            / dt
                         )
                     else:
                         preview = begin_translation.x
@@ -595,6 +598,8 @@ def assign_humanoid_keyframe(
     intermediate_rest_local_matrix: Matrix,
     intermediate_pose_local_matrix: Matrix,
     parent_node_rest_pose_world_matrix: Matrix,
+    node_dicts: list[Json],
+    human_node_indices: set[int],
 ) -> None:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
@@ -646,7 +651,40 @@ def assign_humanoid_keyframe(
     else:
         keyframe_rotation = node_rest_pose_tree.local_matrix.to_quaternion()
 
-    # Compute world matrices for this node:
+    # -------------------------------------------------------------------
+    # Convert imported animation values from export space to Blender space.
+    # For humanoid nodes (except HIPS), no axis swap is needed.
+    if node_rest_pose_tree.node_index in human_node_indices:
+        if (
+            node_index_to_human_bone_name.get(node_rest_pose_tree.node_index)
+            != HumanBoneName.HIPS
+        ):
+            keyframe_translation = Vector(
+                (keyframe_translation.x, keyframe_translation.y, keyframe_translation.z)
+            )
+            keyframe_rotation = Quaternion(
+                (
+                    keyframe_rotation.w,
+                    keyframe_rotation.x,
+                    keyframe_rotation.y,
+                    keyframe_rotation.z,
+                )
+            )
+    else:
+        # NON-HUMANOID: apply an axis swap conversion.
+        keyframe_translation = Vector(
+            (keyframe_translation.x, -keyframe_translation.z, keyframe_translation.y)
+        )
+        keyframe_rotation = Quaternion(
+            (
+                keyframe_rotation.w,
+                keyframe_rotation.x,
+                keyframe_rotation.z,
+                -keyframe_rotation.y,
+            )
+        )
+    # -------------------------------------------------------------------
+
     rest_world_matrix = (
         parent_node_rest_pose_world_matrix @ node_rest_pose_tree.local_matrix
     )
@@ -684,9 +722,6 @@ def assign_humanoid_keyframe(
                     bone.keyframe_insert(data_path="location", frame=frame_count)
                     bone.location = backup_loc
                 new_parent_world = pose_world_matrix
-                # Pass new_parent_world to children.
-                parent_world = new_parent_world
-                # Continue to children with parent_world unchanged.
                 for child in node_rest_pose_tree.children:
                     assign_humanoid_keyframe(
                         armature,
@@ -697,39 +732,43 @@ def assign_humanoid_keyframe(
                         node_index_to_rotation_keyframes,
                         frame_count,
                         timestamp,
-                        parent_world,
+                        new_parent_world,
                         intermediate_rest_local_matrix,
                         intermediate_pose_local_matrix,
                         parent_node_rest_pose_world_matrix
                         @ node_rest_pose_tree.local_matrix,
+                        node_dicts,
+                        human_node_indices,
                     )
                 return
 
-    # NON-HUMANOID (or unmapped) branch: use node name lookup.
-    bone_name = node_index_to_bone_name.get(node_rest_pose_tree.node_index)
-    if bone_name:
-        pb = armature.pose.bones.get(bone_name)
-        if pb is not None:
-            rest_to_pose_matrix = rest_world_matrix.inverted_safe() @ pose_world_matrix
-            rest_to_pose_quat = rest_to_pose_matrix.to_quaternion()
-            rest_to_pose_quat.normalize()
-            backup_rot = get_rotation_as_quaternion(pb)
-            set_rotation_without_mode_change(pb, rest_to_pose_quat)
-            insert_rotation_keyframe(pb, frame=frame_count)
-            set_rotation_without_mode_change(pb, backup_rot)
-            if translation_keyframes:
-                rest_to_pose_trans = rest_to_pose_matrix.to_translation()
-                backup_loc = pb.location.copy()
-                pb.location = rest_to_pose_trans
-                pb.keyframe_insert(data_path="location", frame=frame_count)
-                pb.location = backup_loc
-            rest_to_pose_scale = rest_to_pose_matrix.to_scale()
-            backup_scale = pb.scale.copy()
-            pb.scale = rest_to_pose_scale
-            pb.keyframe_insert(data_path="scale", frame=frame_count)
-            pb.scale = backup_scale
+    else:
+        # NON-HUMANOID (or unmapped) branch: use node name lookup and identity conversion.
+        bone_name = node_index_to_bone_name.get(node_rest_pose_tree.node_index)
+        if bone_name:
+            pb = armature.pose.bones.get(bone_name)
+            if pb is not None:
+                rest_to_pose_matrix = (
+                    rest_world_matrix.inverted_safe() @ pose_world_matrix
+                )
+                rest_to_pose_quat = rest_to_pose_matrix.to_quaternion()
+                rest_to_pose_quat.normalize()
+                backup_rot = get_rotation_as_quaternion(pb)
+                set_rotation_without_mode_change(pb, rest_to_pose_quat)
+                insert_rotation_keyframe(pb, frame=frame_count)
+                set_rotation_without_mode_change(pb, backup_rot)
+                if translation_keyframes:
+                    rest_to_pose_trans = rest_to_pose_matrix.to_translation()
+                    backup_loc = pb.location.copy()
+                    pb.location = rest_to_pose_trans
+                    pb.keyframe_insert(data_path="location", frame=frame_count)
+                    pb.location = backup_loc
+                rest_to_pose_scale = rest_to_pose_matrix.to_scale()
+                backup_scale = pb.scale.copy()
+                pb.scale = rest_to_pose_scale
+                pb.keyframe_insert(data_path="scale", frame=frame_count)
+                pb.scale = backup_scale
 
-    # For any children, continue recursively.
     for child in node_rest_pose_tree.children:
         assign_humanoid_keyframe(
             armature,
@@ -744,4 +783,6 @@ def assign_humanoid_keyframe(
             intermediate_rest_local_matrix,
             intermediate_pose_local_matrix,
             parent_node_rest_pose_world_matrix @ node_rest_pose_tree.local_matrix,
+            node_dicts,
+            human_node_indices,
         )
