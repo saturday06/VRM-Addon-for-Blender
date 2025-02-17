@@ -88,7 +88,8 @@ def create_node_dicts(
     bone_name_to_node_index[bone.name] = node_index
 
     # --- FIX: Local transform vs. parent bone ---
-    # If there's no parent, we treat this bone as a root and use the armature-world approach.
+    # If there's no parent, we treat this bone as a root and use the armature-world
+    # approach.
     # Otherwise, we do a local transform by parent_bone.matrix.inverted() @ bone.matrix.
     if parent_bone is None:
         matrix = armature_world_inverted @ bone.matrix
@@ -179,8 +180,8 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
             )
 
         # --- APPLY T-pose offset adjustment ---
-        # Calculate the bone's local rotation and (now) do NOT subtract the T-pose offset,
-        # since the T-pose has already been applied by the t_pose.py code.
+        # Calculate the bone's local rotation and (now) do NOT subtract the T-pose
+        # offset, since the T-pose has already been applied by the t_pose.py code.
         if bone.parent:
             base_quaternion = (
                 bone.parent.matrix.inverted_safe() @ bone.matrix
@@ -729,7 +730,6 @@ def create_node_animation(
         return
 
     # Compute the armature world inverse for use with root bones
-    armature_world_inv = armature.matrix_world.inverted_safe()
 
     bone_name_to_quaternion_offsets: dict[str, list[Quaternion]] = {}
     bone_name_to_euler_offsets: dict[str, list[Euler]] = {}
@@ -828,6 +828,8 @@ def create_node_animation(
         if base_quaternion is None:
             continue
         bone_name_to_quaternions[bone_name] = [
+            # ミュートされている項目とかあるとクオータニオンの値がノーマライズされて
+            # いないのでノーマライズしておく
             base_quaternion @ quaternion_offset.normalized()
             for quaternion_offset in quaternion_offsets
         ]
@@ -988,10 +990,11 @@ def create_node_animation(
         if isinstance(hips_node_index, int):
             # Overriding parent's matrix with world for unity
             # TODO: 回転と同じように、RESTポーズとTポーズの差分を取るべき
-            if hips_bone.parent:
-                base_matrix = hips_bone.parent.matrix.inverted_safe()
-            else:
-                base_matrix = Matrix()
+            base_matrix = (
+                hips_bone.parent.matrix.inverted_safe()
+                if hips_bone.parent
+                else Matrix()
+            )
 
             hips_translations = [
                 base_matrix @ hips_bone.matrix @ hips_translation_offsets[i]
@@ -1111,10 +1114,7 @@ def create_node_animation(
 
         # Overriding parent's matrix with world for unity
         # TODO: 回転と同じように、RESTポーズとTポーズの差分を取るべき
-        if pb.parent:
-            base_matrix = pb.parent.matrix.inverted_safe()
-        else:
-            base_matrix = Matrix()
+        base_matrix = pb.parent.matrix.inverted_safe() if pb.parent else Matrix()
 
         bone_translations = [
             base_matrix @ pb.matrix @ translation_offset for translation_offset in locs
