@@ -23,7 +23,6 @@
         "cesium.gltf-vscode",
         "charliermarsh.ruff",
         "ms-azuretools.vscode-docker",
-        "ms-python.mypy-type-checker",
         "ms-python.python",
         "ms-python.vscode-pylance",
         "ms-vscode.powershell"
