@@ -1238,7 +1238,7 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
                 joint.animation_state.initialized_as_tail = False
 
     enable_animation: BoolProperty(  # type: ignore[valid-type]
-        name="Enable Animation",
+        name="Enable Simulation",
         update=update_enable_animation,
     )
 

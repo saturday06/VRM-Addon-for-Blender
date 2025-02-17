@@ -19,6 +19,9 @@ from .property_group import (
     SpringBone1SpringPropertyGroup,
 )
 
+# Global flag to track modal operator state
+SPRINGBONE_MODAL_RUNNING = False
+
 
 @dataclass
 class State:
@@ -26,12 +29,14 @@ class State:
     spring_bone_60_fps_update_count: Decimal = Decimal()
     last_fps: Optional[Decimal] = None
     last_fps_base: Optional[Decimal] = None
+    last_time: Optional[float] = None  # Added to store last time for dt calculation
 
     def reset(self, context: Context) -> None:
         self.frame_count = Decimal()
         self.spring_bone_60_fps_update_count = Decimal()
         self.last_fps_base = Decimal(context.scene.render.fps_base)
         self.last_fps = Decimal(context.scene.render.fps)
+        self.last_time = None  # Reset last_time on state reset
 
 
 state = State()
@@ -338,38 +343,27 @@ def calculate_object_pose_bone_rotations(
             )
             if world_collider is None:
                 continue
-            world_colliders = collider_group_uuid_to_world_colliders.get(
+            world_colliders_group = collider_group_uuid_to_world_colliders.get(
                 collider_group.uuid
             )
-            if world_colliders is None:
-                world_colliders = []
+            if world_colliders_group is None:
+                world_colliders_group = []
                 collider_group_uuid_to_world_colliders[collider_group.uuid] = (
-                    world_colliders
+                    world_colliders_group
                 )
-            world_colliders.append(world_collider)
+            world_colliders_group.append(world_collider)
 
+    # Process each spring individually to handle multiple bone chains per spring
     for spring in spring_bone1.springs:
-        joints = spring.joints
-        if not joints:
+        joints_in_spring = spring.joints
+        if not joints_in_spring:
             continue
-        first_joint = joints[0]
+        first_joint = joints_in_spring[0]
         first_pose_bone = obj.pose.bones.get(first_joint.node.bone_name)
         if not first_pose_bone:
             continue
 
         center_pose_bone = obj.pose.bones.get(spring.center.bone_name)
-
-        # https://github.com/vrm-c/vrm-specification/blob/7279e169ac0dcf37e7d81b2adcad9107101d7e25/specification/VRMC_springBone-1.0/README.md#center-space
-        center_pose_bone_is_ancestor_of_first_pose_bone = False
-        ancestor_of_first_pose_bone: Optional[PoseBone] = first_pose_bone
-        while ancestor_of_first_pose_bone:
-            if center_pose_bone == ancestor_of_first_pose_bone:
-                center_pose_bone_is_ancestor_of_first_pose_bone = True
-                break
-            ancestor_of_first_pose_bone = ancestor_of_first_pose_bone.parent
-        if not center_pose_bone_is_ancestor_of_first_pose_bone:
-            center_pose_bone = None
-
         if center_pose_bone:
             current_center_world_translation = (
                 obj.matrix_world @ center_pose_bone.matrix
@@ -391,15 +385,74 @@ def calculate_object_pose_bone_rotations(
             if spring.animation_state.use_center_space:
                 spring.animation_state.use_center_space = False
 
-        calculate_spring_pose_bone_rotations(
-            delta_time,
-            obj,
-            spring,
-            pose_bone_and_rotations,
-            collider_group_uuid_to_world_colliders,
-            previous_to_current_center_world_translation,
-        )
+        # Define world_colliders for this spring from its collider groups.
+        world_colliders = []
+        for collider_group_reference in spring.collider_groups:
+            collider_group_world_colliders = collider_group_uuid_to_world_colliders.get(
+                collider_group_reference.collider_group_uuid
+            )
+            if not collider_group_world_colliders:
+                continue
+            world_colliders.extend(collider_group_world_colliders)
 
+        # Build chains from joints by splitting when parenting is not satisfied
+        chains = []
+        current_chain = []
+        for joint in spring.joints:
+            bone_name = joint.node.bone_name
+            pose_bone = obj.pose.bones.get(bone_name)
+            if not pose_bone:
+                continue
+            rest_object_matrix = pose_bone.bone.convert_local_to_pose(
+                Matrix(), pose_bone.bone.matrix_local
+            )
+            triple = (joint, pose_bone, rest_object_matrix)
+            if not current_chain:
+                current_chain.append(triple)
+            else:
+                last_pose = current_chain[-1][1]
+                current_pose = triple[1]
+                parent_found = False
+                searching = current_pose.parent
+                while searching:
+                    if searching.name == last_pose.name:
+                        parent_found = True
+                        break
+                    searching = searching.parent
+                if parent_found:
+                    current_chain.append(triple)
+                else:
+                    if len(current_chain) >= 2:
+                        chains.append(current_chain)
+                    current_chain = [triple]
+        if len(current_chain) >= 2:
+            chains.append(current_chain)
+
+        # Process each chain separately so that multiple bone chains per spring are handled.
+        for chain in chains:
+            next_head_pose_bone_before_rotation_matrix = None
+            for i in range(len(chain) - 1):
+                head_joint, head_pose_bone, head_rest_object_matrix = chain[i]
+                tail_joint, tail_pose_bone, tail_rest_object_matrix = chain[i + 1]
+                (
+                    head_pose_bone_rotation,
+                    next_head_pose_bone_before_rotation_matrix,
+                ) = calculate_joint_pair_head_pose_bone_rotations(
+                    delta_time,
+                    obj,
+                    head_joint,
+                    head_pose_bone,
+                    head_rest_object_matrix,
+                    tail_joint,
+                    tail_pose_bone,
+                    tail_rest_object_matrix,
+                    next_head_pose_bone_before_rotation_matrix,
+                    world_colliders,
+                    previous_to_current_center_world_translation,
+                )
+                pose_bone_and_rotations.append(
+                    (head_pose_bone, head_pose_bone_rotation)
+                )
         spring.animation_state.previous_center_world_translation = (
             current_center_world_translation
         )
@@ -424,103 +477,8 @@ def calculate_spring_pose_bone_rotations(
     ],
     previous_to_current_center_world_translation: Vector,
 ) -> None:
-    inputs: list[
-        tuple[
-            SpringBone1JointPropertyGroup,
-            PoseBone,
-            Matrix,
-            SpringBone1JointPropertyGroup,
-            PoseBone,
-            Matrix,
-        ]
-    ] = []
-
-    joints: list[
-        tuple[
-            SpringBone1JointPropertyGroup,
-            PoseBone,
-            Matrix,
-        ]
-    ] = []
-    for joint in spring.joints:
-        bone_name = joint.node.bone_name
-        pose_bone = obj.pose.bones.get(bone_name)
-        if not pose_bone:
-            continue
-        rest_object_matrix = pose_bone.bone.convert_local_to_pose(
-            Matrix(), pose_bone.bone.matrix_local
-        )
-        joints.append((joint, pose_bone, rest_object_matrix))
-
-    for (head_joint, head_pose_bone, head_rest_object_matrix), (
-        tail_joint,
-        tail_pose_bone,
-        tail_rest_object_matrix,
-    ) in zip(joints, joints[1:]):
-        head_tail_parented = False
-        searching_tail_parent = tail_pose_bone.parent
-        while searching_tail_parent:
-            if searching_tail_parent.name == head_pose_bone.name:
-                head_tail_parented = True
-                break
-            searching_tail_parent = searching_tail_parent.parent
-        if not head_tail_parented:
-            break
-
-        inputs.append(
-            (
-                head_joint,
-                head_pose_bone,
-                head_rest_object_matrix,
-                tail_joint,
-                tail_pose_bone,
-                tail_rest_object_matrix,
-            )
-        )
-
-    world_colliders: list[
-        Union[
-            SphereWorldCollider,
-            CapsuleWorldCollider,
-            SphereInsideWorldCollider,
-            CapsuleInsideWorldCollider,
-            PlaneWorldCollider,
-        ]
-    ] = []
-    for collider_group_reference in spring.collider_groups:
-        collider_group_world_colliders = collider_group_uuid_to_world_colliders.get(
-            collider_group_reference.collider_group_uuid
-        )
-        if not collider_group_world_colliders:
-            continue
-        world_colliders.extend(collider_group_world_colliders)
-
-    next_head_pose_bone_before_rotation_matrix = None
-    for (
-        head_joint,
-        head_pose_bone,
-        head_rest_object_matrix,
-        tail_joint,
-        tail_pose_bone,
-        tail_rest_object_matrix,
-    ) in inputs:
-        (
-            head_pose_bone_rotation,
-            next_head_pose_bone_before_rotation_matrix,
-        ) = calculate_joint_pair_head_pose_bone_rotations(
-            delta_time,
-            obj,
-            head_joint,
-            head_pose_bone,
-            head_rest_object_matrix,
-            tail_joint,
-            tail_pose_bone,
-            tail_rest_object_matrix,
-            next_head_pose_bone_before_rotation_matrix,
-            world_colliders,
-            previous_to_current_center_world_translation,
-        )
-        pose_bone_and_rotations.append((head_pose_bone, head_pose_bone_rotation))
+    # This function now delegates to the chain processing done in calculate_object_pose_bone_rotations.
+    calculate_object_pose_bone_rotations(delta_time, obj, pose_bone_and_rotations)
 
 
 def calculate_joint_pair_head_pose_bone_rotations(
@@ -691,7 +649,6 @@ def calculate_joint_pair_head_pose_bone_rotations(
 @persistent
 def depsgraph_update_pre(_unused: object) -> None:
     context = bpy.context
-
     state.reset(context)
 
 
@@ -700,44 +657,120 @@ def frame_change_pre(_unused: object) -> None:
     context = bpy.context
 
     fps = Decimal(context.scene.render.fps)
-    last_fps = state.last_fps
     fps_base = Decimal(context.scene.render.fps_base)
-    last_fps_base = state.last_fps_base
-    if (
-        last_fps_base is None
-        or (fps_base - last_fps_base).copy_abs() > 0.00001
-        or fps != last_fps
-    ):
+    if (fps_base - state.last_fps_base).copy_abs() > 0.00001 or fps != state.last_fps:
         state.reset(context)
 
-    state.frame_count += 1
+    if context.screen.is_animation_playing:
+        # During animation playback, use time-based delta calculation identical to modal update.
+        import time
 
-    # 現在時刻が次回のSpringBoneの計算時刻よりも未来なら、SpringBoneを動かす
-    # 浮動小数点の丸め誤差を最小限にするため、共通の分母を分子に掛け算することで
-    # 少数の扱いを最小限にしている
-    frame_time_x_60_x_fps = state.frame_count * Decimal(60) * fps_base
-    while True:
-        next_spring_bone_60_fps_update_count = (
-            state.spring_bone_60_fps_update_count + Decimal(1)
-        )
-
-        next_spring_bone_update_time_x_60_x_fps = (
-            next_spring_bone_60_fps_update_count * fps
-        )
-        if next_spring_bone_update_time_x_60_x_fps > frame_time_x_60_x_fps:
-            break
-
-        # floatの丸め誤差の積算を行うため、delta_timeは 1.0/60.0 を決め打ちせず
-        # 前後の時刻の差分を使う
-        next_spring_bone_update_time = next_spring_bone_60_fps_update_count / Decimal(
-            60
-        )
-        current_spring_bone_update_time = (
-            state.spring_bone_60_fps_update_count / Decimal(60)
-        )
-        delta_time = float(next_spring_bone_update_time) - float(
-            current_spring_bone_update_time
-        )
+        current_time = time.time()
+        if state.last_time is None:
+            state.last_time = current_time
+            delta_time = 1.0 / 30.0
+        else:
+            delta_time = current_time - state.last_time
+            state.last_time = current_time
         update_pose_bone_rotations(context, delta_time)
+    else:
+        state.frame_count += 1
 
-        state.spring_bone_60_fps_update_count += 1
+        # 現在時刻が次回のSpringBoneの計算時刻よりも未来なら、SpringBoneを動かす
+        # 浮動小数点の丸め誤差を最小限にするため、共通の分母を分子に掛け算することで
+        # 少数の扱いを最小限にしている
+        frame_time_x_60_x_fps = state.frame_count * Decimal(60) * fps_base
+        while True:
+            next_spring_bone_60_fps_update_count = (
+                state.spring_bone_60_fps_update_count + Decimal(1)
+            )
+            next_spring_bone_update_time_x_60_x_fps = (
+                next_spring_bone_60_fps_update_count * fps
+            )
+            if next_spring_bone_update_time_x_60_x_fps > frame_time_x_60_x_fps:
+                break
+
+            # floatの丸め誤差の積算を行うため、delta_timeは 1.0/60.0 を決め打ちせず
+            # 前後の時刻の差分を使う
+            next_spring_bone_update_time = (
+                next_spring_bone_60_fps_update_count / Decimal(60)
+            )
+            current_spring_bone_update_time = (
+                state.spring_bone_60_fps_update_count / Decimal(60)
+            )
+            delta_time = float(next_spring_bone_update_time) - float(
+                current_spring_bone_update_time
+            )
+            update_pose_bone_rotations(context, delta_time)
+            state.spring_bone_60_fps_update_count += 1
+
+
+# New Modal Operator for non-playing viewport updates
+class SPRINGBONE_OT_viewport_modal_update(bpy.types.Operator):
+    bl_idname = "vrm.springbone_viewport_modal_update"
+    bl_label = "SpringBone Viewport Modal Update Operator"
+
+    _timer = None
+    _last_time = None
+
+    def modal(self, context, event):
+        if event.type == "TIMER":
+            import time
+
+            # If animation is playing, do not update physics in the modal operator.
+            if context.screen.is_animation_playing:
+                self._last_time = time.time()
+                for window in context.window_manager.windows:
+                    for area in window.screen.areas:
+                        if area.type == "VIEW_3D":
+                            area.tag_redraw()
+                return {"PASS_THROUGH"}
+            current_time = time.time()
+            if self._last_time is None:
+                self._last_time = current_time
+                delta_time = 1.0 / 30.0
+            else:
+                delta_time = current_time - self._last_time
+                self._last_time = current_time
+            update_pose_bone_rotations(context, delta_time)
+            for window in context.window_manager.windows:
+                for area in window.screen.areas:
+                    if area.type == "VIEW_3D":
+                        area.tag_redraw()
+        return {"PASS_THROUGH"}
+
+    def execute(self, context):
+        global SPRINGBONE_MODAL_RUNNING
+        if context.screen.is_animation_playing:
+            # Even during playback, we want the modal operator to run.
+            pass
+        SPRINGBONE_MODAL_RUNNING = True
+        self._last_time = None
+        self._timer = context.window_manager.event_timer_add(
+            1.0 / 30.0, window=context.window
+        )
+        context.window_manager.modal_handler_add(self)
+        return {"RUNNING_MODAL"}
+
+    def cancel(self, context):
+        global SPRINGBONE_MODAL_RUNNING
+        SPRINGBONE_MODAL_RUNNING = False
+        if self._timer is not None:
+            context.window_manager.event_timer_remove(self._timer)
+        return {"CANCELLED"}
+
+
+@persistent
+def springbone_delayed_start(dummy):
+    global SPRINGBONE_MODAL_RUNNING
+    if not bpy.context.screen.is_animation_playing and not SPRINGBONE_MODAL_RUNNING:
+        try:
+            bpy.ops.vrm.springbone_viewport_modal_update("INVOKE_DEFAULT")
+            print("-------------------------------------------------")
+            print("SpringBone modal operator started successfully.")
+            print("-------------------------------------------------")
+        except RuntimeError as e:
+            print("-------------------------------------------------")
+            print(f"Failed to start SpringBone modal operator: {e}")
+            print("-------------------------------------------------")
+    return 1.0

@@ -19,6 +19,7 @@ RUN dnf update -y \
         file \
         gh \
         git \
+        git-lfs \
         less \
         libSM \
         libXi \
@@ -40,6 +41,8 @@ RUN dnf update -y \
     && if [ "$(uname -m)" != "x86_64" ]; then \
             dnf install-n -y --setopt=install_weak_deps=False --allowerasing \
                 OpenImageIO-devel \
+                automake \
+                autoconf \
                 bison \
                 boost-devel \
                 bzip2-devel \
@@ -63,6 +66,7 @@ RUN dnf update -y \
                 libepoxy-devel \
                 libffi-devel \
                 libjpeg-turbo-devel \
+                libtool \
                 libxkbcommon-devel \
                 libxml2-devel \
                 libzstd-devel \
@@ -137,6 +141,18 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
         && make install \
         && popd \
         && rm -fr embree \
+    ; fi
+RUN if [ "$(uname -m)" != "x86_64" ]; then \
+        curl --fail --show-error --location --output OpenSubdiv.tar.gz https://github.com/PixarAnimationStudios/OpenSubdiv/archive/refs/tags/v3_6_0.tar.gz \
+        && test "$(md5sum OpenSubdiv.tar.gz)" = "cd03aaf8890bc0b8550eef62029cabe7  OpenSubdiv.tar.gz" \
+        && mkdir -p OpenSubdiv \
+        && pushd OpenSubdiv \
+        && tar zxf ../OpenSubdiv.tar.gz --strip-components=1 \
+        && cmake . \
+        && make \
+        && make install \
+        && popd \
+        && rm -fr OpenSubdiv \
     ; fi
 # ceresのビルド中にビルドが失敗することがある。失敗した場合はNPROCS=1を付与することで解決した。
 # 発生していたエラーは次のとおり:

@@ -12,7 +12,7 @@ from typing import (
 )
 
 
-def to_object(  # type: ignore[misc]
+def to_object(  # type: ignore[explicit-any]
     any_object: Any,  # noqa: ANN401  # Any is allowed only in the module here.
 ) -> object:
     # Interpret Unknown as object
@@ -22,7 +22,7 @@ def to_object(  # type: ignore[misc]
     return any_object
 
 
-def iterator_to_object_iterator(  # type: ignore[misc]
+def iterator_to_object_iterator(  # type: ignore[explicit-any]
     any_iterator: Any,  # noqa: ANN401  # Any is allowed only in the module here.
 ) -> Optional[Iterator[object]]:
     any_iterator_without_partial_type_narrowing = any_iterator
