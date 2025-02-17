@@ -213,10 +213,10 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
     if isinstance(expressions_dict, dict):
         preset_node_dict = expressions_dict.get("preset")
         if isinstance(preset_node_dict, dict):
-            for name, preset_node_dict in preset_node_dict.items():
-                if not isinstance(preset_node_dict, dict):
+            for name, preset_item in preset_node_dict.items():
+                if not isinstance(preset_item, dict):
                     continue
-                node_index_ = preset_node_dict.get("node")
+                node_index_ = preset_item.get("node")
                 if isinstance(node_index_, int):
                     expression_name_to_node_index[name] = node_index_
         custom_dict = expressions_dict.get("custom")
@@ -725,7 +725,6 @@ def assign_humanoid_keyframe(
                     bone.location = rest_to_pose_trans
                     bone.keyframe_insert(data_path="location", frame=frame_count)
                     bone.location = backup_loc
-                new_parent_world = pose_world_matrix
                 for child in node_rest_pose_tree.children:
                     assign_humanoid_keyframe(
                         armature,
@@ -746,7 +745,8 @@ def assign_humanoid_keyframe(
                 return
 
     else:
-        # NON-HUMANOID (or unmapped) branch: use node name lookup and identity conversion.
+        # NON-HUMANOID (or unmapped) branch:
+        # use node name lookup and identity conversion.
         bone_name = node_index_to_bone_name.get(node_rest_pose_tree.node_index)
         if bone_name:
             pb = armature.pose.bones.get(bone_name)
