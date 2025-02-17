@@ -37,6 +37,12 @@ class NodeRestPoseTree:
     children: tuple["NodeRestPoseTree", ...]
     is_root: bool
 
+    """Build a NodeRestPoseTree from node dictionaries.
+
+    Essential fix: always convert translation as Vector((x, -z, y))
+    and rotation as Quaternion((w, x, -z, y)). (The exporter did the same.)
+    """
+
     @staticmethod
     def build(
         node_dicts: list[Json],
@@ -45,10 +51,6 @@ class NodeRestPoseTree:
         is_root: bool,
         hips_node_index: int,
     ) -> list["NodeRestPoseTree"]:
-        """
-        Essential fix: always convert translation as Vector((x, -z, y))
-        and rotation as Quaternion((w, x, -z, y)). (The exporter did the same.)
-        """
         if not 0 <= node_index < len(node_dicts):
             return []
         node_dict = node_dicts[node_index]
@@ -84,6 +86,8 @@ class NodeRestPoseTree:
             @ rotation.to_matrix().to_4x4()
             @ Matrix.Diagonal(scale).to_4x4()
         )
+        # TODO: 3要素の場合はオイラー角になるか?
+        # TODO: Matrixだったら分解する
 
         child_indices = node_dict.get("children")
         if isinstance(child_indices, list):
@@ -207,22 +211,22 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
     expression_name_to_node_index: dict[str, int] = {}
     expressions_dict = vrmc_vrm_animation_dict.get("expressions")
     if isinstance(expressions_dict, dict):
-        preset_dict = expressions_dict.get("preset")
-        if isinstance(preset_dict, dict):
-            for name, node_dict_ in preset_dict.items():
-                if not isinstance(node_dict_, dict):
+        preset_node_dict = expressions_dict.get("preset")
+        if isinstance(preset_node_dict, dict):
+            for name, preset_node_dict in preset_node_dict.items():
+                if not isinstance(preset_node_dict, dict):
                     continue
-                node_index_ = node_dict_.get("node")
+                node_index_ = preset_node_dict.get("node")
                 if isinstance(node_index_, int):
                     expression_name_to_node_index[name] = node_index_
         custom_dict = expressions_dict.get("custom")
         if isinstance(custom_dict, dict):
-            for name, node_dict_ in custom_dict.items():
-                if not isinstance(node_dict_, dict):
+            for name, node_dict in custom_dict.items():
+                if not isinstance(node_dict, dict):
                     continue
                 if name in expression_name_to_node_index:
                     continue
-                node_index_ = node_dict_.get("node")
+                node_index_ = node_dict.get("node")
                 if isinstance(node_index_, int):
                     expression_name_to_node_index[name] = node_index_
 
@@ -246,10 +250,12 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
         if not isinstance(n_dict, dict):
             continue
         node_name = n_dict.get("name")
-        if isinstance(node_name, str):
-            if i not in node_index_to_human_bone_name:
-                if armature.pose.bones.get(node_name):
-                    node_index_to_bone_name[i] = node_name
+        if (
+            isinstance(node_name, str)
+            and i not in node_index_to_human_bone_name
+            and armature.pose.bones.get(node_name)
+        ):
+            node_index_to_bone_name[i] = node_name
 
     root_node_index = find_root_node_index(node_dicts, hips_node_index, set())
     node_rest_pose_trees = NodeRestPoseTree.build(
@@ -371,9 +377,8 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
 
         translation = node_dict_.get("translation")
         if isinstance(translation, list) and translation:
+            default_preview_value = translation[0]  # TODO: Matrixだった場合
             default_preview_value = translation[0]
-            if not isinstance(default_preview_value, (float, int)):
-                default_preview_value = 0.0
         else:
             default_preview_value = 0.0
         expression_name_to_default_preview_value[expression_name] = (
@@ -435,7 +440,8 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
                     )
                     look_at_target_object.empty_display_size = 0.125
                     x_, y_, z_ = look_at_target_translation
-                    # For look-at target, use the same conversion as exporter: (x, -z, y)
+                    # For look-at target, use the same conversion as exporter:
+                    # (x, -z, y)
                     look_at_target_object.location = Vector((x_, -z_, y_))
                     context.scene.collection.objects.link(look_at_target_object)
                     look_at.enable_preview = True
@@ -473,7 +479,6 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
             node_index_to_rotation_keyframes,
             frame_count,
             timestamp,
-            humanoid_parent_rest_world_matrix=Matrix(),
             intermediate_rest_local_matrix=Matrix(),
             intermediate_pose_local_matrix=Matrix(),
             parent_node_rest_pose_world_matrix=Matrix(),
@@ -594,7 +599,6 @@ def assign_humanoid_keyframe(
     node_index_to_rotation_keyframes: dict[int, tuple[tuple[float, Quaternion], ...]],
     frame_count: int,
     timestamp: float,
-    humanoid_parent_rest_world_matrix: Matrix,
     intermediate_rest_local_matrix: Matrix,
     intermediate_pose_local_matrix: Matrix,
     parent_node_rest_pose_world_matrix: Matrix,
@@ -732,7 +736,6 @@ def assign_humanoid_keyframe(
                         node_index_to_rotation_keyframes,
                         frame_count,
                         timestamp,
-                        new_parent_world,
                         intermediate_rest_local_matrix,
                         intermediate_pose_local_matrix,
                         parent_node_rest_pose_world_matrix
@@ -779,7 +782,6 @@ def assign_humanoid_keyframe(
             node_index_to_rotation_keyframes,
             frame_count,
             timestamp,
-            parent_node_rest_pose_world_matrix,
             intermediate_rest_local_matrix,
             intermediate_pose_local_matrix,
             parent_node_rest_pose_world_matrix @ node_rest_pose_tree.local_matrix,
