@@ -376,8 +376,10 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
 
         translation = node_dict_.get("translation")
         if isinstance(translation, list) and translation:
-            default_preview_value = translation[0]  # TODO: Matrixだった場合
-            default_preview_value = translation[0]
+            val = translation[0]
+            default_preview_value = (
+                float(val) if isinstance(val, (int, float)) else 0.0
+            )  # TODO: Matrixだった場合
         else:
             default_preview_value = 0.0
         expression_name_to_default_preview_value[expression_name] = (
