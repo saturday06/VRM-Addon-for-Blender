@@ -18,7 +18,6 @@ from ..common.rotation import (
     ROTATION_MODE_AXIS_ANGLE,
     ROTATION_MODE_EULER,
     ROTATION_MODE_QUATERNION,
-    get_rotation_as_quaternion,
 )
 from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecification
 from ..common.workspace import save_workspace

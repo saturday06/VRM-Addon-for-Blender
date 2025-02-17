@@ -9,7 +9,6 @@ from mathutils import Matrix, Quaternion, Vector
 
 from ..common import convert
 from ..common.convert import Json
-from ..common.debug import dump
 from ..common.gltf import (
     parse_glb,
     read_accessor_as_animation_sampler_input,
