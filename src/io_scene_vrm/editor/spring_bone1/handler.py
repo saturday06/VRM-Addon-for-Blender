@@ -691,7 +691,6 @@ def calculate_joint_pair_head_pose_bone_rotations(
 @persistent
 def depsgraph_update_pre(_unused: object) -> None:
     context = bpy.context
-
     state.reset(context)
 
 
@@ -720,7 +719,6 @@ def frame_change_pre(_unused: object) -> None:
         next_spring_bone_60_fps_update_count = (
             state.spring_bone_60_fps_update_count + Decimal(1)
         )
-
         next_spring_bone_update_time_x_60_x_fps = (
             next_spring_bone_60_fps_update_count * fps
         )
@@ -741,3 +739,71 @@ def frame_change_pre(_unused: object) -> None:
         update_pose_bone_rotations(context, delta_time)
 
         state.spring_bone_60_fps_update_count += 1
+
+
+# New Modal Operator for non-playing viewport updates
+class SPRINGBONE_OT_viewport_modal_update(bpy.types.Operator):
+    bl_idname = "vrm.springbone_viewport_modal_update"
+    bl_label = "SpringBone Viewport Modal Update Operator"
+
+    _timer = None
+    _last_time = None
+
+    def modal(self, context, event):
+        if event.type == "TIMER":
+            if context.screen.is_animation_playing:
+                self._last_time = None
+            else:
+                import time
+
+                current_time = time.time()
+                if self._last_time is None:
+                    self._last_time = current_time
+                    delta_time = 1.0 / 30.0
+                else:
+                    delta_time = current_time - self._last_time
+                    if delta_time > 1.0 / 30.0:
+                        delta_time = 1.0 / 30.0
+                    self._last_time = current_time
+                update_pose_bone_rotations(context, delta_time)
+                for window in context.window_manager.windows:
+                    for area in window.screen.areas:
+                        if area.type == "VIEW_3D":
+                            area.tag_redraw()
+        return {"PASS_THROUGH"}
+
+    def execute(self, context):
+        if context.screen.is_animation_playing:
+            return {"CANCELLED"}
+        wm = context.window_manager
+        self._last_time = None
+        self._timer = wm.event_timer_add(1.0 / 30.0, window=context.window)
+        wm.modal_handler_add(self)
+        return {"RUNNING_MODAL"}
+
+    def cancel(self, context):
+        wm = context.window_manager
+        if self._timer is not None:
+            wm.event_timer_remove(self._timer)
+        return {"CANCELLED"}
+
+
+@persistent
+def springbone_delayed_start(dummy):
+    if not bpy.context.screen.is_animation_playing:
+        try:
+            bpy.ops.vrm.springbone_viewport_modal_update("INVOKE_DEFAULT")
+            print("-------------------------------------------------")
+            print("SpringBone modal operator started successfully.")
+            print("-------------------------------------------------")
+            return None
+        except RuntimeError as e:
+            print("-------------------------------------------------")
+            print(f"Failed to start SpringBone modal operator: {e}")
+            print("-------------------------------------------------")
+            return 1.0
+    else:
+        print("-------------------------------------------------")
+        print("Animation is playing; SpringBone modal operator not started.")
+        print("-------------------------------------------------")
+        return None

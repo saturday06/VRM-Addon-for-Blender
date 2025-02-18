@@ -445,6 +445,7 @@ classes: list[
     extension.VrmAddonObjectExtensionPropertyGroup,
     extension.VrmAddonNodeTreeExtensionPropertyGroup,
 ]
+
 if bpy.app.version >= (4, 1):
     classes.extend(
         [
@@ -518,6 +519,30 @@ def register() -> None:
 
     io_scene_gltf2_support.init_extras_export()
 
+    # --- Begin SpringBone Modal Operator Registration Code ---
+    # Import the modal operator from spring_bone1_handler
+    from .editor.spring_bone1 import handler as spring_bone1_handler_modal
+
+    classes_modal = [
+        spring_bone1_handler_modal.SPRINGBONE_OT_viewport_modal_update,
+    ]
+
+    def register_modal() -> None:
+        bpy.app.handlers.depsgraph_update_pre.append(
+            spring_bone1_handler_modal.depsgraph_update_pre
+        )
+        bpy.app.handlers.frame_change_pre.append(
+            spring_bone1_handler_modal.frame_change_pre
+        )
+        bpy.app.handlers.load_post.append(
+            spring_bone1_handler_modal.springbone_delayed_start
+        )
+        for cls in classes_modal:
+            bpy.utils.register_class(cls)
+
+    register_modal()
+    # --- End SpringBone Modal Operator Registration Code ---
+
     logger.debug("Registered: %s", name)
 
 
@@ -577,5 +602,25 @@ def unregister() -> None:
             bpy.utils.unregister_class(cls)
         except RuntimeError:
             logger.exception("Failed to Unregister %s", cls)
+
+    # --- Begin SpringBone Modal Operator Unregistration Code ---
+    def unregister_modal():
+        try:
+            bpy.app.handlers.load_post.remove(
+                spring_bone1_handler_modal.springbone_delayed_start
+            )
+        except ValueError:
+            pass
+        bpy.app.handlers.depsgraph_update_pre.remove(
+            spring_bone1_handler_modal.depsgraph_update_pre
+        )
+        bpy.app.handlers.frame_change_pre.remove(
+            spring_bone1_handler_modal.frame_change_pre
+        )
+        for cls in classes_modal:
+            bpy.utils.unregister_class(cls)
+
+    unregister_modal()
+    # --- End SpringBone Modal Operator Unregistration Code ---
 
     bpy.app.translations.unregister(preferences.addon_package_name)
