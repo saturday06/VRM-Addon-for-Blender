@@ -604,7 +604,7 @@ def unregister() -> None:
             logger.exception("Failed to Unregister %s", cls)
 
     # --- Begin SpringBone Modal Operator Unregistration Code ---
-    def unregister_modal():
+    def unregister_modal() -> None:
         try:
             bpy.app.handlers.load_post.remove(
                 spring_bone1_handler_modal.springbone_delayed_start
