@@ -29,12 +29,14 @@ class State:
     spring_bone_60_fps_update_count: Decimal = Decimal()
     last_fps: Optional[Decimal] = None
     last_fps_base: Optional[Decimal] = None
+    last_time: Optional[float] = None  # Added to store last time for dt calculation
 
     def reset(self, context: Context) -> None:
         self.frame_count = Decimal()
         self.spring_bone_60_fps_update_count = Decimal()
         self.last_fps_base = Decimal(context.scene.render.fps_base)
         self.last_fps = Decimal(context.scene.render.fps)
+        self.last_time = None  # Reset last_time on state reset
 
 
 state = State()
@@ -659,40 +661,48 @@ def frame_change_pre(_unused: object) -> None:
     if (fps_base - state.last_fps_base).copy_abs() > 0.00001 or fps != state.last_fps:
         state.reset(context)
 
-    # During animation playback, skip frame change update since modal operator will handle it.
     if context.screen.is_animation_playing:
-        # Use a fixed delta time update via modal operator; do not update here.
-        return
+        # During animation playback, use time-based delta calculation identical to modal update.
+        import time
 
-    state.frame_count += 1
-
-    # 現在時刻が次回のSpringBoneの計算時刻よりも未来なら、SpringBoneを動かす
-    # 浮動小数点の丸め誤差を最小限にするため、共通の分母を分子に掛け算することで
-    # 少数の扱いを最小限にしている
-    frame_time_x_60_x_fps = state.frame_count * Decimal(60) * fps_base
-    while True:
-        next_spring_bone_60_fps_update_count = (
-            state.spring_bone_60_fps_update_count + Decimal(1)
-        )
-        next_spring_bone_update_time_x_60_x_fps = (
-            next_spring_bone_60_fps_update_count * fps
-        )
-        if next_spring_bone_update_time_x_60_x_fps > frame_time_x_60_x_fps:
-            break
-
-        # floatの丸め誤差の積算を行うため、delta_timeは 1.0/60.0 を決め打ちせず
-        # 前後の時刻の差分を使う
-        next_spring_bone_update_time = next_spring_bone_60_fps_update_count / Decimal(
-            60
-        )
-        current_spring_bone_update_time = (
-            state.spring_bone_60_fps_update_count / Decimal(60)
-        )
-        delta_time = float(next_spring_bone_update_time) - float(
-            current_spring_bone_update_time
-        )
+        current_time = time.time()
+        if state.last_time is None:
+            state.last_time = current_time
+            delta_time = 1.0 / 30.0
+        else:
+            delta_time = current_time - state.last_time
+            state.last_time = current_time
         update_pose_bone_rotations(context, delta_time)
-        state.spring_bone_60_fps_update_count += 1
+    else:
+        state.frame_count += 1
+
+        # 現在時刻が次回のSpringBoneの計算時刻よりも未来なら、SpringBoneを動かす
+        # 浮動小数点の丸め誤差を最小限にするため、共通の分母を分子に掛け算することで
+        # 少数の扱いを最小限にしている
+        frame_time_x_60_x_fps = state.frame_count * Decimal(60) * fps_base
+        while True:
+            next_spring_bone_60_fps_update_count = (
+                state.spring_bone_60_fps_update_count + Decimal(1)
+            )
+            next_spring_bone_update_time_x_60_x_fps = (
+                next_spring_bone_60_fps_update_count * fps
+            )
+            if next_spring_bone_update_time_x_60_x_fps > frame_time_x_60_x_fps:
+                break
+
+            # floatの丸め誤差の積算を行うため、delta_timeは 1.0/60.0 を決め打ちせず
+            # 前後の時刻の差分を使う
+            next_spring_bone_update_time = (
+                next_spring_bone_60_fps_update_count / Decimal(60)
+            )
+            current_spring_bone_update_time = (
+                state.spring_bone_60_fps_update_count / Decimal(60)
+            )
+            delta_time = float(next_spring_bone_update_time) - float(
+                current_spring_bone_update_time
+            )
+            update_pose_bone_rotations(context, delta_time)
+            state.spring_bone_60_fps_update_count += 1
 
 
 # New Modal Operator for non-playing viewport updates
@@ -707,14 +717,20 @@ class SPRINGBONE_OT_viewport_modal_update(bpy.types.Operator):
         if event.type == "TIMER":
             import time
 
+            # If animation is playing, do not update physics in the modal operator.
+            if context.screen.is_animation_playing:
+                self._last_time = time.time()
+                for window in context.window_manager.windows:
+                    for area in window.screen.areas:
+                        if area.type == "VIEW_3D":
+                            area.tag_redraw()
+                return {"PASS_THROUGH"}
             current_time = time.time()
             if self._last_time is None:
                 self._last_time = current_time
                 delta_time = 1.0 / 30.0
             else:
                 delta_time = current_time - self._last_time
-                if delta_time > 1.0 / 30.0:
-                    delta_time = 1.0 / 30.0
                 self._last_time = current_time
             update_pose_bone_rotations(context, delta_time)
             for window in context.window_manager.windows:
