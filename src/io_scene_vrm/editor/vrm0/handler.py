@@ -739,7 +739,7 @@ class VRM0OTSecondaryAnimationViewportModalUpdate(bpy.types.Operator):
             for window in context.window_manager.windows:
                 for area in window.screen.areas:
                     if area.type == "VIEW_3D":
-                        area.tag_redraw()
+                        area.tag_redraw()  # type: ignore[valid-type]
         return {"PASS_THROUGH"}
 
     def execute(self, context: Context) -> set[str]:

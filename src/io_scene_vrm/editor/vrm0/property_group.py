@@ -25,7 +25,6 @@ from bpy.types import (
     Object,
     PropertyGroup,
 )
-from mathutils import Vector
 
 from ...common.logger import get_logger
 from ...common.vrm0.human_bone import (
@@ -1057,7 +1056,7 @@ class Vrm0SecondaryAnimationPropertyGroup(PropertyGroup):
         for group in self.bone_groups:
             for bone in group.bones:
                 if hasattr(bone, "animation_state"):
-                    bone.animation_state.initialized_as_tail = False
+                    bone.animation_state.initialized_as_tail = False  # type: ignore[valid-type]
 
     enable_animation: BoolProperty(  # type: ignore[valid-type]
         name="Enable Simulation",

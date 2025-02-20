@@ -2,7 +2,6 @@
 # SPDX-FileCopyrightText: 2018 iCyP
 
 from typing import Union
-from typing import Optional  # ADDED: Import Optional from typing
 
 import bpy
 from bpy.app.handlers import persistent
@@ -630,40 +629,40 @@ def unregister() -> None:
 
     # --- Begin SpringBone Modal Operator Unregistration Code ---
     def unregister_modal() -> None:
-        try:
+        try:  # noqa: SIM105
             bpy.app.handlers.load_post.remove(
-                spring_bone1_handler_modal.springbone_delayed_start
+                spring_bone1_handler_modal.springbone_delayed_start  # type: ignore[valid-type]  # noqa: F821
             )
         except ValueError:
             pass
         bpy.app.handlers.depsgraph_update_pre.remove(
-            spring_bone1_handler_modal.depsgraph_update_pre
+            spring_bone1_handler_modal.depsgraph_update_pre  # type: ignore[valid-type]  # noqa: F821
         )
         bpy.app.handlers.frame_change_pre.remove(
-            spring_bone1_handler_modal.frame_change_pre
+            spring_bone1_handler_modal.frame_change_pre  # type: ignore[valid-type]  # noqa: F821
         )
-        for cls in classes_modal:
-            bpy.utils.unregister_class(cls)
+        for cls in classes_modal:  # type: ignore[valid-type]  # noqa: F821
+            bpy.utils.unregister_class(cls)  # type: ignore[valid-type]
 
     unregister_modal()
     # --- End SpringBone Modal Operator Unregistration Code ---
 
     # --- Begin VRM0 Secondary Animation Modal Operator Unregistration Code ---
     def unregister_modal_vrm0() -> None:
-        try:
+        try:  # noqa: SIM105
             bpy.app.handlers.load_post.remove(
-                vrm0_handler_modal.vrm0_secondary_animation_delayed_start
+                vrm0_handler_modal.vrm0_secondary_animation_delayed_start  # type: ignore[valid-type]  # noqa: F821
             )
         except ValueError:
             pass
         bpy.app.handlers.depsgraph_update_pre.remove(
-            vrm0_handler_modal.secondary_animation_frame_change_pre
+            vrm0_handler_modal.secondary_animation_frame_change_pre  # type: ignore[valid-type]  # noqa: F821
         )
         bpy.app.handlers.frame_change_pre.remove(
-            vrm0_handler_modal.secondary_animation_frame_change_pre
+            vrm0_handler_modal.secondary_animation_frame_change_pre  # type: ignore[valid-type]  # noqa: F821
         )
-        for cls in classes_modal_vrm0:
-            bpy.utils.unregister_class(cls)
+        for cls in classes_modal_vrm0:  # type: ignore[valid-type]  # noqa: F821
+            bpy.utils.unregister_class(cls)  # type: ignore[valid-type]
 
     unregister_modal_vrm0()
     # --- End VRM0 Secondary Animation Modal Operator Unregistration Code ---
