@@ -549,7 +549,7 @@ def register() -> None:
     from .editor.vrm0 import handler as vrm0_handler_modal
 
     classes_modal_vrm0 = [
-        vrm0_handler_modal.VRM0_OT_secondary_animation_viewport_modal_update,
+        vrm0_handler_modal.VRM0OTSecondaryAnimationViewportModalUpdate,
     ]
 
     def register_modal_vrm0() -> None:

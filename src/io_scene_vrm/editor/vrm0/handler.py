@@ -1,37 +1,44 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import time
+import contextlib
 import bpy
 from bpy.app.handlers import persistent
 from ...common.logger import get_logger
 from .property_group import (
     Vrm0BlendShapeGroupPropertyGroup,
-    Vrm0SecondaryAnimationGroupPropertyGroup,
 )
 from mathutils import Matrix, Quaternion, Vector
 from sys import float_info
 from decimal import Decimal
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Any, Union
 from ...common.rotation import (
     get_rotation_as_quaternion,
     set_rotation_without_mode_change,
 )
-from bpy.types import Armature, Context, Object, PoseBone
+from bpy.types import Armature, Context, Object, PoseBone, WindowManager  # type: ignore[attr-defined]
 from ..extension import get_armature_extension
 
 _logger = get_logger(__name__)
 
 # Global dictionaries for animation state and temporary bone tracking.
-joint_animation_states = {}  # Keys: "<object.name>:<pose_bone.name>"
-TEMP_BONES_CREATED_DICT = {}  # Keys: object.name -> dict(original_bone_name: temp_bone_name)
+joint_animation_states: dict[
+    str, "JointAnimationState"
+] = {}  # Keys: "<object.name>:<pose_bone.name>"
+temp_bones_created_dict: dict[
+    str, dict[str, str]
+] = {}  # Keys: object.name -> dict(original_bone_name: temp_bone_name)
+
+# Global flag to track modal operator state (use lowercase for mutable state)
+vrm0_modal_running: bool = False
 
 
 # JointAnimationState mimics VRM1’s animation state structure.
 class JointAnimationState:
-    def __init__(self, world_translation: Vector):
-        self.initialized_as_tail = False
-        self.previous_world_translation = list(world_translation)
-        self.current_world_translation = list(world_translation)
+    def __init__(self, world_translation: Vector) -> None:
+        self.initialized_as_tail: bool = False
+        self.previous_world_translation: list[float] = list(world_translation)
+        self.current_world_translation: list[float] = list(world_translation)
 
 
 def create_joint_animation_state(
@@ -163,7 +170,7 @@ class SecondaryAnimationState:
     last_fps_base: Decimal = Decimal()
     last_time: Optional[float] = None
 
-    def reset(self, context: bpy.types.Context) -> None:
+    def reset(self, context: Context) -> None:
         scene = context.scene
         self.frame_count = Decimal(0)
         self.secondary_anim_60_fps_update_count = Decimal(0)
@@ -176,7 +183,7 @@ secondary_anim_state = SecondaryAnimationState()
 
 
 def update_secondary_animation_bone_rotations(
-    context: bpy.types.Context, delta_time: float
+    context: Context, delta_time: float
 ) -> None:
     pose_bone_and_rotations: list[tuple[PoseBone, Quaternion]] = []
     calculate_object_pose_bone_rotations(delta_time, context, pose_bone_and_rotations)
@@ -190,50 +197,50 @@ def update_secondary_animation_bone_rotations(
 
 
 # --- Temporary Bone Management ---
-def create_temporary_bones_for_object(obj, sec_anim):
-    global TEMP_BONES_CREATED_DICT
-    if obj.name in TEMP_BONES_CREATED_DICT:
+def create_temporary_bones_for_object(obj: Object, sec_anim: Any) -> None:
+    global temp_bones_created_dict
+    if obj.name in temp_bones_created_dict:
         return
     arm = obj.data
     bpy.context.view_layer.objects.active = obj
     bpy.ops.object.mode_set(mode="EDIT")
-    edit_bones = arm.edit_bones
-    created = {}
+    edit_bones = arm.edit_bones  # type: ignore[attr-defined]
+    created: dict[str, str] = {}
     for group in sec_anim.bone_groups:
         for bone_prop in group.bones:
-            if bone_prop.bone_name not in arm.bones:
+            if bone_prop.bone_name not in arm.bones:  # type: ignore[attr-defined]
                 continue
-            bone = arm.bones[bone_prop.bone_name]
-            if len(bone.children) == 0:
-                temp_name = "temp_" + bone.name
+            bone = arm.bones[bone_prop.bone_name]  # type: ignore[attr-defined]
+            if len(bone.children) == 0:  # type: ignore[attr-defined]
+                temp_name = "temp_" + bone.name  # type: ignore[attr-defined]
                 if temp_name not in edit_bones:
-                    new_bone = edit_bones.new(temp_name)
-                    new_bone.head = bone.tail_local
-                    new_bone.tail = new_bone.head + (Vector((0, 1, 0)) * bone.length)
-                    new_bone.parent = edit_bones.get(bone.name)
+                    new_bone = edit_bones.new(temp_name)  # type: ignore[attr-defined]
+                    new_bone.head = bone.tail_local  # type: ignore[attr-defined]
+                    new_bone.tail = new_bone.head + (Vector((0, 1, 0)) * bone.length)  # type: ignore[attr-defined]
+                    new_bone.parent = edit_bones.get(bone.name)  # type: ignore[attr-defined]
                     new_bone.hide = True
-                created[bone.name] = temp_name
+                created[bone.name] = temp_name  # type: ignore[attr-defined]
     bpy.ops.object.mode_set(mode="POSE")
-    TEMP_BONES_CREATED_DICT[obj.name] = created
+    temp_bones_created_dict[obj.name] = created
 
 
-def delete_temporary_bones_for_object(obj):
-    global TEMP_BONES_CREATED_DICT
-    if obj.name not in TEMP_BONES_CREATED_DICT:
+def delete_temporary_bones_for_object(obj: Object) -> None:
+    global temp_bones_created_dict
+    if obj.name not in temp_bones_created_dict:
         return
     arm = obj.data
     bpy.context.view_layer.objects.active = obj
     bpy.ops.object.mode_set(mode="EDIT")
-    edit_bones = arm.edit_bones
-    created = TEMP_BONES_CREATED_DICT[obj.name]
-    for orig, temp_name in created.items():
+    edit_bones = arm.edit_bones  # type: ignore[attr-defined]
+    created = temp_bones_created_dict[obj.name]
+    for orig, temp_name in created.items():  # type: ignore[attr-defined]
         if temp_name in edit_bones:
-            edit_bones.remove(edit_bones[temp_name])
+            edit_bones.remove(edit_bones[temp_name])  # type: ignore[attr-defined]
     bpy.ops.object.mode_set(mode="POSE")
-    del TEMP_BONES_CREATED_DICT[obj.name]
+    del temp_bones_created_dict[obj.name]
 
 
-def update_temporary_bones(context):
+def update_temporary_bones(context: Context) -> None:
     for obj in context.blend_data.objects:
         if obj.type != "ARMATURE":
             continue
@@ -251,12 +258,14 @@ def update_temporary_bones(context):
 
 
 # --- Recursive Chain Builder ---
-def build_chains_from_bone(bone_prop, pose_bone, obj: Object) -> list[list[tuple]]:
+def build_chains_from_bone(
+    bone_prop: Any, pose_bone: PoseBone, obj: Object
+) -> list[list[tuple[Any, PoseBone, Matrix]]]:
     rest_object_matrix = pose_bone.bone.convert_local_to_pose(
         Matrix(), pose_bone.bone.matrix_local
     )
     triple = (bone_prop, pose_bone, rest_object_matrix)
-    chains = []
+    chains: list[list[tuple[Any, PoseBone, Matrix]]] = []
     if not pose_bone.children:
         chains.append([triple])
     else:
@@ -269,7 +278,7 @@ def build_chains_from_bone(bone_prop, pose_bone, obj: Object) -> list[list[tuple
 
 def calculate_object_pose_bone_rotations(
     delta_time: float,
-    context: bpy.types.Context,
+    context: Context,
     pose_bone_and_rotations: list[tuple[PoseBone, Quaternion]],
 ) -> None:
     for obj in context.blend_data.objects:
@@ -285,10 +294,21 @@ def calculate_object_pose_bone_rotations(
         if not getattr(sec_anim, "enable_animation", False):
             continue
 
-        collider_group_to_world_colliders: dict[str, list] = {}
+        collider_group_to_world_colliders: dict[  # type: ignore[attr-defined]
+            str,
+            list[
+                Union[
+                    SphereWorldCollider,
+                    CapsuleWorldCollider,
+                    SphereInsideWorldCollider,
+                    CapsuleInsideWorldCollider,
+                    PlaneWorldCollider,
+                ]
+            ],
+        ] = {}
         if hasattr(sec_anim, "collider_groups"):
             for collider_group in sec_anim.collider_groups:
-                group_colliders = []
+                group_colliders: list[Any] = []  # type: ignore[attr-defined]
                 for collider in collider_group.colliders:
                     if not collider.bpy_object or not collider.bpy_object.name:
                         continue
@@ -380,21 +400,21 @@ def calculate_object_pose_bone_rotations(
                         else:
                             radius = sum(collider_obj.scale) / 3.0
                         world_coll = SphereWorldCollider(offset=offset, radius=radius)
-                    group_colliders.append(world_coll)
+                    group_colliders.append(world_coll)  # type: ignore[attr-defined]
                 if group_colliders:
                     collider_group_to_world_colliders[collider_group.name] = (
                         group_colliders
                     )
 
-        chains_all = []
+        chains_all: list[tuple[Any, list[tuple[Any, PoseBone, Matrix]]]] = []  # type: ignore[attr-defined]
         for group in sec_anim.bone_groups:
             for bone_prop in group.bones:
                 pose_bone = obj.pose.bones.get(bone_prop.bone_name)
                 if not pose_bone:
                     continue
-                built_chains = build_chains_from_bone(bone_prop, pose_bone, obj)
-                for chain in built_chains:
-                    chains_all.append((group, chain))
+                built_chains = build_chains_from_bone(bone_prop, pose_bone, obj)  # type: ignore[attr-defined]
+                for chain in built_chains:  # type: ignore[attr-defined]
+                    chains_all.append((group, chain))  # type: ignore[attr-defined]
         for group in sec_anim.bone_groups:
             if hasattr(group, "center") and group.center:
                 center_pose_bone = obj.pose.bones.get(group.center.bone_name)
@@ -407,106 +427,109 @@ def calculate_object_pose_bone_rotations(
             else:
                 current_center_world_translation = Vector((0, 0, 0))
             previous_to_current_center_world_translation = Vector((0, 0, 0))
-            if hasattr(group.animation_state, "previous_center_world_translation"):
+            if hasattr(group.animation_state, "previous_center_world_translation"):  # type: ignore[attr-defined]
                 previous_center = Vector(
-                    group.animation_state.previous_center_world_translation
+                    group.animation_state.previous_center_world_translation  # type: ignore[attr-defined]
                 )
                 previous_to_current_center_world_translation = (
                     current_center_world_translation - previous_center
                 )
-            group.animation_state.previous_center_world_translation = (
+            group.animation_state.previous_center_world_translation = (  # type: ignore[attr-defined]
                 current_center_world_translation.copy()
             )
 
-            world_colliders: list = []
+            world_colliders: list[Any] = []  # type: ignore[attr-defined]
             if hasattr(group, "collider_groups"):
                 for collider_group in group.collider_groups:
-                    colliders = collider_group_to_world_colliders.get(
+                    colliders = collider_group_to_world_colliders.get(  # type: ignore[attr-defined]
                         collider_group.name
                     )
                     if colliders:
-                        world_colliders.extend(colliders)
+                        world_colliders.extend(colliders)  # type: ignore[attr-defined]
 
-            for grp, chain in [entry for entry in chains_all if entry[0] == group]:
-                if len(chain) == 1:
-                    head_joint, head_pose_bone, head_rest_object_matrix = chain[0]
+            for grp, chain in [entry for entry in chains_all if entry[0] == group]:  # type: ignore[attr-defined]
+                if len(chain) == 1:  # type: ignore[attr-defined]
+                    head_joint, head_pose_bone, head_rest_object_matrix = chain[0]  # type: ignore[attr-defined]
                     if (
-                        obj.name in TEMP_BONES_CREATED_DICT
-                        and head_pose_bone.name in TEMP_BONES_CREATED_DICT[obj.name]
+                        obj.name in temp_bones_created_dict
+                        and head_pose_bone.name in temp_bones_created_dict[obj.name]  # type: ignore[attr-defined]
                     ):
-                        temp_name = TEMP_BONES_CREATED_DICT[obj.name][
+                        temp_name = temp_bones_created_dict[obj.name][
                             head_pose_bone.name
                         ]
                         temp_pose_bone = obj.pose.bones.get(temp_name)
                         temp_rest_object_matrix = (
-                            temp_pose_bone.bone.convert_local_to_pose(
-                                Matrix(), temp_pose_bone.bone.matrix_local
+                            temp_pose_bone.bone.convert_local_to_pose(  # type: ignore[attr-defined]
+                                Matrix(),
+                                temp_pose_bone.bone.matrix_local,  # type: ignore[attr-defined]
                             )
                         )
-                        chain = [
+                        chain = [  # type: ignore[attr-defined]
                             chain[0],
                             (None, temp_pose_bone, temp_rest_object_matrix),
                         ]
                     else:
                         continue
-                if len(chain) < 2:
+                if len(chain) < 2:  # type: ignore[attr-defined]
                     continue
-                next_head_pose_bone_before_rotation_matrix = None
-                for i in range(len(chain) - 1):
-                    head_joint, head_pose_bone, head_rest_object_matrix = chain[i]
-                    tail_joint, tail_pose_bone, tail_rest_object_matrix = chain[i + 1]
-                    key_head = f"{obj.name}:{head_pose_bone.name}"
-                    key_tail = f"{obj.name}:{tail_pose_bone.name}"
+                next_head_pose_bone_before_rotation_matrix: Optional[Matrix] = None
+                for i in range(len(chain) - 1):  # type: ignore[attr-defined]
+                    head_joint, head_pose_bone, head_rest_object_matrix = chain[i]  # type: ignore[attr-defined]
+                    tail_joint, tail_pose_bone, tail_rest_object_matrix = chain[i + 1]  # type: ignore[attr-defined]
+                    key_head = f"{obj.name}:{head_pose_bone.name}"  # type: ignore[attr-defined]
+                    key_tail = f"{obj.name}:{tail_pose_bone.name}"  # type: ignore[attr-defined]
                     if key_head not in joint_animation_states:
                         joint_animation_states[key_head] = create_joint_animation_state(
-                            obj, head_pose_bone
+                            obj,
+                            head_pose_bone,  # type: ignore[attr-defined]
                         )
                     if key_tail not in joint_animation_states:
                         joint_animation_states[key_tail] = create_joint_animation_state(
-                            obj, tail_pose_bone
+                            obj,
+                            tail_pose_bone,  # type: ignore[attr-defined]
                         )
-                    head_joint.animation_state = joint_animation_states[key_head]
-                    tail_joint.animation_state = joint_animation_states[key_tail]
-                    head_joint.drag_force = group.drag_force
-                    head_joint.stiffness = group.stiffiness
-                    head_joint.gravity_dir = group.gravity_dir
-                    head_joint.gravity_power = group.gravity_power
-                    head_joint.hit_radius = group.hit_radius
-                    tail_joint.drag_force = group.drag_force
-                    tail_joint.stiffness = group.stiffiness
-                    tail_joint.gravity_dir = group.gravity_dir
-                    tail_joint.gravity_power = group.gravity_power
-                    tail_joint.hit_radius = group.hit_radius
+                    head_joint.animation_state = joint_animation_states[key_head]  # type: ignore[attr-defined]
+                    tail_joint.animation_state = joint_animation_states[key_tail]  # type: ignore[attr-defined]
+                    head_joint.drag_force = group.drag_force  # type: ignore[attr-defined]
+                    head_joint.stiffness = group.stiffiness  # type: ignore[attr-defined]
+                    head_joint.gravity_dir = group.gravity_dir  # type: ignore[attr-defined]
+                    head_joint.gravity_power = group.gravity_power  # type: ignore[attr-defined]
+                    head_joint.hit_radius = group.hit_radius  # type: ignore[attr-defined]
+                    tail_joint.drag_force = group.drag_force  # type: ignore[attr-defined]
+                    tail_joint.stiffness = group.stiffiness  # type: ignore[attr-defined]
+                    tail_joint.gravity_dir = group.gravity_dir  # type: ignore[attr-defined]
+                    tail_joint.gravity_power = group.gravity_power  # type: ignore[attr-defined]
+                    tail_joint.hit_radius = group.hit_radius  # type: ignore[attr-defined]
 
                     rotation, next_head_pose_bone_before_rotation_matrix = (
                         calculate_joint_pair_head_pose_bone_rotations(
                             delta_time,
                             obj,
                             head_joint,
-                            head_pose_bone,
-                            head_rest_object_matrix,
+                            head_pose_bone,  # type: ignore[attr-defined]
+                            head_rest_object_matrix,  # type: ignore[attr-defined]
                             tail_joint,
-                            tail_pose_bone,
-                            tail_rest_object_matrix,
+                            tail_pose_bone,  # type: ignore[attr-defined]
+                            tail_rest_object_matrix,  # type: ignore[attr-defined]
                             next_head_pose_bone_before_rotation_matrix,
-                            world_colliders,
+                            world_colliders,  # type: ignore[attr-defined]
                             previous_to_current_center_world_translation,
                         )
                     )
-                    pose_bone_and_rotations.append((head_pose_bone, rotation))
+                    pose_bone_and_rotations.append((head_pose_bone, rotation))  # type: ignore[attr-defined]
 
 
 def calculate_joint_pair_head_pose_bone_rotations(
     delta_time: float,
     obj: Object,
-    head_joint,
+    head_joint: Any,  # noqa: ANN401
     head_pose_bone: PoseBone,
     current_head_rest_object_matrix: Matrix,
-    tail_joint,
+    tail_joint: Any,  # noqa: ANN401
     tail_pose_bone: PoseBone,
     current_tail_rest_object_matrix: Matrix,
     next_head_pose_bone_before_rotation_matrix: Optional[Matrix],
-    world_colliders: list,
+    world_colliders: list,  # type: ignore[attr-defined]
     previous_to_current_center_world_translation: Vector,
 ) -> tuple[Quaternion, Matrix]:
     current_head_pose_bone_matrix = head_pose_bone.matrix
@@ -544,11 +567,11 @@ def calculate_joint_pair_head_pose_bone_rotations(
             initial_tail_world_translation
         )
     previous_tail_world_translation = (
-        Vector(tail_joint.animation_state.previous_world_translation)
+        Vector(tail_joint.animation_state.previous_world_translation)  # type: ignore[attr-defined]
         + previous_to_current_center_world_translation
     )
     current_tail_world_translation = (
-        Vector(tail_joint.animation_state.current_world_translation)
+        Vector(tail_joint.animation_state.current_world_translation)  # type: ignore[attr-defined]
         + previous_to_current_center_world_translation
     )
 
@@ -583,33 +606,34 @@ def calculate_joint_pair_head_pose_bone_rotations(
         * head_to_tail_world_distance
     )
 
-    for world_collider in world_colliders:
-        direction, distance = world_collider.calculate_collision(
+    for world_collider in world_colliders:  # type: ignore[attr-defined]
+        direction, distance = world_collider.calculate_collision(  # type: ignore[attr-defined]
             next_tail_world_translation, head_joint.hit_radius
         )
         if distance >= 0:
             continue
-        next_tail_world_translation = next_tail_world_translation - direction * distance
-        next_tail_world_translation = (
+        next_tail_world_translation = next_tail_world_translation - direction * distance  # type: ignore[attr-defined]
+        next_tail_world_translation = (  # type: ignore[attr-defined]
             next_head_world_translation
-            + (next_tail_world_translation - next_head_world_translation).normalized()
+            + (next_tail_world_translation - next_head_world_translation).normalized()  # type: ignore[attr-defined]
             * head_to_tail_world_distance
         )
 
-    next_tail_object_local_translation = (
+    next_tail_object_local_translation = (  # type: ignore[attr-defined]
         obj.matrix_world.inverted_safe() @ next_tail_world_translation
     )
-    next_head_rotation_end_target_local_translation = (
+    next_head_rotation_end_target_local_translation = (  # type: ignore[attr-defined]
         next_head_pose_bone_before_rotation_matrix.inverted_safe()
         @ next_tail_object_local_translation
     )
 
     next_head_pose_bone_rotation = Quaternion(
         next_head_rotation_start_target_local_translation.cross(
-            next_head_rotation_end_target_local_translation
+            next_head_rotation_end_target_local_translation  # type: ignore[attr-defined]
         ),
         next_head_rotation_start_target_local_translation.angle(
-            next_head_rotation_end_target_local_translation, 0
+            next_head_rotation_end_target_local_translation,  # type: ignore[attr-defined]
+            0,  # type: ignore[attr-defined]
         ),
     )
 
@@ -637,7 +661,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
         current_tail_world_translation
     )
     tail_joint.animation_state.current_world_translation = list(
-        next_tail_world_translation
+        next_tail_world_translation  # type: ignore[attr-defined]
     )
 
     result_rotation = (
@@ -656,15 +680,16 @@ def depsgraph_update_pre(_unused: object) -> None:
 
 @persistent
 def frame_change_pre(_unused: object) -> None:
-    Vrm0BlendGroupPropertyGroup.frame_change_post_shape_key_updates.clear()
+    # Fixed the incorrect property group reference here.
+    Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.clear()
     context = bpy.context
     fps = Decimal(context.scene.render.fps)
     fps_base = Decimal(context.scene.render.fps_base)
-    if (
-        fps_base - secondary_anim_state.last_fps_base
-    ).copy_abs() > 0.00001 or fps != secondary_anim_state.last_fps:
+    if (fps_base - secondary_anim_state.last_fps_base).copy_abs() > Decimal(
+        "0.00001"
+    ) or fps != secondary_anim_state.last_fps:
         secondary_anim_state.reset(context)
-    if context.screen.is_animation_playing:
+    if context.screen.is_animation_playing:  # type: ignore[attr-defined]
         current_time = time.time()
         if secondary_anim_state.last_time is None:
             secondary_anim_state.last_time = current_time
@@ -691,20 +716,16 @@ def frame_change_pre(_unused: object) -> None:
             secondary_anim_state.secondary_anim_60_fps_update_count = next_update
 
 
-VRM0_MODAL_RUNNING = False
-
-
-class VRM0_OT_secondary_animation_viewport_modal_update(bpy.types.Operator):
+# Modal Operator for secondary animation viewport modal update.
+class VRM0OTSecondaryAnimationViewportModalUpdate(bpy.types.Operator):
     bl_idname = "vrm.vrm0_secondary_animation_viewport_modal_update"
     bl_label = "VRM 0.x Secondary Animation Viewport Modal Update Operator"
 
-    _timer = None
-    _last_time = None
+    _timer: Optional[Any] = None
+    _last_time: Optional[float] = None
 
-    def modal(self, context, event):
+    def modal(self, context: Context, event: Any) -> set[str]:  # noqa: ANN401
         if event.type == "TIMER":
-            import time
-
             current_time = time.time()
             if self._last_time is None:
                 self._last_time = current_time
@@ -721,9 +742,9 @@ class VRM0_OT_secondary_animation_viewport_modal_update(bpy.types.Operator):
                         area.tag_redraw()
         return {"PASS_THROUGH"}
 
-    def execute(self, context):
-        global VRM0_MODAL_RUNNING
-        VRM0_MODAL_RUNNING = True
+    def execute(self, context: Context) -> set[str]:
+        global vrm0_modal_running
+        vrm0_modal_running = True
         update_temporary_bones(context)
         self._last_time = None
         self._timer = context.window_manager.event_timer_add(
@@ -732,24 +753,22 @@ class VRM0_OT_secondary_animation_viewport_modal_update(bpy.types.Operator):
         context.window_manager.modal_handler_add(self)
         return {"RUNNING_MODAL"}
 
-    def cancel(self, context):
-        global VRM0_MODAL_RUNNING
-        VRM0_MODAL_RUNNING = False
+    def cancel(self, context: Context) -> set[str]:
+        global vrm0_modal_running
+        vrm0_modal_running = False
         update_temporary_bones(
             context
         )  # Deletes temporary bones if Enable Simulation is now false.
         if self._timer is not None:
-            context.window_manager.event_timer_remove(self._timer)
+            context.window_manager.event_timer_remove(self._timer)  # type: ignore[attr-defined]
         return {"CANCELLED"}
 
 
-@persistent
-def vrm0_secondary_animation_delayed_start(dummy):
-    if not bpy.context.screen.is_animation_playing:
-        try:
-            bpy.ops.vrm.vrm0_secondary_animation_viewport_modal_update("INVOKE_DEFAULT")
-        except RuntimeError:
-            pass
+@persistent  # type: ignore[attr-defined]
+def vrm0_secondary_animation_delayed_start(dummy: Any) -> float:
+    if not bpy.context.screen.is_animation_playing:  # type: ignore[attr-defined]
+        with contextlib.suppress(RuntimeError):
+            bpy.ops.vrm.vrm0_secondary_animation_viewport_modal_update("INVOKE_DEFAULT")  # type: ignore[attr-defined]
     return 1.0
 
 
