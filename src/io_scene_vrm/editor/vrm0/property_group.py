@@ -1060,7 +1060,7 @@ class Vrm0SecondaryAnimationPropertyGroup(PropertyGroup):
                     bone.animation_state.initialized_as_tail = False
 
     enable_animation: BoolProperty(  # type: ignore[valid-type]
-        name="Enable Animation",
+        name="Enable Simulation",
         default=False,
         update=update_enable_animation,
     )

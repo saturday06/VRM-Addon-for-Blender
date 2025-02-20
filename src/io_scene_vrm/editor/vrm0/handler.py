@@ -69,16 +69,12 @@ class CapsuleWorldCollider:
         self, target: Vector, target_radius: float
     ) -> tuple[Vector, float]:
         offset_to_target_diff = target - self.offset
-        offset_to_tail_ratio_for_nearest = (
+        ratio = (
             self.offset_to_tail_diff.dot(offset_to_target_diff)
             / self.offset_to_tail_diff_length_squared
         )
-        offset_to_tail_ratio_for_nearest = max(
-            0, min(1, offset_to_tail_ratio_for_nearest)
-        )
-        nearest = (
-            self.offset + self.offset_to_tail_diff * offset_to_tail_ratio_for_nearest
-        )
+        ratio = max(0, min(1, ratio))
+        nearest = self.offset + self.offset_to_tail_diff * ratio
         diff = target - nearest
         diff_length = diff.length
         if diff_length < float_info.epsilon:
@@ -113,16 +109,12 @@ class CapsuleInsideWorldCollider:
         self, target: Vector, target_radius: float
     ) -> tuple[Vector, float]:
         offset_to_target_diff = target - self.offset
-        offset_to_tail_ratio_for_nearest = (
+        ratio = (
             self.offset_to_tail_diff.dot(offset_to_target_diff)
             / self.offset_to_tail_diff_length_squared
         )
-        offset_to_tail_ratio_for_nearest = max(
-            0, min(1, offset_to_tail_ratio_for_nearest)
-        )
-        nearest = (
-            self.offset + self.offset_to_tail_diff * offset_to_tail_ratio_for_nearest
-        )
+        ratio = max(0, min(1, ratio))
+        nearest = self.offset + self.offset_to_tail_diff * ratio
         diff = nearest - target
         diff_length = diff.length
         if diff_length < float_info.epsilon:
@@ -258,7 +250,7 @@ def update_temporary_bones(context):
             delete_temporary_bones_for_object(obj)
 
 
-# --- Recursive chain builder ---
+# --- Recursive Chain Builder ---
 def build_chains_from_bone(bone_prop, pose_bone, obj: Object) -> list[list[tuple]]:
     rest_object_matrix = pose_bone.bone.convert_local_to_pose(
         Matrix(), pose_bone.bone.matrix_local
@@ -394,7 +386,6 @@ def calculate_object_pose_bone_rotations(
                         group_colliders
                     )
 
-        # Build chains from bone groups.
         chains_all = []
         for group in sec_anim.bone_groups:
             for bone_prop in group.bones:
@@ -436,7 +427,6 @@ def calculate_object_pose_bone_rotations(
                     if colliders:
                         world_colliders.extend(colliders)
 
-            # Process each chain for this group.
             for grp, chain in [entry for entry in chains_all if entry[0] == group]:
                 if len(chain) == 1:
                     head_joint, head_pose_bone, head_rest_object_matrix = chain[0]
@@ -478,9 +468,6 @@ def calculate_object_pose_bone_rotations(
                     head_joint.animation_state = joint_animation_states[key_head]
                     tail_joint.animation_state = joint_animation_states[key_tail]
                     head_joint.drag_force = group.drag_force
-                    head_joint.stiffness = (
-                        group.drag_force
-                    )  # use group.drag_force? (Assumed same as stiffness)
                     head_joint.stiffness = group.stiffiness
                     head_joint.gravity_dir = group.gravity_dir
                     head_joint.gravity_power = group.gravity_power
@@ -669,7 +656,7 @@ def depsgraph_update_pre(_unused: object) -> None:
 
 @persistent
 def frame_change_pre(_unused: object) -> None:
-    Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.clear()
+    Vrm0BlendGroupPropertyGroup.frame_change_post_shape_key_updates.clear()
     context = bpy.context
     fps = Decimal(context.scene.render.fps)
     fps_base = Decimal(context.scene.render.fps_base)
@@ -688,14 +675,12 @@ def frame_change_pre(_unused: object) -> None:
         update_secondary_animation_bone_rotations(context, delta_time)
     else:
         secondary_anim_state.frame_count += 1
-        frame_time_x_60_x_fps = (
-            secondary_anim_state.frame_count * Decimal(60) * fps_base
-        )
+        frame_time = secondary_anim_state.frame_count * Decimal(60) * fps_base
         while True:
             next_update = (
                 secondary_anim_state.secondary_anim_60_fps_update_count + Decimal(1)
             )
-            if next_update * fps > frame_time_x_60_x_fps:
+            if next_update * fps > frame_time:
                 break
             next_time = next_update / Decimal(60)
             current_time_val = (
@@ -720,21 +705,14 @@ class VRM0_OT_secondary_animation_viewport_modal_update(bpy.types.Operator):
         if event.type == "TIMER":
             import time
 
-            # Force dependency update to ensure temporary bones are evaluated
-            bpy.context.view_layer.update()
-            if context.screen.is_animation_playing:
-                self._last_time = time.time()
-                for window in context.window_manager.windows:
-                    for area in window.screen.areas:
-                        if area.type == "VIEW_3D":
-                            area.tag_redraw()
-                return {"PASS_THROUGH"}
             current_time = time.time()
             if self._last_time is None:
                 self._last_time = current_time
                 delta_time = 1.0 / 30.0
             else:
-                delta_time = current_time - self._last_time
+                # Clamp delta time to 1/30 sec to match animation playback.
+                raw_dt = current_time - self._last_time
+                delta_time = min(raw_dt, 1.0 / 30.0)
                 self._last_time = current_time
             update_secondary_animation_bone_rotations(context, delta_time)
             for window in context.window_manager.windows:
@@ -759,7 +737,7 @@ class VRM0_OT_secondary_animation_viewport_modal_update(bpy.types.Operator):
         VRM0_MODAL_RUNNING = False
         update_temporary_bones(
             context
-        )  # This will delete temporary bones if enable animation is now False.
+        )  # Deletes temporary bones if Enable Simulation is now false.
         if self._timer is not None:
             context.window_manager.event_timer_remove(self._timer)
         return {"CANCELLED"}
@@ -770,7 +748,7 @@ def vrm0_secondary_animation_delayed_start(dummy):
     if not bpy.context.screen.is_animation_playing:
         try:
             bpy.ops.vrm.vrm0_secondary_animation_viewport_modal_update("INVOKE_DEFAULT")
-        except RuntimeError as e:
+        except RuntimeError:
             pass
     return 1.0
 
