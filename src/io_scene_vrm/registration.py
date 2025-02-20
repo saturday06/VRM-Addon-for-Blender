@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: 2018 iCyP
 
 from typing import Union
+from typing import Optional  # ADDED: Import Optional from typing
 
 import bpy
 from bpy.app.handlers import persistent
@@ -159,6 +160,7 @@ classes: list[
     vrm0_property_group.Vrm0MetaPropertyGroup,
     vrm0_property_group.Vrm0SecondaryAnimationColliderPropertyGroup,
     vrm0_property_group.Vrm0SecondaryAnimationColliderGroupPropertyGroup,
+    vrm0_property_group.Vrm0SecondaryAnimationGroupAnimationStatePropertyGroup,
     vrm0_property_group.Vrm0SecondaryAnimationGroupPropertyGroup,
     vrm0_property_group.Vrm0SecondaryAnimationPropertyGroup,
     vrm0_property_group.Vrm0PropertyGroup,
@@ -543,6 +545,29 @@ def register() -> None:
     register_modal()
     # --- End SpringBone Modal Operator Registration Code ---
 
+    # --- Begin VRM0 Secondary Animation Modal Operator Registration Code ---
+    from .editor.vrm0 import handler as vrm0_handler_modal
+
+    classes_modal_vrm0 = [
+        vrm0_handler_modal.VRM0_OT_secondary_animation_viewport_modal_update,
+    ]
+
+    def register_modal_vrm0() -> None:
+        bpy.app.handlers.depsgraph_update_pre.append(
+            vrm0_handler_modal.secondary_animation_frame_change_pre
+        )
+        bpy.app.handlers.frame_change_pre.append(
+            vrm0_handler_modal.secondary_animation_frame_change_pre
+        )
+        bpy.app.handlers.load_post.append(
+            vrm0_handler_modal.vrm0_secondary_animation_delayed_start
+        )
+        for cls in classes_modal_vrm0:
+            bpy.utils.register_class(cls)
+
+    register_modal_vrm0()
+    # --- End VRM0 Secondary Animation Modal Operator Registration Code ---
+
     logger.debug("Registered: %s", name)
 
 
@@ -622,5 +647,25 @@ def unregister() -> None:
 
     unregister_modal()
     # --- End SpringBone Modal Operator Unregistration Code ---
+
+    # --- Begin VRM0 Secondary Animation Modal Operator Unregistration Code ---
+    def unregister_modal_vrm0() -> None:
+        try:
+            bpy.app.handlers.load_post.remove(
+                vrm0_handler_modal.vrm0_secondary_animation_delayed_start
+            )
+        except ValueError:
+            pass
+        bpy.app.handlers.depsgraph_update_pre.remove(
+            vrm0_handler_modal.secondary_animation_frame_change_pre
+        )
+        bpy.app.handlers.frame_change_pre.remove(
+            vrm0_handler_modal.secondary_animation_frame_change_pre
+        )
+        for cls in classes_modal_vrm0:
+            bpy.utils.unregister_class(cls)
+
+    unregister_modal_vrm0()
+    # --- End VRM0 Secondary Animation Modal Operator Unregistration Code ---
 
     bpy.app.translations.unregister(preferences.addon_package_name)
