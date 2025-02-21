@@ -183,6 +183,7 @@ RUN if [ "$(uname -m)" != "x86_64" ]; then \
 
 RUN useradd --create-home --user-group --shell /bin/bash developer \
     && usermod --append --groups wheel developer
+RUN mkdir -p /workspace && chown developer:developer /workspace
 USER developer
 WORKDIR /home/developer
 
