@@ -1,4 +1,5 @@
 {
+  "name": "VRM-Addon-for-Blender",
   "build": {
     "dockerfile": "Dockerfile"
   },
