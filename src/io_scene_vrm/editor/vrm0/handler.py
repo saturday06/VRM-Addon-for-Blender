@@ -142,10 +142,51 @@ class PlaneWorldCollider:
 
 
 @persistent
+def frame_change_pre(_unused: object) -> None:
+    Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.clear()
+    context = bpy.context
+    fps = Decimal(context.scene.render.fps)
+    fps_base = Decimal(context.scene.render.fps_base)
+    if (fps_base - secondary_anim_state.last_fps_base).copy_abs() > Decimal(
+        "0.00001"
+    ) or fps != secondary_anim_state.last_fps:
+        secondary_anim_state.reset(context)
+    if context.screen.is_animation_playing:  # type: ignore[attr-defined]
+        current_time = time.time()
+        if secondary_anim_state.last_time is None:
+            secondary_anim_state.last_time = current_time
+            delta_time = 1.0 / 30.0
+        else:
+            delta_time = current_time - secondary_anim_state.last_time
+            secondary_anim_state.last_time = current_time
+        update_secondary_animation_bone_rotations(context, delta_time)
+    else:
+        secondary_anim_state.frame_count += 1
+        frame_time = secondary_anim_state.frame_count * Decimal(60) * fps_base
+        while True:
+            next_update = (
+                secondary_anim_state.secondary_anim_60_fps_update_count + Decimal(1)
+            )
+            if next_update * fps > frame_time:
+                break
+            next_time = next_update / Decimal(60)
+            current_time_val = (
+                secondary_anim_state.secondary_anim_60_fps_update_count / Decimal(60)
+            )
+            delta_time = float(next_time - current_time_val)
+            update_secondary_animation_bone_rotations(context, delta_time)
+            secondary_anim_state.secondary_anim_60_fps_update_count = next_update
+
+
+@persistent
 def frame_change_post(_unused: object) -> None:
     context = bpy.context
+
     for (
-        (shape_key_name, key_block_name),
+        (
+            shape_key_name,
+            key_block_name,
+        ),
         value,
     ) in Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.items():
         shape_key = context.blend_data.shape_keys.get(shape_key_name)
@@ -676,44 +717,6 @@ def calculate_joint_pair_head_pose_bone_rotations(
 def depsgraph_update_pre(_unused: object) -> None:
     context = bpy.context
     secondary_anim_state.reset(context)
-
-
-@persistent
-def frame_change_pre(_unused: object) -> None:
-    # Fixed the incorrect property group reference here.
-    Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.clear()
-    context = bpy.context
-    fps = Decimal(context.scene.render.fps)
-    fps_base = Decimal(context.scene.render.fps_base)
-    if (fps_base - secondary_anim_state.last_fps_base).copy_abs() > Decimal(
-        "0.00001"
-    ) or fps != secondary_anim_state.last_fps:
-        secondary_anim_state.reset(context)
-    if context.screen.is_animation_playing:  # type: ignore[attr-defined]
-        current_time = time.time()
-        if secondary_anim_state.last_time is None:
-            secondary_anim_state.last_time = current_time
-            delta_time = 1.0 / 30.0
-        else:
-            delta_time = current_time - secondary_anim_state.last_time
-            secondary_anim_state.last_time = current_time
-        update_secondary_animation_bone_rotations(context, delta_time)
-    else:
-        secondary_anim_state.frame_count += 1
-        frame_time = secondary_anim_state.frame_count * Decimal(60) * fps_base
-        while True:
-            next_update = (
-                secondary_anim_state.secondary_anim_60_fps_update_count + Decimal(1)
-            )
-            if next_update * fps > frame_time:
-                break
-            next_time = next_update / Decimal(60)
-            current_time_val = (
-                secondary_anim_state.secondary_anim_60_fps_update_count / Decimal(60)
-            )
-            delta_time = float(next_time - current_time_val)
-            update_secondary_animation_bone_rotations(context, delta_time)
-            secondary_anim_state.secondary_anim_60_fps_update_count = next_update
 
 
 # Modal Operator for secondary animation viewport modal update.
