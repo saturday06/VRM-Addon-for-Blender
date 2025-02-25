@@ -14,6 +14,7 @@ from ..common.gltf import (
     read_accessor_as_animation_sampler_input,
     read_accessor_as_animation_sampler_rotation_output,
     read_accessor_as_animation_sampler_translation_output,
+    read_accessor_as_animation_sampler_scale_output,
 )
 from ..common.logger import get_logger
 from ..common.rotation import (
@@ -296,6 +297,7 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
     node_index_to_rotation_keyframes: dict[
         int, tuple[tuple[float, Quaternion], ...]
     ] = {}
+    node_index_to_scale_keyframes: dict[int, tuple[tuple[float, Vector], ...]] = {}
 
     for animation_channel_dict in animation_channel_dicts:
         if not isinstance(animation_channel_dict, dict):
@@ -362,6 +364,19 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
                 continue
             rotation_keyframes = tuple(sorted(zip(timestamps, rotations)))
             node_index_to_rotation_keyframes[node_index] = rotation_keyframes
+        elif animation_path == "scale":
+            timestamps = read_accessor_as_animation_sampler_input(
+                input_accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
+            )
+            if timestamps is None:
+                continue
+            scales = read_accessor_as_animation_sampler_scale_output(
+                output_accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
+            )
+            if scales is None:
+                continue
+            scale_keyframes = tuple(sorted(zip(timestamps, scales)))
+            node_index_to_scale_keyframes[node_index] = scale_keyframes
 
     expression_name_to_default_preview_value: dict[str, float] = {}
     expression_name_to_translation_keyframes: dict[
@@ -398,6 +413,7 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
         for keyframes in itertools.chain(
             node_index_to_translation_keyframes.values(),
             node_index_to_rotation_keyframes.values(),
+            node_index_to_scale_keyframes.values(),
         )
         for (timestamp, _) in keyframes
     ]
@@ -478,6 +494,7 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
             node_index_to_bone_name,  # mapping for non-humanoid
             node_index_to_translation_keyframes,
             node_index_to_rotation_keyframes,
+            node_index_to_scale_keyframes,
             frame_count,
             timestamp,
             intermediate_rest_local_matrix=Matrix(),
@@ -598,6 +615,7 @@ def assign_humanoid_keyframe(
     node_index_to_bone_name: dict[int, str],
     node_index_to_translation_keyframes: dict[int, tuple[tuple[float, Vector], ...]],
     node_index_to_rotation_keyframes: dict[int, tuple[tuple[float, Quaternion], ...]],
+    node_index_to_scale_keyframes: dict[int, tuple[tuple[float, Vector], ...]],
     frame_count: int,
     timestamp: float,
     intermediate_rest_local_matrix: Matrix,
@@ -656,38 +674,46 @@ def assign_humanoid_keyframe(
     else:
         keyframe_rotation = node_rest_pose_tree.local_matrix.to_quaternion()
 
+    scale_keyframes = node_index_to_scale_keyframes.get(node_rest_pose_tree.node_index)
+    if scale_keyframes:
+        keyframe_scale = None
+        begin_timestamp, begin_scale = scale_keyframes[0]
+        for end_timestamp, end_scale in scale_keyframes:
+            if end_timestamp >= timestamp:
+                dt = end_timestamp - begin_timestamp
+                if dt > 0:
+                    keyframe_scale = begin_scale.lerp(
+                        end_scale, (timestamp - begin_timestamp) / dt
+                    )
+                else:
+                    keyframe_scale = begin_scale
+                break
+            begin_timestamp = end_timestamp
+            begin_scale = end_scale
+        if keyframe_scale is None:
+            keyframe_scale = begin_scale
+    else:
+        keyframe_scale = node_rest_pose_tree.local_matrix.to_scale()
+
     # -------------------------------------------------------------------
     # Convert imported animation values from export space to Blender space.
     # For humanoid nodes (except HIPS), no axis swap is needed.
-    if node_rest_pose_tree.node_index in human_node_indices:
-        if (
-            node_index_to_human_bone_name.get(node_rest_pose_tree.node_index)
-            != HumanBoneName.HIPS
-        ):
-            keyframe_translation = Vector(
-                (keyframe_translation.x, keyframe_translation.y, keyframe_translation.z)
-            )
-            keyframe_rotation = Quaternion(
-                (
-                    keyframe_rotation.w,
-                    keyframe_rotation.x,
-                    keyframe_rotation.y,
-                    keyframe_rotation.z,
-                )
-            )
-    else:
-        # NON-HUMANOID: apply an axis swap conversion.
+    if (
+        node_index_to_human_bone_name.get(node_rest_pose_tree.node_index)
+        != HumanBoneName.HIPS
+    ):
         keyframe_translation = Vector(
-            (keyframe_translation.x, -keyframe_translation.z, keyframe_translation.y)
+            (keyframe_translation.x, keyframe_translation.y, keyframe_translation.z)
         )
         keyframe_rotation = Quaternion(
             (
                 keyframe_rotation.w,
                 keyframe_rotation.x,
+                keyframe_rotation.y,
                 keyframe_rotation.z,
-                -keyframe_rotation.y,
             )
         )
+        keyframe_scale = Vector((keyframe_scale.x, keyframe_scale.y, keyframe_scale.z))
     # -------------------------------------------------------------------
 
     rest_world_matrix = (
@@ -696,7 +722,7 @@ def assign_humanoid_keyframe(
     pose_local_matrix = (
         Matrix.Translation(keyframe_translation)
         @ keyframe_rotation.to_matrix().to_4x4()
-        @ Matrix.Diagonal(node_rest_pose_tree.local_matrix.to_scale()).to_4x4()
+        @ Matrix.Diagonal(keyframe_scale).to_4x4()
     )
     pose_world_matrix = parent_node_rest_pose_world_matrix @ pose_local_matrix
 
@@ -720,12 +746,27 @@ def assign_humanoid_keyframe(
                 set_rotation_without_mode_change(bone, rest_to_pose_quat)
                 insert_rotation_keyframe(bone, frame=frame_count)
                 set_rotation_without_mode_change(bone, backup_rot)
-                if human_bone_name == HumanBoneName.HIPS and translation_keyframes:
+
+                # Handle translation for humanoid bones
+                if (
+                    human_bone_name == HumanBoneName.HIPS
+                    or scale_keyframes
+                    or translation_keyframes
+                ):
                     rest_to_pose_trans = rest_to_pose_matrix.to_translation()
                     backup_loc = bone.location.copy()
                     bone.location = rest_to_pose_trans
                     bone.keyframe_insert(data_path="location", frame=frame_count)
                     bone.location = backup_loc
+
+                # Handle scale for humanoid bones if scale keyframes exist
+                if scale_keyframes:
+                    rest_to_pose_scale = rest_to_pose_matrix.to_scale()
+                    backup_scale = bone.scale.copy()
+                    bone.scale = rest_to_pose_scale
+                    bone.keyframe_insert(data_path="scale", frame=frame_count)
+                    bone.scale = backup_scale
+
                 for child in node_rest_pose_tree.children:
                     assign_humanoid_keyframe(
                         armature,
@@ -734,6 +775,7 @@ def assign_humanoid_keyframe(
                         node_index_to_bone_name,
                         node_index_to_translation_keyframes,
                         node_index_to_rotation_keyframes,
+                        node_index_to_scale_keyframes,
                         frame_count,
                         timestamp,
                         intermediate_rest_local_matrix,
@@ -761,17 +803,22 @@ def assign_humanoid_keyframe(
                 set_rotation_without_mode_change(pb, rest_to_pose_quat)
                 insert_rotation_keyframe(pb, frame=frame_count)
                 set_rotation_without_mode_change(pb, backup_rot)
+
+                # Handle translation for non-humanoid bones if translation keyframes exist
                 if translation_keyframes:
                     rest_to_pose_trans = rest_to_pose_matrix.to_translation()
                     backup_loc = pb.location.copy()
                     pb.location = rest_to_pose_trans
                     pb.keyframe_insert(data_path="location", frame=frame_count)
                     pb.location = backup_loc
-                rest_to_pose_scale = rest_to_pose_matrix.to_scale()
-                backup_scale = pb.scale.copy()
-                pb.scale = rest_to_pose_scale
-                pb.keyframe_insert(data_path="scale", frame=frame_count)
-                pb.scale = backup_scale
+
+                # Handle scale for non-humanoid bones if scale keyframes exist
+                if scale_keyframes or scale_keyframes is not None:
+                    rest_to_pose_scale = rest_to_pose_matrix.to_scale()
+                    backup_scale = pb.scale.copy()
+                    pb.scale = rest_to_pose_scale
+                    pb.keyframe_insert(data_path="scale", frame=frame_count)
+                    pb.scale = backup_scale
 
     for child in node_rest_pose_tree.children:
         assign_humanoid_keyframe(
@@ -781,6 +828,7 @@ def assign_humanoid_keyframe(
             node_index_to_bone_name,
             node_index_to_translation_keyframes,
             node_index_to_rotation_keyframes,
+            node_index_to_scale_keyframes,
             frame_count,
             timestamp,
             intermediate_rest_local_matrix,

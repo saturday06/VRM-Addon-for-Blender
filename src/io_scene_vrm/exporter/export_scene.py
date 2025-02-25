@@ -401,7 +401,15 @@ class VRM_PT_export_vrma_help(Panel):
         return space_data.active_operator.bl_idname == "EXPORT_SCENE_OT_vrma"
 
     def draw(self, _context: Context) -> None:
-        draw_help_message(self.layout)
+        layout = self.layout
+        draw_help_message(layout)
+        op = _context.space_data.active_operator
+        if hasattr(op, "export_non_humanoid_tracks"):
+            box = layout.box()
+            box.label(text="Additional Export Options", icon="OPTIONS")
+            box.prop(op, "export_non_humanoid_tracks")
+            box.prop(op, "export_translation_tracks")
+            box.prop(op, "export_scale_tracks")
 
 
 def menu_export(menu_op: Operator, _context: Context) -> None:
@@ -434,6 +442,25 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
         options={"HIDDEN"},
     )
 
+    # New property for non-humanoid tracks export
+    export_non_humanoid_tracks: BoolProperty(  # type: ignore[valid-type]
+        name="include non-humanoid tracks? (rotation only)",
+        description="(Warning: scale and translation tracks are not supported by the VRMA standard and some apps will have errors if you include these tracks).",
+        default=False,
+    )
+    # New property for including translation tracks (for bones other than hips)
+    export_translation_tracks: BoolProperty(  # type: ignore[valid-type]
+        name="Include translation tracks for all bones? (humanoid + non-humanoid)",
+        description="Include translation tracks for all bones (hips always export translation as required).",
+        default=False,
+    )
+    # New property for including scale tracks
+    export_scale_tracks: BoolProperty(  # type: ignore[valid-type]
+        name="Include scale tracks for all bones? (humanoid + non-humanoid)",
+        description="Include scale tracks for all bones.",
+        default=False,
+    )
+
     def execute(self, context: Context) -> set[str]:
         if WM_OT_vrma_export_prerequisite.detect_errors(
             context, self.armature_object_name
@@ -447,7 +474,14 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
             armature = context.blend_data.objects.get(self.armature_object_name)
         if not armature:
             return {"CANCELLED"}
-        return VrmAnimationExporter.execute(context, Path(self.filepath), armature)
+        return VrmAnimationExporter.execute(
+            context,
+            Path(self.filepath),
+            armature,
+            include_non_humanoid_tracks=self.export_non_humanoid_tracks,
+            include_translation_tracks=self.export_translation_tracks,
+            include_scale_tracks=self.export_scale_tracks,
+        )
 
     def invoke(self, context: Context, event: Event) -> set[str]:
         if WM_OT_vrma_export_prerequisite.detect_errors(
@@ -467,6 +501,9 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
         # To regenerate, run the `uv run tools/property_typing.py` command.
         filter_glob: str  # type: ignore[no-redef]
         armature_object_name: str  # type: ignore[no-redef]
+        export_non_humanoid_tracks: bool  # type: ignore[no-redef]
+        export_translation_tracks: bool  # type: ignore[no-redef]
+        export_scale_tracks: bool  # type: ignore[no-redef]
 
 
 class WM_OT_vrm_export_human_bones_assignment(Operator):
@@ -759,6 +796,21 @@ class WM_OT_vrma_export_prerequisite(Operator):
         type=StringPropertyGroup,
         options={"HIDDEN"},
     )
+    export_non_humanoid_tracks: BoolProperty(  # type: ignore[valid-type]
+        name="Include non-humanoid tracks with translation and scale?",
+        description="(Warning: scale and translation tracks are not supported by the VRMA standard and some apps will have errors if you include these tracks).",
+        default=False,
+    )
+    export_translation_tracks: BoolProperty(  # type: ignore[valid-type]
+        name="Include translation tracks for all bones?",
+        description="Include translation tracks for all bones (hips always export translation).",
+        default=False,
+    )
+    export_scale_tracks: BoolProperty(  # type: ignore[valid-type]
+        name="Include scale tracks for all bones?",
+        description="Include scale tracks for all bones.",
+        default=False,
+    )
 
     @staticmethod
     def detect_errors(context: Context, armature_object_name: str) -> list[str]:
@@ -790,7 +842,11 @@ class WM_OT_vrma_export_prerequisite(Operator):
 
     def execute(self, _context: Context) -> set[str]:
         return ops.export_scene.vrma(
-            "INVOKE_DEFAULT", armature_object_name=self.armature_object_name
+            "INVOKE_DEFAULT",
+            armature_object_name=self.armature_object_name,
+            export_non_humanoid_tracks=self.export_non_humanoid_tracks,
+            export_translation_tracks=self.export_translation_tracks,
+            export_scale_tracks=self.export_scale_tracks,
         )
 
     def invoke(self, context: Context, _event: Event) -> set[str]:
@@ -847,15 +903,21 @@ class WM_OT_vrma_export_prerequisite(Operator):
                             self.layout, armature
                         )
 
-        draw_help_message(layout)
+        # draw_help_message(layout)
+
+        # Draw the additional export options beneath the help panel.
+        # box = layout.box()
+        # box.label(text="Additional Export Options", icon="OPTIONS")
+        # box.prop(self, "export_non_humanoid_tracks")
+        # box.prop(self, "export_translation_tracks")
+        # box.prop(self, "export_scale_tracks")
 
     if TYPE_CHECKING:
-        # This code is auto generated.
-        # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_object_name_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            StringPropertyGroup
-        ]
+        armature_object_name_candidates: CollectionPropertyProtocol[StringPropertyGroup]
+        export_non_humanoid_tracks: bool  # type: ignore[no-redef]
+        export_translation_tracks: bool  # type: ignore[no-redef]
+        export_scale_tracks: bool  # type: ignore[no-redef]
 
 
 def draw_help_message(layout: UILayout) -> None:
