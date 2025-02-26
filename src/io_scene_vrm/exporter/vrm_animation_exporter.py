@@ -933,7 +933,7 @@ def create_node_animation(
             continue
 
         bone = armature.pose.bones.get(bone_name)
-        if not bone:
+        if bone is None:
             continue
 
         node_index = bone_name_to_node_index.get(bone_name)
