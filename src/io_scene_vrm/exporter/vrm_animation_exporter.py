@@ -34,6 +34,7 @@ class VrmAnimationExporter:
         context: Context,
         path: Path,
         armature: Object,
+        *,
         include_non_humanoid_tracks: bool = False,
         include_translation_tracks: bool = False,
         include_scale_tracks: bool = False,
@@ -141,6 +142,7 @@ def create_node_dicts(
 def export_vrm_animation(
     context: Context,
     armature: Object,
+    *,
     include_non_humanoid_tracks: bool = False,
     include_translation_tracks: bool = False,
     include_scale_tracks: bool = False,
@@ -766,8 +768,8 @@ def create_node_animation(
     include_non_humanoid_tracks: bool = False,
     include_translation_tracks: bool = False,
     include_scale_tracks: bool = False,
-    human_bone_names: list[str] = None,
-    hips_bone_name: str = None,
+    human_bone_names: Optional[list[str]] = None,
+    hips_bone_name: Optional[str] = None,
 ) -> None:
     human_bones = vrm1.humanoid.human_bones
     human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
@@ -803,7 +805,7 @@ def create_node_animation(
         bone, property_name = bone_and_property_name
 
         # Skip non-humanoid bones if flag is not set
-        is_humanoid = bone.name in human_bone_names
+        is_humanoid = bone.name in (human_bone_names or [])
         if not is_humanoid and not include_non_humanoid_tracks:
             continue
 
@@ -917,14 +919,14 @@ def create_node_animation(
         ]
 
     # Get all bone names that have any animation data
-    all_animated_bone_names = set()
+    all_animated_bone_names: set[str] = set()
     all_animated_bone_names.update(bone_name_to_quaternions.keys())
     all_animated_bone_names.update(bone_name_to_location_offsets.keys())
     all_animated_bone_names.update(bone_name_to_scale_offsets.keys())
 
     # Process each bone, grouping rotation, translation, and scale tracks together
     for bone_name in all_animated_bone_names:
-        is_humanoid = bone_name in human_bone_names
+        is_humanoid = bone_name in (human_bone_names or [])
 
         # Skip non-humanoid bones if flag is not set
         if not is_humanoid and not include_non_humanoid_tracks:

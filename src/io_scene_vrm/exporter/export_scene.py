@@ -445,13 +445,19 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
     # New property for non-humanoid tracks export
     export_non_humanoid_tracks: BoolProperty(  # type: ignore[valid-type]
         name="include non-humanoid tracks? (rotation only)",
-        description="(Warning: scale and translation tracks are not supported by the VRMA standard and some apps will have errors if you include these tracks).",
+        description=(
+            "Warning: scale and translation tracks are not supported by the VRMA "
+            "standard and some apps will have errors if you include these tracks."
+        ),
         default=False,
     )
     # New property for including translation tracks (for bones other than hips)
     export_translation_tracks: BoolProperty(  # type: ignore[valid-type]
         name="Include translation tracks for all bones? (humanoid + non-humanoid)",
-        description="Include translation tracks for all bones (hips always export translation as required).",
+        description=(
+            "Include translation tracks for all bones (hips always export translation"
+            " as required)."
+        ),
         default=False,
     )
     # New property for including scale tracks
@@ -798,12 +804,18 @@ class WM_OT_vrma_export_prerequisite(Operator):
     )
     export_non_humanoid_tracks: BoolProperty(  # type: ignore[valid-type]
         name="Include non-humanoid tracks with translation and scale?",
-        description="(Warning: scale and translation tracks are not supported by the VRMA standard and some apps will have errors if you include these tracks).",
+        description=(
+            "(Warning: scale and translation tracks are not supported by the "
+            "VRMA standard and some apps will have errors if you include "
+            "these tracks)."
+        ),
         default=False,
     )
     export_translation_tracks: BoolProperty(  # type: ignore[valid-type]
         name="Include translation tracks for all bones?",
-        description="Include translation tracks for all bones (hips always export translation).",
+        description=(
+            "Include translation tracks for all bones (hips always export translation)."
+        ),
         default=False,
     )
     export_scale_tracks: BoolProperty(  # type: ignore[valid-type]

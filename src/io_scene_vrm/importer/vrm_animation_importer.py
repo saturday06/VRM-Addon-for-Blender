@@ -13,8 +13,8 @@ from ..common.gltf import (
     parse_glb,
     read_accessor_as_animation_sampler_input,
     read_accessor_as_animation_sampler_rotation_output,
-    read_accessor_as_animation_sampler_translation_output,
     read_accessor_as_animation_sampler_scale_output,
+    read_accessor_as_animation_sampler_translation_output,
 )
 from ..common.logger import get_logger
 from ..common.rotation import (
@@ -804,7 +804,8 @@ def assign_humanoid_keyframe(
                 insert_rotation_keyframe(pb, frame=frame_count)
                 set_rotation_without_mode_change(pb, backup_rot)
 
-                # Handle translation for non-humanoid bones if translation keyframes exist
+                # Handle translation for non-humanoid bones
+                # if translation keyframes exist
                 if translation_keyframes:
                     rest_to_pose_trans = rest_to_pose_matrix.to_translation()
                     backup_loc = pb.location.copy()
