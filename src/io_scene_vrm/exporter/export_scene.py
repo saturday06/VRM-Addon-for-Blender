@@ -403,13 +403,17 @@ class VRM_PT_export_vrma_help(Panel):
     def draw(self, _context: Context) -> None:
         layout = self.layout
         draw_help_message(layout)
-        op = _context.space_data.active_operator
-        if hasattr(op, "export_non_humanoid_tracks"):
-            box = layout.box()
-            box.label(text="Additional Export Options", icon="OPTIONS")
-            box.prop(op, "export_non_humanoid_tracks")
-            box.prop(op, "export_translation_tracks")
-            box.prop(op, "export_scale_tracks")
+        if not isinstance(_context.space_data, SpaceFileBrowser):
+            return
+        space_data = _context.space_data
+        if space_data.active_operator:
+            op = space_data.active_operator
+            if hasattr(op, "export_non_humanoid_tracks"):
+                box = layout.box()
+                box.label(text="Additional Export Options", icon="OPTIONS")
+                box.prop(op, "export_non_humanoid_tracks")
+                box.prop(op, "export_translation_tracks")
+                box.prop(op, "export_scale_tracks")
 
 
 def menu_export(menu_op: Operator, _context: Context) -> None:
@@ -926,7 +930,7 @@ class WM_OT_vrma_export_prerequisite(Operator):
 
     if TYPE_CHECKING:
         armature_object_name: str  # type: ignore[no-redef]
-        armature_object_name_candidates: CollectionPropertyProtocol[StringPropertyGroup]
+        armature_object_name_candidates: CollectionPropertyProtocol[StringPropertyGroup]  # type: ignore[no-redef]
         export_non_humanoid_tracks: bool  # type: ignore[no-redef]
         export_translation_tracks: bool  # type: ignore[no-redef]
         export_scale_tracks: bool  # type: ignore[no-redef]
