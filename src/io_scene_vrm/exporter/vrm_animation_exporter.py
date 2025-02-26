@@ -959,15 +959,26 @@ def create_node_animation(
         # Process rotation animation for this bone
         quaternions = bone_name_to_quaternions.get(bone_name)
         if quaternions and not is_eye_bone:
-            gltf_quaternions = [
-                (
-                    quaternion.x,
-                    quaternion.z,
-                    -quaternion.y,
-                    quaternion.w,
-                )
-                for quaternion in quaternions
-            ]
+            if human_bone_name is None:
+                gltf_quaternions = [
+                    (
+                        quaternion.x,
+                        quaternion.y,
+                        quaternion.z,
+                        quaternion.w,
+                    )
+                    for quaternion in quaternions
+                ]
+            else:
+                gltf_quaternions = [
+                    (
+                        quaternion.x,
+                        quaternion.z,
+                        -quaternion.y,
+                        quaternion.w,
+                    )
+                    for quaternion in quaternions
+                ]
 
             input_byte_offset = len(buffer0_bytearray)
             input_floats = [
@@ -1091,7 +1102,10 @@ def create_node_animation(
                 buffer_view_dicts.append(input_buffer_view_dict)
 
                 output_byte_offset = len(buffer0_bytearray)
-                gltf_translations = [(t.x, t.z, -t.y) for t in bone_translations]
+                if human_bone_name is None:
+                    gltf_translations = [(t.x, t.y, t.z) for t in bone_translations]
+                else:
+                    gltf_translations = [(t.x, t.z, -t.y) for t in bone_translations]
                 translation_floats = list(itertools.chain(*gltf_translations))
                 translation_bytes = struct.pack(
                     "<" + "f" * len(translation_floats), *translation_floats
@@ -1175,9 +1189,12 @@ def create_node_animation(
                 buffer_view_dicts.append(input_buffer_view_dict)
 
                 output_byte_offset = len(buffer0_bytearray)
-                gltf_scales = [
-                    (s.x, s.z, s.y) for s in scales
-                ]  # Note VRM coordinate change
+                if human_bone_name is None:
+                    gltf_scales = [(s.x, s.y, s.z) for s in scales]
+                else:
+                    gltf_scales = [
+                        (s.x, s.z, s.y) for s in scales
+                    ]  # Note VRM coordinate change
                 scale_floats = list(itertools.chain(*gltf_scales))
                 scale_bytes = struct.pack("<" + "f" * len(scale_floats), *scale_floats)
                 buffer0_bytearray.extend(scale_bytes)

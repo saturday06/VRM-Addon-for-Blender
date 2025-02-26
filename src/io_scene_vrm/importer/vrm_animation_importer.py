@@ -698,22 +698,44 @@ def assign_humanoid_keyframe(
     # -------------------------------------------------------------------
     # Convert imported animation values from export space to Blender space.
     # For humanoid nodes (except HIPS), no axis swap is needed.
-    if (
-        node_index_to_human_bone_name.get(node_rest_pose_tree.node_index)
-        != HumanBoneName.HIPS
-    ):
+    if node_rest_pose_tree.node_index in human_node_indices:
+        # Humanoid nodes
+        if (
+            node_index_to_human_bone_name.get(node_rest_pose_tree.node_index)
+            != HumanBoneName.HIPS
+        ):
+            keyframe_translation = Vector(
+                (keyframe_translation.x, keyframe_translation.y, keyframe_translation.z)
+            )
+            keyframe_rotation = Quaternion(
+                (
+                    keyframe_rotation.w,
+                    keyframe_rotation.x,
+                    keyframe_rotation.y,
+                    keyframe_rotation.z,
+                )
+            )
+            keyframe_scale = Vector(
+                (keyframe_scale.x, keyframe_scale.y, keyframe_scale.z)
+            )
+    else:
+        # Non-humanoid nodes need to swap axes to x, -z, y
         keyframe_translation = Vector(
-            (keyframe_translation.x, keyframe_translation.y, keyframe_translation.z)
+            (
+                keyframe_translation.x,
+                keyframe_translation.z,
+                -keyframe_translation.y,
+            )
         )
         keyframe_rotation = Quaternion(
             (
                 keyframe_rotation.w,
                 keyframe_rotation.x,
-                keyframe_rotation.y,
                 keyframe_rotation.z,
+                -keyframe_rotation.y,
             )
         )
-        keyframe_scale = Vector((keyframe_scale.x, keyframe_scale.y, keyframe_scale.z))
+        keyframe_scale = Vector((keyframe_scale.x, keyframe_scale.z, keyframe_scale.y))
     # -------------------------------------------------------------------
 
     rest_world_matrix = (
