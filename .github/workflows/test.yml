@@ -235,7 +235,7 @@ jobs:
             rm "$failure_vrm_path"
           done
       - name: Super-Linter
-        uses: super-linter/super-linter@v7.2.1
+        uses: super-linter/super-linter@v7.3.0
         env:
           LINTER_RULES_PATH: /
           FILTER_REGEX_EXCLUDE: ^/github/workspace/CHANGELOG\.md$ # CHANGELOG.mdはrelease-pleaseによる自動生成ファイル
