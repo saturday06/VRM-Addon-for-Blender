@@ -173,7 +173,7 @@ dev = [
     { name = "ruff", specifier = "==0.9.8" },
     { name = "starry-bpy-typings", directory = "typings" },
     { name = "tqdm", specifier = "==4.67.1" },
-    { name = "types-tqdm", specifier = "==4.67.0.20241221" },
+    { name = "types-tqdm", specifier = "==4.67.0.20250228" },
 ]
 
 [[package]]
@@ -315,14 +315,14 @@ wheels = [
 
 [[package]]
 name = "types-tqdm"
-version = "4.67.0.20241221"
+version = "4.67.0.20250228"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "types-requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0d/4f/70760ecc463f3383826666837f28d6e328ff28749fea7fd250f04c861708/types_tqdm-4.67.0.20241221.tar.gz", hash = "sha256:e56046631056922385abe89aeb18af5611f471eadd7918a0ad7f34d84cd4c8cc", size = 16858 }
+sdist = { url = "https://files.pythonhosted.org/packages/c2/24/add06c64e3b89d6ad88a873bb0b19955ff3fcd9279a583edaceb1711977a/types_tqdm-4.67.0.20250228.tar.gz", hash = "sha256:3b208545e8ece0ba13c30ad1ca1bede793c6493a11bd50ec7c684a3afb2546ec", size = 17024 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e5/e9/9832ef6d017d12b6b4740d7c4dd4eab31867c92ab2c95331d5cb4632fb22/types_tqdm-4.67.0.20241221-py3-none-any.whl", hash = "sha256:a1f1c9cda5c2d8482d2c73957a5398bfdedda10f6bc7b3b4e812d5c910486d29", size = 24098 },
+    { url = "https://files.pythonhosted.org/packages/53/24/0fbcf64102fb78d31e067905d3767d39e952d6a363ccc7872757347a820b/types_tqdm-4.67.0.20250228-py3-none-any.whl", hash = "sha256:64f204fa2a04bbd493e67d557121aa625fcf20c34a8e8e445c30632589b35e48", size = 24179 },
 ]
 
 [[package]]

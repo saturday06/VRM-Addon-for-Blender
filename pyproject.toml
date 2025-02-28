@@ -24,7 +24,7 @@ dev-dependencies = [
     "ruff ==0.9.8",
     "starry-bpy-typings",
     "tqdm ==4.67.1",
-    "types-tqdm ==4.67.0.20241221",
+    "types-tqdm ==4.67.0.20250228",
 ]
 
 [tool.uv.sources]
