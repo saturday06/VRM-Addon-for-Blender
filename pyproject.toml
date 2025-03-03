@@ -19,7 +19,7 @@ dependencies = [
 [tool.uv]
 dev-dependencies = [
     "codespell ==2.4.1",
-    "dulwich ==0.22.7",
+    "dulwich ==0.22.8",
     "mypy ==1.15.0",
     "ruff ==0.9.9",
     "starry-bpy-typings",
