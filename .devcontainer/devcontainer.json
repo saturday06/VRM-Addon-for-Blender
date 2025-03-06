@@ -12,6 +12,7 @@
   },
   "workspaceFolder": "/workspace",
   "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/workspace,consistency=cached",
+  "otherPortsAttributes": { "onAutoForward": "ignore" },
   "mounts": [
     // ホスト側との共有から除外するフォルダを設定
     // https://github.com/microsoft/vscode-remote-release/issues/620#issuecomment-1086709509
