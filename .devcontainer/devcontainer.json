@@ -32,6 +32,7 @@
         "EditorConfig.EditorConfig",
         "cesium.gltf-vscode",
         "charliermarsh.ruff",
+        "esbenp.prettier-vscode",
         "ms-azuretools.vscode-docker",
         "ms-python.python",
         "ms-python.vscode-pylance",
