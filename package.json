@@ -9,7 +9,7 @@
     "vitepress": "^1.5.0"
   },
   "scripts": {
-    "docs:dev": "vitepress dev docs",
+    "docs:dev": "vitepress dev docs --host 127.0.0.1 --port 5173 --strictPort",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
   }

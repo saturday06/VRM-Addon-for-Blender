@@ -12,6 +12,12 @@
   },
   "workspaceFolder": "/workspace",
   "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/workspace,consistency=cached",
+  "portsAttributes": {
+    "5173": {
+      "label": "vitepress dev docs",
+      "onAutoForward": "openPreview"
+    }
+  },
   "otherPortsAttributes": { "onAutoForward": "ignore" },
   "mounts": [
     // ホスト側との共有から除外するフォルダを設定
