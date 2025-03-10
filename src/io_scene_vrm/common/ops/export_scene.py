@@ -55,6 +55,9 @@ def vrma(
     armature_object_name: str = "",
     filepath: str = "",
     check_existing: bool = True,
+    export_non_humanoid_tracks: bool = False,
+    export_translation_tracks: bool = False,
+    export_scale_tracks: bool = False,
 ) -> set[str]:
     return bpy.ops.export_scene.vrma(  # type: ignore[attr-defined, no-any-return]
         execution_context,
@@ -62,4 +65,7 @@ def vrma(
         armature_object_name=armature_object_name,
         filepath=filepath,
         check_existing=check_existing,
+        export_non_humanoid_tracks=export_non_humanoid_tracks,
+        export_translation_tracks=export_translation_tracks,
+        export_scale_tracks=export_scale_tracks,
     )
