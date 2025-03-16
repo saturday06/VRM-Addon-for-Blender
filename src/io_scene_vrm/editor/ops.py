@@ -352,7 +352,7 @@ def layout_operator(
             f"{type(operator)} is not compatible with {operator_type}."
             + f"the expected name is {name}"
         )
-    return cast(__Operator, operator)
+    return cast("__Operator", operator)
 
 
 class VRM_OT_make_estimated_humanoid_t_pose(Operator):
