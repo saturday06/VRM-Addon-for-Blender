@@ -456,8 +456,8 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         centimeter_to_meter = 0.01
         one_hundredth = 0.01
 
-        outline_width_mode = int(
-            round(material_property.float_properties.get("_OutlineWidthMode", 0))
+        outline_width_mode = round(
+            material_property.float_properties.get("_OutlineWidthMode", 0)
         )
 
         outline_width = material_property.float_properties.get("_OutlineWidth")

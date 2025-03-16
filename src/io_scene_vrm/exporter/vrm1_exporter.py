@@ -1730,7 +1730,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         outline_width_mode = shader.get_float_value(node, "OutlineWidthMode")
         if outline_width_mode is not None:
-            outline_width_mode = int(round(outline_width_mode))
+            outline_width_mode = round(outline_width_mode)
         else:
             outline_width_mode = 0
 
@@ -1772,7 +1772,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         outline_color_mode = shader.get_float_value(node, "OutlineColorMode")
         if outline_color_mode is not None:
-            outline_color_mode = int(round(outline_color_mode))
+            outline_color_mode = round(outline_color_mode)
         else:
             outline_color_mode = 0
 

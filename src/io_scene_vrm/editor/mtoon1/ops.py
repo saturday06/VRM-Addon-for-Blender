@@ -336,7 +336,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
 
         outline_color_mode = shader.get_float_value(node, "OutlineColorMode")
         if outline_color_mode is not None:
-            outline_color_mode = int(round(outline_color_mode))
+            outline_color_mode = round(outline_color_mode)
         else:
             outline_color_mode = 0
 
@@ -442,7 +442,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
         ).enable_mtoon_outline_preview
 
         if outline_width_mode_float is not None:
-            outline_width_mode = int(round(outline_width_mode_float))
+            outline_width_mode = round(outline_width_mode_float)
         else:
             outline_width_mode = 0
 

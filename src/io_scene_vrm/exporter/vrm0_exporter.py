@@ -1485,7 +1485,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             float_properties["_Cutoff"] = alpha_cutoff
 
         outline_width_mode = max(
-            0, min(2, int(round(shader.get_float_value_or(node, "OutlineWidthMode"))))
+            0, min(2, round(shader.get_float_value_or(node, "OutlineWidthMode")))
         )
         float_properties["_OutlineWidthMode"] = outline_width_mode
         if outline_width_mode == 1:
@@ -1494,7 +1494,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             keyword_map["MTOON_OUTLINE_WIDTH_SCREEN"] = True
 
         outline_color_mode = max(
-            0, min(2, int(round(shader.get_float_value_or(node, "OutlineColorMode"))))
+            0, min(2, round(shader.get_float_value_or(node, "OutlineColorMode")))
         )
         float_properties["_OutlineColorMode"] = outline_color_mode
         if outline_width_mode > 0:
