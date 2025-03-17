@@ -5,12 +5,14 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import bpy
+import mathutils
 from bpy.app.translations import pgettext
 from bpy.props import BoolProperty, CollectionProperty, StringProperty
 from bpy.types import (
     Armature,
     Context,
     Event,
+    Object,
     Operator,
     Panel,
     PropertyGroup,
@@ -58,6 +60,146 @@ def import_vrm_update_addon_preferences(
 ) -> None:
     if import_op.use_addon_preferences:
         copy_import_preferences(source=import_op, destination=get_preferences(context))
+
+
+def process_imported_armature(context: Context, armature_obj: Object) -> None:
+    """
+    Post-processing for imported armature:
+    1. Apply space transform on non-humanoid bones
+    2. Disconnect non-humanoid bones from parents
+    3. Remove duplicate bones with "vrmaProxyBone" suffix and fix weight groups.
+    """
+    if not armature_obj or armature_obj.type != "ARMATURE":
+        logger.error("No armature object found for post-processing")
+        return
+
+    armature_data = armature_obj.data
+    if not isinstance(armature_data, Armature):
+        logger.error("Invalid armature data for post-processing")
+        return
+
+    # Check if it's a VRM1 armature
+    ext = get_armature_extension(armature_data)
+    if not ext.is_vrm1():
+        logger.info("Not a VRM1 armature, skipping bone post-processing")
+        return
+
+    # Get all humanoid bones
+    human_bones_set = set()
+    if (
+        hasattr(ext, "vrm1")
+        and hasattr(ext.vrm1, "humanoid")
+        and hasattr(ext.vrm1.humanoid, "human_bones")
+    ):
+        for (
+            human_bone
+        ) in ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone().values():
+            if human_bone.node and human_bone.node.bone_name:
+                human_bones_set.add(human_bone.node.bone_name)
+
+    # Find all bones with vrmaProxyBone suffix and their corresponding weight groups
+    duplicate_bones: dict[str, str] = {}  # original name -> duplicated name
+    weight_groups_to_rename: dict[str, str] = {}  # old name -> new name
+
+    # First collect all bones with vrmaProxyBone suffix
+    for bone in armature_data.bones:
+        if bone.name.endswith("vrmaProxyBone"):
+            original_name = bone.name[
+                :-12
+            ]  # Remove "vrmaProxyBone" suffix (12 characters)
+            duplicate_bones[original_name] = bone.name
+
+    # Convert the armature to Edit mode for bone manipulations
+    bpy.ops.object.mode_set(mode="OBJECT")
+    context.view_layer.objects.active = armature_obj
+    bpy.ops.object.mode_set(mode="EDIT")
+
+    # Collect all mesh objects using this armature
+    affected_mesh_objects = []
+    for obj in context.blend_data.objects:
+        if obj.type == "MESH" and obj.parent == armature_obj:
+            affected_mesh_objects.append(obj)
+        elif obj.type == "MESH":
+            for modifier in obj.modifiers:
+                if modifier.type == "ARMATURE" and modifier.object == armature_obj:
+                    affected_mesh_objects.append(obj)
+
+    # Collect vertex groups to rename
+    for mesh_obj in affected_mesh_objects:
+        for vg in mesh_obj.vertex_groups:
+            if vg.name.endswith("vrmaProxyBone"):
+                original_name = vg.name[:-12]
+                weight_groups_to_rename[vg.name] = original_name
+
+    # Process the edit bones
+    edit_bones = armature_data.edit_bones
+    non_humanoid_duplicate_bones = []
+
+    for bone_name in duplicate_bones.values():
+        if bone_name in edit_bones:
+            non_humanoid_duplicate_bones.append(bone_name)
+
+    # Apply the transform to non-humanoid bones and disconnect them
+    for bone in edit_bones:
+        # Skip humanoid bones for transform and disconnection
+        if bone.name in human_bones_set:
+            continue
+
+        # Apply space transform (x, -z, y) for non-humanoid bones
+        # Create transform matrix: x, -z, y axes swapping
+        mathutils.Matrix(((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 0), (0, 0, 0, 1)))
+
+        # Skip bones that are going to be deleted (duplicates with vrmaProxyBone suffix)
+        if bone.name not in non_humanoid_duplicate_bones:
+            # Disconnect non-humanoid bones from parents
+            bone.use_connect = False
+
+    # Exit edit mode to save bone changes
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+    # Rename vertex groups to remove vrmaProxyBone suffix
+    for mesh_obj in affected_mesh_objects:
+        for old_name, new_name in weight_groups_to_rename.items():
+            if old_name in mesh_obj.vertex_groups:
+                vg = mesh_obj.vertex_groups.get(old_name)
+                # Check if target group already exists
+                target_group = mesh_obj.vertex_groups.get(new_name)
+                if target_group:
+                    # Need to transfer weights and then remove the group
+                    # Store vertices and weights from old group
+                    vertices_weights = []
+                    for i in range(len(mesh_obj.data.vertices)):
+                        try:
+                            weight = vg.weight(i)
+                            vertices_weights.append((i, weight))
+                        except RuntimeError:
+                            # Vertex doesn't have weight in this group
+                            pass
+
+                    # Add weights to target group
+                    for vertex_idx, weight in vertices_weights:
+                        target_group.add([vertex_idx], weight, "ADD")
+
+                    # Remove old group
+                    mesh_obj.vertex_groups.remove(vg)
+                else:
+                    # Just rename the group
+                    vg.name = new_name
+
+    # Remove duplicate bones
+    bpy.ops.object.mode_set(mode="EDIT")
+    for bone_name in non_humanoid_duplicate_bones:
+        if bone_name in edit_bones:
+            edit_bone = edit_bones.get(bone_name)
+            if edit_bone:
+                edit_bones.remove(edit_bone)
+
+    # Exit edit mode after all operations
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+    logger.info(
+        f"Post-processed imported armature: disconnected non-humanoid bones and removed {len(non_humanoid_duplicate_bones)} duplicate bones"
+    )
 
 
 class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
@@ -127,14 +269,23 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
 
         license_error = None
         try:
-            return import_vrm(
+            result = import_vrm(
                 filepath,
                 self,
                 context,
                 license_validation=True,
             )
+
+            # Get the imported armature
+            armature_obj = search.current_armature(context)
+            if armature_obj:
+                process_imported_armature(context, armature_obj)
+
         except LicenseConfirmationRequiredError as e:
             license_error = e  # Prevent traceback dump on another exception
+
+        else:
+            return result
 
         logger.warning(license_error.description())
 
@@ -265,12 +416,20 @@ class WM_OT_vrm_license_confirmation(Operator):
             return {"CANCELLED"}
         if not self.import_anyway:
             return {"CANCELLED"}
-        return import_vrm(
+
+        result = import_vrm(
             filepath,
             self,
             context,
             license_validation=False,
         )
+
+        # Get the imported armature
+        armature_obj = search.current_armature(context)
+        if armature_obj:
+            process_imported_armature(context, armature_obj)
+
+        return result
 
     def invoke(self, context: Context, _event: Event) -> set[str]:
         return context.window_manager.invoke_props_dialog(self, width=600)

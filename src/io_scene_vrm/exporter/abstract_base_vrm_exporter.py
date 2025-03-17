@@ -26,10 +26,13 @@ class AbstractBaseVrmExporter(ABC):
         context: Context,
         export_objects: Sequence[Object],
         armature: Object,
+        *,
+        preserve_end_bones: Optional[set[Object]] = None,
     ) -> None:
         self.context = context
         self.export_objects = export_objects
         self.armature = armature
+        self.preserve_end_bones = preserve_end_bones or set[Object]()
         self.export_id = "BlenderVrmAddonExport" + (
             "".join(secrets.choice(string.digits) for _ in range(10))
         )
