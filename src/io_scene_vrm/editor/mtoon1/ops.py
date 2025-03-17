@@ -919,6 +919,9 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
             uv_layer_name = "UVMap"
 
         has_auto_smooth = tuple(bpy.app.version) < (4, 1)
+        outline_width_multiply_texture_uv_use_attribute = (
+            True if tuple(bpy.app.version) >= (4, 2) else 1
+        )
         for k, v in [
             (input_key.material_key, material),
             (input_key.outline_material_key, outline_material),
@@ -932,7 +935,10 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
                 input_key.outline_width_multiply_texture_exists_key,
                 bool(mtoon.outline_width_multiply_texture.index.source),
             ),
-            (input_key.outline_width_multiply_texture_uv_use_attribute_key(), 1),
+            (
+                input_key.outline_width_multiply_texture_uv_use_attribute_key(),
+                outline_width_multiply_texture_uv_use_attribute,
+            ),
             (
                 input_key.outline_width_multiply_texture_uv_attribute_name_key(),
                 uv_layer_name,
