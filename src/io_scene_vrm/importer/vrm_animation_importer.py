@@ -24,7 +24,11 @@ from ..common.rotation import (
 )
 from ..common.vrm1.human_bone import HumanBoneName
 from ..common.workspace import save_workspace
-from ..editor.extension import get_armature_extension
+from ..editor.extension import (
+    get_armature_extension,
+    VrmAddonBoneExtensionPropertyGroup as BoneExtension,
+    get_bone_extension,
+)
 from ..editor.t_pose import setup_humanoid_t_pose
 
 logger = get_logger(__name__)
@@ -695,48 +699,139 @@ def assign_humanoid_keyframe(
     else:
         keyframe_scale = node_rest_pose_tree.local_matrix.to_scale()
 
-    # -------------------------------------------------------------------
-    # Convert imported animation values from export space to Blender space.
-    # For humanoid nodes (except HIPS), no axis swap is needed.
+    # Ensure keyframe_scale is valid
+    if not isinstance(keyframe_scale, Vector) or len(keyframe_scale) != 3:
+        keyframe_scale = Vector((1.0, 1.0, 1.0))
+    else:
+        # Validate each component
+        for i in range(3):
+            if math.isnan(keyframe_scale[i]) or keyframe_scale[i] == 0.0:
+                keyframe_scale[i] = 1.0
+
+    # Apply axis transformations based on whether the bone is humanoid or not
+    human_bone_name = node_index_to_human_bone_name.get(node_rest_pose_tree.node_index)
+
     if node_rest_pose_tree.node_index in human_node_indices:
-        # Humanoid nodes
-        if (
-            node_index_to_human_bone_name.get(node_rest_pose_tree.node_index)
-            != HumanBoneName.HIPS
-        ):
+        # Humanoid nodes (except HIPS) need no axis swap
+        if human_bone_name != HumanBoneName.HIPS:
+            # Keep as is
+            pass
+        else:
+            # HIPS needs special handling but we keep existing logic
+            pass
+    else:
+        # For non-humanoid bones, we need to consider the bone's specific axis transformation
+        bone_name = node_index_to_bone_name.get(node_rest_pose_tree.node_index)
+        if bone_name:
+            bone = armature_data.bones.get(bone_name)
+            if bone:
+                # Get the bone's stored axis transformation from VRM import
+                from ..editor.extension import get_bone_extension
+
+                axis_translation = get_bone_extension(bone).axis_translation
+
+                # If the bone has a specific axis translation stored from VRM import,
+                # we should use that instead of the default transformation
+                if axis_translation and axis_translation != "AUTO":
+                    # Create transformation matrix based on stored axis translation
+                    from ..editor.extension import BoneExtension
+
+                    # For animation import, we need to use the reverse transformation
+                    reverse_axis = BoneExtension.reverse_axis_translation(
+                        axis_translation
+                    )
+
+                    # Create a rotation-only matrix for transforming vectors
+                    transform_matrix = BoneExtension.translate_axis(
+                        Matrix(), reverse_axis
+                    )
+
+                    # Apply transformation to vectors
+                    # Note: This preserves the vector type while transforming it correctly
+                    rotation_matrix = transform_matrix.to_3x3()
+                    keyframe_translation = rotation_matrix @ keyframe_translation
+
+                    # For rotation, we need to convert to a matrix first, then back to quaternion
+                    rotation_mat = keyframe_rotation.to_matrix()
+                    transformed_rotation_mat = (
+                        rotation_matrix @ rotation_mat @ rotation_matrix.transposed()
+                    )
+                    keyframe_rotation = transformed_rotation_mat.to_quaternion()
+
+                    # Scale needs special handling to avoid invalid values
+                    scale_vec = Vector(
+                        (keyframe_scale.x, keyframe_scale.y, keyframe_scale.z)
+                    )
+                    keyframe_scale = Vector((scale_vec.x, scale_vec.y, scale_vec.z))
+                else:
+                    # Default transformation for bones without specific axis translation
+                    keyframe_translation = Vector(
+                        (
+                            keyframe_translation.x,
+                            keyframe_translation.z,
+                            -keyframe_translation.y,
+                        )
+                    )
+                    keyframe_rotation = Quaternion(
+                        (
+                            keyframe_rotation.w,
+                            keyframe_rotation.x,
+                            keyframe_rotation.z,
+                            -keyframe_rotation.y,
+                        )
+                    )
+                    keyframe_scale = Vector(
+                        (keyframe_scale.x, keyframe_scale.z, keyframe_scale.y)
+                    )
+            else:
+                # Default transformation if bone not found
+                keyframe_translation = Vector(
+                    (
+                        keyframe_translation.x,
+                        keyframe_translation.z,
+                        -keyframe_translation.y,
+                    )
+                )
+                keyframe_rotation = Quaternion(
+                    (
+                        keyframe_rotation.w,
+                        keyframe_rotation.x,
+                        keyframe_rotation.z,
+                        -keyframe_rotation.y,
+                    )
+                )
+                keyframe_scale = Vector(
+                    (keyframe_scale.x, keyframe_scale.z, keyframe_scale.y)
+                )
+        else:
+            # Default transformation if no bone mapping
             keyframe_translation = Vector(
-                (keyframe_translation.x, keyframe_translation.y, keyframe_translation.z)
+                (
+                    keyframe_translation.x,
+                    keyframe_translation.z,
+                    -keyframe_translation.y,
+                )
             )
             keyframe_rotation = Quaternion(
                 (
                     keyframe_rotation.w,
                     keyframe_rotation.x,
-                    keyframe_rotation.y,
                     keyframe_rotation.z,
+                    -keyframe_rotation.y,
                 )
             )
             keyframe_scale = Vector(
-                (keyframe_scale.x, keyframe_scale.y, keyframe_scale.z)
+                (keyframe_scale.x, keyframe_scale.z, keyframe_scale.y)
             )
-    else:
-        # Non-humanoid nodes need to swap axes to x, -z, y
-        keyframe_translation = Vector(
-            (
-                keyframe_translation.x,
-                keyframe_translation.z,
-                -keyframe_translation.y,
-            )
+
+    # Final validation for scale to prevent Matrix.Diagonal errors
+    keyframe_scale = Vector(
+        (
+            max(0.001, keyframe_scale.x),
+            max(0.001, keyframe_scale.y),
+            max(0.001, keyframe_scale.z),
         )
-        keyframe_rotation = Quaternion(
-            (
-                keyframe_rotation.w,
-                keyframe_rotation.x,
-                keyframe_rotation.z,
-                -keyframe_rotation.y,
-            )
-        )
-        keyframe_scale = Vector((keyframe_scale.x, keyframe_scale.z, keyframe_scale.y))
-    # -------------------------------------------------------------------
+    )
 
     rest_world_matrix = (
         parent_node_rest_pose_world_matrix @ node_rest_pose_tree.local_matrix
@@ -749,7 +844,6 @@ def assign_humanoid_keyframe(
     pose_world_matrix = parent_node_rest_pose_world_matrix @ pose_local_matrix
 
     # If a humanoid mapping exists, use that branch:
-    human_bone_name = node_index_to_human_bone_name.get(node_rest_pose_tree.node_index)
     if human_bone_name is not None and human_bone_name not in [
         HumanBoneName.LEFT_EYE,
         HumanBoneName.RIGHT_EYE,
@@ -836,8 +930,15 @@ def assign_humanoid_keyframe(
                     pb.location = backup_loc
 
                 # Handle scale for non-humanoid bones if scale keyframes exist
-                if scale_keyframes or scale_keyframes is not None:
+                if scale_keyframes:
                     rest_to_pose_scale = rest_to_pose_matrix.to_scale()
+                    # Ensure scale values are valid
+                    for i in range(3):
+                        if (
+                            math.isnan(rest_to_pose_scale[i])
+                            or rest_to_pose_scale[i] <= 0
+                        ):
+                            rest_to_pose_scale[i] = 1.0
                     backup_scale = pb.scale.copy()
                     pb.scale = rest_to_pose_scale
                     pb.keyframe_insert(data_path="scale", frame=frame_count)
