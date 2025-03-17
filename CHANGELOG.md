@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.35.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.34.1...v2.35.0) (2025-03-17)
+
+
+### 🚀 Features
+
+* support Blender 4.4 ([0acc889](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0acc8890880b393bd1afc4c7cbf02c475c83b5b7))
+
 ## [2.34.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.34.0...v2.34.1) (2025-01-15)
 
 
