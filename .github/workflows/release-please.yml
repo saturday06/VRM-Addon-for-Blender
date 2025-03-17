@@ -7,7 +7,7 @@ permissions:
 
 on:
   workflow_run:
-    workflows: ["test"]
+    workflows: [test]
     branches: [main]
     types:
       - completed
