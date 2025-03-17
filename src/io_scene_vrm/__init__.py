@@ -31,7 +31,7 @@ bl_info = {
     "category": "Import-Export",
 }
 
-MINIMUM_UNSUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (4, 4)
+MINIMUM_UNSUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (4, 5)
 
 
 def cleanse_modules() -> None:
