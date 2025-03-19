@@ -466,7 +466,7 @@ class AbstractBaseVrmImporter(ABC):
                     )
                     for bone_node_index in bone_node_indices
                 ],
-                [],
+                list[int](),
             )
         )
 
