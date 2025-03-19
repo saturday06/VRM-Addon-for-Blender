@@ -158,8 +158,6 @@ jobs:
         env:
           DEBIAN_FRONTEND: noninteractive
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # for super-linter
       - name: Disable git config core.quotepath
         run: git config core.quotepath off
       - name: Check file permissions
@@ -234,6 +232,13 @@ jobs:
             fi
             rm "$failure_vrm_path"
           done
+
+  super-linter:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # for super-linter
       - name: Super-Linter
         uses: super-linter/super-linter@v7.3.0
         env:
