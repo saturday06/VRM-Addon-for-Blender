@@ -9,8 +9,7 @@ on:
   workflow_run:
     workflows: [test]
     branches: [main]
-    types:
-      - completed
+    types: [completed]
 
 jobs:
   release-please:

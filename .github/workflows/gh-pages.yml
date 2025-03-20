@@ -9,7 +9,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   release:
-    types: [published]
+  workflow_run:
+    workflows: [release-please]
+    branches: [README]
+    types: [completed]
 
 jobs:
   build-gh-pages:
