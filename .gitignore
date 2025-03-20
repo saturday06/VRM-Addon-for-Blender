@@ -13,6 +13,7 @@
 /docs/website/resources/_gen/
 /node_modules/
 /benchmarks/temp/
+/super-linter-output/
 /tests/resources/unity/*/*.csproj
 /tests/resources/unity/*/*.sln
 /tests/resources/unity/*/.idea/

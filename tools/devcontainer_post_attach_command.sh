@@ -5,6 +5,8 @@ set -eu -o pipefail
 
 ./tools/devcontainer_create_venv.sh
 
+sudo systemctl enable --now docker
+
 # Refreshing repository
 # https://git-scm.com/docs/git-status#_background_refresh
 git status --short
