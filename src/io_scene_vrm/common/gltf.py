@@ -603,3 +603,18 @@ def read_accessor_as_animation_sampler_rotation_output(
     if vec4_accessor is None:
         return None
     return [Quaternion((w, x, -z, y)).normalized() for x, y, z, w in vec4_accessor]
+
+
+def read_accessor_as_animation_sampler_scale_output(
+    accessor_dict: dict[str, Json],
+    buffer_view_dicts: list[Json],
+    buffer_dicts: list[Json],
+    buffer0_bytes: bytes,
+) -> Optional[list[Vector]]:
+    vec3_accessor = read_vec3_accessor(
+        accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
+    )
+    if vec3_accessor is None:
+        return None
+    # Exporter stored scale as (sx, sz, sy), so use same conversion but without negation
+    return [Vector((x, z, y)) for x, y, z in vec3_accessor]

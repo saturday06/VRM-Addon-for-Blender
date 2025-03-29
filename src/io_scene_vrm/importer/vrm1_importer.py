@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import contextlib
 import json
-from typing import Optional, Union
+import re
+from typing import Optional, Union, Dict, List, Tuple, Set
+from collections import defaultdict
 
 import bpy
 from bpy.types import (
@@ -512,6 +514,9 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     human_bone_name
                 )
 
+            # Collect all humanoid bone names for quick lookup
+            humanoid_bone_names = set(bone_name_to_human_bone_name.keys())
+
             # ボーンの子が複数ある場合
             # そのボーン名からテールを向ける先の子ボーン名を拾えるdictを作る
             bone_name_to_main_child_bone_name: dict[str, str] = {}
@@ -684,7 +689,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 else:
                     non_human_bone_tree_bones.append(bone)
 
-            for bone in human_bone_tree_bones + non_human_bone_tree_bones:
+            # First process human bones to establish correct transformations
+            for bone in human_bone_tree_bones:
                 bone_index = next(
                     (i for i, n in self.bone_names.items() if n == bone.name), None
                 )
@@ -821,42 +827,95 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     )
                 bone_name_to_axis_translation[bone.name] = axis_translation
 
-            connect_parent_tail_and_child_head_if_very_close_position(armature_data)
-
-            bpy.ops.object.mode_set(mode="OBJECT")
-            for bone_name, axis_translation in bone_name_to_axis_translation.items():
-                data_bone = armature_data.bones.get(bone_name)
-                if not data_bone:
-                    continue
-                get_bone_extension(
-                    data_bone
-                ).axis_translation = BoneExtension.reverse_axis_translation(
-                    axis_translation
+            # Now process non-human bones with a modified approach
+            for bone in non_human_bone_tree_bones:
+                bone_index = next(
+                    (i for i, n in self.bone_names.items() if n == bone.name), None
                 )
-
-            for node_index in set(constraint_node_index_to_source_index.keys()) | set(
-                constraint_node_index_to_source_index.values()
-            ):
-                object_or_bone = self.get_object_or_bone_by_node_index(node_index)
-                if not isinstance(object_or_bone, Object):
-                    continue
-                for group_node_index in next(
-                    (g for g in constraint_node_index_groups if node_index in g),
-                    set[int](),
-                ):
-                    group_object_or_bone = self.get_object_or_bone_by_node_index(
-                        group_node_index
-                    )
-                    if isinstance(group_object_or_bone, PoseBone):
-                        self.translate_object_axis(
-                            object_or_bone,
-                            BoneExtension.reverse_axis_translation(
-                                get_bone_extension(
-                                    group_object_or_bone.bone
-                                ).axis_translation
-                            ),
+                if isinstance(bone_index, int):
+                    # Handle constrained bones the same way as before
+                    group_axis_translation: Optional[str] = None
+                    for node_index in next(
+                        (g for g in constraint_node_index_groups if bone_index in g),
+                        set[int](),
+                    ):
+                        object_or_bone = self.get_object_or_bone_by_node_index(
+                            node_index
                         )
-                        break
+                        if isinstance(object_or_bone, PoseBone):
+                            group_axis_translation = bone_name_to_axis_translation.get(
+                                object_or_bone.name
+                            )
+                            if group_axis_translation is not None:
+                                break
+                    if group_axis_translation is not None:
+                        bone.matrix = BoneExtension.translate_axis(
+                            bone.matrix,
+                            group_axis_translation,
+                        )
+                        if bone.parent and not bone.children:
+                            bone.length = max(
+                                bone.parent.length / 2, make_armature.MIN_BONE_LENGTH
+                            )
+                        bone_name_to_axis_translation[bone.name] = (
+                            group_axis_translation
+                        )
+                        continue
+
+                # Check if the bone's parent is a human bone or has an axis translation
+                if bone.parent and bone.parent.name in bone_name_to_axis_translation:
+                    # Inherit parent's axis translation for consistency
+                    parent_axis = bone_name_to_axis_translation[bone.parent.name]
+
+                    # For non-human bones, we'll apply a more conservative approach
+                    # Apply parent's transformation but keep original proportions
+                    bone.matrix = BoneExtension.translate_axis(
+                        bone.matrix,
+                        parent_axis,
+                    )
+
+                    # Set length based on parent or children
+                    if bone.children:
+                        # Calculate average distance to children
+                        avg_distance = 0.0
+                        for child in bone.children:
+                            avg_distance += (child.head - bone.head).length
+                        if bone.children:
+                            avg_distance /= len(bone.children)
+                            bone.length = max(
+                                avg_distance, make_armature.MIN_BONE_LENGTH
+                            )
+                    else:
+                        # For leaf bones, use a proportion of parent's length
+                        bone.length = max(
+                            bone.parent.length * 0.75, make_armature.MIN_BONE_LENGTH
+                        )
+
+                    bone_name_to_axis_translation[bone.name] = parent_axis
+                else:
+                    # For completely independent non-human bones
+                    # Use a simplified approach - just record a neutral axis translation
+                    # but don't dramatically change orientation
+                    if bone.children:
+                        # Set length based on distance to children
+                        avg_distance = 0.0
+                        for child in bone.children:
+                            avg_distance += (child.head - bone.head).length
+                        if bone.children:
+                            avg_distance /= len(bone.children)
+                            bone.length = max(
+                                avg_distance, make_armature.MIN_BONE_LENGTH
+                            )
+                    elif bone.parent:
+                        # For leaf bones with no relationship to human bones
+                        bone.length = max(
+                            bone.parent.length * 0.5, make_armature.MIN_BONE_LENGTH
+                        )
+
+                    # Use a neutral axis translation that minimizes change
+                    bone_name_to_axis_translation[bone.name] = (
+                        BoneExtension.AXIS_TRANSLATION_NONE.identifier
+                    )
 
     def translate_object_axis(self, obj: Object, axis_translation: str) -> None:
         if axis_translation != BoneExtension.AXIS_TRANSLATION_AUTO.identifier:
@@ -907,6 +966,10 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
         self.load_node_constraint1()
         migration.migrate(self.context, armature.name)
+
+        # Process duplicate bones after all other import operations are complete
+        # For VRM imports, we need to handle duplicate bones in the skeleton
+        self.process_duplicate_bones()
 
     def load_vrm1_meta(self, meta: Vrm1MetaPropertyGroup, meta_dict: Json) -> None:
         if not isinstance(meta_dict, dict):
@@ -1845,3 +1908,126 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 elif isinstance(source, PoseBone):
                     constraint.target = armature
                     constraint.subtarget = source.name
+
+    def process_duplicate_bones(self) -> None:
+        """
+        Process duplicate bones in the imported VRM model.
+
+        - Detects bones with ".vrmaProxyBone" in their name
+        - Transfers vertex weights from duplicate bones to original bones
+        - Creates original bones if they don't exist
+        - Deletes duplicate bones
+        """
+        armature = self.armature
+        if not armature:
+            logger.error("No armature found for bone processing")
+            return
+
+        logger.info("Starting duplicate bone processing for VRM import")
+
+        # Get all bones in edit mode to find duplicates
+        bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.ops.object.select_all(action="DESELECT")
+        armature.select_set(True)
+        self.context.view_layer.objects.active = armature
+
+        # Map duplicate bones to their original bones
+        duplicate_to_original: dict[str, str] = {}
+        pattern = re.compile(r"(.+)\.vrmaProxyBone(?:\.\d+)?$")
+
+        if armature and armature.data and isinstance(armature.data, bpy.types.Armature):
+            # First pass - identify duplicate bones
+            for bone in armature.data.bones:
+                match = pattern.match(bone.name)
+                if match:
+                    original_name = match.group(1)
+                    duplicate_to_original[bone.name] = original_name
+                    logger.info(f"Found duplicate bone: {bone.name} -> {original_name}")
+
+                    # Ensure the original bone exists
+                    if not armature.data.bones.get(original_name):
+                        logger.warning(
+                            f"Original bone {original_name} doesn't exist, will be created"
+                        )
+
+        if not duplicate_to_original:
+            logger.info("No duplicate bones found")
+            return
+
+        # Create original bones if they don't exist
+        bpy.ops.object.mode_set(mode="EDIT")
+        for dup_name, orig_name in duplicate_to_original.items():
+            if (
+                armature.data is not None
+                and isinstance(armature.data, bpy.types.Armature)
+                and orig_name not in armature.data.edit_bones
+            ):
+                # Duplicate bone exists but original doesn't - create it
+                dup_edit_bone = armature.data.edit_bones.get(dup_name)
+                if dup_edit_bone:
+                    new_bone = armature.data.edit_bones.new(orig_name)
+                    new_bone.head = dup_edit_bone.head
+                    new_bone.tail = dup_edit_bone.tail
+                    new_bone.roll = dup_edit_bone.roll
+                    new_bone.parent = dup_edit_bone.parent
+                    logger.info(f"Created missing original bone: {orig_name}")
+
+        bpy.ops.object.mode_set(mode="OBJECT")
+
+        # Process vertex groups - rename them rather than creating new ones
+        logger.info("Processing vertex groups from duplicate bones")
+        for obj in self.context.view_layer.objects:
+            if obj.type != "MESH" or not obj.vertex_groups:
+                continue
+
+            # Create list of vertex groups that need processing
+            vgroups_to_process = [
+                vgroup.name
+                for vgroup in obj.vertex_groups
+                if vgroup.name in duplicate_to_original
+            ]
+
+            if not vgroups_to_process:
+                continue
+
+            # For each duplicate vertex group
+            for dup_name in vgroups_to_process:
+                orig_name = duplicate_to_original[dup_name]
+
+                # If original vertex group already exists, merge weights
+                if orig_name in obj.vertex_groups:
+                    dup_idx = obj.vertex_groups[dup_name].index
+                    orig_idx = obj.vertex_groups[orig_name].index
+
+                    # Loop through vertices and transfer weights
+                    for v in obj.data.vertices:
+                        for group in v.groups:
+                            if group.group == dup_idx and group.weight > 0:
+                                # Add weight to original bone
+                                obj.vertex_groups[orig_idx].add(
+                                    [v.index], group.weight, "ADD"
+                                )
+
+                    # Remove duplicate vertex group
+                    obj.vertex_groups.remove(obj.vertex_groups[dup_name])
+                    logger.info(f"Merged weights from {dup_name} to {orig_name}")
+                else:
+                    # Simply rename the vertex group
+                    obj.vertex_groups[dup_name].name = orig_name
+                    logger.info(f"Renamed vertex group {dup_name} to {orig_name}")
+
+        # Handle bone hierarchy/constraints - preserve original bone data
+        bpy.ops.object.mode_set(mode="EDIT")
+        edit_bones = armature.data.edit_bones
+
+        # Delete duplicate bones after ensuring original bones exist and have
+        # proper connections
+        bpy.ops.object.mode_set(mode="EDIT")
+        for dup_name in duplicate_to_original.keys():
+            if dup_name in edit_bones:
+                edit_bones.remove(edit_bones[dup_name])
+                logger.info(f"Removed duplicate bone: {dup_name}")
+
+        # Return to object mode
+        bpy.ops.object.mode_set(mode="OBJECT")
+        logger.info("Duplicate bone processing completed")

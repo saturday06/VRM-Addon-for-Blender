@@ -87,12 +87,17 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         export_all_influences: bool,
         export_lights: bool,
         export_gltf_animations: bool,
+        export_transform_scale: bool,
+        preserve_end_bones: Optional[set[Object]] = None,
     ) -> None:
-        super().__init__(context, export_objects, armature)
+        super().__init__(
+            context, export_objects, armature, preserve_end_bones=preserve_end_bones
+        )
 
         self.export_all_influences = export_all_influences
         self.export_lights = export_lights
         self.export_gltf_animations = export_gltf_animations
+        self.export_transform_scale = export_transform_scale
 
         self.extras_main_armature_key = (
             INTERNAL_NAME_PREFIX + self.export_id + "MainArmature"
@@ -556,11 +561,42 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     ) -> tuple[list[Json], dict[str, int]]:
         collider_dicts: list[Json] = []
         collider_uuid_to_index_dict: dict[str, int] = {}
+
+        # Create a mapping of original bone names to proxy bone names
+        proxy_to_original_bone_mapping: dict[str, str] = {}
+        original_to_proxy_bone_mapping: dict[str, str] = {}
+
+        for bone_name in bone_name_to_index_dict.keys():
+            if ".vrmaProxyBone" in bone_name:
+                original_bone_name = bone_name.split(".vrmaProxyBone")[0]
+                proxy_to_original_bone_mapping[bone_name] = original_bone_name
+                original_to_proxy_bone_mapping[original_bone_name] = bone_name
+
+        # Track which original bones have been processed via their proxy
+        processed_original_bones = set()
+
         for collider in spring_bone.colliders:
             collider_dict: dict[str, Json] = {}
-            node_index = bone_name_to_index_dict.get(collider.node.bone_name)
+            original_bone_name = collider.node.bone_name
+
+            # Check if we have a proxy for this bone
+            proxy_bone_name = original_to_proxy_bone_mapping.get(original_bone_name)
+            node_index = None
+
+            # If proxy exists and is in the bone mapping, use it instead
+            if proxy_bone_name and proxy_bone_name in bone_name_to_index_dict:
+                node_index = bone_name_to_index_dict.get(proxy_bone_name)
+                logger.info(
+                    f"Using proxy bone {proxy_bone_name} for collider on {original_bone_name}"
+                )
+                processed_original_bones.add(original_bone_name)
+            else:
+                # Otherwise use the original bone
+                node_index = bone_name_to_index_dict.get(original_bone_name)
+
             if not isinstance(node_index, int):
                 continue
+
             collider_dict["node"] = node_index
 
             extended_collider = collider.extensions.vrmc_spring_bone_extended_collider
@@ -669,6 +705,144 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if "VRMC_springBone_extended_collider" not in extensions_used:
                 extensions_used.append("VRMC_springBone_extended_collider")
 
+        # Handle additional colliders for proxy bones that weren't already processed
+        for (
+            proxy_bone_name,
+            original_bone_name,
+        ) in proxy_to_original_bone_mapping.items():
+            # Skip if we already processed a collider for this original bone
+            if original_bone_name in processed_original_bones:
+                continue
+
+            # Find colliders attached to the original bone
+            for collider in spring_bone.colliders:
+                if collider.node.bone_name != original_bone_name:
+                    continue
+
+                # Check if the proxy bone exists in the bone index dict
+                node_index = bone_name_to_index_dict.get(proxy_bone_name)
+                if not isinstance(node_index, int):
+                    continue
+
+                # Create a duplicate of the collider for the proxy bone
+                collider_dict = {}
+                collider_dict["node"] = node_index
+
+                extended_collider = (
+                    collider.extensions.vrmc_spring_bone_extended_collider
+                )
+                if collider.shape_type == collider.SHAPE_TYPE_SPHERE.identifier:
+                    if not extended_collider.enabled:
+                        sphere_offset = list(collider.shape.sphere.offset)
+                        sphere_radius = collider.shape.sphere.radius
+                    elif not extended_collider.automatic_fallback_generation:
+                        sphere_offset = list(collider.shape.sphere.fallback_offset)
+                        sphere_radius = collider.shape.sphere.fallback_radius
+                    elif (
+                        extended_collider.shape_type
+                        == extended_collider.SHAPE_TYPE_EXTENDED_SPHERE.identifier
+                        and not extended_collider.shape.sphere.inside
+                    ):
+                        sphere_offset = list(extended_collider.shape.sphere.offset)
+                        sphere_radius = extended_collider.shape.sphere.radius
+                    else:
+                        sphere_offset = [0, -10000, 0]
+                        sphere_radius = 0.00001
+                    sphere_dict = {
+                        "offset": sphere_offset,
+                        "radius": sphere_radius,
+                    }
+                    shape_dict = {"sphere": sphere_dict}
+                elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE.identifier:
+                    if not extended_collider.enabled:
+                        capsule_offset = list(collider.shape.capsule.offset)
+                        capsule_radius = collider.shape.capsule.radius
+                        capsule_tail = list(collider.shape.capsule.tail)
+                    elif not extended_collider.automatic_fallback_generation:
+                        capsule_offset = list(collider.shape.capsule.fallback_offset)
+                        capsule_radius = collider.shape.capsule.fallback_radius
+                        capsule_tail = list(collider.shape.capsule.fallback_tail)
+                    elif (
+                        extended_collider.shape_type
+                        == extended_collider.SHAPE_TYPE_EXTENDED_CAPSULE.identifier
+                        and not extended_collider.shape.capsule.inside
+                    ):
+                        capsule_offset = list(extended_collider.shape.capsule.offset)
+                        capsule_radius = extended_collider.shape.capsule.radius
+                        capsule_tail = list(extended_collider.shape.capsule.tail)
+                    else:
+                        capsule_offset = [0, -10000, 0]
+                        capsule_radius = 0.00001
+                        capsule_tail = [0, -10001, 0]
+                    capsule_dict = {
+                        "offset": capsule_offset,
+                        "radius": capsule_radius,
+                        "tail": capsule_tail,
+                    }
+                    shape_dict = {"capsule": capsule_dict}
+                else:
+                    continue
+
+                collider_dict["shape"] = shape_dict
+
+                # Create a new UUID for this proxy collider
+                proxy_uuid = f"{collider.uuid}_proxy_{proxy_bone_name}"
+                collider_uuid_to_index_dict[proxy_uuid] = len(collider_dicts)
+                collider_dicts.append(collider_dict)
+
+                logger.info(
+                    f"Created proxy collider for {proxy_bone_name} based on {original_bone_name}"
+                )
+
+                if not extended_collider.enabled:
+                    continue
+
+                if (
+                    extended_collider.shape_type
+                    == extended_collider.SHAPE_TYPE_EXTENDED_SPHERE.identifier
+                ):
+                    extended_shape_dict = {
+                        "sphere": {
+                            "offset": list(extended_collider.shape.sphere.offset),
+                            "radius": extended_collider.shape.sphere.radius,
+                            "inside": extended_collider.shape.sphere.inside,
+                        }
+                    }
+                elif (
+                    extended_collider.shape_type
+                    == extended_collider.SHAPE_TYPE_EXTENDED_CAPSULE.identifier
+                ):
+                    extended_shape_dict = {
+                        "capsule": {
+                            "offset": list(extended_collider.shape.capsule.offset),
+                            "radius": extended_collider.shape.capsule.radius,
+                            "tail": list(extended_collider.shape.capsule.tail),
+                            "inside": extended_collider.shape.capsule.inside,
+                        }
+                    }
+                elif (
+                    extended_collider.shape_type
+                    == extended_collider.SHAPE_TYPE_EXTENDED_PLANE.identifier
+                ):
+                    extended_shape_dict = {
+                        "plane": {
+                            "offset": list(extended_collider.shape.plane.offset),
+                            "normal": list(extended_collider.shape.plane.normal),
+                        }
+                    }
+                else:
+                    continue
+
+                collider_dict["extensions"] = {
+                    "VRMC_springBone_extended_collider": {
+                        "specVersion": "1.0",
+                        "shape": extended_shape_dict,
+                    }
+                }
+
+                if "VRMC_springBone_extended_collider" not in extensions_used:
+                    extensions_used.append("VRMC_springBone_extended_collider")
+
         return collider_dicts, collider_uuid_to_index_dict
 
     @classmethod
@@ -715,20 +889,54 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         if not isinstance(armature_data, Armature):
             logger.error("%s is not an Armature", type(armature_data))
             return []
+
+        # Create a mapping of original bone names to proxy bone names
+        proxy_to_original_bone_mapping: dict[str, str] = {}
+        original_to_proxy_bone_mapping: dict[str, str] = {}
+
+        for bone_name in bone_name_to_index_dict.keys():
+            if ".vrmaProxyBone" in bone_name:
+                original_bone_name = bone_name.split(".vrmaProxyBone")[0]
+                proxy_to_original_bone_mapping[bone_name] = original_bone_name
+                original_to_proxy_bone_mapping[original_bone_name] = bone_name
+
         for spring in spring_bone.springs:
             spring_dict: dict[str, Json] = {"name": spring.vrm_name}
 
             first_bone: Optional[Bone] = None
             joint_dicts: list[Json] = []
+
+            # Keep track of joints that have been added via proxies
+            processed_original_bones = set()
+
             for joint in spring.joints:
-                bone = armature_data.bones.get(joint.node.bone_name)
+                original_bone_name = joint.node.bone_name
+                bone = armature_data.bones.get(original_bone_name)
+
                 if not bone:
                     continue
+
                 if first_bone is None:
                     first_bone = bone
-                node_index = bone_name_to_index_dict.get(joint.node.bone_name)
+
+                # Check if we have a proxy bone for this joint
+                proxy_bone_name = original_to_proxy_bone_mapping.get(original_bone_name)
+                node_index = None
+
+                # If there's a proxy and it exists in the bone mapping, use it instead
+                if proxy_bone_name and proxy_bone_name in bone_name_to_index_dict:
+                    node_index = bone_name_to_index_dict.get(proxy_bone_name)
+                    logger.info(
+                        f"Using proxy bone {proxy_bone_name} for spring joint {original_bone_name}"
+                    )
+                    processed_original_bones.add(original_bone_name)
+                else:
+                    # Otherwise use the original bone
+                    node_index = bone_name_to_index_dict.get(original_bone_name)
+
                 if not isinstance(node_index, int):
                     continue
+
                 joint_dicts.append(
                     {
                         "node": node_index,
@@ -744,10 +952,50 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     }
                 )
 
+            # Check for additional proxy bones that might need to be included as joints
+            for (
+                proxy_bone_name,
+                original_bone_name,
+            ) in proxy_to_original_bone_mapping.items():
+                if original_bone_name in processed_original_bones:
+                    continue  # Already handled this bone
+
+                # Try to find the joint for this original bone
+                matching_joint = None
+                for joint in spring.joints:
+                    if joint.node.bone_name == original_bone_name:
+                        matching_joint = joint
+                        break
+
+                if matching_joint:
+                    node_index = bone_name_to_index_dict.get(proxy_bone_name)
+                    if isinstance(node_index, int):
+                        # Add the proxy bone with the original bone's joint settings
+                        joint_dicts.append(
+                            {
+                                "node": node_index,
+                                "hitRadius": matching_joint.hit_radius,
+                                "stiffness": matching_joint.stiffness,
+                                "gravityPower": matching_joint.gravity_power,
+                                "gravityDir": [
+                                    matching_joint.gravity_dir[0],
+                                    matching_joint.gravity_dir[2],
+                                    -matching_joint.gravity_dir[1],
+                                ],
+                                "dragForce": matching_joint.drag_force,
+                            }
+                        )
+                        logger.info(
+                            f"Added proxy bone {proxy_bone_name} with settings from {original_bone_name}"
+                        )
+
             if joint_dicts:
                 spring_dict["joints"] = joint_dicts
 
-            center_bone = armature_data.bones.get(spring.center.bone_name)
+            # Handle center bone
+            center_bone_name = spring.center.bone_name
+            center_bone = armature_data.bones.get(center_bone_name)
+
             if center_bone:
                 center_bone_is_ancestor_of_first_bone = False
                 ancestor_of_first_bone = first_bone
@@ -756,8 +1004,25 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         center_bone_is_ancestor_of_first_bone = True
                         break
                     ancestor_of_first_bone = ancestor_of_first_bone.parent
+
                 if center_bone_is_ancestor_of_first_bone:
-                    center_index = bone_name_to_index_dict.get(spring.center.bone_name)
+                    # Check if we have a proxy center bone instead
+                    proxy_center_name = original_to_proxy_bone_mapping.get(
+                        center_bone_name
+                    )
+                    center_index = None
+
+                    if (
+                        proxy_center_name
+                        and proxy_center_name in bone_name_to_index_dict
+                    ):
+                        center_index = bone_name_to_index_dict.get(proxy_center_name)
+                        logger.info(
+                            f"Using proxy center bone {proxy_center_name} instead of {center_bone_name}"
+                        )
+                    else:
+                        center_index = bone_name_to_index_dict.get(center_bone_name)
+
                     if isinstance(center_index, int):
                         spring_dict["center"] = center_index
 
@@ -2552,6 +2817,16 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             node_dicts = []
             json_dict["nodes"] = node_dicts
 
+        # Identify end-chain bones in the armature for preservation
+        end_chain_bones = set()
+        for bone_name, bone in armature_data.bones.items():
+            if not bone.children:
+                end_chain_bones.add(bone_name)
+
+        # Track nodes to ensure they're not removed during export
+        preserved_node_indices = set()
+
+        # When processing nodes:
         for node_index, node_dict in enumerate(node_dicts):
             if not isinstance(node_dict, dict):
                 continue
@@ -2559,9 +2834,21 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if not isinstance(extras_dict, dict):
                 continue
 
-            bone_name = extras_dict.pop(self.extras_bone_name_key, None)
+            value = extras_dict.pop(self.extras_bone_name_key, None)
+            bone_name = value if isinstance(value, str) else ""
             if isinstance(bone_name, str):
                 bone_name_to_index_dict[bone_name] = node_index
+
+                # Mark end-chain bones and their duplicates for preservation
+                if bone_name in end_chain_bones or (
+                    bone_name.endswith(".vrmaProxyBone")
+                    and bone_name.split(".vrmaProxyBone")[0] in end_chain_bones
+                ):
+                    preserved_node_indices.add(node_index)
+                    # Ensure this node has a skin or gets included in the final export
+                    if not extras_dict:
+                        node_dict["extras"] = extras_dict = {}
+                    extras_dict["preserveEndChainBone"] = True
 
             is_main_armature = extras_dict.pop(self.extras_main_armature_key, None)
 
