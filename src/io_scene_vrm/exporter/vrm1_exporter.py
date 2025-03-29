@@ -2277,19 +2277,20 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         if bpy.app.version < (4, 2):
             return False
 
-        # ルートボーンにnot use_deformのものがあったらFalse
-        # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2394
-        for selected_object in context.selected_objects:
-            if selected_object.type != "ARMATURE":
-                continue
-            armature = selected_object.data
-            if not isinstance(armature, Armature):
-                continue
-            for bone in armature.bones:
-                if bone.parent:
+        if bpy.app.version < (4, 4):
+            # ルートボーンにnot use_deformのものがあったらFalse
+            # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2394
+            for selected_object in context.selected_objects:
+                if selected_object.type != "ARMATURE":
                     continue
-                if not bone.use_deform:
-                    return False
+                armature = selected_object.data
+                if not isinstance(armature, Armature):
+                    continue
+                for bone in armature.bones:
+                    if bone.parent:
+                        continue
+                    if not bone.use_deform:
+                        return False
 
         # Armatureモディファイアがついていて、ウエイトがついていない頂点があったらFalse
         # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2436
