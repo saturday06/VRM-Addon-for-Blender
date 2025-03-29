@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.35.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.35.0...v2.35.1) (2025-03-29)
+
+
+### 🐞 Bug Fixes
+
+* scene duplication bug when pasting mtoon enabled objects in Blender 3.5.1 or earlier ([6e9ff94](https://github.com/saturday06/VRM-Addon-for-Blender/commit/6e9ff94c0f8922ba2cbb63a5f42696afa63cbec5))
+
 ## [2.35.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.34.1...v2.35.0) (2025-03-17)
 
 
