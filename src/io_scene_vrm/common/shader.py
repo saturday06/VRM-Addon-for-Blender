@@ -1703,6 +1703,9 @@ def get_rgb_value_or(
 
 
 def setup_frame_count_driver(context: Context) -> None:
+    if bpy.app.version < (3, 6):
+        return
+
     node_group = context.blend_data.node_groups.get(UV_ANIMATION_GROUP_NAME)
     if not node_group:
         return
@@ -1782,18 +1785,10 @@ def setup_frame_count_driver(context: Context) -> None:
             )
             continue
         target = variable.targets[0]
-        if bpy.app.version >= (3, 6):
-            if variable.type != "CONTEXT_PROP":
-                variable.type = "CONTEXT_PROP"
-            if target.context_property != "ACTIVE_SCENE":
-                target.context_property = "ACTIVE_SCENE"
-        else:
-            if variable.type != "SINGLE_PROP":
-                variable.type = "SINGLE_PROP"
-            if target.id_type != "SCENE":
-                target.id_type = "SCENE"
-            if target.id != context.scene:
-                target.id = context.scene
+        if variable.type != "CONTEXT_PROP":
+            variable.type = "CONTEXT_PROP"
+        if target.context_property != "ACTIVE_SCENE":
+            target.context_property = "ACTIVE_SCENE"
         if target.data_path != target_data_path:
             target.data_path = target_data_path
 
