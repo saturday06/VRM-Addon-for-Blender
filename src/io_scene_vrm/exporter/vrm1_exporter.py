@@ -2294,6 +2294,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         # Armatureモディファイアがついていて、ウエイトがついていない頂点があったらFalse
         # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2436
+        armature_data_name_to_deform_bone_names: dict[str, set[str]] = {}
         for mesh_object_name in mesh_object_names:
             mesh_object = context.blend_data.objects.get(mesh_object_name)
             if not mesh_object:
@@ -2327,10 +2328,20 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 armature_data = armature_object.data
                 if not isinstance(armature_data, Armature):
                     continue
-                bone_names = set(armature_data.bones.keys())
+                deform_bone_names = armature_data_name_to_deform_bone_names.get(
+                    armature_data.name
+                )
+                if deform_bone_names is None:
+                    deform_bone_names = {
+                        bone.name for bone in armature_data.bones if bone.use_deform
+                    }
+                    armature_data_name_to_deform_bone_names[armature_data.name] = (
+                        deform_bone_names
+                    )
+
                 for vertex_group_names in vertex_group_names_sequence:
                     if all(
-                        vertex_group_name not in bone_names
+                        vertex_group_name not in deform_bone_names
                         for vertex_group_name in vertex_group_names
                     ):
                         return False
