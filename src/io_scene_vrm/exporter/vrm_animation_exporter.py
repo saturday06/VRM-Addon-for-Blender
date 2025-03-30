@@ -1,11 +1,20 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import itertools
 import struct
+from collections.abc import Sequence
 from os import environ
 from pathlib import Path
 from typing import Optional
 
-from bpy.types import Armature, Context, Object, PoseBone
+import bpy
+from bpy.types import (
+    Action,
+    Armature,
+    Context,
+    FCurve,
+    Object,
+    PoseBone,
+)
 from mathutils import Euler, Matrix, Quaternion, Vector
 
 from ..common import version
@@ -351,7 +360,7 @@ def create_look_at_animation(
 
     look_at_translation_offsets: list[Vector] = []
     data_path = look_at_target_object.path_from_id("location")
-    for fcurve in action.fcurves:
+    for fcurve in get_action_fcurves(action):
         if fcurve.mute:
             continue
         if not fcurve.is_valid:
@@ -537,7 +546,7 @@ def create_expression_animation(
     ] = {}
 
     expression_export_index = 0
-    for fcurve in action.fcurves:
+    for fcurve in get_action_fcurves(action):
         if fcurve.mute:
             continue
         if not fcurve.is_valid:
@@ -711,7 +720,7 @@ def create_node_animation(
     bone_name_to_euler_offsets: dict[str, list[Euler]] = {}
     bone_name_to_axis_angle_offsets: dict[str, list[list[float]]] = {}
     hips_translation_offsets: list[Vector] = []
-    for fcurve in action.fcurves:
+    for fcurve in get_action_fcurves(action):
         if fcurve.mute:
             continue
         if not fcurve.is_valid:
@@ -1036,3 +1045,31 @@ def create_node_animation(
             "target": {"node": hips_node_index, "path": "translation"},
         }
     )
+
+
+def get_action_fcurves(action: Action) -> Sequence[FCurve]:
+    if bpy.app.version < (4, 4):
+        return list(action.fcurves)
+
+    from bpy.types import ActionKeyframeStrip
+
+    # https://developer.blender.org/docs/release_notes/4.4/python_api/#deprecated
+    layers = action.layers
+    if not layers:
+        return []
+    layer = layers[0]
+
+    strips = layer.strips
+    if not strips:
+        return []
+    strip = strips[0]
+    if not isinstance(strip, ActionKeyframeStrip):
+        return []
+
+    slots = action.slots
+    if not slots:
+        return []
+    slot = slots[0]
+
+    channelbag = strip.channelbag(slot)
+    return list(channelbag.fcurves)
