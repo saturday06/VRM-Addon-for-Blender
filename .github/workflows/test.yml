@@ -11,7 +11,7 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
 
 env:
-  BLENDER_ARCHIVE_BASE_URL: https://mirrors.ocf.berkeley.edu/blender/release
+  BLENDER_ARCHIVE_BASE_URL: https://download.blender.org/release
 
 jobs:
   test-windows:
