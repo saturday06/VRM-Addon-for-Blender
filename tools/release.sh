@@ -149,6 +149,18 @@ diff -ru "$addon_check_unzip_dir/${prefix_name}-${release_postfix}" "$addon_dir"
   git push origin HEAD:release-archive
 )
 
+# Blender Extensions向けのリリースノートを作成
+github_release_body_path=$(mktemp)
+release_note_path=$(mktemp)
+gh release view "$release_tag_name" --json body --jq .body | tee "$github_release_body_path"
+ruby -- - "$github_release_body_path" <<'CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE' | tee "$release_note_path"
+title, body = File.read(ARGV[0]).split("\n\n", 2)
+print body.strip
+print "\n\n\n"
+print "*Full Changelog:* "
+print title.strip.sub(/^## \[[.0-9]+\]\(/, "").sub(/\).*$/, "").strip
+CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE
+
 if [ "$release_postfix" = "release" ]; then
   (
     cd "$readme_branch_dir"
@@ -159,6 +171,18 @@ if [ "$release_postfix" = "release" ]; then
     git push origin HEAD:gh-pages
   )
   gh release edit "$release_tag_name" --draft=false --latest
+
+  # https://developer.blender.org/docs/features/extensions/ci_cd/
+  set +x # Authorization用の変数の内容を隠す
+  curl \
+    --fail \
+    --show-error \
+    --request POST \
+    --header "Authorization:bearer $BLENDER_EXTENSIONS_TOKEN" \
+    --form "version_file=@$extension_path" \
+    --form "release_notes=<$release_note_path" \
+    "https://extensions.blender.org/api/v1/extensions/vrm/versions/upload/"
+  set -x
 else
   gh release edit "$release_tag_name" --prerelease
 fi
