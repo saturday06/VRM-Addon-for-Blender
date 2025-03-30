@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.36.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.35.1...v2.36.0) (2025-03-30)
+
+
+### 🚀 Features
+
+* use slotted actions api in blender 4.4 ([70c17c1](https://github.com/saturday06/VRM-Addon-for-Blender/commit/70c17c10952351ec9b021b43301a5d6c589a3a30))
+
+
+### 🐞 Bug Fixes
+
+* export error when vertex weights are assigned to non-deform bone in VRM 1.0 ([244bbc1](https://github.com/saturday06/VRM-Addon-for-Blender/commit/244bbc13dc509d2a6cde9cf2ac9f9c04b111b01d))
+
 ## [2.35.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.35.0...v2.35.1) (2025-03-29)
 
 
