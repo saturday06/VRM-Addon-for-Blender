@@ -153,12 +153,24 @@ diff -ru "$addon_check_unzip_dir/${prefix_name}-${release_postfix}" "$addon_dir"
 github_release_body_path=$(mktemp)
 release_note_path=$(mktemp)
 gh release view "$release_tag_name" --json body --jq .body | tee "$github_release_body_path"
-ruby -- - "$github_release_body_path" <<'CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE' | tee "$release_note_path"
-title, body = File.read(ARGV[0]).split("\n\n", 2)
-print body.strip
-print "\n\n\n"
-print "*Full Changelog:* "
-print title.strip.sub(/^## \[[.0-9]+\]\(/, "").sub(/\).*$/, "").strip
+ruby -r uri -- - "$github_release_body_path" "$release_note_path" <<'CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE'
+input_path, output_path = ARGV
+title, body = File.read(input_path).strip.split("\n\n", 2)
+
+uri_str = title.strip.sub(/^## \[[.0-9]+\]\(/, "").sub(/\).*$/, "").strip
+uri = nil
+begin
+  uri = URI.parse(uri_str)
+rescue => e
+  p e
+end
+
+output = body.strip + "\n\n\n"
+if uri
+  output += "**Full Changelog:** #{uri}\n"
+end
+
+File.write(output_path, output)
 CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE
 
 if [ "$release_postfix" = "release" ]; then
