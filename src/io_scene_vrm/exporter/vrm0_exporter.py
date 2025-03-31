@@ -3242,9 +3242,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         node_indices: list[int] = []
 
         mesh_convertible_objects = [
-            meshe_object
-            for meshe_object in self.export_objects
-            if meshe_object.type in search.MESH_CONVERTIBLE_OBJECT_TYPES
+            mesh_object
+            for mesh_object in self.export_objects
+            if mesh_object.type in search.MESH_CONVERTIBLE_OBJECT_TYPES
         ]
 
         # メッシュを親子関係に従ってソート
