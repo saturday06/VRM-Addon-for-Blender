@@ -104,9 +104,11 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
     )
     export_lights: BoolProperty(  # type: ignore[valid-type]
         name="Export Lights",
+        update=export_vrm_update_addon_preferences,
     )
     export_gltf_animations: BoolProperty(  # type: ignore[valid-type]
         name="Export glTF Animations",
+        update=export_vrm_update_addon_preferences,
     )
     export_try_sparse_sk: BoolProperty(  # type: ignore[valid-type]
         name="Use Sparse Accessors",
