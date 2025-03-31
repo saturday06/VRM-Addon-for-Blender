@@ -126,19 +126,28 @@ def copy_export_preferences(
 
 
 def draw_export_preferences_layout(
-    preferences: ExportPreferencesProtocol, layout: UILayout
+    preferences: ExportPreferencesProtocol,
+    layout: UILayout,
+    *,
+    show_vrm1_options: bool,
 ) -> None:
     if not isinstance(preferences, (AddonPreferences, Operator)):
         return
 
     layout.prop(preferences, "export_invisibles")
     layout.prop(preferences, "export_only_selections")
+
+    if not show_vrm1_options:
+        return
+
     layout.prop(preferences, "enable_advanced_preferences")
-    if preferences.enable_advanced_preferences:
-        advanced_options_box = layout.box()
-        advanced_options_box.prop(preferences, "export_all_influences")
-        advanced_options_box.prop(preferences, "export_lights")
-        advanced_options_box.prop(preferences, "export_gltf_animations")
+    if not preferences.enable_advanced_preferences:
+        return
+
+    advanced_options_box = layout.box()
+    advanced_options_box.prop(preferences, "export_all_influences")
+    advanced_options_box.prop(preferences, "export_lights")
+    advanced_options_box.prop(preferences, "export_gltf_animations")
 
 
 class VrmAddonPreferences(AddonPreferences):
@@ -229,7 +238,7 @@ class VrmAddonPreferences(AddonPreferences):
 
         export_box = layout.box()
         export_box.label(text="Export", icon="EXPORT")
-        draw_export_preferences_layout(self, export_box)
+        draw_export_preferences_layout(self, export_box, show_vrm1_options=True)
 
     if TYPE_CHECKING:
         # This code is auto generated.

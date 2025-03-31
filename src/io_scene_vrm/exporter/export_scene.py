@@ -143,15 +143,11 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                 "INVOKE_DEFAULT",
             )
 
-        export_objects = search.export_objects(
+        armatures, _ = collect_export_objects(
             context,
             self.armature_object_name,
-            export_invisibles=self.export_invisibles,
-            export_only_selections=self.export_only_selections,
-            export_lights=self.export_lights,
+            self,
         )
-
-        armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if len(armatures) > 1:
             return ops.wm.vrm_export_armature_selection("INVOKE_DEFAULT")
         if len(armatures) == 1:
@@ -273,17 +269,13 @@ def export_vrm(
         else (False, False, False)
     )
 
-    export_objects = search.export_objects(
+    armature_objects, export_objects = collect_export_objects(
         context,
         armature_object_name,
-        export_invisibles=export_preferences.export_invisibles,
-        export_only_selections=export_preferences.export_only_selections,
-        export_lights=export_lights,
+        export_preferences,
     )
 
-    armature_object: Optional[Object] = next(
-        (obj for obj in export_objects if obj.type == "ARMATURE"), None
-    )
+    armature_object: Optional[Object] = next(iter(armature_objects), None)
     is_vrm1 = False
 
     with save_workspace(
@@ -375,7 +367,23 @@ class VRM_PT_export_file_browser_tool_props(Panel):
                     icon="NONE" if index else "ERROR",
                 )
 
-        draw_export_preferences_layout(operator, layout)
+        show_vrm1_options = False
+        armature_objects, _ = collect_export_objects(
+            context, operator.armature_object_name, operator
+        )
+        if (
+            armature_objects
+            and (armature_object := armature_objects[0])
+            and (armature_data := armature_object.data)
+            and isinstance(armature_data, Armature)
+        ):
+            show_vrm1_options = get_armature_extension(armature_data).is_vrm1()
+
+        draw_export_preferences_layout(
+            operator,
+            layout,
+            show_vrm1_options=show_vrm1_options,
+        )
 
         if operator.errors:
             validation.WM_OT_vrm_validator.draw_errors(
@@ -480,14 +488,11 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
 
     def execute(self, context: Context) -> set[str]:
         preferences = get_preferences(context)
-        export_objects = search.export_objects(
+        armatures, _ = collect_export_objects(
             context,
             self.armature_object_name,
-            export_invisibles=preferences.export_invisibles,
-            export_only_selections=preferences.export_only_selections,
-            export_lights=preferences.export_lights,
+            preferences,
         )
-        armatures = [obj for obj in export_objects if obj.type == "ARMATURE"]
         if len(armatures) != 1:
             return {"CANCELLED"}
         armature = armatures[0]
@@ -526,17 +531,9 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
 
     def draw(self, context: Context) -> None:
         preferences = get_preferences(context)
-        armatures = [
-            obj
-            for obj in search.export_objects(
-                context,
-                self.armature_object_name,
-                export_invisibles=preferences.export_invisibles,
-                export_only_selections=preferences.export_only_selections,
-                export_lights=preferences.export_lights,
-            )
-            if obj.type == "ARMATURE"
-        ]
+        armatures, _ = collect_export_objects(
+            context, self.armature_object_name, preferences
+        )
         if not armatures:
             return
         armature = armatures[0]
@@ -882,3 +879,20 @@ def draw_help_message(layout: UILayout) -> None:
         text="Open help in a Web Browser",
     )
     open_op.url = pgettext("https://vrm-addon-for-blender.info/en/animation/")
+
+
+def collect_export_objects(
+    context: Context,
+    armature_object_name: str,
+    export_preferences: ExportPreferencesProtocol,
+) -> tuple[list[Object], list[Object]]:
+    export_objects = search.export_objects(
+        context,
+        armature_object_name,
+        export_invisibles=export_preferences.export_invisibles,
+        export_only_selections=export_preferences.export_only_selections,
+        export_lights=export_preferences.enable_advanced_preferences
+        and export_preferences.export_lights,
+    )
+    armature_objects = [obj for obj in export_objects if obj.type == "ARMATURE"]
+    return armature_objects, export_objects
