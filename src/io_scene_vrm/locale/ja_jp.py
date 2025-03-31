@@ -90,6 +90,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "4つに制限しません。ほとんどのビューアでは4つに制限するため、"
     + "ボーンを動かした際に予期しないメッシュの変形が発生する可能性があります。",
     ("*", "Export Lights"): "ライトをエクスポートする",
+    ("*", "Use Sparse Accessors"): "スパースアクセッサを利用する",
     (
         "*",
         "No error. Ready for export VRM",

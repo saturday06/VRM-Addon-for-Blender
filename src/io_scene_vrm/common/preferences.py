@@ -103,6 +103,7 @@ class ExportPreferencesProtocol(Protocol):
     export_all_influences: bool
     export_lights: bool
     export_gltf_animations: bool
+    export_try_sparse_sk: bool
 
 
 def copy_export_preferences(
@@ -115,6 +116,7 @@ def copy_export_preferences(
         destination.export_all_influences,
         destination.export_lights,
         destination.export_gltf_animations,
+        destination.export_try_sparse_sk,
     ) = (
         source.export_invisibles,
         source.export_only_selections,
@@ -122,6 +124,7 @@ def copy_export_preferences(
         source.export_all_influences,
         source.export_lights,
         source.export_gltf_animations,
+        source.export_try_sparse_sk,
     )
 
 
@@ -148,6 +151,10 @@ def draw_export_preferences_layout(
     advanced_options_box.prop(preferences, "export_all_influences")
     advanced_options_box.prop(preferences, "export_lights")
     advanced_options_box.prop(preferences, "export_gltf_animations")
+
+    # UniVRM 0.115.0 doesn't support `export_try_sparse_sk`
+    # https://github.com/saturday06/VRM-Addon-for-Blender/issues/381#issuecomment-1838365762
+    advanced_options_box.prop(preferences, "export_try_sparse_sk")
 
 
 class VrmAddonPreferences(AddonPreferences):
@@ -217,6 +224,9 @@ class VrmAddonPreferences(AddonPreferences):
     export_gltf_animations: BoolProperty(  # type: ignore[valid-type]
         name="Export glTF Animations",
     )
+    export_try_sparse_sk: BoolProperty(  # type: ignore[valid-type]
+        name="Use Sparse Accessors",
+    )
 
     def draw(self, _context: Context) -> None:
         layout = self.layout
@@ -258,6 +268,7 @@ class VrmAddonPreferences(AddonPreferences):
         export_all_influences: bool  # type: ignore[no-redef]
         export_lights: bool  # type: ignore[no-redef]
         export_gltf_animations: bool  # type: ignore[no-redef]
+        export_try_sparse_sk: bool  # type: ignore[no-redef]
 
 
 def get_preferences(context: Context) -> VrmAddonPreferences:

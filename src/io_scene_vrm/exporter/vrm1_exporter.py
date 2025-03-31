@@ -100,6 +100,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             export_preferences.enable_advanced_preferences
             and export_preferences.export_gltf_animations
         )
+        self.export_try_sparse_sk = (
+            export_preferences.enable_advanced_preferences
+            and export_preferences.export_try_sparse_sk
+        )
 
         self.extras_main_armature_key = (
             INTERNAL_NAME_PREFIX + self.export_id + "MainArmature"
@@ -2406,9 +2410,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         export_all_influences=self.export_all_influences,
                         # TODO: Expose UI Option, Unity allows light export
                         export_lights=self.export_lights,
-                        # UniVRM 0.115.0 doesn't support `export_try_sparse_sk`
-                        # https://github.com/saturday06/VRM-Addon-for-Blender/issues/381#issuecomment-1838365762
-                        export_try_sparse_sk=False,
+                        export_try_sparse_sk=self.export_try_sparse_sk,
                     )
                 )
                 if export_scene_gltf_result == {"CANCELLED"}:
