@@ -90,6 +90,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "4つに制限しません。ほとんどのビューアでは4つに制限するため、"
     + "ボーンを動かした際に予期しないメッシュの変形が発生する可能性があります。",
     ("*", "Export Lights"): "ライトをエクスポートする",
+    ("*", "Export glTF Animations"): "glTFアニメーションをエクスポートする",
     ("*", "Use Sparse Accessors"): "スパースアクセッサを利用する",
     (
         "*",
@@ -105,6 +106,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Create VRM Model"): "VRMモデルを作成",
     ("*", "Check as VRM Model"): "VRMモデルのチェック",
     ("*", "Extract texture images into the folder"): "テクスチャ画像をフォルダに展開",
+    (
+        "*",
+        "Don't overwrite existing texture folder",
+    ): "すでに存在するフォルダを上書きしない",
     (
         "*",
         'Official add-on "glTF 2.0 format" is required. Please enable it.',
