@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.37.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.36.0...v2.37.0) (2025-03-31)
+
+
+### 🚀 Features
+
+* add sparse accessors export option for vrm1 ([723503e](https://github.com/saturday06/VRM-Addon-for-Blender/commit/723503eec0ac5ce291a8dafc537909e80db6d59b))
+* automatic upload of release files to extensions.blender.org ([f1106d2](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f1106d2b28c414acd356905b9f2b4caf6f45509d))
+* hide advanced options on newly created env ([dff0f64](https://github.com/saturday06/VRM-Addon-for-Blender/commit/dff0f646399e78e8cd332eaeaf4d0c844cbb73dd))
+* hide vrm1 export option on the dialog for vrm0 export. ([a8c1ef4](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a8c1ef4fc671bcf20c5ea2068512592dafaf6901))
+
+
+### 🐞 Bug Fixes
+
+* “Export Lights” and “Export glTF Animations” options not being set correctly ([a492f82](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a492f824ffd92d8f8aafac28c1ad0f6b92d7a660))
+
 ## [2.36.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.35.1...v2.36.0) (2025-03-30)
 
 
