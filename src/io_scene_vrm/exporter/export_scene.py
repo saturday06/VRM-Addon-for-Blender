@@ -255,20 +255,6 @@ def export_vrm(
     ) != {"FINISHED"}:
         return {"CANCELLED"}
 
-    (
-        export_all_influences,
-        export_lights,
-        export_gltf_animations,
-    ) = (
-        (
-            export_preferences.export_all_influences,
-            export_preferences.export_lights,
-            export_preferences.export_gltf_animations,
-        )
-        if export_preferences.enable_advanced_preferences
-        else (False, False, False)
-    )
-
     armature_objects, export_objects = collect_export_objects(
         context,
         armature_object_name,
@@ -303,9 +289,7 @@ def export_vrm(
                 context,
                 export_objects,
                 armature_object,
-                export_all_influences=export_all_influences,
-                export_lights=export_lights,
-                export_gltf_animations=export_gltf_animations,
+                export_preferences,
             )
         else:
             vrm_exporter = Vrm0Exporter(

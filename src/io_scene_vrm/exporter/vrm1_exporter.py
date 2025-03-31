@@ -37,6 +37,7 @@ from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.gltf import pack_glb, parse_glb
 from ..common.logger import get_logger
+from ..common.preferences import ExportPreferencesProtocol
 from ..common.rotation import (
     ROTATION_MODE_EULER,
     get_rotation_as_quaternion,
@@ -83,16 +84,22 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         context: Context,
         export_objects: Sequence[Object],
         armature: Object,
-        *,
-        export_all_influences: bool,
-        export_lights: bool,
-        export_gltf_animations: bool,
+        export_preferences: ExportPreferencesProtocol,
     ) -> None:
         super().__init__(context, export_objects, armature)
 
-        self.export_all_influences = export_all_influences
-        self.export_lights = export_lights
-        self.export_gltf_animations = export_gltf_animations
+        self.export_all_influences = (
+            export_preferences.enable_advanced_preferences
+            and export_preferences.export_all_influences
+        )
+        self.export_lights = (
+            export_preferences.enable_advanced_preferences
+            and export_preferences.export_lights
+        )
+        self.export_gltf_animations = (
+            export_preferences.enable_advanced_preferences
+            and export_preferences.export_gltf_animations
+        )
 
         self.extras_main_armature_key = (
             INTERNAL_NAME_PREFIX + self.export_id + "MainArmature"
