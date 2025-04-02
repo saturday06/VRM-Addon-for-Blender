@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import process from "node:process";
-import { dirname, basename } from "path";
-import { existsSync, promises, readFileSync } from "fs";
+import { basename, dirname } from "node:path";
+import { existsSync, promises, readFileSync } from "node:fs";
 import gltfValidator from "gltf-validator";
 
 const basePath = process.env.BLENDER_VRM_TEST_RESOURCES_PATH || process.cwd();

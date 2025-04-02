@@ -11,7 +11,6 @@
 /docs/website/.hugo_build.lock
 /docs/website/public/
 /docs/website/resources/_gen/
-/node_modules/
 /tests/resources/unity/*/*.csproj
 /tests/resources/unity/*/*.sln
 /tests/resources/unity/*/.idea/

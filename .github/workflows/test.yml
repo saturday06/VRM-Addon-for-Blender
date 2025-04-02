@@ -157,6 +157,9 @@ jobs:
           sudo apt-get install -y python3 shellcheck shfmt uchardet
         env:
           DEBIAN_FRONTEND: noninteractive
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: vx.x.x
       - uses: actions/checkout@v4
       - name: Disable git config core.quotepath
         run: git config core.quotepath off
@@ -214,9 +217,6 @@ jobs:
           git diff --exit-code
       - name: Install hadolint
         run: ./tools/install_hadolint.sh
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .node-version
       - name: Lint
         run: ./tools/lint.sh
       - name: Sanity Check
@@ -258,4 +258,6 @@ jobs:
           VALIDATE_PYTHON_MYPY: false
           VALIDATE_PYTHON_PYINK: false
           VALIDATE_PYTHON_PYLINT: false
+          VALIDATE_TYPESCRIPT_ES: false
+          VALIDATE_TYPESCRIPT_STANDARD: false
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

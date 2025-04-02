@@ -191,7 +191,7 @@ WORKDIR /home/developer
 # できれば "remoteEnv" で設定したいが、現在のJetBrains製品だと反映されないのでここで設定
 ENV BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 ENV BLENDER_VRM_DEVCONTAINER_SPECIAL_WORKAROUNDS=yes
-ENV PATH=/home/developer/.cargo/bin:/home/developer/.local/bin:$PATH
+ENV PATH=/home/developer/.deno/bin:/home/developer/.cargo/bin:/home/developer/.local/bin:$PATH
 ENV UV_LINK_MODE=copy
 
 # JetBrains製品は自動で `~/.cache` フォルダを作成するが、それだとフォルダの権限がroot:rootになる。
@@ -199,4 +199,4 @@ ENV UV_LINK_MODE=copy
 RUN mkdir -p .cache
 
 RUN curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
-RUN curl --fail --show-error --location https://fnm.vercel.app/install | bash
+RUN curl --fail --show-error --location https://deno.land/install.sh | sh

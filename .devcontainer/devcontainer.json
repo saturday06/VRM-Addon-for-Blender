@@ -22,8 +22,7 @@
   "mounts": [
     // ホスト側との共有から除外するフォルダを設定
     // https://github.com/microsoft/vscode-remote-release/issues/620#issuecomment-1086709509
-    "type=volume,target=${containerWorkspaceFolder}/.venv",
-    "type=volume,target=${containerWorkspaceFolder}/node_modules"
+    "type=volume,target=${containerWorkspaceFolder}/.venv"
   ],
   "customizations": {
     "vscode": {
@@ -38,7 +37,7 @@
         "EditorConfig.EditorConfig",
         "cesium.gltf-vscode",
         "charliermarsh.ruff",
-        "esbenp.prettier-vscode",
+        "denoland.vscode-deno",
         "ms-azuretools.vscode-docker",
         "ms-python.python",
         "ms-python.vscode-pylance",

@@ -1,3 +1,5 @@
+// deno-lint-ignore-file no-window
+
 (function () {
   const localizedFolders = ["en", "ja"];
 

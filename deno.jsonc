@@ -1,0 +1,16 @@
+{
+  "exclude": [
+    "docs/website/**/*.md",
+    "docs/website/layouts/**/*.html",
+    "tests/resources/unity/*/ProjectSettings/*.json",
+    "CHANGELOG.md"
+  ],
+  "tasks": {
+    "pyright": "uv run -- deno run --allow-env --allow-read --allow-write --allow-run npm:pyright --warnings",
+    "vrm-validator": "deno run --allow-env --allow-read ./tools/vrm_validator.js"
+  },
+  "imports": {
+    "gltf-validator": "npm:gltf-validator@^2.0.0-dev.3.10",
+    "pyright": "npm:pyright@^1.1.398"
+  }
+}

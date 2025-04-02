@@ -12,15 +12,15 @@ call uv run ruff format
 echo ### ruff check --fix ###
 call uv run ruff check --fix
 
-echo ### npm ###
-where npm
+echo ### deno ###
+where deno
 if %errorlevel% neq 0 (
-  echo *** Please install `npm` command ***
+  echo *** Please install `deno` command ***
   goto :error
 )
 
-echo ### prettier ###
-call npm exec --yes -- prettier --write .
+echo ### deno fmt ###
+call deno fmt
 
 popd
 

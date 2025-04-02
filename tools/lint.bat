@@ -20,25 +20,23 @@ echo ### mypy ###
 call uv run mypy --show-error-codes .
 if %errorlevel% neq 0 goto :error
 
-echo ### npm ###
-where npm > nul
+echo ### deno ###
+where deno > nul
 if %errorlevel% neq 0 (
-  echo *** Please install `npm` command ***
+  echo *** Please install `deno` command ***
   goto :error
 )
-call npm install > nul
+
+echo ### deno lint ###
+call deno lint
 if %errorlevel% neq 0 goto :error
 
 echo ### pyright ###
-call uv run .\node_modules\.bin\pyright.cmd --warnings
-if %errorlevel% neq 0 goto :error
-
-echo ### prettier ###
-call npm exec --yes -- prettier --check .
+call deno run pyright
 if %errorlevel% neq 0 goto :error
 
 echo ### vrm validator ###
-call npm exec --yes --package=gltf-validator -- node .\tools\vrm_validator.js
+call deno run vrm-validator
 if %errorlevel% neq 0 goto :error
 
 popd

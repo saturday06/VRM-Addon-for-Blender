@@ -1,6 +1,0 @@
-overrides:
-  # devcontainer.jsonの中身はjsonc
-  # https://github.com/devcontainers/spec/blob/482e5f9e022c82f0f12e776f196df81a440eae03/docs/specs/devcontainer-reference.md#devcontainerjson
-  - files: /.devcontainer/devcontainer.json
-    options:
-      parser: jsonc
