@@ -32,7 +32,7 @@ indent_size = 2
 [*.rb]
 indent_size = 2
 
-[*.{js,json,jsonc,json5,mts}]
+[*.{js,json,jsonc,json5,mts,ts}]
 indent_size = 2
 
 [*.md]

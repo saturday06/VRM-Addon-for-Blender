@@ -7,7 +7,7 @@
   ],
   "tasks": {
     "pyright": "uv run -- deno run --allow-env --allow-read --allow-write --allow-run npm:pyright --warnings",
-    "vrm-validator": "deno run --allow-env --allow-read ./tools/vrm_validator.js"
+    "vrm-validator": "deno run --allow-env --allow-read ./tools/vrm_validator.ts"
   },
   "imports": {
     "gltf-validator": "npm:gltf-validator@^2.0.0-dev.3.10",
