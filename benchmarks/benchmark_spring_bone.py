@@ -76,9 +76,14 @@ def benchmark_spring_bone(context: Context) -> None:
     joints[1].stiffness = 0
 
     context.view_layer.update()
-    ops.vrm.update_spring_bone1_animation(delta_time=10000)
-    context.view_layer.update()
+
+    profiler = cProfile.Profile()
+    with profiler:
+        ops.vrm.update_spring_bone1_animation(delta_time=10000)
+        context.view_layer.update()
+
+    profiler.print_stats()
 
 
 if __name__ == "__main__":
-    cProfile.run("benchmark_spring_bone(bpy.context)")
+    benchmark_spring_bone(bpy.context)
