@@ -6,7 +6,7 @@
     "CHANGELOG.md"
   ],
   "tasks": {
-    "pyright": "uv run -- deno run --allow-env --allow-read --allow-write --allow-run npm:pyright --warnings",
+    "pyright": "uv run -- deno run --allow-env --allow-read --allow-write --allow-run --allow-sys --allow-ffi npm:pyright --warnings",
     "vrm-validator": "deno run --allow-env --allow-read ./tools/vrm_validator.ts"
   },
   "imports": {
