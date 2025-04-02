@@ -18,10 +18,15 @@ jobs:
   build-gh-pages:
     runs-on: ubuntu-24.04
     steps:
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: vx.x.x
       - uses: actions/checkout@v4
       - name: Build
         run: |
           set -x
+
+          deno task docs:build || true
 
           if [ "$GITHUB_REF_NAME" == "README" ]; then
             git fetch --depth=1 origin main

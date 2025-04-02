@@ -22,7 +22,8 @@
   "mounts": [
     // ホスト側との共有から除外するフォルダを設定
     // https://github.com/microsoft/vscode-remote-release/issues/620#issuecomment-1086709509
-    "type=volume,target=${containerWorkspaceFolder}/.venv"
+    "type=volume,target=${containerWorkspaceFolder}/.venv",
+    "type=volume,target=${containerWorkspaceFolder}/node_modules"
   ],
   "customizations": {
     "vscode": {

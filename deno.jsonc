@@ -6,11 +6,19 @@
     "CHANGELOG.md"
   ],
   "tasks": {
-    "pyright": "uv run -- deno run --allow-env --allow-read --allow-write --allow-run --allow-sys --allow-ffi npm:pyright --warnings",
+    "docs:build": "deno run --allow-env --allow-ffi --allow-read --allow-run --allow-sys --allow-write npm:vitepress build",
+    "docs:dev": "deno run --allow-env --allow-ffi --allow-net --allow-read --allow-run --allow-sys --allow-write npm:vitepress dev",
+    "docs:preview": "deno run --allow-env --allow-ffi --allow-read --allow-run --allow-sys --allow-write npm:vitepress preview",
+    "pyright": "uv run -- deno run --allow-env --allow-ffi --allow-read --allow-run --allow-sys --allow-write npm:pyright --warnings",
     "vrm-validator": "deno run --allow-env --allow-read ./tools/vrm_validator.ts"
   },
+  // Workaround for VitePress
+  // https://github.com/denoland/deno/issues/20609#issuecomment-2762970307
+  "nodeModulesDir": "auto",
   "imports": {
     "gltf-validator": "npm:gltf-validator@^2.0.0-dev.3.10",
-    "pyright": "npm:pyright@^1.1.398"
+    "pyright": "npm:pyright@^1.1.398",
+    "vitepress": "npm:vitepress@^1.6.3",
+    "vue": "npm:vue@^3.5.13"
   }
 }
