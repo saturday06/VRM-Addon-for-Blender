@@ -8,8 +8,10 @@ VRM Add-on for Blender is an add-on to add VRM-related functions into Blender.
 
 ## Download
 
-- For Blender 4.2 or later: [🛠️**Blender Extensions Platform**](https://extensions.blender.org/add-ons/vrm).
-- For Blender 2.93 to 4.1: [🌐**The Official Site**](https://vrm-addon-for-blender.info).
+- For Blender 4.2 or later:
+  [🛠️**Blender Extensions Platform**](https://extensions.blender.org/add-ons/vrm).
+- For Blender 2.93 to 4.1:
+  [🌐**The Official Site**](https://vrm-addon-for-blender.info).
 
 ## Tutorials
 
@@ -23,13 +25,26 @@ VRM Add-on for Blender is an add-on to add VRM-related functions into Blender.
 
 ## Overview
 
-This add-on adds VRM-related functions to Blender, such as importing and exporting VRM, adding VRM Humanoid and setting MToon shaders. Bug reports, feature requests, pull requests, etc. are welcome. I have taken over the development after [Version 0.79](https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8/releases/tag/0.79) from the author, [@iCyP](https://github.com/iCyP).
+This add-on adds VRM-related functions to Blender, such as importing and
+exporting VRM, adding VRM Humanoid and setting MToon shaders. Bug reports,
+feature requests, pull requests, etc. are welcome. I have taken over the
+development after
+[Version 0.79](https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8/releases/tag/0.79)
+from the author, [@iCyP](https://github.com/iCyP).
 
 ## Development
 
-The source code for development is in the [`main`](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main) branch. Its [`src/io_scene_vrm`](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm) folder is a main body of the add-on. For efficient development, you can create a link to that folder in the Blender `addons` folder.
+The source code for development is in the
+[`main`](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main) branch.
+Its
+[`src/io_scene_vrm`](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm)
+folder is a main body of the add-on. For efficient development, you can create a
+link to that folder in the Blender `addons` folder.
 
-For more advanced development, such as running tests, please use [astral.sh/uv](https://docs.astral.sh/uv/). See [the tutorial](https://vrm-addon-for-blender.info/en/development?locale_redirection) for more information.
+For more advanced development, such as running tests, please use
+[astral.sh/uv](https://docs.astral.sh/uv/). See
+[the tutorial](https://vrm-addon-for-blender.info/en/development?locale_redirection)
+for more information.
 
 ```text
 git checkout main
@@ -69,8 +84,10 @@ BlenderにVRM関連機能を追加するアドオンです。
 
 ## ダウンロード
 
-- Blender 4.2以上をお使いの場合: [🛠️**Blender Extensions Platform**](https://extensions.blender.org/add-ons/vrm)
-- Blender 2.93から4.1をお使いの場合: [🌐**オフィシャルWebサイト**](https://vrm-addon-for-blender.info)
+- Blender 4.2以上をお使いの場合:
+  [🛠️**Blender Extensions Platform**](https://extensions.blender.org/add-ons/vrm)
+- Blender 2.93から4.1をお使いの場合:
+  [🌐**オフィシャルWebサイト**](https://vrm-addon-for-blender.info)
 
 ## チュートリアル
 
@@ -84,12 +101,17 @@ BlenderにVRM関連機能を追加するアドオンです。
 
 ## 概要
 
-BlenderにVRMのインポートやエクスポート、VRM Humanoidの追加やMToonシェーダーの設定などのVRM関連機能を追加するアドオンです。バグ報告、機能要望、Pull Request等歓迎します。[バージョン 0.79](https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8/releases/tag/0.79)以降の開発を作者である[@iCyP](https://github.com/iCyP)さんから引き継ぎました。
+BlenderにVRMのインポートやエクスポート、VRM
+Humanoidの追加やMToonシェーダーの設定などのVRM関連機能を追加するアドオンです。バグ報告、機能要望、Pull
+Request等歓迎します。[バージョン 0.79](https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8/releases/tag/0.79)以降の開発を作者である[@iCyP](https://github.com/iCyP)さんから引き継ぎました。
 
 ## 改造するには
 
-開発用のソースコードは [`main`](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main)ブランチにあります。ブランチ内の [`src/io_scene_vrm`](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm) フォルダがアドオン本体です。
-そのフォルダへのリンクをBlenderの `addons` フォルダ内に作ることで効率的に開発をすることができます。
+開発用のソースコードは
+[`main`](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main)ブランチにあります。ブランチ内の
+[`src/io_scene_vrm`](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm)
+フォルダがアドオン本体です。 そのフォルダへのリンクをBlenderの `addons`
+フォルダ内に作ることで効率的に開発をすることができます。
 
 テストの実行など、より高度な開発をする場合は[astral.sh/uv](https://docs.astral.sh/uv/)をご利用ください。詳しい情報は[チュートリアル](https://vrm-addon-for-blender.info/en/development?locale_redirection)にあります。
 
