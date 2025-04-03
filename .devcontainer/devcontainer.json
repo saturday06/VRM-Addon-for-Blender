@@ -32,7 +32,13 @@
         "python.defaultInterpreterPath": "./.venv/bin/python",
         "python.testing.pytestEnabled": false,
         "python.testing.unittestEnabled": true,
-        "terminal.integrated.scrollback": 50000
+        "terminal.integrated.scrollback": 50000,
+        "[typescript]": {
+          "editor.defaultFormatter": "denoland.vscode-deno"
+        },
+        "[jsonc]": {
+          "editor.defaultFormatter": "denoland.vscode-deno"
+        }
       },
       "extensions": [
         "EditorConfig.EditorConfig",
