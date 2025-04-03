@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-import contextlib
 import json
 from typing import Optional, Union
 
@@ -9,6 +8,7 @@ from bpy.types import (
     CopyRotationConstraint,
     DampedTrackConstraint,
     EditBone,
+    Image,
     Mesh,
     Object,
     PoseBone,
@@ -62,6 +62,35 @@ logger = get_logger(__name__)
 
 
 class Vrm1Importer(AbstractBaseVrmImporter):
+    @staticmethod
+    def assign_texture_colorspace(image: Image, preferred_colorspace: str) -> None:
+        colorspaces = [preferred_colorspace]
+        if preferred_colorspace == "Non-Color":
+            # https://github.com/saturday06/VRM-Addon-for-Blender/issues/336#issuecomment-1760729404
+            colorspaces.extend(["Linear", "Generic Data"])
+
+        colorspace_settings = image.colorspace_settings
+        exceptions: list[Exception] = []
+        for colorspace in colorspaces:
+            # colorspace_settings.nameに設定可能な値はBlenderのセットアップにより
+            # 変化する。例えばpypiのbpy 3.6.0はLinearかsRGBかしか選べない。
+            # それを検知するため 本来なら
+            # colorspace_settings.bl_rna.properties.get("name").enum_items
+            # などを参照したいが、Blender 2.93などでクラッシュするため使えない。
+            # 仕方がないので例外を拾いつつ代入が成功するまで試行する。
+            try:
+                colorspace_settings.name = colorspace
+            except TypeError as e:
+                exceptions.append(e)
+            else:
+                return
+
+        logger.error(
+            "image.colorspace_settings.name doesn't support %s:\n%s",
+            colorspaces,
+            "\n".join(map(str, exceptions)),
+        )
+
     def assign_texture(
         self,
         texture: Mtoon1TexturePropertyGroup,
@@ -72,19 +101,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             image = self.images.get(source)
             if image:
                 texture.source = image
-
-                # https://github.com/saturday06/VRM-Addon-for-Blender/issues/336#issuecomment-1760729404
-                colorspace_settings = image.colorspace_settings
-                try:
-                    colorspace_settings.name = texture.colorspace
-                except TypeError:
-                    logger.exception(
-                        "image.colorspace_settings.name doesn't support %s",
-                        texture.colorspace,
-                    )
-                    if texture.colorspace == "Non-Color":
-                        with contextlib.suppress(TypeError):
-                            colorspace_settings.name = "Generic Data"
+                self.assign_texture_colorspace(image, texture.colorspace)
 
         sampler = texture_dict.get("sampler")
         samplers = self.parse_result.json_dict.get("samplers")
