@@ -26,12 +26,12 @@ jobs:
         run: |
           set -x
 
-          deno task docs:build
-
           if [ "$GITHUB_REF_NAME" == "README" ]; then
             git fetch --depth=1 origin main
             git checkout main
           fi
+
+          deno task docs:build
 
           if ! curl \
             --fail \
