@@ -26,7 +26,7 @@ jobs:
         run: |
           set -x
 
-          deno task docs:build || true
+          deno task docs:build
 
           if [ "$GITHUB_REF_NAME" == "README" ]; then
             git fetch --depth=1 origin main

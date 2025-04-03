@@ -5,6 +5,7 @@ export default defineConfig({
   title: "VRM Format / VRM Add-on for Blender",
   description:
     "VRM format adds VRM import, export, and editing capabilities to Blender. It supports Blender versions 2.93 to 4.2.",
+  srcExclude: ["./website/**/*.md"],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [

@@ -13,7 +13,7 @@
   "workspaceFolder": "/workspace",
   "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/workspace,consistency=cached",
   "portsAttributes": {
-    "5173": {
+    "4173": {
       "label": "vitepress dev docs",
       "onAutoForward": "openPreview"
     }
