@@ -14,7 +14,11 @@
   "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/workspace,consistency=cached",
   "portsAttributes": {
     "4173": {
-      "label": "vitepress dev docs",
+      "label": "deno task docs:preview",
+      "onAutoForward": "openPreview"
+    },
+    "5173": {
+      "label": "deno task docs:dev",
       "onAutoForward": "openPreview"
     }
   },
