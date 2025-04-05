@@ -2,7 +2,7 @@
 import uuid
 from collections.abc import Iterator, ValuesView
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Protocol, TypeVar, overload
+from typing import TYPE_CHECKING, ClassVar, Optional, Protocol, TypeVar, overload
 
 import bpy
 from bpy.props import FloatProperty, PointerProperty, StringProperty
@@ -303,6 +303,10 @@ class BonePropertyGroup(PropertyGroup):
 
         return result
 
+    armature_data_name_and_bone_uuid_to_bone_name_cache: ClassVar[
+        dict[tuple[str, str], str]
+    ] = {}
+
     def get_bone_name(self) -> str:
         from .extension import get_bone_extension
 
@@ -316,9 +320,24 @@ class BonePropertyGroup(PropertyGroup):
         if not armature_data:
             return ""
 
-        # TODO: Optimization
+        # プロファイルの結果この関数が時間かかっていたのでキャッシュを用いて高速化
+        cache_key = (self.armature_data_name, self.bone_uuid)
+        cached_bone_name = self.armature_data_name_and_bone_uuid_to_bone_name_cache.get(
+            cache_key
+        )
+        if cached_bone_name is not None:
+            if (
+                cached_bone := armature_data.bones.get(cached_bone_name)
+            ) and get_bone_extension(cached_bone).uuid == self.bone_uuid:
+                return cached_bone_name
+            # キャッシュに古い値が一つでも入っていたら安全のため全てクリア
+            self.armature_data_name_and_bone_uuid_to_bone_name_cache.clear()
+
         for bone in armature_data.bones:
             if get_bone_extension(bone).uuid == self.bone_uuid:
+                self.armature_data_name_and_bone_uuid_to_bone_name_cache[cache_key] = (
+                    bone.name
+                )
                 return bone.name
 
         return ""
