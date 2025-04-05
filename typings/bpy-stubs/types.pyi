@@ -1771,6 +1771,7 @@ class Scene(ID):
     frame_current: int
     frame_end: int
 
+    def frame_set(self, frame: int, subframe: float = 0.0) -> None: ...
     @property
     def collection(self) -> Collection: ...
     @property
