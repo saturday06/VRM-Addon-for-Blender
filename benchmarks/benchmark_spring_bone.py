@@ -1,5 +1,5 @@
 import cProfile
-from pstats import SortKey
+from pstats import SortKey, Stats
 
 import bpy
 from bpy.types import Armature, Context
@@ -83,7 +83,7 @@ def benchmark_spring_bone(context: Context) -> None:
         ops.vrm.update_spring_bone1_animation(delta_time=10000)
         context.view_layer.update()
 
-    profiler.print_stats(SortKey.CUMULATIVE)
+    Stats(profiler).sort_stats(SortKey.CUMULATIVE).print_stats(100)
 
 
 if __name__ == "__main__":

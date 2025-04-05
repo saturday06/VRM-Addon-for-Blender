@@ -1,6 +1,6 @@
 import cProfile
 from pathlib import Path
-from pstats import SortKey
+from pstats import SortKey, Stats
 
 import bpy
 from bpy.types import Context
@@ -43,7 +43,7 @@ def benchmark_spring_bone(context: Context) -> None:
             )
         )
 
-    profiler.print_stats(SortKey.CUMULATIVE)
+    Stats(profiler).sort_stats(SortKey.CUMULATIVE).print_stats(100)
 
 
 if __name__ == "__main__":
