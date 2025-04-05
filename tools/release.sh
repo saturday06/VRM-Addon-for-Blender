@@ -73,7 +73,7 @@ git fetch --depth=1 origin release-archive
 git worktree add "${archive_branch_dir}" origin/release-archive
 rm -fr "${archive_branch_dir}/debug"
 mkdir -p "${archive_branch_dir}/debug"
-cp "${prefix_name}-${release_postfix}.zip" "${archive_branch_dir}/"
+# cp "${prefix_name}-${release_postfix}.zip" "${archive_branch_dir}/"
 if [ "$release_postfix" != "release" ]; then
   cp "$readme_tar_xz_abs_path" "${archive_branch_dir}/debug/"
 fi
