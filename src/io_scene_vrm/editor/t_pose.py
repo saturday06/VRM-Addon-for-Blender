@@ -655,26 +655,15 @@ def setup_humanoid_t_pose(
 
         saved_pose_bone_pose = PoseBonePose.save(armature.pose)
 
-        for bone in armature.pose.bones:
-            bone.bone.select = False
-
         ext = get_armature_extension(armature_data)
         saved_vrm1_look_at_preview = ext.vrm1.look_at.enable_preview
         if ext.is_vrm1() and ext.vrm1.look_at.enable_preview:
             # TODO: エクスポート時にここに到達する場合は事前に警告をすると親切
             ext.vrm1.look_at.enable_preview = False
-            if ext.vrm1.look_at.type == ext.vrm1.look_at.TYPE_BONE.identifier:
-                human_bones = ext.vrm1.humanoid.human_bones
 
-                left_eye_bone_name = human_bones.left_eye.node.bone_name
-                left_eye_bone = armature.pose.bones.get(left_eye_bone_name)
-                if left_eye_bone:
-                    set_rotation_without_mode_change(left_eye_bone, Quaternion())
-
-                right_eye_bone_name = human_bones.right_eye.node.bone_name
-                right_eye_bone = armature.pose.bones.get(right_eye_bone_name)
-                if right_eye_bone:
-                    set_rotation_without_mode_change(right_eye_bone, Quaternion())
+        for bone in armature.pose.bones:
+            bone.bone.select = False
+            set_rotation_without_mode_change(bone, Quaternion())
 
         if pose == humanoid.POSE_AUTO_POSE.identifier:
             ops.vrm.make_estimated_humanoid_t_pose(armature_object_name=armature.name)
