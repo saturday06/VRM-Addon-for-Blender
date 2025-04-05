@@ -80,9 +80,11 @@ fi
 (
   cd "${archive_branch_dir}"
   git add .
-  git config --global user.email "isamu@leafytree.jp"
-  git config --global user.name "[BOT] Isamu Mogi"
-  git commit -m "docs: release $version [BOT]"
+  if ! git diff --cached --quiet; then
+    git config --global user.email "isamu@leafytree.jp"
+    git config --global user.name "[BOT] Isamu Mogi"
+    git commit -m "docs: release $version [BOT]"
+  fi
 )
 
 readme_branch_dir=$(mktemp -d --suffix=-branch-README)
