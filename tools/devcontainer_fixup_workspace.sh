@@ -8,3 +8,7 @@ set -eu -o pipefail
 sudo env PYTHONDONTWRITEBYTECODE=1 ./tools/devcontainer_fixup_workspace_files.py
 
 ./tools/devcontainer_create_venv.sh
+
+if [ ! -d node_modules/.deno ]; then
+  deno install
+fi

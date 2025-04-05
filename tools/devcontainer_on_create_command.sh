@@ -27,5 +27,3 @@ for blender_version in \
   mkdir -p "$HOME/.config/blender/$blender_version/scripts/addons"
   ln -fs "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/scripts/addons/"
 done
-
-deno install
