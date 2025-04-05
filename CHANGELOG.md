@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.38.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.37.0...v2.38.0) (2025-04-05)
+
+
+### 🚀 Features
+
+* improved spring bone animation performance ([0bcef80](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0bcef80a9ad10286426a41a8c00eb2b783ff932e))
+
 ## [2.37.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.36.0...v2.37.0) (2025-03-31)
 
 
