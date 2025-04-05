@@ -47,7 +47,7 @@ from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 from .vrm0_exporter import Vrm0Exporter
 from .vrm1_exporter import Vrm1Exporter
-from .vrm_animation_exporter import VrmAnimationExporter
+from .uni_vrm_vrm_animation_exporter import UniVrmVrmAnimationExporter
 
 logger = get_logger(__name__)
 
@@ -446,7 +446,7 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
             armature = context.blend_data.objects.get(self.armature_object_name)
         if not armature:
             return {"CANCELLED"}
-        return VrmAnimationExporter.execute(context, Path(self.filepath), armature)
+        return UniVrmVrmAnimationExporter.execute(context, Path(self.filepath), armature)
 
     def invoke(self, context: Context, event: Event) -> set[str]:
         if WM_OT_vrma_export_prerequisite.detect_errors(
