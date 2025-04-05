@@ -12,6 +12,7 @@
 /docs/website/public/
 /docs/website/resources/_gen/
 /node_modules/
+/benchmarks/temp/
 /tests/resources/unity/*/*.csproj
 /tests/resources/unity/*/*.sln
 /tests/resources/unity/*/.idea/

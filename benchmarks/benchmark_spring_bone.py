@@ -1,14 +1,15 @@
 import cProfile
+from pathlib import Path
 from pstats import SortKey, Stats
 
 import bpy
+import requests
 from bpy.types import Armature, Context
 from mathutils import Vector
 
 from io_scene_vrm.common import ops, version
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
-    get_armature_extension,
 )
 
 addon_version = version.get_addon_version()
@@ -29,7 +30,16 @@ def benchmark_spring_bone(context: Context) -> None:
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
     clean_scene(context)
 
-    bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
+    url = "https://raw.githubusercontent.com/vrm-c/vrm-specification/c24d76d99a18738dd2c266be1c83f089064a7b5e/samples/VRM1_Constraint_Twist_Sample/vrm/VRM1_Constraint_Twist_Sample.vrm"
+    path = Path(__file__).parent / "temp" / "VRM1_Constraint_Twist_Sample.vrm"
+    path.parent.mkdir(exist_ok=True)
+    if not path.exists():
+        with requests.get(url, timeout=5 * 60) as response:
+            assert response.ok
+            path.write_bytes(response.content)
+
+    assert ops.import_scene.vrm(filepath=str(path)) == {"FINISHED"}
+
     armature = context.object
     if (
         not armature
@@ -38,44 +48,9 @@ def benchmark_spring_bone(context: Context) -> None:
     ):
         raise AssertionError
 
-    get_armature_extension(armature_data).addon_version = addon_version
-    get_armature_extension(armature_data).spec_version = spec_version
-    get_armature_extension(armature_data).spring_bone1.enable_animation = True
-
-    bpy.ops.object.mode_set(mode="EDIT")
-    root_bone = armature_data.edit_bones.new("root")
-    root_bone.head = Vector((0, 0, 0))
-    root_bone.tail = Vector((0, 1, 0))
-
-    joint_bone0 = armature_data.edit_bones.new("joint0")
-    joint_bone0.parent = root_bone
-    joint_bone0.head = Vector((0, 1, 0))
-    joint_bone0.tail = Vector((0, 2, 0))
-
-    joint_bone1 = armature_data.edit_bones.new("joint1")
-    joint_bone1.parent = joint_bone0
-    joint_bone1.head = Vector((0, 2, 0))
-    joint_bone1.tail = Vector((0, 3, 0))
-    bpy.ops.object.mode_set(mode="OBJECT")
-
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
-    assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
-    ) == {"FINISHED"}
-    assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
-    ) == {"FINISHED"}
-
-    joints = get_armature_extension(armature_data).spring_bone1.springs[0].joints
-    joints[0].node.bone_name = "joint0"
-    joints[0].gravity_power = 1
-    joints[0].drag_force = 1
-    joints[0].stiffness = 0
-    joints[1].node.bone_name = "joint1"
-    joints[1].gravity_power = 1
-    joints[1].drag_force = 1
-    joints[1].stiffness = 0
-
+    context.view_layer.update()
+    ops.vrm.update_spring_bone1_animation(delta_time=1.0 / 60.0)
+    armature.location = Vector((1, 0, 0))
     context.view_layer.update()
 
     profiler = cProfile.Profile()
