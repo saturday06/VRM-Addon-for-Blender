@@ -1,40 +1,6 @@
 # Changelog
 
-## [2.39.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.38.0...v2.39.0) (2025-04-05)
-
-
-### 🚀 Features
-
-* add a setting to export gltf animation or not ([bd5b2d3](https://github.com/saturday06/VRM-Addon-for-Blender/commit/bd5b2d3d0aaa9819969f4721660439a533ec5849))
-* add sparse accessors export option for vrm1 ([723503e](https://github.com/saturday06/VRM-Addon-for-Blender/commit/723503eec0ac5ce291a8dafc537909e80db6d59b))
-* automatic upload of release files to extensions.blender.org ([f1106d2](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f1106d2b28c414acd356905b9f2b4caf6f45509d))
-* hide advanced options on newly created env ([dff0f64](https://github.com/saturday06/VRM-Addon-for-Blender/commit/dff0f646399e78e8cd332eaeaf4d0c844cbb73dd))
-* hide vrm1 export option on the dialog for vrm0 export. ([a8c1ef4](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a8c1ef4fc671bcf20c5ea2068512592dafaf6901))
-* improved spring bone animation performance ([0bcef80](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0bcef80a9ad10286426a41a8c00eb2b783ff932e))
-* skip blender 3.1.2 workaround in new blender ([0dc0b72](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0dc0b721cbd59e166bde35d867a7cf673ff51864))
-* support Blender 4.4 ([0acc889](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0acc8890880b393bd1afc4c7cbf02c475c83b5b7))
-* use slotted actions api in blender 4.4 ([70c17c1](https://github.com/saturday06/VRM-Addon-for-Blender/commit/70c17c10952351ec9b021b43301a5d6c589a3a30))
-
-
-### 🐞 Bug Fixes
-
-* “Export Lights” and “Export glTF Animations” options not being set correctly ([a492f82](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a492f824ffd92d8f8aafac28c1ad0f6b92d7a660))
-* add workaround for non-weighted skinned mesh export error ([a47a0d2](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a47a0d289ea07527da24e63072601ed05eaae357))
-* export error during automatic modifier application ([48f526b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/48f526b8ca98992f7df1beb19a72a648911506cf))
-* export error when vertex weights are assigned to non-deform bone in VRM 1.0 ([244bbc1](https://github.com/saturday06/VRM-Addon-for-Blender/commit/244bbc13dc509d2a6cde9cf2ac9f9c04b111b01d))
-* prevent skinned mesh node parenting to make gltf validator happy ([1222f26](https://github.com/saturday06/VRM-Addon-for-Blender/commit/1222f2647d3959005fcba4e59a0797188d30008f))
-* regenerate release archives ([12e75bb](https://github.com/saturday06/VRM-Addon-for-Blender/commit/12e75bbc6576effeb61cfe193a6b2efe7bf695e5))
-* retry release process ([58da24a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/58da24a7b1fcc3866a08aad48ba137f5da2c55bb))
-* scene duplication bug when pasting mtoon enabled objects in Blender 3.5.1 or earlier ([6e9ff94](https://github.com/saturday06/VRM-Addon-for-Blender/commit/6e9ff94c0f8922ba2cbb63a5f42696afa63cbec5))
-* unexpected constrainted node rotation on export ([90809f0](https://github.com/saturday06/VRM-Addon-for-Blender/commit/90809f03bd3f07a5b8747e56802cd927a425ed73))
-* VRM export causes unexpected constrainted bone rotation ([2425087](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2425087a43b3f29f05a69fbf23745c2590cf54c8))
-
-
-### 📝 Documentation
-
-* remove deunnecessary notice ([24532bf](https://github.com/saturday06/VRM-Addon-for-Blender/commit/24532bf55d9a38420b731dd0d9637207cb57cff2))
-
-## [2.38.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.37.0...v2.38.0) (2025-04-05)
+## [2.39.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.37.0...v2.39.0) (2025-04-05)
 
 
 ### 🚀 Features
