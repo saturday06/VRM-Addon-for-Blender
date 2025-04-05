@@ -47,6 +47,9 @@ indent_size = unset
 [*.wsb]
 indent_size = 2
 
+[Dockerfile]
+indent_size = 2
+
 [deno.lock]
 indent_size = 2
 
