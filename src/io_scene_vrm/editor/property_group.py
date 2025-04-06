@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import uuid
-from collections.abc import Iterator, ValuesView
+from collections.abc import Iterator, Mapping, ValuesView
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Optional, Protocol, TypeVar, overload
 
@@ -247,7 +247,7 @@ class BonePropertyGroup(PropertyGroup):
     def find_bone_candidates(
         armature_data: Armature,
         target: HumanBoneSpecification,
-        bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
+        bpy_bone_name_to_human_bone_specification: Mapping[str, HumanBoneSpecification],
     ) -> set[str]:
         bones = armature_data.bones
         root_bones = [bone for bone in bones.values() if not bone.parent]
