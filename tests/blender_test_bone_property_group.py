@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+from collections.abc import Mapping
 from typing import Optional
 
 import bpy
@@ -17,17 +18,20 @@ Tree = dict[str, "Tree"]
 
 def assert_bone_candidates(
     armature: Object,
-    target_human_bone_specification: HumanBoneSpecification,
-    bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
+    *,
+    tree: Mapping[str, Tree],
+    mapping: Mapping[str, HumanBoneSpecification],
+    target: HumanBoneSpecification,
     expected: set[str],
-    tree: dict[str, Tree],
 ) -> None:
     bpy.ops.object.mode_set(mode="EDIT")
     if not isinstance(armature.data, Armature):
         raise TypeError
     for bone in list(armature.data.edit_bones):
         armature.data.edit_bones.remove(bone)
-    parent_and_trees: list[tuple[Optional[EditBone], dict[str, Tree]]] = [(None, tree)]
+    parent_and_trees: list[tuple[Optional[EditBone], Mapping[str, Tree]]] = [
+        (None, tree)
+    ]
     while parent_and_trees:
         (parent, tree) = parent_and_trees.pop()
         for child_name, child_tree in tree.items():
@@ -41,8 +45,8 @@ def assert_bone_candidates(
 
     got = BonePropertyGroup.find_bone_candidates(
         armature.data,
-        target_human_bone_specification,
-        bpy_bone_name_to_human_bone_specification,
+        target,
+        mapping,
     )
     diffs = got.symmetric_difference(expected)
     if diffs:
@@ -67,49 +71,65 @@ def test(context: Context) -> None:
             ".editor.property_group.BonePropertyGroup"
         )
 
-    assert_bone_candidates(armature, HumanBoneSpecifications.HIPS, {}, set(), {})
-    assert_bone_candidates(
-        armature, HumanBoneSpecifications.HIPS, {}, {"hips"}, {"hips": {}}
-    )
     assert_bone_candidates(
         armature,
-        HumanBoneSpecifications.HIPS,
-        {"hips": HumanBoneSpecifications.HIPS},
-        {"hips"},
-        {"hips": {}},
+        tree={},
+        mapping={},
+        target=HumanBoneSpecifications.HIPS,
+        expected=set(),
     )
+
     assert_bone_candidates(
         armature,
-        HumanBoneSpecifications.HIPS,
-        {},
-        {"hips", "spine"},
-        {"hips": {"spine": {}}},
+        tree={"hips": {}},
+        mapping={},
+        target=HumanBoneSpecifications.HIPS,
+        expected={"hips"},
     )
+
     assert_bone_candidates(
         armature,
-        HumanBoneSpecifications.SPINE,
-        {"hips": HumanBoneSpecifications.HIPS},
-        {"spine"},
-        {"hips": {"spine": {}}},
+        tree={"hips": {}},
+        mapping={"hips": HumanBoneSpecifications.HIPS},
+        target=HumanBoneSpecifications.HIPS,
+        expected={"hips"},
     )
+
     assert_bone_candidates(
         armature,
-        HumanBoneSpecifications.SPINE,
-        {
+        tree={"hips": {"spine": {}}},
+        mapping={},
+        target=HumanBoneSpecifications.HIPS,
+        expected={"hips", "spine"},
+    )
+
+    assert_bone_candidates(
+        armature,
+        tree={"hips": {"spine": {}}},
+        mapping={"hips": HumanBoneSpecifications.HIPS},
+        target=HumanBoneSpecifications.SPINE,
+        expected={"spine"},
+    )
+
+    assert_bone_candidates(
+        armature,
+        tree={"hips": {"spine": {"head": {}}}},
+        mapping={
             "hips": HumanBoneSpecifications.HIPS,
             "head": HumanBoneSpecifications.HEAD,
         },
-        {"spine"},
-        {"hips": {"spine": {"head": {}}}},
+        target=HumanBoneSpecifications.SPINE,
+        expected={"spine"},
     )
+
     assert_bone_candidates(
         armature,
-        HumanBoneSpecifications.SPINE,
-        {
+        tree={"hips": {"spine": {"head": {}}}},
+        mapping={
             "hips": HumanBoneSpecifications.HIPS,
         },
-        {"spine", "head"},
-        {"hips": {"spine": {"head": {}}}},
+        target=HumanBoneSpecifications.SPINE,
+        expected={"spine", "head"},
     )
 
 
