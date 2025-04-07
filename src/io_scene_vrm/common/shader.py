@@ -98,7 +98,7 @@ from .char import INTERNAL_NAME_PREFIX
 from .gl import GL_CLAMP_TO_EDGE, GL_LINEAR, GL_NEAREST, GL_REPEAT
 from .logger import get_logger
 from .version import get_addon_version
-from .workspace import save_workspace, wm_append_without_library
+from .workspace import wm_append_without_library
 
 logger = get_logger(__name__)
 
@@ -307,21 +307,18 @@ def load_mtoon1_node_group(
         )
 
     node_tree_path = str(blend_file_path) + "/NodeTree"
-
-    # https://projects.blender.org/blender/blender/src/tag/v2.93.18/source/blender/windowmanager/intern/wm_files_link.c#L85-L90
-    with save_workspace(context):
-        node_tree_append_result = wm_append_without_library(
-            context,
-            blend_file_path,
-            append_filepath=(node_tree_path + "/" + template_node_group_name),
-            append_filename=template_node_group_name,
-            append_directory=node_tree_path,
+    node_tree_append_result = wm_append_without_library(
+        context,
+        blend_file_path,
+        append_filepath=(node_tree_path + "/" + template_node_group_name),
+        append_filename=template_node_group_name,
+        append_directory=node_tree_path,
+    )
+    if node_tree_append_result != {"FINISHED"}:
+        raise RuntimeError(
+            "Failed to append MToon 1.0 template node group "
+            + f'"{template_node_group_name}": {node_tree_append_result}'
         )
-        if node_tree_append_result != {"FINISHED"}:
-            raise RuntimeError(
-                "Failed to append MToon 1.0 template node group "
-                + f'"{template_node_group_name}": {node_tree_append_result}'
-            )
 
     template_node_group = None
     try:
@@ -427,22 +424,19 @@ def load_mtoon1_shader(
 
     blend_file_path = Path(__file__).with_name("mtoon1.blend")
     material_path = str(blend_file_path) + "/Material"
-
-    # https://projects.blender.org/blender/blender/src/tag/v2.93.18/source/blender/windowmanager/intern/wm_files_link.c#L85-L90
-    with save_workspace(context):
-        material_append_result = wm_append_without_library(
-            context,
-            blend_file_path,
-            append_filepath=material_path + "/" + template_material_name,
-            append_filename=template_material_name,
-            append_directory=material_path,
-            # do_reuse_local_id=True
+    material_append_result = wm_append_without_library(
+        context,
+        blend_file_path,
+        append_filepath=material_path + "/" + template_material_name,
+        append_filename=template_material_name,
+        append_directory=material_path,
+        # do_reuse_local_id=True
+    )
+    if material_append_result != {"FINISHED"}:
+        raise RuntimeError(
+            "Failed to append MToon 1.0 template material: "
+            + f"{material_append_result}"
         )
-        if material_append_result != {"FINISHED"}:
-            raise RuntimeError(
-                "Failed to append MToon 1.0 template material: "
-                + f"{material_append_result}"
-            )
 
     template_material = None
     try:
