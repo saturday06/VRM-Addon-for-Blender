@@ -25,7 +25,6 @@ from bpy.types import (
     Object,
     PropertyGroup,
 )
-from mathutils import Vector
 
 from ...common.logger import get_logger
 from ...common.vrm0.human_bone import (
@@ -774,15 +773,28 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
         uuid: str  # type: ignore[no-redef]
 
 
+# Define and register the new animation state property group.
+class Vrm0SecondaryAnimationGroupAnimationStatePropertyGroup(PropertyGroup):
+    bl_idname = "VRM0SecondaryAnimationGroupAnimationStatePropertyGroup"
+    bl_label = "VRM0 Secondary Animation Group Animation State"
+
+    use_center_space: BoolProperty(  # type: ignore[valid-type]
+        name="Use Center Space",
+        default=False,
+    )
+    previous_center_world_translation: FloatVectorProperty(  # type: ignore[valid-type]
+        name="Previous Center World Translation",
+        size=3,
+        default=(0.0, 0.0, 0.0),
+    )
+
+
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L32-L67
 class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
     comment: StringProperty(  # type: ignore[valid-type]
         name="Comment",
         description="Comment about the purpose of springs",
     )
-
-    # typo in VRM 0.0 specification
-    # https://github.com/vrm-c/vrm-specification/blob/1723a45abfb4f12ac5d3635a3f66dc45e2f93c83/specification/0.0/schema/vrm.secondaryanimation.spring.schema.json#L9-L12
     stiffiness: FloatProperty(  # type: ignore[valid-type]
         name="Stiffness",
         min=0.0,
@@ -790,7 +802,6 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
         subtype="FACTOR",
         description="Stiffness of springs",
     )
-
     gravity_power: FloatProperty(  # type: ignore[valid-type]
         name="Gravity Power",
         min=0.0,
@@ -798,21 +809,13 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
         subtype="FACTOR",
         description="Gravity power of springs",
     )
-
-    def update_gravity_dir(self, _context: Context) -> None:
-        gravity_dir = Vector(self.gravity_dir)
-        normalized_gravity_dir = gravity_dir.normalized()
-        if (gravity_dir - normalized_gravity_dir).length > 0.0001:
-            self.gravity_dir = normalized_gravity_dir
-
     gravity_dir: FloatVectorProperty(  # type: ignore[valid-type]
+        name="Gravity Direction",
         size=3,
         min=-1,
         max=1,
         subtype="XYZ",
-        name="Gravity Direction",
         description="Gravity direction of springs",
-        update=update_gravity_dir,
     )
     drag_force: FloatProperty(  # type: ignore[valid-type]
         name="Drag Force",
@@ -823,7 +826,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
     )
     center: PointerProperty(  # type: ignore[valid-type]
         name="Center",
-        type=BonePropertyGroup,
+        type=BonePropertyGroup,  # assuming BonePropertyGroup is defined elsewhere
         description="Origin of Physics simulation to stop springs on moving",
     )
     hit_radius: FloatProperty(  # type: ignore[valid-type]
@@ -835,26 +838,26 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
     )
     bones: CollectionProperty(  # type: ignore[valid-type]
         name="Bones",
-        type=BonePropertyGroup,
+        type=BonePropertyGroup,  # assuming BonePropertyGroup is defined elsewhere
         description="Bones of the spring roots",
     )
     collider_groups: CollectionProperty(  # type: ignore[valid-type]
         name="Collider Group",
-        type=StringPropertyGroup,
+        type=StringPropertyGroup,  # assuming StringPropertyGroup is defined elsewhere
         description="Enabled collider Groups of springs",
     )
-
     # for UI
     show_expanded: BoolProperty()  # type: ignore[valid-type]
-    show_expanded_bones: BoolProperty(  # type: ignore[valid-type]
-        name="Bones"
-    )
-    show_expanded_collider_groups: BoolProperty(  # type: ignore[valid-type]
-        name="Collider Groups"
-    )
-
+    show_expanded_bones: BoolProperty(name="Bones")  # type: ignore[valid-type]
+    show_expanded_collider_groups: BoolProperty(name="Collider Groups")  # type: ignore[valid-type]
     active_bone_index: IntProperty(min=0)  # type: ignore[valid-type]
     active_collider_group_index: IntProperty(min=0)  # type: ignore[valid-type]
+
+    # NEW: Animation state pointer (mirroring vrm1)
+    animation_state: PointerProperty(  # type: ignore[valid-type]
+        name="Animation State",
+        type=Vrm0SecondaryAnimationGroupAnimationStatePropertyGroup,
+    )
 
     def refresh(self, armature: Object) -> None:
         from ..extension import get_armature_extension
@@ -1049,6 +1052,17 @@ class Vrm0BlendShapeMasterPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L69-L78
 class Vrm0SecondaryAnimationPropertyGroup(PropertyGroup):
+    def update_enable_animation(self, _context: Context) -> None:
+        for group in self.bone_groups:
+            for bone in group.bones:
+                if hasattr(bone, "animation_state"):
+                    bone.animation_state.initialized_as_tail = False  # type: ignore[valid-type]
+
+    enable_animation: BoolProperty(  # type: ignore[valid-type]
+        name="Enable Simulation",
+        default=False,
+        update=update_enable_animation,
+    )
     bone_groups: CollectionProperty(  # type: ignore[valid-type]
         name="Secondary Animation Groups",
         type=Vrm0SecondaryAnimationGroupPropertyGroup,

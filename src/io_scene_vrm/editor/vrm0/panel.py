@@ -852,6 +852,7 @@ def draw_vrm0_secondary_animation_layout(
     secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
 ) -> None:
     defer_migrate(armature.name)
+    layout.prop(secondary_animation, "enable_animation", icon="PLAY")
     draw_vrm0_secondary_animation_bone_groups_layout(
         armature, layout, secondary_animation
     )

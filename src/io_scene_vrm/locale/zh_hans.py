@@ -464,7 +464,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + " - 其他与glTF 2.0附加组件导出兼容的组件\n",
     (
         "*",
-        "Enable Animation",
+        "Enable Simulation",
     ): "使动画有效",
     (
         "*",
