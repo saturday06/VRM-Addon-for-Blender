@@ -70,14 +70,16 @@ class Vrm1HumanBonePropertyGroup(PropertyGroup):
         armature_data: Armature,
         target: HumanBoneSpecification,
         bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
-    ) -> None:
+        error_bpy_bone_names: Sequence[str],
+    ) -> bool:
         new_candidates = BonePropertyGroup.find_bone_candidates(
             armature_data,
             target,
             bpy_bone_name_to_human_bone_specification,
+            error_bpy_bone_names,
         )
         if {n.value for n in self.node_candidates} == new_candidates:
-            return
+            return False
 
         self.node_candidates.clear()
         # Preserving list order
@@ -86,6 +88,8 @@ class Vrm1HumanBonePropertyGroup(PropertyGroup):
                 continue
             candidate = self.node_candidates.add()
             candidate.value = bone_name
+
+        return True
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -461,22 +465,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
             last_bone_name = human_bones.last_bone_names.add()
             last_bone_name.value = bone_name
 
-        human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
-        bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification] = {
-            human_bone.node.bone_name: HumanBoneSpecifications.get(human_bone_name)
-            for human_bone_name, human_bone in human_bone_name_to_human_bone.items()
-            if human_bone.node.bone_name
-        }
-
-        for (
-            human_bone_name,
-            human_bone,
-        ) in human_bone_name_to_human_bone.items():
-            human_bone.update_node_candidates(
-                armature_data,
-                HumanBoneSpecifications.get(human_bone_name),
-                bpy_bone_name_to_human_bone_specification,
-            )
+        BonePropertyGroup.update_all_vrm1_node_candidates(armature_data)
 
     if TYPE_CHECKING:
         # This code is auto generated.

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import uuid
-from collections.abc import Iterator, Mapping, ValuesView
+from collections.abc import Iterator, Mapping, Sequence, ValuesView
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Optional, Protocol, TypeVar, overload
 
@@ -248,60 +248,44 @@ class BonePropertyGroup(PropertyGroup):
         armature_data: Armature,
         target: HumanBoneSpecification,
         bpy_bone_name_to_human_bone_specification: Mapping[str, HumanBoneSpecification],
+        error_bpy_bone_names: Sequence[str],
     ) -> set[str]:
         bones = armature_data.bones
-        root_bones = [bone for bone in bones.values() if not bone.parent]
-        result: set[str] = set(bones.keys())
-        remove_bones_tree: set[Bone] = set()
+        human_bone_name_to_bpy_bone_name = {
+            value.name: key
+            for key, value in bpy_bone_name_to_human_bone_specification.items()
+        }
 
-        for (
-            bpy_bone_name,
-            human_bone_specification,
-        ) in bpy_bone_name_to_human_bone_specification.items():
-            if human_bone_specification == target:
+        # targetの祖先のHuman Boneの割り当てがある場合はそこから探索を開始。
+        # 無い場合はルートボーンから探索を開始。
+        searching_bones: Optional[list[Bone]] = None
+        ancestor = target.parent()
+        while ancestor:
+            ancestor_bpy_bone_name = human_bone_name_to_bpy_bone_name.get(ancestor.name)
+            if ancestor_bpy_bone_name is not None and (
+                ancestor_bpy_bone := bones.get(ancestor_bpy_bone_name)
+            ):
+                if ancestor_bpy_bone.name in error_bpy_bone_names:
+                    return set()
+                searching_bones = list(ancestor_bpy_bone.children)
+                break
+            ancestor = ancestor.parent()
+        if not searching_bones:
+            searching_bones = [bone for bone in bones.values() if not bone.parent]
+
+        # 他の割り当て済みのHuman Boneにぶつかるまで、再帰的にボーンの名前を候補に追加
+        bone_candidates: set[str] = set()
+        while searching_bones:
+            searching_bone = searching_bones.pop()
+            human_bone_specification = bpy_bone_name_to_human_bone_specification.get(
+                searching_bone.name
+            )
+            if human_bone_specification and human_bone_specification != target:
                 continue
+            bone_candidates.add(searching_bone.name)
+            searching_bones.extend(searching_bone.children)
 
-            parent = bones.get(bpy_bone_name)
-            if not parent:
-                continue
-
-            if human_bone_specification.is_ancestor_of(target):
-                remove_ancestors = True
-                remove_ancestor_branches = True
-            elif target.is_ancestor_of(human_bone_specification):
-                remove_bones_tree.add(parent)
-                remove_ancestors = False
-                remove_ancestor_branches = True
-            else:
-                remove_bones_tree.add(parent)
-                remove_ancestors = True
-                remove_ancestor_branches = False
-
-            while True:
-                if remove_ancestors and parent.name in result:
-                    result.remove(parent.name)
-                grand_parent = parent.parent
-                if not grand_parent:
-                    if remove_ancestor_branches:
-                        remove_bones_tree.update(
-                            root_bone for root_bone in root_bones if root_bone != parent
-                        )
-                    break
-
-                if remove_ancestor_branches:
-                    for grand_parent_child in grand_parent.children:
-                        if grand_parent_child != parent:
-                            remove_bones_tree.add(grand_parent_child)
-
-                parent = grand_parent
-
-        while remove_bones_tree:
-            child = remove_bones_tree.pop()
-            if child.name in result:
-                result.remove(child.name)
-            remove_bones_tree.update(child.children)
-
-        return result
+        return bone_candidates
 
     armature_data_name_and_bone_uuid_to_bone_name_cache: ClassVar[
         dict[tuple[str, str], str]
@@ -411,44 +395,119 @@ class BonePropertyGroup(PropertyGroup):
         if not refresh_node_candidates:
             return
 
-        vrm0_bpy_bone_name_to_human_bone_specification: dict[
-            str, vrm0_human_bone.HumanBoneSpecification
-        ] = {
-            human_bone.node.bone_name: vrm0_human_bone.HumanBoneSpecifications.get(
-                vrm0_human_bone.HumanBoneName(human_bone.bone)
-            )
-            for human_bone in ext.vrm0.humanoid.human_bones
-            if human_bone.node.bone_name
-            and vrm0_human_bone.HumanBoneName.from_str(human_bone.bone) is not None
-        }
+        self.update_all_vrm0_node_candidates(armature_data)
+        self.update_all_vrm1_node_candidates(armature_data)
 
+    @staticmethod
+    def update_all_vrm0_node_candidates(armature_data: Armature) -> None:
+        from .extension import get_armature_extension
+
+        ext = get_armature_extension(armature_data)
+
+        bpy_bone_name_to_human_bone_specification: dict[
+            str, vrm0_human_bone.HumanBoneSpecification
+        ] = {}
         for human_bone in ext.vrm0.humanoid.human_bones:
-            human_bone.update_node_candidates(
-                armature_data,
-                vrm0_bpy_bone_name_to_human_bone_specification,
+            if not human_bone.node.bone_name:
+                continue
+            human_bone_name = vrm0_human_bone.HumanBoneName.from_str(human_bone.bone)
+            if human_bone_name is None:
+                continue
+            bpy_bone_name_to_human_bone_specification[human_bone.node.bone_name] = (
+                vrm0_human_bone.HumanBoneSpecifications.get(human_bone_name)
             )
+
+        # 親ノードがエラーだと子ノードは必ずエラーになるため、親から順番に設定していく
+        traversing_human_bone_specifications = [
+            vrm0_human_bone.HumanBoneSpecifications.HIPS
+        ]
+        error_bpy_bone_names = []
+        node_candidates_updated = True
+        while traversing_human_bone_specifications:
+            traversing_human_bone_specification = (
+                traversing_human_bone_specifications.pop()
+            )
+
+            if node_candidates_updated:
+                error_bpy_bone_names = [
+                    error_human_bone.node.bone_name
+                    for error_human_bone in ext.vrm0.humanoid.human_bones
+                    if error_human_bone.node.bone_name
+                    and error_human_bone.node.bone_name
+                    not in error_human_bone.node_candidates
+                ]
+
+            human_bone = next(
+                (
+                    human_bone
+                    for human_bone in ext.vrm0.humanoid.human_bones
+                    if vrm0_human_bone.HumanBoneName.from_str(human_bone.bone)
+                    == traversing_human_bone_specification.name
+                ),
+                None,
+            )
+            if human_bone:
+                node_candidates_updated = human_bone.update_node_candidates(
+                    armature_data,
+                    bpy_bone_name_to_human_bone_specification,
+                    error_bpy_bone_names,
+                )
+
+            traversing_human_bone_specifications.extend(
+                traversing_human_bone_specification.children()
+            )
+
+    @staticmethod
+    def update_all_vrm1_node_candidates(armature_data: Armature) -> None:
+        from .extension import get_armature_extension
+
+        ext = get_armature_extension(armature_data)
 
         human_bone_name_to_human_bone = (
             ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone()
         )
-        vrm1_bpy_bone_name_to_human_bone_specification: dict[
+        bpy_bone_name_to_human_bone_specification: dict[
             str, vrm1_human_bone.HumanBoneSpecification
-        ] = {
-            human_bone.node.bone_name: vrm1_human_bone.HumanBoneSpecifications.get(
-                human_bone_name
+        ] = {}
+        for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
+            if not human_bone.node.bone_name:
+                continue
+            bpy_bone_name_to_human_bone_specification[human_bone.node.bone_name] = (
+                vrm1_human_bone.HumanBoneSpecifications.get(human_bone_name)
             )
-            for human_bone_name, human_bone in human_bone_name_to_human_bone.items()
-            if human_bone.node.bone_name
-        }
 
-        for (
-            human_bone_name,
-            human_bone,
-        ) in human_bone_name_to_human_bone.items():
-            human_bone.update_node_candidates(
+        # 親ノードがエラーだと子ノードは必ずエラーになるため、親から順番に設定していく
+        traversing_human_bone_specifications = [
+            vrm1_human_bone.HumanBoneSpecifications.HIPS
+        ]
+        error_bpy_bone_names = []
+        node_candidates_updated = True
+        while traversing_human_bone_specifications:
+            traversing_human_bone_specification = (
+                traversing_human_bone_specifications.pop()
+            )
+
+            if node_candidates_updated:
+                error_bpy_bone_names = [
+                    error_human_bone.node.bone_name
+                    for error_human_bone in human_bone_name_to_human_bone.values()
+                    if error_human_bone.node.bone_name
+                    and error_human_bone.node.bone_name
+                    not in error_human_bone.node_candidates
+                ]
+
+            human_bone = human_bone_name_to_human_bone[
+                traversing_human_bone_specification.name
+            ]
+            node_candidates_updated = human_bone.update_node_candidates(
                 armature_data,
-                vrm1_human_bone.HumanBoneSpecifications.get(human_bone_name),
-                vrm1_bpy_bone_name_to_human_bone_specification,
+                traversing_human_bone_specification,
+                bpy_bone_name_to_human_bone_specification,
+                error_bpy_bone_names,
+            )
+
+            traversing_human_bone_specifications.extend(
+                traversing_human_bone_specification.children()
             )
 
     bone_name: StringProperty(  # type: ignore[valid-type]

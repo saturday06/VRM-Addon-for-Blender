@@ -47,6 +47,7 @@ def assert_bone_candidates(
         armature.data,
         target,
         mapping,
+        [],
     )
     diffs = got.symmetric_difference(expected)
     if diffs:
@@ -130,6 +131,22 @@ def test(context: Context) -> None:
         },
         target=HumanBoneSpecifications.SPINE,
         expected={"spine", "head"},
+    )
+
+    assert_bone_candidates(
+        armature,
+        tree={
+            "hips": {
+                "spine": {"chest": {"head": {"jaw": {}}}},
+                "tail": {},
+            }
+        },
+        mapping={
+            "hips": HumanBoneSpecifications.HIPS,
+            "head": HumanBoneSpecifications.HEAD,
+        },
+        target=HumanBoneSpecifications.SPINE,
+        expected={"spine", "chest", "tail"},
     )
 
 

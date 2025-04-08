@@ -87,19 +87,21 @@ class Vrm0HumanoidBonePropertyGroup(PropertyGroup):
         self,
         armature_data: Armature,
         bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
-    ) -> None:
+        error_bpy_bone_names: Sequence[str],
+    ) -> bool:
         human_bone_name = HumanBoneName.from_str(self.bone)
         if human_bone_name is None:
             logger.warning("Bone name '%s' is invalid", self.bone)
-            return
+            return False
         target = HumanBoneSpecifications.get(human_bone_name)
         new_candidates = BonePropertyGroup.find_bone_candidates(
             armature_data,
             target,
             bpy_bone_name_to_human_bone_specification,
+            error_bpy_bone_names,
         )
         if {n.value for n in self.node_candidates} == new_candidates:
-            return
+            return False
 
         self.node_candidates.clear()
         # Preserving list order
@@ -108,6 +110,8 @@ class Vrm0HumanoidBonePropertyGroup(PropertyGroup):
                 continue
             candidate = self.node_candidates.add()
             candidate.value = bone_name
+
+        return True
 
     def specification(self) -> HumanBoneSpecification:
         name = HumanBoneName.from_str(self.bone)
@@ -267,20 +271,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
             last_bone_name = humanoid.last_bone_names.add()
             last_bone_name.value = bone_name
 
-        bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification] = {
-            human_bone.node.bone_name: HumanBoneSpecifications.get(
-                HumanBoneName(human_bone.bone)
-            )
-            for human_bone in humanoid.human_bones
-            if human_bone.node.bone_name
-            and HumanBoneName.from_str(human_bone.bone) is not None
-        }
-
-        for human_bone in humanoid.human_bones:
-            human_bone.update_node_candidates(
-                armature_data,
-                bpy_bone_name_to_human_bone_specification,
-            )
+        BonePropertyGroup.update_all_vrm0_node_candidates(armature_data)
 
     @staticmethod
     def fixup_human_bones(obj: Object) -> None:
