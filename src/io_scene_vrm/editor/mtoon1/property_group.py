@@ -210,7 +210,7 @@ class NodeGroupSocketTarget(NodeSocketTarget):
 
 
 class MaterialTraceablePropertyGroup(PropertyGroup):
-    SELF_KEY_NUMBER_TO_MATERIAL_INDEX_CACHE: Final[dict[int, int]] = {}
+    self_key_number_to_material_index_cache: Final[dict[int, int]] = {}
     """selfを示す数値と、それに対応するマテリアルのインデックスのキャッシュ.
 
     本来ならselfからMaterialを引ける弱参照キャッシュにしたい。しかしそれらは
@@ -247,7 +247,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
             # ポインタをそのまま使わないで欲しいという気持ちを込める
             ~self.as_pointer() ^ 0x01234567_89ABCDEF
         )
-        cached_material_index = self.SELF_KEY_NUMBER_TO_MATERIAL_INDEX_CACHE.get(
+        cached_material_index = self.self_key_number_to_material_index_cache.get(
             self_key_number
         )
         if cached_material_index is not None:
@@ -265,7 +265,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
                 return cached_material
             # キャッシュが無効な場合、その他全てのキャッシュも無効になっている可能性が
             # 高いので全てのキャッシュを削除する。
-            self.SELF_KEY_NUMBER_TO_MATERIAL_INDEX_CACHE.clear()
+            self.self_key_number_to_material_index_cache.clear()
 
         # キャッシュが存在しなかった場合は、全てのマテリアルのリストの先頭からselfに
         # 対応するものを探す。発見したらキャッシュにマテリアルのインデックスを保存。
@@ -275,7 +275,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
             if cached_material_index == material_index:
                 continue
             if self.match_material(material, material_property_chain):
-                self.SELF_KEY_NUMBER_TO_MATERIAL_INDEX_CACHE[self_key_number] = (
+                self.self_key_number_to_material_index_cache[self_key_number] = (
                     material_index
                 )
                 return material
