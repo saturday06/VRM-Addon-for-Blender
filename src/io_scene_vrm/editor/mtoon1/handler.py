@@ -46,7 +46,7 @@ class OutlineUpdateTask(MicroTask):
 
         # この値がゼロになったらPREEMPTを返して処理を中断。
         # 変更を検知したら実質無限の値を設定して最後まで処理が進むようにする。
-        preempt_countdown = 20
+        preempt_countdown = 15
 
         changed = False
 
