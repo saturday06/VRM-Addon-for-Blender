@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.40.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.39.0...v2.40.0) (2025-04-09)
+
+
+### 🚀 Features
+
+* partial humanoid bone animation export support ([c3ef297](https://github.com/saturday06/VRM-Addon-for-Blender/commit/c3ef2974245ab71b7efbb88c918a664007ff0b41))
+* remove bone tip to root filter ([4b421dc](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4b421dc95048b0fbad328140fdc3bf9770a4cd8b))
+
+
+### 🐞 Bug Fixes
+
+* fix initialization error on startup mode is not an object mode ([2ff1392](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2ff139218d1478282bbfde9f180556beac65851e))
+* restore bone selection on apply t-pose ([7a15c53](https://github.com/saturday06/VRM-Addon-for-Blender/commit/7a15c533b68e5ca3b761a06ea2cba88f906b7bb5))
+
 ## [2.39.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.37.0...v2.39.0) (2025-04-05)
 
 
