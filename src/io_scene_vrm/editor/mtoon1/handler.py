@@ -39,6 +39,11 @@ class OutlineUpdateTask(MicroTask):
     comparison_object_index: int = 0
     material_slot_index: int = 0
 
+    def reset_run_progress(self) -> None:
+        self.object_index = 0
+        self.comparison_object_index = 0
+        self.material_slot_index = 0
+
     def run(self) -> RunState:
         """オブジェクトへのマテリアルの割り当て変更を検知し、アウトラインを割り当て."""
         context = bpy.context
@@ -185,11 +190,6 @@ class OutlineUpdateTask(MicroTask):
                 mesh.materials.append(material)
                 if k % 5 == 0:
                     get_material_extension(material).mtoon1.enabled = True
-
-    def reset_run_progress(self) -> None:
-        self.object_index = 0
-        self.comparison_object_index = 0
-        self.material_slot_index = 0
 
 
 @persistent

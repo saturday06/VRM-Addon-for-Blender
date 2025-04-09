@@ -48,6 +48,9 @@ def frame_change_post(_unused: object) -> None:
 class LookAtPreviewUpdateTask(MicroTask):
     armature_index: int = 0
 
+    def reset_run_progress(self) -> None:
+        self.armature_index = 0
+
     def run(self) -> RunState:
         """Look Atの対象オブジェクトの更新を検知し、LookAtの状態を更新."""
         context = bpy.context
@@ -115,9 +118,6 @@ class LookAtPreviewUpdateTask(MicroTask):
                 i * 5 % len(blend_data.objects)
             ]
             ext.vrm1.look_at.enable_preview = True
-
-    def reset_run_progress(self) -> None:
-        self.armature_index = 0
 
 
 @persistent
