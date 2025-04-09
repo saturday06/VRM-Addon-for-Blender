@@ -1,7 +1,11 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+import functools
 import tempfile
 from pathlib import Path
+from timeit import timeit
 from unittest import TestCase
+
+import bpy
 
 from io_scene_vrm.common import version
 from io_scene_vrm.common.blender_manifest import BlenderManifest
@@ -9,6 +13,7 @@ from io_scene_vrm.common.fs import (
     create_unique_indexed_directory_path,
     create_unique_indexed_file_path,
 )
+from io_scene_vrm.common.micro_task import MicroTask, MicroTaskScheduler, RunState
 from io_scene_vrm.common.vrm0 import human_bone as vrm0_human_bone
 from io_scene_vrm.common.vrm1 import human_bone as vrm1_human_bone
 
@@ -376,3 +381,38 @@ class TestVrm1HumanBone(TestCase):
                 vrm1_human_bone.HumanBoneSpecifications.RIGHT_SHOULDER,
             ],
         )
+
+
+class TestMicroTask(TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
+
+    @staticmethod
+    def run_and_reset_micro_task(micro_task: MicroTask) -> None:
+        if micro_task.run() == RunState.FINISH:
+            micro_task.reset_run_progress()
+
+    def test_performance(self) -> None:
+        for micro_task_type in MicroTaskScheduler.get_all_micro_task_types():
+            with self.subTest(cls=micro_task_type):
+                micro_task = micro_task_type()
+                micro_task.create_fast_path_performance_test_objects()
+                run = functools.partial(self.run_and_reset_micro_task, micro_task)
+                run()  # 初回実行は時間がかかっても良い
+
+                timeout_margin_factor = 1.0
+                if tuple(bpy.app.version) < (4, 2):
+                    timeout_margin_factor = (
+                        1.5  # 古いBlenderには、ちょっとマージンを乗算する
+                    )
+
+                number = 100
+                timeout_seconds = 0.000_100 * timeout_margin_factor
+                elapsed = timeit(run, number=number)
+                self.assertLess(
+                    elapsed / number,
+                    timeout_seconds,
+                    f"{micro_task_type}.run()の実行時間は{timeout_seconds}秒未満である必要があります",
+                )

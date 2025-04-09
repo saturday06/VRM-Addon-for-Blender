@@ -27,7 +27,7 @@ from bpy.types import (
     VIEW3D_MT_armature_add,
 )
 
-from .common import preferences, shader
+from .common import micro_task, preferences, shader
 from .common.logger import get_logger
 from .common.version import trigger_clear_addon_version_cache
 from .editor import (
@@ -76,6 +76,7 @@ def setup(*, load_post: bool) -> None:
     migration.migrate_all_objects(context, show_progress=True)
     mtoon1_property_group.setup_drivers(context)
     subscription.setup_subscription(load_post=load_post)
+    micro_task.setup()
 
 
 @persistent
@@ -505,8 +506,7 @@ def register() -> None:
     bpy.app.handlers.depsgraph_update_pre.append(vrm1_handler.depsgraph_update_pre)
     bpy.app.handlers.depsgraph_update_pre.append(mtoon1_handler.depsgraph_update_pre)
     bpy.app.handlers.save_pre.append(save_pre)
-    bpy.app.handlers.save_pre.append(vrm1_handler.save_pre)
-    bpy.app.handlers.save_pre.append(mtoon1_handler.save_pre)
+    bpy.app.handlers.save_pre.append(micro_task.save_pre)
     bpy.app.handlers.frame_change_pre.append(spring_bone1_handler.frame_change_pre)
     bpy.app.handlers.frame_change_pre.append(vrm0_handler.frame_change_pre)
     bpy.app.handlers.frame_change_post.append(vrm0_handler.frame_change_post)
@@ -532,8 +532,7 @@ def unregister() -> None:
     bpy.app.handlers.frame_change_post.remove(vrm0_handler.frame_change_post)
     bpy.app.handlers.frame_change_pre.remove(vrm0_handler.frame_change_pre)
     bpy.app.handlers.frame_change_pre.remove(spring_bone1_handler.frame_change_pre)
-    bpy.app.handlers.save_pre.remove(mtoon1_handler.save_pre)
-    bpy.app.handlers.save_pre.remove(vrm1_handler.save_pre)
+    bpy.app.handlers.save_pre.remove(micro_task.save_pre)
     bpy.app.handlers.save_pre.remove(save_pre)
     bpy.app.handlers.depsgraph_update_pre.remove(mtoon1_handler.depsgraph_update_pre)
     bpy.app.handlers.depsgraph_update_pre.remove(vrm1_handler.depsgraph_update_pre)

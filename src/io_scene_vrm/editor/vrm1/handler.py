@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-import time
-from typing import Optional
+from dataclasses import dataclass
 
 import bpy
 from bpy.app.handlers import persistent
+from bpy.types import Armature
 from mathutils import Vector
 
+from ...common import ops
 from ...common.logger import get_logger
+from ...common.micro_task import MicroTask, RunState, add_micro_task
 from ..extension import get_armature_extension
 from .property_group import Vrm1ExpressionPropertyGroup, Vrm1LookAtPropertyGroup
 
@@ -42,53 +44,82 @@ def frame_change_post(_unused: object) -> None:
     Vrm1ExpressionPropertyGroup.update_materials(context)
 
 
-def update_look_at_preview() -> Optional[float]:
-    context = bpy.context
+@dataclass
+class LookAtPreviewUpdateTask(MicroTask):
+    armature_index: int = 0
 
-    compare_start_time = time.perf_counter()
+    def run(self) -> RunState:
+        """Look Atの対象オブジェクトの更新を検知し、LookAtの状態を更新."""
+        context = bpy.context
+        blend_data = context.blend_data
 
-    # ここは最適化の必要がある
-    changed = any(
-        True
-        for ext in [
-            get_armature_extension(armature)
-            for armature in context.blend_data.armatures
-        ]
-        if ext.is_vrm1()
-        and ext.vrm1.look_at.enable_preview
-        and ext.vrm1.look_at.preview_target_bpy_object
-        and (
-            Vector(ext.vrm1.look_at.previous_preview_target_bpy_object_location)
-            - ext.vrm1.look_at.preview_target_bpy_object.location
-        ).length_squared
-        > 0
-    )
+        if not blend_data.armatures:
+            return RunState.FINISH
 
-    compare_end_time = time.perf_counter()
+        count = 20
 
-    logger.debug(
-        "The duration to determine look at preview updates is %.9f seconds",
-        compare_end_time - compare_start_time,
-    )
+        if self.armature_index >= len(blend_data.armatures):
+            self.armature_index = 0
 
-    if not changed:
-        return None
+        start_armature_index = self.armature_index
+        end_armature_index = min(self.armature_index + count, len(blend_data.armatures))
+        armatures = blend_data.armatures[start_armature_index:end_armature_index]
+        changed = any(
+            True
+            for ext in map(get_armature_extension, armatures)
+            if ext.is_vrm1()
+            and ext.vrm1.look_at.enable_preview
+            and ext.vrm1.look_at.preview_target_bpy_object
+            and (
+                Vector(ext.vrm1.look_at.previous_preview_target_bpy_object_location)
+                - ext.vrm1.look_at.preview_target_bpy_object.location
+            ).length_squared
+            > 0
+        )
 
-    Vrm1LookAtPropertyGroup.update_all_previews(context)
-    return None
+        if changed:
+            Vrm1LookAtPropertyGroup.update_all_previews(context)
+            return RunState.FINISH
 
+        self.armature_index += count
 
-@persistent
-def save_pre(_unused: object) -> None:
-    update_look_at_preview()
+        if end_armature_index < len(blend_data.armatures):
+            return RunState.PREEMPT
 
+        return RunState.FINISH
 
-def trigger_update_look_at_preview() -> None:
-    if bpy.app.timers.is_registered(update_look_at_preview):
-        return
-    bpy.app.timers.register(update_look_at_preview, first_interval=0.2)
+    def create_fast_path_performance_test_objects(self) -> None:
+        context = bpy.context
+        blend_data = context.blend_data
+
+        for i in range(300):
+            if i % 3 != 0:
+                mesh = blend_data.meshes.new(f"Mesh#{i}")
+                blend_data.objects.new(f"Object#{i}", mesh)
+                continue
+
+            ops.icyp.make_basic_armature()
+            active_object = context.active_object
+            if not active_object:
+                message = f"Not an armature: {active_object}"
+                raise ValueError(message)
+            armature = active_object.data
+            if not isinstance(armature, Armature):
+                raise TypeError
+
+            ext = get_armature_extension(armature)
+            ext.spec_version = ext.SPEC_VERSION_VRM1
+            look_at = ext.vrm1.look_at
+            look_at.type = ext.vrm1.look_at.TYPE_BONE.identifier
+            look_at.preview_target_bpy_object = blend_data.objects[
+                i * 5 % len(blend_data.objects)
+            ]
+            ext.vrm1.look_at.enable_preview = True
+
+    def reset_run_progress(self) -> None:
+        self.armature_index = 0
 
 
 @persistent
 def depsgraph_update_pre(_unused: object) -> None:
-    trigger_update_look_at_preview()
+    add_micro_task(LookAtPreviewUpdateTask)

@@ -28,6 +28,9 @@ def clean_scene(context: Context) -> None:
 
 
 def benchmark_spring_bone(context: Context) -> None:
+    bpy.ops.preferences.addon_enable(module="io_scene_vrm")
+    clean_scene(context)
+
     url = "https://raw.githubusercontent.com/vrm-c/vrm-specification/c24d76d99a18738dd2c266be1c83f089064a7b5e/samples/VRM1_Constraint_Twist_Sample/vrm/VRM1_Constraint_Twist_Sample.vrm"
     path = Path(__file__).parent / "temp" / "VRM1_Constraint_Twist_Sample.vrm"
     path.parent.mkdir(exist_ok=True)
