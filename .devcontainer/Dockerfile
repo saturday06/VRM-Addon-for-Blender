@@ -18,6 +18,7 @@ RUN <<'INSTALL_PACKAGES'
     advancecomp \
     blender \
     curl \
+    diffutils \
     file \
     gh \
     git \
@@ -30,6 +31,7 @@ RUN <<'INSTALL_PACKAGES'
     nkf \
     openssh-clients \
     patchutils \
+    pv \
     python3-dulwich \
     python3-numpy \
     python3-tqdm \
