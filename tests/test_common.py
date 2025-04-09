@@ -6,6 +6,7 @@ from timeit import timeit
 from unittest import TestCase
 
 import bpy
+from bpy.types import Context
 
 from io_scene_vrm.common import version
 from io_scene_vrm.common.blender_manifest import BlenderManifest
@@ -390,16 +391,20 @@ class TestMicroTask(TestCase):
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     @staticmethod
-    def run_and_reset_micro_task(micro_task: MicroTask) -> None:
-        if micro_task.run() == RunState.FINISH:
+    def run_and_reset_micro_task(micro_task: MicroTask, context: Context) -> None:
+        if micro_task.run(context) == RunState.FINISH:
             micro_task.reset_run_progress()
 
     def test_performance(self) -> None:
+        context = bpy.context
+
         for micro_task_type in MicroTaskScheduler.get_all_micro_task_types():
             with self.subTest(cls=micro_task_type):
                 micro_task = micro_task_type()
-                micro_task.create_fast_path_performance_test_objects()
-                run = functools.partial(self.run_and_reset_micro_task, micro_task)
+                micro_task.create_fast_path_performance_test_objects(context)
+                run = functools.partial(
+                    self.run_and_reset_micro_task, micro_task, context
+                )
                 run()  # 初回実行は時間がかかっても良い
 
                 timeout_margin_factor = 1.0

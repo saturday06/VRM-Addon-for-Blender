@@ -5,7 +5,7 @@ from typing import Optional
 
 import bpy
 from bpy.app.handlers import persistent
-from bpy.types import Mesh
+from bpy.types import Context, Mesh
 
 from ...common.logger import get_logger
 from ...common.micro_task import MicroTask, RunState, add_micro_task
@@ -44,9 +44,8 @@ class OutlineUpdateTask(MicroTask):
         self.comparison_object_index = 0
         self.material_slot_index = 0
 
-    def run(self) -> RunState:
+    def run(self, context: Context) -> RunState:
         """オブジェクトへのマテリアルの割り当て変更を検知し、アウトラインを割り当て."""
-        context = bpy.context
         blend_data = context.blend_data
 
         # この値がゼロになったらPREEMPTを返して処理を中断。
@@ -172,11 +171,10 @@ class OutlineUpdateTask(MicroTask):
         if not changed:
             return RunState.FINISH
 
-        VRM_OT_refresh_mtoon1_outline.refresh(bpy.context, create_modifier=False)
+        VRM_OT_refresh_mtoon1_outline.refresh(context, create_modifier=False)
         return RunState.FINISH
 
-    def create_fast_path_performance_test_objects(self) -> None:
-        context = bpy.context
+    def create_fast_path_performance_test_objects(self, context: Context) -> None:
         blend_data = context.blend_data
 
         for i in range(100):

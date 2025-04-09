@@ -1,5 +1,4 @@
 import cProfile
-import functools
 from pstats import SortKey, Stats
 
 import bpy
@@ -26,8 +25,8 @@ def clean_scene(context: Context) -> None:
     bpy.ops.outliner.orphans_purge(do_recursive=True)
 
 
-def run_and_reset_micro_task(micro_task: MicroTask) -> None:
-    if micro_task.run() == RunState.FINISH:
+def run_and_reset_micro_task(micro_task: MicroTask, context: Context) -> None:
+    if micro_task.run(context) == RunState.FINISH:
         micro_task.reset_run_progress()
 
 
@@ -38,14 +37,13 @@ def benchmark_outline_update_task(context: Context) -> None:
     context.view_layer.update()
 
     task = OutlineUpdateTask()
-    task.create_fast_path_performance_test_objects()
-    run = functools.partial(run_and_reset_micro_task, task)
-    run()  # 初回実行は時間がかかっても良い
+    task.create_fast_path_performance_test_objects(context)
+    run_and_reset_micro_task(task, context)  # 初回実行は時間がかかっても良い
 
     profiler = cProfile.Profile()
     with profiler:
         for _ in range(1000):
-            run()
+            run_and_reset_micro_task(task, context)
 
     Stats(profiler).sort_stats(SortKey.CUMULATIVE).print_stats(100)
 

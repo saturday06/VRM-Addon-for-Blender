@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 import bpy
 from bpy.app.handlers import persistent
-from bpy.types import Armature
+from bpy.types import Armature, Context
 from mathutils import Vector
 
 from ...common import ops
@@ -51,9 +51,8 @@ class LookAtPreviewUpdateTask(MicroTask):
     def reset_run_progress(self) -> None:
         self.armature_index = 0
 
-    def run(self) -> RunState:
+    def run(self, context: Context) -> RunState:
         """Look Atの対象オブジェクトの更新を検知し、LookAtの状態を更新."""
-        context = bpy.context
         blend_data = context.blend_data
 
         if not blend_data.armatures:
@@ -91,8 +90,7 @@ class LookAtPreviewUpdateTask(MicroTask):
 
         return RunState.FINISH
 
-    def create_fast_path_performance_test_objects(self) -> None:
-        context = bpy.context
+    def create_fast_path_performance_test_objects(self, context: Context) -> None:
         blend_data = context.blend_data
 
         for i in range(300):

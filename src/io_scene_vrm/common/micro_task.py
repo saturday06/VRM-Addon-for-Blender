@@ -5,6 +5,7 @@ from typing import Final, Optional, Protocol
 
 import bpy
 from bpy.app.handlers import persistent
+from bpy.types import Context
 
 
 class RunState(Enum):
@@ -13,7 +14,7 @@ class RunState(Enum):
 
 
 class MicroTask(Protocol):
-    def run(self) -> RunState:
+    def run(self, context: Context) -> RunState:
         """処理を実行する.
 
         このメソッドは通常100マイクロ秒未満でreturnする必要がある。
@@ -24,7 +25,7 @@ class MicroTask(Protocol):
         """
         raise NotImplementedError
 
-    def create_fast_path_performance_test_objects(self) -> None:
+    def create_fast_path_performance_test_objects(self, context: Context) -> None:
         """run()が通常100マイクロ秒未満で完了するかのテストのためのオブジェクトを作成する."""
         raise NotImplementedError
 
@@ -93,7 +94,7 @@ class MicroTaskScheduler:
 
         return [OutlineUpdateTask, LookAtPreviewUpdateTask]
 
-    def process(self) -> None:
+    def process(self, context: Context) -> None:
         """MicroTaskを一つ実行する.
 
         GC Allocationを抑えるため、インデックス値を用いる
@@ -116,7 +117,7 @@ class MicroTaskScheduler:
                 continue
 
             # タスクを実行
-            run_state = task_schedule.task.run()
+            run_state = task_schedule.task.run(context)
             if run_state == RunState.FINISH:
                 if task_schedule.requires_run_once_more:
                     task_schedule.requires_run_once_more = False
@@ -127,10 +128,10 @@ class MicroTaskScheduler:
             # 一つでもタスクを実行したならreturn
             return
 
-    def flush(self) -> None:
+    def flush(self, context: Context) -> None:
         self.task_schedule_index = 0
         for task_schedule in self.task_schedules:
-            while task_schedule.task.run() != RunState.FINISH:
+            while task_schedule.task.run(context) != RunState.FINISH:
                 pass
 
 
@@ -138,7 +139,9 @@ micro_task_scheduler = MicroTaskScheduler()
 
 
 def process_micro_task_scheduler() -> Optional[float]:
-    micro_task_scheduler.process()
+    context = bpy.context
+
+    micro_task_scheduler.process(context)
     return MicroTaskScheduler.INTERVAL
 
 
@@ -156,4 +159,6 @@ def setup() -> None:
 
 @persistent
 def save_pre(_unused: object) -> None:
-    micro_task_scheduler.flush()
+    context = bpy.context
+
+    micro_task_scheduler.flush(context)
