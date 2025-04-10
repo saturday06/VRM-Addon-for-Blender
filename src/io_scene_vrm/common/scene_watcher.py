@@ -91,8 +91,8 @@ class SceneWatcherScheduler:
 
     @staticmethod
     def get_all_scene_watcher_types() -> Sequence[type[SceneWatcher]]:
-        from ..editor.mtoon1.handler import OutlineUpdater
-        from ..editor.vrm1.handler import LookAtPreviewUpdater
+        from ..editor.mtoon1.scene_watcher import OutlineUpdater
+        from ..editor.vrm1.scene_watcher import LookAtPreviewUpdater
 
         return [OutlineUpdater, LookAtPreviewUpdater]
 

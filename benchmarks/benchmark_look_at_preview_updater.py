@@ -9,7 +9,7 @@ from io_scene_vrm.common.scene_watcher import RunState, SceneWatcher
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
 )
-from io_scene_vrm.editor.vrm1.handler import LookAtPreviewUpdater
+from io_scene_vrm.editor.vrm1.scene_watcher import LookAtPreviewUpdater
 
 addon_version = version.get_addon_version()
 spec_version = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1
