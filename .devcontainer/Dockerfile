@@ -40,7 +40,7 @@ RUN <<'INSTALL_PACKAGES'
     rubygems \
     sudo \
     unzip \
-    vim \
+    vim-enhanced \
     xz \
     zopfli \
     -y --setopt=install_weak_deps=False --allowerasing
