@@ -35,6 +35,8 @@ def clear_addon_version_cache() -> Optional[float]:
 
 
 def trigger_clear_addon_version_cache() -> None:
+    if tuple(bpy.app.version) >= (4, 2):
+        return
     if bpy.app.timers.is_registered(clear_addon_version_cache):
         return
     bpy.app.timers.register(clear_addon_version_cache, first_interval=0.5)
@@ -52,6 +54,9 @@ def get_addon_version() -> tuple[int, int, int]:
 
 
 def blender_restart_required() -> bool:
+    if tuple(bpy.app.version) >= (4, 2):
+        return False
+
     if cache.use:
         return cache.last_blender_restart_required
 
