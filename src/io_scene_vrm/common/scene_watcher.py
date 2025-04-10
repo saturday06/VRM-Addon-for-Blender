@@ -104,14 +104,9 @@ class SceneWatcherScheduler:
         if not self.scene_watcher_schedules:
             return
 
-        self.scene_watcher_schedule_index += 1
-        if self.scene_watcher_schedule_index >= len(self.scene_watcher_schedules):
-            self.scene_watcher_schedule_index = 0
-
-        for scene_watcher_schedule_index in range(
-            self.scene_watcher_schedule_index, len(self.scene_watcher_schedules)
-        ):
-            self.scene_watcher_schedule_index = scene_watcher_schedule_index
+        for _ in range(len(self.scene_watcher_schedules)):
+            self.scene_watcher_schedule_index += 1
+            self.scene_watcher_schedule_index %= len(self.scene_watcher_schedules)
 
             # すでに完了しているタスクは飛ばす
             scene_watcher_schedule = self.scene_watcher_schedules[
