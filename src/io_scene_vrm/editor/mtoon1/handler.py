@@ -54,6 +54,8 @@ class OutlineUpdateTask(MicroTask):
 
         changed = False
 
+        create_modifier = False
+
         if not blend_data.objects:
             return RunState.FINISH
 
@@ -148,6 +150,11 @@ class OutlineUpdateTask(MicroTask):
                         comparison_object.comparison_materials[material_slot_index] = (
                             ComparisonMaterial(material.name)
                         )
+                        # オブジェクトにMToon有効状態のマテリアルが新たに割り当てられた
+                        # ので、アウトラインのモディファイアが必要な場合新規作成する。
+                        # 本来はオブジェクトとマテリアルのペアごとにTrue/Falseを
+                        # 設定するべきだが、現状は、実用上固定で問題ないと思う。
+                        create_modifier = True
                 elif comparison_material is not None:
                     # material slotのマテリアルのMToonが無効状態だが、
                     # 比較用オブジェクトが有効状態の場合、変更検知
@@ -171,7 +178,7 @@ class OutlineUpdateTask(MicroTask):
         if not changed:
             return RunState.FINISH
 
-        VRM_OT_refresh_mtoon1_outline.refresh(context, create_modifier=False)
+        VRM_OT_refresh_mtoon1_outline.refresh(context, create_modifier=create_modifier)
         return RunState.FINISH
 
     def create_fast_path_performance_test_objects(self, context: Context) -> None:
