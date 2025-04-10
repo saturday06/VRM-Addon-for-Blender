@@ -14,7 +14,11 @@ from io_scene_vrm.common.fs import (
     create_unique_indexed_directory_path,
     create_unique_indexed_file_path,
 )
-from io_scene_vrm.common.micro_task import MicroTask, MicroTaskScheduler, RunState
+from io_scene_vrm.common.scene_watcher import (
+    RunState,
+    SceneWatcher,
+    SceneWatcherScheduler,
+)
 from io_scene_vrm.common.vrm0 import human_bone as vrm0_human_bone
 from io_scene_vrm.common.vrm1 import human_bone as vrm1_human_bone
 
@@ -384,26 +388,28 @@ class TestVrm1HumanBone(TestCase):
         )
 
 
-class TestMicroTask(TestCase):
+class TestSceneWatcher(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     @staticmethod
-    def run_and_reset_micro_task(micro_task: MicroTask, context: Context) -> None:
-        if micro_task.run(context) == RunState.FINISH:
-            micro_task.reset_run_progress()
+    def run_and_reset_scene_watcher(
+        scene_watcher: SceneWatcher, context: Context
+    ) -> None:
+        if scene_watcher.run(context) == RunState.FINISH:
+            scene_watcher.reset_run_progress()
 
     def test_performance(self) -> None:
         context = bpy.context
 
-        for micro_task_type in MicroTaskScheduler.get_all_micro_task_types():
-            with self.subTest(cls=micro_task_type):
-                micro_task = micro_task_type()
-                micro_task.create_fast_path_performance_test_objects(context)
+        for scene_watcher_type in SceneWatcherScheduler.get_all_scene_watcher_types():
+            with self.subTest(cls=scene_watcher_type):
+                scene_watcher = scene_watcher_type()
+                scene_watcher.create_fast_path_performance_test_objects(context)
                 run = functools.partial(
-                    self.run_and_reset_micro_task, micro_task, context
+                    self.run_and_reset_scene_watcher, scene_watcher, context
                 )
                 run()  # 初回実行は時間がかかっても良い
 
@@ -417,5 +423,5 @@ class TestMicroTask(TestCase):
                 self.assertLess(
                     elapsed / number,
                     timeout_seconds,
-                    f"{micro_task_type}.run()の実行時間は{timeout_seconds}秒未満である必要があります",
+                    f"{scene_watcher_type}.run()の実行時間は{timeout_seconds}秒未満である必要があります",
                 )

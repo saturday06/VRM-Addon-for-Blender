@@ -8,7 +8,7 @@ from bpy.app.handlers import persistent
 from bpy.types import Context, Mesh
 
 from ...common.logger import get_logger
-from ...common.micro_task import MicroTask, RunState, add_micro_task
+from ...common.scene_watcher import RunState, SceneWatcher, trigger_scene_watcher
 from ..extension import get_material_extension
 from . import migration
 from .ops import VRM_OT_refresh_mtoon1_outline
@@ -32,7 +32,7 @@ class ComparisonObject:
 
 
 @dataclass
-class OutlineUpdateTask(MicroTask):
+class OutlineUpdater(SceneWatcher):
     comparison_objects: list[ComparisonObject] = field(default_factory=list)
 
     object_index: int = 0
@@ -201,7 +201,7 @@ class OutlineUpdateTask(MicroTask):
 def depsgraph_update_pre(_unused: object) -> None:
     if bpy.app.version < (3, 3):
         return
-    add_micro_task(OutlineUpdateTask)
+    trigger_scene_watcher(OutlineUpdater)
 
 
 @persistent

@@ -8,7 +8,7 @@ from mathutils import Vector
 
 from ...common import ops
 from ...common.logger import get_logger
-from ...common.micro_task import MicroTask, RunState, add_micro_task
+from ...common.scene_watcher import RunState, SceneWatcher, trigger_scene_watcher
 from ..extension import get_armature_extension
 from .property_group import Vrm1ExpressionPropertyGroup, Vrm1LookAtPropertyGroup
 
@@ -45,7 +45,7 @@ def frame_change_post(_unused: object) -> None:
 
 
 @dataclass
-class LookAtPreviewUpdateTask(MicroTask):
+class LookAtPreviewUpdater(SceneWatcher):
     armature_index: int = 0
 
     def reset_run_progress(self) -> None:
@@ -120,4 +120,4 @@ class LookAtPreviewUpdateTask(MicroTask):
 
 @persistent
 def depsgraph_update_pre(_unused: object) -> None:
-    add_micro_task(LookAtPreviewUpdateTask)
+    trigger_scene_watcher(LookAtPreviewUpdater)
