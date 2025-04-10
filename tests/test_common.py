@@ -409,9 +409,7 @@ class TestMicroTask(TestCase):
 
                 timeout_margin_factor = 1.0
                 if tuple(bpy.app.version) < (4, 2):
-                    timeout_margin_factor = (
-                        1.5  # 古いBlenderには、ちょっとマージンを乗算する
-                    )
+                    timeout_margin_factor = 1.7  # 古いBlenderには、マージンを乗算する
 
                 number = 100
                 timeout_seconds = 0.000_100 * timeout_margin_factor
