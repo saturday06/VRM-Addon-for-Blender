@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import functools
 import tempfile
+from os import getenv
 from pathlib import Path
 from timeit import timeit
 from unittest import TestCase
@@ -414,8 +415,8 @@ class TestSceneWatcher(TestCase):
                 run()  # 初回実行は時間がかかっても良い
 
                 timeout_margin_factor = 1.0
-                if tuple(bpy.app.version) < (4, 2):
-                    timeout_margin_factor = 1.7  # 古いBlenderには、マージンを乗算する
+                if getenv("CI") == "true":
+                    timeout_margin_factor = 2.0  # CIサーバーでの実行ではマージンを追加
 
                 number = 100
                 timeout_seconds = 0.000_100 * timeout_margin_factor
