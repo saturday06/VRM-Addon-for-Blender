@@ -96,13 +96,13 @@ class SceneWatcherScheduler:
 
         return [OutlineUpdater, LookAtPreviewUpdater]
 
-    def process(self, context: Context) -> None:
+    def process(self, context: Context) -> bool:
         """SceneWatcherを一つ実行する.
 
         GC Allocationを抑えるため、インデックス値を用いる
         """
         if not self.scene_watcher_schedules:
-            return
+            return False
 
         for _ in range(len(self.scene_watcher_schedules)):
             self.scene_watcher_schedule_index += 1
@@ -125,13 +125,12 @@ class SceneWatcherScheduler:
                     scene_watcher_schedule.finished = True
 
             # 一つでもタスクを実行したならreturn
-            return
+            return True
+        return False
 
     def flush(self, context: Context) -> None:
-        self.scene_watcher_schedule_index = 0
-        for scene_watcher_schedule in self.scene_watcher_schedules:
-            while scene_watcher_schedule.scene_watcher.run(context) != RunState.FINISH:
-                pass
+        while self.process(context):
+            pass
 
 
 scene_watcher_scheduler = SceneWatcherScheduler()
