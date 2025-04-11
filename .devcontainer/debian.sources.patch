@@ -1,0 +1,5 @@
+--- debian.sources.orig	2025-01-27 10:21:19.840008767 +0000
++++ debian.sources	2025-01-27 10:21:32.180008772 +0000
+@@ -1,1 +1,1 @@
+-Types: deb
++Types: deb deb-src
