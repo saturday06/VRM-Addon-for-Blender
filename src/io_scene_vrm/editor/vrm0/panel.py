@@ -24,6 +24,7 @@ from ..ops import layout_operator
 from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
 from ..search import active_object_is_vrm0_armature
 from . import ops as vrm0_ops
+from .ops import VRM_OT_show_vrm0_bone_assignment_diagnostics
 from .property_group import (
     Vrm0BlendShapeBindPropertyGroup,
     Vrm0BlendShapeGroupPropertyGroup,
@@ -63,7 +64,8 @@ def bone_prop_search(
     if not props:
         return
 
-    layout.prop_search(
+    row = layout.row(align=True)
+    row.prop_search(
         props.node,
         "bone_name",
         props,
@@ -72,6 +74,22 @@ def bone_prop_search(
         translate=False,
         icon=icon,
     )
+    if props.node.bone_name and props.node.bone_name not in props.node_candidates:
+        icon = "ERROR"
+        row.alert = True
+    elif not props.node_candidates:
+        icon = "QUESTION"
+    else:
+        return
+
+    op = layout_operator(
+        row,
+        VRM_OT_show_vrm0_bone_assignment_diagnostics,
+        text="",
+        translate=False,
+        icon=icon,
+    )
+    op.human_bone_name = human_bone_specification.name.value
 
 
 def draw_vrm0_humanoid_operators_layout(

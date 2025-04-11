@@ -2505,3 +2505,24 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
+
+
+class VRM_OT_show_vrm1_bone_assignment_diagnostics(Operator):
+    bl_idname = "vrm.show_vrm1_bone_assignment_diagnostics"
+    bl_label = "Show Bone Assignment Diagnostics"
+    bl_description = "Show Bone Assignment Diagnostics"
+    bl_options: AbstractSet[str] = {"REGISTER"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+
+    human_bone_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+        human_bone_name: str  # type: ignore[no-redef]

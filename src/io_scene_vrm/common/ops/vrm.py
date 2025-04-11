@@ -665,6 +665,22 @@ def assign_vrm0_humanoid_human_bones_automatically(
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
+def show_vrm0_bone_assignment_diagnostics(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+    human_bone_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.show_vrm0_bone_assignment_diagnostics(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+        human_bone_name=human_bone_name,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm1_meta_author(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1160,6 +1176,22 @@ def refresh_vrm1_expression_texture_transform_bind_preview(
         execution_context,
         armature_object_name=armature_object_name,
         expression_name=expression_name,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def show_vrm1_bone_assignment_diagnostics(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+    human_bone_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.show_vrm1_bone_assignment_diagnostics(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+        human_bone_name=human_bone_name,
     )
 
 
