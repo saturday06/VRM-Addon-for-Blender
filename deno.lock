@@ -3,8 +3,7 @@
   "specifiers": {
     "npm:@types/node@*": "22.12.0",
     "npm:gltf-validator@^2.0.0-dev.3.10": "2.0.0-dev.3.10",
-    "npm:pyright@*": "1.1.398",
-    "npm:pyright@^1.1.398": "1.1.398",
+    "npm:pyright@^1.1.399": "1.1.399",
     "npm:vitepress@*": "1.6.3_vite@5.4.16__@types+node@22.12.0_vue@3.5.13_focus-trap@7.6.4_@types+node@22.12.0",
     "npm:vitepress@^1.6.3": "1.6.3_vite@5.4.16__@types+node@22.12.0_vue@3.5.13_focus-trap@7.6.4_@types+node@22.12.0",
     "npm:vue@^3.5.13": "3.5.13"
@@ -762,8 +761,8 @@
     "property-information@7.0.0": {
       "integrity": "sha512-7D/qOz/+Y4X/rzSB6jKxKUsQnphO046ei8qxG59mtM3RG3DHgTK81HrxrmoDVINJb8NKT5ZsRbwHvQ6B68Iyhg=="
     },
-    "pyright@1.1.398": {
-      "integrity": "sha512-KrqCYCw+p+mtoQ7kOiIKyEvfJxi4rMbJAvjSGjtScMaOHVqHVKYOFlchgiePj9AbjmkR/iNzWOodYJfXLjpHtQ==",
+    "pyright@1.1.399": {
+      "integrity": "sha512-roYApcOUEraOc2gTZX052/cw/AZ5rQGkdG/2DtU1/KyhfP+C5zHDlvOT24qRgPXDDkh76AvFwq5quZ1SMahq7w==",
       "dependencies": [
         "fsevents"
       ]
@@ -957,7 +956,7 @@
   "workspace": {
     "dependencies": [
       "npm:gltf-validator@^2.0.0-dev.3.10",
-      "npm:pyright@^1.1.398",
+      "npm:pyright@^1.1.399",
       "npm:vitepress@^1.6.3",
       "npm:vue@^3.5.13"
     ]
