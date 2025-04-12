@@ -56,11 +56,13 @@ class SceneWatcherScheduler:
     """UIをブロックしないように注意しながら、登録されたSceneWatcherを順番に定期的に実行する."""
 
     INTERVAL: Final[float] = 0.2
-    scene_watcher_schedule_index = 0
+    scene_watcher_schedule_index: int = 0
     scene_watcher_type_to_schedule: dict[type[SceneWatcher], SceneWatcherSchedule] = (
-        field(default_factory=dict)
+        field(default_factory=dict[type[SceneWatcher], SceneWatcherSchedule])
     )
-    scene_watcher_schedules: list[SceneWatcherSchedule] = field(default_factory=list)
+    scene_watcher_schedules: list[SceneWatcherSchedule] = field(
+        default_factory=list[SceneWatcherSchedule]
+    )
 
     def trigger(self, scene_watcher_type: type[SceneWatcher]) -> None:
         scene_watcher_schedule = self.scene_watcher_type_to_schedule.get(

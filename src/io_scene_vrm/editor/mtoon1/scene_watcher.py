@@ -26,13 +26,15 @@ class ComparisonMaterial:
 class ComparisonObject:
     use_auto_smooth: Optional[bool] = None
     comparison_materials: list[Optional[ComparisonMaterial]] = field(
-        default_factory=list
+        default_factory=list[Optional[ComparisonMaterial]]
     )
 
 
 @dataclass
 class OutlineUpdater(SceneWatcher):
-    comparison_objects: list[ComparisonObject] = field(default_factory=list)
+    comparison_objects: list[ComparisonObject] = field(
+        default_factory=list[ComparisonObject]
+    )
 
     object_index: int = 0
     comparison_object_index: int = 0
