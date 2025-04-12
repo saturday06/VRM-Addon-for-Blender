@@ -429,5 +429,6 @@ class TestSceneWatcher(TestCase):
                 self.assertLess(
                     elapsed / number,
                     timeout_seconds,
-                    f"{scene_watcher_type}.run()の実行時間は{timeout_seconds}秒未満である必要があります",
+                    f"{scene_watcher_type}.run()の実行時間は{timeout_seconds}秒未満である必要がありますが"
+                    f"{elapsed / number}秒経過しました。",
                 )
