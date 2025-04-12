@@ -14,12 +14,20 @@ class RunState(Enum):
 
 
 class SceneWatcher(Protocol):
-    def run(self, context: Context) -> RunState:
-        """処理を実行する.
+    """シーンの変更を検知し、検知した際に何らかの処理を行うようにするプロトコル."""
 
-        このメソッドは通常100マイクロ秒未満でreturnする必要がある。
-        100マイクロ秒内に処理が完了しない場合、現在状態をインスタンス変数に
-        保存して処理を中断するようにする。
+    def run(self, context: Context) -> RunState:
+        """シーンの変更の検知と、検知した際に何らかの処理を行う.
+
+        シーンに検知したい変更が発生していない場合、このメソッドは100マイクロ秒未満で
+        returnする必要がある。時間が足りない場合、現在状態をインスタンス変数などに保存
+        して処理を中断する。
+
+        このメソッドはBlenderのフレームを跨いで複数回実行される。通常そのような処理は
+        ジェネレーターやasyncを使うことで効率的に実装できるが、このクラスではそうしない。
+
+        その理由は、Blenderのネイティブなオブジェクトへの参照をフレームをまたいで保持
+        できないが、ジェネレーターやasyncはそれを考慮してのプログラミングが難しいため。
 
         :return 処理が完了した場合FINISH。完了しなかった場合はPREEMPT。
         """
@@ -36,6 +44,8 @@ class SceneWatcher(Protocol):
 
 @dataclass
 class SceneWatcherSchedule:
+    """SceneWatcherと、その稼働状況を保持する."""
+
     scene_watcher: SceneWatcher
     requires_run_once_more: bool = False
     finished: bool = False
@@ -43,12 +53,7 @@ class SceneWatcherSchedule:
 
 @dataclass
 class SceneWatcherScheduler:
-    """SceneWatcherを実行する.
-
-    ジェネレーターやasyncを使わない理由は、Blenderのネイティブオブジェクトへの
-    参照がフレームをまたいで保持できないが、ジェネレーターやasyncを使う場合は
-    それを考慮してのプログラミングが難しいため。
-    """
+    """UIをブロックしないように注意しながら、登録されたSceneWatcherを順番に定期的に実行する."""
 
     INTERVAL: Final[float] = 0.2
     scene_watcher_schedule_index = 0
