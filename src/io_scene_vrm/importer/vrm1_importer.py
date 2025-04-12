@@ -1558,7 +1558,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
         spring_bone_dict: dict[str, Json],
-        armature_name: str,
+        armature_object_name: str,
     ) -> None:
         collider_group_dicts = spring_bone_dict.get("colliderGroups")
         if not isinstance(collider_group_dicts, list):
@@ -1569,11 +1569,12 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         ):
             # SpringからColliderGroupへの参照はindexでの参照のため、
             # collider_group_dictの中身が不正でも空のデータは作成しておく
-            if ops.vrm.add_spring_bone1_collider_group(armature_name=armature_name) != {
-                "FINISHED"
-            }:
+            if ops.vrm.add_spring_bone1_collider_group(
+                armature_name=armature_object_name
+            ) != {"FINISHED"}:
                 message = (
-                    f"Failed to add spring bone 1.0 collider group to {armature_name}"
+                    "Failed to add spring bone 1.0 collider group"
+                    + f" to {armature_object_name}"
                 )
                 raise ValueError(message)
 
@@ -1592,12 +1593,12 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
             for collider_index in collider_indices:
                 if ops.vrm.add_spring_bone1_collider_group_collider(
-                    armature_name=armature_name,
+                    armature_name=armature_object_name,
                     collider_group_index=collider_group_index,
                 ) != {"FINISHED"}:
                     raise ValueError(
                         "Failed to assign spring bone 1.0 collider to collider group "
-                        + f"{collider_group_index} in {armature_name}"
+                        + f"{collider_group_index} in {armature_object_name}"
                     )
                 if not isinstance(collider_index, int):
                     continue
@@ -1615,14 +1616,14 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
         spring_bone_dict: dict[str, Json],
-        armature_name: str,
+        armature_object_name: str,
     ) -> None:
         spring_dicts = spring_bone_dict.get("springs")
         if not isinstance(spring_dicts, list):
             spring_dicts = []
 
         for spring_dict in spring_dicts:
-            if ops.vrm.add_spring_bone1_spring(armature_name=armature_name) != {
+            if ops.vrm.add_spring_bone1_spring(armature_name=armature_object_name) != {
                 "FINISHED"
             } or not isinstance(spring_dict, dict):
                 continue
@@ -1644,7 +1645,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 joint_dicts = []
             for joint_dict in joint_dicts:
                 if ops.vrm.add_spring_bone1_spring_joint(
-                    armature_name=armature_name,
+                    armature_name=armature_object_name,
                     spring_index=len(spring_bone.springs) - 1,
                 ) != {"FINISHED"}:
                     continue
@@ -1691,7 +1692,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 collider_group_indices = []
             for collider_group_index in collider_group_indices:
                 if ops.vrm.add_spring_bone1_spring_collider_group(
-                    armature_name=armature_name,
+                    armature_name=armature_object_name,
                     spring_index=len(spring_bone.springs) - 1,
                 ) != {"FINISHED"}:
                     continue
