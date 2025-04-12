@@ -423,7 +423,7 @@ class TestSceneWatcher(TestCase):
                     # macOSのx86_64は古いマシンしか存在しないのでマージンを追加
                     timeout_margin_factor *= 1.5
 
-                number = 100
+                number = 2000
                 timeout_seconds = 0.000_100 * timeout_margin_factor
                 elapsed = timeit(run, number=number)
                 self.assertLess(
