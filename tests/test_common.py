@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import functools
+import platform
 import tempfile
 from os import getenv
 from pathlib import Path
@@ -416,7 +417,11 @@ class TestSceneWatcher(TestCase):
 
                 timeout_margin_factor = 1.0
                 if getenv("CI") == "true":
-                    timeout_margin_factor = 2.0  # CIサーバーでの実行ではマージンを追加
+                    # CIサーバーでの実行ではマージンを追加
+                    timeout_margin_factor *= 2.0
+                if platform.system() == "Darwin" and platform.machine() == "x86_64":
+                    # macOSのx86_64は古いマシンしか存在しないのでマージンを追加
+                    timeout_margin_factor *= 1.5
 
                 number = 100
                 timeout_seconds = 0.000_100 * timeout_margin_factor
