@@ -5,6 +5,8 @@
 *.dockerfile text eol=lf
 *.glsl text eol=lf
 *.ini text eol=lf
+*.js text eol=lf
+*.cjs text eol=lf
 *.json text eol=lf
 *.json5 text eol=lf
 *.jsonc text eol=lf
