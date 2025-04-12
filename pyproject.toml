@@ -9,7 +9,7 @@ authors = [
 license = {text = "SPDX-License-Identifier: MIT OR GPL-3.0-or-later"}
 
 dependencies = [
-    # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_35/poetry.lock#L10-L13
+    # https://github.com/saturday06/VRM-Addon-for-Blender/blob/v2.40.0/uv.lock#L23-L26
     "bpy == 3.6.*; platform_system == 'Darwin' and platform_machine == 'x86_64'",
     "bpy == 3.6.*; platform_system == 'Darwin' and platform_machine == 'arm64'",
     "bpy == 3.6.*; platform_system == 'Linux' and platform_machine == 'x86_64'",
