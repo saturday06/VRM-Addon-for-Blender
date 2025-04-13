@@ -51,8 +51,7 @@
         "denoland.vscode-deno",
         "ms-azuretools.vscode-docker",
         "ms-python.python",
-        "ms-python.vscode-pylance",
-        "ms-vscode.powershell"
+        "ms-python.vscode-pylance"
       ]
     }
   }
