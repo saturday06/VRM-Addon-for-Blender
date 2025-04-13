@@ -1,4 +1,9 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+
+# 開発環境としてCentOS Stream 9を利用する。
+# 本当はBlenderのLinux版の公式ビルド用のOSであるRocky Linux 8を利用するのが望ましいが、
+# 開発環境にするには付属パッケージが古すぎると感じるので同系統の新しいOSを選択した。
+# https://projects.blender.org/blender/blender-developer-docs/src/commit/b7d7d239c97443bec2a22ea3ae4b8ad6c585eef3/docs/handbook/release_process/build/rocky_8.md#
 FROM quay.io/centos/centos:stream9
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
