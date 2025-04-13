@@ -1,6 +1,7 @@
 {
   "version": "4",
   "specifiers": {
+    "npm:@types/node@*": "22.14.1",
     "npm:@types/node@22.14.1": "22.14.1",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
     "npm:pyright@1.1.399": "1.1.399",
