@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.40.0...v3.0.0) (2025-04-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* introduce "MToon" shader node group instead of "MToon_unversioned" ([b6dd21d](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b6dd21d1268e08d52facb5efa567c324b0432f76))
+
 ## [2.40.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.39.0...v2.40.0) (2025-04-10)
 
 
