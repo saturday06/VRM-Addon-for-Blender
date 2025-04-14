@@ -34,19 +34,23 @@ class LookAtPreviewUpdater(SceneWatcher):
 
         start_armature_index = self.armature_index
         end_armature_index = min(self.armature_index + count, len(blend_data.armatures))
-        armatures = blend_data.armatures[start_armature_index:end_armature_index]
-        changed = any(
-            True
-            for ext in map(get_armature_extension, armatures)
-            if ext.is_vrm1()
-            and ext.vrm1.look_at.enable_preview
-            and ext.vrm1.look_at.preview_target_bpy_object
-            and (
-                Vector(ext.vrm1.look_at.previous_preview_target_bpy_object_location)
-                - ext.vrm1.look_at.preview_target_bpy_object.location
-            ).length_squared
-            > 0
-        )
+        changed = False
+        for armature in blend_data.armatures[start_armature_index:end_armature_index]:
+            ext = get_armature_extension(armature)
+            if not ext.is_vrm1():
+                continue
+            look_at = ext.vrm1.look_at
+            if not look_at.enable_preview:
+                continue
+            preview_target_bpy_object = look_at.preview_target_bpy_object
+            if not preview_target_bpy_object:
+                continue
+            if (
+                Vector(look_at.previous_preview_target_bpy_object_location)
+                - preview_target_bpy_object.location
+            ).length_squared > 0:
+                changed = True
+                break
 
         if changed:
             Vrm1LookAtPropertyGroup.update_all_previews(context)
