@@ -1510,9 +1510,9 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         for collider_dict in collider_dicts:
             # ColliderGroupからColliderへの参照はindexでの参照のため、
             # collider_dictの中身が不正でも空のデータは作成しておく
-            if ops.vrm.add_spring_bone1_collider(armature_name=armature.name) != {
-                "FINISHED"
-            }:
+            if ops.vrm.add_spring_bone1_collider(
+                armature_object_name=armature.name
+            ) != {"FINISHED"}:
                 message = f'Failed to add spring bone 1.0 collider to "{armature.name}"'
                 raise ValueError(message)
 
@@ -1570,7 +1570,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             # SpringからColliderGroupへの参照はindexでの参照のため、
             # collider_group_dictの中身が不正でも空のデータは作成しておく
             if ops.vrm.add_spring_bone1_collider_group(
-                armature_name=armature_object_name
+                armature_object_name=armature_object_name
             ) != {"FINISHED"}:
                 message = (
                     "Failed to add spring bone 1.0 collider group"
@@ -1593,7 +1593,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
             for collider_index in collider_indices:
                 if ops.vrm.add_spring_bone1_collider_group_collider(
-                    armature_name=armature_object_name,
+                    armature_object_name=armature_object_name,
                     collider_group_index=collider_group_index,
                 ) != {"FINISHED"}:
                     raise ValueError(
@@ -1623,9 +1623,9 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             spring_dicts = []
 
         for spring_dict in spring_dicts:
-            if ops.vrm.add_spring_bone1_spring(armature_name=armature_object_name) != {
-                "FINISHED"
-            } or not isinstance(spring_dict, dict):
+            if ops.vrm.add_spring_bone1_spring(
+                armature_object_name=armature_object_name
+            ) != {"FINISHED"} or not isinstance(spring_dict, dict):
                 continue
 
             spring = spring_bone.springs[-1]
@@ -1645,7 +1645,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 joint_dicts = []
             for joint_dict in joint_dicts:
                 if ops.vrm.add_spring_bone1_spring_joint(
-                    armature_name=armature_object_name,
+                    armature_object_name=armature_object_name,
                     spring_index=len(spring_bone.springs) - 1,
                 ) != {"FINISHED"}:
                     continue
@@ -1692,7 +1692,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 collider_group_indices = []
             for collider_group_index in collider_group_indices:
                 if ops.vrm.add_spring_bone1_spring_collider_group(
-                    armature_name=armature_object_name,
+                    armature_object_name=armature_object_name,
                     spring_index=len(spring_bone.springs) - 1,
                 ) != {"FINISHED"}:
                     continue

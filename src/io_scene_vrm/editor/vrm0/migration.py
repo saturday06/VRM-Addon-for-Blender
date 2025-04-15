@@ -708,5 +708,5 @@ def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None
         vrm0.humanoid.initial_automatic_bone_assignment = False
         if all(not b.node.bone_name for b in vrm0.humanoid.human_bones):
             ops.vrm.assign_vrm0_humanoid_human_bones_automatically(
-                armature_name=armature.name
+                armature_object_name=armature.name
             )

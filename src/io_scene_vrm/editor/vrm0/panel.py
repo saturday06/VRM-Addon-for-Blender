@@ -83,7 +83,7 @@ def draw_vrm0_humanoid_operators_layout(
         bone_operator_column,
         vrm0_ops.VRM_OT_assign_vrm0_humanoid_human_bones_automatically,
         icon="ARMATURE_DATA",
-    ).armature_name = armature.name
+    ).armature_object_name = armature.name
     save_load_row = bone_operator_column.split(factor=0.5, align=True)
     save_load_row.operator(
         ops.VRM_OT_save_human_bone_mappings.bl_idname,
@@ -363,7 +363,7 @@ def draw_vrm0_humanoid_layout(
             text=pgettext(ops.VRM_OT_simplify_vroid_bones.bl_label),
             icon="GREASEPENCIL",
         )
-        simplify_vroid_bones_op.armature_name = armature.name
+        simplify_vroid_bones_op.armature_object_name = armature.name
 
     split_factor = 0.2
     draw_vrm0_humanoid_required_bones_layout(armature, armature_box.box(), split_factor)
@@ -483,7 +483,7 @@ def draw_vrm0_first_person_layout(
     )
 
     for mesh_annotation_collection_op in mesh_annotation_collection_ops:
-        mesh_annotation_collection_op.armature_name = armature.name
+        mesh_annotation_collection_op.armature_object_name = armature.name
 
     for mesh_annotation_collection_item_op in mesh_annotation_collection_item_ops:
         mesh_annotation_collection_item_op.mesh_annotation_index = mesh_annotation_index
@@ -601,7 +601,7 @@ def draw_vrm0_blend_shape_master_layout(
     )
 
     for blend_shape_group_collection_op in blend_shape_group_collection_ops:
-        blend_shape_group_collection_op.armature_name = armature.name
+        blend_shape_group_collection_op.armature_object_name = armature.name
 
     for blend_shape_group_collection_item_op in blend_shape_group_collection_item_ops:
         blend_shape_group_collection_item_op.blend_shape_group_index = (
@@ -640,7 +640,7 @@ def draw_vrm0_blend_shape_master_layout(
         )
 
         for bind_collection_op in bind_collection_ops:
-            bind_collection_op.armature_name = armature.name
+            bind_collection_op.armature_object_name = armature.name
             bind_collection_op.blend_shape_group_index = blend_shape_group_index
 
         for bind_collection_item_op in bind_collection_item_ops:
@@ -693,7 +693,7 @@ def draw_vrm0_blend_shape_master_layout(
         )
 
         for material_value_bind_collection_op in material_value_collection_ops:
-            material_value_bind_collection_op.armature_name = armature.name
+            material_value_bind_collection_op.armature_object_name = armature.name
             material_value_bind_collection_op.blend_shape_group_index = (
                 blend_shape_group_index
             )
@@ -773,7 +773,7 @@ def draw_vrm0_blend_shape_master_layout(
                     text="",
                     icon="REMOVE",
                 )
-                remove_target_value_op.armature_name = armature.name
+                remove_target_value_op.armature_object_name = armature.name
                 remove_target_value_op.blend_shape_group_index = blend_shape_group_index
                 remove_target_value_op.material_value_index = material_value_index
                 remove_target_value_op.target_value_index = target_value_index
@@ -782,7 +782,7 @@ def draw_vrm0_blend_shape_master_layout(
                 vrm0_ops.VRM_OT_add_vrm0_material_value_bind_target_value,
                 icon="ADD",
             )
-            add_target_value_op.armature_name = armature.name
+            add_target_value_op.armature_object_name = armature.name
             add_target_value_op.blend_shape_group_index = blend_shape_group_index
             add_target_value_op.material_value_index = material_value_index
 
@@ -903,7 +903,7 @@ def draw_vrm0_secondary_animation_bone_groups_layout(
     )
 
     for bone_group_collection_op in bone_group_collection_ops:
-        bone_group_collection_op.armature_name = armature.name
+        bone_group_collection_op.armature_object_name = armature.name
 
     for bone_group_collection_item_op in bone_group_collection_item_ops:
         bone_group_collection_item_op.bone_group_index = bone_group_index
@@ -955,7 +955,7 @@ def draw_vrm0_secondary_animation_bone_groups_layout(
     )
 
     for bone_collection_op in bone_collection_ops:
-        bone_collection_op.armature_name = armature.name
+        bone_collection_op.armature_object_name = armature.name
         bone_collection_op.bone_group_index = bone_group_index
 
     for bone_collection_item_op in bone_collection_item_ops:
@@ -983,7 +983,7 @@ def draw_vrm0_secondary_animation_bone_groups_layout(
     )
 
     for collider_group_collection_op in collider_group_collection_ops:
-        collider_group_collection_op.armature_name = armature.name
+        collider_group_collection_op.armature_object_name = armature.name
         collider_group_collection_op.bone_group_index = bone_group_index
 
     for collider_group_collection_item_op in collider_group_collection_item_ops:
@@ -1033,7 +1033,7 @@ def draw_vrm0_secondary_animation_collider_groups_layout(
     )
 
     for collider_group_collection_op in collider_group_collection_ops:
-        collider_group_collection_op.armature_name = armature.name
+        collider_group_collection_op.armature_object_name = armature.name
 
     for collider_group_collection_item_op in collider_group_collection_item_ops:
         collider_group_collection_item_op.collider_group_index = collider_group_index
@@ -1065,11 +1065,11 @@ def draw_vrm0_secondary_animation_collider_groups_layout(
     )
 
     for collider_collection_op in collider_collection_ops:
-        collider_collection_op.armature_name = armature.name
+        collider_collection_op.armature_object_name = armature.name
         collider_collection_op.collider_group_index = collider_group_index
 
     for collider_collection_item_op in collider_collection_item_ops:
-        collider_collection_item_op.armature_name = armature.name
+        collider_collection_item_op.armature_object_name = armature.name
         collider_collection_item_op.collider_group_index = collider_group_index
         collider_collection_item_op.collider_index = collider_index
 

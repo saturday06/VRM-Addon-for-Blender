@@ -172,7 +172,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                     for b in humanoid.human_bones
                 ):
                     ops.vrm.assign_vrm0_humanoid_human_bones_automatically(
-                        armature_name=armature.name
+                        armature_object_name=armature.name
                     )
                 if not humanoid.all_required_bones_are_assigned():
                     return ops.wm.vrm_export_human_bones_assignment(
@@ -194,7 +194,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                     )
                 ):
                     ops.vrm.assign_vrm1_humanoid_human_bones_automatically(
-                        armature_name=armature.name
+                        armature_object_name=armature.name
                     )
                 if (
                     not human_bones.all_required_bones_are_assigned()
@@ -592,7 +592,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
             layout,
             VRM_OT_assign_vrm1_humanoid_human_bones_automatically,
             icon="ARMATURE_DATA",
-        ).armature_name = armature.name
+        ).armature_object_name = armature.name
 
         row = layout.split(factor=0.5)
         draw_vrm1_humanoid_required_bones_layout(human_bones, row.column())

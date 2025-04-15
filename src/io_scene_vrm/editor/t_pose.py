@@ -651,7 +651,7 @@ def setup_humanoid_t_pose(
                     set_rotation_without_mode_change(right_eye_bone, Quaternion())
 
         if pose == humanoid.POSE_AUTO_POSE.identifier:
-            ops.vrm.make_estimated_humanoid_t_pose(armature_name=armature.name)
+            ops.vrm.make_estimated_humanoid_t_pose(armature_object_name=armature.name)
         elif pose == humanoid.POSE_CUSTOM_POSE.identifier:
             if action and action.name in context.blend_data.actions:
                 pose_marker_frame = 0
@@ -665,7 +665,9 @@ def setup_humanoid_t_pose(
                 )
             else:
                 # TODO: エクスポート時にここに到達する場合は事前に警告をすると親切
-                ops.vrm.make_estimated_humanoid_t_pose(armature_name=armature.name)
+                ops.vrm.make_estimated_humanoid_t_pose(
+                    armature_object_name=armature.name
+                )
 
     context.view_layer.update()
 

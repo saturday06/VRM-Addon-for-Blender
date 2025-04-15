@@ -243,7 +243,7 @@ def draw_spring_bone1_colliders_layout(
     )
 
     for collider_collection_op in collider_collection_ops:
-        collider_collection_op.armature_name = armature.name
+        collider_collection_op.armature_object_name = armature.name
 
     for collider_collection_item_op in collider_collection_item_ops:
         collider_collection_item_op.collider_index = collider_index
@@ -291,7 +291,7 @@ def draw_spring_bone1_collider_groups_layout(
     )
 
     for collider_group_collection_op in collider_group_collection_ops:
-        collider_group_collection_op.armature_name = armature.name
+        collider_group_collection_op.armature_object_name = armature.name
 
     for collider_group_collection_item_op in collider_group_collection_item_ops:
         collider_group_collection_item_op.collider_group_index = collider_group_index
@@ -328,7 +328,7 @@ def draw_spring_bone1_collider_groups_layout(
     )
 
     for collider_collection_op in collider_collection_ops:
-        collider_collection_op.armature_name = armature.name
+        collider_collection_op.armature_object_name = armature.name
         collider_collection_op.collider_group_index = collider_group_index
 
     for collider_collection_item_op in collider_collection_item_ops:
@@ -376,7 +376,7 @@ def draw_spring_bone1_springs_layout(
     )
 
     for spring_collection_op in spring_collection_ops:
-        spring_collection_op.armature_name = armature.name
+        spring_collection_op.armature_object_name = armature.name
 
     for spring_collection_item_op in spring_collection_item_ops:
         spring_collection_item_op.spring_index = spring_index
@@ -420,7 +420,7 @@ def draw_spring_bone1_springs_layout(
     )
 
     for joint_collection_op in joint_collection_ops:
-        joint_collection_op.armature_name = armature.name
+        joint_collection_op.armature_object_name = armature.name
         joint_collection_op.spring_index = spring_index
 
     for joint_collection_item_op in joint_collection_item_ops:
@@ -459,7 +459,7 @@ def draw_spring_bone1_springs_layout(
     )
 
     for collider_group_collection_op in collider_group_collection_ops:
-        collider_group_collection_op.armature_name = armature.name
+        collider_group_collection_op.armature_object_name = armature.name
         collider_group_collection_op.spring_index = spring_index
 
     for collider_group_collection_item_op in collider_group_collection_item_ops:

@@ -78,12 +78,14 @@ def one_joint_extending_in_y_direction(context: Context) -> None:
     joint_bone1.tail = Vector((0, 3, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
+    assert ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name) == {
+        "FINISHED"
+    }
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
     joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
@@ -156,12 +158,14 @@ def one_joint_extending_in_y_direction_with_rotating_armature(context: Context) 
     joint_bone1.tail = Vector((0, 2.1, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
+    assert ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name) == {
+        "FINISHED"
+    }
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
     joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
@@ -240,12 +244,14 @@ def one_joint_extending_in_y_direction_with_rotating_armature_stiffness(
         (1, 0, 0), math.radians(-90)
     )
 
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
+    assert ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name) == {
+        "FINISHED"
+    }
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
     joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
@@ -321,15 +327,17 @@ def two_joints_extending_in_y_direction(context: Context) -> None:
     joint_bone2.tail = Vector((0, 3.1, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
+    assert ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name) == {
+        "FINISHED"
+    }
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
     joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
@@ -421,15 +429,17 @@ def two_joints_extending_in_y_direction_roll(context: Context) -> None:
     joint_bone2.tail = Vector((0, 3.1, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
+    assert ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name) == {
+        "FINISHED"
+    }
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
     joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
@@ -522,15 +532,17 @@ def two_joints_extending_in_y_direction_local_translation(context: Context) -> N
     joint_bone2.use_local_location = False
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
+    assert ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name) == {
+        "FINISHED"
+    }
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
     joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
@@ -623,15 +635,17 @@ def two_joints_extending_in_y_direction_connected(context: Context) -> None:
     joint_bone2.use_connect = True
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
+    assert ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name) == {
+        "FINISHED"
+    }
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
     joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
@@ -717,12 +731,14 @@ def one_joint_extending_in_y_direction_gravity_y_object_move_to_z(
     joint_bone1.tail = Vector((0, 3, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
+    assert ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name) == {
+        "FINISHED"
+    }
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
     joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
@@ -809,12 +825,14 @@ def one_joint_extending_in_y_direction_rounding_180_degree(context: Context) -> 
     joint_bone1.tail = Vector((0, 3, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
+    assert ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name) == {
+        "FINISHED"
+    }
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
     joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
@@ -876,15 +894,17 @@ def two_joints_extending_in_y_direction_root_down(context: Context) -> None:
     joint_bone2.tail = Vector((0, 3.8, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
+    assert ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name) == {
+        "FINISHED"
+    }
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
     joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
@@ -969,15 +989,17 @@ def two_joints_extending_in_y_direction_with_child_stiffness(context: Context) -
     joint_bone2.tail = Vector((0, 3.8, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
+    assert ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name) == {
+        "FINISHED"
+    }
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
     joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
@@ -1090,12 +1112,14 @@ def one_joint_extending_in_y_direction_with_roll_stiffness(context: Context) -> 
     joint_bone1.tail = Vector((-1, 0, -2))
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
+    assert ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name) == {
+        "FINISHED"
+    }
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
     joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
@@ -1164,15 +1188,17 @@ def two_joints_extending_in_y_direction_center_move_to_z(context: Context) -> No
     joint_bone2.tail = Vector((0, 2.001, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
+    assert ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name) == {
+        "FINISHED"
+    }
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
     spring = get_armature_extension(armature.data).spring_bone1.springs[0]
@@ -1253,15 +1279,17 @@ def two_joints_extending_in_y_direction_center_move_to_z_no_inertia(
     joint_bone2.tail = Vector((0, 2.001, 0))
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    assert ops.vrm.add_spring_bone1_spring(armature_name=armature.name) == {"FINISHED"}
+    assert ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name) == {
+        "FINISHED"
+    }
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
     assert ops.vrm.add_spring_bone1_spring_joint(
-        armature_name=armature.name, spring_index=0
+        armature_object_name=armature.name, spring_index=0
     ) == {"FINISHED"}
 
     spring = get_armature_extension(armature.data).spring_bone1.springs[0]

@@ -266,7 +266,7 @@ def draw_vrm1_humanoid_layout(
         bone_operator_column,
         vrm1_ops.VRM_OT_assign_vrm1_humanoid_human_bones_automatically,
         icon="ARMATURE_DATA",
-    ).armature_name = armature.name
+    ).armature_object_name = armature.name
 
     if ops.VRM_OT_simplify_vroid_bones.vroid_bones_exist(data):
         simplify_vroid_bones_op = layout_operator(
@@ -275,7 +275,7 @@ def draw_vrm1_humanoid_layout(
             text=pgettext(ops.VRM_OT_simplify_vroid_bones.bl_label),
             icon="GREASEPENCIL",
         )
-        simplify_vroid_bones_op.armature_name = armature.name
+        simplify_vroid_bones_op.armature_object_name = armature.name
 
     draw_vrm1_humanoid_required_bones_layout(human_bones, armature_box.box())
     draw_vrm1_humanoid_optional_bones_layout(human_bones, armature_box.box())
@@ -392,7 +392,7 @@ def draw_vrm1_first_person_layout(
     )
 
     for mesh_annotation_collection_op in mesh_annotation_collection_ops:
-        mesh_annotation_collection_op.armature_name = armature.name
+        mesh_annotation_collection_op.armature_object_name = armature.name
 
     for mesh_annotation_collection_item_op in mesh_annotation_collection_item_ops:
         mesh_annotation_collection_item_op.mesh_annotation_index = mesh_annotation_index
@@ -688,7 +688,7 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
         text="Refresh Preview",
         icon="FILE_REFRESH",
     )
-    refresh_op.armature_name = armature.name
+    refresh_op.armature_object_name = armature.name
     refresh_op.expression_name = expression_name
 
     bind_column.separator()
@@ -738,7 +738,7 @@ def draw_vrm1_expressions_layout(
     )
 
     for expression_collection_op in expression_collection_ops:
-        expression_collection_op.armature_name = armature.name
+        expression_collection_op.armature_object_name = armature.name
         expression_collection_op.custom_expression_name = "custom"
 
     custom_index = expression_ui_list_element_index - len(preset_expressions)
@@ -792,7 +792,7 @@ def draw_vrm1_expressions_layout(
     )
 
     for morph_target_bind_collection_op in morph_target_bind_collection_ops:
-        morph_target_bind_collection_op.armature_name = armature.name
+        morph_target_bind_collection_op.armature_object_name = armature.name
         morph_target_bind_collection_op.expression_name = expression.name
 
     for morph_target_bind_collection_item_op in morph_target_bind_collection_item_ops:
@@ -829,7 +829,7 @@ def draw_vrm1_expressions_layout(
     )
 
     for material_color_bind_collection_op in material_color_bind_collection_ops:
-        material_color_bind_collection_op.armature_name = armature.name
+        material_color_bind_collection_op.armature_object_name = armature.name
         material_color_bind_collection_op.expression_name = expression.name
 
     for (
@@ -867,7 +867,7 @@ def draw_vrm1_expressions_layout(
     )
 
     for texture_transform_bind_collection_op in texture_transform_bind_collection_ops:
-        texture_transform_bind_collection_op.armature_name = armature.name
+        texture_transform_bind_collection_op.armature_object_name = armature.name
         texture_transform_bind_collection_op.expression_name = expression.name
 
     for (
@@ -989,7 +989,7 @@ def draw_vrm1_meta_layout(
     )
 
     for author_collection_op in author_collection_ops:
-        author_collection_op.armature_name = armature.name
+        author_collection_op.armature_object_name = armature.name
 
     for author_collection_item_op in author_collection_item_ops:
         author_collection_item_op.author_index = author_index
@@ -1020,7 +1020,7 @@ def draw_vrm1_meta_layout(
     )
 
     for reference_collection_op in reference_collection_ops:
-        reference_collection_op.armature_name = armature.name
+        reference_collection_op.armature_object_name = armature.name
 
     for reference_collection_item_op in reference_collection_item_ops:
         reference_collection_item_op.reference_index = reference_index

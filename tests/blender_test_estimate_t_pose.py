@@ -38,9 +38,9 @@ def right_upper_arm_a(context: Context) -> None:
     right_upper_arm = armature.data.edit_bones["upper_arm.R"]
     right_upper_arm.tail = Vector((-0.5, 0, 1))
     bpy.ops.object.mode_set(mode="OBJECT")
-    assert ops.vrm.make_estimated_humanoid_t_pose(armature_name=armature.name) == {
-        "FINISHED"
-    }
+    assert ops.vrm.make_estimated_humanoid_t_pose(
+        armature_object_name=armature.name
+    ) == {"FINISHED"}
 
     assert_vector3_equals(
         Vector((-1.2638283967971802, -0.029882915318012238, 1.4166666269302368)),
@@ -67,9 +67,9 @@ def right_upper_arm_a_not_connected(context: Context) -> None:
     right_upper_arm = armature.data.edit_bones["upper_arm.R"]
     right_upper_arm.tail = Vector((-0.5, 0.0, 1.0))
     bpy.ops.object.mode_set(mode="OBJECT")
-    assert ops.vrm.make_estimated_humanoid_t_pose(armature_name=armature.name) == {
-        "FINISHED"
-    }
+    assert ops.vrm.make_estimated_humanoid_t_pose(
+        armature_object_name=armature.name
+    ) == {"FINISHED"}
 
     assert_vector3_equals(
         Vector((-0.8100490570068359, -0.02988283522427082, 1.4166666269302368)),

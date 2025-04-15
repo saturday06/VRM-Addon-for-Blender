@@ -20,7 +20,7 @@ def test(context: Context) -> None:
     upper_arm_r = armature.data.bones["upper_arm.R"]
     upper_arm_r.name = "J_Sec_R_UpperArm"
 
-    ops.vrm.bones_rename(armature_name=armature.name)
+    ops.vrm.bones_rename(armature_object_name=armature.name)
 
     assert head == armature.data.bones["Head"]
     assert eye_l == armature.data.bones["FaceEye_L"]

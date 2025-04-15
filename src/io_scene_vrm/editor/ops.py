@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 # SPDX-FileCopyrightText: 2018 iCyP
 # SPDX-FileCopyrightText: 2024 saturday06
-
 import json
 import re
+import warnings
 import webbrowser
 from collections.abc import Set as AbstractSet
 from pathlib import Path
@@ -22,11 +22,14 @@ from bpy.types import (
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 
 from ..common.deep import make_json
+from ..common.logger import get_logger
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..common.workspace import save_workspace
 from . import search
 from .extension import get_armature_extension
 from .t_pose import set_estimated_humanoid_t_pose
+
+logger = get_logger(__name__)
 
 
 class VRM_OT_simplify_vroid_bones(Operator):
@@ -39,9 +42,26 @@ class VRM_OT_simplify_vroid_bones(Operator):
     right_pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_R_")
     full__pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_([CLR]_)?")
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
 
     @staticmethod
     def vroid_bones_exist(armature: Armature) -> bool:
@@ -50,7 +70,9 @@ class VRM_OT_simplify_vroid_bones(Operator):
         )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -79,6 +101,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -361,12 +384,31 @@ class VRM_OT_make_estimated_humanoid_t_pose(Operator):
     bl_description = "Make VRM Estimated Humanoid T-Pose"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         if not set_estimated_humanoid_t_pose(context, armature):
@@ -376,4 +418,5 @@ class VRM_OT_make_estimated_humanoid_t_pose(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]

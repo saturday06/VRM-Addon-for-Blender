@@ -103,7 +103,7 @@ def write_property_typing(
 
     line += "\n"
 
-    if arg_type is not None:
+    if arg_type is not None and n != "armature_name":
         arg_default_param = keywords.get("default")
         if arg_default_param is not None:
             arg_default = arg_default_param

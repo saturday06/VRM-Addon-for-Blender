@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import re
+import warnings
 from collections.abc import Mapping, Sequence
 from collections.abc import Set as AbstractSet
 from typing import TYPE_CHECKING, ClassVar, Optional, Protocol
@@ -46,12 +47,31 @@ class VRM_OT_add_vrm1_meta_author(Operator):
     bl_description = "Add VRM 1.0 Meta Author"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -66,6 +86,7 @@ class VRM_OT_add_vrm1_meta_author(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -75,16 +96,36 @@ class VRM_OT_remove_vrm1_meta_author(Operator):
     bl_description = "Remove VRM 1.0 Meta Author"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     author_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -103,6 +144,7 @@ class VRM_OT_remove_vrm1_meta_author(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         author_index: int  # type: ignore[no-redef]
 
@@ -113,16 +155,36 @@ class VRM_OT_move_up_vrm1_meta_author(Operator):
     bl_description = "Move Up VRM 1.0 Meta Author"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     author_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -139,6 +201,7 @@ class VRM_OT_move_up_vrm1_meta_author(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         author_index: int  # type: ignore[no-redef]
 
@@ -149,16 +212,36 @@ class VRM_OT_move_down_vrm1_meta_author(Operator):
     bl_description = "Move Down VRM 1.0 Meta Author"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     author_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -175,6 +258,7 @@ class VRM_OT_move_down_vrm1_meta_author(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         author_index: int  # type: ignore[no-redef]
 
@@ -185,12 +269,31 @@ class VRM_OT_add_vrm1_meta_reference(Operator):
     bl_description = "Add VRM 1.0 Meta Reference"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -205,6 +308,7 @@ class VRM_OT_add_vrm1_meta_reference(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -214,16 +318,36 @@ class VRM_OT_remove_vrm1_meta_reference(Operator):
     bl_description = "Remove VRM 1.0 Meta Reference"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     reference_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -242,6 +366,7 @@ class VRM_OT_remove_vrm1_meta_reference(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         reference_index: int  # type: ignore[no-redef]
 
@@ -252,16 +377,36 @@ class VRM_OT_move_up_vrm1_meta_reference(Operator):
     bl_description = "Move Up VRM 1.0 Meta Reference"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     reference_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -278,6 +423,7 @@ class VRM_OT_move_up_vrm1_meta_reference(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         reference_index: int  # type: ignore[no-redef]
 
@@ -288,16 +434,36 @@ class VRM_OT_move_down_vrm1_meta_reference(Operator):
     bl_description = "Move Down VRM 1.0 Meta Reference"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     reference_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -314,6 +480,7 @@ class VRM_OT_move_down_vrm1_meta_reference(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         reference_index: int  # type: ignore[no-redef]
 
@@ -324,15 +491,35 @@ class VRM_OT_add_vrm1_expressions_custom_expression(Operator):
     bl_description = "Add VRM 1.0 Custom Expression"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     custom_expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -350,6 +537,7 @@ class VRM_OT_add_vrm1_expressions_custom_expression(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         custom_expression_name: str  # type: ignore[no-redef]
 
@@ -360,15 +548,35 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(Operator):
     bl_description = "Remove VRM 1.0 Custom Expression"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     custom_expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -390,6 +598,7 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         custom_expression_name: str  # type: ignore[no-redef]
 
@@ -400,15 +609,35 @@ class VRM_OT_move_up_vrm1_expressions_custom_expression(Operator):
     bl_description = "Move Up VRM 1.0 Custom Expression"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     custom_expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -435,6 +664,7 @@ class VRM_OT_move_up_vrm1_expressions_custom_expression(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         custom_expression_name: str  # type: ignore[no-redef]
 
@@ -445,15 +675,35 @@ class VRM_OT_move_down_vrm1_expressions_custom_expression(Operator):
     bl_description = "Move Down VRM 1.0 Custom Expression"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     custom_expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -480,6 +730,7 @@ class VRM_OT_move_down_vrm1_expressions_custom_expression(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         custom_expression_name: str  # type: ignore[no-redef]
 
@@ -490,12 +741,31 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(Operator):
     bl_description = "Add VRM 1.0 First Person Mesh Annotation"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -511,6 +781,7 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -520,16 +791,36 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(Operator):
     bl_description = "Remove VRM 1.0 First Person Mesh Annotation"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     mesh_annotation_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -548,6 +839,7 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         mesh_annotation_index: int  # type: ignore[no-redef]
 
@@ -558,16 +850,36 @@ class VRM_OT_move_up_vrm1_first_person_mesh_annotation(Operator):
     bl_description = "Move Up VRM 1.0 First Person Mesh Annotation"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     mesh_annotation_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -586,6 +898,7 @@ class VRM_OT_move_up_vrm1_first_person_mesh_annotation(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         mesh_annotation_index: int  # type: ignore[no-redef]
 
@@ -596,16 +909,36 @@ class VRM_OT_move_down_vrm1_first_person_mesh_annotation(Operator):
     bl_description = "Move Down VRM 1.0 First Person Mesh Annotation"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     mesh_annotation_index: IntProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
         min=0,
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -624,6 +957,7 @@ class VRM_OT_move_down_vrm1_first_person_mesh_annotation(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         mesh_annotation_index: int  # type: ignore[no-redef]
 
@@ -634,15 +968,35 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(Operator):
     bl_description = "Add VRM 1.0 Expression Morph Target Bind"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -661,6 +1015,7 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
 
@@ -671,9 +1026,27 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(Operator):
     bl_description = "Remove VRM 1.0 Expression Morph Target Bind"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
@@ -683,7 +1056,9 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -705,6 +1080,7 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -716,9 +1092,27 @@ class VRM_OT_move_up_vrm1_expression_morph_target_bind(Operator):
     bl_description = "Move Up VRM 1.0 Expression Morph Target Bind"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
@@ -728,7 +1122,9 @@ class VRM_OT_move_up_vrm1_expression_morph_target_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -748,6 +1144,7 @@ class VRM_OT_move_up_vrm1_expression_morph_target_bind(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -759,9 +1156,27 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(Operator):
     bl_description = "Move Down VRM 1.0 Expression Morph Target Bind"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
@@ -771,7 +1186,9 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -791,6 +1208,7 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -802,15 +1220,35 @@ class VRM_OT_add_vrm1_expression_material_color_bind(Operator):
     bl_description = "Add VRM 1.0 Expression Material Value Bind"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -831,6 +1269,7 @@ class VRM_OT_add_vrm1_expression_material_color_bind(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
 
@@ -841,9 +1280,27 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(Operator):
     bl_description = "Remove VRM 1.0 Expression Material Color Bind"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
@@ -853,7 +1310,9 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -875,6 +1334,7 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -886,9 +1346,27 @@ class VRM_OT_move_up_vrm1_expression_material_color_bind(Operator):
     bl_description = "Move Up VRM 1.0 Expression Material Color Bind"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
@@ -898,7 +1376,9 @@ class VRM_OT_move_up_vrm1_expression_material_color_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -918,6 +1398,7 @@ class VRM_OT_move_up_vrm1_expression_material_color_bind(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -929,9 +1410,27 @@ class VRM_OT_move_down_vrm1_expression_material_color_bind(Operator):
     bl_description = "Move Down VRM 1.0 Expression Material Color Bind"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
@@ -941,7 +1440,9 @@ class VRM_OT_move_down_vrm1_expression_material_color_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -961,6 +1462,7 @@ class VRM_OT_move_down_vrm1_expression_material_color_bind(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -972,15 +1474,35 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(Operator):
     bl_description = "Add VRM 1.0 Expression Texture Transform Bind"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -999,6 +1521,7 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
 
@@ -1009,9 +1532,27 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(Operator):
     bl_description = "Remove VRM 1.0 Expression Texture Transform Bind"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
@@ -1021,7 +1562,9 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1043,6 +1586,7 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -1054,9 +1598,27 @@ class VRM_OT_move_up_vrm1_expression_texture_transform_bind(Operator):
     bl_description = "Move Up VRM 1.0 Expression Texture Transform Bind"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
@@ -1066,7 +1628,9 @@ class VRM_OT_move_up_vrm1_expression_texture_transform_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1086,6 +1650,7 @@ class VRM_OT_move_up_vrm1_expression_texture_transform_bind(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -1097,9 +1662,27 @@ class VRM_OT_move_down_vrm1_expression_texture_transform_bind(Operator):
     bl_description = "Move Down VRM 1.0 Expression Morph Target Bind"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
@@ -1109,7 +1692,9 @@ class VRM_OT_move_down_vrm1_expression_texture_transform_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1129,6 +1714,7 @@ class VRM_OT_move_down_vrm1_expression_texture_transform_bind(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
@@ -1146,12 +1732,31 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
     bl_description = "Assign VRM 1.0 Humanoid Human Bones"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
 
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1218,6 +1823,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
 
 
@@ -1257,9 +1863,27 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
     bl_description = "Refresh VRM 1.0 Expression Texture Transform Bind Preview"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"}
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
     )
+
+    def update_armature_name(self, _context: Context) -> None:
+        message = (
+            f"`{type(self).__qualname__}.armature_name` is deprecated"
+            + " and will be removed in the next major release."
+            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+
+    armature_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+        update=update_armature_name,
+    )
+    """`armature_name` is deprecated and will be removed in the next major release.
+    Please use `armature_object_name` instead.
+    """
+
     expression_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
     )
@@ -1286,7 +1910,9 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
     }
 
     def execute(self, context: Context) -> set[str]:
-        armature = context.blend_data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
         armature_data = armature.data
@@ -1312,7 +1938,9 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         return {"FINISHED"}
 
     def get_all_expressions(self) -> list[tuple[Vrm1ExpressionPropertyGroup, str, str]]:
-        armature = bpy.data.objects.get(self.armature_name)
+        if not self.armature_object_name and self.armature_name:
+            self.armature_object_name = self.armature_name
+        armature = bpy.data.objects.get(self.armature_object_name)
         if not armature or armature.type != "ARMATURE":
             return []
 
@@ -1874,5 +2502,6 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         expression_name: str  # type: ignore[no-redef]

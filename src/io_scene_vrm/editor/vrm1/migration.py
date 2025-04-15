@@ -211,7 +211,7 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
         human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
         if all(not b.node.bone_name for b in human_bone_name_to_human_bone.values()):
             ops.vrm.assign_vrm1_humanoid_human_bones_automatically(
-                armature_name=armature.name
+                armature_object_name=armature.name
             )
 
     if tuple(get_armature_extension(armature_data).addon_version) <= (2, 14, 10):
