@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import uuid
+import warnings
 from collections.abc import Iterator, Mapping, Sequence, ValuesView
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar, Optional, Protocol, TypeVar, overload
@@ -167,24 +168,32 @@ class MeshObjectPropertyGroup(PropertyGroup):
     )
 
     def get_value(self) -> str:
-        logger.warning(
-            "MeshObjectPropertyGroup.value is deprecated."
-            " Use MeshObjectPropertyGroup.mesh_object_name instead."
+        message = (
+            "`MeshObjectPropertyGroup.value` is deprecated and will be removed in the"
+            " next major release. Please use `MeshObjectPropertyGroup.mesh_object_name`"
+            " instead."
         )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
         return str(self.mesh_object_name)
 
     def set_value(self, value: str) -> None:
-        logger.warning(
-            "MeshObjectPropertyGroup.value is deprecated."
-            " Use MeshObjectPropertyGroup.mesh_object_name instead."
+        message = (
+            "`MeshObjectPropertyGroup.value` is deprecated and will be removed in the"
+            " next major release. Please use `MeshObjectPropertyGroup.mesh_object_name`"
+            " instead."
         )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
         self.mesh_object_name = value
 
-    # "value" is deprecated. Use "mesh_object_name" instead
     value: StringProperty(  # type: ignore[valid-type]
         get=get_value,
         set=set_value,
     )
+    """`value` is deprecated and will be removed in the next
+    major release. Please use `mesh_object_name` instead.
+    """
 
     def poll_bpy_object(self, obj: object) -> bool:
         return isinstance(obj, Object) and obj.type == "MESH"
@@ -517,25 +526,32 @@ class BonePropertyGroup(PropertyGroup):
     )
 
     def get_value(self) -> str:
-        logger.warning(
-            "BonePropertyGroup.value is deprecated."
-            " Use BonePropertyGroup.bone_name instead."
+        message = (
+            "`BonePropertyGroup.value` is deprecated and will be removed in the"
+            " next major release. Please use `BonePropertyGroup.bone_name` instead."
         )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
         return str(self.bone_name)
 
     def set_value(self, value: str) -> None:
-        logger.warning(
-            "BonePropertyGroup.value is deprecated."
-            " Use BonePropertyGroup.bone_name instead."
+        message = (
+            "`BonePropertyGroup.value` is deprecated and will be removed in the"
+            " next major release. Please use `BonePropertyGroup.bone_name` instead."
         )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
         self.bone_name = value
 
-    # "value" is deprecated. Use "bone_name" instead
     value: StringProperty(  # type: ignore[valid-type]
         name="Bone",
         get=get_value,
         set=set_value,
     )
+    """`value` is deprecated and will be removed in the next major
+    release. Please use `bone_name` instead."
+    """
+
     bone_uuid: StringProperty()  # type: ignore[valid-type]
     armature_data_name: StringProperty()  # type: ignore[valid-type]
     search_one_time_uuid: StringProperty()  # type: ignore[valid-type]
