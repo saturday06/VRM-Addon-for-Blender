@@ -40,6 +40,6 @@ curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
 # https://github.com/denoland/deno/issues/25931#issuecomment-2406073767
 curl --fail --show-error --location https://deno.land/install.sh | sh -s -- --yes
 
-bash -i ./tools/devcontainer_on_create_command.sh
-bash -i ./tools/devcontainer_update_content_command.sh
-bash -i ./tools/devcontainer_post_attach_command.sh
+bash -l ./tools/devcontainer_on_create_command.sh
+bash -l ./tools/devcontainer_update_content_command.sh
+bash -l ./tools/devcontainer_post_attach_command.sh
