@@ -22,7 +22,7 @@ dev-dependencies = [
     "dulwich ==0.22.8",
     "mypy ==1.15.0",
     "requests ==2.32.3",
-    "ruff ==0.11.5",
+    "ruff ==0.11.6",
     "starry-bpy-typings",
     "tqdm ==4.67.1",
     "types-tqdm ==4.67.0.20250417",
