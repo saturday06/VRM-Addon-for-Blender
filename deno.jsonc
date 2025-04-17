@@ -9,7 +9,7 @@
     "docs:build": "deno run --allow-env --allow-ffi --allow-read --allow-run --allow-sys --allow-write npm:vitepress build docs",
     "docs:dev": "deno run --allow-env --allow-ffi --allow-net --allow-read --allow-run --allow-sys --allow-write npm:vitepress dev docs",
     "docs:preview": "deno run --allow-env --allow-ffi --allow-net --allow-read --allow-run --allow-sys --allow-write npm:vitepress preview docs",
-    "pyright": "uv run -- deno run --allow-env --allow-ffi --allow-read --allow-run --allow-sys --allow-write --unstable-node-globals ./tools/pyright.cjs --warnings",
+    "pyright": "uv run -- deno run --allow-env --allow-ffi --allow-read --allow-run --allow-sys --allow-write --unstable-node-globals ./tools/pyright.cts --warnings",
     "vrm-validator": "deno run --allow-env --allow-read ./tools/vrm_validator.ts"
   },
   // Workaround for VitePress

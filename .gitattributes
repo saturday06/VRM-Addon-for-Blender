@@ -2,11 +2,12 @@
 *.bat text eol=crlf
 *.cs text eol=lf
 *.css text eol=lf
+*.cjs text eol=lf
+*.cts text eol=lf
 *.dockerfile text eol=lf
 *.glsl text eol=lf
 *.ini text eol=lf
 *.js text eol=lf
-*.cjs text eol=lf
 *.json text eol=lf
 *.json5 text eol=lf
 *.jsonc text eol=lf
@@ -15,6 +16,7 @@
 *.pyi text eol=lf
 *.rb text eol=lf
 *.toml text eol=lf
+*.ts text eol=lf
 *.txt text eol=lf
 *.html text eol=lf
 *.yaml text eol=lf
