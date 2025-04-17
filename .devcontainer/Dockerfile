@@ -226,7 +226,7 @@ WORKDIR /home/developer
 # "postCreateCommand" や "postStartCommand" でも使える環境変数を設定する。
 # できれば "remoteEnv" で設定したいが、現在のJetBrains製品だと反映されないのでここで設定
 ENV BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
-ENV PATH=/home/developer/.deno/bin:/home/developer/.cargo/bin:/home/developer/.local/bin:$PATH
+ENV PATH=/home/developer/.cargo/bin:/home/developer/.local/bin:$PATH
 ENV UV_LINK_MODE=copy
 
 # JetBrains製品は自動で `~/.cache` フォルダを作成するが、それだとフォルダの権限がroot:rootになる。
@@ -234,4 +234,8 @@ ENV UV_LINK_MODE=copy
 RUN mkdir -p .cache
 
 RUN curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
-RUN curl --fail --show-error --location https://deno.land/install.sh | sh
+
+# https://github.com/denoland/deno/issues/25931#issuecomment-2406073767
+RUN curl --fail --show-error --location https://deno.land/install.sh | sh -s -- --yes
+# denoは.bashrcの最終行に改行を追加しないので自前で追加する。
+RUN echo >>~/.bashrc

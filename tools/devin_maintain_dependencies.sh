@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
-set -eux
+set -eux -o pipefail
 
 cd "$(dirname "$0")/.."
 
@@ -35,11 +35,17 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install \
   zopfli \
   -y
 
-curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
+if ! command -v uv; then
+  curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
+fi
 
-# https://github.com/denoland/deno/issues/25931#issuecomment-2406073767
-curl --fail --show-error --location https://deno.land/install.sh | sh -s -- --yes
+if ! command -v deno; then
+  # https://github.com/denoland/deno/issues/25931#issuecomment-2406073767
+  curl --fail --show-error --location https://deno.land/install.sh | sh -s -- --yes
+  # denoは.bashrcの最終行に改行を追加しないので自前で追加する。
+  echo >>~/.bashrc
+fi
 
-bash -l ./tools/devcontainer_on_create_command.sh
-bash -l ./tools/devcontainer_update_content_command.sh
-bash -l ./tools/devcontainer_post_attach_command.sh
+bash -lc ./tools/devcontainer_on_create_command.sh
+bash -lc ./tools/devcontainer_update_content_command.sh
+bash -lc ./tools/devcontainer_post_attach_command.sh
