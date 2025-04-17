@@ -10,6 +10,8 @@ git config --global --add safe.directory "$PWD"
 
 # システムのBlenderから開発中のアドオンをすぐに動作確認できるようにする
 for blender_version in \
+  4.5 \
+  4.4 \
   4.3 \
   4.2; do
   mkdir -p "$HOME/.config/blender/$blender_version/extensions/user_default"
