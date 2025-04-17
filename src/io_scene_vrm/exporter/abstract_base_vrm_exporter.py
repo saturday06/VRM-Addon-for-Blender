@@ -216,8 +216,6 @@ def force_apply_modifiers(
     if not persistent:
         return evaluated_temporary_mesh.copy()
 
-    # ドキュメントにはBlendDataMeshes.new_from_object()を使うべきと書いてあるが、
-    # それだとシェイプキーが保持されない。
     if isinstance(obj_data, Mesh):
         evaluated_mesh = obj_data.copy()
     else:

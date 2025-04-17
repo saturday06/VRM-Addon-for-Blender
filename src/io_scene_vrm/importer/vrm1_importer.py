@@ -529,20 +529,16 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     human_bone_name
                 )
 
-            # ボーンの子が複数ある場合
-            # そのボーン名からテールを向ける先の子ボーン名を拾えるdictを作る
             bone_name_to_main_child_bone_name: dict[str, str] = {}
             for (
                 bone_name,
                 human_bone_name,
             ) in bone_name_to_human_bone_name.items():
-                # 現在のアルゴリズムでは
                 #
                 #   head ---- node ---- leftEye
                 #                   \
                 #                    -- rightEye
                 #
-                # を上手く扱えないので、leftEyeとrightEyeは処理しない
                 if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
                     continue
 
@@ -606,7 +602,6 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     bone_name_to_main_child_bone_name[parent.name] = bone.name
                     bone = parent
 
-            # ヒューマンボーンとその先祖ボーンを得る
             human_bone_tree_bone_names: set[str] = set()
             for bone_name in bone_name_to_human_bone_name:
                 bone = armature_data.edit_bones.get(bone_name)
@@ -687,9 +682,6 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 if not found:
                     constraint_node_index_groups.append({node_index, source_index})
 
-            # 軸変換時コンストレイントがついている場合にヒューマンボーンと
-            # その先祖ボーンを優先したいので、それらを深さ優先で先に処理し、
-            # その後その他のボーンを深さ優先で処理する
             unsorted_bones = [
                 bone for bone in armature_data.edit_bones if not bone.parent
             ]
