@@ -148,7 +148,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         "This VRM is not allowed to be edited. Please check its license",
-    ): "改変不可Licenseです。",
+    ): "このVRMは改変不可に設定されています。ライセンスを確認してください。",
     (
         "*",
         "VRM exporter need Nodes(mesh,bones) name is unique." + " {name} is doubled.",

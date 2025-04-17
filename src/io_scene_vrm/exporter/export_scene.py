@@ -576,8 +576,8 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         elif human_bones.allow_non_humanoid_rig:
             alert_box = layout.box()
             alert_box.label(
-                text="This armature will be exported but not as humanoid."
-                + " It can not have animations applied"
+                text="This armature will be exported but not as a humanoid."
+                + " It cannot have animations applied"
                 + " for humanoid avatars.",
                 icon="CHECKMARK",
             )
