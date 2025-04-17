@@ -13,7 +13,7 @@ for blender_version in \
   4.3 \
   4.2; do
   mkdir -p "$HOME/.config/blender/$blender_version/extensions/user_default"
-  ln -fs "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/extensions/user_default/vrm"
+  ln -Tfs "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/extensions/user_default/vrm"
 done
 for blender_version in \
   4.1 \
@@ -27,5 +27,5 @@ for blender_version in \
   3.0 \
   2.93; do
   mkdir -p "$HOME/.config/blender/$blender_version/scripts/addons"
-  ln -fs "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/scripts/addons/io_scene_vrm"
+  ln -Tfs "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/scripts/addons/io_scene_vrm"
 done
