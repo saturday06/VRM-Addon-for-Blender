@@ -89,7 +89,7 @@ ignore = [
     "TD002", # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
     "TD003", # Missing issue link on the line following this TODO
 
-    # https://docs.blender.org/manual/en/4.2/advanced/extensions/addons.html#relative-imports
+    # https://projects.blender.org/blender/blender-manual/src/commit/585cc1a5eab811052ea4dda176dfce057cb6ad69/manual/advanced/extensions/addons.rst?display=source#L174-L183
     "TID252", # Relative imports from parent modules are banned
 ]
 
