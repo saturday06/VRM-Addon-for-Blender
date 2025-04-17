@@ -415,8 +415,8 @@ class WM_OT_vrm_validator(Operator):
                     ):
                         warning_messages.append(
                             pgettext(
-                                "This armature will be exported but not as humanoid."
-                                + " It can not have animations applied"
+                                "This armature will be exported but not as a humanoid."
+                                + " It cannot have animations applied"
                                 + " for humanoid avatars."
                             )
                         )

@@ -147,7 +147,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "URLが設定されていません。",
     (
         "*",
-        "This VRM is not allowed to Edit. CHECK ITS LICENSE",
+        "This VRM is not allowed to be edited. Please check its license",
     ): "改変不可Licenseです。",
     (
         "*",
@@ -538,8 +538,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ),
     (
         "*",
-        "This armature will be exported but not as humanoid."
-        + " It can not have animations applied"
+        "This armature will be exported but not as a humanoid."
+        + " It cannot have animations applied"
         + " for humanoid avatars.",
     ): "アーマチュアは人型では無いリグでエクスポートされます。"
     + "人型アバター用のアニメーションが適用されません。",

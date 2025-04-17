@@ -515,8 +515,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): ("作为 非人形 导出VRM\n" + "无法应用动画\n" + "于人形avatar。"),
     (
         "*",
-        "This armature will be exported but not as humanoid."
-        + " It can not have animations applied"
+        "This armature will be exported but not as a humanoid."
+        + " It cannot have animations applied"
         + " for humanoid avatars.",
     ): "这个骨架会导出但是不是作为人形。" + "人形avatars的动画不适用。",
     (

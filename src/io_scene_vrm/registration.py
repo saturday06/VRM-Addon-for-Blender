@@ -575,6 +575,6 @@ def unregister() -> None:
         try:
             bpy.utils.unregister_class(cls)
         except RuntimeError:
-            logger.exception("Failed to Unregister %s", cls)
+            logger.exception("Failed to unregister %s", cls)
 
     bpy.app.translations.unregister(preferences.addon_package_name)

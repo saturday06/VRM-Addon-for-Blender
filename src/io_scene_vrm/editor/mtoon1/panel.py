@@ -399,7 +399,7 @@ def draw_material(context: Context, layout: UILayout) -> None:
         return
     ext = get_material_extension(material)
     if ext.mtoon1.is_outline_material:
-        layout.box().label(icon="INFO", text="This is a MToon Outline material")
+        layout.box().label(icon="INFO", text="This is an MToon Outline material")
         return
 
     draw_mtoon1_material(context, layout)
