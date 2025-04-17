@@ -7,9 +7,9 @@ Alternatively, you can use Visual Studio Code&rsquo;s devcontainer to set them u
 </span></span><span class=line><span class=cl># Blender 4.2 or later
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl># Linux
-</span></span><span class=line><span class=cl>ln -s &#34;$PWD/src/io_scene_vrm&#34; &#34;$HOME/.config/blender/BLENDER_VERSION/extensions/user_default/vrm&#34;
+</span></span><span class=line><span class=cl>ln -Ts &#34;$PWD/src/io_scene_vrm&#34; &#34;$HOME/.config/blender/BLENDER_VERSION/extensions/user_default/vrm&#34;
 </span></span><span class=line><span class=cl># macOS
-</span></span><span class=line><span class=cl>ln -s &#34;$PWD/src/io_scene_vrm&#34; &#34;$HOME/Library/Application Support/Blender/BLENDER_VERSION/extensions/user_default/vrm&#34;
+</span></span><span class=line><span class=cl>ln -Ts &#34;$PWD/src/io_scene_vrm&#34; &#34;$HOME/Library/Application Support/Blender/BLENDER_VERSION/extensions/user_default/vrm&#34;
 </span></span><span class=line><span class=cl># Windows PowerShell
 </span></span><span class=line><span class=cl>New-Item -ItemType Junction -Path &#34;$Env:APPDATA\Blender Foundation\Blender\BLENDER_VERSION\extensions\user_default\vrm&#34; -Value &#34;$(Get-Location)\src\io_scene_vrm&#34;
 </span></span><span class=line><span class=cl># Windows Command Prompt
@@ -18,9 +18,9 @@ Alternatively, you can use Visual Studio Code&rsquo;s devcontainer to set them u
 </span></span><span class=line><span class=cl># Blender 4.1.1 or earlier
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl># Linux
-</span></span><span class=line><span class=cl>ln -s &#34;$PWD/src/io_scene_vrm&#34; &#34;$HOME/.config/blender/BLENDER_VERSION/scripts/addons/io_scene_vrm&#34;
+</span></span><span class=line><span class=cl>ln -Ts &#34;$PWD/src/io_scene_vrm&#34; &#34;$HOME/.config/blender/BLENDER_VERSION/scripts/addons/io_scene_vrm&#34;
 </span></span><span class=line><span class=cl># macOS
-</span></span><span class=line><span class=cl>ln -s &#34;$PWD/src/io_scene_vrm&#34; &#34;$HOME/Library/Application Support/Blender/BLENDER_VERSION/scripts/addons/io_scene_vrm&#34;
+</span></span><span class=line><span class=cl>ln -Ts &#34;$PWD/src/io_scene_vrm&#34; &#34;$HOME/Library/Application Support/Blender/BLENDER_VERSION/scripts/addons/io_scene_vrm&#34;
 </span></span><span class=line><span class=cl># Windows PowerShell
 </span></span><span class=line><span class=cl>New-Item -ItemType Junction -Path &#34;$Env:APPDATA\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\io_scene_vrm&#34; -Value &#34;$(Get-Location)\src\io_scene_vrm&#34;
 </span></span><span class=line><span class=cl># Windows Command Prompt
