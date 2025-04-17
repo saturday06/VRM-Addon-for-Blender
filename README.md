@@ -27,8 +27,8 @@ VRM Add-on for Blender is an add-on to add VRM-related functions into Blender.
 
 This add-on adds VRM-related functions to Blender, such as importing and
 exporting VRM, adding VRM Humanoid and setting MToon shaders. Bug reports,
-feature requests, pull requests, etc. are welcome. I have taken over the
-development after
+feature requests, pull requests, and contributions are welcome. I have taken
+over the development after
 [Version 0.79](https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8/releases/tag/0.79)
 from the author, [@iCyP](https://github.com/iCyP).
 
