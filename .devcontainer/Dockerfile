@@ -226,7 +226,6 @@ WORKDIR /home/developer
 # "postCreateCommand" や "postStartCommand" でも使える環境変数を設定する。
 # できれば "remoteEnv" で設定したいが、現在のJetBrains製品だと反映されないのでここで設定
 ENV BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
-ENV BLENDER_VRM_DEVCONTAINER_SPECIAL_WORKAROUNDS=yes
 ENV PATH=/home/developer/.deno/bin:/home/developer/.cargo/bin:/home/developer/.local/bin:$PATH
 ENV UV_LINK_MODE=copy
 

@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-import os
 import sys
 from os import environ
 from pathlib import Path
+
+import bpy
 
 from io_scene_vrm.common import ops
 
@@ -23,11 +24,9 @@ def get_test_command_args() -> list[list[str]]:
 
 
 def test(vrm: str) -> None:
-    if (
-        vrm == "draco.vrm"
-        and os.getenv("BLENDER_VRM_DEVCONTAINER_SPECIAL_WORKAROUNDS") == "yes"
-    ):
-        # Ubuntu 24.04はdracoを読もうとすると例外が発生する
+    if vrm == "draco.vrm" and sys.platform == "linux" and not bpy.app.binary_path:
+        # Linuxかつmoduleとしてビルドされている場合、dracoのライブラリが読めなくて
+        # エラーになるので該当するテストは実施しない
         return
 
     in_path = vrm_dir / vrm
