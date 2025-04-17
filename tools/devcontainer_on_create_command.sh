@@ -3,6 +3,8 @@
 
 set -eu -o pipefail
 
+cd "$(dirname "$0")/.."
+
 # Hyper-Vバックエンドで、ランダムで$PWDフォルダの所有者が変更されてしまい、gitがエラーになる問題を回避
 git config --global --add safe.directory "$PWD"
 

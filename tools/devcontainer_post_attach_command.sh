@@ -3,6 +3,8 @@
 
 set -eu -o pipefail
 
+cd "$(dirname "$0")/.."
+
 ./tools/devcontainer_create_venv.sh
 
 # Refreshing repository

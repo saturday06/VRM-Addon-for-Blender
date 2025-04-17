@@ -3,6 +3,8 @@
 
 set -eu -o pipefail
 
+cd "$(dirname "$0")/.."
+
 if [ "$(id --user --name)" = "developer" ]; then
   # 作業フォルダの所有者やパーミッションを設定する。
   # sudoが強力すぎるため、uvは経由せずOSのパッケージのみを用いて実行する。

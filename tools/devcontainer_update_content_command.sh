@@ -3,6 +3,8 @@
 
 set -eu -o pipefail
 
+cd "$(dirname "$0")/.."
+
 # Dockerイメージは積極的にキャッシュされ、パッケージが古いままのことが多いのでここでアップデート
 if command -v dnf; then
   sudo dnf update -y

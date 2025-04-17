@@ -3,6 +3,8 @@
 
 set -eu -o pipefail
 
+cd "$(dirname "$0")/.."
+
 create_venv() (
   if [ "$(uname -m)" = "x86_64" ]; then
     uv venv --prompt venv
