@@ -687,9 +687,6 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 if not found:
                     constraint_node_index_groups.append({node_index, source_index})
 
-            # 軸変換時コンストレイントがついている場合にヒューマンボーンと
-            # その先祖ボーンを優先したいので、それらを深さ優先で先に処理し、
-            # その後その他のボーンを深さ優先で処理する
             unsorted_bones = [
                 bone for bone in armature_data.edit_bones if not bone.parent
             ]

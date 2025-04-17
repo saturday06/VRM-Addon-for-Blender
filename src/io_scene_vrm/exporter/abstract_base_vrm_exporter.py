@@ -1,4 +1,3 @@
-# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import secrets
 import string
 from abc import ABC, abstractmethod
@@ -203,8 +202,6 @@ def force_apply_modifiers(
     if obj_data is None:
         return None
 
-    # https://docs.blender.org/api/2.80/Depsgraph.html
-    # TODO: シェイプキーが壊れることがあるらしい
     depsgraph = context.evaluated_depsgraph_get()
     evaluated_obj = obj.evaluated_get(depsgraph)
     evaluated_temporary_mesh = evaluated_obj.to_mesh(
@@ -216,8 +213,6 @@ def force_apply_modifiers(
     if not persistent:
         return evaluated_temporary_mesh.copy()
 
-    # ドキュメントにはBlendDataMeshes.new_from_object()を使うべきと書いてあるが、
-    # それだとシェイプキーが保持されない。
     if isinstance(obj_data, Mesh):
         evaluated_mesh = obj_data.copy()
     else:
