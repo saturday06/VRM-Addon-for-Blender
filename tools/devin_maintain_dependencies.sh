@@ -6,8 +6,8 @@ set -eux
 cd "$(dirname "$0")/.."
 
 sudo apt-get update
-sudo apt-get dist-upgrade -y
-sudo apt-get install \
+sudo DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y
+sudo DEBIAN_FRONTEND=noninteractive apt-get install \
   advancecomp \
   blender \
   curl \

@@ -8,7 +8,7 @@ if command -v dnf; then
   sudo dnf update -y
 elif command -v apt-get; then
   sudo apt-get update
-  sudo apt-get dist-upgrade -y
+  sudo DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y
 fi
 
 ./tools/devcontainer_fixup_workspace.sh
