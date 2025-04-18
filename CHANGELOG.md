@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.0.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.0.0...v3.0.1) (2025-04-17)
+
+
+### 🐞 Bug Fixes
+
+* adjust line wrapping to pass formatting check ([1e4db97](https://github.com/saturday06/VRM-Addon-for-Blender/commit/1e4db97e7dd8e87d6bbc033f6d02dbc3fb95cdf1))
+* improve English text in error and information messages ([f874231](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f874231b290d778677781da6e5d835aceffaf89f))
+* improve English text in error and information messages (cont) ([7b33b92](https://github.com/saturday06/VRM-Addon-for-Blender/commit/7b33b92082786095f8ba612758b609f8acc7d974))
+
+
+### 📝 Documentation
+
+* improve contribution wording in README ([94786b2](https://github.com/saturday06/VRM-Addon-for-Blender/commit/94786b2372a808aed24721351a5908f903fa27ba))
+* improve contribution wording in README ([1b739df](https://github.com/saturday06/VRM-Addon-for-Blender/commit/1b739df64ff4e8486782ff89a537d4ac7484729e))
+
 ## [3.0.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.40.0...v3.0.0) (2025-04-14)
 
 
