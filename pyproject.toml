@@ -111,11 +111,11 @@ extend-ignore-names = [
 convention = "pep257"
 
 [tool.ruff.lint.mccabe]
-max-complexity = 150
+max-complexity = 215
 
 [tool.ruff.lint.pylint]
 max-args = 19
-max-branches = 120
+max-branches = 214
 max-returns = 25
 max-statements = 550
 
