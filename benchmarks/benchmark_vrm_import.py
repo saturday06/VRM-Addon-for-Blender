@@ -4,13 +4,11 @@ from pstats import SortKey, Stats
 
 import bpy
 import requests
-from bpy.types import Armature, Context
-from mathutils import Vector
+from bpy.types import Context
 
 from io_scene_vrm.common import ops, version
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
-    get_armature_extension,
 )
 
 addon_version = version.get_addon_version()
@@ -27,42 +25,25 @@ def clean_scene(context: Context) -> None:
     bpy.ops.outliner.orphans_purge(do_recursive=True)
 
 
-def benchmark_spring_bone(context: Context) -> None:
+def benchmark_vrm_import(context: Context) -> None:
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
     clean_scene(context)
 
-    url = "https://raw.githubusercontent.com/vrm-c/vrm-specification/c24d76d99a18738dd2c266be1c83f089064a7b5e/samples/VRM1_Constraint_Twist_Sample/vrm/VRM1_Constraint_Twist_Sample.vrm"
-    path = Path(__file__).parent / "temp" / "VRM1_Constraint_Twist_Sample.vrm"
+    url = "https://raw.githubusercontent.com/vrm-c/vrm-specification/c24d76d99a18738dd2c266be1c83f089064a7b5e/samples/Seed-san/vrm/Seed-san.vrm"
+    path = Path(__file__).parent / "temp" / "Seed-san.vrm"
     path.parent.mkdir(exist_ok=True)
     if not path.exists():
         with requests.get(url, timeout=5 * 60) as response:
             assert response.ok
             path.write_bytes(response.content)
 
-    assert ops.import_scene.vrm(filepath=str(path)) == {"FINISHED"}
-
-    armature = context.object
-    if (
-        not armature
-        or not (armature_data := armature.data)
-        or not isinstance(armature_data, Armature)
-    ):
-        raise AssertionError
-
-    get_armature_extension(armature_data).spring_bone1.enable_animation = True
-
-    context.view_layer.update()
-    ops.vrm.update_spring_bone1_animation(delta_time=100)
-    armature.location = Vector((0.25, 0, 0))
-    context.view_layer.update()
-
     profiler = cProfile.Profile()
     with profiler:
-        ops.vrm.update_spring_bone1_animation(delta_time=10)
+        assert ops.import_scene.vrm(filepath=str(path)) == {"FINISHED"}
         context.view_layer.update()
 
     Stats(profiler).sort_stats(SortKey.CUMULATIVE).print_stats(100)
 
 
 if __name__ == "__main__":
-    benchmark_spring_bone(bpy.context)
+    benchmark_vrm_import(bpy.context)
