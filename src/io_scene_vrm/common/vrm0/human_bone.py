@@ -77,10 +77,10 @@ class HumanBoneName(Enum):
 
     @staticmethod
     def from_str(human_bone_name_str: str) -> Optional["HumanBoneName"]:
-        for human_bone_name in HumanBoneName:
-            if human_bone_name.value == human_bone_name_str:
-                return human_bone_name
-        return None
+        try:
+            return HumanBoneName(human_bone_name_str)
+        except ValueError:
+            return None
 
 
 # https://github.com/vrm-c/vrm.dev/blob/cd1d367417c53ba0f1d46588180c17b5e2768e22/docs/univrm/humanoid/humanoid_overview.md?plain=1#L99-L106
