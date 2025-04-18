@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: denoland/setup-deno@v2
         with:
-          deno-version: vx.x.x
+          deno-version: v2.2.10
       - uses: actions/checkout@v4
       - name: Build
         run: |
