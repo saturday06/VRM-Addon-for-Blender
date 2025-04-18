@@ -42,7 +42,7 @@ def benchmark_vrm_import(context: Context) -> None:
         assert ops.import_scene.vrm(filepath=str(path)) == {"FINISHED"}
         context.view_layer.update()
 
-    Stats(profiler).sort_stats(SortKey.CUMULATIVE).print_stats(100)
+    Stats(profiler).sort_stats(SortKey.TIME).print_stats(50)
 
 
 if __name__ == "__main__":

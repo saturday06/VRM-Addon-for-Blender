@@ -114,7 +114,7 @@ def benchmark_spring_bone(context: Context) -> None:
     with profiler:
         generate_many_spring_bones(armature)
 
-    Stats(profiler).sort_stats(SortKey.CUMULATIVE).print_stats(50)
+    Stats(profiler).sort_stats(SortKey.TIME).print_stats(50)
 
 
 if __name__ == "__main__":
