@@ -1048,7 +1048,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             bone_name = self.bone_names.get(node_index)
             if not isinstance(bone_name, str) or bone_name in assigned_bone_names:
                 continue
-            human_bone_name_to_human_bone[human_bone_name].node.set_bone_name(bone_name)
+            human_bone_name_to_human_bone[human_bone_name].node.bone_name = bone_name
             assigned_bone_names.append(bone_name)
 
     def load_vrm1_first_person(
@@ -1312,7 +1312,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         if isinstance(node_index, int):
             bone_name = self.bone_names.get(node_index)
             if isinstance(bone_name, str):
-                collider.node.set_bone_name(bone_name)
+                collider.node.bone_name = bone_name
                 if collider.bpy_object:
                     collider.bpy_object.name = f"{bone_name} Collider"
                 bone = self.armature_data.bones.get(collider.node.bone_name)
@@ -1638,7 +1638,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             if isinstance(center_index, int):
                 bone_name = self.bone_names.get(center_index)
                 if bone_name:
-                    spring.center.set_bone_name(bone_name)
+                    spring.center.bone_name = bone_name
 
             joint_dicts = spring_dict.get("joints")
             if not isinstance(joint_dicts, list):
@@ -1658,7 +1658,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 if isinstance(node_index, int):
                     bone_name = self.bone_names.get(node_index)
                     if bone_name:
-                        joint.node.set_bone_name(bone_name)
+                        joint.node.bone_name = bone_name
 
                 hit_radius = joint_dict.get("hitRadius")
                 if isinstance(hit_radius, (int, float)):

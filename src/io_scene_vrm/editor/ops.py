@@ -194,7 +194,7 @@ class VRM_OT_load_human_bone_mappings(Operator, ImportHelper):
                 armature_data
             ).vrm0.humanoid.human_bones:
                 if human_bone.bone == human_bone_name:
-                    human_bone.node.set_bone_name(bpy_bone_name)
+                    human_bone.node.bone_name = bpy_bone_name
                     found = True
                     break
             if found:
@@ -204,7 +204,7 @@ class VRM_OT_load_human_bone_mappings(Operator, ImportHelper):
                 armature_data
             ).vrm0.humanoid.human_bones.add()
             human_bone.bone = human_bone_name
-            human_bone.node.set_bone_name(bpy_bone_name)
+            human_bone.node.bone_name = bpy_bone_name
 
         return {"FINISHED"}
 

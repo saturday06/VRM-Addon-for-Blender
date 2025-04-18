@@ -2512,7 +2512,7 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
                     or bone_name not in human_bone.node_candidates
                 ):
                     continue
-                human_bone.node.set_bone_name(bone_name)
+                human_bone.node.bone_name = bone_name
                 break
 
         Vrm0HumanoidPropertyGroup.update_all_node_candidates(

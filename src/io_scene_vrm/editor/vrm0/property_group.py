@@ -323,7 +323,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
                 if human_bone.node.bone_name not in found_node_bone_names:
                     found_node_bone_names.append(human_bone.node.bone_name)
                     continue
-                human_bone.node.set_bone_name(None)
+                human_bone.node.bone_name = ""
                 refresh = True
                 fixup = True
                 break

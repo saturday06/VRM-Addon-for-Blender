@@ -88,7 +88,11 @@ def migrate(context: Optional[Context], armature_object_name: str) -> bool:
     ext = get_armature_extension(armature_data)
     ext.armature_data_name = armature_data.name
 
-    for bone_property_group in BonePropertyGroup.get_all_bone_property_groups(armature):
+    for (
+        bone_property_group,
+        _vrm0,
+        _vrm1,
+    ) in BonePropertyGroup.get_all_bone_property_groups(armature):
         bone_property_group.armature_data_name = armature_data.name
 
     vrm0_migration.migrate(context, ext.vrm0, armature)

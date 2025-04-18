@@ -2005,7 +2005,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if not human_bone.node.bone_name:
                 continue
             human_bone_name_to_bone_name[human_bone_name] = human_bone.node.bone_name
-            human_bone.node.set_bone_name(None)
+            human_bone.node.bone_name = ""
 
         with save_workspace(context, armature, mode="EDIT"):
             hips_bone = armature_data.edit_bones.new(HumanBoneName.HIPS.value)
@@ -2158,9 +2158,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
                 bone_name = human_bone_name_to_bone_name.get(human_bone_name)
                 if bone_name:
-                    human_bone.node.set_bone_name(bone_name)
+                    human_bone.node.bone_name = bone_name
                 else:
-                    human_bone.node.set_bone_name(None)
+                    human_bone.node.bone_name = ""
             Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
                 context, armature_data.name
             )

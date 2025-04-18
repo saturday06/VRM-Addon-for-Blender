@@ -67,7 +67,7 @@ def test(context: Context) -> None:
     assert len(armatures) == 1
     armature = armatures[0]
 
-    for props in BonePropertyGroup.get_all_bone_property_groups(armature):
+    for props, _vrm0, _vrm1 in BonePropertyGroup.get_all_bone_property_groups(armature):
         assert (props.__class__.__module__ + "." + props.__class__.__name__).endswith(
             ".editor.property_group.BonePropertyGroup"
         )

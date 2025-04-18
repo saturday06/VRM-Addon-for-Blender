@@ -578,7 +578,7 @@ class ICYP_OT_make_armature(Operator):
             for vrm_bone_name, bpy_bone_name in compare_dict.items():
                 for human_bone in vrm0_humanoid.human_bones:
                     if human_bone.bone == vrm_bone_name:
-                        human_bone.node.set_bone_name(bpy_bone_name)
+                        human_bone.node.bone_name = bpy_bone_name
                         break
         vrm0_humanoid.pose = vrm0_humanoid.POSE_REST_POSITION_POSE.identifier
         vrm1_humanoid.pose = vrm1_humanoid.POSE_REST_POSITION_POSE.identifier
@@ -600,7 +600,7 @@ class ICYP_OT_make_armature(Operator):
             return
         vrm0 = get_armature_extension(armature_data).vrm0
         vrm1 = get_armature_extension(armature_data).vrm1
-        vrm0.first_person.first_person_bone.set_bone_name("head")
+        vrm0.first_person.first_person_bone.bone_name = "head"
         vrm0.first_person.first_person_bone_offset = (0, 0, 0.06)
         vrm1.look_at.offset_from_head_bone = offset_from_head_bone
         vrm0.first_person.look_at_horizontal_inner.y_range = 8

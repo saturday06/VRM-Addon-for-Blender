@@ -734,7 +734,11 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                     continue
 
                 node = human_bone_dict.get("node")
-                if not isinstance(node, int) or node not in self.bone_names:
+                if not isinstance(node, int):
+                    continue
+
+                node_bone_name = self.bone_names.get(node)
+                if node_bone_name is None:
                     continue
 
                 human_bone = next(
@@ -750,7 +754,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 else:
                     human_bone = humanoid.human_bones.add()
                 human_bone.bone = bone
-                human_bone.node.set_bone_name(self.bone_names[node])
+                human_bone.node.bone_name = node_bone_name
 
                 use_default_values = human_bone_dict.get("useDefaultValues")
                 if isinstance(use_default_values, bool):
@@ -815,10 +819,10 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             return
 
         first_person_bone = first_person_dict.get("firstPersonBone")
-        if isinstance(first_person_bone, int) and first_person_bone in self.bone_names:
-            first_person.first_person_bone.set_bone_name(
-                self.bone_names[first_person_bone]
-            )
+        if isinstance(first_person_bone, int) and (
+            first_person_bone_name := self.bone_names.get(first_person_bone)
+        ):
+            first_person.first_person_bone.bone_name = first_person_bone_name
 
         first_person_bone_offset = convert.vrm_json_vector3_to_tuple(
             first_person_dict.get("firstPersonBoneOffset")
@@ -1008,11 +1012,12 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 continue
 
             node = collider_group_dict.get("node")
-            if not isinstance(node, int) or node not in self.bone_names:
+            if not isinstance(node, int):
                 continue
-
-            bone_name = self.bone_names[node]
-            collider_group.node.set_bone_name(bone_name)
+            bone_name = self.bone_names.get(node)
+            if bone_name is None:
+                continue
+            collider_group.node.bone_name = bone_name
             collider_dicts = collider_group_dict.get("colliders")
             if not isinstance(collider_dicts, list):
                 continue
@@ -1103,8 +1108,10 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 bone_group.drag_force = drag_force
 
             center = bone_group_dict.get("center")
-            if isinstance(center, int) and center in self.bone_names:
-                bone_group.center.set_bone_name(self.bone_names[center])
+            if isinstance(center, int) and (
+                center_bone_name := self.bone_names.get(center)
+            ):
+                bone_group.center.bone_name = center_bone_name
 
             hit_radius = bone_group_dict.get("hitRadius")
             if isinstance(hit_radius, (int, float)):
@@ -1114,10 +1121,12 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             if isinstance(bones, list):
                 for bone in bones:
                     bone_prop = bone_group.bones.add()
-                    if not isinstance(bone, int) or bone not in self.bone_names:
+                    if not isinstance(bone, int):
                         continue
-
-                    bone_prop.set_bone_name(self.bone_names[bone])
+                    bone_name = self.bone_names.get(bone)
+                    if bone_name is None:
+                        continue
+                    bone_prop.bone_name = bone_name
 
             collider_group_dicts = bone_group_dict.get("colliderGroups")
             if isinstance(collider_group_dicts, list):

@@ -226,31 +226,32 @@ class BonePropertyGroup(PropertyGroup):
     @staticmethod
     def get_all_bone_property_groups(
         armature: Object,
-    ) -> Iterator["BonePropertyGroup"]:
+    ) -> Iterator[tuple["BonePropertyGroup", bool, bool]]:
+        """Return (bone: BonePropertyGroup, is_vrm0: bool, is_vrm1: bool)."""
         from .extension import get_armature_extension
 
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
         ext = get_armature_extension(armature_data)
-        yield ext.vrm0.first_person.first_person_bone
+        yield ext.vrm0.first_person.first_person_bone, False, False
         for human_bone in ext.vrm0.humanoid.human_bones:
-            yield human_bone.node
+            yield human_bone.node, True, False
         for collider_group in ext.vrm0.secondary_animation.collider_groups:
-            yield collider_group.node
+            yield collider_group.node, False, False
         for bone_group in ext.vrm0.secondary_animation.bone_groups:
-            yield bone_group.center
-            yield from bone_group.bones
+            yield bone_group.center, False, False
+            yield from ((bone, False, False) for bone in bone_group.bones)
         for (
             human_bone
         ) in ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone().values():
-            yield human_bone.node
+            yield human_bone.node, False, True
         for collider in ext.spring_bone1.colliders:
-            yield collider.node
+            yield collider.node, False, False
         for spring in ext.spring_bone1.springs:
-            yield spring.center
+            yield spring.center, False, False
             for joint in spring.joints:
-                yield joint.node
+                yield joint.node, False, False
 
     @staticmethod
     def find_bone_candidates(
@@ -335,32 +336,38 @@ class BonePropertyGroup(PropertyGroup):
 
         return ""
 
-    def set_bone_name_and_refresh_node_candidates(self, value: object) -> None:
-        self.set_bone_name(
-            None if value is None else str(value), refresh_node_candidates=True
-        )
-
-    def set_bone_name(
-        self, value: Optional[str], *, refresh_node_candidates: bool = False
-    ) -> None:
+    def set_bone_name(self, value: str) -> None:
         from .extension import get_armature_extension, get_bone_extension
 
         context = bpy.context
 
         armature: Optional[Object] = None
+        bone_is_vrm0_human_bone = False
+        bone_is_vrm1_human_bone = False
 
         # Reassign self.armature_data_name in case of armature duplication.
         self.search_one_time_uuid = uuid.uuid4().hex
         for found_armature in context.blend_data.objects:
             if found_armature.type != "ARMATURE":
                 continue
-            if all(
-                bone_property_group.search_one_time_uuid != self.search_one_time_uuid
-                for bone_property_group in (
-                    BonePropertyGroup.get_all_bone_property_groups(found_armature)
-                )
-            ):
+
+            same_uuid_bone_found = False
+            for (
+                bone_property_group,
+                found_bone_is_vrm0_human_bone,
+                found_bone_is_vrm1_human_bone,
+            ) in BonePropertyGroup.get_all_bone_property_groups(found_armature):
+                if (
+                    bone_property_group.search_one_time_uuid
+                    == self.search_one_time_uuid
+                ):
+                    same_uuid_bone_found = True
+                    bone_is_vrm0_human_bone = found_bone_is_vrm0_human_bone
+                    bone_is_vrm1_human_bone = found_bone_is_vrm1_human_bone
+                    break
+            if not same_uuid_bone_found:
                 continue
+
             armature = found_armature
             break
         if not armature:
@@ -401,11 +408,10 @@ class BonePropertyGroup(PropertyGroup):
         for collider_group in ext.vrm0.secondary_animation.collider_groups:
             collider_group.refresh(armature)
 
-        if not refresh_node_candidates:
-            return
-
-        self.update_all_vrm0_node_candidates(armature_data)
-        self.update_all_vrm1_node_candidates(armature_data)
+        if ext.is_vrm0() and bone_is_vrm0_human_bone:
+            self.update_all_vrm0_node_candidates(armature_data)
+        if ext.is_vrm1() and bone_is_vrm1_human_bone:
+            self.update_all_vrm1_node_candidates(armature_data)
 
     @staticmethod
     def update_all_vrm0_node_candidates(armature_data: Armature) -> None:
@@ -522,7 +528,7 @@ class BonePropertyGroup(PropertyGroup):
     bone_name: StringProperty(  # type: ignore[valid-type]
         name="Bone",
         get=get_bone_name,
-        set=set_bone_name_and_refresh_node_candidates,
+        set=set_bone_name,
     )
 
     def get_value(self) -> str:

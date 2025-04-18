@@ -1795,7 +1795,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
                     continue
                 if vrm0_human_bone.node.bone_name not in human_bone.node_candidates:
                     continue
-                human_bone.node.set_bone_name(vrm0_human_bone.node.bone_name)
+                human_bone.node.bone_name = vrm0_human_bone.node.bone_name
 
         for (
             bone_name,
@@ -1812,7 +1812,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
                     or bone_name not in human_bone.node_candidates
                 ):
                     continue
-                human_bone.node.set_bone_name(bone_name)
+                human_bone.node.bone_name = bone_name
                 break
 
         Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
