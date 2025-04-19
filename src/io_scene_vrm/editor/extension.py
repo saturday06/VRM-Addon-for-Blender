@@ -175,7 +175,7 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
 
 
 class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
-    uuid: StringProperty()  # type: ignore[valid-type]
+    uuid: StringProperty = StringProperty()  # type: ignore[valid-type]
 
     (
         axis_translation_enum,
@@ -505,6 +505,7 @@ def get_scene_extension(scene: Scene) -> VrmAddonSceneExtensionPropertyGroup:
 
 
 _bone_extension_cache: dict[tuple[str, str], VrmAddonBoneExtensionPropertyGroup] = {}
+
 
 def get_bone_extension(bone: Bone) -> VrmAddonBoneExtensionPropertyGroup:
     if bone.id_data and hasattr(bone.id_data, "name") and bone.name:
