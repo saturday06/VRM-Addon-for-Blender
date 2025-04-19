@@ -504,10 +504,22 @@ def get_scene_extension(scene: Scene) -> VrmAddonSceneExtensionPropertyGroup:
     return extension
 
 
+_bone_extension_cache: dict[tuple[str, str], VrmAddonBoneExtensionPropertyGroup] = {}
+
+
 def get_bone_extension(bone: Bone) -> VrmAddonBoneExtensionPropertyGroup:
+    if bone.id_data and hasattr(bone.id_data, "name") and bone.name:
+        cache_key = (bone.id_data.name, bone.name)
+        cached_extension = _bone_extension_cache.get(cache_key)
+        if cached_extension is not None:
+            return cached_extension
+
     extension = getattr(bone, "vrm_addon_extension", None)
     if not isinstance(extension, VrmAddonBoneExtensionPropertyGroup):
         raise TypeError
+
+    if bone.id_data and hasattr(bone.id_data, "name") and bone.name:
+        _bone_extension_cache[(bone.id_data.name, bone.name)] = extension
     return extension
 
 
