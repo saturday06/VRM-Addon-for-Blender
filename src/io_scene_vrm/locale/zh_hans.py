@@ -260,7 +260,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         '"{image_name}" is not found in file path "{image_filepath}". '
-        + "Please load file of it in Blender.",
+        + "please load file of it in Blender.",
     ): '「{image_name}」指定文件路径中的图像文件。「"{image_filepath}"」'
     + "图像不存在于 请重新加载图像。。",
     (
