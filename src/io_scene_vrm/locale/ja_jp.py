@@ -578,7 +578,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "The current file is not compatible with the running Blender.\n"
         + "The current file was created in Blender {file_version}, but the running"
         + " Blender version is {app_version}.\n"
-        + "So it is not compatible. As a result some data may be lost or corrupted.",
+        + "This incompatibility may result in data loss or corruption.",
     ): "現在のファイルは実行中のBlenderと互換性がありません。\n"
     + "現在のファイルはBlender {file_version}で作られたファイルですが、"
     + "起動中のBlenderの\n"
@@ -591,9 +591,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "The current file is not compatible with the installed VRM Add-on.\n"
         + "The current file was created in VRM Add-on {file_addon_version}, but the"
         + " installed\n"
-        + "VRM Add-on version is {installed_addon_version}. So it is not"
-        + " compatible. As a result some\n"
-        + "data may be lost or corrupted.",
+        + "VRM Add-on version is {installed_addon_version}. This incompatibility\n"
+        + "may result in data loss or corruption.",
     ): "現在のファイルはインストール済みのVRMアドオンと互換性がありません。\n"
     + "現在のファイルはVRMアドオンのバージョン{file_addon_version}で作られた"
     + "ファイルですが、\nインストール済みのVRMアドオンのバージョンは"
