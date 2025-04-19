@@ -10,7 +10,9 @@ from mathutils import Vector
 from io_scene_vrm.common import ops, version
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
+    get_armature_extension,
 )
+from io_scene_vrm.editor.spring_bone1.handler import update_pose_bone_rotations
 
 addon_version = version.get_addon_version()
 spec_version = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1
@@ -50,14 +52,14 @@ def benchmark_spring_bone(context: Context) -> None:
     get_armature_extension(armature_data).spring_bone1.enable_animation = True
 
     context.view_layer.update()
-    ops.vrm.update_spring_bone1_animation(delta_time=1.0 / 60.0)
+    update_pose_bone_rotations(context, delta_time=1.0 / 24.0)
     armature.location = Vector((1, 0, 0))
     context.view_layer.update()
 
     profiler = cProfile.Profile()
     with profiler:
-        ops.vrm.update_spring_bone1_animation(delta_time=10000)
-        context.view_layer.update()
+        for _ in range(10):
+            update_pose_bone_rotations(context, delta_time=1.0 / 24.0)
 
     Stats(profiler).sort_stats(SortKey.TIME).print_stats(50)
 
