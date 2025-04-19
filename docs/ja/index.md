@@ -1,11 +1,10 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
   name: "VRM Format"
   text: "VRM Add-on for Blender"
-  tagline: VRM Format / VRM Add-on for Blender adds VRM import, export, and editing capabilities to Blender. It supports Blender versions 2.93 to 4.2.
+  tagline: VRM Format / VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。バージョン2.93から4.4のBlenderに対応しています。
   actions:
     - theme: brand
       text: Markdown Examples
@@ -15,8 +14,8 @@ hero:
       link: /api-examples
 
 features:
-  - title: Installation
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: アドオンのインストール
+    details: 寿限無寿限無
   - title: Create Simple VRM
     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
   - title: Create Humanoid VRM
