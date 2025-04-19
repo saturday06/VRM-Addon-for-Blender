@@ -266,17 +266,6 @@ class WM_OT_vrm_validator(Operator):
                 if obj.name not in node_names:
                     node_names.append(obj.name)
             if (
-                obj.type in search.MESH_CONVERTIBLE_OBJECT_TYPES
-                and obj.parent is not None
-                and obj.parent.type != "ARMATURE"
-                and obj.location != Vector([0.0, 0.0, 0.0])
-            ):  # mesh and armature origin is on [0,0,0]
-                info_messages.append(
-                    pgettext("There are not on origine location object {name}").format(
-                        name=obj.name
-                    )
-                )
-            if (
                 obj.type == "MESH"
                 and isinstance(obj.data, Mesh)
                 and obj.data.shape_keys is not None
