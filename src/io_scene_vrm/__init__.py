@@ -96,9 +96,8 @@ def raise_error_if_too_old_blender() -> None:
 
     raise_not_implemented_error(
         default_message=(
-            "This add-on doesn't support Blender versions earlier than"
-            + " {minimum_supported_version}. Your current version is"
-            + " {current_version}"
+            "This add-on requires Blender version {minimum_supported_version} or later."
+            + " Your current version is {current_version}."
         ),
         ja_jp_message=(
             "このアドオンはBlenderのバージョン{minimum_supported_version}未満には未対応です。"
@@ -117,8 +116,8 @@ def raise_error_if_too_new_blender(exception: object) -> None:
         exception=exception,
         default_message=(
             "This add-on is not compatible with Blender version"
-            + " {minimum_unsupported_version} or higher. Your current version is"
-            + " {current_version}"
+            + " {minimum_unsupported_version} or later. Your current version is"
+            + " {current_version}."
         ),
         ja_jp_message=(
             "このアドオンはBlenderのバージョン{minimum_unsupported_version}以降には未対応です。"
