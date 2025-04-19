@@ -159,7 +159,7 @@ def raise_not_implemented_error(
     )
     if exception is not None:
         highlighted_message = (
-            "            Original Exception={exception_name}: {exception}".format(
+            "            Original Exception: {exception_name}: {exception}".format(
                 exception=exception,
                 exception_name=type(exception).__name__,
             )
@@ -204,7 +204,7 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
     logger.warning(
         "%s Extracting the partial add-on archive for "
         "users who downloaded the add-on "
-        'using the "Code" -> "Download ZIP" link on GitHub...',
+        'using the "Code" > "Download ZIP" option on GitHub...',
         log_warning_prefix,
     )
 
@@ -234,7 +234,7 @@ def extract_github_private_partial_code_archive_if_necessary() -> None:
         github_private_partial_code_archive_path.unlink()
     except OSError:
         logger.exception(
-            "%s Failed to remove the partial add-on archive: %s",
+            "%s Unable to remove the partial add-on archive: %s",
             log_exception_prefix,
             github_private_partial_code_archive_path,
         )
