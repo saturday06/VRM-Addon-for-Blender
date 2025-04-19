@@ -1,0 +1,43 @@
+module changed on disk: '/home/ubuntu/repos/VRM-Addon-for-Blender/src/io_scene_vrm/__init__.py' reloading...
+         3607230 function calls in 2.600 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    72100    0.827    0.000    1.088    0.000 /home/ubuntu/repos/VRM-Addon-for-Blender/src/io_scene_vrm/editor/spring_bone1/handler.py:526(calculate_joint_pair_head_pose_bone_rotations)
+   158900    0.616    0.000    0.906    0.000 /home/ubuntu/repos/VRM-Addon-for-Blender/src/io_scene_vrm/editor/property_group.py:304(get_bone_name)
+     2450    0.347    0.000    2.331    0.001 /home/ubuntu/repos/VRM-Addon-for-Blender/src/io_scene_vrm/editor/spring_bone1/handler.py:408(calculate_spring_pose_bone_rotations)
+   387450    0.100    0.000    0.100    0.000 {method 'get' of 'bpy_prop_collection' objects}
+   290850    0.080    0.000    0.080    0.000 {method 'inverted_safe' of 'Matrix' objects}
+    50429    0.071    0.000    0.074    0.000 /home/ubuntu/repos/VRM-Addon-for-Blender/src/io_scene_vrm/common/rotation.py:43(set_rotation_without_mode_change)
+   154000    0.055    0.000    0.106    0.000 /home/ubuntu/repos/VRM-Addon-for-Blender/src/io_scene_vrm/editor/extension.py:507(get_bone_extension)
+   158900    0.054    0.000    0.071    0.000 <frozen importlib._bootstrap>:404(parent)
+       10    0.053    0.005    2.600    0.260 /home/ubuntu/repos/VRM-Addon-for-Blender/src/io_scene_vrm/editor/spring_bone1/handler.py:165(update_pose_bone_rotations)
+    72100    0.040    0.000    0.047    0.000 /home/ubuntu/repos/VRM-Addon-for-Blender/src/io_scene_vrm/common/rotation.py:20(get_rotation_as_quaternion)
+    72100    0.040    0.000    0.040    0.000 {method 'to_matrix' of 'Quaternion' objects}
+   154010    0.040    0.000    0.040    0.000 {built-in method builtins.getattr}
+   288400    0.037    0.000    0.037    0.000 {method 'to_translation' of 'Matrix' objects}
+   154000    0.037    0.000    0.037    0.000 {method 'get' of 'dict' objects}
+       10    0.030    0.003    2.413    0.241 /home/ubuntu/repos/VRM-Addon-for-Blender/src/io_scene_vrm/editor/spring_bone1/handler.py:181(calculate_object_pose_bone_rotations)
+   144200    0.022    0.000    0.022    0.000 {method 'to_quaternion' of 'Matrix' objects}
+   218750    0.018    0.000    0.018    0.000 {method 'append' of 'list' objects}
+   158900    0.017    0.000    0.017    0.000 {method 'rpartition' of 'str' objects}
+   144200    0.016    0.000    0.016    0.000 {method 'to_4x4' of 'Matrix' objects}
+   144200    0.015    0.000    0.015    0.000 {method 'normalized' of 'Vector' objects}
+    72100    0.013    0.000    0.013    0.000 {method 'angle' of 'Vector' objects}
+    72100    0.013    0.000    0.013    0.000 {method 'decompose' of 'Matrix' objects}
+   154020    0.011    0.000    0.011    0.000 {built-in method builtins.isinstance}
+   122529    0.011    0.000    0.011    0.000 {method 'copy' of 'Quaternion' objects}
+    72100    0.009    0.000    0.009    0.000 {method 'rotation_difference' of 'Quaternion' objects}
+    72100    0.009    0.000    0.009    0.000 {method 'cross' of 'Vector' objects}
+    72100    0.008    0.000    0.008    0.000 {built-in method Translation}
+    72100    0.008    0.000    0.008    0.000 {built-in method Diagonal}
+    72100    0.004    0.000    0.004    0.000 {built-in method builtins.abs}
+       10    0.000    0.000    0.000    0.000 /home/ubuntu/repos/VRM-Addon-for-Blender/src/io_scene_vrm/editor/extension.py:426(is_vrm1)
+       10    0.000    0.000    0.000    0.000 /home/ubuntu/repos/VRM-Addon-for-Blender/src/io_scene_vrm/editor/extension.py:482(get_armature_extension)
+        1    0.000    0.000    0.000    0.000 /usr/lib/python3.10/cProfile.py:118(__exit__)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+
+Read blend: "/home/ubuntu/repos/VRM-Addon-for-Blender/benchmarks/temp/spring_bone_many_springs_3_6_0.blend"
+Error: Not freed memory blocks: 1420268, total unfreed memory 176.846916 MB
