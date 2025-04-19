@@ -386,10 +386,11 @@ class BonePropertyGroup(PropertyGroup):
         # Reassign UUIDs if duplicate UUIDs exist in case of bone duplication.
         found_uuids: set[str] = set()
         for bone in armature_data.bones:
-            found_uuid = get_bone_extension(bone).uuid
+            bone_extension = get_bone_extension(bone)
+            found_uuid = bone_extension.uuid
             if not found_uuid or found_uuid in found_uuids:
-                get_bone_extension(bone).uuid = uuid.uuid4().hex
-            found_uuids.add(get_bone_extension(bone).uuid)
+                bone_extension.uuid = uuid.uuid4().hex
+            found_uuids.add(bone_extension.uuid)
 
         if not value or value not in armature_data.bones:
             if not self.bone_uuid:
