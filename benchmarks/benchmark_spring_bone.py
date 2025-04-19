@@ -47,6 +47,8 @@ def benchmark_spring_bone(context: Context) -> None:
     ):
         raise AssertionError
 
+    get_armature_extension(armature_data).spring_bone1.enable_animation = True
+
     context.view_layer.update()
     ops.vrm.update_spring_bone1_animation(delta_time=1.0 / 60.0)
     armature.location = Vector((1, 0, 0))
