@@ -442,9 +442,19 @@ def calculate_spring_pose_bone_rotations(
             Matrix,
         ]
     ] = []
+
+    bone_parent_cache: dict[str, set[str]] = {}
+    for bone in obj.pose.bones:
+        parent_names: set[str] = set()
+        current_parent = bone.parent
+        while current_parent:
+            parent_names.add(current_parent.name)
+            current_parent = current_parent.parent
+        bone_parent_cache[bone.name] = parent_names
+
     for joint in spring.joints:
         bone_name = joint.node.bone_name
-        pose_bone = obj.pose.bones.get(bone_name)
+        pose_bone: Optional[PoseBone] = obj.pose.bones.get(bone_name)
         if not pose_bone:
             continue
         rest_object_matrix = pose_bone.bone.convert_local_to_pose(
@@ -457,13 +467,9 @@ def calculate_spring_pose_bone_rotations(
         tail_pose_bone,
         tail_rest_object_matrix,
     ) in zip(joints, joints[1:]):
-        head_tail_parented = False
-        searching_tail_parent = tail_pose_bone.parent
-        while searching_tail_parent:
-            if searching_tail_parent.name == head_pose_bone.name:
-                head_tail_parented = True
-                break
-            searching_tail_parent = searching_tail_parent.parent
+        head_tail_parented = head_pose_bone.name in bone_parent_cache.get(
+            tail_pose_bone.name, set()
+        )
         if not head_tail_parented:
             break
 
