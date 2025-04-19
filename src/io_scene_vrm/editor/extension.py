@@ -175,7 +175,7 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
 
 
 class VrmAddonBoneExtensionPropertyGroup(PropertyGroup):
-    uuid: StringProperty = StringProperty()  # type: ignore[valid-type]
+    uuid: StringProperty()  # type: ignore[valid-type]
 
     (
         axis_translation_enum,
