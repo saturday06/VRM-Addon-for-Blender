@@ -151,7 +151,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "このVRMは改変不可に設定されています。ライセンスを確認してください。",
     (
         "*",
-        "VRM exporter requires unique names for Nodes (mesh, bones)." + " {name} is duplicated.",
+        "VRM exporter requires unique names for Nodes (mesh, bones)."
+        + " {name} is duplicated.",
     ): "glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。"
     + "「{name}」が重複しています。",
     (
@@ -240,7 +241,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "子ボーンである「{name}」の割り当てに必要になります。",
     (
         "*",
-        'Non-triangular faces detected in "{name}". ' + "They will be triangulated automatically.",
+        'Non-triangular faces detected in "{name}". '
+        + "They will be triangulated automatically.",
     ): "「{name}」のポリゴンに三角形以外のものが含まれます。"
     + "自動的に三角形に分割されます。",
     (
