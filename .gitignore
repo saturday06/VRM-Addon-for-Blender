@@ -12,7 +12,7 @@
 /docs/website/public/
 /docs/website/resources/_gen/
 /node_modules/
-/benchmarks/temp/
+/benchmarks/temp/*
 /tests/resources/unity/*/*.csproj
 /tests/resources/unity/*/*.sln
 /tests/resources/unity/*/.idea/
@@ -30,3 +30,5 @@
 /tests/resources/vrm/in/*.temp*.blend
 /tests/test_generated_*
 __pycache__/
+
+!/benchmarks/temp/.gitkeep

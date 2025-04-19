@@ -31,7 +31,6 @@ def benchmark_vrm_import(context: Context) -> None:
 
     url = "https://raw.githubusercontent.com/vrm-c/vrm-specification/c24d76d99a18738dd2c266be1c83f089064a7b5e/samples/Seed-san/vrm/Seed-san.vrm"
     path = Path(__file__).parent / "temp" / "Seed-san.vrm"
-    path.parent.mkdir(exist_ok=True)
     if not path.exists():
         with requests.get(url, timeout=5 * 60) as response:
             assert response.ok
