@@ -301,6 +301,8 @@ class BonePropertyGroup(PropertyGroup):
         dict[tuple[str, str], str]
     ] = {}
 
+    armature_data_name_to_bone_uuid_mapping: ClassVar[dict[str, dict[str, str]]] = {}
+
     def get_bone_name(self) -> str:
         from .extension import get_bone_extension
 
@@ -324,14 +326,37 @@ class BonePropertyGroup(PropertyGroup):
                 cached_bone := armature_data.bones.get(cached_bone_name)
             ) and get_bone_extension(cached_bone).uuid == self.bone_uuid:
                 return cached_bone_name
-            # キャッシュに古い値が一つでも入っていたら安全のため全てクリア
-            self.armature_data_name_and_bone_uuid_to_bone_name_cache.clear()
+            # キャッシュに古い値が見つかった場合、その特定のエントリのみを削除
+            self.armature_data_name_and_bone_uuid_to_bone_name_cache.pop(
+                cache_key, None
+            )
+
+        bone_uuid_mapping = self.armature_data_name_to_bone_uuid_mapping.get(
+            self.armature_data_name
+        )
+        if bone_uuid_mapping is None:
+            bone_uuid_mapping = {}
+            for bone in armature_data.bones:
+                bone_ext = get_bone_extension(bone)
+                if bone_ext.uuid:  # UUIDが存在する場合のみキャッシュ
+                    bone_uuid_mapping[bone_ext.uuid] = bone.name
+            self.armature_data_name_to_bone_uuid_mapping[self.armature_data_name] = (
+                bone_uuid_mapping
+            )
+
+        bone_name = bone_uuid_mapping.get(self.bone_uuid)
+        if bone_name:
+            self.armature_data_name_and_bone_uuid_to_bone_name_cache[cache_key] = (
+                bone_name
+            )
+            return bone_name
 
         for bone in armature_data.bones:
             if get_bone_extension(bone).uuid == self.bone_uuid:
                 self.armature_data_name_and_bone_uuid_to_bone_name_cache[cache_key] = (
                     bone.name
                 )
+                bone_uuid_mapping[self.bone_uuid] = bone.name
                 return bone.name
 
         return ""
