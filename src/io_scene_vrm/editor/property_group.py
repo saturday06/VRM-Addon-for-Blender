@@ -310,22 +310,32 @@ class BonePropertyGroup(PropertyGroup):
             return ""
         if not self.armature_data_name:
             return ""
-        armature_data = context.blend_data.armatures.get(self.armature_data_name)
-        if not armature_data:
-            return ""
-
-        # プロファイルの結果この関数が時間かかっていたのでキャッシュを用いて高速化
+        
         cache_key = (self.armature_data_name, self.bone_uuid)
         cached_bone_name = self.armature_data_name_and_bone_uuid_to_bone_name_cache.get(
             cache_key
         )
+        
         if cached_bone_name is not None:
+            if cached_bone_name == "":
+                return ""
+                
+            # armature_dataのチェックは実際に骨名が有効な場合のみ行う
+            armature_data = context.blend_data.armatures.get(self.armature_data_name)
+            if not armature_data:
+                return ""
+                
             if (
                 cached_bone := armature_data.bones.get(cached_bone_name)
             ) and get_bone_extension(cached_bone).uuid == self.bone_uuid:
                 return cached_bone_name
             # キャッシュに古い値が一つでも入っていたら安全のため全てクリア
             self.armature_data_name_and_bone_uuid_to_bone_name_cache.clear()
+
+        armature_data = context.blend_data.armatures.get(self.armature_data_name)
+        if not armature_data:
+            self.armature_data_name_and_bone_uuid_to_bone_name_cache[cache_key] = ""
+            return ""
 
         for bone in armature_data.bones:
             if get_bone_extension(bone).uuid == self.bone_uuid:
@@ -334,6 +344,7 @@ class BonePropertyGroup(PropertyGroup):
                 )
                 return bone.name
 
+        self.armature_data_name_and_bone_uuid_to_bone_name_cache[cache_key] = ""
         return ""
 
     def set_bone_name(self, value: str) -> None:

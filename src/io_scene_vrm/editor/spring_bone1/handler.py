@@ -168,12 +168,14 @@ def update_pose_bone_rotations(context: Context, delta_time: float) -> None:
     for obj in context.blend_data.objects:
         calculate_object_pose_bone_rotations(delta_time, obj, pose_bone_and_rotations)
 
+    epsilon_threshold = 1e-7
+    
     for pose_bone, pose_bone_rotation in pose_bone_and_rotations:
         # pose_boneへの回転の代入は負荷が高いのでできるだけ実行しない
         angle_diff = pose_bone_rotation.rotation_difference(
             get_rotation_as_quaternion(pose_bone)
         ).angle
-        if abs(angle_diff) < float_info.epsilon:
+        if abs(angle_diff) < epsilon_threshold:
             continue
         set_rotation_without_mode_change(pose_bone, pose_bone_rotation)
 
@@ -546,7 +548,13 @@ def calculate_joint_pair_head_pose_bone_rotations(
 ) -> tuple[Quaternion, Matrix]:
     current_head_pose_bone_matrix = head_pose_bone.matrix
     current_tail_pose_bone_matrix = tail_pose_bone.matrix
-
+    
+    obj_matrix_world = obj.matrix_world
+    obj_matrix_world_inverted = obj_matrix_world.inverted_safe()
+    
+    current_head_pose_bone_matrix_translation = current_head_pose_bone_matrix.to_translation()
+    current_tail_pose_bone_matrix_translation = current_tail_pose_bone_matrix.to_translation()
+    
     if next_head_pose_bone_before_rotation_matrix is None:
         if head_pose_bone.parent:
             current_head_parent_matrix = head_pose_bone.parent.matrix
@@ -563,14 +571,15 @@ def calculate_joint_pair_head_pose_bone_rotations(
             @ current_head_rest_object_matrix
         )
 
+    next_head_pose_bone_before_rotation_matrix_translation = next_head_pose_bone_before_rotation_matrix.to_translation()
     next_head_world_translation = (
-        obj.matrix_world @ next_head_pose_bone_before_rotation_matrix.to_translation()
+        obj_matrix_world @ next_head_pose_bone_before_rotation_matrix_translation
     )
 
     if not tail_joint.animation_state.initialized_as_tail:
         initial_tail_world_translation = (
-            obj.matrix_world @ current_tail_pose_bone_matrix
-        ).to_translation()
+            obj_matrix_world @ current_tail_pose_bone_matrix_translation
+        )
         tail_joint.animation_state.initialized_as_tail = True
         tail_joint.animation_state.previous_world_translation = list(
             initial_tail_world_translation
@@ -592,13 +601,18 @@ def calculate_joint_pair_head_pose_bone_rotations(
         1.0 - head_joint.drag_force
     )
 
+    current_head_rest_object_matrix_inverted = current_head_rest_object_matrix.inverted_safe()
     next_head_rotation_start_target_local_translation = (
-        current_head_rest_object_matrix.inverted_safe()
+        current_head_rest_object_matrix_inverted
         @ current_tail_rest_object_matrix.to_translation()
     )
+    
+    obj_matrix_world_quaternion = obj_matrix_world.to_quaternion()
+    next_head_pose_bone_before_rotation_matrix_quaternion = next_head_pose_bone_before_rotation_matrix.to_quaternion()
+    
     stiffness_direction = (
-        obj.matrix_world.to_quaternion()
-        @ next_head_pose_bone_before_rotation_matrix.to_quaternion()
+        obj_matrix_world_quaternion
+        @ next_head_pose_bone_before_rotation_matrix_quaternion
         @ next_head_rotation_start_target_local_translation
     ).normalized()
     stiffness = stiffness_direction * delta_time * head_joint.stiffness
@@ -608,17 +622,18 @@ def calculate_joint_pair_head_pose_bone_rotations(
         current_tail_world_translation + inertia + stiffness + external
     )
 
-    head_to_tail_world_distance = (
-        obj.matrix_world @ current_head_pose_bone_matrix.to_translation()
-        - (obj.matrix_world @ current_tail_pose_bone_matrix.to_translation())
-    ).length
+    head_world_translation = obj_matrix_world @ current_head_pose_bone_matrix_translation
+    tail_world_translation = obj_matrix_world @ current_tail_pose_bone_matrix_translation
+    head_to_tail_world_distance = (head_world_translation - tail_world_translation).length
 
     # 次のTailに距離の制約を適用
+    next_tail_to_head_normalized = (next_tail_world_translation - next_head_world_translation).normalized()
     next_tail_world_translation = (
         next_head_world_translation
-        + (next_tail_world_translation - next_head_world_translation).normalized()
+        + next_tail_to_head_normalized
         * head_to_tail_world_distance
     )
+    
     # コライダーの衝突を計算
     for world_collider in world_colliders:
         direction, distance = world_collider.calculate_collision(
@@ -629,7 +644,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
             continue
         # 押しのける
         next_tail_world_translation = next_tail_world_translation - direction * distance
-        # 次のTailに距離の制約を適用
+        # 次のTailに距離の制約を適用（ここでも同じnormalizedベクトルを再利用）
         next_tail_world_translation = (
             next_head_world_translation
             + (next_tail_world_translation - next_head_world_translation).normalized()
@@ -637,21 +652,22 @@ def calculate_joint_pair_head_pose_bone_rotations(
         )
 
     next_tail_object_local_translation = (
-        obj.matrix_world.inverted_safe() @ next_tail_world_translation
+        obj_matrix_world_inverted @ next_tail_world_translation
     )
+    
+    next_head_pose_bone_before_rotation_matrix_inverted = next_head_pose_bone_before_rotation_matrix.inverted_safe()
     next_head_rotation_end_target_local_translation = (
-        next_head_pose_bone_before_rotation_matrix.inverted_safe()
+        next_head_pose_bone_before_rotation_matrix_inverted
         @ next_tail_object_local_translation
     )
 
-    next_head_pose_bone_rotation = Quaternion(
-        next_head_rotation_start_target_local_translation.cross(
-            next_head_rotation_end_target_local_translation
-        ),
-        next_head_rotation_start_target_local_translation.angle(
-            next_head_rotation_end_target_local_translation, 0
-        ),
+    start_cross_end = next_head_rotation_start_target_local_translation.cross(
+        next_head_rotation_end_target_local_translation
     )
+    angle = next_head_rotation_start_target_local_translation.angle(
+        next_head_rotation_end_target_local_translation, 0
+    )
+    next_head_pose_bone_rotation = Quaternion(start_cross_end, angle)
 
     (
         next_head_pose_bone_translation,
@@ -661,15 +677,18 @@ def calculate_joint_pair_head_pose_bone_rotations(
     next_head_pose_bone_object_rotation = (
         next_head_parent_pose_bone_object_rotation @ next_head_pose_bone_rotation
     )
+    
+    next_head_pose_bone_object_rotation_matrix = next_head_pose_bone_object_rotation.to_matrix().to_4x4()
+    diagonal_scale_matrix = Matrix.Diagonal(next_head_pose_bone_scale).to_4x4()
     next_head_pose_bone_matrix = (
         Matrix.Translation(next_head_pose_bone_translation)
-        @ next_head_pose_bone_object_rotation.to_matrix().to_4x4()
-        @ Matrix.Diagonal(next_head_pose_bone_scale).to_4x4()
+        @ next_head_pose_bone_object_rotation_matrix
+        @ diagonal_scale_matrix
     )
 
     next_tail_pose_bone_before_rotation_matrix = (
         next_head_pose_bone_matrix
-        @ current_head_rest_object_matrix.inverted_safe()
+        @ current_head_rest_object_matrix_inverted
         @ current_tail_rest_object_matrix
     )
 
