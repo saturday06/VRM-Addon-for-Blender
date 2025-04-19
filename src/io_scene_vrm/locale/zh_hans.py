@@ -122,10 +122,6 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "License Confirmation"): "许可确认。",
     (
         "*",
-        'Is this VRM allowed to edited? Please check its "{json_key}" value.',
-    ): "指定 VRM 的元数据「{json_key}」值" + "已设置了唯一的许可证 URL。。",
-    (
-        "*",
         'This VRM is licensed by VRoid Hub License "Alterations: No".',
     ): "指定的 VRM 具有 VRoid Hub 的许可「改変: 禁止」。。",
     (
@@ -138,18 +134,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "指定的 VRM 具有「Other」许可证规定、" + "未设置 URL。",
     (
         "*",
-        'The VRM is licensed by "{license_name}".'
-        + " No derivative works are allowed.",
-    ): "指定 VRM 的不可修改许可证。「{license_name}」设置为。" + "不允许衍生作品。。",
-    (
-        "*",
         "Nodes(mesh,bones) require unique names for VRM export."
         + " {name} is duplicated.",
     ): "glTF 节点元素(网格,骨骼)名称不得重复。。" + "「{name}」是重复的。。",
-    (
-        "*",
-        'There are not an object on the origin "{name}"',
-    ): "原点坐标上无对象「{name}」",
     (
         "*",
         "The same name cannot be used"
