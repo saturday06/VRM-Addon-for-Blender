@@ -13,6 +13,7 @@
 /docs/website/resources/_gen/
 /node_modules/
 /benchmarks/temp/*
+/tests/temp/*
 /tests/resources/unity/*/*.csproj
 /tests/resources/unity/*/*.sln
 /tests/resources/unity/*/.idea/
@@ -32,3 +33,4 @@
 __pycache__/
 
 !/benchmarks/temp/.gitkeep
+!/tests/temp/.gitkeep

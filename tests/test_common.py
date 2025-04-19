@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+import base64
 import functools
+import hashlib
+import inspect
 import platform
 import tempfile
 from os import getenv
@@ -409,7 +412,49 @@ class TestSceneWatcher(TestCase):
         for scene_watcher_type in SceneWatcherScheduler.get_all_scene_watcher_types():
             with self.subTest(cls=scene_watcher_type):
                 scene_watcher = scene_watcher_type()
-                scene_watcher.create_fast_path_performance_test_objects(context)
+
+                class_file_path_str = inspect.getfile(scene_watcher_type)
+                if not class_file_path_str:
+                    message = f"No path for class {scene_watcher_type}"
+                    raise ValueError(message)
+                class_file_path = Path(class_file_path_str)
+                if not class_file_path.exists():
+                    message = f"No {class_file_path} found"
+                    raise ValueError(message)
+                class_source_hash = (
+                    base64.urlsafe_b64encode(
+                        hashlib.sha3_224(class_file_path.read_bytes()).digest()
+                    )
+                    .rstrip(b"=")
+                    .decode()
+                )
+                cached_blend_path = (
+                    Path(__file__).parent
+                    / "temp"
+                    / (
+                        scene_watcher_type.__name__
+                        + "-"
+                        + "_".join(map(str, bpy.app.version))
+                        + "-"
+                        + class_source_hash
+                        + ".blend"
+                    )
+                )
+                if cached_blend_path.exists():
+                    bpy.ops.wm.open_mainfile(filepath=str(cached_blend_path))
+                else:
+                    if context.view_layer.objects.active:
+                        bpy.ops.object.mode_set(mode="OBJECT")
+                    bpy.ops.object.select_all(action="SELECT")
+                    bpy.ops.object.delete()
+                    while context.blend_data.collections:
+                        context.blend_data.collections.remove(
+                            context.blend_data.collections[0]
+                        )
+                    bpy.ops.outliner.orphans_purge(do_recursive=True)
+                    scene_watcher.create_fast_path_performance_test_objects(context)
+                    bpy.ops.wm.save_as_mainfile(filepath=str(cached_blend_path))
+
                 run = functools.partial(
                     self.run_and_reset_scene_watcher, scene_watcher, context
                 )
