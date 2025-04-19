@@ -151,14 +151,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "このVRMは改変不可に設定されています。ライセンスを確認してください。",
     (
         "*",
-        "VRM exporter requires unique names for Nodes (mesh, bones)."
+        "glTF nodes (mesh, bone) cannot have duplicate names."
         + " {name} is duplicated.",
     ): "glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。"
     + "「{name}」が重複しています。",
-    (
-        "*",
-        "Object {name} is not at the origin location",
-    ): "「{name}」が原点座標にありません",
     (
         "*",
         "The same name cannot be used"

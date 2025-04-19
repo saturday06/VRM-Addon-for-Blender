@@ -89,11 +89,11 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Export Lights"): "输出灯光",
     (
         "*",
-        "No error. Ready for export VRM",
+        "No errors found. Ready to export VRM",
     ): "未发现任何错误。。可导出 VRM",
     (
         "*",
-        "No error. But there're {warning_count} warning(s)."
+        "No errors found. But there are {warning_count} warning(s)."
         + " The output may not be what you expected.",
     ): "没有错误。、{warning_count}有关于此的警告。。" + "输出结果可能与预期不同。",
     ("*", "VRM Export"): "VRM 输出",
@@ -134,7 +134,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "指定的 VRM 具有「Other」许可证规定、" + "未设置 URL。",
     (
         "*",
-        "Nodes(mesh,bones) require unique names for VRM export."
+        "glTF nodes (mesh, bone) cannot have duplicate names."
         + " {name} is duplicated.",
     ): "glTF 节点元素(网格,骨骼)名称不得重复。。" + "「{name}」是重复的。。",
     (
@@ -147,7 +147,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'The "{name}" mesh has both a non-armature modifier'
         + " and a shape key. However, they cannot coexist"
-        + ", so shape keys may not be export correctly.",
+        + ", so shape keys may not be exported correctly.",
     ): "网格「{name}」に"
     + "non-armature修改器和形态键都已设置，但、"
     + "它们不能共存，形态键可能无法正确输出。",
@@ -209,7 +209,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "「{parent_name}」指定。" + "因为「{name}」需要将其作为子骨骼。。",
     (
         "*",
-        'Non-tri faces detected in "{name}". ' + "will be triangulated automatically.",
+        'Non-triangular faces detected in "{name}". '
+        + "They will be triangulated automatically.",
     ): "「{name}」包含三角形以外的多边形。" + "自动划分为三角形。",
     (
         "*",
@@ -291,7 +292,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "「{expect_node_type}」直接连接。 ",
     (
         "*",
-        'image in material "{material_name}" is not put.' + " Please set image.",
+        'Image in material "{material_name}" is not set.' + " Please add an image.",
     ): "材质「{material_name}」"
     + "有一个没有设置纹理的图像节点。"
     + "删除或设置图像。",

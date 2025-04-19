@@ -21,7 +21,6 @@ from bpy.types import (
     ShaderNodeTexImage,
     UILayout,
 )
-from mathutils import Vector
 
 from ..common import shader, version
 from ..common.legacy_gltf import RGBA_INPUT_NAMES, TEXTURE_INPUT_NAMES, VAL_INPUT_NAMES
@@ -259,8 +258,8 @@ class WM_OT_vrm_validator(Operator):
                 if obj.name in node_names:
                     error_messages.append(
                         pgettext(
-                            "VRM exporter need Nodes(mesh,bones) name is unique. {name}"
-                            + " is doubled."
+                            "glTF nodes (mesh, bone) cannot have duplicate names."
+                            + " {name} is duplicated."
                         ).format(name=obj.name)
                     )
                 if obj.name not in node_names:
@@ -287,7 +286,7 @@ class WM_OT_vrm_validator(Operator):
                     pgettext(
                         'The "{name}" mesh has both a non-armature modifier'
                         + " and a shape key. However, they cannot coexist"
-                        + ", so shape keys may not be export correctly."
+                        + ", so shape keys may not be exported correctly."
                     ).format(name=obj.name)
                 )
             if obj.type == "ARMATURE" and armature_count == 1:
@@ -459,8 +458,8 @@ class WM_OT_vrm_validator(Operator):
                     if poly.loop_total > 3:  # polygons need all triangle
                         info_messages.append(
                             pgettext(
-                                'Non-tri faces detected in "{name}". '
-                                + "will be triangulated automatically.",
+                                'Non-triangular faces detected in "{name}". '
+                                + "They will be triangulated automatically.",
                             ).format(name=obj.name)
                         )
                         break
@@ -881,7 +880,7 @@ class WM_OT_vrm_validator(Operator):
             row.emboss = "NONE"
             row.box().label(
                 text=pgettext(
-                    "No error. But there're {warning_count} warning(s)."
+                    "No errors found. But there are {warning_count} warning(s)."
                     + " The output may not be what you expected."
                 ).format(
                     warning_count=len(warning_errors),
@@ -891,7 +890,7 @@ class WM_OT_vrm_validator(Operator):
         elif not error_errors and show_successful_message:
             row = layout.row()
             row.emboss = "NONE"
-            row.box().label(text="No error. Ready for export VRM")
+            row.box().label(text="No errors found. Ready to export VRM")
 
         if error_errors:
             layout.label(text="Error", icon="ERROR")
@@ -978,7 +977,7 @@ def node_material_input_check(
             else:
                 messages.append(
                     pgettext(
-                        'image in material "{material_name}" is not put.'
-                        + " Please set image.",
+                        'Image in material "{material_name}" is not set.'
+                        + " Please add an image.",
                     ).format(material_name=material.name)
                 )
