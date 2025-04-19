@@ -547,6 +547,9 @@ def calculate_joint_pair_head_pose_bone_rotations(
     current_head_pose_bone_matrix = head_pose_bone.matrix
     current_tail_pose_bone_matrix = tail_pose_bone.matrix
 
+    obj_matrix_world = obj.matrix_world
+    obj_matrix_world_quaternion = obj_matrix_world.to_quaternion()
+
     if next_head_pose_bone_before_rotation_matrix is None:
         if head_pose_bone.parent:
             current_head_parent_matrix = head_pose_bone.parent.matrix
@@ -558,18 +561,29 @@ def calculate_joint_pair_head_pose_bone_rotations(
         else:
             current_head_parent_matrix = Matrix()
             current_head_parent_rest_object_matrix = Matrix()
-        next_head_pose_bone_before_rotation_matrix = current_head_parent_matrix @ (
+
+        current_head_parent_rest_object_matrix_inverted = (
             current_head_parent_rest_object_matrix.inverted_safe()
+        )
+        next_head_pose_bone_before_rotation_matrix = current_head_parent_matrix @ (
+            current_head_parent_rest_object_matrix_inverted
             @ current_head_rest_object_matrix
         )
 
+    next_head_pose_bone_before_rotation_quaternion = (
+        next_head_pose_bone_before_rotation_matrix.to_quaternion()
+    )
+    next_head_pose_bone_before_rotation_translation = (
+        next_head_pose_bone_before_rotation_matrix.to_translation()
+    )
+
     next_head_world_translation = (
-        obj.matrix_world @ next_head_pose_bone_before_rotation_matrix.to_translation()
+        obj_matrix_world @ next_head_pose_bone_before_rotation_translation
     )
 
     if not tail_joint.animation_state.initialized_as_tail:
         initial_tail_world_translation = (
-            obj.matrix_world @ current_tail_pose_bone_matrix
+            obj_matrix_world @ current_tail_pose_bone_matrix
         ).to_translation()
         tail_joint.animation_state.initialized_as_tail = True
         tail_joint.animation_state.previous_world_translation = list(
@@ -592,13 +606,21 @@ def calculate_joint_pair_head_pose_bone_rotations(
         1.0 - head_joint.drag_force
     )
 
-    next_head_rotation_start_target_local_translation = (
+    current_head_rest_object_matrix_inverted = (
         current_head_rest_object_matrix.inverted_safe()
-        @ current_tail_rest_object_matrix.to_translation()
     )
+    current_tail_rest_object_matrix_translation = (
+        current_tail_rest_object_matrix.to_translation()
+    )
+
+    next_head_rotation_start_target_local_translation = (
+        current_head_rest_object_matrix_inverted
+        @ current_tail_rest_object_matrix_translation
+    )
+
     stiffness_direction = (
-        obj.matrix_world.to_quaternion()
-        @ next_head_pose_bone_before_rotation_matrix.to_quaternion()
+        obj_matrix_world_quaternion
+        @ next_head_pose_bone_before_rotation_quaternion
         @ next_head_rotation_start_target_local_translation
     ).normalized()
     stiffness = stiffness_direction * delta_time * head_joint.stiffness
@@ -608,17 +630,27 @@ def calculate_joint_pair_head_pose_bone_rotations(
         current_tail_world_translation + inertia + stiffness + external
     )
 
+    current_head_pose_bone_world_translation = (
+        obj_matrix_world @ current_head_pose_bone_matrix.to_translation()
+    )
+    current_tail_pose_bone_world_translation = (
+        obj_matrix_world @ current_tail_pose_bone_matrix.to_translation()
+    )
+
     head_to_tail_world_distance = (
-        obj.matrix_world @ current_head_pose_bone_matrix.to_translation()
-        - (obj.matrix_world @ current_tail_pose_bone_matrix.to_translation())
+        current_head_pose_bone_world_translation
+        - current_tail_pose_bone_world_translation
     ).length
+
+    next_tail_to_head_vec = next_tail_world_translation - next_head_world_translation
+    next_tail_to_head_normalized = next_tail_to_head_vec.normalized()
 
     # 次のTailに距離の制約を適用
     next_tail_world_translation = (
         next_head_world_translation
-        + (next_tail_world_translation - next_head_world_translation).normalized()
-        * head_to_tail_world_distance
+        + next_tail_to_head_normalized * head_to_tail_world_distance
     )
+
     # コライダーの衝突を計算
     for world_collider in world_colliders:
         direction, distance = world_collider.calculate_collision(
@@ -630,17 +662,25 @@ def calculate_joint_pair_head_pose_bone_rotations(
         # 押しのける
         next_tail_world_translation = next_tail_world_translation - direction * distance
         # 次のTailに距離の制約を適用
+        next_tail_to_head_vec = (
+            next_tail_world_translation - next_head_world_translation
+        )
+        next_tail_to_head_normalized = next_tail_to_head_vec.normalized()
         next_tail_world_translation = (
             next_head_world_translation
-            + (next_tail_world_translation - next_head_world_translation).normalized()
-            * head_to_tail_world_distance
+            + next_tail_to_head_normalized * head_to_tail_world_distance
         )
 
+    obj_matrix_world_inverted = obj_matrix_world.inverted_safe()
     next_tail_object_local_translation = (
-        obj.matrix_world.inverted_safe() @ next_tail_world_translation
+        obj_matrix_world_inverted @ next_tail_world_translation
+    )
+
+    next_head_pose_bone_before_rotation_matrix_inverted = (
+        next_head_pose_bone_before_rotation_matrix.inverted_safe()
     )
     next_head_rotation_end_target_local_translation = (
-        next_head_pose_bone_before_rotation_matrix.inverted_safe()
+        next_head_pose_bone_before_rotation_matrix_inverted
         @ next_tail_object_local_translation
     )
 
@@ -669,7 +709,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
 
     next_tail_pose_bone_before_rotation_matrix = (
         next_head_pose_bone_matrix
-        @ current_head_rest_object_matrix.inverted_safe()
+        @ current_head_rest_object_matrix_inverted
         @ current_tail_rest_object_matrix
     )
 
