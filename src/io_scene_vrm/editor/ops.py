@@ -35,7 +35,7 @@ logger = get_logger(__name__)
 class VRM_OT_simplify_vroid_bones(Operator):
     bl_idname = "vrm.bones_rename"
     bl_label = "Symmetrize VRoid Bone Names on X-Axis"
-    bl_description = "Make VRoid bone names X-axis mirror editable"
+    bl_description = "Make VRoid bone names editable for X-axis mirroring."
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     left__pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_L_")
@@ -108,7 +108,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
 class VRM_OT_save_human_bone_mappings(Operator, ExportHelper):
     bl_idname = "vrm.save_human_bone_mappings"
     bl_label = "Save Bone Mappings"
-    bl_description = "Save Bone Mappings"
+    bl_description = "Save bone mappings."
     bl_options: AbstractSet[str] = {"REGISTER"}
 
     filename_ext = ".json"
@@ -158,7 +158,7 @@ class VRM_OT_save_human_bone_mappings(Operator, ExportHelper):
 class VRM_OT_load_human_bone_mappings(Operator, ImportHelper):
     bl_idname = "vrm.load_human_bone_mappings"
     bl_label = "Load Bone Mappings"
-    bl_description = "Load Bone Mappings"
+    bl_description = "Load bone mappings."
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     filename_ext = ".json"
@@ -220,7 +220,7 @@ class VRM_OT_load_human_bone_mappings(Operator, ImportHelper):
 class VRM_OT_open_url_in_web_browser(Operator):
     bl_idname = "vrm.open_url_in_web_browser"
     bl_label = "Open"
-    bl_description = "Open the URL in the default web browser"
+    bl_description = "Open the URL in the default web browser."
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     url: StringProperty(  # type: ignore[valid-type]
@@ -251,7 +251,7 @@ class VRM_OT_open_url_in_web_browser(Operator):
 class VRM_OT_show_blend_file_compatibility_warning(Operator):
     bl_idname = "vrm.show_blend_file_compatibility_warning"
     bl_label = "File Compatibility Warning"
-    bl_description = "Show Blend File Compatibility Warning"
+    bl_description = "Show blend file compatibility warning."
     bl_options: AbstractSet[str] = {"REGISTER"}
 
     file_version: StringProperty(options={"HIDDEN"})  # type: ignore[valid-type]
@@ -298,7 +298,7 @@ class VRM_OT_show_blend_file_compatibility_warning(Operator):
 class VRM_OT_show_blend_file_addon_compatibility_warning(Operator):
     bl_idname = "vrm.show_blend_file_addon_compatibility_warning"
     bl_label = "VRM Add-on Compatibility Warning"
-    bl_description = "Show Blend File and VRM Add-on Compatibility Warning"
+    bl_description = "Show blend file and VRM add-on compatibility warning."
     bl_options: AbstractSet[str] = {"REGISTER"}
 
     file_addon_version: StringProperty(options={"HIDDEN"})  # type: ignore[valid-type]
@@ -380,7 +380,7 @@ def layout_operator(
 class VRM_OT_make_estimated_humanoid_t_pose(Operator):
     bl_idname = "vrm.make_estimated_humanoid_t_pose"
     bl_label = "Make Estimated T-Pose"
-    bl_description = "Make VRM Estimated Humanoid T-Pose"
+    bl_description = "Create VRM estimated humanoid T-pose."
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]

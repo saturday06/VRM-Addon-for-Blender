@@ -3,10 +3,10 @@
 
 #
 #
-# - Please don't import anything in the global scope to minimize initialization and
-#   support unzipping the partial add-on archive for users who have acquired the add-on
+# - Please avoid importing anything in the global scope to minimize initialization and
+#   support unzipping the partial add-on archive for users who downloaded the add-on
 #   from "Code" -> "Download ZIP" on GitHub.
-# - Please write this script to work with Blender 2.79.
+# - Ensure this script works with Blender 2.79.
 #   ruff: noqa: UP032
 #
 #
