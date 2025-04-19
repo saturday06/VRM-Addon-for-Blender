@@ -94,11 +94,11 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Use Sparse Accessors"): "スパースアクセッサを利用する",
     (
         "*",
-        "No error. Ready for export VRM",
+        "No errors found. Ready to export VRM",
     ): "エラーはありませんでした。VRMのエクスポートをすることができます",
     (
         "*",
-        "No error. But there're {warning_count} warning(s)."
+        "No errors found. But there are {warning_count} warning(s)."
         + " The output may not be what you expected.",
     ): "エラーはありませんでしたが、{warning_count}件の警告があります。"
     + "期待通りの出力にはならないかもしれません。",
@@ -151,12 +151,12 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "このVRMは改変不可に設定されています。ライセンスを確認してください。",
     (
         "*",
-        "VRM exporter need Nodes(mesh,bones) name is unique." + " {name} is doubled.",
+        "VRM exporter requires unique names for Nodes (mesh, bones)." + " {name} is duplicated.",
     ): "glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。"
     + "「{name}」が重複しています。",
     (
         "*",
-        "There are not on origine location object {name}",
+        "Object {name} is not at the origin location",
     ): "「{name}」が原点座標にありません",
     (
         "*",
@@ -169,7 +169,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'The "{name}" mesh has both a non-armature modifier'
         + " and a shape key. However, they cannot coexist"
-        + ", so shape keys may not be export correctly.",
+        + ", so shape keys may not be exported correctly.",
     ): "メッシュ「{name}」に"
     + "アーマチュア以外のモディファイアとシェイプキーが両方設定されていますが、"
     + "それらは共存できないためシェイプキーが正しく出力されないことがあります。",
@@ -240,7 +240,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "子ボーンである「{name}」の割り当てに必要になります。",
     (
         "*",
-        'Non-tri faces detected in "{name}". ' + "will be triangulated automatically.",
+        'Non-triangular faces detected in "{name}". ' + "They will be triangulated automatically.",
     ): "「{name}」のポリゴンに三角形以外のものが含まれます。"
     + "自動的に三角形に分割されます。",
     (
@@ -325,7 +325,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "「{expect_node_type}」を直接つないでください。 ",
     (
         "*",
-        'image in material "{material_name}" is not put.' + " Please set image.",
+        'Image in material "{material_name}" is not set.' + " Please add an image.",
     ): "マテリアル「{material_name}」に"
     + "テクスチャが設定されていないimageノードがあります。"
     + "削除か画像を設定してください。",
