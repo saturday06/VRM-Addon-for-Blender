@@ -506,7 +506,6 @@ def get_scene_extension(scene: Scene) -> VrmAddonSceneExtensionPropertyGroup:
 
 _bone_extension_cache: dict[tuple[str, str], VrmAddonBoneExtensionPropertyGroup] = {}
 
-
 def get_bone_extension(bone: Bone) -> VrmAddonBoneExtensionPropertyGroup:
     if bone.id_data and hasattr(bone.id_data, "name") and bone.name:
         cache_key = (bone.id_data.name, bone.name)
