@@ -3,6 +3,9 @@ import { defineConfig } from "vitepress";
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   srcExclude: ["./website/**/*.md"],
+  sitemap: {
+    hostname: "https://vrm-addon-for-blender.info",
+  },
   themeConfig: {
     socialLinks: [
       {
