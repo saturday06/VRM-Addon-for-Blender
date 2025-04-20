@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.1.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.0.1...v3.1.0) (2025-04-20)
+
+
+### 🚀 Features
+
+* add VRoid mapping config ([2c3d10f](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2c3d10f64d9929ac5cdc105703222187ded1978f))
+
+
+### 🐞 Bug Fixes
+
+* fix line length issues in ja_jp.py ([d64e197](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d64e197b5fcadd9f515e44053fd2b968c5c94f8c))
+* improve unnatural English phrases (cont) ([d77b673](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d77b673ea968f6358060fde5ec7601bd81351c7e))
+* improve unnatural English phrases in error messages ([7e095dc](https://github.com/saturday06/VRM-Addon-for-Blender/commit/7e095dc89eda288cb24bc12b7e99c426e8171a6a))
+* improve unnatural English phrases in ja_jp.py ([d82b0da](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d82b0daebcbbce841bfeb4d3deec577bbb03af6c))
+* improve unnatural English phrases in locale files ([80a1d48](https://github.com/saturday06/VRM-Addon-for-Blender/commit/80a1d48bc185e845958acb34290950cb536c8968))
+* improve unnatural English phrases in locale files (cont.) ([4c24fc1](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4c24fc1efb2b00da009206ce2807ae5bde2381f3))
+
 ## [3.0.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.0.0...v3.0.1) (2025-04-17)
 
 
