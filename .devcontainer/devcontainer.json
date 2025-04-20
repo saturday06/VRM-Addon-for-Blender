@@ -46,6 +46,7 @@
       },
       "extensions": [
         "EditorConfig.EditorConfig",
+        "Vue.volar",
         "cesium.gltf-vscode",
         "charliermarsh.ruff",
         "denoland.vscode-deno",
