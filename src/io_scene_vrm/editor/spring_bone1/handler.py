@@ -434,60 +434,6 @@ def calculate_spring_pose_bone_rotations(
     ],
     previous_to_current_center_world_translation: Vector,
 ) -> None:
-    inputs: list[
-        tuple[
-            SpringBone1JointPropertyGroup,
-            PoseBone,
-            Matrix,
-            SpringBone1JointPropertyGroup,
-            PoseBone,
-            Matrix,
-        ]
-    ] = []
-
-    joints: list[
-        tuple[
-            SpringBone1JointPropertyGroup,
-            PoseBone,
-            Matrix,
-        ]
-    ] = []
-    for joint in spring.joints:
-        bone_name = joint.node.bone_name
-        pose_bone = obj.pose.bones.get(bone_name)
-        if not pose_bone:
-            continue
-        rest_object_matrix = pose_bone.bone.convert_local_to_pose(
-            Matrix(), pose_bone.bone.matrix_local
-        )
-        joints.append((joint, pose_bone, rest_object_matrix))
-
-    for (head_joint, head_pose_bone, head_rest_object_matrix), (
-        tail_joint,
-        tail_pose_bone,
-        tail_rest_object_matrix,
-    ) in zip(joints, joints[1:]):
-        head_tail_parented = False
-        searching_tail_parent = tail_pose_bone.parent
-        while searching_tail_parent:
-            if searching_tail_parent.name == head_pose_bone.name:
-                head_tail_parented = True
-                break
-            searching_tail_parent = searching_tail_parent.parent
-        if not head_tail_parented:
-            break
-
-        inputs.append(
-            (
-                head_joint,
-                head_pose_bone,
-                head_rest_object_matrix,
-                tail_joint,
-                tail_pose_bone,
-                tail_rest_object_matrix,
-            )
-        )
-
     world_colliders: list[
         Union[
             SphereWorldCollider,
@@ -505,15 +451,38 @@ def calculate_spring_pose_bone_rotations(
             continue
         world_colliders.extend(collider_group_world_colliders)
 
+    joints: list[
+        tuple[
+            SpringBone1JointPropertyGroup,
+            PoseBone,
+            Matrix,
+        ]
+    ] = [
+        (
+            joint,
+            pose_bone,
+            pose_bone.bone.convert_local_to_pose(Matrix(), pose_bone.bone.matrix_local),
+        )
+        for joint in spring.joints
+        if (pose_bone := obj.pose.bones.get(joint.node.bone_name))
+    ]
+
     next_head_pose_bone_before_rotation_matrix = None
-    for (
-        head_joint,
-        head_pose_bone,
-        head_rest_object_matrix,
+    for (head_joint, head_pose_bone, head_rest_object_matrix), (
         tail_joint,
         tail_pose_bone,
         tail_rest_object_matrix,
-    ) in inputs:
+    ) in zip(joints, joints[1:]):
+        head_tail_parented = False
+        searching_tail_parent = tail_pose_bone.parent
+        while searching_tail_parent:
+            if searching_tail_parent.name == head_pose_bone.name:
+                head_tail_parented = True
+                break
+            searching_tail_parent = searching_tail_parent.parent
+        if not head_tail_parented:
+            break
+
         (
             head_pose_bone_rotation,
             next_head_pose_bone_before_rotation_matrix,
