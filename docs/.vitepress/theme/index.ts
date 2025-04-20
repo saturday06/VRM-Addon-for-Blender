@@ -5,6 +5,7 @@ import DefaultTheme from "vitepress/theme";
 import type { EnhanceAppContext } from "vitepress";
 import Layout from "./Layout.vue";
 import { redirectToLocaleUrlIfNeeded } from "./localization.ts";
+import "./custom.css";
 
 export default {
   ...DefaultTheme,
