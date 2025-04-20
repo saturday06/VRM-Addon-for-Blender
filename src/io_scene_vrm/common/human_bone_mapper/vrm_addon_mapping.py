@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+from collections.abc import Mapping
+from typing import Final
+
 from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 
-mapping: dict[str, HumanBoneSpecification] = {
+MAPPING: Final[Mapping[str, HumanBoneSpecification]] = {
     "head": HumanBoneSpecifications.HEAD,
     "spine": HumanBoneSpecifications.SPINE,
     "hips": HumanBoneSpecifications.HIPS,
@@ -88,11 +91,11 @@ mapping: dict[str, HumanBoneSpecification] = {
     "little.distal.R": HumanBoneSpecifications.RIGHT_LITTLE_DISTAL,
 }
 
-config_vrm1 = ("VRM Add-on (VRM1)", mapping)
-config_vrm0 = (
+CONFIG_VRM1: Final = ("VRM Add-on (VRM1)", MAPPING)
+CONFIG_VRM0: Final = (
     "VRM Add-on (VRM0)",
     {
-        **mapping,
+        **MAPPING,
         "thumb_proximal.L": HumanBoneSpecifications.LEFT_THUMB_METACARPAL,
         "thumb.proximal.L": HumanBoneSpecifications.LEFT_THUMB_METACARPAL,
         "thumb_intermediate.L": HumanBoneSpecifications.LEFT_THUMB_PROXIMAL,

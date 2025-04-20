@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+from collections.abc import Mapping
+from typing import Final
+
 from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 
-mapping: dict[str, HumanBoneSpecification] = {
+MAPPING: Final[Mapping[str, HumanBoneSpecification]] = {
     "spine.006": HumanBoneSpecifications.HEAD,
     "spine.001": HumanBoneSpecifications.SPINE,
     "spine": HumanBoneSpecifications.HIPS,
@@ -59,4 +62,4 @@ mapping: dict[str, HumanBoneSpecification] = {
     "f_pinky.03.R": HumanBoneSpecifications.RIGHT_LITTLE_DISTAL,
 }
 
-config = ("Rigify Meta-Rig", mapping)
+CONFIG: Final = ("Rigify Meta-Rig", MAPPING)

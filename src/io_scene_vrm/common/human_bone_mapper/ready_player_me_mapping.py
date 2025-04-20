@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+from collections.abc import Mapping
+from typing import Final
+
 from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 
-mapping: dict[str, HumanBoneSpecification] = {
+MAPPING: Final[Mapping[str, HumanBoneSpecification]] = {
     "Head": HumanBoneSpecifications.HEAD,
     "RightEye": HumanBoneSpecifications.RIGHT_EYE,
     "LeftEye": HumanBoneSpecifications.LEFT_EYE,
@@ -59,4 +62,4 @@ mapping: dict[str, HumanBoneSpecification] = {
 }
 
 
-config = ("Ready Player Me", mapping)
+CONFIG: Final = ("Ready Player Me", MAPPING)

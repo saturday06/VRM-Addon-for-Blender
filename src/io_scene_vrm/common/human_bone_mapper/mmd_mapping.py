@@ -1,4 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+from collections.abc import Mapping, Sequence
+from typing import Final
+
 from bpy.types import Object
 
 from ..logger import get_logger
@@ -6,8 +9,8 @@ from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 
 logger = get_logger(__name__)
 
-mmd_bone_name_and_human_bone_specification_pairs: list[
-    tuple[str, HumanBoneSpecification]
+MMD_BONE_NAME_AND_HUMAN_BONE_SPECIFICATION_PAIRS: Final[
+    Sequence[tuple[str, HumanBoneSpecification]]
 ] = [
     ("頭", HumanBoneSpecifications.HEAD),
     ("右目", HumanBoneSpecifications.RIGHT_EYE),
@@ -73,7 +76,7 @@ mmd_bone_name_and_human_bone_specification_pairs: list[
 
 def create_config(
     armature: Object,
-) -> tuple[str, dict[str, HumanBoneSpecification]]:
+) -> tuple[str, Mapping[str, HumanBoneSpecification]]:
     mmd_bone_name_to_bpy_bone_name: dict[str, str] = {}
     for bone in armature.pose.bones:
         # https://github.com/UuuNyaa/blender_mmd_tools/blob/97861e3c32ba423833b6c5fc3432127b1ec1182a/mmd_tools/properties/__init__.py#L45-L46
@@ -92,7 +95,7 @@ def create_config(
     for (
         mmd_bone_name,
         human_bone_specification,
-    ) in mmd_bone_name_and_human_bone_specification_pairs:
+    ) in MMD_BONE_NAME_AND_HUMAN_BONE_SPECIFICATION_PAIRS:
         bpy_bone_name = mmd_bone_name_to_bpy_bone_name.get(mmd_bone_name)
         if not bpy_bone_name:
             continue

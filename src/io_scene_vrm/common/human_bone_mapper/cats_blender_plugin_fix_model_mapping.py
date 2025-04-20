@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+from collections.abc import Mapping
+from typing import Final
+
 from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 
-mapping: dict[str, HumanBoneSpecification] = {
+MAPPING: Final[Mapping[str, HumanBoneSpecification]] = {
     "Hips": HumanBoneSpecifications.HIPS,
     "Spine": HumanBoneSpecifications.SPINE,
     "Chest": HumanBoneSpecifications.CHEST,
@@ -57,4 +60,4 @@ mapping: dict[str, HumanBoneSpecification] = {
     "LittleFinger3_L": HumanBoneSpecifications.LEFT_LITTLE_DISTAL,
 }
 
-config = ("Cats Blender Plugin Fixed Model", mapping)
+CONFIG = ("Cats Blender Plugin Fixed Model", MAPPING)

@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+from collections.abc import Mapping
 from typing import Optional
 
 from bpy.types import Armature, Object
@@ -18,7 +19,9 @@ from . import (
 logger = get_logger(__name__)
 
 
-def match_count(armature: Armature, mapping: dict[str, HumanBoneSpecification]) -> int:
+def match_count(
+    armature: Armature, mapping: Mapping[str, HumanBoneSpecification]
+) -> int:
     count = 0
 
     mapping = {
@@ -58,7 +61,7 @@ def match_count(armature: Armature, mapping: dict[str, HumanBoneSpecification]) 
 
 
 def match_counts(
-    armature: object, mapping: dict[str, HumanBoneSpecification]
+    armature: object, mapping: Mapping[str, HumanBoneSpecification]
 ) -> tuple[int, int]:
     if not isinstance(armature, Armature):
         message = f"{type(armature)} is not an Armature"
@@ -72,7 +75,7 @@ def match_counts(
 
 
 def sorted_required_first(
-    mapping: dict[str, HumanBoneSpecification],
+    mapping: Mapping[str, HumanBoneSpecification],
 ) -> dict[str, HumanBoneSpecification]:
     sorted_mapping: dict[str, HumanBoneSpecification] = {}
     sorted_mapping.update(
@@ -100,14 +103,14 @@ def create_human_bone_mapping(
             (match_counts(armature.data, mapping), name, mapping)
             for name, mapping in [
                 mmd_mapping.create_config(armature),
-                mixamo_mapping.config,
-                ready_player_me_mapping.config,
-                cats_blender_plugin_fix_model_mapping.config,
-                microsoft_rocketbox_mapping.config_bip01,
-                microsoft_rocketbox_mapping.config_bip02,
-                rigify_meta_rig_mapping.config,
-                vrm_addon_mapping.config_vrm1,
-                vrm_addon_mapping.config_vrm0,
+                mixamo_mapping.CONFIG,
+                ready_player_me_mapping.CONFIG,
+                cats_blender_plugin_fix_model_mapping.CONFIG,
+                microsoft_rocketbox_mapping.CONFIG_BIP01,
+                microsoft_rocketbox_mapping.CONFIG_BIP02,
+                rigify_meta_rig_mapping.CONFIG,
+                vrm_addon_mapping.CONFIG_VRM1,
+                vrm_addon_mapping.CONFIG_VRM0,
             ]
         ]
     )[-1]
