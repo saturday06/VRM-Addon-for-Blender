@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from typing import Final, Union
+from typing import Final, Union, Sequence
 
 from bpy.types import (
     Object,
