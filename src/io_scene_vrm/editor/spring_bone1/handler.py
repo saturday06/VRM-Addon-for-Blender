@@ -195,6 +195,9 @@ def calculate_object_pose_bone_rotations(
     if not spring_bone1.enable_animation:
         return
 
+    obj_matrix_world = obj.matrix_world
+    obj_matrix_world_inverted = obj_matrix_world.inverted_safe()
+
     collider_uuid_to_world_collider: dict[
         str,
         Union[
@@ -209,7 +212,7 @@ def calculate_object_pose_bone_rotations(
         pose_bone = obj.pose.bones.get(collider.node.bone_name)
         if not pose_bone:
             continue
-        pose_bone_world_matrix = obj.matrix_world @ pose_bone.matrix
+        pose_bone_world_matrix = obj_matrix_world @ pose_bone.matrix
 
         extended_collider = collider.extensions.vrmc_spring_bone_extended_collider
         world_collider: Union[
@@ -372,7 +375,7 @@ def calculate_object_pose_bone_rotations(
 
         if center_pose_bone:
             current_center_world_translation = (
-                obj.matrix_world @ center_pose_bone.matrix
+                obj_matrix_world @ center_pose_bone.matrix
             ).to_translation()
             previous_center_world_translation = Vector(
                 spring.animation_state.previous_center_world_translation
@@ -394,6 +397,8 @@ def calculate_object_pose_bone_rotations(
         calculate_spring_pose_bone_rotations(
             delta_time,
             obj,
+            obj_matrix_world,
+            obj_matrix_world_inverted,
             spring,
             pose_bone_and_rotations,
             collider_group_uuid_to_world_colliders,
@@ -408,6 +413,8 @@ def calculate_object_pose_bone_rotations(
 def calculate_spring_pose_bone_rotations(
     delta_time: float,
     obj: Object,
+    obj_matrix_world: Matrix,
+    obj_matrix_world_inverted: Matrix,
     spring: SpringBone1SpringPropertyGroup,
     pose_bone_and_rotations: list[tuple[PoseBone, Quaternion]],
     collider_group_uuid_to_world_colliders: dict[
@@ -509,7 +516,8 @@ def calculate_spring_pose_bone_rotations(
             next_head_pose_bone_before_rotation_matrix,
         ) = calculate_joint_pair_head_pose_bone_rotations(
             delta_time,
-            obj,
+            obj_matrix_world,
+            obj_matrix_world_inverted,
             head_joint,
             head_pose_bone,
             head_rest_object_matrix,
@@ -525,7 +533,8 @@ def calculate_spring_pose_bone_rotations(
 
 def calculate_joint_pair_head_pose_bone_rotations(
     delta_time: float,
-    obj: Object,
+    obj_matrix_world: Matrix,
+    obj_matrix_world_inverted: Matrix,
     head_joint: SpringBone1JointPropertyGroup,
     head_pose_bone: PoseBone,
     current_head_rest_object_matrix: Matrix,
@@ -564,12 +573,12 @@ def calculate_joint_pair_head_pose_bone_rotations(
         )
 
     next_head_world_translation = (
-        obj.matrix_world @ next_head_pose_bone_before_rotation_matrix.to_translation()
+        obj_matrix_world @ next_head_pose_bone_before_rotation_matrix.to_translation()
     )
 
     if not tail_joint.animation_state.initialized_as_tail:
         initial_tail_world_translation = (
-            obj.matrix_world @ current_tail_pose_bone_matrix
+            obj_matrix_world @ current_tail_pose_bone_matrix
         ).to_translation()
         tail_joint.animation_state.initialized_as_tail = True
         tail_joint.animation_state.previous_world_translation = list(
@@ -597,7 +606,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
         @ current_tail_rest_object_matrix.to_translation()
     )
     stiffness_direction = (
-        obj.matrix_world.to_quaternion()
+        obj_matrix_world.to_quaternion()
         @ next_head_pose_bone_before_rotation_matrix.to_quaternion()
         @ next_head_rotation_start_target_local_translation
     ).normalized()
@@ -609,8 +618,8 @@ def calculate_joint_pair_head_pose_bone_rotations(
     )
 
     head_to_tail_world_distance = (
-        obj.matrix_world @ current_head_pose_bone_matrix.to_translation()
-        - (obj.matrix_world @ current_tail_pose_bone_matrix.to_translation())
+        obj_matrix_world @ current_head_pose_bone_matrix.to_translation()
+        - (obj_matrix_world @ current_tail_pose_bone_matrix.to_translation())
     ).length
 
     # 次のTailに距離の制約を適用
@@ -637,7 +646,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
         )
 
     next_tail_object_local_translation = (
-        obj.matrix_world.inverted_safe() @ next_tail_world_translation
+        obj_matrix_world_inverted @ next_tail_world_translation
     )
     next_head_rotation_end_target_local_translation = (
         next_head_pose_bone_before_rotation_matrix.inverted_safe()
