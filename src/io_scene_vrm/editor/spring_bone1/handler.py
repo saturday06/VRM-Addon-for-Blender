@@ -564,13 +564,14 @@ def calculate_joint_pair_head_pose_bone_rotations(
                     Matrix(), head_pose_bone.parent.bone.matrix_local
                 )
             )
+            next_head_pose_bone_before_rotation_matrix = current_head_parent_matrix @ (
+                current_head_parent_rest_object_matrix.inverted_safe()
+                @ current_head_rest_object_matrix
+            )
         else:
-            current_head_parent_matrix = Matrix()
-            current_head_parent_rest_object_matrix = Matrix()
-        next_head_pose_bone_before_rotation_matrix = current_head_parent_matrix @ (
-            current_head_parent_rest_object_matrix.inverted_safe()
-            @ current_head_rest_object_matrix
-        )
+            next_head_pose_bone_before_rotation_matrix = (
+                current_head_rest_object_matrix.copy()
+            )
 
     next_head_world_translation = (
         obj_matrix_world @ next_head_pose_bone_before_rotation_matrix.to_translation()
@@ -601,8 +602,11 @@ def calculate_joint_pair_head_pose_bone_rotations(
         1.0 - head_joint.drag_force
     )
 
-    next_head_rotation_start_target_local_translation = (
+    current_head_rest_object_matrix_inverted = (
         current_head_rest_object_matrix.inverted_safe()
+    )
+    next_head_rotation_start_target_local_translation = (
+        current_head_rest_object_matrix_inverted
         @ current_tail_rest_object_matrix.to_translation()
     )
     stiffness_direction = (
@@ -678,7 +682,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
 
     next_tail_pose_bone_before_rotation_matrix = (
         next_head_pose_bone_matrix
-        @ current_head_rest_object_matrix.inverted_safe()
+        @ current_head_rest_object_matrix_inverted
         @ current_tail_rest_object_matrix
     )
 
