@@ -15,11 +15,11 @@
   "portsAttributes": {
     "4173": {
       "label": "deno task docs:preview",
-      "onAutoForward": "openPreview"
+      "onAutoForward": "openBrowserOnce"
     },
     "5173": {
       "label": "deno task docs:dev",
-      "onAutoForward": "openPreview"
+      "onAutoForward": "openBrowserOnce"
     }
   },
   "otherPortsAttributes": { "onAutoForward": "ignore" },
