@@ -91,7 +91,7 @@ export function redirectToLocaleUrlIfNeeded() {
     }
   }
 
-  // locallizedFolder名がサポートされている言語であり、
+  // localizedFolder名がサポートされている言語であり、
   // かつ既に過去にアクセスしたローカライズ済みのフォルダと一致した場合はリダイレクトしない。
   if (
     requestLocalizedFolder &&

@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "VRM Format"
   text: "VRM Add-on for Blender"
-  tagline: VRMのインポート、エクスポートや編集機能を追加するBlenderのアドオンです。バージョン2.93から4.4までのBlenderに対応しています。
+  tagline: VRMのインポート、エクスポートや編集機能をBlenderに追加するアドオンです。バージョン2.93から4.4までのBlenderに対応しています。
   actions:
     - theme: brand
       text: Markdown Examples
