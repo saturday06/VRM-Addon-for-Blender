@@ -75,6 +75,11 @@ export function redirectToLocaleUrlIfNeeded() {
     requestPathname = pathComponents.slice(2).join("/");
   }
 
+  if (requestLocalizedFolder?.indexOf(".") !== -1) {
+    // 拡張子が含まれている場合は個別のファイルであるとし、リダイレクトしない。
+    return;
+  }
+
   // URLのクエリパラメータにlocale_redirectionが存在する場合、
   // localStorageから過去のリダイレクト情報を削除し、初回アクセスと同等の扱いにする。
   const params = [];
