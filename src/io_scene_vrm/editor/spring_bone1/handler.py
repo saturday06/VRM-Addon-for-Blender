@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+from collections.abc import Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from sys import float_info
@@ -434,22 +435,27 @@ def calculate_spring_pose_bone_rotations(
     ],
     previous_to_current_center_world_translation: Vector,
 ) -> None:
-    world_colliders: list[
-        Union[
-            SphereWorldCollider,
-            CapsuleWorldCollider,
-            SphereInsideWorldCollider,
-            CapsuleInsideWorldCollider,
-            PlaneWorldCollider,
+    world_collider_groups: Sequence[
+        Sequence[
+            Union[
+                SphereWorldCollider,
+                CapsuleWorldCollider,
+                SphereInsideWorldCollider,
+                CapsuleInsideWorldCollider,
+                PlaneWorldCollider,
+            ]
         ]
-    ] = []
-    for collider_group_reference in spring.collider_groups:
-        collider_group_world_colliders = collider_group_uuid_to_world_colliders.get(
-            collider_group_reference.collider_group_uuid
+    ] = [
+        collider_group_world_colliders
+        for collider_group_reference in spring.collider_groups
+        if (
+            collider_group_world_colliders
+            := collider_group_uuid_to_world_colliders.get(
+                collider_group_reference.collider_group_uuid
+            )
         )
-        if not collider_group_world_colliders:
-            continue
-        world_colliders.extend(collider_group_world_colliders)
+        and collider_group_world_colliders
+    ]
 
     joints: list[
         tuple[
@@ -498,7 +504,7 @@ def calculate_spring_pose_bone_rotations(
             tail_pose_bone,
             tail_rest_object_matrix,
             next_head_pose_bone_before_rotation_matrix,
-            world_colliders,
+            world_collider_groups,
             previous_to_current_center_world_translation,
         )
         pose_bone_and_rotations.append((head_pose_bone, head_pose_bone_rotation))
@@ -516,13 +522,15 @@ def calculate_joint_pair_head_pose_bone_rotations(
     tail_pose_bone: PoseBone,
     current_tail_rest_object_matrix: Matrix,
     next_head_pose_bone_before_rotation_matrix: Optional[Matrix],
-    world_colliders: list[
-        Union[
-            SphereWorldCollider,
-            CapsuleWorldCollider,
-            SphereInsideWorldCollider,
-            CapsuleInsideWorldCollider,
-            PlaneWorldCollider,
+    world_collider_groups: Sequence[
+        Sequence[
+            Union[
+                SphereWorldCollider,
+                CapsuleWorldCollider,
+                SphereInsideWorldCollider,
+                CapsuleInsideWorldCollider,
+                PlaneWorldCollider,
+            ]
         ]
     ],
     previous_to_current_center_world_translation: Vector,
@@ -610,21 +618,26 @@ def calculate_joint_pair_head_pose_bone_rotations(
         * head_to_tail_world_distance
     )
     # コライダーの衝突を計算
-    for world_collider in world_colliders:
-        direction, distance = world_collider.calculate_collision(
-            next_tail_world_translation,
-            head_joint.hit_radius,
-        )
-        if distance >= 0:
-            continue
-        # 押しのける
-        next_tail_world_translation = next_tail_world_translation - direction * distance
-        # 次のTailに距離の制約を適用
-        next_tail_world_translation = (
-            next_head_world_translation
-            + (next_tail_world_translation - next_head_world_translation).normalized()
-            * head_to_tail_world_distance
-        )
+    for world_colliders in world_collider_groups:
+        for world_collider in world_colliders:
+            direction, distance = world_collider.calculate_collision(
+                next_tail_world_translation,
+                head_joint.hit_radius,
+            )
+            if distance >= 0:
+                continue
+            # 押しのける
+            next_tail_world_translation = (
+                next_tail_world_translation - direction * distance
+            )
+            # 次のTailに距離の制約を適用
+            next_tail_world_translation = (
+                next_head_world_translation
+                + (
+                    next_tail_world_translation - next_head_world_translation
+                ).normalized()
+                * head_to_tail_world_distance
+            )
 
     next_tail_object_local_translation = (
         obj_matrix_world_inverted @ next_tail_world_translation
