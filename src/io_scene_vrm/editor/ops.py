@@ -2,7 +2,6 @@
 # SPDX-FileCopyrightText: 2018 iCyP
 # SPDX-FileCopyrightText: 2024 saturday06
 import json
-import re
 import warnings
 import webbrowser
 from collections.abc import Set as AbstractSet
@@ -22,6 +21,10 @@ from bpy.types import (
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 
 from ..common.deep import make_json
+from ..common.human_bone_mapper.vroid_mapping import (
+    FULL__PATTERN,
+    symmetrise_vroid_bone_name,
+)
 from ..common.logger import get_logger
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..common.workspace import save_workspace
@@ -37,10 +40,6 @@ class VRM_OT_simplify_vroid_bones(Operator):
     bl_label = "Symmetrize VRoid Bone Names on X-Axis"
     bl_description = "Make VRoid bone names editable for X-axis mirroring."
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
-
-    left__pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_L_")
-    right_pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_R_")
-    full__pattern = re.compile("^J_(Adj|Bip|Opt|Sec)_([CLR]_)?")
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -65,9 +64,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
 
     @staticmethod
     def vroid_bones_exist(armature: Armature) -> bool:
-        return any(
-            map(VRM_OT_simplify_vroid_bones.full__pattern.match, armature.bones.keys())
-        )
+        return any(map(FULL__PATTERN.match, armature.bones.keys()))
 
     def execute(self, context: Context) -> set[str]:
         if not self.armature_object_name and self.armature_name:
@@ -81,20 +78,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
 
         with save_workspace(context):
             for bone_name, bone in armature_data.bones.items():
-                left = VRM_OT_simplify_vroid_bones.left__pattern.sub("", bone_name)
-                if left != bone_name:
-                    bone.name = left + "_L"
-                    continue
-
-                right = VRM_OT_simplify_vroid_bones.right_pattern.sub("", bone_name)
-                if right != bone_name:
-                    bone.name = right + "_R"
-                    continue
-
-                a = VRM_OT_simplify_vroid_bones.full__pattern.sub("", bone_name)
-                if a != bone_name:
-                    bone.name = a
-                    continue
+                bone.name = symmetrise_vroid_bone_name(bone_name)
 
         return {"FINISHED"}
 

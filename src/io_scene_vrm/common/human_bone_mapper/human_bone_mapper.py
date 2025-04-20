@@ -14,6 +14,7 @@ from . import (
     ready_player_me_mapping,
     rigify_meta_rig_mapping,
     vrm_addon_mapping,
+    vroid_mapping,
 )
 
 logger = get_logger(__name__)
@@ -109,6 +110,8 @@ def create_human_bone_mapping(
                 microsoft_rocketbox_mapping.CONFIG_BIP01,
                 microsoft_rocketbox_mapping.CONFIG_BIP02,
                 rigify_meta_rig_mapping.CONFIG,
+                vroid_mapping.CONFIG,
+                vroid_mapping.CONFIG_SYMMETRICAL,
                 vrm_addon_mapping.CONFIG_VRM1,
                 vrm_addon_mapping.CONFIG_VRM0,
             ]
