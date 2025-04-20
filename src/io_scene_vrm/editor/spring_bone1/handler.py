@@ -197,6 +197,7 @@ def calculate_object_pose_bone_rotations(
 
     obj_matrix_world = obj.matrix_world
     obj_matrix_world_inverted = obj_matrix_world.inverted_safe()
+    obj_matrix_world_quaternion = obj_matrix_world.to_quaternion()
 
     collider_uuid_to_world_collider: dict[
         str,
@@ -399,6 +400,7 @@ def calculate_object_pose_bone_rotations(
             obj,
             obj_matrix_world,
             obj_matrix_world_inverted,
+            obj_matrix_world_quaternion,
             spring,
             pose_bone_and_rotations,
             collider_group_uuid_to_world_colliders,
@@ -415,6 +417,7 @@ def calculate_spring_pose_bone_rotations(
     obj: Object,
     obj_matrix_world: Matrix,
     obj_matrix_world_inverted: Matrix,
+    obj_matrix_world_quaternion: Quaternion,
     spring: SpringBone1SpringPropertyGroup,
     pose_bone_and_rotations: list[tuple[PoseBone, Quaternion]],
     collider_group_uuid_to_world_colliders: dict[
@@ -518,6 +521,7 @@ def calculate_spring_pose_bone_rotations(
             delta_time,
             obj_matrix_world,
             obj_matrix_world_inverted,
+            obj_matrix_world_quaternion,
             head_joint,
             head_pose_bone,
             head_rest_object_matrix,
@@ -535,6 +539,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
     delta_time: float,
     obj_matrix_world: Matrix,
     obj_matrix_world_inverted: Matrix,
+    obj_matrix_world_quaternion: Quaternion,
     head_joint: SpringBone1JointPropertyGroup,
     head_pose_bone: PoseBone,
     current_head_rest_object_matrix: Matrix,
@@ -572,10 +577,13 @@ def calculate_joint_pair_head_pose_bone_rotations(
             next_head_pose_bone_before_rotation_matrix = (
                 current_head_rest_object_matrix.copy()
             )
+    (
+        next_head_pose_bone_translation,
+        next_head_parent_pose_bone_object_rotation,
+        next_head_pose_bone_scale,
+    ) = next_head_pose_bone_before_rotation_matrix.decompose()
 
-    next_head_world_translation = (
-        obj_matrix_world @ next_head_pose_bone_before_rotation_matrix.to_translation()
-    )
+    next_head_world_translation = obj_matrix_world @ next_head_pose_bone_translation
 
     if not tail_joint.animation_state.initialized_as_tail:
         initial_tail_world_translation = (
@@ -610,8 +618,8 @@ def calculate_joint_pair_head_pose_bone_rotations(
         @ current_tail_rest_object_matrix.to_translation()
     )
     stiffness_direction = (
-        obj_matrix_world.to_quaternion()
-        @ next_head_pose_bone_before_rotation_matrix.to_quaternion()
+        obj_matrix_world_quaternion
+        @ next_head_parent_pose_bone_object_rotation
         @ next_head_rotation_start_target_local_translation
     ).normalized()
     stiffness = stiffness_direction * delta_time * head_joint.stiffness
@@ -666,11 +674,6 @@ def calculate_joint_pair_head_pose_bone_rotations(
         ),
     )
 
-    (
-        next_head_pose_bone_translation,
-        next_head_parent_pose_bone_object_rotation,
-        next_head_pose_bone_scale,
-    ) = next_head_pose_bone_before_rotation_matrix.decompose()
     next_head_pose_bone_object_rotation = (
         next_head_parent_pose_bone_object_rotation @ next_head_pose_bone_rotation
     )
