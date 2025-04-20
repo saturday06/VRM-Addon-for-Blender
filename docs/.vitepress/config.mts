@@ -13,6 +13,10 @@ export default defineConfig({
         link: "https://github.com/saturday06/VRM-Addon-for-Blender",
       },
     ],
+    editLink: {
+      pattern:
+        "https://github.com/saturday06/VRM-Addon-for-Blender/edit/main/docs/:path",
+    },
   },
   locales: {
     ja: {
