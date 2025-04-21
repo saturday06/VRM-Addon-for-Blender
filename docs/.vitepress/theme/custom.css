@@ -1,3 +1,3 @@
 .vp-doc img {
-  width: 660px;
+  width: 660px; /* BlenderのスクショはピクセルパーフェクトにしないとUIや文字がぼやけてしまう。 */
 }
