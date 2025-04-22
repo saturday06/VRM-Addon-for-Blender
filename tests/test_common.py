@@ -472,8 +472,8 @@ class TestSceneWatcher(TestCase):
                 timeout_seconds = 0.000_100 * timeout_margin_factor
                 elapsed = timeit(run, number=number)
                 self.assertLess(
-                    elapsed / number,
+                    elapsed / float(number),
                     timeout_seconds,
                     f"{scene_watcher_type}.run()の実行時間は{timeout_seconds}秒未満である必要がありますが"
-                    f"{elapsed / number}秒経過しました。",
+                    f"{elapsed / float(number)}秒経過しました。",
                 )
