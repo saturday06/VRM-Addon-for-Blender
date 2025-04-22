@@ -595,8 +595,8 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         ).armature_object_name = armature.name
 
         row = layout.split(factor=0.5)
-        draw_vrm1_humanoid_required_bones_layout(human_bones, row.column())
-        draw_vrm1_humanoid_optional_bones_layout(human_bones, row.column())
+        draw_vrm1_humanoid_required_bones_layout(armature, row.column())
+        draw_vrm1_humanoid_optional_bones_layout(armature, row.column())
 
         non_humanoid_export_column = layout.column()
         non_humanoid_export_column.prop(human_bones, "allow_non_humanoid_rig")
