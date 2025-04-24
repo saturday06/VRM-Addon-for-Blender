@@ -1,6 +1,6 @@
-const defaultLanguage = "en";
-const supportedLanguages = [defaultLanguage, "ja"];
-const lastLocalizedFolderKey = "vrm-format-last-localized-folder";
+const defaultLocale = "en";
+const supportedLocales = [defaultLocale, "ja"];
+const lastLocaleKey = "vrm-format-last-locale";
 const localeRedirectionParam = "locale_redirection";
 let hasPendingRedirection = false;
 
@@ -9,11 +9,11 @@ export function registerCurrentLocale(storage: Storage, locale: string) {
     return;
   }
 
-  if (!supportedLanguages.includes(locale)) {
+  if (!supportedLocales.includes(locale)) {
     return;
   }
 
-  storage.setItem(lastLocalizedFolderKey, locale);
+  storage.setItem(lastLocaleKey, locale);
 }
 
 /**
@@ -21,31 +21,31 @@ export function registerCurrentLocale(storage: Storage, locale: string) {
  *
  * @returns {string} The guessed language code, either "en" (default) or "ja".
  */
-function guessLocalizedFolder(storage: Storage): string {
-  const lastLocalizedFolder = storage.getItem(lastLocalizedFolderKey);
-  if (lastLocalizedFolder && supportedLanguages.includes(lastLocalizedFolder)) {
-    return lastLocalizedFolder;
+function guessLocale(storage: Storage): string {
+  const lastLocale = storage.getItem(lastLocaleKey);
+  if (lastLocale && supportedLocales.includes(lastLocale)) {
+    return lastLocale;
   }
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages
   if (navigator.languages) {
     for (const language of navigator.languages) {
-      for (const supportedLanguage of supportedLanguages) {
-        if (language.startsWith(supportedLanguage)) {
-          return supportedLanguage;
+      for (const supportedLocale of supportedLocales) {
+        if (language.startsWith(supportedLocale)) {
+          return supportedLocale;
         }
       }
     }
   }
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/language
-  for (const supportedLanguage of supportedLanguages) {
-    if (navigator.language.startsWith(supportedLanguage)) {
-      return supportedLanguage;
+  for (const supportedLocale of supportedLocales) {
+    if (navigator.language.startsWith(supportedLocale)) {
+      return supportedLocale;
     }
   }
 
-  return defaultLanguage;
+  return defaultLocale;
 }
 
 /**
@@ -59,20 +59,20 @@ export function redirectToLocaleUrlIfNeeded() {
     return;
   }
 
-  const detectedLocalizedFolder = guessLocalizedFolder(window.localStorage);
+  const detectedLocale = guessLocale(window.localStorage);
 
-  // リクエストされたpathnameを、最初のフォルダとそれ以外に分離し、
-  // 最初のフォルダをLocalizedFolderとし、ここにロケール名が入っているものとする。
-  let requestLocalizedFolder;
+  // リクエストされたpathnameを最初のフォルダとそれ以外に分離し、
+  // 最初のフォルダをLocaleとする。
+  let requestLocale;
   let requestPathname;
   const requestUrl = new URL(window.location.href);
   const pathComponents = requestUrl.pathname.split("/", 3);
   if (pathComponents.length >= 2) {
-    requestLocalizedFolder = pathComponents[1];
+    requestLocale = pathComponents[1];
     requestPathname = pathComponents.slice(2).join("/");
   }
 
-  if (requestLocalizedFolder?.indexOf(".") !== -1) {
+  if (requestLocale?.indexOf(".") !== -1) {
     // 拡張子が含まれている場合は個別のファイルであるとし、リダイレクトしない。
     return;
   }
@@ -80,30 +80,30 @@ export function redirectToLocaleUrlIfNeeded() {
   // URLのクエリパラメータにlocale_redirectionが存在する場合、
   // localStorageから過去のリダイレクト情報を削除し、初回アクセスと同等の扱いにする。
   if (requestUrl.searchParams.has(localeRedirectionParam)) {
-    window.localStorage.removeItem(lastLocalizedFolderKey);
+    window.localStorage.removeItem(lastLocaleKey);
   }
 
   // localizedFolder名がサポートされている言語であり、
   // かつ既に過去にアクセスしたローカライズ済みのフォルダと一致した場合はリダイレクトしない。
   if (
-    requestLocalizedFolder &&
-    supportedLanguages.includes(requestLocalizedFolder) &&
-    requestLocalizedFolder ==
-      window.localStorage.getItem(lastLocalizedFolderKey)
+    requestLocale &&
+    supportedLocales.includes(requestLocale) &&
+    requestLocale ==
+      window.localStorage.getItem(lastLocaleKey)
   ) {
     return;
   }
-  registerCurrentLocale(window.localStorage, detectedLocalizedFolder);
+  registerCurrentLocale(window.localStorage, detectedLocale);
 
   // リクエストされたフォルダと自動判定したフォルダのロケール名が同一なら何もしない
-  if (requestLocalizedFolder === detectedLocalizedFolder) {
+  if (requestLocale === detectedLocale) {
     return;
   }
 
   // ここに到達した場合はリダイレクトが必要になる。
   // URLを再構築してリダイレクトする。
   const redirectUrl = new URL(window.location.href);
-  redirectUrl.pathname = "/" + detectedLocalizedFolder + "/";
+  redirectUrl.pathname = "/" + detectedLocale + "/";
   if (requestPathname) {
     redirectUrl.pathname += requestPathname;
   }
