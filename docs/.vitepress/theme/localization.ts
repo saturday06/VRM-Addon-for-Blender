@@ -1,7 +1,6 @@
 const defaultLanguage = "en";
 const supportedLanguages = [defaultLanguage, "ja"];
 const lastLocalizedFolderKey = "vrm-format-last-localized-folder";
-const alreadyRedirectedOnceHistoryState = "Already Redirected Once";
 const localeRedirectionParam = "locale_redirection";
 let hasPendingRedirection = false;
 
@@ -60,18 +59,6 @@ export function redirectToLocaleUrlIfNeeded() {
     return;
   }
 
-  // History.stateに「既にリダイレクトした」という情報を保存しておく。
-  // これが既にある場合は、リダイレクトを行わないようにする。
-  // TODO: DenoでHistory APIを使いたいが、なんか型が取れないのでanyを使う。要修正。
-  // deno-lint-ignore no-explicit-any
-  const history = (window as any).history;
-  if (!history) {
-    return;
-  }
-  if (history.state === alreadyRedirectedOnceHistoryState) {
-    return;
-  }
-
   const detectedLocalizedFolder = guessLocalizedFolder(window.localStorage);
 
   // リクエストされたpathnameを、最初のフォルダとそれ以外に分離し、
@@ -123,7 +110,5 @@ export function redirectToLocaleUrlIfNeeded() {
   redirectUrl.searchParams.delete(localeRedirectionParam);
 
   hasPendingRedirection = true;
-
-  history.replaceState(alreadyRedirectedOnceHistoryState, "", redirectUrl);
-  history.go();
+  window.location.replace(redirectUrl.toString());
 }
