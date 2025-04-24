@@ -69,7 +69,8 @@ export function redirectToLocaleUrlIfNeeded() {
   // 最初のフォルダをLocalizedFolderとし、ここにロケール名が入っているものとする。
   let requestLocalizedFolder;
   let requestPathname;
-  const pathComponents = window.location.pathname.split("/", 3);
+  const requestUrl = new URL(window.location.href);
+  const pathComponents = requestUrl.pathname.split("/", 3);
   if (pathComponents.length >= 2) {
     requestLocalizedFolder = pathComponents[1];
     requestPathname = pathComponents.slice(2).join("/");
@@ -82,13 +83,9 @@ export function redirectToLocaleUrlIfNeeded() {
 
   // URLのクエリパラメータにlocale_redirectionが存在する場合、
   // localStorageから過去のリダイレクト情報を削除し、初回アクセスと同等の扱いにする。
-  const params = [];
-  for (const param of window.location.search.substring(1).split("&")) {
-    if (param === "locale_redirection") {
-      window.localStorage.removeItem(lastLocalizedFolderKey);
-    } else {
-      params.push(param);
-    }
+  const localeRedirectionParam = "locale_redirection";
+  if (requestUrl.searchParams.has(localeRedirectionParam)) {
+    window.localStorage.removeItem(lastLocalizedFolderKey);
   }
 
   // localizedFolder名がサポートされている言語であり、
@@ -110,18 +107,13 @@ export function redirectToLocaleUrlIfNeeded() {
 
   // ここに到達した場合はリダイレクトが必要になる。
   // URLを再構築してリダイレクトする。
-  let href = "/" + detectedLocalizedFolder;
+  const redirectUrl = new URL(window.location.href);
+  redirectUrl.pathname = "/" + detectedLocalizedFolder;
   if (requestPathname) {
-    href += "/" + requestPathname;
+    redirectUrl.pathname += "/" + requestPathname;
   }
-  const locationSearch = params.join("&");
-  if (locationSearch) {
-    href += "?" + locationSearch;
-  }
-  if (window.location.hash) {
-    href += window.location.hash;
-  }
+  redirectUrl.searchParams.delete(localeRedirectionParam);
 
-  history.replaceState(alreadyRedirectedOnceHistoryState, "", href);
+  history.replaceState(alreadyRedirectedOnceHistoryState, "", redirectUrl);
   history.go();
 }
