@@ -10,7 +10,9 @@ import "./custom.css";
 export default {
   ...DefaultTheme,
   Layout,
-  enhanceApp(_enhanceAppContext: EnhanceAppContext) {
-    redirectToLocaleUrlIfNeeded();
+  enhanceApp(enhanceAppContext: EnhanceAppContext) {
+    enhanceAppContext.router.onAfterRouteChange = (_) => {
+      redirectToLocaleUrlIfNeeded();
+    };
   },
 };

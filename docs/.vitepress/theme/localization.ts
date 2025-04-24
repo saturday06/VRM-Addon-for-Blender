@@ -123,4 +123,5 @@ export function redirectToLocaleUrlIfNeeded() {
   }
 
   history.replaceState(alreadyRedirectedOnceHistoryState, "", href);
+  history.go();
 }
