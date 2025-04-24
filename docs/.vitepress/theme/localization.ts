@@ -1,11 +1,19 @@
 const defaultLanguage = "en";
 const supportedLanguages = [defaultLanguage, "ja"];
 const lastLocalizedFolderKey = "vrm-format-last-localized-folder";
+const alreadyRedirectedOnceHistoryState = "Already Redirected Once";
+const localeRedirectionParam = "locale_redirection";
+let hasPendingRedirection = false;
 
-export function registerLocale(storage: Storage, locale: string) {
+export function registerCurrentLocale(storage: Storage, locale: string) {
+  if (hasPendingRedirection) {
+    return;
+  }
+
   if (!supportedLanguages.includes(locale)) {
     return;
   }
+
   storage.setItem(lastLocalizedFolderKey, locale);
 }
 
@@ -45,6 +53,8 @@ function guessLocalizedFolder(storage: Storage): string {
  * ブラウザの言語設定から、対応するURLにリダイレクトする
  */
 export function redirectToLocaleUrlIfNeeded() {
+  hasPendingRedirection = false;
+
   const window = globalThis;
   if (!(window instanceof Window) || !(window.location instanceof Location)) {
     return;
@@ -52,7 +62,6 @@ export function redirectToLocaleUrlIfNeeded() {
 
   // History.stateに「既にリダイレクトした」という情報を保存しておく。
   // これが既にある場合は、リダイレクトを行わないようにする。
-  const alreadyRedirectedOnceHistoryState = "Already Redirected Once";
   // TODO: DenoでHistory APIを使いたいが、なんか型が取れないのでanyを使う。要修正。
   // deno-lint-ignore no-explicit-any
   const history = (window as any).history;
@@ -83,7 +92,6 @@ export function redirectToLocaleUrlIfNeeded() {
 
   // URLのクエリパラメータにlocale_redirectionが存在する場合、
   // localStorageから過去のリダイレクト情報を削除し、初回アクセスと同等の扱いにする。
-  const localeRedirectionParam = "locale_redirection";
   if (requestUrl.searchParams.has(localeRedirectionParam)) {
     window.localStorage.removeItem(lastLocalizedFolderKey);
   }
@@ -98,7 +106,7 @@ export function redirectToLocaleUrlIfNeeded() {
   ) {
     return;
   }
-  registerLocale(window.localStorage, detectedLocalizedFolder);
+  registerCurrentLocale(window.localStorage, detectedLocalizedFolder);
 
   // リクエストされたフォルダと自動判定したフォルダのロケール名が同一なら何もしない
   if (requestLocalizedFolder === detectedLocalizedFolder) {
@@ -108,11 +116,13 @@ export function redirectToLocaleUrlIfNeeded() {
   // ここに到達した場合はリダイレクトが必要になる。
   // URLを再構築してリダイレクトする。
   const redirectUrl = new URL(window.location.href);
-  redirectUrl.pathname = "/" + detectedLocalizedFolder;
+  redirectUrl.pathname = "/" + detectedLocalizedFolder + "/";
   if (requestPathname) {
-    redirectUrl.pathname += "/" + requestPathname;
+    redirectUrl.pathname += requestPathname;
   }
   redirectUrl.searchParams.delete(localeRedirectionParam);
+
+  hasPendingRedirection = true;
 
   history.replaceState(alreadyRedirectedOnceHistoryState, "", redirectUrl);
   history.go();
