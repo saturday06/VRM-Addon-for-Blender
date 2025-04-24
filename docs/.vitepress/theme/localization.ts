@@ -66,7 +66,7 @@ export function redirectToLocaleUrlIfNeeded() {
   let requestLocale;
   let requestPathname;
   const requestUrl = new URL(window.location.href);
-  const pathComponents = requestUrl.pathname.split("/", 3);
+  const pathComponents = requestUrl.pathname.split("/");
   if (pathComponents.length >= 2) {
     requestLocale = pathComponents[1];
     requestPathname = pathComponents.slice(2).join("/");
