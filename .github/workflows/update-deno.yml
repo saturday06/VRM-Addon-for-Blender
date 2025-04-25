@@ -1,17 +1,23 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+#
+# renovateのブランチが削除されたら、deno関連のアップデートのPR作成や更新を行う。
+#
+# 本来なら自動で定期的にdeno関連のアップデートを行いたい。しかし、完全に
+# 自動にしてしまうと、Actionsが有効かつ管理されていないフォークレポジトリで
+# ジョブが動き続け、GitHubのフォークとブランチのNetwork表示のノイズになる。
+# そのため、自動で定期的に動くハードルを高めに設定する必要がある。
+# renovateのブランチ削除のタイミングなら適度なハードルなので、これをトリガーにしている。
+
 name: update-deno-dependencies
 
 permissions: {}
 
 on:
-  push:
-    branches:
-      - "**"
-  schedule:
-    - cron: "0 0 * * *"
+  delete:
 
 jobs:
   update-deno-dependencies:
+    if: startsWith(github.event.ref, 'refs/heads/renovate/')
     runs-on: ubuntu-24.04
     permissions:
       contents: write
