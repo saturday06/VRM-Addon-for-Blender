@@ -157,10 +157,10 @@ jobs:
           sudo apt-get install -y python3 shellcheck shfmt uchardet
         env:
           DEBIAN_FRONTEND: noninteractive
+      - uses: actions/checkout@v4
       - uses: denoland/setup-deno@v2
         with:
-          deno-version: vx.x.x
-      - uses: actions/checkout@v4
+          deno-version-file: .dvmrc
       - name: Disable git config core.quotepath
         run: git config core.quotepath off
       - name: Check file permissions

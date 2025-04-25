@@ -18,10 +18,10 @@ jobs:
   build-gh-pages:
     runs-on: ubuntu-24.04
     steps:
+      - uses: actions/checkout@v4
       - uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.2.10
-      - uses: actions/checkout@v4
+          deno-version-file: .dvmrc
       - name: Build
         run: |
           set -x
