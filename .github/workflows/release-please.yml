@@ -1,9 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 name: release-please
 
-permissions:
-  contents: write
-  pull-requests: write
+permissions: {}
 
 on:
   workflow_run:
@@ -19,6 +17,9 @@ jobs:
       release_release_created: ${{ steps.release.outputs.release_created }}
       release_sha: ${{ steps.release.outputs.sha }}
       release_tag_name: ${{ steps.release.outputs.tag_name }}
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,6 +44,8 @@ jobs:
     runs-on: ubuntu-24.04
     needs: release-please
     if: ${{ needs.release-please.result == 'success' && needs.release-please.outputs.release_release_created }}
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:

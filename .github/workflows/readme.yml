@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 name: readme-update
 
-permissions:
-  contents: write
+permissions: {}
 
 on:
   push:
@@ -14,6 +13,8 @@ on:
 jobs:
   deploy-readme:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - name: Deploy
