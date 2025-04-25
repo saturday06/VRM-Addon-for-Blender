@@ -36,6 +36,7 @@ jobs:
           cp ../.github/workflows/gh-pages.yml .github/workflows/
           cp ../.github/workflows/close-resolved-stale-issues.yml .github/workflows/
           cp ../.github/workflows/release-please.yml .github/workflows/
+          cp ../.github/workflows/test.yml .github/workflows/
           cp ../README.md .
           find . -maxdepth 1 -name "LICENSE*" -exec rm {} \;
           find .. -maxdepth 1 -name "LICENSE*" -exec cp {} . \;

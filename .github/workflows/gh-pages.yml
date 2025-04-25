@@ -12,6 +12,7 @@ on:
     workflows: [release-please]
     branches: [README]
     types: [completed]
+  workflow_dispatch:
 
 jobs:
   build-gh-pages:

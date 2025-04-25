@@ -5,10 +5,13 @@ permissions: {}
 
 on:
   push:
-    branches:
-      - "**"
+    branches-ignore:
+      - README
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+    branches-ignore:
+      - README
+  workflow_dispatch:
 
 env:
   BLENDER_ARCHIVE_BASE_URL: https://download.blender.org/release
