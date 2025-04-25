@@ -8,7 +8,8 @@
   "updateContentCommand": "./tools/devcontainer_update_content_command.sh",
   "postAttachCommand": "./tools/devcontainer_post_attach_command.sh",
   "features": {
-    "ghcr.io/devcontainers/features/common-utils:2": {}
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
   },
   "workspaceFolder": "/workspace",
   "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/workspace,consistency=cached",

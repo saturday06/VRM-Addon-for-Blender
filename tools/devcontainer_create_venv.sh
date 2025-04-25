@@ -17,7 +17,7 @@ create_venv() (
 create=yes
 
 if [ "$(uname -m)" = "x86_64" ]; then
-  if grep -E "^home = /home/developer/.local/share/uv/python/" .venv/pyvenv.cfg >/dev/null &&
+  if grep -E "^home = /usr/local/bin$" .venv/pyvenv.cfg >/dev/null &&
     readlink -e .venv/bin/python >/dev/null \
     ; then
     create=no
