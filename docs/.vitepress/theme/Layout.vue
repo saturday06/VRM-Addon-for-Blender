@@ -5,12 +5,12 @@
 import DefaultTheme from 'vitepress/theme'
 import { useData, inBrowser } from 'vitepress'
 import { watchEffect } from 'vue'
-import { registerCurrentLocale } from "./localization.ts";
+import { registerAutoRedirectionTargetLocale } from "./localization.ts";
 
 const { lang } = useData()
 watchEffect(() => {
   if (inBrowser) {
-    registerCurrentLocale(localStorage, lang.value);
+    registerAutoRedirectionTargetLocale(localStorage, lang.value);
   }
 })
 

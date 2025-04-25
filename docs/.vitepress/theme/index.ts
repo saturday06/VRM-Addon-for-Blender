@@ -11,11 +11,10 @@ export default {
   ...DefaultTheme,
   Layout,
   enhanceApp(enhanceAppContext: EnhanceAppContext) {
-    if (!inBrowser) {
-      return;
-    }
     enhanceAppContext.router.onAfterRouteChange = (_) => {
-      redirectToLocaleUrlIfNeeded();
+      if (inBrowser) {
+        redirectToLocaleUrlIfNeeded(localStorage);
+      }
     };
   },
 };

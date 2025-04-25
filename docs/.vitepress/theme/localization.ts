@@ -1,11 +1,18 @@
+// SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 const defaultLocale = "en";
 const supportedLocales = [defaultLocale, "ja"];
-const lastLocaleKey = "vrm-format-last-locale";
-const localeRedirectionParam = "locale_redirection";
-let hasPendingRedirection = false;
+const autoRedirectionTargetLocaleKey =
+  "vrm-format-auto-redirection-target-locale";
+const hasPendingAutoRedirectionKey = "vrm-format-has-pending-auto-redirection";
 
-export function registerCurrentLocale(storage: Storage, locale: string) {
-  if (hasPendingRedirection) {
+/**
+ * 自動リダイレクト先のLocaleを登録。
+ */
+export function registerAutoRedirectionTargetLocale(
+  storage: Storage,
+  locale: string,
+): void {
+  if (storage.getItem(hasPendingAutoRedirectionKey)) {
     return;
   }
 
@@ -13,18 +20,20 @@ export function registerCurrentLocale(storage: Storage, locale: string) {
     return;
   }
 
-  storage.setItem(lastLocaleKey, locale);
+  storage.setItem(autoRedirectionTargetLocaleKey, locale);
 }
 
 /**
- * Storageとブラウザの言語設定から、URLのプレフィックスを推測する。
+ * Storageとブラウザの言語設定から、自動リダイレクト先のLocaleを検知。
  *
  * @returns {string} The guessed language code, either "en" (default) or "ja".
  */
-function guessLocale(storage: Storage): string {
-  const lastLocale = storage.getItem(lastLocaleKey);
-  if (lastLocale && supportedLocales.includes(lastLocale)) {
-    return lastLocale;
+function detectAutoRedirectionTargetLocale(
+  storage: Storage,
+): string | undefined {
+  const targetLocale = storage.getItem(autoRedirectionTargetLocaleKey);
+  if (targetLocale && supportedLocales.includes(targetLocale)) {
+    return targetLocale;
   }
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages
@@ -39,37 +48,37 @@ function guessLocale(storage: Storage): string {
   }
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/language
-  for (const supportedLocale of supportedLocales) {
-    if (navigator.language.startsWith(supportedLocale)) {
-      return supportedLocale;
+  if (navigator.language) {
+    for (const supportedLocale of supportedLocales) {
+      if (navigator.language.startsWith(supportedLocale)) {
+        return supportedLocale;
+      }
     }
   }
 
-  return defaultLocale;
+  return undefined;
 }
 
 /**
- * ブラウザの言語設定から、対応するURLにリダイレクトする
+ * Storageとブラウザの言語設定から、対応するURLにリダイレクトする
  */
-export function redirectToLocaleUrlIfNeeded() {
-  hasPendingRedirection = false;
+export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
+  storage.removeItem(hasPendingAutoRedirectionKey);
 
   const window = globalThis;
   if (!(window instanceof Window) || !(window.location instanceof Location)) {
     return;
   }
 
-  const detectedLocale = guessLocale(window.localStorage);
-
   // リクエストされたpathnameを最初のフォルダとそれ以外に分離し、
-  // 最初のフォルダをLocaleとする。
+  // 最初のフォルダをlocaleとする。
   let requestLocale;
   let requestPathname;
   const requestUrl = new URL(window.location.href);
-  const pathComponents = requestUrl.pathname.split("/");
-  if (pathComponents.length >= 2) {
-    requestLocale = pathComponents[1];
-    requestPathname = pathComponents.slice(2).join("/");
+  const requestPathComponents = requestUrl.pathname.split("/");
+  if (requestPathComponents.length >= 2) {
+    requestLocale = requestPathComponents[1];
+    requestPathname = requestPathComponents.slice(2).join("/");
   }
 
   if (requestLocale?.indexOf(".") !== -1) {
@@ -77,38 +86,31 @@ export function redirectToLocaleUrlIfNeeded() {
     return;
   }
 
-  // URLのクエリパラメータにlocale_redirectionが存在する場合、
-  // localStorageから過去のリダイレクト情報を削除し、初回アクセスと同等の扱いにする。
-  if (requestUrl.searchParams.has(localeRedirectionParam)) {
-    window.localStorage.removeItem(lastLocaleKey);
+  let targetLocale = detectAutoRedirectionTargetLocale(storage);
+  if (!targetLocale) {
+    if (requestLocale) {
+      // リダイレクト先のロケールの自動取得に失敗した場合かつ、
+      // リクエストからロケールが取得できた場合は何もしない。
+      return;
+    }
+    targetLocale = defaultLocale;
   }
 
-  // localizedFolder名がサポートされている言語であり、
-  // かつ既に過去にアクセスしたローカライズ済みのフォルダと一致した場合はリダイレクトしない。
-  if (
-    requestLocale &&
-    supportedLocales.includes(requestLocale) &&
-    requestLocale ==
-      window.localStorage.getItem(lastLocaleKey)
-  ) {
-    return;
-  }
-  registerCurrentLocale(window.localStorage, detectedLocale);
+  registerAutoRedirectionTargetLocale(storage, targetLocale);
 
-  // リクエストされたフォルダと自動判定したフォルダのロケール名が同一なら何もしない
-  if (requestLocale === detectedLocale) {
+  // リクエストされたロケールと自動判定したロケールが同一なら何もしない
+  if (requestLocale === targetLocale) {
     return;
   }
 
   // ここに到達した場合はリダイレクトが必要になる。
   // URLを再構築してリダイレクトする。
   const redirectUrl = new URL(window.location.href);
-  redirectUrl.pathname = "/" + detectedLocale + "/";
+  redirectUrl.pathname = "/" + targetLocale + "/";
   if (requestPathname) {
     redirectUrl.pathname += requestPathname;
   }
-  redirectUrl.searchParams.delete(localeRedirectionParam);
 
-  hasPendingRedirection = true;
+  storage.setItem(hasPendingAutoRedirectionKey, "true");
   window.location.replace(redirectUrl.toString());
 }
