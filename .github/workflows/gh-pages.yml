@@ -21,10 +21,7 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version-file: .dvmrc
-      - name: Build
+      - name: Switch
         run: |
           set -x
 
@@ -32,6 +29,12 @@ jobs:
             git fetch --depth=1 origin main
             git checkout main
           fi
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version-file: .dvmrc
+      - name: Build
+        run: |
+          set -x
 
           deno task docs:build
 
