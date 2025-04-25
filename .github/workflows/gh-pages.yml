@@ -4,15 +4,19 @@ name: pages-update
 permissions: {}
 
 on:
-  push:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
+    branches-ignore:
+      - README
+  push:
+    branches-ignore:
+      - README
   release:
+  workflow_dispatch:
   workflow_run:
     workflows: [release-please]
     branches: [README]
     types: [completed]
-  workflow_dispatch:
 
 jobs:
   build-gh-pages:
