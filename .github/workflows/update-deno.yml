@@ -16,6 +16,13 @@ on:
   delete:
 
 jobs:
+  debug:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "$FOO"
+        env:
+          FOO: ${{ github.event.ref }}
+
   update-deno-dependencies:
     if: startsWith(github.event.ref, 'refs/heads/renovate/')
     runs-on: ubuntu-24.04
