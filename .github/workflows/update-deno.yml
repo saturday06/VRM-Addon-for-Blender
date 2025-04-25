@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+name: update-deno-dependencies
+
+permissions: {}
+
+on:
+  push:
+    branches:
+      - "**"
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  update-deno-dependencies:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Switch to working branch
+        run: git checkout -b update-deno-dependencies
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: vx.x.x
+      - name: Update .dvmrc
+        run: deno eval 'console.log(Deno.version.deno)' | tee .dvmrc
+      - name: Update deno.jsonc and deno.lock
+        run: deno outdated --latest --update
+      - name: Push
+        run: |
+          set -x
+
+          git add .
+          if git diff --cached --exit-code; then
+            exit 0
+          fi
+          git config --global user.email 'isamu@leafytree.jp'
+          git config --global user.name '[BOT] Isamu Mogi'
+          git commit -m 'chore: update dependencies [BOT]'
+          if git diff origin/update-deno-dependencies; then
+            exit 0
+          fi
+          git push -f origin update-deno-dependencies
+
+          gh pr create --base main --fill || true
+          gh pr merge --merge --auto
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
