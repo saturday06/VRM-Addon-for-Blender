@@ -36,7 +36,7 @@ jobs:
         run: deno eval 'console.log(Deno.version.deno)' | tee .dvmrc
       - name: Update deno.jsonc and deno.lock
         run: deno outdated --latest --update
-      - name: Commit
+      - name: Push
         run: |
           set -x
 
@@ -51,9 +51,6 @@ jobs:
             exit 0
           fi
           git push -f origin update-deno-dependencies
-      - name: Create PR
-        run: |
-          set -x
 
           gh pr create --base main --fill || true
           gh pr merge --merge --auto
