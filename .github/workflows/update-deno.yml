@@ -46,7 +46,7 @@ jobs:
           git config --global user.email 'isamu@leafytree.jp'
           git config --global user.name '[BOT] Isamu Mogi'
           git commit -m 'chore: update dependencies [BOT]'
-          if git diff origin/update-deno-dependencies; then
+          if git diff --exit-code origin/update-deno-dependencies; then
             exit 0
           fi
           git push -f origin update-deno-dependencies
