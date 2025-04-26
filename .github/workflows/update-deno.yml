@@ -1,28 +1,18 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-#
-# renovateのPRがマージされたら、deno関連のアップデートのPR作成や更新を行う。
-#
-# 本来なら自動で定期的にdeno関連のアップデートを行いたい。しかし、完全に
-# 自動にしてしまうと、Actionsが有効かつ管理されていないフォークレポジトリで
-# ジョブが動き続け、GitHubのフォークとブランチのNetwork表示のノイズになる。
-# そのため、自動で定期的に動くハードルを高めに設定する必要がある。
-# renovateのPRマージのタイミングなら適度なハードルなので、これをトリガーにしている。
 
 name: update-deno-dependencies
 
 permissions: {}
 
 on:
-  pull_request:
-    types: [closed]
+  schedule:
+    - cron: "0 0 * * *"
 
 jobs:
   update-deno-dependencies:
-    if: startsWith(github.head_ref, 'renovate/') && github.event.pull_request.merged
     runs-on: ubuntu-24.04
     permissions:
       contents: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,9 +41,7 @@ jobs:
             exit 0
           fi
           git push -f origin update-deno-dependencies
-          gh label create 'deno:pending' || true
           gh pr create --base main --fill || true
-          gh pr edit --add-label 'deno:pending'
           gh pr merge --merge --auto
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.VRM_ADDON_FOR_BLENDER_DENO_GITHUB_TOKEN }}
