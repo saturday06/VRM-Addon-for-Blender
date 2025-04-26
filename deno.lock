@@ -3,6 +3,7 @@
   "specifiers": {
     "npm:@types/node@*": "22.14.1",
     "npm:@types/node@22.14.1": "22.14.1",
+    "npm:@types/node@22.15.2": "22.15.2",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
     "npm:pyright@1.1.400": "1.1.400",
     "npm:vitepress@*": "1.6.3_vite@5.4.18__@types+node@22.14.1_vue@3.5.13_focus-trap@7.6.4_@types+node@22.14.1",
@@ -405,6 +406,12 @@
     },
     "@types/node@22.14.1": {
       "integrity": "sha512-u0HuPQwe/dHrItgHHpmw3N2fYCR6x4ivMNbPHRkBVP4CvN+kiRrKHWk3i8tXiO/joPwXLMYvF9TTF0eqgHIuOw==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
+    "@types/node@22.15.2": {
+      "integrity": "sha512-uKXqKN9beGoMdBfcaTY1ecwz6ctxuJAcUlwE55938g0ZJ8lRxwAZqRz2AJ4pzpt5dHdTPMB863UZ0ESiFUcP7A==",
       "dependencies": [
         "undici-types"
       ]
@@ -910,7 +917,7 @@
     "vite@5.4.18_@types+node@22.14.1": {
       "integrity": "sha512-1oDcnEp3lVyHCuQ2YFelM4Alm2o91xNoMncRm1U7S+JdYfYOvbiGZ3/CxGttrOu2M/KcGz7cRC2DoNUA6urmMA==",
       "dependencies": [
-        "@types/node",
+        "@types/node@22.14.1",
         "esbuild",
         "fsevents",
         "postcss",
@@ -956,7 +963,7 @@
   },
   "workspace": {
     "dependencies": [
-      "npm:@types/node@22.14.1",
+      "npm:@types/node@22.15.2",
       "npm:gltf-validator@2.0.0-dev.3.10",
       "npm:pyright@1.1.400",
       "npm:vitepress@1.6.3",
