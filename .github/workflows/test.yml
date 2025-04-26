@@ -38,7 +38,7 @@ jobs:
           path: blender.zip
           key: ${{ matrix.blender_major_minor_version }}-archive-5
       - name: Download archive
-        if: steps.cache-archive.outputs.cache-hit != 'true'
+        if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
           BLENDER_MAJOR_MINOR_VERSION: ${{ matrix.blender_major_minor_version }}
         run: |
@@ -94,7 +94,7 @@ jobs:
           path: blender.dmg
           key: ${{ matrix.blender_major_minor_version }}-${{ matrix.blender_arch }}-archive-5
       - name: Download archive
-        if: steps.cache-archive.outputs.cache-hit != 'true'
+        if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
           BLENDER_MAJOR_MINOR_VERSION: ${{ matrix.blender_major_minor_version }}
           BLENDER_ARCH: ${{ matrix.blender_arch }}
@@ -132,7 +132,7 @@ jobs:
           path: blender.tar.gz
           key: ${{ matrix.blender_major_minor_version }}-archive-6
       - name: Download archive
-        if: steps.cache-archive.outputs.cache-hit != 'true'
+        if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
           BLENDER_MAJOR_MINOR_VERSION: ${{ matrix.blender_major_minor_version }}
         run: |
