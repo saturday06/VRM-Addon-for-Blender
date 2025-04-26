@@ -13,12 +13,14 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+    env:
+      PR_BRANCH_NAME: update-deno-dependencies
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
       - name: Switch to working branch
-        run: git checkout -b update-deno-dependencies
+        run: git checkout -b "$PR_BRANCH_NAME"
       - uses: denoland/setup-deno@v2
         with:
           deno-version: vx.x.x
@@ -26,7 +28,7 @@ jobs:
         run: deno eval 'console.log(Deno.version.deno)' | tee .dvmrc
       - name: Update deno.jsonc and deno.lock
         run: deno outdated --latest --update
-      - name: Create PR
+      - name: Create commit
         run: |
           set -x
 
@@ -38,9 +40,19 @@ jobs:
           git config --global user.name "$USER_NAME"
           git config --global user.email "$USER_EMAIL"
           git commit -m 'chore(deps): update deno dependencies'
+        env:
+          # https://github.com/orgs/community/discussions/40405#discussioncomment-8361451
+          USER_NAME: ${{ format('[BOT] {0}', github.actor) }}
+          USER_EMAIL: ${{ format('{0}+{1}@users.noreply.github.com', github.actor_id, github.actor) }}
+      - name: Create PR
+        run: |
+          set -x
 
-          git fetch --prune origin update-deno-dependencies || true
-          if git diff --exit-code origin/update-deno-dependencies --; then
+          # GH_TOKENが設定されていない場合はここで終了
+          gh repo view --json name --jq .name
+
+          git fetch --prune origin "$PR_BRANCH_NAME" || true
+          if git diff --exit-code "origin/$PR_BRANCH_NAME" --; then
             exit 0
           fi
 
@@ -48,17 +60,14 @@ jobs:
           # Status Checksが実行されないようなので毎回PRを作り直すようにした。
           # 本当は --delete-branch オプションを使いたいが、それだと後処理として
           # デフォルトブランチをチェックアウトしようとしてエラーになるのでつけない。
-          gh pr close update-deno-dependencies || true
+          gh pr close "$PR_BRANCH_NAME" || true
 
-          git push -f origin update-deno-dependencies
+          git push -f origin "$PR_BRANCH_NAME"
 
           gh pr create --base main --fill
           gh pr merge --merge --auto
         env:
-          # https://github.com/orgs/community/discussions/40405#discussioncomment-8361451
-          USER_NAME: ${{ format('[BOT] {0}', github.actor) }}
-          USER_EMAIL: ${{ format('{0}+{1}@users.noreply.github.com', github.actor_id, github.actor) }}
-          # 次の権限を設定する
+          # GH_TOKENには次の権限を設定する
           #   Actions       | Read and write | PR作成時に自動でActionsを実行する用
           #   Contents      | Read and write | PR自動マージ用
           #   Pull requests | Read and write | PR作成用
