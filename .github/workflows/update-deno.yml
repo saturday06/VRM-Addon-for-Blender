@@ -51,8 +51,9 @@ jobs:
             exit 0
           fi
           git push -f origin update-deno-dependencies
-
+          gh label create 'deno:pending' || true
           gh pr create --base main --fill || true
+          gh pr edit --add-label 'deno:pending'
           gh pr merge --merge --auto
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
