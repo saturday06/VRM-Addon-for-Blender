@@ -15,13 +15,14 @@ jobs:
     permissions:
       contents: write
     env:
-      PR_BRANCH_NAME: update-deno-dependencies
+      PR_BRANCH: update-deno-dependencies
+      PR_BASE_BRANCH: main
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ env.PR_BASE_BRANCH }}
       - name: Switch to working branch
-        run: git checkout -b "$PR_BRANCH_NAME"
+        run: git checkout -b "$PR_BRANCH"
       - uses: denoland/setup-deno@v2
         with:
           deno-version: vx.x.x
@@ -49,23 +50,30 @@ jobs:
         run: |
           set -x
 
-          # GH_TOKENが設定されていない場合はここで終了
-          gh repo view --json name --jq .name
-
-          git fetch --prune origin "$PR_BRANCH_NAME" || true
-          if git diff --exit-code "origin/$PR_BRANCH_NAME" --; then
+          git fetch --prune origin "$PR_BASE_BRANCH"
+          if git diff --exit-code "origin/$PR_BASE_BRANCH" --; then
             exit 0
+          fi
+
+          git fetch --prune origin "$PR_BRANCH" || true
+          if git diff --exit-code "origin/$PR_BRANCH" --; then
+            exit 0
+          fi
+
+          # GH_TOKENが設定されていない場合はここでエラー終了
+          if gh repo view --json name --jq .name; then
+            exit 1
           fi
 
           # ブランチをforce pushして既存のPRを再利用したいが、それだとPRの
           # Status Checksが実行されないようなので毎回PRを作り直すようにした。
           # 本当は --delete-branch オプションを使いたいが、それだと後処理として
           # デフォルトブランチをチェックアウトしようとしてエラーになるのでつけない。
-          gh pr close "$PR_BRANCH_NAME" || true
+          gh pr close "$PR_BRANCH" || true
 
-          git push -f origin "$PR_BRANCH_NAME"
+          git push -f origin "$PR_BRANCH"
 
-          gh pr create --base main --fill
+          gh pr create --base "$PR_BASE_BRANCH" --fill
           gh pr merge --merge --auto
         env:
           # GH_TOKENには次の権限を設定する
