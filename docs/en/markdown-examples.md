@@ -1,3 +1,0 @@
-# MD Example
-
-ex

@@ -1,7 +1,0 @@
-<script type="text/javascript" src="/js/locale_redirection.js"></script>
-
-{{- with $.Params.images -}}
-<meta name="thumbnail" content="{{ index . 0 | absURL }}" />
-{{- else -}}
-<meta name="thumbnail" content="{{ "en/top.en.png" | absURL }}" />
-{{- end -}}

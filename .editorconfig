@@ -31,7 +31,7 @@ indent_style = tab
 [/LICENSE_*.txt]
 indent_size = unset
 
-[/docs/website/static/CNAME]
+[/docs/public/CNAME]
 insert_final_newline = false
 
 [/tests/resources/unity/**/Directory.Build.props]

@@ -1,4 +1,10 @@
 /* SPDX-License-Identifier: MIT OR GPL-3.0-or-later */
 .vp-doc img {
-  width: 660px; /* BlenderのスクショはピクセルパーフェクトにしないとUIや文字がぼやけてしまう。 */
+  max-width: 660px; /* BlenderのスクショはピクセルパーフェクトにしないとUIや文字がぼやけてしまう。 */
+}
+
+img[src$="_icon.png"] {
+  display: inline;
+  max-width: 2ex;
+  vertical-align: middle;
 }

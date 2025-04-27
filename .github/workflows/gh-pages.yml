@@ -36,11 +36,9 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version-file: .dvmrc
-      - name: Build
+      - name: Build and Deploy
         run: |
           set -x
-
-          deno task docs:build
 
           if ! curl \
             --fail \
@@ -58,26 +56,26 @@ jobs:
             exit 1
           fi
 
-          HUGO_VRM_ADDON_FOR_BLENDER_LATEST_VERSION_NAME=$(ruby -rjson -e "puts JSON.parse(File.read('releases_latest.json'))['name']")
-          export HUGO_VRM_ADDON_FOR_BLENDER_LATEST_VERSION_NAME
-          HUGO_VRM_ADDON_FOR_BLENDER_LATEST_PUBLISH_DATE=$(ruby -rjson -e "puts JSON.parse(File.read('releases_latest.json'))['published_at']")
-          export HUGO_VRM_ADDON_FOR_BLENDER_LATEST_PUBLISH_DATE
+          VITE_VRM_ADDON_FOR_BLENDER_LATEST_VERSION_NAME=$(ruby -rjson -e "puts JSON.parse(File.read('releases_latest.json'))['name']")
+          export VITE_VRM_ADDON_FOR_BLENDER_LATEST_VERSION_NAME
+          VITE_VRM_ADDON_FOR_BLENDER_LATEST_PUBLISH_DATE=$(ruby -rjson -e "puts JSON.parse(File.read('releases_latest.json'))['published_at']")
+          export VITE_VRM_ADDON_FOR_BLENDER_LATEST_PUBLISH_DATE
 
-          ./tools/install_hugo.sh
+          deno task docs:build
 
           git fetch --depth=1 origin gh-pages
-          cd docs/website
-          mkdir public
-          pushd public
-            cp -fr ../../../.git .git
-            git checkout gh-pages
-          popd
+          gh_pages_dir=$(mktemp -d)
+          git worktree add "$gh_pages_dir" gh-pages
 
-          ~/.local/bin/hugo --minify
-
-      - name: Deploy
-        run: |
-          set -x
+          cp -r docs/.vitepress/dist/* "$gh_pages_dir"
+          cd "$gh_pages_dir"
+          git add .
+          if git diff --cached --exit-code; then
+            exit 0
+          fi
+          git config --global user.name "$GIT_USER_NAME"
+          git config --global user.email "$GIT_USER_EMAIL"
+          git commit -m "docs: update to $GITHUB_SHA [BOT]"
 
           git fetch --depth=1 origin README
           git fetch --depth=1 origin main
@@ -92,14 +90,6 @@ jobs:
             *) exit 0;;
           esac
 
-          cd docs/website/public
-          git add .
-          if git diff --cached --exit-code; then
-            exit 0
-          fi
-          git config --global user.name "$GIT_USER_NAME"
-          git config --global user.email "$GIT_USER_EMAIL"
-          git commit -m "docs: update to $GITHUB_SHA [BOT]"
           git push origin gh-pages
         env:
           # https://github.com/orgs/community/discussions/40405#discussioncomment-8361451

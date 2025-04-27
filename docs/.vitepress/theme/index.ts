@@ -6,11 +6,15 @@ import { EnhanceAppContext, inBrowser } from "vitepress";
 import Layout from "./Layout.vue";
 import { redirectToLocaleUrlIfNeeded } from "./localization.ts";
 import "./custom.css";
+import DownloadLink from "./components/DownloadLink.vue";
+import DownloadLinkJa from "./components/DownloadLinkJa.vue";
 
 export default {
   ...DefaultTheme,
   Layout,
   enhanceApp(enhanceAppContext: EnhanceAppContext) {
+    enhanceAppContext.app.component("DownloadLink", DownloadLink);
+    enhanceAppContext.app.component("DownloadLinkJa", DownloadLinkJa);
     enhanceAppContext.router.onAfterRouteChange = (_) => {
       if (inBrowser) {
         redirectToLocaleUrlIfNeeded(localStorage);
