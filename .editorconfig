@@ -22,6 +22,9 @@ indent_size = 4
 [*.txt]
 indent_size = unset
 
+[*.md]
+indent_size = unset
+
 [/.gitmodules]
 indent_style = tab
 
