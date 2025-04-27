@@ -61,3 +61,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG_NAME: ${{ needs.release-please.outputs.release_tag_name }}
           BLENDER_EXTENSIONS_TOKEN: ${{ secrets.BLENDER_EXTENSIONS_TOKEN }}
+          # https://github.com/orgs/community/discussions/40405#discussioncomment-8361451
+          GIT_USER_NAME: ${{ format('[BOT] {0}', github.actor) }}
+          GIT_USER_EMAIL: ${{ format('{0}+{1}@users.noreply.github.com', github.actor_id, github.actor) }}

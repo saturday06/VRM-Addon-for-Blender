@@ -81,8 +81,8 @@ fi
   cd "${archive_branch_dir}"
   git add .
   if ! git diff --cached --quiet; then
-    git config --global user.email "isamu@leafytree.jp"
-    git config --global user.name "[BOT] Isamu Mogi"
+    git config --global user.name "$GIT_USER_NAME"
+    git config --global user.email "$GIT_USER_EMAIL"
     git commit -m "docs: release $version [BOT]"
   fi
 )
@@ -99,8 +99,8 @@ github_downloaded_zip_path="${PWD}/readme.zip"
 (
   cd "$readme_branch_dir"
   git add .
-  git config --global user.email "isamu@leafytree.jp"
-  git config --global user.name "[BOT] Isamu Mogi"
+  git config --global user.name "$GIT_USER_NAME"
+  git config --global user.email "$GIT_USER_EMAIL"
   git commit -m "docs: update the latest internal partial code to $commit_sha [BOT]"
   git archive HEAD --prefix=${prefix_name}-README/ --output="$github_downloaded_zip_path"
 )
@@ -113,8 +113,8 @@ cp "${prefix_name}-${release_postfix}.zip" "${gh_pages_branch_dir}/releases/"
 (
   cd "$gh_pages_branch_dir"
   git add .
-  git config --global user.email "isamu@leafytree.jp"
-  git config --global user.name "[BOT] Isamu Mogi"
+  git config --global user.name "$GIT_USER_NAME"
+  git config --global user.email "$GIT_USER_EMAIL"
   git commit -m "docs: deploy the latest release [BOT]"
 )
 

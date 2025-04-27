@@ -97,7 +97,11 @@ jobs:
           if git diff --cached --exit-code; then
             exit 0
           fi
-          git config --global user.email "isamu@leafytree.jp"
-          git config --global user.name "[BOT] Isamu Mogi"
+          git config --global user.name "$GIT_USER_NAME"
+          git config --global user.email "$GIT_USER_EMAIL"
           git commit -m "docs: update to $GITHUB_SHA [BOT]"
           git push origin gh-pages
+        env:
+          # https://github.com/orgs/community/discussions/40405#discussioncomment-8361451
+          GIT_USER_NAME: ${{ format('[BOT] {0}', github.actor) }}
+          GIT_USER_EMAIL: ${{ format('{0}+{1}@users.noreply.github.com', github.actor_id, github.actor) }}
