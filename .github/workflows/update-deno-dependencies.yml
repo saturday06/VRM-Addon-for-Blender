@@ -9,14 +9,15 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
 
+env:
+  PR_BRANCH: update-deno-dependencies
+  PR_BASE_BRANCH: main
+
 jobs:
   update-deno-dependencies:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
-    env:
-      PR_BRANCH: update-deno-dependencies
-      PR_BASE_BRANCH: main
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,7 +31,7 @@ jobs:
         run: deno eval 'console.log(Deno.version.deno)' | tee .dvmrc
       - name: Update deno.jsonc and deno.lock
         run: deno outdated --latest --update
-      - name: Create commit
+      - name: Create PR
         run: |
           set -x
 
@@ -39,21 +40,9 @@ jobs:
             exit 0
           fi
 
-          git config --global user.name "$USER_NAME"
-          git config --global user.email "$USER_EMAIL"
+          git config --global user.name "$GIT_USER_NAME"
+          git config --global user.email "$GIT_USER_EMAIL"
           git commit -m 'chore(deps): update deno dependencies'
-        env:
-          # https://github.com/orgs/community/discussions/40405#discussioncomment-8361451
-          USER_NAME: ${{ format('[BOT] {0}', github.actor) }}
-          USER_EMAIL: ${{ format('{0}+{1}@users.noreply.github.com', github.actor_id, github.actor) }}
-      - name: Create PR
-        run: |
-          set -x
-
-          git fetch --prune origin "$PR_BASE_BRANCH"
-          if git diff --exit-code "origin/$PR_BASE_BRANCH" --; then
-            exit 0
-          fi
 
           git fetch --prune origin "$PR_BRANCH" || true
           if git diff --exit-code "origin/$PR_BRANCH" --; then
@@ -76,6 +65,9 @@ jobs:
           gh pr create --base "$PR_BASE_BRANCH" --fill
           gh pr merge --merge --auto
         env:
+          # https://github.com/orgs/community/discussions/40405#discussioncomment-8361451
+          GIT_USER_NAME: ${{ format('[BOT] {0}', github.actor) }}
+          GIT_USER_EMAIL: ${{ format('{0}+{1}@users.noreply.github.com', github.actor_id, github.actor) }}
           # GH_TOKENには次の権限を設定する
           #   Actions       | Read and write | PR作成時に自動でActionsを実行する用
           #   Contents      | Read and write | PR自動マージ用
