@@ -1,6 +1,5 @@
 ---
 title: "Add-on Installation"
-images: ["images/installation.gif"]
 ---
 
 _This tutorial is for Blender 2.93 to 4.1. For Blender 4.2 or later, please

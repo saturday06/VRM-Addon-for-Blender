@@ -1,7 +1,6 @@
 ---
-title: "Pythonスクリプトによる自動化サンプル"
-description: "Pythonスクリプトを利用してVRM関連処理を自動化するサンプルです。"
-images: ["images/scripting_api.gif"]
+title: Pythonスクリプトによる自動化サンプル
+description: Pythonスクリプトを利用してVRM関連処理を自動化するサンプルです。
 ---
 
 <!-- TableOfContentsの設定は自動でやりたい -->

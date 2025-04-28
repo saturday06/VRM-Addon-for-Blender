@@ -1,7 +1,6 @@
 ---
 title: "物理ベースのマテリアル設定"
 description: "プリンシプルBSDFシェーダーを用いた物理ベースのマテリアルを設定します。"
-images: ["images/material_pbr.gif"]
 ---
 
 リアルな物理ベースのマテリアルをVRMに設定します。

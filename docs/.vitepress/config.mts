@@ -1,4 +1,9 @@
-import { defineConfig } from "vitepress";
+import {
+  Awaitable,
+  defineConfig,
+  HeadConfig,
+  TransformContext,
+} from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -137,4 +142,36 @@ export default defineConfig({
       href: "/favicon-16x16.png",
     }],
   ],
+
+  transformHead(context: TransformContext): Awaitable<HeadConfig[]> {
+    // 記事のパスからog:imageのパスを生成
+    // 上手くやる方法は無くてissueがあがっている
+    // https://github.com/vuejs/vitepress/issues/3161
+    const pathComponents = context.pageData.relativePath.split("/");
+    const _filePath = pathComponents.pop();
+    const parentPath = pathComponents.pop();
+    let ogImagePath;
+    if (parentPath) {
+      for (const asset of context.assets) {
+        const assetName = asset.split("/").pop();
+        if (!assetName) {
+          continue;
+        }
+        if (
+          assetName.startsWith(parentPath.replaceAll("-", "_") + ".") &&
+          assetName.endsWith(".gif")
+        ) {
+          ogImagePath = asset;
+          break;
+        }
+      }
+    }
+    if (!ogImagePath) {
+      ogImagePath = "/logo.png";
+    }
+
+    return [
+      ["meta", { property: "og:image", content: ogImagePath }],
+    ];
+  },
 });

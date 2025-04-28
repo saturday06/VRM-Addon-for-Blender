@@ -1,6 +1,5 @@
 ---
 title: "アドオンのインストール"
-images: ["images/installation.gif"]
 ---
 
 _このチュートリアルは、Blender 2.93から4.1を使う場合のものです。Blender

@@ -1,7 +1,6 @@
 ---
 title: "アニメ風のマテリアル設定"
 description: "MToonシェーダーを用いたアニメ風マテリアルを設定します。"
-images: ["images/material_mtoon.gif"]
 ---
 
 アニメ風マテリアルをVRMに設定します。
