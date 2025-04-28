@@ -1,7 +1,6 @@
 ---
-title: "VRM Add-on for Blender"
-description: "VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。"
-images: ["top.png"]
+title: VRM Add-on for Blender
+description: VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。
 aside: false
 outline: false
 ---

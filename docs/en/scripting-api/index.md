@@ -1,7 +1,6 @@
 ---
 title: "Automation samples with Python scripts"
 description: "A sample of automating VRM-related processes using a Python script."
-images: ["images/scripting_api.gif"]
 ---
 
 <!-- TableOfContentsの設定は自動でやりたい -->
