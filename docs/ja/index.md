@@ -7,7 +7,7 @@ outline: false
 ---
 
 <style>
-  img[src$=".gif"] {
+  img[src$=".gif"], img[src^="data:image/gif;"] {
     max-width: 175px; /* テーブルタグで横スクロールバーが出ないように調整 */
   }
 </style>
