@@ -1,7 +1,5 @@
 {
   "exclude": [
-    "docs/website/**/*.md",
-    "docs/website/layouts/**/*.html",
     "tests/resources/unity/*/ProjectSettings/*.json",
     "CHANGELOG.md"
   ],

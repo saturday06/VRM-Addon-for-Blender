@@ -15,7 +15,6 @@ fi
 
 ./tools/devcontainer_fixup_workspace.sh
 
-./tools/install_hugo.sh
 ./tools/install_hadolint.sh
 ./tools/install_shfmt.sh
 ./tools/install_editorconfig-checker.sh
