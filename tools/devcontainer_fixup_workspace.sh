@@ -12,7 +12,3 @@ if [ "$(id --user --name)" = "developer" ]; then
 fi
 
 ./tools/devcontainer_create_venv.sh
-
-if [ ! -d node_modules/.deno ]; then
-  deno install
-fi
