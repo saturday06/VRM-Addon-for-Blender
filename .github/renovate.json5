@@ -17,7 +17,11 @@
       automerge: true,
     },
     {
-      matchPackageNames: ["bpy"],
+      // 対応するBlenderとPythonのバージョンは自動では最新にしない。手動で指定する。
+      // Blenderはpythonのバージョンを固定するが、一般的なパッケージマネージャーはBlenderの
+      // バージョンからpythonのバージョンを導出できないので、pythonのバージョンも手動で
+      // 指定している。
+      matchPackageNames: ["python", "bpy"],
       rangeStrategy: "in-range-only",
       automerge: true,
     },
