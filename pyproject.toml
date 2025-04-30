@@ -1,6 +1,6 @@
 [project]
 name = "io_scene_vrm"
-requires-python = "==3.10.*" # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
+requires-python = "==3.13.*" # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
 version = "1.0.0" # Dummy version. See __init__.bl_info["version"] instead.
 authors = [
     {name = "Isamu Mogi"},
