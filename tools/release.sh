@@ -155,7 +155,9 @@ diff -ru "$addon_check_unzip_dir/${prefix_name}-${release_postfix}" "$addon_dir"
 github_release_body_path=$(mktemp)
 release_note_path=$(mktemp)
 gh release view "$release_tag_name" --json body --jq .body | tee "$github_release_body_path"
-ruby -r uri -- - "$github_release_body_path" "$release_note_path" <<'CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE'
+ruby -- - "$github_release_body_path" "$release_note_path" <<'CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE'
+require "uri"
+
 input_path, output_path = ARGV
 title, body = File.read(input_path).strip.split("\n\n", 2)
 
