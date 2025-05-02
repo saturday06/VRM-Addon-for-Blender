@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.2.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.1.0...v3.2.0) (2025-05-02)
+
+
+### 🚀 Features
+
+* add advanced option's description ([4a62a3c](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4a62a3c637ee60eff14793aa0a145315e23a25b3))
+
+
+### 🐞 Bug Fixes
+
+* release flow updates ([c204dde](https://github.com/saturday06/VRM-Addon-for-Blender/commit/c204ddec9dfbffc9f7edc7047ec733ea472d02b9))
+
 ## [3.1.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.0.1...v3.1.0) (2025-04-20)
 
 
