@@ -53,7 +53,7 @@
         "cesium.gltf-vscode",
         "charliermarsh.ruff",
         "denoland.vscode-deno",
-        "ms-azuretools.vscode-docker",
+        "ms-azuretools.vscode-containers",
         "ms-python.python",
         "ms-python.vscode-pylance"
       ]
