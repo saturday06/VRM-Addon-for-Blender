@@ -111,6 +111,10 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         name="Use Sparse Accessors",
         update=export_vrm_update_addon_preferences,
     )
+    always_export_active_vertex_color: BoolProperty(  # type: ignore[valid-type]
+        name="Always Export Vertex Color",
+        update=export_vrm_update_addon_preferences,
+    )
 
     errors: CollectionProperty(  # type: ignore[valid-type]
         type=validation.VrmValidationError,
@@ -247,6 +251,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         export_lights: bool  # type: ignore[no-redef]
         export_gltf_animations: bool  # type: ignore[no-redef]
         export_try_sparse_sk: bool  # type: ignore[no-redef]
+        always_export_active_vertex_color: bool  # type: ignore[no-redef]
         errors: CollectionPropertyProtocol[  # type: ignore[no-redef]
             VrmValidationError
         ]

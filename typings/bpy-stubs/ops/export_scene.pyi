@@ -29,6 +29,8 @@ def gltf(
     export_tangents: bool = False,
     export_materials: str = "EXPORT",
     export_colors: bool = True,
+    export_vertex_color: str = "MATERIAL",
+    export_all_vertex_colors: bool = False,
     export_attributes: bool = False,
     use_mesh_edges: bool = False,
     use_mesh_vertices: bool = False,

@@ -213,6 +213,7 @@ class ExportSceneGltfArguments:
     export_armature_object_remove: bool
     export_rest_position_armature: bool
     export_all_influences: bool
+    export_vertex_color: str
     export_lights: bool
     export_try_sparse_sk: bool
     export_apply: bool
@@ -297,6 +298,7 @@ def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
         export_animations=arguments.export_animations,
         export_armature_object_remove=arguments.export_armature_object_remove,
         export_rest_position_armature=arguments.export_rest_position_armature,
+        export_vertex_color=arguments.export_vertex_color,
         export_try_sparse_sk=arguments.export_try_sparse_sk,
         export_all_influences=arguments.export_all_influences,
         export_lights=arguments.export_lights,
