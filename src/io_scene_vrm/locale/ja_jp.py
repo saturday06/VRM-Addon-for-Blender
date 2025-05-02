@@ -134,6 +134,22 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "読めなくなります。",
     (
         "*",
+        "Always Export Vertex Color",
+    ): "常に頂点カラーをエクスポート",
+    (
+        "*",
+        "By default, vertex color is\n"
+        + "only exported when used by\n"
+        + "material. Enable this option only\n"
+        + "when vertex color is always\n"
+        + "required for special purposes.",
+    ): "デフォルトでは頂点カラーは\n"
+    + "マテリアルから参照される場合のみ\n"
+    + "エクスポートされます。特殊用途で\n"
+    + "頂点カラーが常に必要な場合のみ\n"
+    + "有効にしてください。",
+    (
+        "*",
         "No errors found. Ready to export VRM",
     ): "エラーはありませんでした。VRMのエクスポートをすることができます",
     (
