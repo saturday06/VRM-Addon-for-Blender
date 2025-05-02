@@ -5,8 +5,8 @@ setlocal
 
 cd /d "%~dp0.."
 
-for /f %%i in (
-  'powershell -Command "[System.BitConverter]::ToString((New-Object System.Security.Cryptography.SHA256Managed).ComputeHash([System.Text.Encoding]::UTF8.GetBytes($PWD))).ToLower().Replace(\"-\", \"\")"'
+for /f "usebackq" %%i in (
+  `powershell -Command "[System.BitConverter]::ToString((New-Object System.Security.Cryptography.SHA256Managed).ComputeHash([System.Text.Encoding]::UTF8.GetBytes($PWD))).ToLower().Replace('-', '')"`
 ) do set pwd_hash=%%i
 set super_linter_tag_name="super-linter-local-windows-%pwd_hash%"
 
