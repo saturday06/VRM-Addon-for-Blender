@@ -91,9 +91,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + "may cause jagged meshes.",
     ): "デフォルトでは頂点1つにつき\n"
     + "ウエイトを4つエクスポートします。\n"
-    + "ほとんどのアプリでは4つに制限する\n"
-    + "ため予期しないメッシュの変形が発生\n"
-    + "する可能性があります。",
+    + "多くのアプリでは4つに制限する\n"
+    + "ため、これを増やすと予期しない\n"
+    + "メッシュの変形が発生する可能性が\n"
+    + "あります。",
     (
         "*",
         "Don't limit to 4, most viewers truncate to 4, "
