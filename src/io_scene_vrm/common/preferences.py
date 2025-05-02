@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Protocol, TypedDict
+from typing import TYPE_CHECKING, Protocol, TypedDict, Union
 
+from bpy.app.translations import pgettext
 from bpy.props import BoolProperty, IntVectorProperty
 from bpy.types import AddonPreferences, Context, Operator, UILayout
 
@@ -128,6 +129,20 @@ def copy_export_preferences(
     )
 
 
+def draw_advanced_options_description(
+    preferences: Union[AddonPreferences, Operator],
+    property_name: str,
+    layout: UILayout,
+    description: str,
+) -> None:
+    column = layout.box().column(align=True)
+    column.prop(preferences, property_name)
+    description_column = column.box().column(align=True)
+    for i, line in enumerate(description.splitlines()):
+        icon = "ERROR" if i == 0 else "NONE"
+        description_column.label(text=line, translate=False, icon=icon)
+
+
 def draw_export_preferences_layout(
     preferences: ExportPreferencesProtocol,
     layout: UILayout,
@@ -147,14 +162,59 @@ def draw_export_preferences_layout(
     if not preferences.enable_advanced_preferences:
         return
 
-    advanced_options_box = layout.box()
-    advanced_options_box.prop(preferences, "export_all_influences")
-    advanced_options_box.prop(preferences, "export_lights")
-    advanced_options_box.prop(preferences, "export_gltf_animations")
+    advanced_options_column = layout.box().column()
 
     # UniVRM 0.115.0 doesn't support `export_try_sparse_sk`
     # https://github.com/saturday06/VRM-Addon-for-Blender/issues/381#issuecomment-1838365762
-    advanced_options_box.prop(preferences, "export_try_sparse_sk")
+    draw_advanced_options_description(
+        preferences,
+        "export_try_sparse_sk",
+        advanced_options_column,
+        pgettext(
+            "The file size will be reduced,\n"
+            + "but it will no longer be readable by\n"
+            + "older apps with UniVRM 0.115.0 or\n"
+            + "earlier."
+        ),
+    )
+
+    # The upstream says that Models may appear incorrectly in many viewers.
+    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/356b3dda976303d3ecce8b3bd1591245e576db38/addons/io_scene_gltf2/__init__.py#L760
+    draw_advanced_options_description(
+        preferences,
+        "export_all_influences",
+        advanced_options_column,
+        pgettext(
+            "By default, 4 bone influences\n"
+            + "are exported for each vertex. Many\n"
+            + "apps truncate to 4. Increasing it\n"
+            + "may cause jagged meshes."
+        ),
+    )
+
+    draw_advanced_options_description(
+        preferences,
+        "export_lights",
+        advanced_options_column,
+        pgettext(
+            "There is no consensus on how\n"
+            + "to handle lights in VRM, so it is\n"
+            + "impossible to predict what the\n"
+            + "outcome will be."
+        ),
+    )
+
+    draw_advanced_options_description(
+        preferences,
+        "export_gltf_animations",
+        advanced_options_column,
+        pgettext(
+            "UniVRM does not export\n"
+            + "glTF Animations, so it is disabled\n"
+            + "by default. Please consider using\n"
+            + "VRM Animation."
+        ),
+    )
 
 
 class VrmAddonPreferences(AddonPreferences):
@@ -212,11 +272,6 @@ class VrmAddonPreferences(AddonPreferences):
     )
     export_all_influences: BoolProperty(  # type: ignore[valid-type]
         name="Export All Bone Influences",
-        description="Don't limit to 4, most viewers truncate to 4, "
-        + "so bone movement may cause jagged meshes",
-        # The upstream says that Models may appear incorrectly in many viewers.
-        # https://github.com/KhronosGroup/glTF-Blender-IO/blob/356b3dda976303d3ecce8b3bd1591245e576db38/addons/io_scene_gltf2/__init__.py#L760
-        default=False,
     )
     export_lights: BoolProperty(  # type: ignore[valid-type]
         name="Export Lights",

@@ -95,12 +95,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
     )
     export_all_influences: BoolProperty(  # type: ignore[valid-type]
         name="Export All Bone Influences",
-        description="Don't limit to 4, most viewers truncate to 4, "
-        + "so bone movement may cause jagged meshes",
         update=export_vrm_update_addon_preferences,
-        # The upstream says that Models may appear incorrectly in many viewers.
-        # https://github.com/KhronosGroup/glTF-Blender-IO/blob/356b3dda976303d3ecce8b3bd1591245e576db38/addons/io_scene_gltf2/__init__.py#L760
-        default=False,
     )
     export_lights: BoolProperty(  # type: ignore[valid-type]
         name="Export Lights",

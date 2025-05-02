@@ -85,13 +85,52 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "全てのボーンウェイトをエクスポートする",
     (
         "*",
+        "By default, 4 bone influences\n"
+        + "are exported for each vertex. Many\n"
+        + "apps truncate to 4. Increasing it\n"
+        + "may cause jagged meshes.",
+    ): "デフォルトでは頂点1つにつき\n"
+    + "ウエイトを4つエクスポートします。\n"
+    + "ほとんどのアプリでは4つに制限する\n"
+    + "ため予期しないメッシュの変形が発生\n"
+    + "する可能性があります。",
+    (
+        "*",
         "Don't limit to 4, most viewers truncate to 4, "
         + "so bone movement may cause jagged meshes",
     ): "4つに制限しません。ほとんどのビューアでは4つに制限するため、"
     + "ボーンを動かした際に予期しないメッシュの変形が発生する可能性があります。",
     ("*", "Export Lights"): "ライトをエクスポートする",
+    (
+        "*",
+        "There is no consensus on how\n"
+        + "to handle lights in VRM, so it is\n"
+        + "impossible to predict what the\n"
+        + "outcome will be.",
+    ): "VRMにおけるライトの扱いは\n"
+    + "現在コンセンサスが無く、どのような\n"
+    + "結果になるか予測不能です。",
     ("*", "Export glTF Animations"): "glTFアニメーションをエクスポートする",
+    (
+        "*",
+        "UniVRM does not export\n"
+        + "glTF Animations, so it is disabled\n"
+        + "by default. Please consider using\n"
+        + "VRM Animation.",
+    ): "UniVRMがglTFアニメーションを\n"
+    + "エクスポートしないのでデフォルトで\n"
+    + "無効です。VRMアニメーションの利用\n"
+    + "を検討してください。",
     ("*", "Use Sparse Accessors"): "スパースアクセッサを利用する",
+    (
+        "*",
+        "The file size will be reduced,\n"
+        + "but it will no longer be readable by\n"
+        + "older apps with UniVRM 0.115.0 or\n"
+        + "earlier.",
+    ): "ファイルサイズが削減されますが\n"
+    + "UniVRM 0.115.0以下の古いアプリで\n"
+    + "読めなくなります。",
     (
         "*",
         "No errors found. Ready to export VRM",
