@@ -1160,9 +1160,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
             morph_target_bind = expression.morph_target_binds.add()
 
-            weight = morph_target_bind_dict.get("weight")
-            if not isinstance(weight, (int, float)):
-                weight = 0
+            weight = convert.float_or(morph_target_bind_dict.get("weight"), 0.0)
 
             morph_target_bind.weight = weight
 
@@ -1660,16 +1658,16 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     if bone_name:
                         joint.node.bone_name = bone_name
 
-                hit_radius = joint_dict.get("hitRadius")
-                if isinstance(hit_radius, (int, float)):
+                hit_radius = convert.float_or_none(joint_dict.get("hitRadius"))
+                if hit_radius is not None:
                     joint.hit_radius = hit_radius
 
-                stiffness = joint_dict.get("stiffness")
-                if isinstance(stiffness, (int, float)):
+                stiffness = convert.float_or_none(joint_dict.get("stiffness"))
+                if stiffness is not None:
                     joint.stiffness = stiffness
 
-                gravity_power = joint_dict.get("gravityPower")
-                if isinstance(gravity_power, (int, float)):
+                gravity_power = convert.float_or_none(joint_dict.get("gravityPower"))
+                if gravity_power is not None:
                     joint.gravity_power = gravity_power
 
                 gltf_axis_gravity_dir = convert.vrm_json_array_to_float_vector(
@@ -1682,8 +1680,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     gltf_axis_gravity_dir[1],
                 ]
 
-                drag_force = joint_dict.get("dragForce")
-                if isinstance(drag_force, (int, float)):
+                drag_force = convert.float_or_none(joint_dict.get("dragForce"))
+                if drag_force is not None:
                     joint.drag_force = drag_force
             spring.active_joint_index = 0
 
@@ -1808,8 +1806,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     constraint.use_y = True
                 elif roll_axis == "Z":
                     constraint.use_z = True
-                weight = roll_dict.get("weight")
-                if isinstance(weight, (int, float)):
+                weight = convert.float_or_none(roll_dict.get("weight"))
+                if weight is not None:
                     constraint.influence = weight
                 source_index = roll_dict.get("source")
             elif isinstance(aim_dict, dict):
@@ -1827,8 +1825,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                     track_axis = convert.VRM_AIM_AXIS_TO_BPY_TRACK_AXIS.get(aim_axis)
                     if track_axis:
                         constraint.track_axis = track_axis
-                weight = aim_dict.get("weight")
-                if isinstance(weight, (int, float)):
+                weight = convert.float_or_none(aim_dict.get("weight"))
+                if weight is not None:
                     constraint.influence = weight
                 source_index = aim_dict.get("source")
             elif isinstance(rotation_dict, dict):
@@ -1842,8 +1840,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 constraint.use_x = True
                 constraint.use_y = True
                 constraint.use_z = True
-                weight = rotation_dict.get("weight")
-                if isinstance(weight, (int, float)):
+                weight = convert.float_or_none(rotation_dict.get("weight"))
+                if weight is not None:
                     constraint.influence = weight
                 source_index = rotation_dict.get("source")
             else:

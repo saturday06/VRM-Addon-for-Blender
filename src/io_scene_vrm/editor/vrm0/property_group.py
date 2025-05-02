@@ -27,6 +27,7 @@ from bpy.types import (
 )
 from mathutils import Vector
 
+from ...common import convert
 from ...common.logger import get_logger
 from ...common.vrm0.human_bone import (
     HumanBoneName,
@@ -611,20 +612,21 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
             return float(value)
         return 0.0
 
-    def set_preview(self, value: object) -> None:
+    def set_preview(self, value_obj: object) -> None:
         context = bpy.context
 
-        if not isinstance(value, (int, float)):
+        value = convert.float_or_none(value_obj)
+        if value is None:
             return
 
-        current_value = self.get("preview")
+        current_value = convert.float_or_none(self.get("preview"))
         if (
-            isinstance(current_value, (int, float))
+            current_value is not None
             and abs(current_value - value) < float_info.epsilon
         ):
             return
 
-        self["preview"] = float(value)
+        self["preview"] = value
 
         for bind in self.binds:
             mesh_object = context.blend_data.objects.get(bind.mesh.mesh_object_name)

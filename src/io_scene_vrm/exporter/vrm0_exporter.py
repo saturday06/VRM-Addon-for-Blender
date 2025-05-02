@@ -1998,8 +1998,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     material, self.gltf2_addon_export_settings
                 )
 
-            alpha_cutoff = getattr(gltf2_io_material, "alpha_cutoff", None)
-            if isinstance(alpha_cutoff, (int, float)):
+            alpha_cutoff = convert.float_or_none(
+                getattr(gltf2_io_material, "alpha_cutoff", None)
+            )
+            if alpha_cutoff is not None:
                 material_dict["alphaCutoff"] = alpha_cutoff
 
             alpha_mode = getattr(gltf2_io_material, "alpha_mode", None)
@@ -2050,11 +2052,11 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     )
                 )
                 if isinstance(khr_materials_emissive_strength, dict):
-                    emissive_strength = khr_materials_emissive_strength.get(
-                        "emissiveStrength"
+                    emissive_strength = convert.float_or_none(
+                        khr_materials_emissive_strength.get("emissiveStrength")
                     )
                     if (
-                        isinstance(emissive_strength, (int, float))
+                        emissive_strength is not None
                         and emissive_strength >= 0
                         and emissive_strength != 1.0
                     ):
@@ -2122,10 +2124,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     ),
                 )
 
-                metallic_factor = getattr(
-                    pbr_metallic_roughness, "metallic_factor", None
+                metallic_factor = convert.float_or_none(
+                    getattr(pbr_metallic_roughness, "metallic_factor", None)
                 )
-                if isinstance(metallic_factor, (int, float)):
+                if metallic_factor is not None:
                     pbr_metallic_roughness_dict["metallicFactor"] = metallic_factor
 
                 assign_dict(
@@ -2144,10 +2146,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     ),
                 )
 
-                roughness_factor = getattr(
-                    pbr_metallic_roughness, "roughness_factor", None
+                roughness_factor = convert.float_or_none(
+                    getattr(pbr_metallic_roughness, "roughness_factor", None)
                 )
-                if isinstance(roughness_factor, (int, float)):
+                if roughness_factor is not None:
                     pbr_metallic_roughness_dict["roughnessFactor"] = roughness_factor
 
                 if pbr_metallic_roughness_dict:
@@ -3541,12 +3543,16 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         texture_info: dict[str, Json] = {"index": texture_index}
 
-        texture_info_scale = getattr(gltf2_io_texture_info, "scale", None)
-        if isinstance(texture_info_scale, (int, float)):
+        texture_info_scale = convert.float_or_none(
+            getattr(gltf2_io_texture_info, "scale", None)
+        )
+        if texture_info_scale is not None:
             texture_info["scale"] = texture_info_scale
 
-        texture_info_strength = getattr(gltf2_io_texture_info, "strength", None)
-        if isinstance(texture_info_strength, (int, float)):
+        texture_info_strength = convert.float_or_none(
+            getattr(gltf2_io_texture_info, "strength", None)
+        )
+        if texture_info_strength is not None:
             texture_info["strength"] = texture_info_strength
 
         return make_json(texture_info)

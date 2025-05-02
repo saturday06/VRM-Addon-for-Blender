@@ -440,15 +440,21 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         self,
         node_group_name: str,
         group_label: str,
-        value: object,
+        value_obj: object,
     ) -> None:
+        if isinstance(value_obj, float):
+            value = convert.float_or_none(value_obj)
+            if value is None:
+                return
+        elif isinstance(value_obj, int):
+            value = value_obj
+        else:
+            return
+
         material = self.find_material()
         outline = self.find_outline_property_group(material)
         if outline:
             outline.set_value(node_group_name, group_label, value)
-
-        if not isinstance(value, (int, float)):
-            return
 
         node_tree = material.node_tree
         if not node_tree:

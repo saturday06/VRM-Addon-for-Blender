@@ -355,7 +355,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
         )
         uv_animation_scroll_x_speed_factor = shader.get_float_value(node, "UV_Scroll_X")
         uv_animation_scroll_y_speed_factor = shader.get_float_value(node, "UV_Scroll_Y")
-        if isinstance(uv_animation_scroll_y_speed_factor, float):
+        if uv_animation_scroll_y_speed_factor is not None:
             uv_animation_scroll_y_speed_factor *= -1
 
         shader.load_mtoon1_shader(context, material, reset_node_groups=True)

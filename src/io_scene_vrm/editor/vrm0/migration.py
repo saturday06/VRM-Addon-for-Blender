@@ -122,32 +122,32 @@ def migrate_vrm0_humanoid(
     if not isinstance(humanoid_dict, dict):
         return
 
-    arm_stretch = humanoid_dict.get("armStretch")
-    if isinstance(arm_stretch, (int, float)):
+    arm_stretch = convert.float_or_none(humanoid_dict.get("armStretch"))
+    if arm_stretch is not None:
         humanoid.arm_stretch = arm_stretch
 
-    leg_stretch = humanoid_dict.get("legStretch")
-    if isinstance(leg_stretch, (int, float)):
+    leg_stretch = convert.float_or_none(humanoid_dict.get("legStretch"))
+    if leg_stretch is not None:
         humanoid.leg_stretch = leg_stretch
 
-    upper_arm_twist = humanoid_dict.get("upperArmTwist")
-    if isinstance(upper_arm_twist, (int, float)):
+    upper_arm_twist = convert.float_or_none(humanoid_dict.get("upperArmTwist"))
+    if upper_arm_twist is not None:
         humanoid.upper_arm_twist = upper_arm_twist
 
-    lower_arm_twist = humanoid_dict.get("lowerArmTwist")
-    if isinstance(lower_arm_twist, (int, float)):
+    lower_arm_twist = convert.float_or_none(humanoid_dict.get("lowerArmTwist"))
+    if lower_arm_twist is not None:
         humanoid.lower_arm_twist = lower_arm_twist
 
-    upper_leg_twist = humanoid_dict.get("upperLegTwist")
-    if isinstance(upper_leg_twist, (int, float)):
+    upper_leg_twist = convert.float_or_none(humanoid_dict.get("upperLegTwist"))
+    if upper_leg_twist is not None:
         humanoid.upper_leg_twist = upper_leg_twist
 
-    lower_leg_twist = humanoid_dict.get("lowerLegTwist")
-    if isinstance(lower_leg_twist, (int, float)):
+    lower_leg_twist = convert.float_or_none(humanoid_dict.get("lowerLegTwist"))
+    if lower_leg_twist is not None:
         humanoid.lower_leg_twist = lower_leg_twist
 
-    feet_spacing = humanoid_dict.get("feetSpacing")
-    if isinstance(feet_spacing, (int, float)):
+    feet_spacing = convert.float_or_none(humanoid_dict.get("feetSpacing"))
+    if feet_spacing is not None:
         humanoid.feet_spacing = feet_spacing
 
     has_translation_dof = humanoid_dict.get("hasTranslationDoF")
@@ -307,8 +307,8 @@ def migrate_vrm0_blend_shape_groups(
                         ):
                             bind.index = index
 
-                weight = bind_dict.get("weight")
-                if isinstance(weight, (int, float)):
+                weight = convert.float_or_none(bind_dict.get("weight"))
+                if weight is not None:
                     bind.weight = weight
 
         material_value_dicts = blend_shape_group_dict.get("materialValues")
@@ -335,8 +335,8 @@ def migrate_vrm0_blend_shape_groups(
                 target_value_vector = material_value_dict.get("targetValue")
                 if isinstance(target_value_vector, list):
                     for v in target_value_vector:
-                        material_value.target_value.add().value = (
-                            v if isinstance(v, (int, float)) else 0
+                        material_value.target_value.add().value = convert.float_or(
+                            v, 0.0
                         )
 
         is_binary = blend_shape_group_dict.get("isBinary")
@@ -389,12 +389,12 @@ def migrate_vrm0_secondary_animation(
         if isinstance(comment, str):
             bone_group.comment = comment
 
-        stiffiness = bone_group_dict.get("stiffiness")
-        if isinstance(stiffiness, (int, float)):
+        stiffiness = convert.float_or_none(bone_group_dict.get("stiffiness"))
+        if stiffiness is not None:
             bone_group.stiffiness = stiffiness
 
-        gravity_power = bone_group_dict.get("gravityPower")
-        if isinstance(gravity_power, (int, float)):
+        gravity_power = convert.float_or_none(bone_group_dict.get("gravityPower"))
+        if gravity_power is not None:
             bone_group.gravity_power = gravity_power
 
         gravity_dir = convert.vrm_json_vector3_to_tuple(
@@ -405,16 +405,16 @@ def migrate_vrm0_secondary_animation(
             (x, y, z) = gravity_dir
             bone_group.gravity_dir = (x, z, y)
 
-        drag_force = bone_group_dict.get("dragForce")
-        if isinstance(drag_force, (int, float)):
+        drag_force = convert.float_or_none(bone_group_dict.get("dragForce"))
+        if drag_force is not None:
             bone_group.drag_force = drag_force
 
         center = bone_group_dict.get("center")
         if isinstance(center, str):
             bone_group.center.bone_name = center
 
-        hit_radius = bone_group_dict.get("hitRadius")
-        if isinstance(hit_radius, (int, float)):
+        hit_radius = convert.float_or_none(bone_group_dict.get("hitRadius"))
+        if hit_radius is not None:
             bone_group.hit_radius = hit_radius
 
         bones = bone_group_dict.get("bones")
@@ -625,8 +625,8 @@ def fixup_humanoid_feet_spacing(armature_data: Armature) -> None:
     if tuple(ext.addon_version) >= (2, 18, 2):
         return
     humanoid = ext.vrm0.humanoid
-    feet_spacing = humanoid.get("feet_spacing")
-    if isinstance(feet_spacing, (int, float)):
+    feet_spacing = convert.float_or_none(humanoid.get("feet_spacing"))
+    if feet_spacing is not None:
         humanoid.feet_spacing = float(feet_spacing)
 
 

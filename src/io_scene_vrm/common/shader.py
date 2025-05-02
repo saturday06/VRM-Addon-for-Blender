@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-import math
 import random
 import string
 import time
@@ -1682,16 +1681,6 @@ def get_image_name_and_sampler_type(
     return image_name, wrap_type, filter_type
 
 
-def float_or_none(
-    v: object, min_value: float = -float_info.max, max_value: float = float_info.max
-) -> Optional[float]:
-    if isinstance(v, float) and math.isnan(v):
-        return None
-    if isinstance(v, (float, int)):
-        return max(min_value, min(float(v), max_value))
-    return None
-
-
 def get_float_value(
     shader_node: Node,
     input_socket_name: str,
@@ -1702,7 +1691,7 @@ def get_float_value(
     if not socket:
         return None
 
-    default_value = float_or_none(
+    default_value = convert.float_or_none(
         getattr(socket, "default_value", None), min_value, max_value
     )
 
@@ -1718,7 +1707,7 @@ def get_float_value(
     if not outputs:
         return default_value
 
-    return float_or_none(
+    return convert.float_or_none(
         getattr(outputs[0], "default_value", None), min_value, max_value
     )
 
@@ -1754,7 +1743,7 @@ def rgba_or_none(
 
     rgba: list[float] = []
     for v in iterator:
-        f = float_or_none(v, min_value, max_value)
+        f = convert.float_or_none(v, min_value, max_value)
         if f is None:
             return None
         rgba.append(f)
@@ -1829,7 +1818,7 @@ def rgb_or_none(
 
     rgb: list[float] = []
     for v in iterator:
-        f = float_or_none(v, min_value, max_value)
+        f = convert.float_or_none(v, min_value, max_value)
         if f is None:
             return None
         rgb.append(f)

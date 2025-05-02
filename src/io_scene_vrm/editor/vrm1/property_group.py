@@ -31,6 +31,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Quaternion, Vector
 
+from ...common import convert
 from ...common.char import DISABLE_TRANSLATION
 from ...common.logger import get_logger
 from ...common.rotation import set_rotation_without_mode_change
@@ -1297,20 +1298,21 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         message = f"No armature extension for {self.name}"
         raise ValueError(message)
 
-    def set_preview(self, value: object) -> None:
+    def set_preview(self, value_obj: object) -> None:
         context = bpy.context
 
-        if not isinstance(value, (int, float)):
+        value = convert.float_or_none(value_obj)
+        if value is None:
             return
 
-        current_value = self.get("preview")
+        current_value = convert.float_or_none(self.get("preview"))
         if (
-            isinstance(current_value, (int, float))
+            current_value is not None
             and abs(current_value - value) < float_info.epsilon
         ):
             return
 
-        self["preview"] = float(value)
+        self["preview"] = value
         Vrm1ExpressionPropertyGroup.update_preview(self, context)
 
     preview: FloatProperty(  # type: ignore[valid-type]
