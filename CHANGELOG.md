@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.2.0...v3.3.0) (2025-05-03)
+
+
+### 🚀 Features
+
+* human bone assignment diagnostics ([7f2eebd](https://github.com/saturday06/VRM-Addon-for-Blender/commit/7f2eebdbc20d1a61a321e18d2ccd2ae48f4a4c17))
+
 ## [3.2.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.1.0...v3.2.0) (2025-05-02)
 
 
