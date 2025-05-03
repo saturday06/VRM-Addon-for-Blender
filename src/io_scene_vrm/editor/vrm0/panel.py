@@ -80,7 +80,7 @@ def draw_vrm0_humanoid_required_bones_layout(
     if not isinstance(armature_data, Armature):
         return
 
-    layout.label(text="VRM Required Bones", icon="ARMATURE_DATA")
+    layout.label(text="Required VRM Human Bones", icon="ARMATURE_DATA")
     row = layout.row(align=True).split(factor=split_factor, align=True)
     label_column = row.column(align=True)
     label_column.label(text=HumanBoneSpecifications.HEAD.label)
@@ -162,7 +162,7 @@ def draw_vrm0_humanoid_optional_bones_layout(
 ) -> None:
     split_factor = 0.2
 
-    layout.label(text="VRM Optional Bones", icon="BONE_DATA")
+    layout.label(text="Optional VRM Human Bones", icon="BONE_DATA")
 
     row = layout.row(align=True).split(factor=split_factor, align=True)
     label_column = row.column(align=True)

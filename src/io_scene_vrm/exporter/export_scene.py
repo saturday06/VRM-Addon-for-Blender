@@ -464,7 +464,7 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
 
 
 class WM_OT_vrm_export_human_bones_assignment(Operator):
-    bl_label = "VRM Required Bones Assignment"
+    bl_label = "Required VRM Human Bones Assignment"
     bl_idname = "wm.vrm_export_human_bones_assignment"
     bl_options: AbstractSet[str] = {"REGISTER"}
 
@@ -542,13 +542,15 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         if humanoid.all_required_bones_are_assigned():
             alert_box = layout.box()
             alert_box.label(
-                text="All VRM Required Bones have been assigned.", icon="CHECKMARK"
+                text="All Required VRM Human Bones have been assigned.",
+                icon="CHECKMARK",
             )
         else:
             alert_box = layout.box()
             alert_box.alert = True
             alert_box.label(
-                text="There are unassigned VRM Required Bones. Please assign all.",
+                text="There are unassigned Required VRM Human Bones."
+                + " Please assign all.",
                 icon="ERROR",
             )
         draw_vrm0_humanoid_operators_layout(armature, layout)
@@ -566,7 +568,8 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         if human_bones.all_required_bones_are_assigned():
             alert_box = layout.box()
             alert_box.label(
-                text="All VRM Required Bones have been assigned.", icon="CHECKMARK"
+                text="All Required VRM Human Bones have been assigned.",
+                icon="CHECKMARK",
             )
         elif human_bones.allow_non_humanoid_rig:
             alert_box = layout.box()

@@ -227,15 +227,15 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "VRM出力の際、選択できるアーマチュアは1つのみです。複数選択されています。",
     (
         "*",
-        "VRM Required Bones",
+        "Required VRM Human Bones",
     ): "VRM必須ボーン",
     (
         "*",
-        "VRM Optional Bones",
+        "Optional VRM Human Bones",
     ): "VRMオプションボーン",
     (
         "*",
-        'Required VRM Bone "{humanoid_name}" is'
+        'Required VRM Human Bone "{humanoid_name}" is'
         + " not assigned. Please confirm hierarchy"
         + " of {humanoid_name} and its children."
         + ' "VRM" Panel → "VRM 0.x Humanoid" → {humanoid_name}'
@@ -247,16 +247,17 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         'Couldn\'t assign "{bone}" bone'
-        + ' to VRM Humanoid Bone: "{human_bone}". '
+        + ' to VRM Human Bone "{human_bone}". '
         + 'Confirm hierarchy of "{bone}" and its children. '
         + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
         + " if wrong hierarchy",
-    ): "ボーン「{bone}」をVRMボーン「{human_bone}」に割り当てることができませんでした。"
+    ): "ボーン「{bone}」をVRMヒューマンボーン「{human_bone}」に"
+    + "割り当てることができませんでした。"
     + "「VRM」パネルの「VRM 0.x Humanoid」で"
     + "「{human_bone}」ボーンの設定を確認してください。",
     (
         "*",
-        'Required VRM Bone "{humanoid_name}" is'
+        'Required VRM Human Bone "{humanoid_name}" is'
         + " not assigned. Please confirm hierarchy"
         + " of {humanoid_name} and its children. "
         + '"VRM" Panel → "Humanoid" → {humanoid_name}'
@@ -267,7 +268,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "「{humanoid_name}」ボーンの設定をしてください。",
     (
         "*",
-        'Please assign Required VRM Bone "{name}".',
+        'Please assign Required VRM Human Bone "{name}".',
     ): "VRM必須ボーン「{name}」を割り当ててください。",
     (
         "*",
@@ -283,11 +284,11 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "自動的に三角形に分割されます。",
     (
         "*",
-        'VRM Bone "{child}" needs "{parent}".'
+        'VRM Human Bone "{child}" needs "{parent}".'
         + " Please confirm"
         + ' "VRM" Panel → "Humanoid"'
-        + ' → "VRM Optional Bones" → "{parent}".',
-    ): "VRMボーン「{child}」は「{parent}」が必要です。"
+        + ' → "Optional VRM Human Bones" → "{parent}".',
+    ): "VRMヒューマンボーン「{child}」は「{parent}」が必要です。"
     + "「VRM」パネルの「Humanoid」→「VRMオプションボーン」で"
     + "「{parent}」ボーンの設定をしてください。",
     (
@@ -377,18 +378,18 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Load Bone Mappings"): "ボーンの対応を読み込み",
     (
         "*",
-        "All VRM Required Bones have been assigned.",
+        "All Required VRM Human Bones have been assigned.",
     ): "全てのVRM必須ボーンの割り当てが行われました。",
     (
         "*",
-        "There are unassigned VRM Required Bones. Please assign all.",
+        "There are unassigned Required VRM Human Bones. Please assign all.",
     ): "未割り当てのVRM必須ボーンが存在します。"
     + "全てのVRM必須ボーンを割り当ててください。",
     ("Operator", "Automatic Bone Assignment"): "ボーンの自動割り当て",
     ("Operator", "Preview MToon 0.0"): "MToon 0.0のプレビュー",
     ("Operator", "VRM Humanoid"): "VRMヒューマノイド",
     ("Operator", "VRM License Confirmation"): "VRM利用条件の確認",
-    ("Operator", "VRM Required Bones Assignment"): "VRM必須ボーンの設定",
+    ("Operator", "Required VRM Human Bones Assignment"): "VRM必須ボーンの設定",
     (
         "*",
         "Conditions exported as Roll Constraint\n"
