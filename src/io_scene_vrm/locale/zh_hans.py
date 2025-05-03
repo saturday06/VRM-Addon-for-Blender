@@ -168,7 +168,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "只能为 VRM 输出选择一个armatures。 可多次选择。",
     (
         "*",
-        'Required VRM Bone "{humanoid_name}" is'
+        'Required VRM Human Bone "{humanoid_name}" is'
         + " not assigned. Please confirm hierarchy"
         + " of {humanoid_name} and its children."
         + ' "VRM" Panel → "VRM 0.x Humanoid" → {humanoid_name}'
@@ -180,7 +180,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         'Couldn\'t assign "{bone}" bone'
-        + ' to VRM Humanoid Bone: "{human_bone}". '
+        + ' to VRM Human Bone "{human_bone}". '
         + 'Confirm hierarchy of "{bone}" and its children. '
         + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
         + " if wrong hierarchy",
@@ -189,7 +189,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "「{human_bone}」检查骨骼设置。",
     (
         "*",
-        'Required VRM Bone "{humanoid_name}" is'
+        'Required VRM Human Bone "{humanoid_name}" is'
         + " not assigned. Please confirm hierarchy"
         + " of {humanoid_name} and its children. "
         + '"VRM" Panel → "Humanoid" → {humanoid_name}'
@@ -200,7 +200,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "「{humanoid_name}」如果层次结构有误。",
     (
         "*",
-        'Please assign Required VRM Bone "{name}".',
+        'Please assign Required VRM Human Bone "{name}".',
     ): "请分配所需的 VRM 骨 「{name}」。",
     (
         "*",
@@ -214,10 +214,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "「{name}」包含三角形以外的多边形。" + "自动划分为三角形。",
     (
         "*",
-        'VRM Bone "{child}" needs "{parent}".'
+        'VRM Human Bone "{child}" needs "{parent}".'
         + " Please confirm"
         + ' "VRM" Panel → "Humanoid"'
-        + ' → "VRM Optional Bones" → "{parent}".',
+        + ' → "Optional VRM Human Bones" → "{parent}".',
     ): "VRM骨骼「{child}」需要「{parent}」。"
     + "「VRM」面板「Humanoid」→「VRM可选的骨骼」で"
     + "「{parent}」骨骼設定。",
@@ -306,11 +306,11 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Load Bone Mappings"): "加载骨骼对应关系",
     (
         "*",
-        "All VRM Required Bones have been assigned.",
+        "All Required VRM Human Bones have been assigned.",
     ): "所有 VRM 必需骨骼分配都已完成。",
     (
         "*",
-        "There are unassigned VRM Required Bones. Please assign all.",
+        "There are unassigned Required VRM Human Bones. Please assign all.",
     ): "存在未分配的 VRM 必需骨骼。" + "分配所有 VRM 必需骨骼。",
     ("Operator", "Automatic Bone Assignment"): "自动骨骼分配",
     ("Operator", "Export VRM"): "导出 VRM",
@@ -318,7 +318,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("Operator", "Preview MToon 0.0"): "MToon 0.0预览",
     ("Operator", "VRM Humanoid"): "VRM人形",
     ("Operator", "VRM License Confirmation"): "查看 VRM 使用条款",
-    ("Operator", "VRM Required Bones Assignment"): "配置 VRM 必需骨骼",
+    ("Operator", "Required VRM Human Bones Assignment"): "配置 VRM 必需骨骼",
     (
         "*",
         "Conditions exported as Roll Constraint\n"
@@ -668,7 +668,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     # Humanoid
     (
         "*",
-        "VRM Required Bones",
+        "Required VRM Human Bones",
     ): "VRM必须的骨骼",
     (
         "*",
@@ -716,7 +716,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "脚 Foot:",
     (
         "*",
-        "VRM Optional Bones",
+        "Optional VRM Human Bones",
     ): "VRM可选的骨骼",
     (
         "*",

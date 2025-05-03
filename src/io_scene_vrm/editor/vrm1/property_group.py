@@ -351,9 +351,9 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
             if not human_bone.node.bone_name:
                 if specification.requirement:
                     messages.append(
-                        pgettext('Please assign Required VRM Bone "{name}".').format(
-                            name=specification.title
-                        )
+                        pgettext(
+                            'Please assign Required VRM Human Bone "{name}".'
+                        ).format(name=specification.title)
                     )
                 continue
             if not specification.parent_requirement:

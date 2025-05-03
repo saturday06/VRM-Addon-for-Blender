@@ -126,7 +126,7 @@ class WM_OT_vrm_validator(Operator):
             messages.append(
                 pgettext(
                     'Couldn\'t assign "{bone}" bone'
-                    + ' to VRM Humanoid Bone: "{human_bone}". '
+                    + ' to VRM Human Bone "{human_bone}". '
                     + 'Confirm hierarchy of "{bone}" and its children. '
                     + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
                     + " if wrong hierarchy"
@@ -168,7 +168,7 @@ class WM_OT_vrm_validator(Operator):
             messages.append(
                 pgettext(
                     'Couldn\'t assign "{bone}" bone'
-                    + ' to VRM Humanoid Bone: "{human_bone}". '
+                    + ' to VRM Human Bone "{human_bone}". '
                     + 'Confirm hierarchy of "{bone}" and its children. '
                     + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
                     + " if wrong hierarchy"
@@ -353,7 +353,7 @@ class WM_OT_vrm_validator(Operator):
                         if not human_bones.allow_non_humanoid_rig:
                             error_messages.append(
                                 pgettext(
-                                    'Required VRM Bone "{humanoid_name}" is'
+                                    'Required VRM Human Bone "{humanoid_name}" is'
                                     + " not assigned. Please confirm hierarchy"
                                     + " of {humanoid_name} and its children. "
                                     + '"VRM" Panel → "Humanoid" → {humanoid_name}'
@@ -388,10 +388,10 @@ class WM_OT_vrm_validator(Operator):
                             ):
                                 error_messages.append(
                                     pgettext(
-                                        'VRM Bone "{child}" needs "{parent}".'
+                                        'VRM Human Bone "{child}" needs "{parent}".'
                                         + " Please confirm"
                                         + ' "VRM" Panel → "Humanoid"'
-                                        + ' → "VRM Optional Bones" → "{parent}".'
+                                        + ' → "Optional VRM Human Bones" → "{parent}".'
                                     ).format(
                                         child=human_bone_specification.title,
                                         parent=parent.title,
@@ -436,7 +436,7 @@ class WM_OT_vrm_validator(Operator):
                         all_required_bones_exist = False
                         error_messages.append(
                             pgettext(
-                                'Required VRM Bone "{humanoid_name}" is'
+                                'Required VRM Human Bone "{humanoid_name}" is'
                                 + " not assigned. Please confirm hierarchy"
                                 + " of {humanoid_name} and its children."
                                 + ' "VRM" Panel → "VRM 0.x Humanoid" → {humanoid_name}'

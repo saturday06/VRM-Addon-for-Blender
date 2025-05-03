@@ -8,7 +8,7 @@ description: "A sample of automating VRM-related processes using a Python script
 - [Importing VRM files](#importing-vrm-files)
 - [Exporting VRM files](#exporting-vrm-files)
 - [VRM Metadata Settings](#vrm-metadata-settings)
-- [VRM Bone Settings](#vrm-bone-settings)
+- [VRM Human Bone Settings](#vrm-human-bone-settings)
 - [VRM MToon Material Settings](#vrm-mtoon-material-settings)
 - [Dynamically generate VRM characters and export to file](#dynamically-generate-vrm-characters-and-export-to-file)
 
@@ -72,7 +72,7 @@ meta.modification = "prohibited"  # or "allowModification", "allowModificationRe
 meta.other_license_url = ""
 ```
 
-## VRM Bone Settings
+## VRM Human Bone Settings
 
 For VRM 1.0
 
