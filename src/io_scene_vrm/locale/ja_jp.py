@@ -643,6 +643,81 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "VRM Add-on Compatibility Warning",
     ): "VRMアドオンの互換性の警告",
     (
+        "Operator",
+        "Bone Assignment Diagnostics",
+    ): "ボーン割り当ての診断",
+    (
+        "*",
+        "Shows the cause of the bone assignment error"
+        " or the reason why none of the bone assignment candidates exist.",
+    ): "ボーン割り当てのエラーの原因や、"
+    + "ボーンの割り当て候補が存在しない理由を表示します。",
+    (
+        "*",
+        'Assignment of the VRM Human Bone "{vrm_human_bone}"',
+    ): "VRMヒューマンボーン「{vrm_human_bone}」の割り当て",
+    (
+        "*",
+        'The bone "{bone_name}" of the armature "{armature_object_name}"'
+        + ' can be assigned to the VRM Human Bone "{human_bone_name}".',
+    ): "アーマチュア「{armature_object_name}」のボーン「{bone_name}」は"
+    "VRMヒューマンボーン「{human_bone_name}」へ割り当てることができます。",
+    (
+        "*",
+        'The bone "{bone_name}" of the armature "{armature_object_name}"'
+        + ' cannot be assigned to the VRM Human Bone "{human_bone_name}".',
+    ): "アーマチュア「{armature_object_name}」のボーン「{bone_name}」は"
+    + "VRMヒューマンボーンの「{human_bone_name}」へ割り当てることができません。",
+    (
+        "*",
+        'The armature "{armature_object_name}" does not have any bones'
+        + ' that can be assigned to the VRM Human Bone "{human_bone_name}".',
+    ): "アーマチュア「{armature_object_name}」にはVRMヒューマンボーン"
+    + "「{human_bone_name}」へ割り当てることができるボーンが存在しません。",
+    (
+        "*",
+        'Being a descendant of the bone "{bpy_bone}" assigned'
+        + ' to the VRM Human Bone "{human_bone}"',
+    ): "VRMヒューマンボーン「{human_bone}」に割り当てられているボーン"
+    + "「{bpy_bone}」の子孫",
+    (
+        "*",
+        'The bone assigned to the VRM Human Bone "{human_bone}" must'
+        + " be descendants of the bones assigned \nto the VRM human"
+        + ' bone "{parent_human_bone}". However, it cannot retrieve'
+        + " bone candidates because there\nis an error in the"
+        + ' assignment of the VRM Human Bone "{parent_human_bone}".'
+        + " Please resolve the error in the\nassignment of the VRM"
+        + ' Human Bone "{parent_human_bone}" first.',
+    ): "VRMヒューマンボーン「{human_bone}」へ割り当てるボーンは、VRMヒューマンボーン"
+    + "「{parent_human_bone}」に割り当てるボーンの\n子孫である必要があります。しかし、"
+    + "VRMヒューマンボーン「{parent_human_bone}」に割り当てエラーがあるためボーンの"
+    + "候補を取得できません。\n先にVRMヒューマンボーン「{parent_human_bone}」の"
+    + "割り当てのエラーを解消してください。",
+    (
+        "*",
+        'Sharing the root bone with the bone "{bpy_bone}" assigned'
+        + ' to the VRM Human Bone "{human_bone}"',
+    ): "VRMヒューマンボーン「{human_bone}」に割り当てられているボーン「{bpy_bone}」と"
+    + "ルートボーンを共有している",
+    (
+        "*",
+        'Being an ancestor of the bone "{bpy_bone}" assigned'
+        + ' to the VRM Human Bone "{human_bone}"',
+    ): "VRMヒューマンボーン「{human_bone}」に割り当てられているボーン"
+    + "「{bpy_bone}」の祖先",
+    (
+        "*",
+        'Not being an ancestor of the bone "{bpy_bone}" assigned'
+        + ' to the VRM Human Bone "{human_bone}"',
+    ): "VRMヒューマンボーン「{human_bone}」に割り当てられているボーン"
+    + "「{bpy_bone}」の祖先では無い",
+    (
+        "*",
+        "Bones that meet all of the following conditions will be "
+        + "candidates for assignment:",
+    ): "次の条件を全て満たすボーンが割り当て候補になります。",
+    (
         "*",
         "Automatic T-Pose Conversion is enabled."
         + " There is a setting"
@@ -660,4 +735,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         '<Please use "VRM Material" panel instead>',
     ): "「VRMマテリアル」パネルを使用してください",
+    (
+        "*",
+        "https://github.com/vrm-c/vrm-specification/blob/c24d76d99a18738dd2c266be1c83f089064a7b5e/specification/VRMC_vrm-1.0/humanoid.md#humanoid-bone-parent-child-relationship",
+    ): "https://github.com/vrm-c/vrm-specification/blob/c24d76d99a18738dd2c266be1c83f089064a7b5e/specification/VRMC_vrm-1.0/humanoid.ja.md#ヒューマノイドボーンの親子関係",
 }

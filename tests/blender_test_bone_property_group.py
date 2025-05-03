@@ -146,7 +146,7 @@ def test(context: Context) -> None:
             "head": HumanBoneSpecifications.HEAD,
         },
         target=HumanBoneSpecifications.SPINE,
-        expected={"spine", "chest", "tail"},
+        expected={"spine", "chest"},
     )
 
 

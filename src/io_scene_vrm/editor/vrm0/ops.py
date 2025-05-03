@@ -4,12 +4,20 @@ import warnings
 from collections.abc import Set as AbstractSet
 from typing import TYPE_CHECKING
 
+from bpy.app.translations import pgettext
 from bpy.props import IntProperty, StringProperty
-from bpy.types import Armature, Context, Operator
+from bpy.types import Armature, Context, Event, Object, Operator, UILayout
 
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
 from ...common.logger import get_logger
+from ...common.vrm0.human_bone import (
+    HumanBoneName,
+    HumanBoneSpecification,
+    HumanBoneSpecifications,
+)
 from ..extension import get_armature_extension
+from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
+from ..property_group import BonePropertyGroup
 from .property_group import Vrm0HumanoidPropertyGroup
 
 logger = get_logger(__name__)
@@ -2525,3 +2533,207 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
+
+
+def draw_bone_prop_search(
+    layout: UILayout,
+    human_bone_specification: HumanBoneSpecification,
+    armature: Object,
+    *,
+    show_diagnostics: bool = True,
+) -> None:
+    armature_data = armature.data
+    if not isinstance(armature_data, Armature):
+        return
+
+    humanoid = get_armature_extension(armature_data).vrm0.humanoid
+
+    props = None
+    for human_bone in humanoid.human_bones:
+        if human_bone.bone == human_bone_specification.name.value:
+            props = human_bone
+            break
+    if not props:
+        return
+
+    row = layout.row(align=True)
+    row.prop_search(
+        props.node,
+        "bone_name",
+        props,
+        "node_candidates",
+        text="",
+        translate=False,
+        icon=human_bone_specification.icon,
+    )
+
+    if not show_diagnostics:
+        return
+
+    if props.node.bone_name and props.node.bone_name not in props.node_candidates:
+        icon = "ERROR"
+        row.alert = True
+    else:
+        icon = "VIEWZOOM"
+
+    op = layout_operator(
+        row,
+        VRM_OT_show_vrm0_bone_assignment_diagnostics,
+        text="",
+        translate=False,
+        icon=icon,
+    )
+    op.armature_object_name = armature.name
+    op.human_bone_name = human_bone_specification.name.value
+    row.separator(factor=0.5)
+
+
+class VRM_OT_show_vrm0_bone_assignment_diagnostics(Operator):
+    bl_idname = "vrm.show_vrm0_bone_assignment_diagnostics"
+    bl_label = "Bone Assignment Diagnostics"
+    bl_description = (
+        "Shows the cause of the bone assignment error"
+        " or the reason why none of the bone assignment candidates exist."
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        return {"FINISHED"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+
+    human_bone_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"}
+    )
+
+    def invoke(self, context: Context, _event: Event) -> set[str]:
+        obj = context.blend_data.objects.get(self.armature_object_name)
+        if not obj or obj.type != "ARMATURE":
+            return {"CANCELLED"}
+
+        if not HumanBoneName.from_str(self.human_bone_name):
+            return {"CANCELLED"}
+
+        return context.window_manager.invoke_props_dialog(self, width=800)
+
+    def draw(self, context: Context) -> None:
+        armature = context.blend_data.objects.get(self.armature_object_name)
+        if not armature:
+            return
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return
+        human_bone_name = HumanBoneName.from_str(self.human_bone_name)
+        if not human_bone_name:
+            return
+        human_bone_specification = HumanBoneSpecifications.get(human_bone_name)
+
+        layout = self.layout
+        head_row = layout.row()
+        head_row.alignment = "LEFT"
+        head_row.label(
+            text=pgettext('Assignment of the VRM Human Bone "{vrm_human_bone}"').format(
+                vrm_human_bone=human_bone_specification.title
+            ),
+            icon="ARMATURE_DATA",
+        )
+        draw_bone_prop_search(
+            head_row, human_bone_specification, armature, show_diagnostics=False
+        )
+        help_op = layout_operator(
+            head_row,
+            VRM_OT_open_url_in_web_browser,
+            icon="URL",
+            text="Open help in a Web Browser",
+        )
+        help_op.url = pgettext(
+            "https://github.com/vrm-c/vrm-specification/blob/c24d76d99a18738dd2c266be1c83f089064a7b5e/specification/VRMC_vrm-1.0/humanoid.md#humanoid-bone-parent-child-relationship"
+        )
+
+        ext = get_armature_extension(armature_data)
+        humanoid = ext.vrm0.humanoid
+        human_bone = next(
+            (
+                human_bone
+                for human_bone in humanoid.human_bones
+                if human_bone.bone == human_bone_name.value
+            ),
+            None,
+        )
+        if not human_bone:
+            return
+        bone_name = human_bone.node.bone_name
+        if bone_name in human_bone.node_candidates:
+            layout.label(
+                text=pgettext(
+                    'The bone "{bone_name}" of the armature "{armature_object_name}"'
+                    + ' can be assigned to the VRM Human Bone "{human_bone_name}".'
+                ).format(
+                    armature_object_name=self.armature_object_name,
+                    bone_name=bone_name,
+                    human_bone_name=human_bone_specification.title,
+                ),
+                translate=False,
+                icon="CHECKMARK",
+            )
+        elif bone_name:
+            layout.label(
+                text=pgettext(
+                    'The bone "{bone_name}" of the armature "{armature_object_name}"'
+                    + ' cannot be assigned to the VRM Human Bone "{human_bone_name}".'
+                ).format(
+                    armature_object_name=self.armature_object_name,
+                    bone_name=bone_name,
+                    human_bone_name=human_bone_specification.title,
+                ),
+                translate=False,
+                icon="ERROR",
+            )
+        elif not human_bone.node_candidates:
+            layout.label(
+                text=pgettext(
+                    'The armature "{armature_object_name}" does not have any bones'
+                    + ' that can be assigned to the VRM Human Bone "{human_bone_name}".'
+                ).format(
+                    armature_object_name=self.armature_object_name,
+                    human_bone_name=human_bone_specification.title,
+                ),
+                translate=False,
+                icon="ERROR",
+            )
+
+        bpy_bone_name_to_human_bone_specification: dict[
+            str, HumanBoneSpecification
+        ] = {}
+        error_bpy_bone_names = list[str]()
+
+        for human_bone in humanoid.human_bones:
+            human_bone_name = HumanBoneName.from_str(human_bone.bone)
+            if not human_bone_name:
+                continue
+            bpy_bone_name = human_bone.node.bone_name
+            if not bpy_bone_name:
+                continue
+            if bpy_bone_name not in human_bone.node_candidates:
+                error_bpy_bone_names.append(bpy_bone_name)
+            bpy_bone_name_to_human_bone_specification[bpy_bone_name] = (
+                HumanBoneSpecifications.get(human_bone_name)
+            )
+
+        Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+            context, armature_data.name
+        )
+        BonePropertyGroup.find_bone_candidates(
+            armature_data,
+            human_bone_specification,
+            bpy_bone_name_to_human_bone_specification,
+            error_bpy_bone_names,
+            layout,
+        )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+        human_bone_name: str  # type: ignore[no-redef]
