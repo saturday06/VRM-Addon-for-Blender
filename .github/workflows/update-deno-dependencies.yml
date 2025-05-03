@@ -49,8 +49,9 @@ jobs:
             exit 0
           fi
 
-          # GH_TOKENが設定されていない場合はここでエラー終了
-          if gh repo view --json name --jq .name; then
+          # GH_TOKENが無効な場合はここでエラー終了
+          if ! gh repo view --json name --jq .name; then
+            echo "GH_TOKEN is empty or expired"
             exit 1
           fi
 
