@@ -30,7 +30,8 @@ exporting VRM, adding VRM Humanoid and setting MToon shaders. Bug reports,
 feature requests, pull requests, and contributions are welcome. I have taken
 over the development after
 [Version 0.79](https://github.com/iCyP/VRM_IMPORTER_for_Blender2_8/releases/tag/0.79)
-from the author, [@iCyP](https://github.com/iCyP).
+from the author, [@iCyP](https://github.com/iCyP). The add-on is actively
+maintained.
 
 ## Development
 
