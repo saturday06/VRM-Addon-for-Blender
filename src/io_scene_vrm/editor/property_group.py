@@ -3,7 +3,7 @@ import uuid
 import warnings
 from collections.abc import Iterator, Mapping, Sequence, ValuesView
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, ClassVar, Optional, Protocol, TypeVar, overload
+from typing import TYPE_CHECKING, ClassVar, Final, Optional, Protocol, TypeVar, overload
 
 import bpy
 from bpy.app.translations import pgettext
@@ -270,29 +270,20 @@ class BonePropertyGroup(PropertyGroup):
 
         search_conditions: list[str] = []
 
-        # targetの祖先のHuman Boneの割り当てがある場合はそこから探索を開始。
-        # 無い場合はルートボーンから探索を開始。
+        # targetの祖先のHuman Boneの割り当てがある場合はそこから探索開始ボーンとする
         searching_bones: Optional[list[Bone]] = None
         ancestor: Optional[HumanBoneSpecification] = target.parent()
         while ancestor:
             ancestor_bpy_bone_name = human_bone_name_to_bpy_bone_name.get(ancestor.name)
-            if ancestor_bpy_bone_name is not None and (
+            if not ancestor_bpy_bone_name or not (
                 ancestor_bpy_bone := bones.get(ancestor_bpy_bone_name)
             ):
-                if ancestor_bpy_bone.name not in error_bpy_bone_names:
-                    searching_bones = list(ancestor_bpy_bone.children)
-                    if diagnostics_layout:
-                        search_conditions.append(
-                            pgettext(
-                                'Being a descendant of the bone "{bpy_bone}" assigned'
-                                + ' to the VRM Human Bone "{human_bone}"'
-                            ).format(
-                                human_bone=ancestor.title,
-                                bpy_bone=ancestor_bpy_bone_name,
-                            )
-                        )
-                    break
+                # Human Boneの割り当てが無い場合、さらに親を辿る
+                ancestor = ancestor.parent()
+                continue
 
+            if ancestor_bpy_bone.name in error_bpy_bone_names:
+                # Human Boneの割り当てにエラーが発生している場合、空の結果を返す
                 if diagnostics_layout:
                     diagnostics_message = pgettext(
                         'The bone assigned to the VRM Human Bone "{human_bone}" must'
@@ -313,12 +304,65 @@ class BonePropertyGroup(PropertyGroup):
                             translate=False,
                             icon="ERROR" if i == 0 else "BLANK1",
                         )
-
                 return set()
-            ancestor = ancestor.parent()
 
+            # 見つかった祖先のボーンの子ボーンを探索開始ボーンとする
+            searching_bones = list(ancestor_bpy_bone.children)
+            if diagnostics_layout:
+                search_conditions.append(
+                    pgettext(
+                        'Being a descendant of the bone "{bpy_bone}" assigned'
+                        + ' to the VRM Human Bone "{human_bone}"'
+                    ).format(
+                        human_bone=ancestor.title,
+                        bpy_bone=ancestor_bpy_bone_name,
+                    )
+                )
+            break
+
+        root_bones: Final[Sequence[Bone]] = [
+            bone for bone in bones.values() if not bone.parent
+        ]
+
+        # 祖先のボーンが見つからなかった場合はルートボーンを探索開始ボーンとする
+        if searching_bones is None and len(root_bones) > 1:
+            # ルートボーンが複数ある場合
+            # 既に割り当てのあるボーンのルートボーンを選択する
+            human_bone_specification = None
+            for (
+                bpy_bone_name,
+                human_bone_specification,
+            ) in bpy_bone_name_to_human_bone_specification.items():
+                if not bpy_bone_name:
+                    continue
+                if bpy_bone_name in error_bpy_bone_names:
+                    continue
+                bpy_bone = bones.get(bpy_bone_name)
+                if not bpy_bone:
+                    continue
+
+                main_root_bone: Optional[Bone] = None
+                parent: Optional[Bone] = bpy_bone
+                while parent:
+                    main_root_bone = parent
+                    parent = parent.parent
+                if not main_root_bone:
+                    continue
+
+                searching_bones = [main_root_bone]
+                if diagnostics_layout:
+                    search_conditions.append(
+                        pgettext(
+                            'Sharing the root bone with the bone "{bpy_bone}" assigned'
+                            + ' to the VRM Human Bone "{human_bone}"'
+                        ).format(
+                            human_bone=human_bone_specification.title,
+                            bpy_bone=bpy_bone_name,
+                        )
+                    )
+                break
         if searching_bones is None:
-            searching_bones = [bone for bone in bones.values() if not bone.parent]
+            searching_bones = list(root_bones)
 
         # ボーンの候補
         bone_candidates: set[Bone] = set(searching_bones)
@@ -330,50 +374,7 @@ class BonePropertyGroup(PropertyGroup):
             bone_candidates.update(filling_bone.children)
             filling_bones.extend(filling_bone.children)
 
-        # ルートボーンが複数ある場合は、割り当て済みボーンが最初に見つかったものを選択
-        # 探索順は固定になるように気を付ける
-        if len([bone for bone in bones.values() if not bone.parent]) > 1:
-            main_root_bone: Optional[Bone] = None
-            for human_bone_name in type(target.name):
-                # HumanBoneSpecificationを順番固定で列挙したいが、ジェネリック型のため
-                # HumanBoneSpecificationsを導出できないので回りくどいことをしている
-                bpy_bone_name = human_bone_name_to_bpy_bone_name.get(human_bone_name)
-                if not bpy_bone_name or bpy_bone_name in error_bpy_bone_names:
-                    continue
-                bpy_bone = bones.get(bpy_bone_name)
-                if not bpy_bone:
-                    continue
-                human_bone_specification = (
-                    bpy_bone_name_to_human_bone_specification.get(bpy_bone_name)
-                )
-                if not human_bone_specification:
-                    continue
-
-                search_conditions.append(
-                    pgettext(
-                        'Sharing the root bone with the bone "{bpy_bone}" assigned'
-                        + ' to the VRM Human Bone "{human_bone}"'
-                    ).format(
-                        human_bone=human_bone_specification.title,
-                        bpy_bone=bpy_bone_name,
-                    )
-                )
-                parent: Optional[Bone] = bpy_bone
-                while parent:
-                    main_root_bone = parent
-                    parent = parent.parent
-                break
-
-            if main_root_bone:
-                removing_bone_tree = [
-                    bone
-                    for bone in bones.values()
-                    if not bone.parent and bone != main_root_bone
-                ]
-                while removing_bone_tree:
-                    removing_bone = removing_bone_tree.pop()
-                    bone_candidates.discard(removing_bone)
-                    removing_bone_tree.extend(removing_bone.children)
+        removing_bone_tree = set[Bone]()
 
         # 子孫ボーンを辿り、割り当て済みのボーンにぶつかったら
         # そのボーンとの関係を調べ、不要な候補を除外する。
@@ -398,27 +399,30 @@ class BonePropertyGroup(PropertyGroup):
                 # 一番近い祖先のボーンからボーンをたどるので、このケースは存在しないはず
                 continue
 
-            removing_bone_tree = [searching_bone]
             if target.is_ancestor_of(human_bone_specification):
                 # 子孫のボーンに割り当てがある場合は、
                 # - そのボーンと子孫を除外
                 # - そのボーンからルートボーンを辿る際の分岐を除外
+                removing_bone_tree.add(searching_bone)
+
                 parent = searching_bone
                 while parent:
                     grand_parent = parent.parent
                     if grand_parent is None:
-                        removing_bone_tree.extend(
-                            bone
-                            for bone in bones
-                            if bone.parent is None and bone != parent
+                        # parentがルートボーンの場合、
+                        # parent以外のルートボーンを除外
+                        removing_bone_tree.update(
+                            root_bone for root_bone in root_bones if root_bone != parent
                         )
                         break
-                    removing_bone_tree.extend(
+                    # parentのsiblingボーンを除外
+                    removing_bone_tree.update(
                         parent_sibling
                         for parent_sibling in grand_parent.children
                         if parent_sibling != parent
                     )
                     parent = grand_parent
+
                 if diagnostics_layout:
                     search_conditions.append(
                         pgettext(
@@ -433,6 +437,8 @@ class BonePropertyGroup(PropertyGroup):
                 # 祖先でも子孫でもないボーンに割り当てがある場合は、
                 # - そのボーンと子孫を除外
                 # - そのボーンとその祖先を除外
+                removing_bone_tree.add(searching_bone)
+
                 parent = searching_bone
                 while parent:
                     bone_candidates.discard(parent)
@@ -447,10 +453,12 @@ class BonePropertyGroup(PropertyGroup):
                             bpy_bone=searching_bone.name,
                         )
                     )
-            while removing_bone_tree:
-                removing_bone = removing_bone_tree.pop()
-                bone_candidates.discard(removing_bone)
-                removing_bone_tree.extend(removing_bone.children)
+
+        bone_candidates.difference_update(removing_bone_tree)
+        while removing_bone_tree:
+            removing_bone = removing_bone_tree.pop()
+            bone_candidates.difference_update(removing_bone.children)
+            removing_bone_tree.update(removing_bone.children)
 
         if diagnostics_layout and search_conditions:
             diagnostics_layout.label(
