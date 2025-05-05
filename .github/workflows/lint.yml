@@ -107,3 +107,13 @@ jobs:
           fetch-depth: 0 # for super-linter
       - name: Super-Linter
         run: ./tools/super-linter.sh
+
+  docs:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version-file: .dvmrc
+      - name: Build
+        run: deno task docs:build
