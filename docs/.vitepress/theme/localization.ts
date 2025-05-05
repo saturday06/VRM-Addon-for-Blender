@@ -86,6 +86,11 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
     return;
   }
 
+  if (requestLocale == "releases") {
+    // releasesフォルダにはロケール非依存のファイルが配置されているので、リダイレクトしない。
+    return;
+  }
+
   let targetLocale = detectAutoRedirectionTargetLocale(storage);
   if (!targetLocale) {
     if (requestLocale) {
