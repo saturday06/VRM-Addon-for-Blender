@@ -1,16 +1,14 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-name: pages-update
+name: gh-pages
 
 permissions: {}
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review, labeled]
-    branches-ignore:
-      - README
   push:
-    branches-ignore:
-      - README
+    branches:
+      - main
+      - gh-pages
+      - gh-pages-new-deploy
   release:
   workflow_dispatch:
   workflow_run:
@@ -18,11 +16,19 @@ on:
     branches: [README]
     types: [completed]
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
-  build-gh-pages:
+  deploy:
+    environment:
+      name: github-pages
     runs-on: ubuntu-24.04
     permissions:
-      contents: write
+      contents: read
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - name: Switch
@@ -36,7 +42,7 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version-file: .dvmrc
-      - name: Build and Deploy
+      - name: Build
         run: |
           set -x
 
@@ -63,35 +69,22 @@ jobs:
 
           deno task docs:build
 
-          git fetch --depth=1 origin gh-pages
-          gh_pages_dir=$(mktemp -d)
-          git worktree add "$gh_pages_dir" gh-pages
+          mkdir -p docs/.vitepress/dist/releases
+          legacy_addon_release_url=$(jq -r '[.assets[] | select(.name | test("^VRM_Addon_for_Blender-[0-9]"))] | first | .browser_download_url' releases_latest.json)
+          if ! curl \
+            --fail \
+            --retry 20 \
+            --retry-all-errors \
+            --show-error \
+            --location \
+            --output docs/.vitepress/dist/releases/VRM_Addon_for_Blender-release.zip \
+            "$legacy_addon_release_url"; then
 
-          cp -r docs/.vitepress/dist/* "$gh_pages_dir"
-          cd "$gh_pages_dir"
-          git add .
-          if git diff --cached --exit-code; then
-            exit 0
+            exit 1
           fi
-          git config --global user.name "$GIT_USER_NAME"
-          git config --global user.email "$GIT_USER_EMAIL"
-          git commit -m "docs: update to $GITHUB_SHA [BOT]"
-
-          git fetch --depth=1 origin README
-          git fetch --depth=1 origin main
-          git fetch --depth=1 origin website || true
-          git fetch --depth=1 origin unplanned-release || true
-          case "$GITHUB_SHA" in
-            "") exit 0;;
-            "$(git rev-parse origin/README)");;
-            "$(git rev-parse origin/main)");;
-            "$(git rev-parse origin/website || true)");;
-            "$(git rev-parse origin/unplanned-release || true)");;
-            *) exit 0;;
-          esac
-
-          git push origin gh-pages
-        env:
-          # https://github.com/orgs/community/discussions/40405#discussioncomment-8361451
-          GIT_USER_NAME: ${{ format('[BOT] {0}', github.actor) }}
-          GIT_USER_EMAIL: ${{ format('{0}+{1}@users.noreply.github.com', github.actor_id, github.actor) }}
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/.vitepress/dist
+      - uses: actions/deploy-pages@v4
+        id: deployment

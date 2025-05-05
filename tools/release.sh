@@ -105,19 +105,6 @@ github_downloaded_zip_path="${PWD}/readme.zip"
   git archive HEAD --prefix=${prefix_name}-README/ --output="$github_downloaded_zip_path"
 )
 
-gh_pages_branch_dir=$(mktemp -d --suffix=-branch-gh-pages)
-git fetch --depth=1 origin gh-pages
-git worktree add "${gh_pages_branch_dir}" origin/gh-pages
-mkdir -p "${gh_pages_branch_dir}/releases"
-cp "${prefix_name}-${release_postfix}.zip" "${gh_pages_branch_dir}/releases/"
-(
-  cd "$gh_pages_branch_dir"
-  git add .
-  git config --global user.name "$GIT_USER_NAME"
-  git config --global user.email "$GIT_USER_EMAIL"
-  git commit -m "docs: deploy the latest release [BOT]"
-)
-
 blender --background --python-expr "import bpy; from pathlib import Path; Path('blender_major_minor.txt').write_text(f'{bpy.app.version[0]}.{bpy.app.version[1]}')"
 
 addon_dir="$HOME/.config/blender/$(cat blender_major_minor.txt)/scripts/addons/${prefix_name}-README"
@@ -181,10 +168,6 @@ if [ "$release_postfix" = "release" ]; then
   (
     cd "$readme_branch_dir"
     git push origin HEAD:README
-  )
-  (
-    cd "$gh_pages_branch_dir"
-    git push origin HEAD:gh-pages
   )
   gh release edit "$release_tag_name" --draft=false --latest
 
