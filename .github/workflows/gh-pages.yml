@@ -7,8 +7,7 @@ on:
   push:
     branches:
       - main
-      - gh-pages
-      - gh-pages-new-deploy
+      - website
   release:
   workflow_dispatch:
   workflow_run:
