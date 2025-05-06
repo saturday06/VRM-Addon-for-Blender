@@ -232,18 +232,19 @@ namespace VrmaRecorder
                 );
             }
 
+            var prefix = Path.GetFileNameWithoutExtension(inputVrmaPath);
             foreach (var (image, i) in images.Select((image, i) => (image, i)))
             {
                 await File.WriteAllBytesAsync(
-                    Path.Combine(outputFolderPath, $"{i:D2}_forward.png"),
+                    Path.Combine(outputFolderPath, $"{prefix}_{i:D2}_forward_unity.png"),
                     image.forwardImage
                 );
                 await File.WriteAllBytesAsync(
-                    Path.Combine(outputFolderPath, $"{i:D2}_top.png"),
+                    Path.Combine(outputFolderPath, $"{prefix}_{i:D2}_top_unity.png"),
                     image.topImage
                 );
                 await File.WriteAllBytesAsync(
-                    Path.Combine(outputFolderPath, $"{i:D2}_right.png"),
+                    Path.Combine(outputFolderPath, $"{prefix}_{i:D2}_right_unity.png"),
                     image.rightImage
                 );
             }

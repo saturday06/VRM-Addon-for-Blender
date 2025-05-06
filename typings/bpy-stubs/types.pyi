@@ -1772,12 +1772,20 @@ class RenderSettings(bpy_struct):
     resolution_x: int
     resolution_y: int
     filepath: str
+    engine: str
     @property
     def image_settings(self) -> ImageFormatSettings: ...
 
 class World(ID):
     use_nodes: bool
     color: Color
+
+class CyclesRenderSettings(bpy_struct):
+    # TODO: このクラスはドキュメントに記載が無いことがある
+    samples: int
+    adaptive_min_samples: int
+    use_denoising: bool
+    use_adaptive_sampling: bool
 
 class SceneEEVEE(bpy_struct):
     taa_render_samples: int
@@ -1800,6 +1808,8 @@ class Scene(ID):
     def render(self) -> RenderSettings: ...
     @property
     def eevee(self) -> SceneEEVEE: ...
+    @property
+    def cycles(self) -> CyclesRenderSettings: ...
 
     camera: Optional[Object]
     world: World
