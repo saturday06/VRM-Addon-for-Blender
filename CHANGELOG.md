@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.3.0...v3.3.1) (2025-05-06)
+
+
+### 🐞 Bug Fixes
+
+* fix invalid partial humanoid bone animation export ([a616799](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a6167996833c6c577f7d06abb4d9151641dab3e5))
+
 ## [3.3.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.2.0...v3.3.0) (2025-05-03)
 
 
