@@ -195,6 +195,12 @@ namespace VrmaRecorder
                 Debug.LogException(e);
                 Application.Quit(1);
             }
+            finally
+            {
+#if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+#endif
+            }
         }
 
         private async Task StartRecording(
