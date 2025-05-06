@@ -54,7 +54,7 @@ end_of_line = crlf
 [/tests/resources/unity/**.asmdef]
 insert_final_newline = unset
 
-[/tests/resources/unity/**.{asset,meta,unity}]
+[/tests/resources/unity/**.{asset,meta,inputactions,unity}]
 indent_size = unset
 insert_final_newline = unset
 trim_trailing_whitespace = unset

@@ -27,6 +27,7 @@ deno.lock text eol=lf
 uv.lock text eol=lf
 
 /tests/resources/unity/**/*.asset text eol=lf
+/tests/resources/unity/**/*.inputactions text eol=lf
 /tests/resources/unity/**/*.meta text eol=lf
 /tests/resources/unity/**/*.unity text eol=lf
 /tests/resources/unity/**/*.asmdef text eol=lf
