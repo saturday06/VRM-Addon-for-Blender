@@ -11,7 +11,7 @@ from collections.abc import (
 )
 from typing import Callable, Generic, Optional, TypeVar, Union, overload
 
-from mathutils import Euler, Matrix, Quaternion, Vector
+from mathutils import Color, Euler, Matrix, Quaternion, Vector
 from typing_extensions import TypeAlias
 
 class bpy_struct:
@@ -1762,9 +1762,25 @@ class ColorManagedViewSettings(bpy_struct):
 class View3DCursor(bpy_struct):
     matrix: Matrix
 
+class ImageFormatSettings(bpy_struct):
+    file_format: str
+
 class RenderSettings(bpy_struct):
     fps: int
     fps_base: float
+    resolution_percentage: int
+    resolution_x: int
+    resolution_y: int
+    filepath: str
+    @property
+    def image_settings(self) -> ImageFormatSettings: ...
+
+class World(ID):
+    use_nodes: bool
+    color: Color
+
+class SceneEEVEE(bpy_struct):
+    taa_render_samples: int
 
 class Scene(ID):
     frame_start: int
@@ -1782,6 +1798,11 @@ class Scene(ID):
     def cursor(self) -> View3DCursor: ...
     @property
     def render(self) -> RenderSettings: ...
+    @property
+    def eevee(self) -> SceneEEVEE: ...
+
+    camera: Optional[Object]
+    world: World
 
 class AreaSpaces(bpy_prop_collection[Space]): ...
 
@@ -1809,6 +1830,20 @@ class Window(bpy_struct):
     screen: Screen
 
 class Timer(bpy_struct): ...
+
+class Camera(ID):
+    angle: float
+    angle_x: float
+    angle_y: float
+    clip_end: float
+    clip_start: float
+    display_size: float
+    lens: float
+    lens_unit: str
+    ortho_scale: float
+    type: str
+    shift_x: float
+    shift_y: float
 
 class WindowManager(ID):
     @property

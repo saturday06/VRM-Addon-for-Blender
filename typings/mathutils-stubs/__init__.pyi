@@ -147,6 +147,11 @@ class Color:
     r: float
     s: float
     v: float
+    def __setitem__(
+        self,
+        index: int,
+        value: float,
+    ) -> None: ...  # ドキュメントには存在しない?
 
 class Euler:
     def __init__(self, angles: Iterable[float], order: str = "XYZ") -> None: ...

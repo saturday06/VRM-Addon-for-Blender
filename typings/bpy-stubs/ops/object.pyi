@@ -62,6 +62,16 @@ def convert(
     faces: bool = True,
     offset: float = 0.01,
 ) -> set[str]: ...
+def camera_add(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    enter_editmode: bool = False,
+    align: str = "WORLD",
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    scale: tuple[float, float, float] = (0.0, 0.0, 0.0),
+) -> set[str]: ...
 def origin_set(
     execution_context: str = "EXEC_DEFAULT",
     /,

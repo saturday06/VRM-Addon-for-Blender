@@ -6,5 +6,6 @@ from . import mesh as mesh
 from . import object as object
 from . import outliner as outliner
 from . import preferences as preferences
+from . import render as render
 from . import uv as uv
 from . import wm as wm
