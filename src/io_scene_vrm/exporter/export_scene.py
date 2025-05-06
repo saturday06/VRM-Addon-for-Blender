@@ -764,7 +764,12 @@ class WM_OT_vrma_export_prerequisite(Operator):
             error_messages.append(pgettext("Armature not found"))
             return error_messages
 
-        if not get_armature_extension(armature_data).is_vrm1():
+        ext = get_armature_extension(armature_data)
+        if get_armature_extension(armature_data).is_vrm1():
+            humanoid = ext.vrm1.humanoid
+            if not humanoid.human_bones.all_required_bones_are_assigned():
+                error_messages.append(pgettext("Please assign required human bones"))
+        else:
             error_messages.append(pgettext("Please set the version of VRM to 1.0"))
 
         return error_messages
