@@ -12,10 +12,10 @@ if (!existsSync(basePath)) {
 
 const paths = await promises.readdir(basePath, { recursive: true });
 paths.forEach(async (path) => {
-  if (basename(dirname(path)) == "in") {
+  if (basename(dirname(path)) == "in" && path.endsWith(".vrm")) {
     return;
   }
-  if (!path.endsWith(".vrm")) {
+  if (!path.endsWith(".vrm") && !path.endsWith(".vrma")) {
     return;
   }
 
