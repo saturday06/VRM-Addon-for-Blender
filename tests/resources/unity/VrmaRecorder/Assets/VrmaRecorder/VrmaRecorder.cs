@@ -22,10 +22,21 @@ namespace VrmaRecorder
         [SerializeField]
         private Camera? _rightCamera;
 
+#if UNITY_EDITOR
+        [UnityEditor.InitializeOnLoadMethod]
+#endif
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
         public static void BeforeSplashScreen()
         {
-            Application.targetFrameRate = 6;
+            // fpsを固定
+            // targetFrameRateの固定は今のところおまじない。
+            // fixedDeltaTimeだけ固定すればよい気もする。
+            Application.targetFrameRate = 60;
+            Time.fixedDeltaTime = 1f / Application.targetFrameRate;
+
+            // fixedDeltaTime以内に処理が終わらない場合どうなるかわからないため
+            // 時間の進みを遅くする。
+            Time.captureFramerate = Application.targetFrameRate * 4;
         }
 
 #if UNITY_EDITOR
@@ -222,7 +233,11 @@ namespace VrmaRecorder
             List<(byte[] forwardImage, byte[] topImage, byte[] rightImage)> images = new();
             for (var i = 0; i < Application.targetFrameRate * 5; i++)
             {
-                await Awaitable.EndOfFrameAsync();
+                await Awaitable.FixedUpdateAsync();
+                if (i % (Application.targetFrameRate / 2) != 0)
+                {
+                    continue;
+                }
                 images.Add(
                     (
                         CreatePngImage(forwardCamera),
