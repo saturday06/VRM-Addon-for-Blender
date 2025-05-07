@@ -3308,10 +3308,12 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             raise TypeError(message)
         return armature_data
 
-    @contextmanager
-    def clear_shape_key_values(self) -> Iterator[dict[tuple[str, str], float]]:
+    @staticmethod
+    def enter_clear_shape_key_values(
+        context: Context, export_objects: Sequence[Object]
+    ) -> Mapping[tuple[str, str], float]:
         mesh_name_and_shape_key_name_to_value: dict[tuple[str, str], float] = {}
-        mesh_objs = [obj for obj in self.export_objects if obj.type == "MESH"]
+        mesh_objs = [obj for obj in export_objects if obj.type == "MESH"]
         for mesh_obj in mesh_objs:
             mesh = mesh_obj.data
             if not isinstance(mesh, Mesh):
@@ -3325,24 +3327,44 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     key_block.value
                 )
                 key_block.value = 0
-        self.context.view_layer.update()
+        context.view_layer.update()
+        return mesh_name_and_shape_key_name_to_value
+
+    @staticmethod
+    def leave_clear_shape_key_values(
+        context: Context,
+        mesh_name_and_shape_key_name_to_value: Mapping[tuple[str, str], float],
+    ) -> None:
+        for (
+            mesh_name,
+            shape_key_name,
+        ), value in mesh_name_and_shape_key_name_to_value.items():
+            mesh = context.blend_data.meshes.get(mesh_name)
+            if not mesh:
+                continue
+            shape_keys = mesh.shape_keys
+            if not shape_keys:
+                continue
+            key_block = shape_keys.key_blocks.get(shape_key_name)
+            if not key_block:
+                continue
+            key_block.value = value
+
+    @contextmanager
+    def clear_shape_key_values(self) -> Iterator[Mapping[tuple[str, str], float]]:
+        mesh_name_and_shape_key_name_to_value = self.enter_clear_shape_key_values(
+            self.context, self.export_objects
+        )
         try:
             yield mesh_name_and_shape_key_name_to_value
+            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
+            # 無効になることがある。その状態でアクセスするとクラッシュするため、
+            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
+            # 注意する
         finally:
-            for (
-                mesh_name,
-                shape_key_name,
-            ), value in mesh_name_and_shape_key_name_to_value.items():
-                mesh = self.context.blend_data.meshes.get(mesh_name)
-                if not mesh:
-                    continue
-                shape_keys = mesh.shape_keys
-                if not shape_keys:
-                    continue
-                key_block = shape_keys.key_blocks.get(shape_key_name)
-                if not key_block:
-                    continue
-                key_block.value = value
+            self.leave_clear_shape_key_values(
+                self.context, mesh_name_and_shape_key_name_to_value
+            )
 
     def get_legacy_shader_images(self, material: Material) -> Sequence[Image]:
         node, legacy_shader_name = search.legacy_shader_node(material)

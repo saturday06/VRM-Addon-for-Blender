@@ -145,6 +145,10 @@ def save_workspace(
     saved_workspace = enter_save_workspace(context, obj, mode=mode)
     try:
         yield
+        # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
+        # 無効になることがある。その状態でアクセスするとクラッシュするため、
+        # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
+        # 注意する
     finally:
         exit_save_workspace(context, saved_workspace)
 

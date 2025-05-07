@@ -2,7 +2,7 @@
 import secrets
 import string
 from abc import ABC, abstractmethod
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from typing import Optional, Union
 
@@ -46,10 +46,10 @@ class AbstractBaseVrmExporter(ABC):
     def export_vrm(self) -> Optional[bytes]:
         pass
 
-    @contextmanager
-    def clear_blend_shape_proxy_previews(
-        self, armature_data: Armature
-    ) -> Iterator[None]:
+    @staticmethod
+    def enter_clear_blend_shape_proxy_previews(
+        armature_data: Armature,
+    ) -> tuple[Sequence[float], Mapping[str, float]]:
         ext = get_armature_extension(armature_data)
 
         saved_vrm0_previews: list[float] = []
@@ -65,21 +65,46 @@ class AbstractBaseVrmExporter(ABC):
             saved_vrm1_previews[name] = expression.preview
             expression.preview = 0
 
+        return saved_vrm0_previews, saved_vrm1_previews
+
+    @staticmethod
+    def leave_clear_blend_shape_proxy_previews(
+        armature_data: Armature,
+        saved_vrm0_previews: Sequence[float],
+        saved_vrm1_previews: Mapping[str, float],
+    ) -> None:
+        ext = get_armature_extension(armature_data)
+
+        for blend_shape_group, blend_shape_preview in zip(
+            ext.vrm0.blend_shape_master.blend_shape_groups, saved_vrm0_previews
+        ):
+            blend_shape_group.preview = blend_shape_preview
+
+        for (
+            name,
+            expression,
+        ) in ext.vrm1.expressions.all_name_to_expression_dict().items():
+            expression_preview = saved_vrm1_previews.get(name)
+            if expression_preview is not None:
+                expression.preview = expression_preview
+
+    @contextmanager
+    def clear_blend_shape_proxy_previews(
+        self, armature_data: Armature
+    ) -> Iterator[None]:
+        saved_vrm0_previews, saved_vrm1_previews = (
+            self.enter_clear_blend_shape_proxy_previews(armature_data)
+        )
         try:
             yield
+            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
+            # 無効になることがある。その状態でアクセスするとクラッシュするため、
+            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
+            # 注意する
         finally:
-            for blend_shape_group, blend_shape_preview in zip(
-                ext.vrm0.blend_shape_master.blend_shape_groups, saved_vrm0_previews
-            ):
-                blend_shape_group.preview = blend_shape_preview
-
-            for (
-                name,
-                expression,
-            ) in ext.vrm1.expressions.all_name_to_expression_dict().items():
-                expression_preview = saved_vrm1_previews.get(name)
-                if expression_preview is not None:
-                    expression.preview = expression_preview
+            self.leave_clear_blend_shape_proxy_previews(
+                armature_data, saved_vrm0_previews, saved_vrm1_previews
+            )
 
     @staticmethod
     def enter_hide_mtoon1_outline_geometry_nodes(
@@ -154,6 +179,10 @@ class AbstractBaseVrmExporter(ABC):
         )
         try:
             yield
+            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
+            # 無効になることがある。その状態でアクセスするとクラッシュするため、
+            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
+            # 注意する
         finally:
             AbstractBaseVrmExporter.exit_hide_mtoon1_outline_geometry_nodes(
                 context, object_name_to_modifier_names

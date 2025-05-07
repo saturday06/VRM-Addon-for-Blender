@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import math
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from sys import float_info
@@ -526,7 +526,7 @@ class PoseBonePose:
     bone_select: bool
 
     @staticmethod
-    def save(pose: Pose) -> dict[str, "PoseBonePose"]:
+    def save(pose: Pose) -> Mapping[str, "PoseBonePose"]:
         return {
             bone.name: PoseBonePose(
                 matrix_basis=bone.matrix_basis.copy(),
@@ -550,7 +550,7 @@ class PoseBonePose:
     def load(
         context: Context,
         pose: Pose,
-        bone_name_to_pose_bone_pose: dict[str, "PoseBonePose"],
+        bone_name_to_pose_bone_pose: Mapping[str, "PoseBonePose"],
     ) -> None:
         context.view_layer.update()
 
@@ -573,6 +573,32 @@ class PoseBonePose:
             bones.extend(bone.children)
 
         context.view_layer.update()
+
+
+def leave_setup_humanoid_t_pose(
+    context: Context,
+    armature: Object,
+    saved_pose_bone_pose: Mapping[str, PoseBonePose],
+    saved_pose_position: str,
+    *,
+    saved_vrm1_look_at_preview: bool,
+) -> None:
+    with save_workspace(context, armature):
+        bpy.ops.object.select_all(action="DESELECT")
+        bpy.ops.object.mode_set(mode="POSE")
+        PoseBonePose.load(context, armature.pose, saved_pose_bone_pose)
+        bpy.ops.object.mode_set(mode="OBJECT")
+
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return
+        armature_data.pose_position = saved_pose_position
+        ext = get_armature_extension(armature_data)
+        if (
+            ext.is_vrm1()
+            and ext.vrm1.look_at.enable_preview != saved_vrm1_look_at_preview
+        ):
+            ext.vrm1.look_at.enable_preview = saved_vrm1_look_at_preview
 
 
 @contextmanager
@@ -673,19 +699,15 @@ def setup_humanoid_t_pose(
 
     try:
         yield
+        # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
+        # 無効になることがある。その状態でアクセスするとクラッシュするため、
+        # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
+        # 注意する
     finally:
-        with save_workspace(context, armature):
-            bpy.ops.object.select_all(action="DESELECT")
-            bpy.ops.object.mode_set(mode="POSE")
-
-            PoseBonePose.load(context, armature.pose, saved_pose_bone_pose)
-
-            armature_data.pose_position = saved_pose_position
-            bpy.ops.object.mode_set(mode="OBJECT")
-
-            ext = get_armature_extension(armature_data)
-            if (
-                ext.is_vrm1()
-                and ext.vrm1.look_at.enable_preview != saved_vrm1_look_at_preview
-            ):
-                ext.vrm1.look_at.enable_preview = saved_vrm1_look_at_preview
+        leave_setup_humanoid_t_pose(
+            context,
+            armature,
+            saved_pose_bone_pose,
+            saved_pose_position,
+            saved_vrm1_look_at_preview=saved_vrm1_look_at_preview,
+        )

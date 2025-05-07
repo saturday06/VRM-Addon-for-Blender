@@ -161,13 +161,12 @@ class AbstractBaseVrmImporter(ABC):
         return armature_data
 
     @staticmethod
-    @contextlib.contextmanager
-    def save_bone_child_object_transforms(
-        context: Context, armature: Object
-    ) -> Iterator[Armature]:
-        if not isinstance(armature.data, Armature):
-            message = f"{type(armature.data)} is not an Armature"
-            raise TypeError(message)
+    def enter_save_bone_child_object_transforms(
+        context: Context, armature_object: Object
+    ) -> Optional[Mapping[str, Matrix]]:
+        armature_data = armature_object.data
+        if not isinstance(armature_data, Armature):
+            return None
 
         # 編集前のボーンの子オブジェクトのワールド行列を保存
         context.view_layer.update()
@@ -175,27 +174,62 @@ class AbstractBaseVrmImporter(ABC):
         for obj in context.blend_data.objects:
             if (
                 obj.parent_type == "BONE"
-                and obj.parent == armature
-                and obj.parent_bone in armature.data.bones
+                and obj.parent == armature_object
+                and obj.parent_bone in armature_data.bones
             ):
                 bone_child_object_world_matrices[obj.name] = obj.matrix_world.copy()
 
+        return bone_child_object_world_matrices
+
+    @staticmethod
+    def leave_save_bone_child_object_transforms(
+        context: Context,
+        armature_object: Object,
+        bone_child_object_world_matrices: Mapping[str, Matrix],
+    ) -> None:
+        armature_data = armature_object.data
+        if not isinstance(armature_data, Armature):
+            message = f"{type(armature_data)} is not an Armature"
+            raise TypeError(message)
+        # 編集前のボーンの子オブジェクトのワールド行列を復元
+        context.view_layer.update()
+        for name, matrix_world in bone_child_object_world_matrices.items():
+            restore_obj = context.blend_data.objects.get(name)
+            if (
+                restore_obj
+                and restore_obj.parent_type == "BONE"
+                and restore_obj.parent == armature_object
+                and restore_obj.parent_bone in armature_data.bones
+            ):
+                restore_obj.matrix_world = matrix_world.copy()
+        context.view_layer.update()
+
+    @staticmethod
+    @contextlib.contextmanager
+    def save_bone_child_object_transforms(
+        context: Context, armature: Object
+    ) -> Iterator[Armature]:
+        bone_child_object_world_matrices = (
+            AbstractBaseVrmImporter.enter_save_bone_child_object_transforms(
+                context, armature
+            )
+        )
         try:
             with save_workspace(context, armature, mode="EDIT"):
-                yield armature.data
+                armature_data = armature.data
+                if not isinstance(armature_data, Armature):
+                    message = f"{type(armature_data)} is not an Armature"
+                    raise TypeError(message)
+                yield armature_data
+                # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
+                # 無効になることがある。その状態でアクセスするとクラッシュするため、
+                # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
+                # 注意する
         finally:
-            # 編集前のボーンの子オブジェクトのワールド行列を復元
-            context.view_layer.update()
-            for name, matrix_world in bone_child_object_world_matrices.items():
-                restore_obj = context.blend_data.objects.get(name)
-                if (
-                    restore_obj
-                    and restore_obj.parent_type == "BONE"
-                    and restore_obj.parent == armature
-                    and restore_obj.parent_bone in armature.data.bones
-                ):
-                    restore_obj.matrix_world = matrix_world.copy()
-            context.view_layer.update()
+            if bone_child_object_world_matrices is not None:
+                AbstractBaseVrmImporter.leave_save_bone_child_object_transforms(
+                    context, armature, bone_child_object_world_matrices
+                )
 
     def use_fake_user_for_thumbnail(self) -> None:
         # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtexture

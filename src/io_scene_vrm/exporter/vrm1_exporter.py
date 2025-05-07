@@ -116,45 +116,71 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             INTERNAL_NAME_PREFIX + self.export_id + "MaterialName"
         )
 
-    @contextmanager
-    def overwrite_object_visibility_and_selection(self) -> Iterator[None]:
+    @staticmethod
+    def enter_overwrite_object_visibility_and_selection(
+        context: Context, export_objects: Sequence[Object]
+    ) -> Mapping[str, tuple[bool, bool]]:
         object_visibility_and_selection: dict[str, tuple[bool, bool]] = {}
         # https://projects.blender.org/blender/blender/issues/113378
-        self.context.view_layer.update()
-        for obj in self.context.view_layer.objects:
+        context.view_layer.update()
+        for obj in context.view_layer.objects:
             object_visibility_and_selection[obj.name] = (
                 obj.hide_get(),
                 obj.select_get(),
             )
-            enabled = obj in self.export_objects
+            enabled = obj in export_objects
             obj.hide_set(not enabled)
             obj.select_set(enabled)
-        try:
-            yield
-        finally:
-            for object_name, (
-                hidden,
-                selection,
-            ) in object_visibility_and_selection.items():
-                restore_obj = self.context.blend_data.objects.get(object_name)
-                if restore_obj:
-                    restore_obj.hide_set(hidden)
-                    restore_obj.select_set(selection)
+        return object_visibility_and_selection
+
+    @staticmethod
+    def leave_overwrite_object_visibility_and_selection(
+        context: Context,
+        object_visibility_and_selection: Mapping[str, tuple[bool, bool]],
+    ) -> None:
+        for object_name, (
+            hidden,
+            selection,
+        ) in object_visibility_and_selection.items():
+            restore_obj = context.blend_data.objects.get(object_name)
+            if restore_obj:
+                restore_obj.hide_set(hidden)
+                restore_obj.select_set(selection)
 
     @contextmanager
-    def save_selected_mesh_compat_objects(self) -> Iterator[Sequence[str]]:
+    def overwrite_object_visibility_and_selection(self) -> Iterator[None]:
+        object_visibility_and_selection = (
+            self.enter_overwrite_object_visibility_and_selection(
+                self.context, self.export_objects
+            )
+        )
+        try:
+            yield
+            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
+            # 無効になることがある。その状態でアクセスするとクラッシュするため、
+            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
+            # 注意する
+        finally:
+            self.leave_overwrite_object_visibility_and_selection(
+                self.context, object_visibility_and_selection
+            )
+
+    @staticmethod
+    def enter_save_selected_mesh_compat_objects(
+        context: Context, export_objects: Sequence[Object]
+    ) -> tuple[Mapping[str, str], Mapping[str, str]]:
         backup_obj_name_to_original_obj_name: dict[str, str] = {}
         backup_data_name_to_original_data_name: dict[str, str] = {}
         temporary_backup_data_name_to_export_obj_data: dict[str, Optional[ID]] = {}
 
         # https://projects.blender.org/blender/blender/issues/113378
-        self.context.view_layer.update()
+        context.view_layer.update()
 
         # オブジェクトを複製。
         # 新しいオブジェクトはエクスポートに利用する
         # 古いオブジェクトはバックアップ名を付与し、エクスポート後に戻す
-        for obj in self.context.view_layer.objects:
-            if obj not in self.export_objects:
+        for obj in context.view_layer.objects:
+            if obj not in export_objects:
                 continue
             if obj.type not in search.MESH_CONVERTIBLE_OBJECT_TYPES:
                 continue
@@ -195,120 +221,127 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     export_obj_data
                 )
 
-            scene_collection_objects = self.context.scene.collection.objects
+            scene_collection_objects = context.scene.collection.objects
             scene_collection_objects.link(export_obj)
             export_obj.select_set(True)
             obj.select_set(False)
 
-        # フレームをまたいでdataを保持するのは怖いので消す
-        temporary_backup_data_name_to_export_obj_data.clear()
+        return (
+            backup_obj_name_to_original_obj_name,
+            backup_data_name_to_original_data_name,
+        )
 
-        try:
-            yield list(backup_obj_name_to_original_obj_name.values())
-        finally:
-            removing_object_datum: list[ID] = []
+    @staticmethod
+    def leave_save_selected_mesh_compat_objects(
+        context: Context,
+        backup_obj_name_to_original_obj_name: Mapping[str, str],
+        backup_data_name_to_original_data_name: Mapping[str, str],
+    ) -> None:
+        removing_object_datum: list[ID] = []
 
-            # エクスポート用のオブジェクトを削除
-            for original_obj_name in backup_obj_name_to_original_obj_name.values():
-                restored_export_obj = self.context.blend_data.objects.get(
-                    original_obj_name
+        # エクスポート用のオブジェクトを削除
+        for original_obj_name in backup_obj_name_to_original_obj_name.values():
+            restored_export_obj = context.blend_data.objects.get(original_obj_name)
+            if not restored_export_obj:
+                continue
+
+            # dataは複数のオブジェクトから参照がある可能性があるので、
+            # ここで集めてあとで一括削除する
+            restored_export_obj_data = restored_export_obj.data
+            if (
+                restored_export_obj_data
+                and restored_export_obj_data not in removing_object_datum
+            ):
+                removing_object_datum.append(restored_export_obj_data)
+
+            # 削除できなかった時でも、元のオブジェクトと混同しないように
+            # 名前をランダム化
+            restored_export_obj.name = "Export-" + uuid4().hex
+
+            scene_collection_objects = context.scene.collection.objects
+            if restored_export_obj.name in scene_collection_objects:
+                scene_collection_objects.unlink(restored_export_obj)
+
+            if restored_export_obj.users > 1:
+                logger.warning(
+                    'Failed to remove "%s" with %d users (temp object for "%s")',
+                    restored_export_obj.name,
+                    restored_export_obj.users,
+                    original_obj_name,
                 )
-                if not restored_export_obj:
-                    continue
+            else:
+                context.blend_data.objects.remove(restored_export_obj)
 
-                # dataは複数のオブジェクトから参照がある可能性があるので、
-                # ここで集めてあとで一括削除する
-                restored_export_obj_data = restored_export_obj.data
-                if (
-                    restored_export_obj_data
-                    and restored_export_obj_data not in removing_object_datum
-                ):
-                    removing_object_datum.append(restored_export_obj_data)
+        # エクスポート用のオブジェクトデータを削除
+        for removing_object_data in removing_object_datum:
+            # 削除できなかった時でも、元のオブジェクトデータと混同しないように
+            # 名前をランダム化
+            removing_object_data.name = "Export-Data-" + uuid4().hex
 
-                # 削除できなかった時でも、元のオブジェクトと混同しないように
-                # 名前をランダム化
-                restored_export_obj.name = "Export-" + uuid4().hex
-
-                scene_collection_objects = self.context.scene.collection.objects
-                if restored_export_obj.name in scene_collection_objects:
-                    scene_collection_objects.unlink(restored_export_obj)
-
-                if restored_export_obj.users > 1:
-                    logger.warning(
-                        'Failed to remove "%s" with %d users (temp object for "%s")',
-                        restored_export_obj.name,
-                        restored_export_obj.users,
-                        original_obj_name,
-                    )
-                else:
-                    self.context.blend_data.objects.remove(restored_export_obj)
-
-            # エクスポート用のオブジェクトデータを削除
-            for removing_object_data in removing_object_datum:
-                # 削除できなかった時でも、元のオブジェクトデータと混同しないように
-                # 名前をランダム化
-                removing_object_data.name = "Export-Data-" + uuid4().hex
-
-                if removing_object_data.users > 1:
-                    logger.warning(
-                        'Failed to remove "%s" with %d users',
-                        removing_object_data.name,
-                        removing_object_data.users,
-                    )
-                elif isinstance(removing_object_data, Mesh):
-                    self.context.blend_data.meshes.remove(removing_object_data)
-                elif isinstance(removing_object_data, Curve):
-                    self.context.blend_data.curves.remove(removing_object_data)
-                elif isinstance(removing_object_data, VectorFont):
-                    self.context.blend_data.fonts.remove(removing_object_data)
-                else:
-                    logger.warning(
-                        'Failed to remove "%s" with %d users. Not implemented.',
-                        removing_object_data.name,
-                        removing_object_data.users,
-                    )
-
-            # バックアップされたオブジェクトの名前を戻す
-            for (
-                backup_obj_name,
-                original_obj_name,
-            ) in backup_obj_name_to_original_obj_name.items():
-                restored_original_data_name = None
-                restored_obj = self.context.blend_data.objects.get(backup_obj_name)
-                if not restored_obj:
-                    continue
-                restored_obj.name = original_obj_name
-                restored_obj.select_set(True)
-
-                # バックアップされたオブジェクトデータの名前を戻す
-                restored_obj_data = restored_obj.data
-                if not restored_obj_data:
-                    continue
-                restored_original_data_name = (
-                    backup_data_name_to_original_data_name.get(restored_obj_data.name)
+            if removing_object_data.users > 1:
+                logger.warning(
+                    'Failed to remove "%s" with %d users',
+                    removing_object_data.name,
+                    removing_object_data.users,
                 )
-                if not restored_original_data_name:
-                    continue
-                restored_obj_data.name = restored_original_data_name
+            elif isinstance(removing_object_data, Mesh):
+                context.blend_data.meshes.remove(removing_object_data)
+            elif isinstance(removing_object_data, Curve):
+                context.blend_data.curves.remove(removing_object_data)
+            elif isinstance(removing_object_data, VectorFont):
+                context.blend_data.fonts.remove(removing_object_data)
+            else:
+                logger.warning(
+                    'Failed to remove "%s" with %d users. Not implemented.',
+                    removing_object_data.name,
+                    removing_object_data.users,
+                )
+
+        # バックアップされたオブジェクトの名前を戻す
+        for (
+            backup_obj_name,
+            original_obj_name,
+        ) in backup_obj_name_to_original_obj_name.items():
+            restored_original_data_name = None
+            restored_obj = context.blend_data.objects.get(backup_obj_name)
+            if not restored_obj:
+                continue
+            restored_obj.name = original_obj_name
+            restored_obj.select_set(True)
+
+            # バックアップされたオブジェクトデータの名前を戻す
+            restored_obj_data = restored_obj.data
+            if not restored_obj_data:
+                continue
+            restored_original_data_name = backup_data_name_to_original_data_name.get(
+                restored_obj_data.name
+            )
+            if not restored_original_data_name:
+                continue
+            restored_obj_data.name = restored_original_data_name
 
     @contextmanager
-    def mount_skinned_mesh_parent(self) -> Iterator[None]:
-        armature = self.armature
-        if not armature:
-            yield
-            return
+    def save_selected_mesh_compat_objects(self) -> Iterator[Sequence[str]]:
+        (
+            backup_obj_name_to_original_obj_name,
+            backup_data_name_to_original_data_name,
+        ) = self.enter_save_selected_mesh_compat_objects(
+            self.context, self.export_objects
+        )
+        try:
+            yield list(backup_obj_name_to_original_obj_name.values())
+            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
+            # 無効になることがある。その状態でアクセスするとクラッシュするため、
+            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
+            # 注意する
+        finally:
+            self.leave_save_selected_mesh_compat_objects(
+                self.context,
+                backup_obj_name_to_original_obj_name,
+                backup_data_name_to_original_data_name,
+            )
 
-        if bpy.app.version >= (3, 2, 1):
-            yield
-            return
-
-        # Blender 3.1.2付属アドオンのglTF 2.0エクスポート処理には次の条件をすべて満たす
-        # ときinverseBindMatricesが不正なglbが出力される:
-        # - アーマチュアの子孫になっていないメッシュがそのアーマチュアのボーンに
-        #   スキニングされている
-        # - スキニングされたボーンの子供に別のメッシュが存在する
-        # そのため、アーマチュアの子孫になっていないメッシュの先祖の親をアーマチュアに
-        # し、後で戻す
+    def enter_mount_skinned_mesh_parent(self, armature: Object) -> Sequence[str]:
         mounted_object_names: list[str] = []
 
         for obj in self.export_objects:
@@ -329,17 +362,47 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 search_obj.parent = armature
                 search_obj.matrix_world = matrix_world
                 break
+        return mounted_object_names
 
+    def leave_mount_skinned_mesh_parent(
+        self, mounted_object_names: Sequence[str]
+    ) -> None:
+        for mounted_object_name in mounted_object_names:
+            restore_obj = self.context.blend_data.objects.get(mounted_object_name)
+            if not restore_obj:
+                continue
+            matrix_world = restore_obj.matrix_world.copy()
+            restore_obj.parent = None
+            restore_obj.matrix_world = matrix_world
+
+    @contextmanager
+    def mount_skinned_mesh_parent(self) -> Iterator[None]:
+        # Blender 3.1.2付属アドオンのglTF 2.0エクスポート処理には次の条件をすべて満たす
+        # ときinverseBindMatricesが不正なglbが出力される:
+        # - アーマチュアの子孫になっていないメッシュがそのアーマチュアのボーンに
+        #   スキニングされている
+        # - スキニングされたボーンの子供に別のメッシュが存在する
+        # そのため、アーマチュアの子孫になっていないメッシュの先祖の親をアーマチュアに
+        # し、後で戻す
+
+        armature = self.armature
+        if not armature:
+            yield
+            return
+
+        if bpy.app.version >= (3, 2, 1):
+            yield
+            return
+
+        mounted_object_names = self.enter_mount_skinned_mesh_parent(armature)
         try:
             yield
+            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
+            # 無効になることがある。その状態でアクセスするとクラッシュするため、
+            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
+            # 注意する
         finally:
-            for mounted_object_name in mounted_object_names:
-                restore_obj = self.context.blend_data.objects.get(mounted_object_name)
-                if not restore_obj:
-                    continue
-                matrix_world = restore_obj.matrix_world.copy()
-                restore_obj.parent = None
-                restore_obj.matrix_world = matrix_world
+            self.leave_mount_skinned_mesh_parent(mounted_object_names)
 
     @classmethod
     def create_meta_dict(
@@ -1940,9 +2003,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         if material_dicts:
             json_dict["materials"] = material_dicts
 
-    @classmethod
-    @contextmanager
-    def disable_mtoon1_material_nodes(cls, context: Context) -> Iterator[None]:
+    @staticmethod
+    def enter_disable_mtoon1_material_nodes(context: Context) -> Sequence[str]:
         disabled_material_names: list[str] = []
         for material in context.blend_data.materials:
             if not material:
@@ -1950,17 +2012,31 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if get_material_extension(material).mtoon1.enabled and material.use_nodes:
                 material.use_nodes = False
                 disabled_material_names.append(material.name)
+        return disabled_material_names
+
+    @staticmethod
+    def leave_disable_mtoon1_material_nodes(
+        context: Context, disabled_material_names: Sequence[str]
+    ) -> None:
+        for disabled_material_name in disabled_material_names:
+            disabled_material = context.blend_data.materials.get(disabled_material_name)
+            if not disabled_material:
+                continue
+            if not disabled_material.use_nodes:
+                disabled_material.use_nodes = True
+
+    @classmethod
+    @contextmanager
+    def disable_mtoon1_material_nodes(cls, context: Context) -> Iterator[None]:
+        disabled_material_names = cls.enter_disable_mtoon1_material_nodes(context)
         try:
             yield
+            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
+            # 無効になることがある。その状態でアクセスするとクラッシュするため、
+            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
+            # 注意する
         finally:
-            for disabled_material_name in disabled_material_names:
-                disabled_material = context.blend_data.materials.get(
-                    disabled_material_name
-                )
-                if not disabled_material:
-                    continue
-                if not disabled_material.use_nodes:
-                    disabled_material.use_nodes = True
+            cls.leave_disable_mtoon1_material_nodes(context, disabled_material_names)
 
     @classmethod
     def unassign_normal_from_mtoon_primitive_morph_target(
@@ -2017,19 +2093,17 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         continue
                     target_dict.pop("NORMAL", None)
 
-    @classmethod
-    @contextmanager
-    def setup_dummy_human_bones(
-        cls,
-        context: Context,
-        armature: Object,
-        armature_data: Armature,
-    ) -> Iterator[None]:
+    @staticmethod
+    def enter_setup_dummy_human_bones(
+        context: Context, armature_object: Object
+    ) -> Optional[Mapping[HumanBoneName, str]]:
+        armature_data = armature_object.data
+        if not isinstance(armature_data, Armature):
+            return None
         ext = get_armature_extension(armature_data)
         human_bones = ext.vrm1.humanoid.human_bones
         if human_bones.all_required_bones_are_assigned():
-            yield
-            return
+            return None
 
         human_bone_name_to_bone_name: dict[HumanBoneName, str] = {}
         for (
@@ -2041,7 +2115,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             human_bone_name_to_bone_name[human_bone_name] = human_bone.node.bone_name
             human_bone.node.bone_name = ""
 
-        with save_workspace(context, armature, mode="EDIT"):
+        with save_workspace(context, armature_object, mode="EDIT"):
             hips_bone = armature_data.edit_bones.new(HumanBoneName.HIPS.value)
             hips_bone.head = Vector((0, 0, 0.5))
             hips_bone.tail = Vector((0, 1, 0.5))
@@ -2175,34 +2249,68 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         human_bones.left_lower_leg.node.bone_name = left_lower_leg_bone_name
         human_bones.left_foot.node.bone_name = left_foot_bone_name
 
+        return human_bone_name_to_bone_name
+
+    @staticmethod
+    def leave_setup_dummy_human_bones(
+        context: Context,
+        armature_object: Object,
+        human_bone_name_to_bone_name: Mapping[HumanBoneName, str],
+    ) -> None:
+        armature_data = armature_object.data
+        if not isinstance(armature_data, Armature):
+            return
+
+        human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
+
+        human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
+        dummy_bone_names = deepcopy(
+            [
+                human_bone.node.bone_name
+                for human_bone in human_bone_name_to_human_bone.values()
+                if human_bone.node.bone_name
+            ]
+        )
+
+        for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
+            bone_name = human_bone_name_to_bone_name.get(human_bone_name)
+            if bone_name:
+                human_bone.node.bone_name = bone_name
+            else:
+                human_bone.node.bone_name = ""
+        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+            context, armature_data.name
+        )
+        with save_workspace(context, armature_object, mode="EDIT"):
+            for dummy_bone_name in dummy_bone_names:
+                dummy_edit_bone = armature_data.edit_bones.get(dummy_bone_name)
+                if dummy_edit_bone:
+                    armature_data.edit_bones.remove(dummy_edit_bone)
+
+    @classmethod
+    @contextmanager
+    def setup_dummy_human_bones(
+        cls,
+        context: Context,
+        armature: Object,
+    ) -> Iterator[None]:
+        human_bone_name_to_bone_name = cls.enter_setup_dummy_human_bones(
+            context,
+            armature,
+        )
         try:
             yield
+            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
+            # 無効になることがある。その状態でアクセスするとクラッシュするため、
+            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
+            # 注意する
         finally:
-            human_bones = ext.vrm1.humanoid.human_bones
-
-            human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
-            dummy_bone_names = deepcopy(
-                [
-                    human_bone.node.bone_name
-                    for human_bone in human_bone_name_to_human_bone.values()
-                    if human_bone.node.bone_name
-                ]
-            )
-
-            for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
-                bone_name = human_bone_name_to_bone_name.get(human_bone_name)
-                if bone_name:
-                    human_bone.node.bone_name = bone_name
-                else:
-                    human_bone.node.bone_name = ""
-            Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
-                context, armature_data.name
-            )
-            with save_workspace(context, armature, mode="EDIT"):
-                for dummy_bone_name in dummy_bone_names:
-                    dummy_edit_bone = armature_data.edit_bones.get(dummy_bone_name)
-                    if dummy_edit_bone:
-                        armature_data.edit_bones.remove(dummy_edit_bone)
+            if human_bone_name_to_bone_name is not None:
+                cls.leave_setup_dummy_human_bones(
+                    context,
+                    armature,
+                    human_bone_name_to_bone_name,
+                )
 
     @staticmethod
     def clear_constrainted_rotation(
@@ -2223,12 +2331,14 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             euler.z = 0
         set_rotation_without_mode_change(object_or_bone, euler.to_quaternion())
 
-    @contextmanager
-    def disable_constraints(self, context: Context) -> Iterator[None]:
+    @staticmethod
+    def enter_disable_constraints(
+        context: Context, armature: Object, export_objects: Sequence[Object]
+    ) -> tuple[Sequence[tuple[str, str]], Sequence[tuple[str, str]]]:
         constraint: Optional[Constraint] = None
 
         object_constraints, bone_constraints, _ = search.export_constraints(
-            self.export_objects, self.armature
+            export_objects, armature
         )
         object_name_and_constraint_name: list[tuple[str, str]] = []
         for object_name, constraint in object_constraints.all_constraints:
@@ -2236,7 +2346,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if not obj:
                 continue
             if isinstance(constraint, CopyRotationConstraint):
-                self.clear_constrainted_rotation(constraint, obj)
+                Vrm1Exporter.clear_constrainted_rotation(constraint, obj)
             else:
                 set_rotation_without_mode_change(obj, Quaternion())
             constraint.mute = True
@@ -2244,43 +2354,70 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         bone_name_and_constraint_name: list[tuple[str, str]] = []
         for bone_name, constraint in bone_constraints.all_constraints:
-            bone = self.armature.pose.bones.get(bone_name)
+            bone = armature.pose.bones.get(bone_name)
             if not bone:
                 continue
             if isinstance(constraint, CopyRotationConstraint):
-                self.clear_constrainted_rotation(constraint, bone)
+                Vrm1Exporter.clear_constrainted_rotation(constraint, bone)
             else:
                 set_rotation_without_mode_change(bone, Quaternion())
             constraint.mute = True
             bone_name_and_constraint_name.append((bone_name, constraint.name))
 
-        try:
-            yield
-        finally:
-            # ObjectやConstraintが消えている可能性を考慮し、それらを取得し直す
-            for object_name, constraint_name in object_name_and_constraint_name:
-                obj = context.blend_data.objects.get(object_name)
-                if not obj:
-                    continue
-                constraint = obj.constraints.get(constraint_name)
-                if not constraint:
-                    continue
-                constraint.mute = False
+        return (object_name_and_constraint_name, bone_name_and_constraint_name)
 
-            for bone_name, constraint_name in bone_name_and_constraint_name:
-                bone = self.armature.pose.bones.get(bone_name)
-                if not bone:
-                    continue
-                constraint = bone.constraints.get(constraint_name)
-                if not constraint:
-                    continue
-                constraint.mute = False
+    @staticmethod
+    def leave_disable_constraints(
+        context: Context,
+        armature: Object,
+        object_name_and_constraint_name: Sequence[tuple[str, str]],
+        bone_name_and_constraint_name: Sequence[tuple[str, str]],
+    ) -> None:
+        # ObjectやConstraintが消えている可能性を考慮し、それらを取得し直す
+        for object_name, constraint_name in object_name_and_constraint_name:
+            obj = context.blend_data.objects.get(object_name)
+            if not obj:
+                continue
+            constraint = obj.constraints.get(constraint_name)
+            if not constraint:
+                continue
+            constraint.mute = False
+
+        for bone_name, constraint_name in bone_name_and_constraint_name:
+            bone = armature.pose.bones.get(bone_name)
+            if not bone:
+                continue
+            constraint = bone.constraints.get(constraint_name)
+            if not constraint:
+                continue
+            constraint.mute = False
 
     @contextmanager
-    def assign_export_custom_properties(
-        self, armature_data: Armature
-    ) -> Iterator[None]:
+    def disable_constraints(self, context: Context) -> Iterator[None]:
+        object_name_and_constraint_name, bone_name_and_constraint_name = (
+            self.enter_disable_constraints(context, self.armature, self.export_objects)
+        )
+        try:
+            yield
+            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
+            # 無効になることがある。その状態でアクセスするとクラッシュするため、
+            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
+            # 注意する
+        finally:
+            self.leave_disable_constraints(
+                context,
+                self.armature,
+                object_name_and_constraint_name,
+                bone_name_and_constraint_name,
+            )
+
+    def enter_assign_export_custom_properties(self) -> None:
         self.armature[self.extras_main_armature_key] = True
+
+        armature_data = self.armature.data
+        if not isinstance(armature_data, Armature):
+            return
+
         # 他glTF2ExportUserExtensionの影響を最小化するため、
         # 影響が少ないと思われるカスタムプロパティを使って
         # Blenderのオブジェクトとインデックスの対応をとる。
@@ -2297,18 +2434,34 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         for bone in armature_data.bones:
             bone[self.extras_bone_name_key] = bone.name
 
+    def leave_assign_export_custom_properties(self) -> None:
+        armature_data = self.armature.data
+        if not isinstance(armature_data, Armature):
+            return
+
+        for pose_bone in self.armature.pose.bones:
+            pose_bone.pop(self.extras_bone_name_key, None)
+        for bone in armature_data.bones:
+            bone.pop(self.extras_bone_name_key, None)
+
+        for material in self.context.blend_data.materials:
+            material.pop(self.extras_material_name_key, None)
+        for obj in self.context.blend_data.objects:
+            obj.pop(self.extras_object_name_key, None)
+
+        self.armature.pop(self.extras_main_armature_key, None)
+
+    @contextmanager
+    def assign_export_custom_properties(self) -> Iterator[None]:
+        self.enter_assign_export_custom_properties()
         try:
             yield
+            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
+            # 無効になることがある。その状態でアクセスするとクラッシュするため、
+            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
+            # 注意する
         finally:
-            for pose_bone in self.armature.pose.bones:
-                pose_bone.pop(self.extras_bone_name_key, None)
-            for bone in armature_data.bones:
-                bone.pop(self.extras_bone_name_key, None)
-            for obj in self.context.blend_data.objects:
-                obj.pop(self.extras_object_name_key, None)
-            self.armature.pop(self.extras_main_armature_key, None)
-            for material in self.context.blend_data.materials:
-                material.pop(self.extras_material_name_key, None)
+            self.leave_assign_export_custom_properties()
 
     @staticmethod
     def gltf_export_armature_object_remove(
@@ -2405,7 +2558,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         with (
             save_workspace(self.context),
-            self.setup_dummy_human_bones(self.context, self.armature, armature_data),
+            self.setup_dummy_human_bones(self.context, self.armature),
             self.clear_blend_shape_proxy_previews(armature_data),
             setup_humanoid_t_pose(self.context, self.armature),
             self.overwrite_object_visibility_and_selection(),
@@ -2416,7 +2569,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 self.disable_mtoon1_material_nodes(self.context),
                 self.mount_skinned_mesh_parent(),
                 self.save_selected_mesh_compat_objects() as mesh_compat_object_names,
-                self.assign_export_custom_properties(armature_data),
+                self.assign_export_custom_properties(),
                 tempfile.TemporaryDirectory() as temp_dir,
             ):
                 force_apply_modifiers_to_objects(self.context, mesh_compat_object_names)
