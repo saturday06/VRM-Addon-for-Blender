@@ -88,8 +88,8 @@ def test(blend_path_str: str) -> None:
     if enable_second_export:
         vrm_bin_diff(
             in_path,
-            actual_path,
             actual_second_path,
+            expected_path,
             "The results of multiple exports are the same",
             update_failed_vrm=False,
         )
