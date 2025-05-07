@@ -143,6 +143,18 @@ ignore-paths = "." # Please use Ruff instead.
 pythonVersion = "3.9"
 pythonPlatform = "All"
 typeCheckingMode = "strict"
+exclude = [
+  # Unityのフォルダにファイルが多すぎて
+  # 'Enumeration of workspace source files is taking longer than 10 seconds.'
+  # の警告が出るので明示的に除外
+  "tests/resources/unity",
+
+  # デフォルトの除外フォルダ設定が消えてしまうので、再設定
+  # https://github.com/microsoft/pyright/blob/1.1.400/packages/pyright-internal/src/analyzer/service.ts#L793
+  "**/node_modules",
+  "**/__pycache__",
+  "**/.*",
+]
 
 reportMissingModuleSource = false
 reportCallInDefaultInitializer = true
