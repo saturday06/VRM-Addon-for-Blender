@@ -232,7 +232,10 @@ namespace VrmaRecorder
             vrmInstance.Runtime.VrmAnimation =
                 vrmaGltfInstance.GetComponent<Vrm10AnimationInstance>();
             var vrmaAnimation = vrmaGltfInstance.GetComponent<Animation>();
-            vrmaAnimation.Play(vrmaAnimation.clip.name);
+            var clip = vrmaAnimation.clip;
+            clip.wrapMode = WrapMode.Once;
+
+            vrmaAnimation.Play(clip.name);
 
             Directory.CreateDirectory(outputFolderPath);
 
