@@ -145,10 +145,14 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def save_selected_mesh_compat_objects(self) -> Iterator[Sequence[str]]:
         backup_obj_name_to_original_obj_name: dict[str, str] = {}
         backup_data_name_to_original_data_name: dict[str, str] = {}
+        temporary_backup_data_name_to_export_obj_data: dict[str, Optional[ID]] = {}
+
         # https://projects.blender.org/blender/blender/issues/113378
         self.context.view_layer.update()
 
-        scene_collection_objects = self.context.scene.collection.objects
+        # オブジェクトを複製。
+        # 新しいオブジェクトはエクスポートに利用する
+        # 古いオブジェクトはバックアップ名を付与し、エクスポート後に戻す
         for obj in self.context.view_layer.objects:
             if obj not in self.export_objects:
                 continue
@@ -165,11 +169,21 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             obj.name = backup_obj_name
             export_obj.name = original_obj_name
 
-            backup_data_name = "Backup-Data-" + uuid4().hex
-            original_data_name = None
             original_data = obj.data
-            if original_data:
+            if not original_data:
+                pass
+            elif export_obj_data := temporary_backup_data_name_to_export_obj_data.get(
+                original_data.name
+            ):
+                # 既にバックアップ名が付与されている場合は、
+                # そのバックアップ名に対応するデータを割り当て
+                export_obj.data = export_obj_data
+            else:
+                # データが一度もバックアップされていない場合は複製し、
+                # 新しいデータを、エクスポートに利用するオブジェクトに割り当て
+                # 古いデータはバックアップ名を付与し、エクスポート後に戻す
                 original_data_name = original_data.name
+                backup_data_name = "Backup-Data-" + uuid4().hex
                 backup_data_name_to_original_data_name[backup_data_name] = (
                     original_data_name
                 )
@@ -177,84 +191,104 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 original_data.name = backup_data_name
                 export_obj_data.name = original_data_name
                 export_obj.data = export_obj_data
+                temporary_backup_data_name_to_export_obj_data[backup_data_name] = (
+                    export_obj_data
+                )
 
+            scene_collection_objects = self.context.scene.collection.objects
             scene_collection_objects.link(export_obj)
             export_obj.select_set(True)
             obj.select_set(False)
 
+        # フレームをまたいでdataを保持するのは怖いので消す
+        temporary_backup_data_name_to_export_obj_data.clear()
+
         try:
             yield list(backup_obj_name_to_original_obj_name.values())
         finally:
-            # いちおう、取得しなおす
-            scene_collection_objects = self.context.scene.collection.objects
+            removing_object_datum: list[ID] = []
 
+            # エクスポート用のオブジェクトを削除
+            for original_obj_name in backup_obj_name_to_original_obj_name.values():
+                restored_export_obj = self.context.blend_data.objects.get(
+                    original_obj_name
+                )
+                if not restored_export_obj:
+                    continue
+
+                # dataは複数のオブジェクトから参照がある可能性があるので、
+                # ここで集めてあとで一括削除する
+                restored_export_obj_data = restored_export_obj.data
+                if (
+                    restored_export_obj_data
+                    and restored_export_obj_data not in removing_object_datum
+                ):
+                    removing_object_datum.append(restored_export_obj_data)
+
+                # 削除できなかった時でも、元のオブジェクトと混同しないように
+                # 名前をランダム化
+                restored_export_obj.name = "Export-" + uuid4().hex
+
+                scene_collection_objects = self.context.scene.collection.objects
+                if restored_export_obj.name in scene_collection_objects:
+                    scene_collection_objects.unlink(restored_export_obj)
+
+                if restored_export_obj.users > 1:
+                    logger.warning(
+                        'Failed to remove "%s" with %d users (temp object for "%s")',
+                        restored_export_obj.name,
+                        restored_export_obj.users,
+                        original_obj_name,
+                    )
+                else:
+                    self.context.blend_data.objects.remove(restored_export_obj)
+
+            # エクスポート用のオブジェクトデータを削除
+            for removing_object_data in removing_object_datum:
+                # 削除できなかった時でも、元のオブジェクトデータと混同しないように
+                # 名前をランダム化
+                removing_object_data.name = "Export-Data-" + uuid4().hex
+
+                if removing_object_data.users > 1:
+                    logger.warning(
+                        'Failed to remove "%s" with %d users',
+                        removing_object_data.name,
+                        removing_object_data.users,
+                    )
+                elif isinstance(removing_object_data, Mesh):
+                    self.context.blend_data.meshes.remove(removing_object_data)
+                elif isinstance(removing_object_data, Curve):
+                    self.context.blend_data.curves.remove(removing_object_data)
+                elif isinstance(removing_object_data, VectorFont):
+                    self.context.blend_data.fonts.remove(removing_object_data)
+                else:
+                    logger.warning(
+                        'Failed to remove "%s" with %d users. Not implemented.',
+                        removing_object_data.name,
+                        removing_object_data.users,
+                    )
+
+            # バックアップされたオブジェクトの名前を戻す
             for (
                 backup_obj_name,
                 original_obj_name,
             ) in backup_obj_name_to_original_obj_name.items():
-                restored_export_obj = self.context.blend_data.objects.get(
-                    original_obj_name
-                )
-                if restored_export_obj:
-                    restored_export_obj_data = restored_export_obj.data
-                    restored_export_obj.name = "Export-" + uuid4().hex
-                    if restored_export_obj.name in scene_collection_objects:
-                        scene_collection_objects.unlink(restored_export_obj)
-                    if restored_export_obj.users <= 1:
-                        self.context.blend_data.objects.remove(restored_export_obj)
-                    else:
-                        logger.warning(
-                            'Failed to remove "%s" with %d users'
-                            ' (temp object for "%s")',
-                            restored_export_obj.name,
-                            restored_export_obj.users,
-                            original_obj_name,
-                        )
-                    if restored_export_obj_data is None:
-                        pass
-                    elif restored_export_obj_data.users <= 1:
-                        if isinstance(restored_export_obj_data, Mesh):
-                            self.context.blend_data.meshes.remove(
-                                restored_export_obj_data
-                            )
-                        elif isinstance(restored_export_obj_data, Curve):
-                            self.context.blend_data.curves.remove(
-                                restored_export_obj_data
-                            )
-                        elif isinstance(restored_export_obj_data, VectorFont):
-                            self.context.blend_data.fonts.remove(
-                                restored_export_obj_data
-                            )
-                        else:
-                            logger.warning(
-                                'Failed to remove "%s" with %d users. Not implemented.',
-                                restored_export_obj_data.name,
-                                restored_export_obj_data.users,
-                            )
-                    else:
-                        logger.warning(
-                            'Failed to remove "%s" with %d users',
-                            restored_export_obj_data.name,
-                            restored_export_obj_data.users,
-                        )
-
+                restored_original_data_name = None
                 restored_obj = self.context.blend_data.objects.get(backup_obj_name)
                 if not restored_obj:
                     continue
-
                 restored_obj.name = original_obj_name
                 restored_obj.select_set(True)
 
+                # バックアップされたオブジェクトデータの名前を戻す
                 restored_obj_data = restored_obj.data
                 if not restored_obj_data:
                     continue
-
                 restored_original_data_name = (
                     backup_data_name_to_original_data_name.get(restored_obj_data.name)
                 )
                 if not restored_original_data_name:
                     continue
-
                 restored_obj_data.name = restored_original_data_name
 
     @contextmanager
