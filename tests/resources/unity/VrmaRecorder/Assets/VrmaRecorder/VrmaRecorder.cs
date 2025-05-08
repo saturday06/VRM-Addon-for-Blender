@@ -40,18 +40,13 @@ namespace VrmaRecorder
         }
 
 #if UNITY_EDITOR
-        private (
+        private List<(
             string inputVrmPath,
             string inputVrmaPath,
             string outputFolderPath
-        ) ReadEditorArgs()
+        )> ReadEditorArgs()
         {
             var inputVrmPath = Path.Combine(Application.dataPath, "..", "debug_robot.vrm");
-            var inputVrmaPath = UnityEditor.EditorUtility.OpenFilePanel(
-                "Open VRMA",
-                Application.dataPath,
-                "vrma"
-            );
             var outputFolderPath = Path.Combine(
                 Application.dataPath,
                 "..",
@@ -60,15 +55,26 @@ namespace VrmaRecorder
                 "..",
                 "temp"
             );
-            return (inputVrmPath, inputVrmaPath, outputFolderPath);
+            var result = new List<(string, string, string)>();
+            foreach (
+                var inputVrmaPath in Directory.GetFiles(
+                    Path.Combine(Application.dataPath, "..", "..", "..", "vrma", "in"),
+                    "*.vrma"
+                )
+            )
+            {
+                result.Add((inputVrmPath, inputVrmaPath, outputFolderPath));
+            }
+            result.Sort();
+            return result;
         }
 #endif
 
-        private (
+        private List<(
             string inputVrmPath,
             string inputVrmaPath,
             string outputFolderPath
-        )? ReadStandaloneArgs()
+        )>? ReadStandaloneArgs()
         {
             Debug.LogFormat(
                 LogType.Log,
@@ -160,7 +166,10 @@ namespace VrmaRecorder
                 return null;
             }
 
-            return (inputVrmPath, inputVrmaPath, outputFolderPath);
+            return new List<(string inputVrmPath, string inputVrmaPath, string outputFolderPath)>
+            {
+                (inputVrmPath, inputVrmaPath, outputFolderPath),
+            };
         }
 
         public void Start()
@@ -180,14 +189,17 @@ namespace VrmaRecorder
                     return;
                 }
 #endif
-                await StartRecording(
-                    args.inputVrmPath,
-                    args.inputVrmaPath,
-                    args.outputFolderPath,
-                    _forwardCamera ?? throw new NullReferenceException(nameof(_forwardCamera)),
-                    _topCamera ?? throw new NullReferenceException(nameof(_topCamera)),
-                    _rightCamera ?? throw new NullReferenceException(nameof(_rightCamera))
-                );
+                foreach (var arg in args)
+                {
+                    await StartRecording(
+                        arg.inputVrmPath,
+                        arg.inputVrmaPath,
+                        arg.outputFolderPath,
+                        _forwardCamera ?? throw new NullReferenceException(nameof(_forwardCamera)),
+                        _topCamera ?? throw new NullReferenceException(nameof(_topCamera)),
+                        _rightCamera ?? throw new NullReferenceException(nameof(_rightCamera))
+                    );
+                }
                 Application.Quit(0);
             }
             catch (Exception e)
@@ -254,24 +266,35 @@ namespace VrmaRecorder
                         CreatePngImage(rightCamera)
                     )
                 );
+                // しばらくは最初のフレームだけ録画
+                break;
             }
 
-            var prefix = Path.GetFileNameWithoutExtension(inputVrmaPath);
+            var prefix =
+                Path.GetFileNameWithoutExtension(inputVrmPath)
+                + "-"
+                + Path.GetFileNameWithoutExtension(inputVrmaPath);
             foreach (var (image, i) in images.Select((image, i) => (image, i)))
             {
                 await File.WriteAllBytesAsync(
-                    Path.Combine(outputFolderPath, $"{prefix}_{i:D2}_forward_unity.png"),
+                    Path.Combine(outputFolderPath, $"{prefix}-{i:D2}_forward_unity.png"),
                     image.forwardImage
                 );
                 await File.WriteAllBytesAsync(
-                    Path.Combine(outputFolderPath, $"{prefix}_{i:D2}_top_unity.png"),
+                    Path.Combine(outputFolderPath, $"{prefix}-{i:D2}_top_unity.png"),
                     image.topImage
                 );
                 await File.WriteAllBytesAsync(
-                    Path.Combine(outputFolderPath, $"{prefix}_{i:D2}_right_unity.png"),
+                    Path.Combine(outputFolderPath, $"{prefix}-{i:D2}_right_unity.png"),
                     image.rightImage
                 );
             }
+
+            // これらだけだとリソースリークする。そのうち修正。
+            Destroy(vrmInstance.gameObject);
+            Destroy(vrmaGltfInstance.gameObject);
+
+            await Awaitable.NextFrameAsync(); // Destroy処理待ち
         }
 
         private byte[] CreatePngImage(Camera renderCamera)

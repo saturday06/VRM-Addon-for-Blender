@@ -24,6 +24,7 @@ RUN <<'INSTALL_PACKAGES'
     blender \
     curl \
     diffutils \
+    ffmpeg-free \
     file \
     gh \
     git \
