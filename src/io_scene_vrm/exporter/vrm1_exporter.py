@@ -167,20 +167,22 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
     @staticmethod
     def enter_save_selected_mesh_compat_objects(
-        context: Context, export_objects: Sequence[Object]
+        context: Context, armature: Object, original_export_objects: Sequence[Object]
     ) -> tuple[Mapping[str, str], Mapping[str, str]]:
         backup_obj_name_to_original_obj_name: dict[str, str] = {}
         backup_data_name_to_original_data_name: dict[str, str] = {}
-        temporary_backup_data_name_to_export_obj_data: dict[str, Optional[ID]] = {}
 
         # https://projects.blender.org/blender/blender/issues/113378
         context.view_layer.update()
 
+        export_objects: list[Object] = []
+
         # オブジェクトを複製。
         # 新しいオブジェクトはエクスポートに利用する
         # 古いオブジェクトはバックアップ名を付与し、エクスポート後に戻す
+        # また、オブジェクトデータにもバックアップ名を付与
         for obj in context.view_layer.objects:
-            if obj not in export_objects:
+            if obj not in original_export_objects:
                 continue
             if obj.type not in search.MESH_CONVERTIBLE_OBJECT_TYPES:
                 continue
@@ -195,36 +197,67 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             obj.name = backup_obj_name
             export_obj.name = original_obj_name
 
-            original_data = obj.data
-            if not original_data:
-                pass
-            elif export_obj_data := temporary_backup_data_name_to_export_obj_data.get(
-                original_data.name
-            ):
-                # 既にバックアップ名が付与されている場合は、
-                # そのバックアップ名に対応するデータを割り当て
-                export_obj.data = export_obj_data
-            else:
-                # データが一度もバックアップされていない場合は複製し、
-                # 新しいデータを、エクスポートに利用するオブジェクトに割り当て
-                # 古いデータはバックアップ名を付与し、エクスポート後に戻す
-                original_data_name = original_data.name
-                backup_data_name = "Backup-Data-" + uuid4().hex
-                backup_data_name_to_original_data_name[backup_data_name] = (
-                    original_data_name
-                )
-                export_obj_data = original_data.copy()
-                original_data.name = backup_data_name
-                export_obj_data.name = original_data_name
-                export_obj.data = export_obj_data
-                temporary_backup_data_name_to_export_obj_data[backup_data_name] = (
-                    export_obj_data
-                )
-
+            export_objects.append(export_obj)
+            obj.select_set(False)
             scene_collection_objects = context.scene.collection.objects
             scene_collection_objects.link(export_obj)
             export_obj.select_set(True)
-            obj.select_set(False)
+
+            obj_data = obj.data
+            if not obj_data:
+                continue
+            if obj_data.name in backup_data_name_to_original_data_name:
+                continue
+            backup_data_name = "Backup-Data-" + uuid4().hex
+            backup_data_name_to_original_data_name[backup_data_name] = obj_data.name
+            obj_data.name = backup_data_name
+
+        # オブジェクトデータを複製
+        # ただし、Armatureモディファイア以外の有効なモディファイアが付与されている場合
+        # オブジェクトデータを共有する
+        data_to_non_sharing_objects: dict[ID, list[Object]] = {}
+        data_to_sharing_objects: dict[ID, list[Object]] = {}
+        for export_object in export_objects:
+            data = export_object.data
+            if not data:
+                continue
+            sharing = True
+            for modifier in export_object.modifiers:
+                if not modifier.show_viewport:
+                    continue
+                if (
+                    isinstance(modifier, ArmatureModifier)
+                    and modifier.object == armature
+                ):
+                    continue
+                sharing = False
+                break
+            mapping = (
+                data_to_sharing_objects if sharing else data_to_non_sharing_objects
+            )
+            objs = mapping.get(data)
+            if objs is None:
+                objs = list[Object]()
+                mapping[data] = objs
+            objs.append(export_object)
+
+        for data, sharing_export_objects in data_to_sharing_objects.items():
+            original_data_name = backup_data_name_to_original_data_name.get(data.name)
+            if not original_data_name:
+                continue  # ここには来ないはず
+            export_data = data.copy()
+            export_data.name = original_data_name
+            for sharing_export_object in sharing_export_objects:
+                sharing_export_object.data = export_data
+
+        for data, non_sharing_export_objects in data_to_non_sharing_objects.items():
+            original_data_name = backup_data_name_to_original_data_name.get(data.name)
+            if not original_data_name:
+                continue  # ここには来ないはず
+            for non_sharing_export_object in non_sharing_export_objects:
+                export_data = data.copy()
+                export_data.name = original_data_name
+                non_sharing_export_object.data = export_data
 
         return (
             backup_obj_name_to_original_obj_name,
@@ -326,7 +359,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             backup_obj_name_to_original_obj_name,
             backup_data_name_to_original_data_name,
         ) = self.enter_save_selected_mesh_compat_objects(
-            self.context, self.export_objects
+            self.context, self.armature, self.export_objects
         )
         try:
             yield list(backup_obj_name_to_original_obj_name.values())
@@ -2572,7 +2605,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 self.assign_export_custom_properties(),
                 tempfile.TemporaryDirectory() as temp_dir,
             ):
-                force_apply_modifiers_to_objects(self.context, mesh_compat_object_names)
+                force_apply_modifiers_to_objects(
+                    self.context, self.armature, mesh_compat_object_names
+                )
 
                 filepath = Path(temp_dir, "out.glb")
                 export_scene_gltf_result = export_scene_gltf(
@@ -3143,19 +3178,23 @@ def set_node_matrix(node_dict: dict[str, Json], matrix: Matrix) -> None:
 
 def force_apply_modifiers_to_objects(
     context: Context,
+    armature_object: Object,
     mesh_compatible_object_names: Sequence[str],
 ) -> None:
     selected_object_names: list[str] = [
         obj.name for obj in context.selectable_objects if obj.select_get()
     ]
     for mesh_compatible_object_name in mesh_compatible_object_names:
-        force_apply_modifiers_to_object(context, mesh_compatible_object_name)
+        force_apply_modifiers_to_object(
+            context, armature_object, mesh_compatible_object_name
+        )
     for obj in context.selectable_objects:
         obj.select_set(obj.name in selected_object_names)
 
 
 def force_apply_modifiers_to_object(
     context: Context,
+    armature_object: Object,
     mesh_compatible_object_name: str,
 ) -> None:
     mesh_compatible_object = context.blend_data.objects.get(mesh_compatible_object_name)
@@ -3188,7 +3227,10 @@ def force_apply_modifiers_to_object(
         str, tuple[bool, bool]
     ] = {}
     for modifier in list(mesh_object.modifiers):
-        if modifier.type != "ARMATURE":
+        if (
+            not isinstance(modifier, ArmatureModifier)
+            or modifier.object != armature_object
+        ):
             continue
         armature_modifier_name_to_show_render_and_show_viewport[modifier.name] = (
             modifier.show_render,
@@ -3214,7 +3256,10 @@ def force_apply_modifiers_to_object(
         mesh_data.name = mesh_data_name
     finally:
         for modifier in list(mesh_object.modifiers):
-            if modifier.type != "ARMATURE":
+            if (
+                not isinstance(modifier, ArmatureModifier)
+                or modifier.object != armature_object
+            ):
                 mesh_object.modifiers.remove(modifier)
                 continue
             show_render_and_show_viewport = (
