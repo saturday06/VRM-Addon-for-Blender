@@ -2,5 +2,5 @@ extend = "../pyproject.toml"
 
 [lint]
 extend-ignore = [
-    "S101", # Use of `assert` detected
+  "S101", # Use of `assert` detected
 ]

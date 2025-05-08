@@ -5,15 +5,15 @@ readme = "README.md"
 
 [tool.hatch.build.targets.wheel]
 packages = [
-    "addon_utils-stubs",
-    "bgl-stubs",
-    "bmesh-stubs",
-    "bpy-stubs",
-    "bpy_extras-stubs",
-    "gpu-stubs",
-    "gpu_extras-stubs",
-    "idprop-stubs",
-    "mathutils-stubs",
+  "addon_utils-stubs",
+  "bgl-stubs",
+  "bmesh-stubs",
+  "bpy-stubs",
+  "bpy_extras-stubs",
+  "gpu-stubs",
+  "gpu_extras-stubs",
+  "idprop-stubs",
+  "mathutils-stubs",
 ]
 
 [tool.ruff]
@@ -21,16 +21,16 @@ extend = "../pyproject.toml"
 
 [tool.ruff.lint]
 extend-ignore = [
-    # ----- ignored -----
+  # ----- ignored -----
 
-    "A001", # Variable `x` is shadowing a Python builtin
-    "A002", # Argument `x` is shadowing a Python builtin
-    "A004", # Import `x` is shadowing a Python builtin
-    "FBT001", # Boolean-typed positional argument in function definition
-    "FBT002", # Boolean default positional argument in function definition
-    "N801", # Class name `x` should use CapWords convention
-    "N802", # Function name `X` should be lowercase
-    "UP007", # Use `X | Y` for type annotations
+  "A001", # Variable `x` is shadowing a Python builtin
+  "A002", # Argument `x` is shadowing a Python builtin
+  "A004", # Import `x` is shadowing a Python builtin
+  "FBT001", # Boolean-typed positional argument in function definition
+  "FBT002", # Boolean default positional argument in function definition
+  "N801", # Class name `x` should use CapWords convention
+  "N802", # Function name `X` should be lowercase
+  "UP007", # Use `X | Y` for type annotations
 ]
 
 [tool.ruff.lint.pylint]
