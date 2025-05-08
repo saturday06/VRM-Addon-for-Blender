@@ -410,7 +410,7 @@ class TestSceneWatcher(TestCase):
         context = bpy.context
 
         for scene_watcher_type in SceneWatcherScheduler.get_all_scene_watcher_types():
-            with self.subTest(cls=scene_watcher_type):
+            with self.subTest(scene_watcher_type.__name__):
                 scene_watcher = scene_watcher_type()
 
                 class_file_path_str = inspect.getfile(scene_watcher_type)
