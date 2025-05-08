@@ -6,17 +6,28 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Final, Optional
 from unittest import SkipTest, TestCase
 
 import bpy
 from bpy.types import Camera, Context
-from mathutils import Euler
+from mathutils import Color, Euler, Vector
 
 from io_scene_vrm.common import ops
 
 
-class TestVrmAnimationImporter(TestCase):
+class TestVrmAnimationRendering(TestCase):
+    OBJECT_SUFFIX: Final[str] = "-TestVrmAnimationRenderingObject"
+    OBJECT_DATA_SUFFIX: Final[str] = "-TestVrmAnimationRenderingObjectData"
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+
+        context = bpy.context
+        cls.reset_scene(context)
+        bpy.ops.wm.save_as_mainfile(filepath=str(cls.base_blend_path()))
+
     @classmethod
     def base_blend_path(cls) -> Path:
         class_source_hash = (
@@ -40,12 +51,7 @@ class TestVrmAnimationImporter(TestCase):
         )
 
     @classmethod
-    def setUpClass(cls) -> None:
-        super().setUpClass()
-
-        context = bpy.context
-
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
+    def reset_scene(cls, context: Context) -> None:
         if context.view_layer.objects.active:
             bpy.ops.object.mode_set(mode="OBJECT")
         bpy.ops.object.select_all(action="SELECT")
@@ -53,17 +59,45 @@ class TestVrmAnimationImporter(TestCase):
         while context.blend_data.collections:
             context.blend_data.collections.remove(context.blend_data.collections[0])
         bpy.ops.outliner.orphans_purge(do_recursive=True)
+        cls.init_scene(context)
 
+    @classmethod
+    def init_scene(cls, context: Context) -> None:
+        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
         scene = context.scene
+
+        for obj in scene.collection.objects:
+            if obj.type in ["CAMERA", "LIGHT"]:
+                obj.hide_render = True
+                obj.hide_viewport = True
+
         scene.view_settings.view_transform = "Standard"
         scene.world.use_nodes = False
         scene.world.color[0] = 0
         scene.world.color[1] = 0
         scene.world.color[2] = 0
 
-        cls.add_camera("forward", (0, -4, 1), Euler((math.pi / 2, 0, 0)))
-        cls.add_camera("top", (0, 0, 4), Euler((0, 0, 0)))
-        cls.add_camera("right", (4, 0, 1), Euler((math.pi / 2, 0, math.pi / 2)))
+        cls.add_camera(
+            context,
+            "ForwardCamera",
+            "forward",
+            Vector((0, -4, 1)),
+            Euler((math.pi / 2, 0, 0)),
+        )
+        cls.add_camera(
+            context,
+            "TopCamera",
+            "top",
+            Vector((0, 0, 4)),
+            Euler((0, 0, 0)),
+        )
+        cls.add_camera(
+            context,
+            "RightCamera",
+            "right",
+            Vector((4, 0, 1)),
+            Euler((math.pi / 2, 0, math.pi / 2)),
+        )
 
         resolution = 512
         scene.render.resolution_x = resolution
@@ -76,32 +110,92 @@ class TestVrmAnimationImporter(TestCase):
         scene.cycles.use_denoising = False
         scene.cycles.use_adaptive_sampling = False
 
-        bpy.ops.wm.save_as_mainfile(filepath=str(cls.base_blend_path()))
+        light_data = context.blend_data.lights.new(
+            name="Light" + cls.OBJECT_DATA_SUFFIX, type="SUN"
+        )
+        light_data.color = Color((1.0, 1.0, 1.0))
+        light_object = context.blend_data.objects.new(
+            name="Light" + cls.OBJECT_SUFFIX, object_data=light_data
+        )
+        light_object.location = Vector((0, -8, 0))
+        light_object.rotation_mode = "XYZ"
+        light_object.rotation_euler = Euler((math.pi / 2, 0, 0))
+
+        scene.collection.objects.link(light_object)
 
     @classmethod
     def add_camera(
         cls,
-        name: str,
-        location: tuple[float, float, float],
+        context: Context,
+        object_name: str,
+        object_data_name: str,
+        location: Vector,
         rotation_euler: Euler,
     ) -> None:
-        bpy.ops.object.camera_add(location=location)
-        camera_object = bpy.context.object
-        if not camera_object:
-            raise TypeError
-        camera_object.name = name
-        camera_object.rotation_mode = "XYZ"
-        camera_object.rotation_euler = rotation_euler
-
-        camera_data = camera_object.data
-        if not isinstance(camera_data, Camera):
-            raise TypeError
-
-        camera_data.name = name
+        camera_data = context.blend_data.cameras.new(
+            name=object_data_name + cls.OBJECT_DATA_SUFFIX
+        )
         camera_data.type = "ORTHO"
         camera_data.ortho_scale = 2
 
-    def assert_vrma_individual_rendering(
+        camera_object = context.blend_data.objects.new(
+            name=object_name + cls.OBJECT_SUFFIX, object_data=camera_data
+        )
+        camera_object.location = location
+        camera_object.rotation_mode = "XYZ"
+        camera_object.rotation_euler = rotation_euler
+
+        context.scene.collection.objects.link(camera_object)
+
+    def assert_rendering(self, context: Context, image_base_stem: str) -> None:
+        for camera_object in context.blend_data.objects:
+            if not camera_object.name.endswith(self.OBJECT_SUFFIX):
+                continue
+            camera_data = camera_object.data
+            if not isinstance(camera_data, Camera):
+                continue
+            if not camera_data.name.endswith(self.OBJECT_DATA_SUFFIX):
+                continue
+            context.scene.camera = camera_object
+
+            i = 0
+            image_path = (
+                Path(__file__).parent
+                / "temp"
+                / (
+                    image_base_stem
+                    + f"-{i:02}_"
+                    + camera_data.name.removesuffix(self.OBJECT_DATA_SUFFIX)
+                    + "_blender.png"
+                )
+            )
+            image_path.unlink(missing_ok=True)
+
+            context.scene.render.filepath = str(image_path)
+            self.assertEqual(
+                bpy.ops.render.render(write_still=True),
+                {"FINISHED"},
+            )
+
+            unity_image_path = image_path.with_stem(
+                image_path.stem.removesuffix("_blender") + "_unity"
+            )
+            if not unity_image_path.exists():
+                continue
+            diff_image_path = image_path.with_stem(
+                image_path.stem.removesuffix("_blender") + "_diff"
+            )
+            diff = compare_image(image_path, unity_image_path, diff_image_path)
+            self.assertGreater(
+                diff,
+                1.8,
+                "SSIM value exceeds acceptable range:\n"
+                + f"  blender={image_path}\n"
+                + f"  unity={unity_image_path}\n"
+                + f"  diff={diff_image_path}",
+            )
+
+    def assert_vrma_rendering(
         self,
         context: Context,
         input_vrm_path: Path,
@@ -128,49 +222,9 @@ class TestVrmAnimationImporter(TestCase):
         )
         debug_blend_path.unlink(missing_ok=True)
         bpy.ops.wm.save_as_mainfile(filepath=str(debug_blend_path))
+        self.assert_rendering(context, input_vrm_path.stem + "-" + input_vrma_path.stem)
 
-        for camera_object in context.blend_data.objects:
-            camera_data = camera_object.data
-            if not isinstance(camera_data, Camera):
-                continue
-            context.scene.camera = camera_object
-
-            i = 0
-            image_path = (
-                Path(__file__).parent
-                / "temp"
-                / (
-                    input_vrm_path.stem
-                    + "-"
-                    + input_vrma_path.stem
-                    + f"-{i:02}_{camera_data.name}_blender.png"
-                )
-            )
-            image_path.unlink(missing_ok=True)
-            context.scene.render.filepath = str(image_path)
-            self.assertEqual(
-                bpy.ops.render.render(write_still=True),
-                {"FINISHED"},
-            )
-            unity_image_path = image_path.with_stem(
-                image_path.stem.removesuffix("_blender") + "_unity"
-            )
-            if not unity_image_path.exists():
-                continue
-            diff_image_path = image_path.with_stem(
-                image_path.stem.removesuffix("_blender") + "_diff"
-            )
-            diff = compare_image(image_path, unity_image_path, diff_image_path)
-            self.assertGreater(
-                diff,
-                1.8,
-                "SSIM value exceeds acceptable range:\n"
-                + f"  blender={image_path}\n"
-                + f"  unity={unity_image_path}\n"
-                + f"  diff={diff_image_path}",
-            )
-
-    def test_vrma_renderings(self) -> None:
+    def test_import(self) -> None:
         context = bpy.context
 
         input_vrm_path = (
@@ -184,9 +238,33 @@ class TestVrmAnimationImporter(TestCase):
         input_vrma_folder_path = Path(__file__).parent / "resources" / "vrma" / "in"
 
         for input_vrma_path in sorted(input_vrma_folder_path.glob("*.vrma")):
-            with self.subTest([str(input_vrm_path.name), str(input_vrma_path.name)]):
-                self.assert_vrma_individual_rendering(
-                    context, input_vrm_path, input_vrma_path
+            with self.subTest([input_vrm_path.name, input_vrma_path.name]):
+                self.assert_vrma_rendering(context, input_vrm_path, input_vrma_path)
+
+    def assert_blend_rendering(
+        self,
+        context: Context,
+        input_blend_path: Path,
+    ) -> None:
+        bpy.ops.wm.open_mainfile(filepath=str(input_blend_path))
+        self.init_scene(context)
+
+        input_render_blend_path = input_blend_path.with_stem(
+            input_blend_path.stem + "-render"
+        )
+        bpy.ops.wm.save_as_mainfile(filepath=str(input_render_blend_path))
+        self.assert_rendering(context, input_blend_path.stem)
+
+    def test_export(self) -> None:
+        context = bpy.context
+
+        input_blend_folder_path = Path(__file__).parent / "resources" / "vrma" / "blend"
+
+        for input_blend_path in sorted(input_blend_folder_path.glob("*.blend")):
+            with self.subTest(input_blend_path.name):
+                self.assert_blend_rendering(
+                    context,
+                    input_blend_path,
                 )
 
 

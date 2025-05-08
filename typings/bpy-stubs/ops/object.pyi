@@ -72,6 +72,17 @@ def camera_add(
     rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
     scale: tuple[float, float, float] = (0.0, 0.0, 0.0),
 ) -> set[str]: ...
+def light_add(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    type: str = "POINT",
+    radius: float = 1.0,
+    align: str = "WORLD",
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    scale: tuple[float, float, float] = (0.0, 0.0, 0.0),
+) -> set[str]: ...
 def origin_set(
     execution_context: str = "EXEC_DEFAULT",
     /,
