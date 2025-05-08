@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.3.1...v3.3.2) (2025-05-08)
+
+
+### 🐞 Bug Fixes
+
+* prevent mesh duplication on export ([45d8943](https://github.com/saturday06/VRM-Addon-for-Blender/commit/45d894307a957fbcd2fff596b2c329409f79819e))
+
 ## [3.3.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.3.0...v3.3.1) (2025-05-06)
 
 
