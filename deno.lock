@@ -3,7 +3,7 @@
   "specifiers": {
     "npm:@types/node@*": "22.14.1",
     "npm:@types/node@22.14.1": "22.14.1",
-    "npm:@types/node@22.15.15": "22.15.15",
+    "npm:@types/node@22.15.17": "22.15.17",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
     "npm:pyright@1.1.400": "1.1.400",
     "npm:vitepress@*": "1.6.3_vite@5.4.18__@types+node@22.14.1_vue@3.5.13_focus-trap@7.6.4_@types+node@22.14.1",
@@ -497,8 +497,8 @@
         "undici-types"
       ]
     },
-    "@types/node@22.15.15": {
-      "integrity": "sha512-R5muMcZob3/Jjchn5LcO8jdKwSCbzqmPB6ruBxMcf9kbxtniZHP327s6C37iOfuw8mbKK3cAQa7sEl7afLrQ8A==",
+    "@types/node@22.15.17": {
+      "integrity": "sha512-wIX2aSZL5FE+MR0JlvF87BNVrtFWf6AE6rxSE9X7OwnVvoyCQjpzSRJ+M87se/4QCkCiebQAqrJ0y6fwIyi7nw==",
       "dependencies": [
         "undici-types"
       ]
@@ -1069,7 +1069,7 @@
   },
   "workspace": {
     "dependencies": [
-      "npm:@types/node@22.15.15",
+      "npm:@types/node@22.15.17",
       "npm:gltf-validator@2.0.0-dev.3.10",
       "npm:pyright@1.1.400",
       "npm:vitepress@1.6.3",
