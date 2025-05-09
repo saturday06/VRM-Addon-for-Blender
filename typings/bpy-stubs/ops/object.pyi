@@ -13,6 +13,10 @@ def mode_set(
     mode: str = "OBJECT",
     toggle: bool = False,
 ) -> set[str]: ...
+def posemode_toggle(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+) -> set[str]: ...
 def select_all(
     execution_context: str = "EXEC_DEFAULT",
     /,

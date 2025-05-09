@@ -1340,6 +1340,9 @@ class AbstractBaseVrmImporter(ABC):
             self.armature.animation_data.action = original_action
 
     def setup_object_selection_and_activation(self) -> None:
+        active_object = self.context.view_layer.objects.active
+        if active_object and active_object.mode != "OBJECT":
+            bpy.ops.object.mode_set(mode="OBJECT")
         if self.imported_object_names is not None:
             bpy.ops.object.select_all(action="DESELECT")
             for obj in self.context.selectable_objects:

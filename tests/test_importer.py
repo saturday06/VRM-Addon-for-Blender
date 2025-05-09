@@ -1,11 +1,15 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+from pathlib import Path
 from unittest import TestCase
+
+import bpy
+
+from io_scene_vrm.common import ops
+from io_scene_vrm.importer import license_validation
 
 
 class TestImporter(TestCase):
     def test_validate_license_url(self) -> None:
-        from io_scene_vrm.importer import license_validation
-
         for url, confirmation_required in [
             ("", False),
             ("test", True),
@@ -43,3 +47,16 @@ class TestImporter(TestCase):
                     self.assertEqual(1, len(confirmation_props))
                 else:
                     self.assertEqual([], confirmation_props)
+
+    def test_import_non_object_mode(self) -> None:
+        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
+        self.assertEqual(ops.icyp.make_basic_armature(), {"FINISHED"})
+        self.assertEqual(bpy.ops.object.posemode_toggle(), {"FINISHED"})
+        self.assertEqual(
+            ops.import_scene.vrm(
+                filepath=str(
+                    Path(__file__).parent / "resources" / "vrm" / "in" / "triangle.vrm"
+                )
+            ),
+            {"FINISHED"},
+        )
