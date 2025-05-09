@@ -1,4 +1,5 @@
 *~
+*.blend1
 *.orig
 .DS_Store
 .mypy_cache/
