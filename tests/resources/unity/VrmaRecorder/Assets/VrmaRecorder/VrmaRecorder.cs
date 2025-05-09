@@ -11,7 +11,7 @@ namespace VrmaRecorder
 {
     public class VrmaRecorder : MonoBehaviour
     {
-        private const int Resolution = 512;
+        private const int Resolution = 256;
 
         [SerializeField]
         private Camera? _forwardCamera;
@@ -46,24 +46,39 @@ namespace VrmaRecorder
             string outputFolderPath
         )> ReadEditorArgs()
         {
-            var inputVrmPath = Path.Combine(Application.dataPath, "..", "debug_robot.vrm");
-            var outputFolderPath = Path.Combine(
-                Application.dataPath,
-                "..",
-                "..",
-                "..",
-                "..",
-                "temp"
-            );
+            var defaultInputVrmPath = Path.Combine(Application.dataPath, "..", "debug_robot.vrm");
             var result = new List<(string, string, string)>();
+            var resourceFolderPath = Path.Combine(Application.dataPath, "..", "..", "..");
             foreach (
-                var inputVrmaPath in Directory.GetFiles(
-                    Path.Combine(Application.dataPath, "..", "..", "..", "vrma", "in"),
-                    "*.vrma"
-                )
+                var baseFolderPath in new[]
+                {
+                    Path.Combine(resourceFolderPath, "vrma"),
+                    Path.Combine(resourceFolderPath, "blend", "lossless_animation"),
+                    Path.Combine(resourceFolderPath, "blend", "lossy_animation"),
+                }
             )
             {
-                result.Add((inputVrmPath, inputVrmaPath, outputFolderPath));
+                foreach (var inputVrmaPath in Directory.GetFiles(baseFolderPath, "*.vrma"))
+                {
+                    var inputVrmPath = Path.Combine(
+                        baseFolderPath,
+                        Path.GetFileNameWithoutExtension(inputVrmaPath) + ".vrm"
+                    );
+                    if (!File.Exists(inputVrmPath))
+                    {
+                        inputVrmPath = defaultInputVrmPath;
+                    }
+                    result.Add(
+                        (
+                            inputVrmPath,
+                            inputVrmaPath,
+                            Path.Combine(
+                                baseFolderPath,
+                                Path.GetFileNameWithoutExtension(inputVrmaPath)
+                            )
+                        )
+                    );
+                }
             }
             result.Sort();
             return result;
@@ -248,17 +263,13 @@ namespace VrmaRecorder
             clip.wrapMode = WrapMode.Once;
 
             vrmaAnimation.Play(clip.name);
+            await Awaitable.NextFrameAsync();
 
             Directory.CreateDirectory(outputFolderPath);
 
             List<(byte[] forwardImage, byte[] topImage, byte[] rightImage)> images = new();
             for (var i = 0; i < Application.targetFrameRate * 5; i++)
             {
-                await Awaitable.FixedUpdateAsync();
-                if (i % (Application.targetFrameRate / 2) != 0)
-                {
-                    continue;
-                }
                 images.Add(
                     (
                         CreatePngImage(forwardCamera),
@@ -266,26 +277,29 @@ namespace VrmaRecorder
                         CreatePngImage(rightCamera)
                     )
                 );
+                /*
+                await Awaitable.FixedUpdateAsync();
+                if (i % (Application.targetFrameRate / 2) != 0)
+                {
+                    continue;
+                }
+                */
                 // しばらくは最初のフレームだけ録画
                 break;
             }
 
-            var prefix =
-                Path.GetFileNameWithoutExtension(inputVrmPath)
-                + "-"
-                + Path.GetFileNameWithoutExtension(inputVrmaPath);
             foreach (var (image, i) in images.Select((image, i) => (image, i)))
             {
                 await File.WriteAllBytesAsync(
-                    Path.Combine(outputFolderPath, $"{prefix}-{i:D2}_forward_unity.png"),
+                    Path.Combine(outputFolderPath, $"{i:D2}_forward_unity.png"),
                     image.forwardImage
                 );
                 await File.WriteAllBytesAsync(
-                    Path.Combine(outputFolderPath, $"{prefix}-{i:D2}_top_unity.png"),
+                    Path.Combine(outputFolderPath, $"{i:D2}_top_unity.png"),
                     image.topImage
                 );
                 await File.WriteAllBytesAsync(
-                    Path.Combine(outputFolderPath, $"{prefix}-{i:D2}_right_unity.png"),
+                    Path.Combine(outputFolderPath, $"{i:D2}_right_unity.png"),
                     image.rightImage
                 );
             }

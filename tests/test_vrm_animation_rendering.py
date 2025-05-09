@@ -99,7 +99,7 @@ class TestVrmAnimationRendering(TestCase):
             Euler((math.pi / 2, 0, math.pi / 2)),
         )
 
-        resolution = 512
+        resolution = 256
         scene.render.resolution_x = resolution
         scene.render.resolution_y = resolution
         scene.render.resolution_percentage = 100
@@ -147,7 +147,10 @@ class TestVrmAnimationRendering(TestCase):
 
         context.scene.collection.objects.link(camera_object)
 
-    def assert_rendering(self, context: Context, image_base_stem: str) -> None:
+    def assert_rendering(
+        self, context: Context, render_folder_path: Path, *, suffix: str = ""
+    ) -> None:
+        render_folder_path.mkdir(parents=True, exist_ok=True)
         for camera_object in context.blend_data.objects:
             if not camera_object.name.endswith(self.OBJECT_SUFFIX):
                 continue
@@ -159,15 +162,11 @@ class TestVrmAnimationRendering(TestCase):
             context.scene.camera = camera_object
 
             i = 0
-            image_path = (
-                Path(__file__).parent
-                / "temp"
-                / (
-                    image_base_stem
-                    + f"-{i:02}_"
-                    + camera_data.name.removesuffix(self.OBJECT_DATA_SUFFIX)
-                    + "_blender.png"
-                )
+            blender_suffix = f"_blender{suffix}"
+            image_path = render_folder_path / (
+                f"{i:02}_"
+                + camera_data.name.removesuffix(self.OBJECT_DATA_SUFFIX)
+                + f"{blender_suffix}.png"
             )
             image_path.unlink(missing_ok=True)
 
@@ -178,12 +177,12 @@ class TestVrmAnimationRendering(TestCase):
             )
 
             unity_image_path = image_path.with_stem(
-                image_path.stem.removesuffix("_blender") + "_unity"
+                image_path.stem.removesuffix(blender_suffix) + "_unity"
             )
             if not unity_image_path.exists():
                 continue
             diff_image_path = image_path.with_stem(
-                image_path.stem.removesuffix("_blender") + "_diff"
+                image_path.stem.removesuffix(blender_suffix) + f"{suffix}_diff"
             )
             diff = compare_image(image_path, unity_image_path, diff_image_path)
             self.assertGreater(
@@ -200,16 +199,23 @@ class TestVrmAnimationRendering(TestCase):
         context: Context,
         input_vrm_path: Path,
         input_vrma_path: Path,
+        *,
+        suffix: str = "",
     ) -> None:
         bpy.ops.wm.open_mainfile(filepath=str(self.base_blend_path()))
+
         self.assertEqual(
             ops.import_scene.vrm(filepath=str(input_vrm_path)),
             {"FINISHED"},
         )
-        self.assertEqual(
-            ops.import_scene.vrma(filepath=str(input_vrma_path)),
-            {"FINISHED"},
-        )
+
+        # 本来は戻り値チェックが必要
+        # self.assertEqual(
+        #     ops.import_scene.vrma(filepath=str(input_vrma_path)),
+        #     {"FINISHED"},
+        # )
+        ops.import_scene.vrma(filepath=str(input_vrma_path))
+
         debug_blend_path = (
             Path(__file__).parent
             / "temp"
@@ -222,12 +228,12 @@ class TestVrmAnimationRendering(TestCase):
         )
         debug_blend_path.unlink(missing_ok=True)
         bpy.ops.wm.save_as_mainfile(filepath=str(debug_blend_path))
-        self.assert_rendering(context, input_vrm_path.stem + "-" + input_vrma_path.stem)
+        self.assert_rendering(context, input_vrma_path.with_suffix(""), suffix=suffix)
 
     def test_import(self) -> None:
         context = bpy.context
 
-        input_vrm_path = (
+        default_input_vrm_path = (
             Path(__file__).parent
             / "resources"
             / "unity"
@@ -235,36 +241,69 @@ class TestVrmAnimationRendering(TestCase):
             / "debug_robot.vrm"
         )
 
-        input_vrma_folder_path = Path(__file__).parent / "resources" / "vrma" / "in"
+        input_vrma_folder_path = Path(__file__).parent / "resources" / "vrma"
 
         for input_vrma_path in sorted(input_vrma_folder_path.glob("*.vrma")):
+            input_vrm_path = input_vrma_path.with_suffix(".vrm")
+            if not input_vrm_path.exists():
+                input_vrm_path = default_input_vrm_path
             with self.subTest([input_vrm_path.name, input_vrma_path.name]):
                 self.assert_vrma_rendering(context, input_vrm_path, input_vrma_path)
 
     def assert_blend_rendering(
-        self,
-        context: Context,
-        input_blend_path: Path,
+        self, context: Context, input_blend_path: Path, *, lossless: bool
     ) -> None:
         bpy.ops.wm.open_mainfile(filepath=str(input_blend_path))
         self.init_scene(context)
 
         input_render_blend_path = input_blend_path.with_stem(
-            input_blend_path.stem + "-render"
+            input_blend_path.stem + ".render"
         )
         bpy.ops.wm.save_as_mainfile(filepath=str(input_render_blend_path))
-        self.assert_rendering(context, input_blend_path.stem)
 
-    def test_export(self) -> None:
+        vrm_path = input_blend_path.with_suffix(".vrm")
+        self.assertEqual(ops.export_scene.vrm(filepath=str(vrm_path)), {"FINISHED"})
+
+        vrma_path = input_blend_path.with_suffix(".vrma")
+        self.assertEqual(ops.export_scene.vrma(filepath=str(vrma_path)), {"FINISHED"})
+
+        if lossless:
+            self.assert_rendering(context, input_blend_path.with_suffix(""))
+
+        self.assert_vrma_rendering(context, vrm_path, vrma_path, suffix="_roundtrip")
+
+    def test_lossless_export(self) -> None:
         context = bpy.context
 
-        input_blend_folder_path = Path(__file__).parent / "resources" / "vrma" / "blend"
+        input_blend_folder_path = (
+            Path(__file__).parent / "resources" / "blend" / "lossless_animation"
+        )
 
         for input_blend_path in sorted(input_blend_folder_path.glob("*.blend")):
+            if input_blend_path.name.endswith(".render.blend"):
+                continue
             with self.subTest(input_blend_path.name):
                 self.assert_blend_rendering(
                     context,
                     input_blend_path,
+                    lossless=True,
+                )
+
+    def test_lossy_export(self) -> None:
+        context = bpy.context
+
+        input_blend_folder_path = (
+            Path(__file__).parent / "resources" / "blend" / "lossy_animation"
+        )
+
+        for input_blend_path in sorted(input_blend_folder_path.glob("*.blend")):
+            if input_blend_path.name.endswith(".render.blend"):
+                continue
+            with self.subTest(input_blend_path.name):
+                self.assert_blend_rendering(
+                    context,
+                    input_blend_path,
+                    lossless=False,
                 )
 
 

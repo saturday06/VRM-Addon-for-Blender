@@ -26,6 +26,9 @@
 /tests/resources/unity/*/UpgradeLog.htm
 /tests/resources/unity/*/UserSettings/
 /tests/resources/unity/*/obj/
+/tests/resources/blend/*_animation/*.vrm
+/tests/resources/blend/*_animation/*.vrma
+/tests/resources/blend/*_animation/*.render.blend
 /tests/resources/vrm/*/temp/
 /tests/resources/vrm/in/*.temp*.blend
 /tests/test_generated_*
@@ -33,3 +36,7 @@ __pycache__/
 
 !/benchmarks/temp/.gitkeep
 !/tests/temp/.gitkeep
+
+# 以下のpngファイルはテストが安定したらzopflipngをかけてコミットする
+/tests/resources/blend/*_animation/*/*.png
+/tests/resources/vrma/*/*.png
