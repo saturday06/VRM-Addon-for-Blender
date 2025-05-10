@@ -150,6 +150,11 @@ class TestVrmAnimationRendering(TestCase):
     def assert_rendering(
         self, context: Context, render_folder_path: Path, *, suffix: str = ""
     ) -> None:
+        render_blend_path = render_folder_path.with_name(
+            render_folder_path.stem + f".render{suffix}.blend"
+        )
+        bpy.ops.wm.save_as_mainfile(filepath=str(render_blend_path))
+
         render_folder_path.mkdir(parents=True, exist_ok=True)
         for camera_object in context.blend_data.objects:
             if not camera_object.name.endswith(self.OBJECT_SUFFIX):
@@ -255,11 +260,6 @@ class TestVrmAnimationRendering(TestCase):
     ) -> None:
         bpy.ops.wm.open_mainfile(filepath=str(input_blend_path))
         self.init_scene(context)
-
-        input_render_blend_path = input_blend_path.with_stem(
-            input_blend_path.stem + ".render"
-        )
-        bpy.ops.wm.save_as_mainfile(filepath=str(input_render_blend_path))
 
         vrm_path = input_blend_path.with_suffix(".vrm")
         self.assertEqual(ops.export_scene.vrm(filepath=str(vrm_path)), {"FINISHED"})
