@@ -80,8 +80,8 @@ namespace VrmaWorkspace
 
             Debug.Log($"Loading Vrma from {_vrmaPath}");
 
-            using GltfData data = new AutoGltfFileParser(_vrmaPath).Parse();
-            using var loader = new VrmAnimationImporter(data);
+            using var data = new AutoGltfFileParser(_vrmaPath).Parse();
+            using var loader = new VrmAnimationImporter(new VrmAnimationData(data));
             _vrmaInstance = await loader.LoadAsync(new ImmediateCaller());
             // var _a = _vrmaInstance.GetComponent<Vrm10AnimationInstance>();
             // _vrm10Instance.Runtime.VrmAnimation = a;
@@ -108,9 +108,7 @@ namespace VrmaWorkspace
             {
                 return null;
             }
-            var path = UnityEditor.EditorUtility.OpenFilePanel(
-                "Open VRMA", "", "vrma"
-            );
+            var path = UnityEditor.EditorUtility.OpenFilePanel("Open VRMA", "", "vrma");
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
             {
                 return null;
