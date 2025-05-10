@@ -39,6 +39,9 @@ __pycache__/
 !/benchmarks/temp/.gitkeep
 !/tests/temp/.gitkeep
 
-# 以下のpngファイルはテストが安定したらzopflipngをかけてコミットする
-/tests/resources/blend/*_animation/*/*.png
-/tests/resources/vrma/*/*.png
+/tests/resources/blend/*_animation/*/*_blender.png
+/tests/resources/blend/*_animation/*/*_blender_roundtrip.png
+/tests/resources/blend/*_animation/*/*_diff.png
+/tests/resources/vrma/*/*_blender.png
+/tests/resources/vrma/*/*_blender_roundtrip.png
+/tests/resources/vrma/*/*_diff.png
