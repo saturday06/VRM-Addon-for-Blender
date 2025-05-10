@@ -29,8 +29,10 @@
 /tests/resources/blend/*_animation/*.vrm
 /tests/resources/blend/*_animation/*.vrma
 /tests/resources/blend/*_animation/*.render.blend
+/tests/resources/blend/*_animation/*.render_roundtrip.blend
 /tests/resources/vrm/*/temp/
 /tests/resources/vrm/in/*.temp*.blend
+/tests/resources/vrma/*.render.blend
 /tests/test_generated_*
 __pycache__/
 
