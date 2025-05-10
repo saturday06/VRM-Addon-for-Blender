@@ -268,25 +268,25 @@ namespace VrmaRecorder
             Directory.CreateDirectory(outputFolderPath);
 
             List<(byte[] forwardImage, byte[] topImage, byte[] rightImage)> images = new();
-            for (var i = 0; i < Application.targetFrameRate * 5; i++)
+            // for (var i = 0; i < Application.targetFrameRate * 5; i++)
+            //{
+            images.Add(
+                (
+                    CreatePngImage(forwardCamera),
+                    CreatePngImage(topCamera),
+                    CreatePngImage(rightCamera)
+                )
+            );
+            /*
+            await Awaitable.FixedUpdateAsync();
+            if (i % (Application.targetFrameRate / 2) != 0)
             {
-                images.Add(
-                    (
-                        CreatePngImage(forwardCamera),
-                        CreatePngImage(topCamera),
-                        CreatePngImage(rightCamera)
-                    )
-                );
-                /*
-                await Awaitable.FixedUpdateAsync();
-                if (i % (Application.targetFrameRate / 2) != 0)
-                {
-                    continue;
-                }
-                */
-                // しばらくは最初のフレームだけ録画
-                break;
+                continue;
             }
+            */
+            // しばらくは最初のフレームだけ録画
+            //break;
+            //}
 
             foreach (var (image, i) in images.Select((image, i) => (image, i)))
             {
