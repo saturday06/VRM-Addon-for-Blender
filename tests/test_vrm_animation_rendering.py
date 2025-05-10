@@ -280,7 +280,9 @@ class TestVrmAnimationRendering(TestCase):
         )
 
         for input_blend_path in sorted(input_blend_folder_path.glob("*.blend")):
-            if input_blend_path.name.endswith(".render.blend"):
+            if input_blend_path.name.endswith(
+                ".render.blend"
+            ) or input_blend_path.name.endswith(".render_roundtrip.blend"):
                 continue
             with self.subTest(input_blend_path.name):
                 self.assert_blend_rendering(
