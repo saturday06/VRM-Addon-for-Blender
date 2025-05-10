@@ -312,23 +312,25 @@ class TestVrmAnimationRendering(TestCase):
 
 
 def compare_image(image1_path: Path, image2_path: Path, diff_image_path: Path) -> float:
-    if subprocess.run(["ffmpeg", "-version"], check=False).returncode != 0:
+    try:
+        subprocess.run(["ffmpeg", "-version"], check=True)
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
         message = "ffmpeg is required but could not be found"
         if sys.platform == "win32":
-            raise SkipTest(message)
-        raise AssertionError(message)
+            raise SkipTest(message) from e
+        raise AssertionError(message) from e
 
     compare_command: Optional[list[str]] = None
     try:
-        if subprocess.run(["magick", "-version"], check=False).returncode == 0:
-            compare_command = ["magick", "compare"]
-    except FileNotFoundError:
+        subprocess.run(["magick", "-version"], check=True)
+        compare_command = ["magick", "compare"]
+    except (subprocess.CalledProcessError, FileNotFoundError):
         pass
     if compare_command is None:
         try:
-            if subprocess.run(["compare", "-version"], check=False).returncode == 0:
-                compare_command = ["compare"]
-        except FileNotFoundError:
+            subprocess.run(["compare", "-version"], check=True)
+            compare_command = ["compare"]
+        except (subprocess.CalledProcessError, FileNotFoundError):
             pass
 
     if compare_command is None:
@@ -345,7 +347,6 @@ def compare_image(image1_path: Path, image2_path: Path, diff_image_path: Path) -
             str(diff_image_path),
         ],
         check=False,
-        capture_output=True,
     )
 
     compare_result = subprocess.run(
@@ -361,7 +362,7 @@ def compare_image(image1_path: Path, image2_path: Path, diff_image_path: Path) -
             "null",
             "-",
         ],
-        check=False,
+        check=True,
         capture_output=True,
     )
     last_line = compare_result.stderr.decode().splitlines()[-1].strip()
