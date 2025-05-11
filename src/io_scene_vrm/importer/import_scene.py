@@ -33,9 +33,9 @@ from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter, parse_vrm_json
 from .license_validation import LicenseConfirmationRequiredError
+from .uni_vrm_vrm_animation_importer import UniVrmVrmAnimationImporter
 from .vrm0_importer import Vrm0Importer
 from .vrm1_importer import Vrm1Importer
-from .vrm_animation_importer import VrmAnimationImporter
 
 logger = get_logger(__name__)
 
@@ -415,7 +415,7 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
             ext = get_armature_extension(armature_data)
             ext.spec_version = ext.SPEC_VERSION_VRM1
 
-        return VrmAnimationImporter.execute(context, filepath, armature)
+        return UniVrmVrmAnimationImporter.execute(context, filepath, armature)
 
     def invoke(self, context: Context, event: Event) -> set[str]:
         if WM_OT_vrma_import_prerequisite.detect_errors(
