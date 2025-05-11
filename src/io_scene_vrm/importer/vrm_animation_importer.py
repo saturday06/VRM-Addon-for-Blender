@@ -481,6 +481,20 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
                 timestamp,
             )
 
+    # ボーンの状態変更が発生するので、この処理は最後に行う。
+    # hipsにtranslationが割り当てられている場合かつ、hipsが親と
+    # 「use_connect」になっている場合移動アニメーションが反映されないので
+    # 解除する
+    if node_index_to_translation_keyframes.get(hips_node_index):
+        with save_workspace(context, armature, mode="EDIT"):
+            armature_data = armature.data
+            if not isinstance(armature_data, Armature):
+                raise TypeError
+            hips_bone = armature_data.edit_bones.get(
+                humanoid.human_bones.hips.node.bone_name
+            )
+            if hips_bone and hips_bone.use_connect:
+                hips_bone.use_connect = False
     return {"FINISHED"}
 
 
