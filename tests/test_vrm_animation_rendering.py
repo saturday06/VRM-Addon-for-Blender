@@ -15,6 +15,7 @@ from mathutils import Color, Euler, Vector
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.editor.extension import get_armature_extension
+from io_scene_vrm.editor.vrm1.property_group import Vrm1LookAtPropertyGroup
 
 
 class TestVrmAnimationRendering(TestCase):
@@ -192,6 +193,8 @@ class TestVrmAnimationRendering(TestCase):
         render_results = list[list[tuple[float, Path, Path, Path]]]()
         for frame_count in range(1, max_end_frame + 1):
             scene.frame_set(frame_count)
+            Vrm1LookAtPropertyGroup.update_all_previews(context)
+
             time = (frame_count - 1) * scene.render.fps_base / scene.render.fps
             if (
                 last_render_time is not None
