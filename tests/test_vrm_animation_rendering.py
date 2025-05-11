@@ -15,6 +15,7 @@ from mathutils import Color, Euler, Vector
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.editor.extension import get_armature_extension
+from io_scene_vrm.editor.search import current_armature
 from io_scene_vrm.editor.vrm1.property_group import Vrm1LookAtPropertyGroup
 
 
@@ -320,10 +321,25 @@ class TestVrmAnimationRendering(TestCase):
         self.init_scene(context)
 
         vrm_path = input_blend_path.with_suffix(".vrm")
-        self.assertEqual(ops.export_scene.vrm(filepath=str(vrm_path)), {"FINISHED"})
+        current_armature_object = current_armature(context)
+        if not current_armature_object:
+            message = "No armature object found"
+            raise AssertionError(message)
+        armature_object_name = current_armature_object.name
+        self.assertEqual(
+            ops.export_scene.vrm(
+                filepath=str(vrm_path), armature_object_name=armature_object_name
+            ),
+            {"FINISHED"},
+        )
 
         vrma_path = input_blend_path.with_suffix(".vrma")
-        self.assertEqual(ops.export_scene.vrma(filepath=str(vrma_path)), {"FINISHED"})
+        self.assertEqual(
+            ops.export_scene.vrma(
+                filepath=str(vrma_path), armature_object_name=armature_object_name
+            ),
+            {"FINISHED"},
+        )
 
         if lossless:
             self.assert_rendering(context, input_blend_path.with_suffix(""))
