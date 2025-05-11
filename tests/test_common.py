@@ -34,8 +34,8 @@ class TestVersion(TestCase):
             version.get_addon_version(),
             (
                 3,  # x-release-please-major
-                3,  # x-release-please-minor
-                2,  # x-release-please-patch
+                4,  # x-release-please-minor
+                0,  # x-release-please-patch
             ),
         )
 
