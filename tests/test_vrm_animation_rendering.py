@@ -191,7 +191,7 @@ class TestVrmAnimationRendering(TestCase):
         render_folder_path.mkdir(parents=True, exist_ok=True)
         last_render_time = None
         render_results = list[list[tuple[float, Path, Path, Path]]]()
-        for frame_count in range(1, max_end_frame + 1):
+        for frame_count in range(1, max_end_frame):
             scene.frame_set(frame_count)
             Vrm1LookAtPropertyGroup.update_all_previews(context)
 
@@ -199,7 +199,7 @@ class TestVrmAnimationRendering(TestCase):
             if (
                 last_render_time is not None
                 and last_render_time + 1 > time
-                and frame_count != max_end_frame
+                and frame_count + 1 != max_end_frame
             ):
                 continue
 
