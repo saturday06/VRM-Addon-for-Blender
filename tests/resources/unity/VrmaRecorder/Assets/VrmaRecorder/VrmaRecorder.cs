@@ -263,30 +263,31 @@ namespace VrmaRecorder
             clip.wrapMode = WrapMode.Once;
 
             vrmaAnimation.Play(clip.name);
-            await Awaitable.NextFrameAsync();
 
             Directory.CreateDirectory(outputFolderPath);
 
+            var startTime = Time.time;
             List<(byte[] forwardImage, byte[] topImage, byte[] rightImage)> images = new();
-            // for (var i = 0; i < Application.targetFrameRate * 5; i++)
-            //{
-            images.Add(
-                (
-                    CreatePngImage(forwardCamera),
-                    CreatePngImage(topCamera),
-                    CreatePngImage(rightCamera)
-                )
-            );
-            /*
-            await Awaitable.FixedUpdateAsync();
-            if (i % (Application.targetFrameRate / 2) != 0)
+            while (true)
             {
-                continue;
+                await Awaitable.NextFrameAsync();
+                var duration = Time.time - startTime;
+                var done = duration >= clip.length;
+                if (duration >= images.Count || done)
+                {
+                    images.Add(
+                        (
+                            CreatePngImage(forwardCamera),
+                            CreatePngImage(topCamera),
+                            CreatePngImage(rightCamera)
+                        )
+                    );
+                }
+                if (done)
+                {
+                    break;
+                }
             }
-            */
-            // しばらくは最初のフレームだけ録画
-            //break;
-            //}
 
             foreach (var (image, i) in images.Select((image, i) => (image, i)))
             {

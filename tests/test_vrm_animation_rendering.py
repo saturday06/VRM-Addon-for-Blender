@@ -10,10 +10,11 @@ from typing import Final, Optional
 from unittest import SkipTest, TestCase
 
 import bpy
-from bpy.types import Camera, Context
+from bpy.types import Armature, Camera, Context
 from mathutils import Color, Euler, Vector
 
 from io_scene_vrm.common import ops
+from io_scene_vrm.editor.extension import get_armature_extension
 
 
 class TestVrmAnimationRendering(TestCase):
@@ -155,41 +156,94 @@ class TestVrmAnimationRendering(TestCase):
         )
         bpy.ops.wm.save_as_mainfile(filepath=str(render_blend_path))
 
+        max_end_frame: int = 1
+        for obj in context.blend_data.objects:
+            obj_data = obj.data
+            if not isinstance(obj_data, Armature):
+                continue
+
+            if (animation_data := obj.animation_data) and (
+                action := animation_data.action
+            ):
+                _, end_frame = action.frame_range
+                max_end_frame = max(max_end_frame, math.ceil(end_frame))
+
+            if (animation_data := obj_data.animation_data) and (
+                action := animation_data.action
+            ):
+                _, end_frame = action.frame_range
+                max_end_frame = max(max_end_frame, math.ceil(end_frame))
+
+            ext = get_armature_extension(obj_data)
+            ext.spring_bone1.enable_animation = True
+            look_at_target_obj = ext.vrm1.look_at.preview_target_bpy_object
+            if (
+                look_at_target_obj
+                and (animation_data := look_at_target_obj.animation_data)
+                and (action := animation_data.action)
+            ):
+                _, end_frame = action.frame_range
+                max_end_frame = max(max_end_frame, math.ceil(end_frame))
+
+        scene = context.scene
         render_folder_path.mkdir(parents=True, exist_ok=True)
-        for camera_object in context.blend_data.objects:
-            if not camera_object.name.endswith(self.OBJECT_SUFFIX):
+        last_render_time = None
+        render_results = list[list[tuple[float, Path, Path, Path]]]()
+        for frame_count in range(1, max_end_frame + 1):
+            scene.frame_set(frame_count)
+            time = (frame_count - 1) * scene.render.fps_base / scene.render.fps
+            if (
+                last_render_time is not None
+                and last_render_time + 1 > time
+                and frame_count != max_end_frame
+            ):
                 continue
-            camera_data = camera_object.data
-            if not isinstance(camera_data, Camera):
-                continue
-            if not camera_data.name.endswith(self.OBJECT_DATA_SUFFIX):
-                continue
-            context.scene.camera = camera_object
 
-            i = 0
-            blender_suffix = f"_blender{suffix}"
-            image_path = render_folder_path / (
-                f"{i:02}_"
-                + camera_data.name.removesuffix(self.OBJECT_DATA_SUFFIX)
-                + f"{blender_suffix}.png"
-            )
-            image_path.unlink(missing_ok=True)
+            last_render_time = time
+            last_render_result = list[tuple[float, Path, Path, Path]]()
 
-            context.scene.render.filepath = str(image_path)
-            self.assertEqual(
-                bpy.ops.render.render(write_still=True),
-                {"FINISHED"},
-            )
+            for camera_object in context.blend_data.objects:
+                if not camera_object.name.endswith(self.OBJECT_SUFFIX):
+                    continue
+                camera_data = camera_object.data
+                if not isinstance(camera_data, Camera):
+                    continue
+                if not camera_data.name.endswith(self.OBJECT_DATA_SUFFIX):
+                    continue
+                context.scene.camera = camera_object
 
-            unity_image_path = image_path.with_stem(
-                image_path.stem.removesuffix(blender_suffix) + "_unity"
-            )
-            if not unity_image_path.exists():
-                continue
-            diff_image_path = image_path.with_stem(
-                image_path.stem.removesuffix(blender_suffix) + f"{suffix}_diff"
-            )
-            diff = compare_image(image_path, unity_image_path, diff_image_path)
+                blender_suffix = f"_blender{suffix}"
+                image_path = render_folder_path / (
+                    f"{len(render_results):02}_"
+                    + camera_data.name.removesuffix(self.OBJECT_DATA_SUFFIX)
+                    + f"{blender_suffix}.png"
+                )
+                image_path.unlink(missing_ok=True)
+
+                context.scene.render.filepath = str(image_path)
+                self.assertEqual(
+                    bpy.ops.render.render(write_still=True),
+                    {"FINISHED"},
+                )
+
+                unity_image_path = image_path.with_stem(
+                    image_path.stem.removesuffix(blender_suffix) + "_unity"
+                )
+                if not unity_image_path.exists():
+                    continue
+                diff_image_path = image_path.with_stem(
+                    image_path.stem.removesuffix(blender_suffix) + f"{suffix}_diff"
+                )
+                diff = compare_image(image_path, unity_image_path, diff_image_path)
+                last_render_result.append(
+                    (diff, image_path, unity_image_path, diff_image_path)
+                )
+
+            render_results.append(last_render_result)
+
+        for diff, image_path, unity_image_path, diff_image_path in sum(
+            render_results, list[tuple[float, Path, Path, Path]]()
+        ):
             self.assertGreater(
                 diff,
                 1.8,
