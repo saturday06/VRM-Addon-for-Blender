@@ -101,6 +101,10 @@ jobs:
         run: |
           url="${BLENDER_ARCHIVE_BASE_URL}/Blender${BLENDER_MAJOR_MINOR_VERSION}/blender-${BLENDER_MAJOR_MINOR_VERSION}.0-macos-${BLENDER_ARCH}.dmg"
           curl -fsLS --retry 5 --retry-all-errors "$url" -o blender.dmg
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install ffmpeg imagemagick
       - name: Test
         run: |
           hdiutil attach blender.dmg
@@ -138,6 +142,10 @@ jobs:
         run: |
           url="${BLENDER_ARCHIVE_BASE_URL}/Blender${BLENDER_MAJOR_MINOR_VERSION}/blender-${BLENDER_MAJOR_MINOR_VERSION}.0-linux-x64.tar.xz"
           curl -fsLS --retry 5 --retry-all-errors "$url" -o blender.tar.xz
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq || true
+          sudo apt-get install -y ffmpeg imagemagick
       - name: Test
         run: |
           mkdir -p "$HOME/.local/blender"
