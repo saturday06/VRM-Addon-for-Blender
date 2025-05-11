@@ -377,20 +377,20 @@ def create_look_at_animation(
                 look_at_translation_offsets.append(translation_offset)
             translation_offset[fcurve.array_index] = value
 
-    look_at_default_node_translation, look_at_rotation, look_at_scale = (
-        look_at_target_object.matrix_world.decompose()
-    )
-    look_at_rotation_and_scale_matrix = (
-        look_at_rotation.to_matrix().to_4x4() @ Matrix.Diagonal(look_at_scale).to_4x4()
-    )
+    parent = look_at_target_object.parent
+    parent_world_matrix = parent.matrix_world if parent else Matrix()
+
     look_at_translations = [
-        look_at_translation_offset @ look_at_rotation_and_scale_matrix
+        parent_world_matrix @ look_at_translation_offset
         for look_at_translation_offset in look_at_translation_offsets
     ]
     if not look_at_translations:
         return None
 
     look_at_target_node_index = len(node_dicts)
+    look_at_default_node_translation = (
+        look_at_target_object.matrix_world.to_translation()
+    )
     node_dicts.append(
         {
             "name": look_at_target_object.name,
