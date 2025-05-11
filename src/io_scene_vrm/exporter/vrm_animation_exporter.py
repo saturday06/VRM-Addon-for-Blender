@@ -497,7 +497,7 @@ def create_look_at_animation(
         }
     )
 
-    return None
+    return look_at_target_node_index
 
 
 def create_expression_animation(
