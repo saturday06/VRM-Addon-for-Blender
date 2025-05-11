@@ -365,12 +365,18 @@ def compare_image(image1_path: Path, image2_path: Path, diff_image_path: Path) -
         check=True,
         capture_output=True,
     )
-    last_line = compare_result.stderr.decode().splitlines()[-1].strip()
-    ssim_match = re.search(r" SSIM .+\((\d+\.?\d*|inf)\)$", last_line)
-    if not ssim_match:
-        message = f"Unexpected command output: {last_line}"
-        raise ValueError(message)
-    ssim_str = ssim_match.group(1)
-    if ssim_str == "inf":
-        return math.inf
-    return float(ssim_str)
+    pattern = r" SSIM .+\((\d+\.?\d*|inf)\)$"
+    for line in reversed(compare_result.stderr.decode().splitlines()):
+        ssim_match = re.search(pattern, line.strip())
+        if not ssim_match:
+            continue
+        ssim_str = ssim_match.group(1)
+        if ssim_str == "inf":
+            return math.inf
+        return float(ssim_str)
+
+    message = (
+        f"SSIM value not found in command output pattern={pattern}\n"
+        + compare_result.stderr.decode()
+    )
+    raise ValueError(message)
