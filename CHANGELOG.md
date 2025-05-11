@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.3.2...v3.4.0) (2025-05-11)
+
+
+### 🚀 Features
+
+* VRM Animation input and output are now as similar as possible to UniVRM ([75ebc21](https://github.com/saturday06/VRM-Addon-for-Blender/commit/75ebc2177a49166d84a37f978595583e51597314))
+
 ## [3.3.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.3.1...v3.3.2) (2025-05-08)
 
 
