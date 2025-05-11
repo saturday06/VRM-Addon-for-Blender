@@ -176,6 +176,7 @@ class TestVrmAnimationRendering(TestCase):
 
             ext = get_armature_extension(obj_data)
             ext.spring_bone1.enable_animation = True
+            ext.vrm1.look_at.enable_preview = True
             look_at_target_obj = ext.vrm1.look_at.preview_target_bpy_object
             if (
                 look_at_target_obj
