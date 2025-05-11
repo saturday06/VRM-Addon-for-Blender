@@ -111,7 +111,8 @@ class VrmAnimationImporter:
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
 
-        humanoid = get_armature_extension(armature_data).vrm1.humanoid
+        ext = get_armature_extension(armature_data)
+        humanoid = ext.vrm1.humanoid
         if not humanoid.human_bones.all_required_bones_are_assigned():
             return {"CANCELLED"}
 
@@ -119,7 +120,11 @@ class VrmAnimationImporter:
             setup_humanoid_t_pose(context, armature),
             save_workspace(context, armature, mode="POSE"),
         ):
-            return import_vrm_animation(context, path, armature)
+            result = import_vrm_animation(context, path, armature)
+            look_at_preview_enabled = ext.vrm1.look_at.enable_preview
+
+        ext.vrm1.look_at.enable_preview = look_at_preview_enabled
+        return result
 
 
 def find_root_node_index(
