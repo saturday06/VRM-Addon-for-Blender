@@ -735,6 +735,16 @@ def assign_humanoid_keyframe(
                     - rest_local_matrix.to_translation()
                 )
             )
+
+            # TODO: UniVRMはhipsの高さの比で移動量を調整しているように見える。
+            # 仕様には記載が無い。UniVRMのソースコード上でどうなっているかの調査が必要。
+            rest_world_translation_z = rest_world_matrix.to_translation().z
+            if abs(rest_world_translation_z) > 0:
+                world_height_ratio = (
+                    bone.matrix.to_translation().z / rest_world_translation_z
+                )
+                translation *= world_height_ratio
+
             # logger.debug(f"translation           = {dump(translation)}")
             backup_translation = bone.location.copy()
             bone.location = translation
