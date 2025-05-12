@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from sys import float_info
@@ -15,6 +15,7 @@ from ...common.rotation import (
     set_rotation_without_mode_change,
 )
 from ..extension import get_armature_extension
+from ..property_group import CollectionPropertyProtocol
 from .property_group import (
     SpringBone1JointPropertyGroup,
     SpringBone1SpringPropertyGroup,
@@ -357,44 +358,6 @@ def calculate_object_pose_bone_rotations(
         joints = spring.joints
         if not joints:
             continue
-        first_joint = joints[0]
-        first_pose_bone = obj.pose.bones.get(first_joint.node.bone_name)
-        if not first_pose_bone:
-            continue
-
-        center_pose_bone = obj.pose.bones.get(spring.center.bone_name)
-
-        # https://github.com/vrm-c/vrm-specification/blob/7279e169ac0dcf37e7d81b2adcad9107101d7e25/specification/VRMC_springBone-1.0/README.md#center-space
-        center_pose_bone_is_ancestor_of_first_pose_bone = False
-        ancestor_of_first_pose_bone: Optional[PoseBone] = first_pose_bone
-        while ancestor_of_first_pose_bone:
-            if center_pose_bone == ancestor_of_first_pose_bone:
-                center_pose_bone_is_ancestor_of_first_pose_bone = True
-                break
-            ancestor_of_first_pose_bone = ancestor_of_first_pose_bone.parent
-        if not center_pose_bone_is_ancestor_of_first_pose_bone:
-            center_pose_bone = None
-
-        if center_pose_bone:
-            current_center_world_translation = (
-                obj_matrix_world @ center_pose_bone.matrix
-            ).to_translation()
-            previous_center_world_translation = Vector(
-                spring.animation_state.previous_center_world_translation
-            )
-            previous_to_current_center_world_translation = (
-                current_center_world_translation - previous_center_world_translation
-            )
-            if not spring.animation_state.use_center_space:
-                spring.animation_state.previous_center_world_translation = (
-                    current_center_world_translation.copy()
-                )
-                spring.animation_state.use_center_space = True
-        else:
-            current_center_world_translation = Vector((0, 0, 0))
-            previous_to_current_center_world_translation = Vector((0, 0, 0))
-            if spring.animation_state.use_center_space:
-                spring.animation_state.use_center_space = False
 
         calculate_spring_pose_bone_rotations(
             delta_time,
@@ -405,11 +368,6 @@ def calculate_object_pose_bone_rotations(
             spring,
             pose_bone_and_rotations,
             collider_group_uuid_to_world_colliders,
-            previous_to_current_center_world_translation,
-        )
-
-        spring.animation_state.previous_center_world_translation = (
-            current_center_world_translation
         )
 
 
@@ -433,7 +391,6 @@ def calculate_spring_pose_bone_rotations(
             ]
         ],
     ],
-    previous_to_current_center_world_translation: Vector,
 ) -> None:
     world_collider_groups: Sequence[
         Sequence[
@@ -457,57 +414,102 @@ def calculate_spring_pose_bone_rotations(
         and collider_group_world_colliders
     ]
 
-    joints: list[
-        tuple[
-            SpringBone1JointPropertyGroup,
-            PoseBone,
-            Matrix,
-        ]
-    ] = [
-        (
-            joint,
-            pose_bone,
-            pose_bone.bone.convert_local_to_pose(Matrix(), pose_bone.bone.matrix_local),
+    center_pose_bone = obj.pose.bones.get(spring.center.bone_name)
+    if center_pose_bone:
+        current_center_world_translation = (
+            obj_matrix_world @ center_pose_bone.matrix
+        ).to_translation()
+        previous_center_world_translation = Vector(
+            spring.animation_state.previous_center_world_translation
         )
-        for joint in spring.joints
-        if (pose_bone := obj.pose.bones.get(joint.node.bone_name))
-    ]
+        previous_to_current_center_world_translation = (
+            current_center_world_translation - previous_center_world_translation
+        )
+        if not spring.animation_state.use_center_space:
+            spring.animation_state.previous_center_world_translation = (
+                current_center_world_translation.copy()
+            )
+            spring.animation_state.use_center_space = True
+    else:
+        current_center_world_translation = Vector((0, 0, 0))
+        previous_to_current_center_world_translation = Vector((0, 0, 0))
+        if spring.animation_state.use_center_space:
+            spring.animation_state.use_center_space = False
 
-    next_head_pose_bone_before_rotation_matrix = None
-    for (head_joint, head_pose_bone, head_rest_object_matrix), (
-        tail_joint,
-        tail_pose_bone,
-        tail_rest_object_matrix,
-    ) in zip(joints, joints[1:]):
-        head_tail_parented = False
-        searching_tail_parent = tail_pose_bone.parent
-        while searching_tail_parent:
-            if searching_tail_parent.name == head_pose_bone.name:
-                head_tail_parented = True
-                break
-            searching_tail_parent = searching_tail_parent.parent
-        if not head_tail_parented:
-            break
+    for sorted_joint_and_bones in sort_spring_bone_joints(obj, spring.joints):
+        joints: list[
+            tuple[
+                SpringBone1JointPropertyGroup,
+                PoseBone,
+                Matrix,
+            ]
+        ] = [
+            (
+                joint,
+                pose_bone,
+                pose_bone.bone.convert_local_to_pose(
+                    Matrix(), pose_bone.bone.matrix_local
+                ),
+            )
+            for joint, pose_bone in sorted_joint_and_bones
+        ]
 
-        (
-            head_pose_bone_rotation,
-            next_head_pose_bone_before_rotation_matrix,
-        ) = calculate_joint_pair_head_pose_bone_rotations(
-            delta_time,
-            obj_matrix_world,
-            obj_matrix_world_inverted,
-            obj_matrix_world_quaternion,
+        # https://github.com/vrm-c/vrm-specification/blob/7279e169ac0dcf37e7d81b2adcad9107101d7e25/specification/VRMC_springBone-1.0/README.md#center-space
+        enable_center_space = False
+        if center_pose_bone:
+            first_pose_bone = next((pose_bone for (_, pose_bone, _) in joints), None)
+            ancestor_of_first_pose_bone: Optional[PoseBone] = first_pose_bone
+            while ancestor_of_first_pose_bone:
+                if center_pose_bone == ancestor_of_first_pose_bone:
+                    enable_center_space = True
+                    break
+                ancestor_of_first_pose_bone = ancestor_of_first_pose_bone.parent
+
+        next_head_pose_bone_before_rotation_matrix = None
+        for (
             head_joint,
             head_pose_bone,
             head_rest_object_matrix,
+        ), (
             tail_joint,
             tail_pose_bone,
             tail_rest_object_matrix,
-            next_head_pose_bone_before_rotation_matrix,
-            world_collider_groups,
-            previous_to_current_center_world_translation,
-        )
-        pose_bone_and_rotations.append((head_pose_bone, head_pose_bone_rotation))
+        ) in zip(joints, joints[1:]):
+            head_tail_parented = False
+            searching_tail_parent = tail_pose_bone.parent
+            while searching_tail_parent:
+                if searching_tail_parent.name == head_pose_bone.name:
+                    head_tail_parented = True
+                    break
+                searching_tail_parent = searching_tail_parent.parent
+            if not head_tail_parented:
+                break
+
+            (
+                head_pose_bone_rotation,
+                next_head_pose_bone_before_rotation_matrix,
+            ) = calculate_joint_pair_head_pose_bone_rotations(
+                delta_time,
+                obj_matrix_world,
+                obj_matrix_world_inverted,
+                obj_matrix_world_quaternion,
+                head_joint,
+                head_pose_bone,
+                head_rest_object_matrix,
+                tail_joint,
+                tail_pose_bone,
+                tail_rest_object_matrix,
+                next_head_pose_bone_before_rotation_matrix,
+                world_collider_groups,
+                previous_to_current_center_world_translation
+                if enable_center_space
+                else Vector((0, 0, 0)),
+            )
+            pose_bone_and_rotations.append((head_pose_bone, head_pose_bone_rotation))
+
+    spring.animation_state.previous_center_world_translation = (
+        current_center_world_translation
+    )
 
 
 def calculate_joint_pair_head_pose_bone_rotations(
@@ -739,3 +741,114 @@ def frame_change_pre(_unused: object) -> None:
         update_pose_bone_rotations(context, delta_time)
 
         state.spring_bone_60_fps_update_count += 1
+
+
+def sort_spring_bone_joints(
+    obj: Object, joints: CollectionPropertyProtocol[SpringBone1JointPropertyGroup]
+) -> Sequence[Iterable[tuple[SpringBone1JointPropertyGroup, PoseBone]]]:
+    bones = obj.pose.bones
+
+    # ソートされているかどうかを調べて、既にソート済みならそのまま返す。
+    # これはロジック的には不要だが、シミュレーションの効率化のために行う。
+    already_sorted = True
+    sorted_pose_bones: list[PoseBone] = []
+    for joint in joints:
+        joint_bone = bones.get(joint.node.bone_name)
+        if not joint_bone:
+            already_sorted = False
+            break
+        if not sorted_pose_bones:
+            sorted_pose_bones.append(joint_bone)
+            continue
+        parent_bone = sorted_pose_bones[-1]
+        sorted_pose_bones.append(joint_bone)
+
+        traversing_bone = joint_bone.parent
+        connected = False
+        while traversing_bone:
+            if traversing_bone == parent_bone:
+                connected = True
+                break
+            traversing_bone = traversing_bone.parent
+        if not connected:
+            already_sorted = False
+            break
+
+    if already_sorted:
+        return [zip(joints, sorted_pose_bones)]
+
+    # ソートを行う
+    chains = list[list[tuple[SpringBone1JointPropertyGroup, PoseBone]]]()
+    for joint in joints:
+        joint_bone = bones.get(joint.node.bone_name)
+        if not joint_bone:
+            continue
+
+        if not chains:
+            chains.append([(joint, joint_bone)])
+            continue
+
+        # 既にchainに登録済みの場合はスキップ
+        if any(joint_bone == bone for chain in chains for _, bone in chain):
+            continue
+
+        # chainの先頭の祖先か、chainの末尾の子孫か、
+        # あるいはchainの先頭の子孫かつchainの末尾の祖先の場合
+        # そのchainに追加する
+        # そうでない場合は新しいchainを作る
+        assigned = False
+        for chain in chains:
+            if not chain:
+                # ここには来ないはず
+                continue
+
+            # chainの先頭の先祖かどうかチェック
+            _, chain_head_bone = chain[0]
+            traversing_bone = chain_head_bone.parent
+            assigned = False
+            while traversing_bone:
+                if traversing_bone == joint_bone:
+                    chain.insert(0, (joint, joint_bone))
+                    assigned = True
+                    break
+                traversing_bone = traversing_bone.parent
+            if assigned:
+                break
+
+            # chainの末尾の祖先かどうかチェック
+            _, chain_tail_bone = chain[-1]
+            traversing_bone = joint_bone.parent
+            assigned = False
+            while traversing_bone:
+                if traversing_bone == chain_tail_bone:
+                    chain.append((joint, joint_bone))
+                    assigned = True
+                    break
+                traversing_bone = traversing_bone.parent
+            if assigned:
+                break
+
+            # chainの先頭の子孫かつ、chainの末尾の祖先かどうかチェック
+            assigned = False
+            for i in range(len(chain) - 1):
+                _, chain_parent_bone = chain[i]
+                _, chain_child_bone = chain[i + 1]
+
+                traversing_bone = chain_child_bone.parent
+                while traversing_bone:
+                    if traversing_bone == joint_bone:
+                        chain.insert(i + 1, (joint, joint_bone))
+                        assigned = True
+                        break
+                    if traversing_bone == chain_parent_bone:
+                        break
+                    traversing_bone = traversing_bone.parent
+                if assigned:
+                    break
+            if assigned:
+                break
+
+        if not assigned:
+            chains.append([(joint, joint_bone)])
+
+    return chains

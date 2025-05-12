@@ -52,7 +52,12 @@ from ..editor.mtoon1.property_group import (
     Mtoon1SamplerPropertyGroup,
     Mtoon1TextureInfoPropertyGroup,
 )
-from ..editor.spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
+from ..editor.spring_bone1.handler import sort_spring_bone_joints
+from ..editor.spring_bone1.property_group import (
+    SpringBone1JointPropertyGroup,
+    SpringBone1SpringBonePropertyGroup,
+    SpringBone1SpringPropertyGroup,
+)
 from ..editor.t_pose import setup_humanoid_t_pose
 from ..editor.vrm1.property_group import (
     Vrm1ExpressionPropertyGroup,
@@ -856,12 +861,21 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         if not isinstance(armature_data, Armature):
             logger.error("%s is not an Armature", type(armature_data))
             return []
-        for spring in spring_bone.springs:
+        sorted_spring_and_joints: list[
+            tuple[
+                SpringBone1SpringPropertyGroup, Sequence[SpringBone1JointPropertyGroup]
+            ]
+        ] = [
+            (spring, [joint for joint, _ in joint_and_bones])
+            for spring in spring_bone.springs
+            for joint_and_bones in sort_spring_bone_joints(armature, spring.joints)
+        ]
+        for spring, joints in sorted_spring_and_joints:
             spring_dict: dict[str, Json] = {"name": spring.vrm_name}
 
             first_bone: Optional[Bone] = None
             joint_dicts: list[Json] = []
-            for joint in spring.joints:
+            for joint in joints:
                 bone = armature_data.bones.get(joint.node.bone_name)
                 if not bone:
                     continue
