@@ -108,6 +108,7 @@ class TestVrmAnimationRendering(TestCase):
         scene.render.resolution_percentage = 100
         scene.render.image_settings.file_format = "PNG"
         scene.render.engine = "CYCLES"
+        scene.eevee.taa_render_samples = 1
         scene.cycles.samples = 1
         scene.cycles.adaptive_min_samples = 1
         scene.cycles.use_denoising = False
