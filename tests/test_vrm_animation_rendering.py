@@ -158,6 +158,7 @@ class TestVrmAnimationRendering(TestCase):
             render_folder_path.stem + f".render{suffix}.blend"
         )
         bpy.ops.wm.save_as_mainfile(filepath=str(render_blend_path))
+        scene = context.scene
 
         max_end_frame: int = 1
         for obj in context.blend_data.objects:
@@ -188,8 +189,11 @@ class TestVrmAnimationRendering(TestCase):
             ):
                 _, end_frame = action.frame_range
                 max_end_frame = max(max_end_frame, math.ceil(end_frame))
+        max_end_frame = min(
+            max_end_frame,
+            math.ceil(60 * scene.render.fps / scene.render.fps_base),
+        )
 
-        scene = context.scene
         render_folder_path.mkdir(parents=True, exist_ok=True)
         last_render_time = None
         render_results = list[list[tuple[float, Path, Path, Path]]]()

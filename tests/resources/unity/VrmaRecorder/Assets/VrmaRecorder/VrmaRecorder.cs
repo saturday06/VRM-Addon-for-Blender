@@ -272,7 +272,7 @@ namespace VrmaRecorder
             {
                 await Awaitable.NextFrameAsync();
                 var duration = Time.time - startTime;
-                var done = duration >= clip.length;
+                var done = duration >= Math.Min(clip.length, 60);
                 if (duration >= images.Count || done)
                 {
                     images.Add(
