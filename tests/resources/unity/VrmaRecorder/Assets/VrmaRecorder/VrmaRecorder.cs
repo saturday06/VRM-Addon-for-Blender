@@ -29,14 +29,7 @@ namespace VrmaRecorder
         public static void BeforeSplashScreen()
         {
             // fpsを固定
-            // targetFrameRateの固定は今のところおまじない。
-            // fixedDeltaTimeだけ固定すればよい気もする。
             Application.targetFrameRate = 60;
-            Time.fixedDeltaTime = 1f / Application.targetFrameRate;
-
-            // fixedDeltaTime以内に処理が終わらない場合どうなるかわからないため
-            // 時間の進みを遅くする。
-            Time.captureFramerate = Application.targetFrameRate * 4;
         }
 
 #if UNITY_EDITOR
@@ -239,6 +232,20 @@ namespace VrmaRecorder
             Camera rightCamera
         )
         {
+            // SpringBoneはデフォルトではTime.deltaTimeを使って動く。
+            // VRMのロードはとても重く1フレームの周期に収まらないこともあるため
+            // そのままだとSpringBoneの最初のフレームの動きが非決定的になる。
+            // これを防ぐため、VRMのロードは時間を止めて行う。
+            Time.timeScale = 0;
+            await Awaitable.NextFrameAsync();
+
+            // この時点で、Time.deltaTimeはゼロになっているはず
+            if (Mathf.Abs(Time.deltaTime) > 0)
+            {
+                throw new Exception($"Mathf.Abs(Time.deltaTime={Time.deltaTime} > 0)");
+            }
+
+            // VRMとVRMAのロード
             var vrmInstance = await Vrm10.LoadPathAsync(
                 inputVrmPath,
                 canLoadVrm0X: true,
@@ -261,18 +268,27 @@ namespace VrmaRecorder
             var vrmaAnimation = vrmaGltfInstance.GetComponent<Animation>();
             var clip = vrmaAnimation.clip;
             clip.wrapMode = WrapMode.Once;
-
             vrmaAnimation.Play(clip.name);
-
             Directory.CreateDirectory(outputFolderPath);
 
+            await Awaitable.NextFrameAsync();
+            // ここから先の処理は、1フレームの周期に収まるようにする
+
+            // この時点で、Time.deltaTimeはゼロ
+            if (Mathf.Abs(Time.deltaTime) > 0)
+            {
+                throw new Exception($"Mathf.Abs(Time.deltaTime={Time.deltaTime} > 0)");
+            }
+
+            // 次のフレームから時間が進み、Time.deltaTimeが設定されるようになる。
+            Time.timeScale = 1;
             var startTime = Time.time;
+
             List<(byte[] forwardImage, byte[] topImage, byte[] rightImage)> images = new();
             while (true)
             {
-                await Awaitable.NextFrameAsync();
                 var duration = Time.time - startTime;
-                var done = duration >= Math.Min(clip.length, 60);
+                var done = duration >= Mathf.Min(clip.length, 60);
                 if (duration >= images.Count || done)
                 {
                     images.Add(
@@ -287,6 +303,7 @@ namespace VrmaRecorder
                 {
                     break;
                 }
+                await Awaitable.NextFrameAsync();
             }
 
             foreach (var (image, i) in images.Select((image, i) => (image, i)))
