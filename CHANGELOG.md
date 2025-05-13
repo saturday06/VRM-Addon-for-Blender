@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.4.0...v3.4.1) (2025-05-13)
+
+
+### 🐞 Bug Fixes
+
+* fix invalid spring joint ordering on export under certain conditions ([5814740](https://github.com/saturday06/VRM-Addon-for-Blender/commit/5814740e168e1475721d317b1f8203a8bbfa75b1))
+
 ## [3.4.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.3.2...v3.4.0) (2025-05-11)
 
 
