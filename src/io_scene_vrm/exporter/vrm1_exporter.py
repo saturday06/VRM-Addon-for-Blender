@@ -834,13 +834,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 )
                 if isinstance(collider_index, int):
                     collider_indices.append(collider_index)
-            if collider_indices:
-                collider_group_dict["colliders"] = collider_indices
-            else:
-                # 空のコライダーグループは仕様Validだが、UniVRM 0.98.0はこれを読み飛ばし
-                # Springからのインデックス参照はそのままでずれるバグがあるので出力しない
+            if not collider_indices:
                 continue
-
+            collider_group_dict["colliders"] = collider_indices
             collider_group_uuid_to_index_dict[collider_group.uuid] = len(
                 collider_group_dicts
             )
