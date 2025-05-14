@@ -895,8 +895,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     }
                 )
 
-            if joint_dicts:
-                spring_dict["joints"] = joint_dicts
+            if not joint_dicts:
+                continue
+            spring_dict["joints"] = joint_dicts
 
             center_bone = armature_data.bones.get(spring.center.bone_name)
             if center_bone:
