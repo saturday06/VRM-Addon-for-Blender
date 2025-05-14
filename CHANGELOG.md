@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.4.1...v3.4.2) (2025-05-14)
+
+
+### 🐞 Bug Fixes
+
+* fix invalid spring json output on export under certain conditions ([597c323](https://github.com/saturday06/VRM-Addon-for-Blender/commit/597c3232544e3635a3a361e8f6b64f136695e5e2))
+
 ## [3.4.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.4.0...v3.4.1) (2025-05-13)
 
 
