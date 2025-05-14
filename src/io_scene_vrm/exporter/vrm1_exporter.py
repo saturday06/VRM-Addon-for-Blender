@@ -951,11 +951,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         constraints: search.ExportConstraint,
         object_name_to_index_dict: Mapping[str, int],
         bone_name_to_index_dict: Mapping[str, int],
-    ) -> dict[str, Json]:
+    ) -> Optional[dict[str, Json]]:
         roll_constraint = constraints.roll_constraints.get(name)
         aim_constraint = constraints.aim_constraints.get(name)
         rotation_constraint = constraints.rotation_constraints.get(name)
-        constraint_dict: dict[str, Json] = {}
         if roll_constraint:
             source_index = cls.search_constraint_target_index(
                 roll_constraint,
@@ -972,10 +971,12 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 else:
                     message = "Unsupported roll axis"
                     raise ValueError(message)
-                constraint_dict["roll"] = {
-                    "source": source_index,
-                    "rollAxis": roll_axis,
-                    "weight": max(0.0, min(1.0, roll_constraint.influence)),
+                return {
+                    "roll": {
+                        "source": source_index,
+                        "rollAxis": roll_axis,
+                        "weight": max(0.0, min(1.0, roll_constraint.influence)),
+                    }
                 }
         elif aim_constraint:
             source_index = cls.search_constraint_target_index(
@@ -984,12 +985,14 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 bone_name_to_index_dict,
             )
             if isinstance(source_index, int):
-                constraint_dict["aim"] = {
-                    "source": source_index,
-                    "aimAxis": convert.BPY_TRACK_AXIS_TO_VRM_AIM_AXIS[
-                        aim_constraint.track_axis
-                    ],
-                    "weight": max(0.0, min(1.0, aim_constraint.influence)),
+                return {
+                    "aim": {
+                        "source": source_index,
+                        "aimAxis": convert.BPY_TRACK_AXIS_TO_VRM_AIM_AXIS[
+                            aim_constraint.track_axis
+                        ],
+                        "weight": max(0.0, min(1.0, aim_constraint.influence)),
+                    }
                 }
         elif rotation_constraint:
             source_index = cls.search_constraint_target_index(
@@ -998,11 +1001,13 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 bone_name_to_index_dict,
             )
             if isinstance(source_index, int):
-                constraint_dict["rotation"] = {
-                    "source": source_index,
-                    "weight": max(0.0, min(1.0, rotation_constraint.influence)),
+                return {
+                    "rotation": {
+                        "source": source_index,
+                        "weight": max(0.0, min(1.0, rotation_constraint.influence)),
+                    }
                 }
-        return constraint_dict
+        return None
 
     @classmethod
     def create_mtoon0_khr_texture_transform(
