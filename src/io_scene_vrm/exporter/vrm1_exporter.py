@@ -2891,6 +2891,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 continue
             node_dict = node_dicts[node_index]
             if not isinstance(node_dict, dict):
+                logger.error(
+                    "gltf.nodes[%d] is invalid value: %s", node_index, node_dict
+                )
                 node_dict = {}
                 node_dicts[node_index] = node_dict
             constraint_dict = self.create_constraint_dict(
@@ -2914,6 +2917,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 continue
             node_dict = node_dicts[node_index]
             if not isinstance(node_dict, dict):
+                logger.error(
+                    "gltf.nodes[%d] is invalid value: %s", node_index, node_dict
+                )
                 node_dict = {}
                 node_dicts[node_index] = node_dicts
             constraint_dict = self.create_constraint_dict(
