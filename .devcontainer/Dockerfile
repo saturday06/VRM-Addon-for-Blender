@@ -38,8 +38,8 @@ RUN <<'INSTALL_PACKAGES'
     openssh-clients \
     patchutils \
     pv \
-    python3-dulwich \
     python3-numpy \
+    python3-pygit2 \
     python3-tqdm \
     python3-typing-extensions \
     ruby \

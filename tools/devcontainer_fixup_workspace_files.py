@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, NoReturn
 
 import tqdm as type_checking_tqdm
-from dulwich.repo import Repo
+from pygit2 import Repository
 from typing_extensions import TypeAlias
 
 if TYPE_CHECKING:
@@ -102,17 +102,16 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
 
     # gitレポジトリから、パスとそのパーミッションの対応表を得る
     git_index_path_to_mode: dict[Path, int] = {}
-    repo = Repo(str(workspace_path))
-    repo_index = repo.open_index()
-    for path_bytes, _sha, mode in repo_index.iterobjects():
+    repo = Repository(str(workspace_path))
+    for index_entry in repo.index:
         progress.update()
-        path_str = path_bytes.decode()
+        path_str = index_entry.path
         if ".." in path_str:
             continue
         path = Path(path_str)
         if path.is_absolute():
             continue
-        git_index_path_to_mode[path.absolute()] = mode
+        git_index_path_to_mode[path.absolute()] = int(index_entry.mode)
         total_progress_count += 1
 
     progress.reset(total=total_progress_count)
