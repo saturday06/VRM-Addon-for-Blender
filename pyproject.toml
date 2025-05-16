@@ -26,7 +26,7 @@ dev-dependencies = [
   "starry-bpy-typings",
   "tqdm ==4.67.1",
   "types-pygit2 ==1.15.0.20250319",
-  "types-tqdm ==4.67.0.20250513",
+  "types-tqdm ==4.67.0.20250516",
   "packaging ==25.0", # https://github.com/microsoft/vscode-python/issues/25044
 ]
 

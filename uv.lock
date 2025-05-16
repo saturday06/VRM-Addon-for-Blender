@@ -164,7 +164,7 @@ dev = [
     { name = "starry-bpy-typings", directory = "typings" },
     { name = "tqdm", specifier = "==4.67.1" },
     { name = "types-pygit2", specifier = "==1.15.0.20250319" },
-    { name = "types-tqdm", specifier = "==4.67.0.20250513" },
+    { name = "types-tqdm", specifier = "==4.67.0.20250516" },
 ]
 
 [[package]]
@@ -380,14 +380,14 @@ wheels = [
 
 [[package]]
 name = "types-tqdm"
-version = "4.67.0.20250513"
+version = "4.67.0.20250516"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "types-requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d4/74/a77b5179e3543853c51ce786b300cd253934477c81aab4d786dff9894724/types_tqdm-4.67.0.20250513.tar.gz", hash = "sha256:907028c8d0a8fc20072132cd0cee72a3b6c72abf32f5ff914a7749e7d13b351e", size = 17207, upload-time = "2025-05-13T03:06:17.539Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/bd/07/eb40de2dc2ff2d1a53180330981b1bdb42313ab4e1b11195d8d64c878b3c/types_tqdm-4.67.0.20250516.tar.gz", hash = "sha256:230ccab8a332d34f193fc007eb132a6ef54b4512452e718bf21ae0a7caeb5a6b", size = 17232, upload-time = "2025-05-16T03:09:52.091Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6a/7b/996a534691afd516f60fa3ad3f4101b38f7222fff6c1b12f508a4c817695/types_tqdm-4.67.0.20250513-py3-none-any.whl", hash = "sha256:73d2bdac28bab49235d8660aece6c415636a0fb406f7a24b39737dfc6bf6a5dd", size = 24060, upload-time = "2025-05-13T03:06:16.241Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/92/df621429f098fc573a63a8ba348e731c3051b397df0cff278f8887f28d24/types_tqdm-4.67.0.20250516-py3-none-any.whl", hash = "sha256:1dd9b2c65273f2342f37e5179bc6982df86b6669b3376efc12aef0a29e35d36d", size = 24032, upload-time = "2025-05-16T03:09:51.226Z" },
 ]
 
 [[package]]
