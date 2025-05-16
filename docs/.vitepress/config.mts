@@ -71,6 +71,24 @@ export default defineConfig({
     },
   },
   head: [
+    [
+      "script",
+      {
+        async: "",
+        src: "https://www.googletagmanager.com/gtag/js?id=G-L4E126M2JR",
+      },
+    ],
+    [
+      "script",
+      {},
+      `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-L4E126M2JR');
+      `,
+    ],
     ["link", {
       rel: "apple-touch-icon",
       sizes: "57x57",
