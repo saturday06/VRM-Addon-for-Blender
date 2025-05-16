@@ -4,6 +4,7 @@
     "npm:@types/node@22.15.18": "22.15.18",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
     "npm:pyright@1.1.400": "1.1.400",
+    "npm:vitepress@*": "1.6.3_vite@5.4.19__@types+node@22.15.18_vue@3.5.14_focus-trap@7.6.4_@types+node@22.15.18",
     "npm:vitepress@1.6.3": "1.6.3_vite@5.4.19__@types+node@22.15.18_vue@3.5.14_focus-trap@7.6.4_@types+node@22.15.18",
     "npm:vue@3.5.14": "3.5.14"
   },
