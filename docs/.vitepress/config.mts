@@ -7,47 +7,7 @@ import {
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  sitemap: {
-    hostname: "https://vrm-addon-for-blender.info",
-  },
-  themeConfig: {
-    socialLinks: [
-      {
-        icon: "github",
-        link: "https://github.com/saturday06/VRM-Addon-for-Blender",
-      },
-      {
-        icon: "x",
-        link: "https://x.com/saturday06",
-      },
-    ],
-    editLink: {
-      pattern:
-        "https://github.com/saturday06/VRM-Addon-for-Blender/edit/main/docs/:path",
-    },
-  },
   locales: {
-    ja: {
-      lang: "ja",
-      label: "日本語",
-      title: "VRM Format / VRM Add-on for Blender",
-      description:
-        "VRMファイルのインポート・エクスポート・編集機能をBlenderに追加するアドオンです。" +
-        "Blender 2.93 から 4.4 をサポートしています。",
-      themeConfig: {
-        nav: [
-          {
-            text: "ダウンロード",
-            link:
-              "https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip",
-          },
-          {
-            text: "バグを報告",
-            link: "https://github.com/saturday06/VRM-Addon-for-Blender/issues",
-          },
-        ],
-      },
-    },
     en: {
       lang: "en",
       label: "English",
@@ -67,7 +27,101 @@ export default defineConfig({
             link: "https://github.com/saturday06/VRM-Addon-for-Blender/issues",
           },
         ],
+        sidebar: [
+          {
+            text: "Guide",
+            items: [
+              { text: "Installation", link: "/en/installation" },
+              {
+                text: "Create Simple VRM",
+                link: "/en/create-simple-vrm-from-scratch",
+              },
+              {
+                text: "Create Humanoid VRM",
+                link: "/en/create-humanoid-vrm-from-scratch",
+              },
+              {
+                text: "Create Physics Based Material",
+                link: "/en/material-pbr",
+              },
+              {
+                text: "Create Anime Style Material",
+                link: "/en/material-mtoon",
+              },
+              {
+                text: "Automation with Python scripts",
+                link: "/en/scripting-api",
+              },
+              { text: "VRM Animation", link: "/en/animation" },
+              { text: "Development How-To", link: "/en/development" },
+            ],
+          },
+        ],
       },
+    },
+    ja: {
+      lang: "ja",
+      label: "日本語",
+      title: "VRM Format / VRM Add-on for Blender",
+      description:
+        "VRMファイルのインポート・エクスポート・編集機能をBlenderに追加するアドオンです。" +
+        "Blender 2.93 から 4.4 をサポートしています。",
+      themeConfig: {
+        nav: [
+          {
+            text: "ダウンロード",
+            link:
+              "https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip",
+          },
+          {
+            text: "バグを報告",
+            link: "https://github.com/saturday06/VRM-Addon-for-Blender/issues",
+          },
+        ],
+        sidebar: [
+          {
+            text: "ガイド",
+            items: [
+              { text: "アドオンのインストール", link: "/ja/installation" },
+              {
+                text: "シンプルなVRMモデルを作る",
+                link: "/ja/create-simple-vrm-from-scratch",
+              },
+              {
+                text: "人型のVRMモデルを作る",
+                link: "/ja/create-humanoid-vrm-from-scratch",
+              },
+              { text: "物理ベースのマテリアル設定", link: "/ja/material-pbr" },
+              { text: "アニメ風のマテリアル設定", link: "/ja/material-mtoon" },
+              {
+                text: "Pythonスクリプトによる自動化",
+                link: "/ja/scripting-api",
+              },
+              { text: "VRMアニメーション", link: "/ja/animation" },
+              { text: "改造するには", link: "/ja/development" },
+            ],
+          },
+        ],
+      },
+    },
+  },
+  sitemap: {
+    hostname: "https://vrm-addon-for-blender.info",
+  },
+  themeConfig: {
+    socialLinks: [
+      {
+        icon: "github",
+        link: "https://github.com/saturday06/VRM-Addon-for-Blender",
+      },
+      {
+        icon: "x",
+        link: "https://x.com/saturday06",
+      },
+    ],
+    editLink: {
+      pattern:
+        "https://github.com/saturday06/VRM-Addon-for-Blender/edit/main/docs/:path",
     },
   },
   head: [
