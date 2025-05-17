@@ -196,7 +196,16 @@ RUN <<'INSTALL_BLENDER'
   tar Jxf ../../blender.tar.xz --strip-components=1
   dnf update -y
   ./build_files/build_environment/install_linux_packages.py
-  make bpy
+
+  # ceresのビルドに失敗することがある。失敗した場合はNPROCS=1を付与することで解決した。
+  # 発生していたエラーは次のとおり:
+  # [ 66%] Building C object source/blender/editors/animation/CMakeFiles/bf_editor_animation.dir/anim_channels_edit.c.o
+  # c++: fatal error: Killed signal terminated program cc1plus
+  # compilation terminated.
+  # make[3]: *** [extern/ceres/CMakeFiles/extern_ceres.dir/build.make:1952: extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o] Error 1
+  # make[3]: *** Deleting file 'extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o'
+  make bpy || make NPROCS=1 bpy
+
   pushd ../build_linux_bpy
   make install
   cp -r bin/bpy /usr/local/lib/python3.10/site-packages/
