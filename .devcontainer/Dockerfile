@@ -1,224 +1,58 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-
-# 開発環境としてCentOS Stream 9を利用する。
-# 本当はBlenderのLinux版の公式ビルド用のOSであるRocky Linux 8を利用するのが望ましいが、
-# 開発環境にするには付属パッケージが古すぎると感じるので同系統の新しいOSを選択した。
-# https://projects.blender.org/blender/blender-developer-docs/src/commit/b7d7d239c97443bec2a22ea3ae4b8ad6c585eef3/docs/handbook/release_process/build/rocky_8.md#
-FROM quay.io/centos/centos:stream9
+FROM ubuntu:24.04
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN <<'INSTALL_PACKAGES'
   set -eu
-  dnf update -y
-  dnf install-n -y dnf-plugins-core
-  dnf config-manager --set-enabled crb
-  dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
-  dnf install-n -y epel-release
-  dnf update -y
-  dnf install-n \
-    ImageMagick \
-    ShellCheck \
-    advancecomp \
-    blender \
-    curl \
-    diffutils \
-    ffmpeg-free \
-    file \
-    gh \
-    git \
-    git-lfs \
-    less \
-    libSM \
-    libXi \
-    libxkbcommon \
-    moreutils \
-    nkf \
-    openssh-clients \
-    patchutils \
-    pv \
-    python3-numpy \
-    python3-pygit2 \
-    python3-tqdm \
-    python3-typing-extensions \
-    ruby \
-    rubygems \
-    sudo \
-    unzip \
-    vim-enhanced \
-    xz \
-    zopfli \
-    -y --setopt=install_weak_deps=False --allowerasing
 
-  if [ "$(uname -m)" != "x86_64" ]; then
-    dnf install-n \
-      OpenImageIO-devel \
-      automake \
-      autoconf \
-      bison \
-      boost-devel \
-      bzip2-devel \
-      cmake \
-      dbus-devel \
-      fftw-devel \
-      freetype \
-      gcc-c++ \
-      gcc \
-      glfw-devel \
-      libSM \
-      libX11-devel \
-      libXcursor-devel \
-      libXext \
-      libXi-devel \
-      libXinerama-devel \
-      libXrandr-devel \
-      libXtst-devel \
-      libXxf86vm-devel \
-      libdecor-devel \
-      libepoxy-devel \
-      libffi-devel \
-      libjpeg-turbo-devel \
-      libtool \
-      libxkbcommon-devel \
-      libxml2-devel \
-      libzstd-devel \
-      make \
-      mesa-libEGL-devel \
-      mesa-libGL-devel \
-      ncurses-devel \
-      ninja-build \
-      openCOLLADA-devel \
-      openssl-devel \
-      openvdb-devel \
-      openxr-devel \
-      patchelf \
-      pugixml-devel \
-      readline-devel \
-      sqlite-devel \
-      subversion \
-      tbb-devel \
-      tk-devel \
-      wayland-devel \
-      wayland-protocols-devel \
-      yasm \
-      zlib-devel \
-      -y --setopt=install_weak_deps=False --allowerasing
-  fi
-  dnf clean all
+  apt-get update
+  apt-get install \
+    advancecomp=* \
+    blender=* \
+    curl=* \
+    diffutils=* \
+    ffmpeg=* \
+    file=* \
+    git=* \
+    git-lfs=* \
+    gnupg=* \
+    imagemagick=* \
+    less=* \
+    libsm6=* \
+    libxi6=* \
+    libxkbcommon0=* \
+    moreutils=* \
+    nkf=* \
+    patchutils=* \
+    python3-pygit2=* \
+    python3-numpy=* \
+    python3-tqdm=* \
+    python3-typing-extensions=* \
+    ruby=* \
+    shellcheck=* \
+    shfmt=* \
+    sudo=* \
+    unzip=* \
+    xz-utils=* \
+    zopfli=* \
+    -y --no-install-recommends
+
+  # https://github.com/cli/cli/blob/v2.65.0/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt
+  curl --fail --show-error --location --output /etc/apt/keyrings/githubcli-archive-keyring.gpg https://cli.github.com/packages/githubcli-archive-keyring.gpg
+  chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+  apt-get update
+  apt-get install gh=* -y --no-install-recommends
+
+  rm -rf /var/lib/apt/lists/*
 INSTALL_PACKAGES
-
-WORKDIR /root/src
-
-# bpyを使いたいがLinux用のbpyはx86_64版だけしかpypiに上がっていないため、それ以外の場合は自前でビルドしてシステムにインストールする。
-# https://developer.blender.org/docs/handbook/building_blender/python_module/
-RUN <<'UPDATE_LD_SO_CONF'
-  set -eu
-  test "$(uname -m)" = "x86_64" && exit 0
-  for path in /usr/local/lib /usr/local/lib64; do
-    mkdir -p "$path"
-    echo "$path" >> /etc/ld.so.conf.d/vrm.conf
-  done
-  ldconfig
-UPDATE_LD_SO_CONF
-
-RUN <<'INSTALL_SSE2NEON'
-  set -eu
-  test "$(uname -m)" != "aarch64" && exit 0
-  curl --fail --show-error --location --output sse2neon.tar.gz https://projects.blender.org/blender/lib-source/media/tag/v3.6.22/sse2neon-v1.6.0.tar.gz
-  test "$(md5sum sse2neon.tar.gz)" = "dce28eb6a78f45bf98740d5fad73febb  sse2neon.tar.gz"
-  mkdir -p sse2neon
-  pushd sse2neon
-  tar zxf ../sse2neon.tar.gz --strip-components=1
-  make
-  make check
-  cp sse2neon.h /usr/local/include/
-  popd
-  rm -fr sse2neon
-INSTALL_SSE2NEON
-
-RUN <<'INSTALL_PYTHON'
-  set -eu
-  test "$(uname -m)" = "x86_64" && exit 0
-  # https://projects.blender.org/blender/lib-source/media/tag/v3.6.22/Python-3.10.13.tar.xz
-  curl --fail --show-error --location --output Python.tar.xz https://www.python.org/ftp/python/3.10.17/Python-3.10.17.tar.xz
-  test "$(md5sum Python.tar.xz)" = "ff1fefaa34ba591d2a83f52dfa039921  Python.tar.xz"
-  mkdir -p python
-  pushd python
-  tar Jxf ../Python.tar.xz --strip-components=1
-  ./configure
-  make
-  make install
-  popd
-  rm -fr python
-  ln -s /usr/local/bin/python3 /usr/local/bin/python
-  # https://projects.blender.org/blender/blender/src/tag/v3.6.22/build_files/build_environment/install_linux_packages.py#L529-L593
-  /usr/local/bin/pip3 install --no-cache-dir "numpy==1.23.*" "requests==2.27.*" "zstandard==0.16.*"
-INSTALL_PYTHON
-
-RUN <<'INSTALL_EMBREE'
-  set -eu
-  test "$(uname -m)" = "x86_64" && exit 0
-  curl --fail --show-error --location --output embree.zip https://projects.blender.org/blender/lib-source/media/tag/v3.6.22/embree-v4.1.0.zip
-  test "$(md5sum embree.zip)" = "4b525955b08e1249a700dea5b5ffc8b2  embree.zip"
-  mkdir -p embree
-  pushd embree
-  unzip ../embree.zip
-  find . -maxdepth 1 -mindepth 1 -type d -name "embree-*" -exec cmake {} +
-  make
-  make install
-  popd
-  rm -fr embree
-INSTALL_EMBREE
-
-RUN <<'INSTALL_OPENSUBDIV'
-  set -eu
-  test "$(uname -m)" = "x86_64" && exit 0
-  curl --fail --show-error --location --output opensubdiv.tar.gz https://projects.blender.org/blender/lib-source/media/tag/v3.6.22/opensubdiv-v3_5_0.tar.gz
-  test "$(md5sum opensubdiv.tar.gz)" = "230f5cd2911d6240e58a3773b9c6e5e4  opensubdiv.tar.gz"
-  mkdir -p opensubdiv
-  pushd opensubdiv
-  tar zxf ../opensubdiv.tar.gz --strip-components=1
-  cmake .
-  make
-  make install
-  popd
-  rm -fr opensubdiv
-INSTALL_OPENSUBDIV
-
-RUN <<'INSTALL_BLENDER'
-  set -eu
-  test "$(uname -m)" = "x86_64" && exit 0
-  curl --fail --show-error --location --output blender.tar.xz https://download.blender.org/source/blender-3.6.22.tar.xz
-  test "$(md5sum blender.tar.xz)" = "e633a1ac5734aed4faa147b0a126a1ed  blender.tar.xz"
-  mkdir -p blender/blender
-  pushd blender/blender
-  tar Jxf ../../blender.tar.xz --strip-components=1
-  dnf update -y
-  ./build_files/build_environment/install_linux_packages.py
-
-  # ceresのビルドに失敗することがある。失敗した場合はNPROCS=1を付与することで解決した。
-  # 発生していたエラーは次のとおり:
-  # [ 66%] Building C object source/blender/editors/animation/CMakeFiles/bf_editor_animation.dir/anim_channels_edit.c.o
-  # c++: fatal error: Killed signal terminated program cc1plus
-  # compilation terminated.
-  # make[3]: *** [extern/ceres/CMakeFiles/extern_ceres.dir/build.make:1952: extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o] Error 1
-  # make[3]: *** Deleting file 'extern/ceres/CMakeFiles/extern_ceres.dir/internal/ceres/generated/schur_eliminator_2_2_3.cc.o'
-  make bpy || make NPROCS=1 bpy
-
-  pushd ../build_linux_bpy
-  make install
-  cp -r bin/bpy /usr/local/lib/python3.10/site-packages/
-  popd
-  popd
-  rm -fr blender
-  python3 -c 'import bpy; assert(bpy.app.version == (3, 6, 22))'
-INSTALL_BLENDER
 
 RUN <<'SETUP_USER_DEVELOPER'
   set -eu
   useradd --create-home --user-group --shell /bin/bash developer
-  usermod --append --groups wheel developer
+  echo "developer ALL=(root) NOPASSWD:ALL" | tee /etc/sudoers.d/developer
   mkdir -p /workspace
   chown developer:developer /workspace
 SETUP_USER_DEVELOPER

@@ -1,7 +1,10 @@
 {
   "name": "VRM-Addon-for-Blender",
   "build": {
-    "dockerfile": "Dockerfile"
+    "dockerfile": "Dockerfile",
+    // pypiのbpyパッケージがlinux向けはamd64版しか提供されていない
+    // https://github.com/saturday06/VRM-Addon-for-Blender/blob/v3.4.2/uv.lock#L23-L26
+    "options": ["--platform=linux/amd64"]
   },
   "remoteUser": "developer",
   "onCreateCommand": "./tools/devcontainer_on_create_command.sh",

@@ -25,5 +25,10 @@
       rangeStrategy: "in-range-only",
       automerge: true,
     },
+    {
+      matchFileNames: [".devcontainer/Dockerfile"],
+      matchUpdateTypes: ["patch", "digest"],
+      automerge: true,
+    },
   ],
 }
