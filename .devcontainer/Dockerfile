@@ -125,8 +125,8 @@ UPDATE_LD_SO_CONF
 RUN <<'INSTALL_SSE2NEON'
   set -eu
   test "$(uname -m)" != "aarch64" && exit 0
-  curl --fail --show-error --location --output sse2neon.tar.gz https://github.com/DLTcollab/sse2neon/archive/refs/tags/v1.7.0.tar.gz
-  test "$(md5sum sse2neon.tar.gz)" = "09e0a5ac47f852862c5c0e754462bc81  sse2neon.tar.gz"
+  curl --fail --show-error --location --output sse2neon.tar.gz https://projects.blender.org/blender/lib-source/media/tag/v3.6.22/sse2neon-v1.6.0.tar.gz
+  test "$(md5sum sse2neon.tar.gz)" = "dce28eb6a78f45bf98740d5fad73febb  sse2neon.tar.gz"
   mkdir -p sse2neon
   pushd sse2neon
   tar zxf ../sse2neon.tar.gz --strip-components=1
@@ -140,8 +140,9 @@ INSTALL_SSE2NEON
 RUN <<'INSTALL_PYTHON'
   set -eu
   test "$(uname -m)" = "x86_64" && exit 0
-  curl --fail --show-error --location --output Python.tar.xz https://www.python.org/ftp/python/3.10.16/Python-3.10.16.tar.xz
-  test "$(md5sum Python.tar.xz)" = "97b3ee1740f32a92905dd0a99dcb04d5  Python.tar.xz"
+  # https://projects.blender.org/blender/lib-source/media/tag/v3.6.22/Python-3.10.13.tar.xz
+  curl --fail --show-error --location --output Python.tar.xz https://www.python.org/ftp/python/3.10.17/Python-3.10.17.tar.xz
+  test "$(md5sum Python.tar.xz)" = "ff1fefaa34ba591d2a83f52dfa039921  Python.tar.xz"
   mkdir -p python
   pushd python
   tar Jxf ../Python.tar.xz --strip-components=1
@@ -151,18 +152,19 @@ RUN <<'INSTALL_PYTHON'
   popd
   rm -fr python
   ln -s /usr/local/bin/python3 /usr/local/bin/python
+  # https://projects.blender.org/blender/blender/src/tag/v3.6.22/build_files/build_environment/install_linux_packages.py#L529-L593
   /usr/local/bin/pip3 install --no-cache-dir "numpy==1.23.*" "requests==2.27.*" "zstandard==0.16.*"
 INSTALL_PYTHON
 
 RUN <<'INSTALL_EMBREE'
   set -eu
   test "$(uname -m)" = "x86_64" && exit 0
-  curl --fail --show-error --location --output embree.tar.gz https://github.com/RenderKit/embree/archive/refs/tags/v4.3.3.tar.gz
-  test "$(md5sum embree.tar.gz)" = "170a7f8042fa89930f464cda0a0a63fc  embree.tar.gz"
+  curl --fail --show-error --location --output embree.zip https://projects.blender.org/blender/lib-source/media/tag/v3.6.22/embree-v4.1.0.zip
+  test "$(md5sum embree.zip)" = "4b525955b08e1249a700dea5b5ffc8b2  embree.zip"
   mkdir -p embree
   pushd embree
-  tar zxf ../embree.tar.gz --strip-components=1
-  cmake .
+  unzip ../embree.zip
+  find . -maxdepth 1 -mindepth 1 -type d -name "embree-*" -exec cmake {} +
   make
   make install
   popd
@@ -172,16 +174,16 @@ INSTALL_EMBREE
 RUN <<'INSTALL_OPENSUBDIV'
   set -eu
   test "$(uname -m)" = "x86_64" && exit 0
-  curl --fail --show-error --location --output OpenSubdiv.tar.gz https://github.com/PixarAnimationStudios/OpenSubdiv/archive/refs/tags/v3_6_0.tar.gz
-  test "$(md5sum OpenSubdiv.tar.gz)" = "cd03aaf8890bc0b8550eef62029cabe7  OpenSubdiv.tar.gz"
-  mkdir -p OpenSubdiv
-  pushd OpenSubdiv
-  tar zxf ../OpenSubdiv.tar.gz --strip-components=1
+  curl --fail --show-error --location --output opensubdiv.tar.gz https://projects.blender.org/blender/lib-source/media/tag/v3.6.22/opensubdiv-v3_5_0.tar.gz
+  test "$(md5sum opensubdiv.tar.gz)" = "230f5cd2911d6240e58a3773b9c6e5e4  opensubdiv.tar.gz"
+  mkdir -p opensubdiv
+  pushd opensubdiv
+  tar zxf ../opensubdiv.tar.gz --strip-components=1
   cmake .
   make
   make install
   popd
-  rm -fr OpenSubdiv
+  rm -fr opensubdiv
 INSTALL_OPENSUBDIV
 
 # ceresのビルド中にビルドが失敗することがある。失敗した場合はNPROCS=1を付与することで解決した。
@@ -196,8 +198,8 @@ INSTALL_OPENSUBDIV
 RUN <<'INSTALL_BLENDER'
   set -eu
   test "$(uname -m)" = "x86_64" && exit 0
-  curl --fail --show-error --location --output blender.tar.xz https://download.blender.org/source/blender-3.6.21.tar.xz
-  test "$(md5sum blender.tar.xz)" = "c7de02ee9057a3379b927c6be15aecae  blender.tar.xz"
+  curl --fail --show-error --location --output blender.tar.xz https://download.blender.org/source/blender-3.6.22.tar.xz
+  test "$(md5sum blender.tar.xz)" = "e633a1ac5734aed4faa147b0a126a1ed  blender.tar.xz"
   mkdir -p blender/blender
   pushd blender/blender
   tar Jxf ../../blender.tar.xz --strip-components=1
@@ -210,7 +212,7 @@ RUN <<'INSTALL_BLENDER'
   popd
   popd
   rm -fr blender
-  python3 -c 'import bpy; assert(bpy.app.version == (3, 6, 21))'
+  python3 -c 'import bpy; assert(bpy.app.version == (3, 6, 22))'
 INSTALL_BLENDER
 
 RUN <<'SETUP_USER_DEVELOPER'
