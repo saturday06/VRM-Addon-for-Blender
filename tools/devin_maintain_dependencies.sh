@@ -46,6 +46,5 @@ if ! command -v deno; then
   echo >>~/.bashrc
 fi
 
-bash -lc ./tools/devcontainer_on_create_command.sh
 bash -lc ./tools/devcontainer_update_content_command.sh
 bash -lc ./tools/devcontainer_post_attach_command.sh
