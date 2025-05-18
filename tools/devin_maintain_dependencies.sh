@@ -30,6 +30,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install \
   python3-typing-extensions \
   ruby \
   shellcheck \
+  shfmt \
   sudo \
   unzip \
   xz-utils \
