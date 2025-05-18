@@ -8,7 +8,7 @@ RUN <<'INSTALL_PACKAGES'
   set -eu
 
   apt-get update
-  apt-get install \
+  DEBIAN_FRONTEND=noninteractive apt-get install \
     advancecomp=* \
     blender=* \
     curl=* \
@@ -44,7 +44,7 @@ RUN <<'INSTALL_PACKAGES'
   chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
   apt-get update
-  apt-get install gh=* -y --no-install-recommends
+  DEBIAN_FRONTEND=noninteractive apt-get install gh=* -y --no-install-recommends
 
   rm -rf /var/lib/apt/lists/*
 INSTALL_PACKAGES
