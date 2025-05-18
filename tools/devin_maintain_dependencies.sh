@@ -15,6 +15,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install \
   file \
   git \
   git-lfs \
+  gnupg \
   imagemagick \
   less \
   libsm6 \
@@ -23,7 +24,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install \
   moreutils \
   nkf \
   patchutils \
-  python3-dulwich \
+  python3-pygit2 \
   python3-numpy \
   python3-tqdm \
   python3-typing-extensions \
