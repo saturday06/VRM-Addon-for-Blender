@@ -66,6 +66,7 @@ ENV BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 ENV PATH=/home/developer/.cargo/bin:/home/developer/.local/bin:$PATH
 ENV UV_LINK_MODE=copy
 
+# https://docs.astral.sh/uv/getting-started/installation/
 RUN curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
 
 # https://github.com/denoland/deno/issues/25931#issuecomment-2406073767
