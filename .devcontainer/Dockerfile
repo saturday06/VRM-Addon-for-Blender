@@ -60,16 +60,19 @@ SETUP_USER_DEVELOPER
 USER developer
 WORKDIR /home/developer
 
-# "postCreateCommand" や "postStartCommand" でも使える環境変数を設定する。
-# できれば "remoteEnv" で設定したいが、現在のJetBrains製品だと反映されないのでここで設定
-ENV BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
-ENV PATH=/home/developer/.cargo/bin:/home/developer/.local/bin:$PATH
-ENV UV_LINK_MODE=copy
+RUN <<'SETUP_USER_DEVELOPER_LOCAL_ENVIRONMENT'
+  set -eu
 
-# https://docs.astral.sh/uv/getting-started/installation/
-RUN curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
+  cat <<'SHELL_PROFILE_SCRIPT' >>~/.profile
+export BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
+export UV_LINK_MODE=copy
+SHELL_PROFILE_SCRIPT
 
-# https://github.com/denoland/deno/issues/25931#issuecomment-2406073767
-RUN curl --fail --show-error --location https://deno.land/install.sh | sh -s -- --yes
-# denoは.bashrcの最終行に改行を追加しないので自前で追加する。
-RUN echo >>~/.bashrc
+  # https://docs.astral.sh/uv/getting-started/installation/
+  curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
+
+  # https://github.com/denoland/deno/issues/25931#issuecomment-2406073767
+  curl --fail --show-error --location https://deno.land/install.sh | sh -s -- --yes
+  # denoはシェルの設定の最終行に改行を追加しないので自前で追加する。
+  echo | tee -a ~/.profile ~/.bashrc ~/.zshrc
+SETUP_USER_DEVELOPER_LOCAL_ENVIRONMENT
