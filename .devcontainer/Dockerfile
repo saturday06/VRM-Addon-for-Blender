@@ -46,6 +46,7 @@ RUN <<'INSTALL_PACKAGES'
   apt-get update
   DEBIAN_FRONTEND=noninteractive apt-get install gh=* -y --no-install-recommends
 
+  apt-get dist-clean
   rm -rf /var/lib/apt/lists/*
 INSTALL_PACKAGES
 
