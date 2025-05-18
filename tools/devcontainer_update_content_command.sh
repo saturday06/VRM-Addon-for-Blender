@@ -13,7 +13,10 @@ sudo ./tools/install_ubuntu_packages.sh
 ./tools/install_hadolint.sh
 ./tools/install_editorconfig-checker.sh
 
-uv self update
+# error: GitHub API rate limit exceeded のエラーが発生することがある。
+# その場合も処理を続行する。将来的にはトークンを渡せるようにする。
+uv self update || true
+
 deno upgrade
 
 # システムのBlenderから開発中のアドオンをすぐに動作確認できるようにする
