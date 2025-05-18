@@ -7,13 +7,13 @@ mkdir -p ~/.local/bin
 
 case "$(uname -m)" in
 "x86_64")
-  url=https://github.com/editorconfig-checker/editorconfig-checker/releases/download/v3.0.3/ec-linux-amd64.tar.gz
-  md5=58f26c24feeed0d2bfbe0d89ba564a91
+  url=https://github.com/editorconfig-checker/editorconfig-checker/releases/download/v3.3.0/ec-linux-amd64.tar.gz
+  md5=405182f7a0967abb5783f40d8bd311d4
   bin_name=ec-linux-amd64
   ;;
 "aarch64")
-  url=https://github.com/editorconfig-checker/editorconfig-checker/releases/download/v3.0.3/ec-linux-arm64.tar.gz
-  md5=732fb21660c5c79a63546d5ae65212c4
+  url=https://github.com/editorconfig-checker/editorconfig-checker/releases/download/v3.3.0/ec-linux-arm64.tar.gz
+  md5=5e03ddaa306069427f6ddf2268a95bce
   bin_name=ec-linux-arm64
   ;;
 *)
