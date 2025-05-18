@@ -18,6 +18,7 @@ sudo ./tools/install_ubuntu_packages.sh
 uv self update || true
 
 deno upgrade
+deno install
 
 # システムのBlenderから開発中のアドオンをすぐに動作確認できるようにする
 for blender_version in \
