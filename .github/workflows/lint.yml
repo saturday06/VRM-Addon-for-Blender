@@ -17,13 +17,9 @@ jobs:
   lint:
     runs-on: ubuntu-24.04
     steps:
-      - name: Install deb packages
-        run: |
-          sudo apt-get update -qq || true
-          sudo apt-get install -y python3 shellcheck shfmt uchardet
-        env:
-          DEBIAN_FRONTEND: noninteractive
       - uses: actions/checkout@v4
+      - name: Install deb packages
+        run: sudo ./tools/install_ubuntu_packages.sh
       - uses: denoland/setup-deno@v2
         with:
           deno-version-file: .dvmrc

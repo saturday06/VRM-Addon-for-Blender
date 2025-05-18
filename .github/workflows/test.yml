@@ -143,9 +143,7 @@ jobs:
           url="${BLENDER_ARCHIVE_BASE_URL}/Blender${BLENDER_MAJOR_MINOR_VERSION}/blender-${BLENDER_MAJOR_MINOR_VERSION}.0-linux-x64.tar.xz"
           curl -fsLS --retry 5 --retry-all-errors "$url" -o blender.tar.xz
       - name: Install dependencies
-        run: |
-          sudo apt-get update -qq || true
-          sudo apt-get install -y ffmpeg imagemagick
+        run: sudo ./tools/install_ubuntu_packages.sh
       - name: Test
         run: |
           mkdir -p "$HOME/.local/blender"

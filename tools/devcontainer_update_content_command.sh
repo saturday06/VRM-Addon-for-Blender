@@ -6,8 +6,7 @@ set -eu -o pipefail
 cd "$(dirname "$0")/.."
 
 # Dockerイメージは積極的にキャッシュされ、パッケージが古いままのことが多いのでここでアップデート
-sudo apt-get update
-sudo DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y
+sudo ./tools/install_ubuntu_packages.sh
 
 ./tools/devcontainer_fixup_workspace.sh
 

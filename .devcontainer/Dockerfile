@@ -4,40 +4,10 @@ FROM ubuntu:24.04
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN <<'INSTALL_PACKAGES'
+RUN --mount=type=bind,source=.,target=/root/src/tools <<'INSTALL_PACKAGES'
   set -eu
 
-  apt-get update
-  DEBIAN_FRONTEND=noninteractive apt-get install \
-    advancecomp=* \
-    blender=* \
-    curl=* \
-    diffutils=* \
-    ffmpeg=* \
-    file=* \
-    git=* \
-    git-lfs=* \
-    gnupg=* \
-    imagemagick=* \
-    less=* \
-    libsm6=* \
-    libxi6=* \
-    libxkbcommon0=* \
-    moreutils=* \
-    nkf=* \
-    patchutils=* \
-    python3-pygit2=* \
-    python3-numpy=* \
-    python3-tqdm=* \
-    python3-typing-extensions=* \
-    ruby=* \
-    shellcheck=* \
-    shfmt=* \
-    sudo=* \
-    unzip=* \
-    xz-utils=* \
-    zopfli=* \
-    -y --no-install-recommends
+  /root/src/tools/install_ubuntu_packages.sh
 
   # https://github.com/cli/cli/blob/v2.65.0/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt
   curl --fail --show-error --location --output /etc/apt/keyrings/githubcli-archive-keyring.gpg https://cli.github.com/packages/githubcli-archive-keyring.gpg
