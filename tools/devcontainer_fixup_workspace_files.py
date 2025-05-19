@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-"""devcontainerの作業フォルダの所有者とパーミッションを正しい値に戻す.
+"""Restore the correct owner and permissions of the working directory in devcontainer.
 
-このスクリプトはrootで実行する。rootの権限は強力すぎるため、
-uvは経由せずOSのパッケージのみを用いて実行する。
+This script runs as root. Since root permissions are too powerful,
+it uses OS packages only and does not run through uv.
 """
 
 import functools
@@ -69,9 +69,6 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
     umask = 0o022
     total_progress_count = 0
 
-    # 発生条件は不明だが、稀にファイルの所有者がすべてroot:rootになることがある
-    # 「Unsafeなパーミッションのレポジトリを操作している」という警告が出るので
-    # 所有権を自分に設定する。また、再帰的に処理ができるようにパーミッションも再設定する
     workspace_path = Path(__file__).parent.parent
     fixup_directory_owner_and_permission(
         workspace_path, warning_messages, uid=uid, gid=gid, umask=umask
@@ -130,7 +127,6 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
             try:
                 os.lchown(file_path, uid, gid)
             except OSError:
-                # macOSでは.gitフォルダ以下のファイルは所有者の変更に失敗することがある
                 dot_git_path = Path(__file__).parent.parent / ".git"
                 if not file_path.is_relative_to(dot_git_path):
                     warning_messages.append(f"Failed to change owner: {file_path}")
@@ -139,7 +135,6 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
         if stat.S_ISLNK(st.st_mode):
             continue
 
-        # git管理対象ファイルは、gitに保存されているパーミッションを反映する
         git_mode = git_index_path_to_mode.pop(file_path.absolute(), None)
         if git_mode is None:
             continue
@@ -153,8 +148,6 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
         else:
             continue
 
-        # グループと他人のパーミッションはマスク
-        # 自分のパーミッションは固定し、調整後のパーミッションを作成
         max_group_other_permission = (
             (valid_single_permission << 3) | valid_single_permission
         ) & ~umask

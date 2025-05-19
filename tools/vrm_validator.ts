@@ -41,17 +41,14 @@ paths.forEach(async (path) => {
       message.code == "MULTIPLE_EXTENSIONS" &&
       message.pointer.endsWith("/extensions/KHR_materials_unlit")
     ) {
-      // TODO: もっと詳しく中身を見るべき
       continue;
     }
 
     if (message.code == "INVALID_EXTENSION_NAME_FORMAT") {
-      // TODO: 中身を見るべき
       continue;
     }
 
     if (message.code == "MESH_PRIMITIVE_GENERATED_TANGENT_SPACE") {
-      // TODO: glTF-Blender-IO公式に通知する必要がある
       continue;
     }
 

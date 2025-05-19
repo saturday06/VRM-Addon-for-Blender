@@ -138,7 +138,6 @@ diff -ru "$addon_check_unzip_dir/${prefix_name}-${release_postfix}" "$addon_dir"
   git push origin HEAD:release-archive
 )
 
-# Blender Extensions向けのリリースノートを作成
 github_release_body_path=$(mktemp)
 release_note_path=$(mktemp)
 gh release view "$release_tag_name" --json body --jq .body | tee "$github_release_body_path"

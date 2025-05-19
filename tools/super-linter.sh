@@ -4,8 +4,6 @@ set -eux
 
 cd "$(dirname "$0")/.."
 
-# 別のフォルダや別のシステムで作業中のdockerイメージと重複しないように
-# それらをまとめたハッシュ値をdockerのタグ名としてビルドをする
 pwd_and_system="$(pwd):$(uname -a)"
 case "$(uname -s)" in
 "Linux")

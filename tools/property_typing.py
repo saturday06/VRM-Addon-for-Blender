@@ -133,7 +133,6 @@ def update_property_typing(
         typing_code,
     )
 
-    # 該当するファイルを探す
     modules = c.__module__.split(".")
     modules.reverse()
     module = modules.pop()
@@ -149,9 +148,7 @@ def update_property_typing(
 
     logger.info("%s", path)
 
-    # 該当するクラスの定義の場所を探す
     lines = path.read_text(encoding="UTF-8").splitlines()
-    # 該当するクラスの定義まで飛ばす
 
     class_def_index = None
     class_def_colon_index = None
@@ -159,7 +156,6 @@ def update_property_typing(
     another_def_start_index = None
     for line_index, line in enumerate(lines):
         if class_def_index is None:
-            # クラス定義を探す
             pattern = "^class " + c.__name__ + "[^a-zA-Z0-9_]"
             if re.match(pattern, line):
                 logger.info("class def found %s", class_def_index)
@@ -168,18 +164,15 @@ def update_property_typing(
                 continue
 
         if class_def_colon_index is None:
-            # : を探す
             if re.match(".*:", line.split("#")[0]):
                 logger.info("class colon def found %s", class_def_colon_index)
                 class_def_colon_index = line_index
                 continue
             continue
 
-        # if TYPE_CHECKING: を探す
         if re.match("^    if TYPE_CHECKING:", line):
             class_type_checking_index = line_index
         elif class_type_checking_index is not None and re.match("^    [a-zA-Z#]", line):
-            # if TYPE_CHECKING:が発見されたが、その後何かがあったら無かったことにする
             class_type_checking_index = None
 
         if re.match(r"^\S", line):
