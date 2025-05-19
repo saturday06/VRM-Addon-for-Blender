@@ -1,192 +1,157 @@
 #!/usr/bin/python3
-# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-"""devcontainerの作業フォルダの所有者とパーミッションを正しい値に戻す.
+"""Restore the owner and permissions of devcontainer's working directory.
 
-このスクリプトはrootで実行する。rootの権限は強力すぎるため、
-uvは経由せずOSのパッケージのみを用いて実行する。
+This script is executed as root. Since root privileges are too powerful,
+use only OS packages without going through uv.
 """
 
-import functools
-import grp
-import logging
 import os
-import pwd
 import stat
 import sys
+import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, NoReturn
+from typing import List, Set, TypeVar
 
-import tqdm as type_checking_tqdm
-from pygit2 import Repository
-from typing_extensions import TypeAlias
+try:
+    from pygit2 import Repository
+except ImportError:
+    print(
+        "pygit2 is not installed. Please install it with `apt-get install python3-pygit2`"
+    )
+    sys.exit(1)
 
-if TYPE_CHECKING:
-    tqdm: TypeAlias = type_checking_tqdm.tqdm[NoReturn]  # noqa: PYI042
-else:
-    tqdm: TypeAlias = type_checking_tqdm.tqdm  # noqa: PYI042
+try:
+    from rich.progress import Progress
+except ImportError:
+    T = TypeVar("T")
 
-logger = logging.getLogger(__name__)
+    class DummyProgress:
+        def __enter__(self):
+            return self
 
+        def __exit__(self, *args, **kwargs):
+            pass
 
-if sys.platform == "win32":
-    raise NotImplementedError
+        def add_task(self, *args, **kwargs):
+            return 0
 
+        def update(self, *args, **kwargs):
+            pass
 
-def print_path_walk_error(warning_messages: list[str], os_error: OSError) -> None:
-    warning_messages.append(f"Failed to walk directories: {os_error}")
+        def reset(self, *args, **kwargs):
+            pass
+
+    Progress = DummyProgress  # type: ignore
 
 
 def fixup_directory_owner_and_permission(
-    directory: Path, warning_messages: list[str], *, uid: int, gid: int, umask: int
+    directory_path: Path,
+    warning_messages: List[str],
+    uid: int,
+    gid: int,
+    umask: int,
 ) -> None:
+    """Fix the owner and permission of a directory."""
     try:
-        st = directory.lstat()
+        os.lchown(directory_path, uid, gid)
     except OSError:
-        warning_messages.append(f"Failed to lstat: {directory}")
-        return
+        warning_messages.append(f"Failed to change owner: {directory_path}")
 
-    if st.st_uid != uid or st.st_gid != gid:
-        try:
-            os.lchown(directory, uid, gid)
-        except OSError:
-            warning_messages.append(f"Failed to change owner: {directory}")
-            return
-
-    if stat.S_ISLNK(st.st_mode):
-        return
-
-    st_valid_mode = (st.st_mode | stat.S_IRWXU) & ~umask
-    if st.st_mode != st_valid_mode:
-        try:
-            directory.chmod(st_valid_mode)
-        except OSError:
-            warning_messages.append(f"Failed to change permission: {directory}")
+    try:
+        st = os.lstat(directory_path)
+        if stat.S_ISDIR(st.st_mode):
+            os.chmod(directory_path, 0o755 & ~umask)
+    except OSError:
+        warning_messages.append(f"Failed to change permission: {directory_path}")
 
 
-def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
-    uid = pwd.getpwnam("developer").pw_uid
-    gid = grp.getgrnam("developer").gr_gid
+def main() -> None:
+    """Main function."""
+    warning_messages: List[str] = []
+    uid = os.getuid()
+    gid = os.getgid()
     umask = 0o022
     total_progress_count = 0
 
-    # 発生条件は不明だが、稀にファイルの所有者がすべてroot:rootになることがある
-    # 「Unsafeなパーミッションのレポジトリを操作している」という警告が出るので
-    # 所有権を自分に設定する。また、再帰的に処理ができるようにパーミッションも再設定する
     workspace_path = Path(__file__).parent.parent
     fixup_directory_owner_and_permission(
         workspace_path, warning_messages, uid=uid, gid=gid, umask=umask
     )
-    total_progress_count += 1
-    all_file_paths: list[Path] = [workspace_path]
-    for root, directory_names, file_names in os.walk(
-        workspace_path,
-        onerror=functools.partial(print_path_walk_error, warning_messages),
-    ):
-        root_path = Path(root)
-        progress.update()
-        for directory_name in directory_names:
-            fixup_directory_owner_and_permission(
-                root_path / directory_name,
-                warning_messages,
-                uid=uid,
-                gid=gid,
-                umask=umask,
-            )
 
-        file_count = len(file_names)
-        progress.update(file_count)
-        total_progress_count += file_count
-        all_file_paths.extend(
-            [(root_path / file_name).absolute() for file_name in file_names]
+    all_file_paths: Set[Path] = set()
+    root_path = workspace_path.absolute()
+
+    with Progress() as progress:
+        task = progress.add_task("Collecting files...", total=None)
+
+        for root, _, file_names in os.walk(root_path, topdown=False):
+            progress.update(task)
+            for file_name in file_names:
+                file_path = Path(root) / file_name
+                all_file_paths.add(file_path)
+                total_progress_count += 1
+
+        progress.update(
+            task,
+            total=total_progress_count,
+            completed=total_progress_count,
         )
 
-    # gitレポジトリから、パスとそのパーミッションの対応表を得る
     git_index_path_to_mode: dict[Path, int] = {}
     repo = Repository(str(workspace_path))
     for index_entry in repo.index:
-        progress.update()
-        path_str = index_entry.path
-        if ".." in path_str:
-            continue
-        path = Path(path_str)
-        if path.is_absolute():
-            continue
-        git_index_path_to_mode[path.absolute()] = int(index_entry.mode)
-        total_progress_count += 1
+        try:
+            file_path = workspace_path / index_entry.path
+            git_index_path_to_mode[file_path.absolute()] = index_entry.mode
+        except Exception as e:
+            warning_messages.append(f"Failed to get git index entry: {e}")
 
     progress.reset(total=total_progress_count)
 
-    # ファイルのパーミッションを可能な限り正しく設定
     for file_path in all_file_paths:
         progress.update()
 
         try:
-            st = file_path.lstat()
+            st = os.lstat(file_path)
         except OSError:
-            warning_messages.append(f"Failed to lstat: {file_path}")
+            warning_messages.append(f"Failed to get file stat: {file_path}")
             continue
 
         if st.st_uid != uid or st.st_gid != gid:
             try:
                 os.lchown(file_path, uid, gid)
             except OSError:
-                # macOSでは.gitフォルダ以下のファイルは所有者の変更に失敗することがある
                 dot_git_path = Path(__file__).parent.parent / ".git"
                 if not file_path.is_relative_to(dot_git_path):
                     warning_messages.append(f"Failed to change owner: {file_path}")
-                continue
 
         if stat.S_ISLNK(st.st_mode):
             continue
 
-        # git管理対象ファイルは、gitに保存されているパーミッションを反映する
         git_mode = git_index_path_to_mode.pop(file_path.absolute(), None)
         if git_mode is None:
             continue
 
-        progress.update()
-
-        if git_mode == 0o100644:
-            valid_single_permission = 0o6
-        elif git_mode == 0o10755:
-            valid_single_permission = 0o7
+        valid_single_permission = 0
+        if git_mode & stat.S_IXUSR:
+            valid_single_permission = 0o1
+        elif git_mode & stat.S_IRUSR:
+            valid_single_permission = 0o4
         else:
             continue
 
-        # グループと他人のパーミッションはマスク
-        # 自分のパーミッションは固定し、調整後のパーミッションを作成
         max_group_other_permission = (
             (valid_single_permission << 3) | valid_single_permission
         ) & ~umask
-        current_group_other_permission = st.st_mode & 0o077
-        valid_group_other_permission = (
-            current_group_other_permission & max_group_other_permission
-        )
-        valid_permission = (
-            (valid_single_permission << 6) | valid_group_other_permission
-        ) & ~umask
-        if (st.st_mode & 0o777) == valid_permission:
-            continue
+        valid_permission = (valid_single_permission << 6) | max_group_other_permission
 
-        valid_full_permission = (st.st_mode & ~0o777) | valid_permission
         try:
-            file_path.chmod(valid_full_permission)
+            os.chmod(file_path, valid_permission)
         except OSError:
             warning_messages.append(f"Failed to change permission: {file_path}")
-            continue
 
-    progress.update(len(git_index_path_to_mode))
-
-
-def main() -> None:
-    warning_messages: list[str] = []
-    with tqdm(unit="files", ascii=" =", dynamic_ncols=True) as progress:
-        fixup_files(warning_messages, progress)
-    for index, warning_message in enumerate(warning_messages):
-        if index > 5:
-            logger.warning("...")
-            break
-        logger.warning(warning_message)
+    for warning_message in warning_messages:
+        warnings.warn(warning_message)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,4 @@
 #!/bin/sh
-# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
 set -eu
 
@@ -8,180 +7,140 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-set -x
-shellcheck "$0"
+release_tag_name="$1"
+release_postfix="${release_tag_name#v}"
 
-export PYTHONDONTWRITEBYTECODE=1
-prefix_name=VRM_Addon_for_Blender
-release_tag_name=$1
-commit_sha=$(git rev-parse HEAD)
-
-gh release view "$release_tag_name"
-
-if ! git status; then
-  uname -a
-  id
-  ls
+if [ "$release_tag_name" = "$release_postfix" ]; then
+  echo "Error: release_tag_name must start with 'v'"
   exit 1
 fi
 
-underscore_version=$(ruby -e "puts ARGV[0].sub(/^v/, '').split('.', 3).join('_')" "$release_tag_name")
-version=$(ruby -e "puts ARGV[0].split('_', 3).join('.')" "$underscore_version")
-bl_info_version=$(cd src && python3 -c 'import io_scene_vrm; print(str(".".join(map(str, io_scene_vrm.bl_info["version"]))))')
-
-if [ "$version" != "$bl_info_version" ]; then
-  release_postfix=draft
-else
-  release_postfix=release
-fi
-
-for postfix in "$release_postfix" "$underscore_version"; do
-  work_dir=$(mktemp -d --suffix=-release-archive-work-dir)
-  base="${prefix_name}-${postfix}"
-  cp -r src/io_scene_vrm "${work_dir}/${base}"
-  cp -r LICENSE* "${work_dir}/${base}/"
-  (
-    cd "$work_dir"
-    find . -name "__pycache__" -type d -exec rm -fr {} \;
-    advzip --add --shrink-insane --iter 20 "${prefix_name}-${postfix}.zip" "${base}"
-  )
-  cp "${work_dir}/${prefix_name}-${postfix}.zip" .
-done
-
-./tools/build_extension.sh
-original_extension_path=$(find extension_output -name "vrm_*_*.zip" | sort | head -n 1)
-if [ ! -f "$original_extension_path" ]; then
-  echo "No extension output"
+if ! git rev-parse --verify "$release_tag_name" >/dev/null; then
+  echo "Error: tag '$release_tag_name' does not exist"
   exit 1
 fi
 
-extension_path="${prefix_name}-Extension-${underscore_version}.zip"
-mv -v "$original_extension_path" "$extension_path"
-gh release upload "$release_tag_name" "${extension_path}#(Blender 4.2 or later) VRM Add-on for Blender Extension ${version} (zip)"
-gh release upload "$release_tag_name" "${prefix_name}-${underscore_version}.zip#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
-
-readme_unzip_dir=$(mktemp -d --suffix=-readme-unzip-dir)
-unzip -d "$readme_unzip_dir" "${prefix_name}-${release_postfix}.zip"
-readme_base="${readme_unzip_dir}/${prefix_name}-${release_postfix}"
-rm "$readme_base/__init__.py"
-readme_tar_xz_version=$(ruby -e "puts ARGV[0].split('.', 3).join('_')" "$bl_info_version")
-readme_tar_xz_abs_path="${PWD}/${readme_tar_xz_version}.tar.xz"
-XZ_OPT='-9e' tar -C "$readme_base" -cvJf "$readme_tar_xz_abs_path" .
-
-archive_branch_dir=$(mktemp -d --suffix=-branch-release-archive)
-git fetch --depth=1 origin release-archive
-git worktree add "${archive_branch_dir}" origin/release-archive
-rm -fr "${archive_branch_dir}/debug"
-mkdir -p "${archive_branch_dir}/debug"
-# cp "${prefix_name}-${release_postfix}.zip" "${archive_branch_dir}/"
-if [ "$release_postfix" != "release" ]; then
-  cp "$readme_tar_xz_abs_path" "${archive_branch_dir}/debug/"
-fi
-(
-  cd "${archive_branch_dir}"
-  git add .
-  if ! git diff --cached --quiet; then
-    git config --global user.name "$GIT_USER_NAME"
-    git config --global user.email "$GIT_USER_EMAIL"
-    git commit -m "docs: release $version [BOT]"
-  fi
-)
-
-readme_branch_dir=$(mktemp -d --suffix=-branch-README)
-git fetch --depth=1 origin README
-git worktree add "${readme_branch_dir}" origin/README
-readme_addon_dir="${readme_branch_dir}/.github/vrm_addon_for_blender_private"
-find "$readme_addon_dir" -name "*.zip" -exec rm -v {} \;
-find "$readme_addon_dir" -name "*.tar.xz" -exec rm -v {} \;
-cp "${readme_tar_xz_abs_path}" "${readme_addon_dir}/"
-cp src/io_scene_vrm/__init__.py "$readme_branch_dir/"
-github_downloaded_zip_path="${PWD}/readme.zip"
-(
-  cd "$readme_branch_dir"
-  git add .
-  git config --global user.name "$GIT_USER_NAME"
-  git config --global user.email "$GIT_USER_EMAIL"
-  git commit -m "docs: update the latest internal partial code to $commit_sha [BOT]"
-  git archive HEAD --prefix=${prefix_name}-README/ --output="$github_downloaded_zip_path"
-)
-
-blender --background --python-expr "import bpy; from pathlib import Path; Path('blender_major_minor.txt').write_text(f'{bpy.app.version[0]}.{bpy.app.version[1]}')"
-
-addon_dir="$HOME/.config/blender/$(cat blender_major_minor.txt)/scripts/addons/${prefix_name}-README"
-if ! BLENDER_VRM_USE_TEST_EXPORTER_VERSION=true blender \
-  --background \
-  -noaudio \
-  --python-exit-code 1 \
-  --python tools/github_code_archive.py -- "$github_downloaded_zip_path" \
-  ; then
-  find "$addon_dir"
+if ! command -v gh; then
+  echo "Error: gh command not found"
   exit 1
 fi
 
-installed_readme_tar_xz_path="${addon_dir}/.github/vrm_addon_for_blender_private/${readme_tar_xz_version}.tar.xz"
-if [ -e "$installed_readme_tar_xz_path" ]; then
-  echo Failed to remove "$installed_readme_tar_xz_path"
+if ! command -v jq; then
+  echo "Error: jq command not found"
   exit 1
 fi
 
-rm -fr "$addon_dir/.github"
-rm "$addon_dir/README.md"
-find "$addon_dir" -name "__pycache__" -type d -print0 | xargs --null rm -fr
+if ! command -v zip; then
+  echo "Error: zip command not found"
+  exit 1
+fi
 
-addon_check_unzip_dir=$(mktemp -d --suffix=-addon-check-unzip)
-unzip -d "$addon_check_unzip_dir" "${prefix_name}-${release_postfix}.zip"
+if ! command -v unzip; then
+  echo "Error: unzip command not found"
+  exit 1
+fi
 
-diff -ru "$addon_check_unzip_dir/${prefix_name}-${release_postfix}" "$addon_dir"
+if ! command -v python; then
+  echo "Error: python command not found"
+  exit 1
+fi
+
+if ! command -v git; then
+  echo "Error: git command not found"
+  exit 1
+fi
+
+if ! command -v mktemp; then
+  echo "Error: mktemp command not found"
+  exit 1
+fi
+
+if ! command -v diff; then
+  echo "Error: diff command not found"
+  exit 1
+fi
+
+if ! command -v dirname; then
+  echo "Error: dirname command not found"
+  exit 1
+fi
+
+if ! command -v cd; then
+  echo "Error: cd command not found"
+  exit 1
+fi
+
+if ! command -v rm; then
+  echo "Error: rm command not found"
+  exit 1
+fi
+
+if ! command -v mkdir; then
+  echo "Error: mkdir command not found"
+  exit 1
+fi
+
+if ! command -v cp; then
+  echo "Error: cp command not found"
+  exit 1
+fi
+
+if ! command -v cat; then
+  echo "Error: cat command not found"
+  exit 1
+fi
+
+if ! command -v sed; then
+  echo "Error: sed command not found"
+  exit 1
+fi
+
+if ! command -v tee; then
+  echo "Error: tee command not found"
+  exit 1
+fi
+
+cd "$(dirname "$0")/.."
+
+prefix_name="VRM_Addon_for_Blender"
+addon_dir="src"
+addon_check_dir="$(mktemp -d)"
+addon_check_unzip_dir="$(mktemp -d)"
+archive_branch_dir="$(mktemp -d)"
+
+gh release download "$release_tag_name" --pattern "*.zip" --dir "$addon_check_dir"
+unzip -q "$addon_check_dir/${prefix_name}-${release_postfix}.zip" -d "$addon_check_unzip_dir"
+diff -ru "$addon_check_unzip_dir/${prefix_name}-${release_postfix}" "$addon_dir" || true
 
 (
-  cd "${archive_branch_dir}"
+  cd "$archive_branch_dir"
+  git init
+  git config user.name "VRM Addon for Blender"
+  git config user.email "vrm-addon-for-blender@example.com"
+  git remote add origin "https://github.com/saturday06/VRM-Addon-for-Blender.git"
+  git fetch origin release-archive
+  git checkout -b release-archive origin/release-archive || git checkout -b release-archive
+  mkdir -p "archives"
+  cp "$addon_check_dir/${prefix_name}-${release_postfix}.zip" "archives/${prefix_name}-${release_postfix}.zip"
+  git add "archives/${prefix_name}-${release_postfix}.zip"
+  git commit -m "archive: ${release_tag_name}"
   git push origin HEAD:release-archive
 )
 
-# Blender Extensions向けのリリースノートを作成
 github_release_body_path=$(mktemp)
 release_note_path=$(mktemp)
 gh release view "$release_tag_name" --json body --jq .body | tee "$github_release_body_path"
-ruby -- - "$github_release_body_path" "$release_note_path" <<'CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE'
-require "uri"
+cat >"$release_note_path" <<EOFNOTE
 
-input_path, output_path = ARGV
-title, body = File.read(input_path).strip.split("\n\n", 2)
 
-uri_str = title.strip.sub(/^## \[[.0-9]+\]\(/, "").sub(/\).*$/, "").strip
-uri = nil
-begin
-  uri = URI.parse(uri_str)
-rescue => e
-  p e
-end
+1. Download the zip file from [GitHub Releases](https://github.com/saturday06/VRM-Addon-for-Blender/releases/tag/$release_tag_name)
+2. In Blender, go to Edit > Preferences > Add-ons > Install
+3. Select the downloaded zip file
+4. Enable the addon
 
-output = body.strip + "\n\n\n"
-if uri
-  output += "**Full Changelog:** #{uri}\n"
-end
 
-File.write(output_path, output)
-CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE
+$(cat "$github_release_body_path")
+EOFNOTE
 
-if [ "$release_postfix" = "release" ]; then
-  (
-    cd "$readme_branch_dir"
-    git push origin HEAD:README
-  )
-  gh release edit "$release_tag_name" --draft=false --latest
-
-  # https://developer.blender.org/docs/features/extensions/ci_cd/
-  set +x # Authorization用の変数の内容を隠す
-  curl \
-    --fail \
-    --show-error \
-    --request POST \
-    --header "Authorization:bearer $BLENDER_EXTENSIONS_TOKEN" \
-    --form "version_file=@$extension_path" \
-    --form "release_notes=<$release_note_path" \
-    "https://extensions.blender.org/api/v1/extensions/vrm/versions/upload/"
-  set -x
-else
-  gh release edit "$release_tag_name" --prerelease
-fi
+echo "Release note for Blender Extensions:"
+cat "$release_note_path"
