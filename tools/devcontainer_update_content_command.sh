@@ -18,7 +18,14 @@ sudo ./tools/install_ubuntu_packages.sh
 uv self update || true
 
 deno upgrade
-deno install
+
+# deno installは失敗することがあるので何度かリトライする。
+for _ in $(seq 5); do
+  if deno install; then
+    break
+  fi
+  sleep 10
+done
 
 # システムのBlenderから開発中のアドオンをすぐに動作確認できるようにする
 for blender_version in \
