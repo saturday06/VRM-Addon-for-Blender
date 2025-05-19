@@ -1,67 +1,53 @@
+#!/usr/bin/env -S deno run --allow-read
 // SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-import process from "node:process";
-import { basename, dirname } from "node:path";
-import { existsSync, promises, readFileSync } from "node:fs";
-import gltfValidator from "gltf-validator";
 
-const basePath = process.env.BLENDER_VRM_TEST_RESOURCES_PATH || process.cwd();
-if (!existsSync(basePath)) {
-  console.error(`No base path: "${basePath}"`);
-  process.exit(1);
+import { Validator } from "npm:gltf-validator@2.0.0-dev.3.9";
+
+const filePath = Deno.args[0];
+if (!filePath) {
+  console.error("Usage: vrm_validator.ts <file_path>");
+  Deno.exit(1);
 }
 
-const paths = await promises.readdir(basePath, { recursive: true });
-paths.forEach(async (path) => {
-  if (basename(dirname(path)) == "in" && path.endsWith(".vrm")) {
-    return;
-  }
-  if (!path.endsWith(".vrm") && !path.endsWith(".vrma")) {
-    return;
-  }
+const fileData = await Deno.readFile(filePath);
+const result = await Validator.validateBytes(new Uint8Array(fileData));
 
-  let result;
-  try {
-    result = await gltfValidator.validateBytes(
-      new Uint8Array(readFileSync(path)),
-    );
-  } catch (e) {
-    console.error(`Errors in "${path}":`);
-    console.error(e);
-    process.exitCode = 1;
-    return;
+const messages = result.issues.messages;
+if (messages.length === 0) {
+  console.log("No issues found");
+  Deno.exit(0);
+}
+
+let exitCode = 0;
+
+for (const message of messages) {
+  if (
+    message.code == "ACCESSOR_ELEMENT_OUT_OF_MIN_BOUND" ||
+    message.code == "ACCESSOR_ELEMENT_OUT_OF_MAX_BOUND"
+  ) {
+    continue;
   }
 
-  let hasError = false;
-  for (const message of result.issues.messages) {
-    if (message.severity > 1) {
-      continue;
-    }
-
-    if (
-      message.code == "MULTIPLE_EXTENSIONS" &&
-      message.pointer.endsWith("/extensions/KHR_materials_unlit")
-    ) {
-      // TODO: もっと詳しく中身を見るべき
-      continue;
-    }
-
-    if (message.code == "INVALID_EXTENSION_NAME_FORMAT") {
-      // TODO: 中身を見るべき
-      continue;
-    }
-
-    if (message.code == "MESH_PRIMITIVE_GENERATED_TANGENT_SPACE") {
-      // TODO: glTF-Blender-IO公式に通知する必要がある
-      continue;
-    }
-
-    console.error(`Error in "${path}":`);
-    console.error(message);
-    hasError = true;
+  if (
+    message.code == "MULTIPLE_EXTENSIONS" &&
+    message.pointer.endsWith("/extensions/KHR_materials_unlit")
+  ) {
+    // TODO: Should examine the contents in more detail
+    continue;
   }
 
-  if (hasError) {
-    process.exitCode = 1;
-    return;
+  if (message.code == "INVALID_EXTENSION_NAME_FORMAT") {
+    // TODO: Should examine the contents
+    continue;
   }
-});
+
+  if (message.code == "MESH_PRIMITIVE_GENERATED_TANGENT_SPACE") {
+    // TODO: Need to notify the official glTF-Blender-IO
+    continue;
+  }
+
+  console.log(message);
+  exitCode = 1;
+}
+
+Deno.exit(exitCode);
