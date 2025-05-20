@@ -2,6 +2,7 @@
   "version": "5",
   "specifiers": {
     "npm:@types/node@22.15.18": "22.15.18",
+    "npm:@types/node@22.15.19": "22.15.19",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
     "npm:pyright@1.1.400": "1.1.400",
     "npm:vitepress@*": "1.6.3_vite@5.4.19__@types+node@22.15.18_vue@3.5.14_focus-trap@7.6.4_@types+node@22.15.18",
@@ -595,6 +596,12 @@
         "undici-types"
       ]
     },
+    "@types/node@22.15.19": {
+      "integrity": "sha512-3vMNr4TzNQyjHcRZadojpRaD9Ofr6LsonZAoQ+HMUa/9ORTPoxVIw0e0mpqWpdjj8xybyCM+oKOUH2vwFu/oEw==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
     "@types/unist@3.0.3": {
       "integrity": "sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q=="
     },
@@ -1108,7 +1115,7 @@
     "vite@5.4.19_@types+node@22.15.18": {
       "integrity": "sha512-qO3aKv3HoQC8QKiNSTuUM1l9o/XX3+c+VTgLHbJWHZGeTPVAg2XwazI9UWzoxjIJCGCV2zU60uqMzjeLZuULqA==",
       "dependencies": [
-        "@types/node",
+        "@types/node@22.15.18",
         "esbuild",
         "postcss",
         "rollup"
@@ -1117,7 +1124,7 @@
         "fsevents"
       ],
       "optionalPeers": [
-        "@types/node"
+        "@types/node@22.15.18"
       ],
       "bin": true
     },
@@ -1161,7 +1168,7 @@
   },
   "workspace": {
     "dependencies": [
-      "npm:@types/node@22.15.18",
+      "npm:@types/node@22.15.19",
       "npm:gltf-validator@2.0.0-dev.3.10",
       "npm:pyright@1.1.400",
       "npm:vitepress@1.6.3",
