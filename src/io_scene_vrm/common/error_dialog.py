@@ -124,6 +124,9 @@ class VRM_OT_save_error_dialog_message(Operator, ExportHelper):
     )
 
     def restore_error_dialog(self) -> set[str]:
+        if bpy.app.version >= (4, 1):
+            return {"FINISHED"}
+
         return show_error_dialog(
             self.title,
             [output.line for output in self.lines],
