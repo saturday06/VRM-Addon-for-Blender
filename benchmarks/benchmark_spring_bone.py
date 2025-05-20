@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import cProfile
 from pathlib import Path
 from pstats import SortKey, Stats
