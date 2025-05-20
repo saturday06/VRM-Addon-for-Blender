@@ -25,4 +25,5 @@ build_platform: bytes
 build_type: bytes
 version_cycle: str
 version: tuple[int, int, int]
+version_string: str
 binary_path: str
