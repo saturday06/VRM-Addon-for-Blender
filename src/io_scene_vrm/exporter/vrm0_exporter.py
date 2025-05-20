@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 # SPDX-FileCopyrightText: 2018 iCyP
 
-import importlib
 import itertools
 import re
 import statistics
@@ -66,6 +65,7 @@ from ..editor.search import MESH_CONVERTIBLE_OBJECT_TYPES
 from ..editor.t_pose import setup_humanoid_t_pose
 from ..editor.vrm0.property_group import Vrm0BlendShapeGroupPropertyGroup
 from ..external.io_scene_gltf2_support import (
+    gather_gltf2_io_material,
     image_to_image_bytes,
     init_extras_export,
 )
@@ -1963,41 +1963,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             }
         )
 
-        if bpy.app.version < (3, 6):
-            module_name = "io_scene_gltf2.blender.exp.gltf2_blender_gather_materials"
-        elif bpy.app.version < (4, 3):
-            module_name = (
-                "io_scene_gltf2.blender.exp.material.gltf2_blender_gather_materials"
-            )
-        else:
-            module_name = "io_scene_gltf2.blender.exp.material.materials"
-        try:
-            gltf2_blender_gather_materials = importlib.import_module(module_name)
-        except ModuleNotFoundError:
-            logger.exception("Failed to import glTF 2.0 Add-on")
+        gltf2_io_material = gather_gltf2_io_material(
+            material, self.gltf2_addon_export_settings
+        )
+        if not gltf2_io_material:
             return
 
-        gather_material = gltf2_blender_gather_materials.gather_material
-
-        gltf2_io_material: Optional[object] = None
         try:
-            if bpy.app.version < (3, 2):
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/abd8380e19dbe5e5fb9042513ad6b744032bc9bc/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L32
-                gltf2_io_material = gather_material(
-                    material, self.gltf2_addon_export_settings
-                )
-            elif bpy.app.version < (4, 0):
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/9e08d423a803da52eb08fbc93d9aa99f3f681a27/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_primitives.py#L71-L96
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/9e08d423a803da52eb08fbc93d9aa99f3f681a27/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L42
-                gltf2_io_material = gather_material(
-                    material, 0, self.gltf2_addon_export_settings
-                )
-            else:
-                # https://github.com/KhronosGroup/glTF-Blender-IO/blob/765c1bd8f59ce34d6e346147f379af191969777f/addons/io_scene_gltf2/blender/exp/material/gltf2_blender_gather_materials.py#L47
-                gltf2_io_material, _ = gather_material(
-                    material, self.gltf2_addon_export_settings
-                )
-
             alpha_cutoff = convert.float_or_none(
                 getattr(gltf2_io_material, "alpha_cutoff", None)
             )
