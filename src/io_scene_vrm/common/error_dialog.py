@@ -33,10 +33,12 @@ def show_error_dialog(
     title: str,
     lines: Union[str, Sequence[str]],
     *,
-    append_environment_line: bool = True,
+    append_environment: bool = True,
 ) -> set[str]:
     lines = lines.splitlines() if isinstance(lines, str) else list(lines)
-    if append_environment_line:
+    if append_environment:
+        if lines:
+            lines[0] = f"Python: {lines[0]}"
         lines.insert(
             0,
             f"Environment: Blender {bpy.app.version_string}"
@@ -125,7 +127,7 @@ class VRM_OT_save_error_dialog_message(Operator, ExportHelper):
         return show_error_dialog(
             self.title,
             [output.line for output in self.lines],
-            append_environment_line=False,
+            append_environment=False,
         )
 
     def cancel(self, _context: Context) -> None:
