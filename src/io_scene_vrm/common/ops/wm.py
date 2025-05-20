@@ -91,6 +91,24 @@ def vrma_export_prerequisite(
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
+def vrm_error_dialog(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    title: str = "",
+    lines: Optional[Sequence[Mapping[str, Union[str, int, float, bool]]]] = None,
+    active_line_index: int = 0,
+) -> set[str]:
+    return bpy.ops.wm.vrm_error_dialog(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        title=title,
+        lines=lines if lines is not None else [],
+        active_line_index=active_line_index,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def vrm_license_warning(
     execution_context: str = "EXEC_DEFAULT",
     /,

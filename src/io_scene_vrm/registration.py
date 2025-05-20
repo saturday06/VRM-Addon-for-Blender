@@ -27,7 +27,7 @@ from bpy.types import (
     VIEW3D_MT_armature_add,
 )
 
-from .common import preferences, scene_watcher, shader
+from .common import error_dialog, preferences, scene_watcher, shader
 from .common.logger import get_logger
 from .common.version import trigger_clear_addon_version_cache
 from .editor import (
@@ -431,6 +431,10 @@ classes: list[
     export_scene.EXPORT_SCENE_OT_vrm,
     export_scene.EXPORT_SCENE_OT_vrma,
     export_scene.VRM_PT_export_vrma_help,
+    error_dialog.VrmErrorDialogMessageLine,
+    error_dialog.VRM_UL_vrm_error_dialog_message,
+    error_dialog.VRM_OT_save_error_dialog_message,
+    error_dialog.WM_OT_vrm_error_dialog,
     import_scene.LicenseConfirmation,
     import_scene.WM_OT_vrm_license_confirmation,
     import_scene.WM_OT_vrma_import_prerequisite,

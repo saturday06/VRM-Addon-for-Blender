@@ -720,6 +720,27 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "次の条件を全て満たすボーンが割り当て候補になります。",
     (
         "*",
+        "Failed to export VRM.",
+    ): "VRMのエクスポートに失敗しました。",
+    (
+        "*",
+        "Failed to export VRM Animation.",
+    ): "VRM Animationのエクスポートに失敗しました。",
+    (
+        "*",
+        "Failed to import VRM.",
+    ): "VRMのインポートに失敗しました。",
+    (
+        "*",
+        "Failed to import VRM Animation.",
+    ): "VRM Animationのインポートに失敗しました。",
+    (
+        "Operator",
+        "Save Error Message",
+    ): "エラーメッセージを保存",
+    ("Operator", "Open Support Site"): "サポートサイトを開く",
+    (
+        "*",
         "Automatic T-Pose Conversion is enabled."
         + " There is a setting"
         + ' in "VRM" panel → "VRM 0.x Humanoid" → "T-Pose".',

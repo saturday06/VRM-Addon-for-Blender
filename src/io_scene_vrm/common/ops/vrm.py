@@ -1842,6 +1842,28 @@ def model_validate(
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
+def save_error_dialog_message(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    filter_glob: str = "*.txt",
+    title: str = "",
+    lines: Optional[Sequence[Mapping[str, Union[str, int, float, bool]]]] = None,
+    filepath: str = "",
+    check_existing: bool = True,
+) -> set[str]:
+    return bpy.ops.vrm.save_error_dialog_message(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        filter_glob=filter_glob,
+        title=title,
+        lines=lines if lines is not None else [],
+        filepath=filepath,
+        check_existing=check_existing,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def import_vrm_via_file_handler(
     execution_context: str = "EXEC_DEFAULT",
     /,

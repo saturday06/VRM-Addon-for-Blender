@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+import traceback
 from collections.abc import Set as AbstractSet
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
@@ -19,6 +20,7 @@ from bpy.types import (
 from bpy_extras.io_utils import ExportHelper
 
 from ..common import ops, version
+from ..common.error_dialog import show_error_dialog
 from ..common.logger import get_logger
 from ..common.preferences import (
     ExportPreferencesProtocol,
@@ -122,18 +124,27 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.filepath:
-            return {"CANCELLED"}
+        try:
+            if not self.filepath:
+                return {"CANCELLED"}
 
-        if self.use_addon_preferences:
-            copy_export_preferences(source=get_preferences(context), destination=self)
+            if self.use_addon_preferences:
+                copy_export_preferences(
+                    source=get_preferences(context), destination=self
+                )
 
-        return export_vrm(
-            Path(self.filepath),
-            self,
-            context,
-            armature_object_name=self.armature_object_name,
-        )
+            return export_vrm(
+                Path(self.filepath),
+                self,
+                context,
+                armature_object_name=self.armature_object_name,
+            )
+        except Exception:
+            show_error_dialog(
+                pgettext("Failed to export VRM."),
+                traceback.format_exc(),
+            )
+            raise
 
     def invoke(self, context: Context, event: Event) -> set[str]:
         self.use_addon_preferences = True
@@ -429,21 +440,28 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if WM_OT_vrma_export_prerequisite.detect_errors(
-            context, self.armature_object_name
-        ):
-            return {"CANCELLED"}
-        if not self.filepath:
-            return {"CANCELLED"}
-        if not self.armature_object_name:
-            armature = search.current_armature(context)
-        else:
-            armature = context.blend_data.objects.get(self.armature_object_name)
-        if not armature:
-            return {"CANCELLED"}
-        return UniVrmVrmAnimationExporter.execute(
-            context, Path(self.filepath), armature
-        )
+        try:
+            if WM_OT_vrma_export_prerequisite.detect_errors(
+                context, self.armature_object_name
+            ):
+                return {"CANCELLED"}
+            if not self.filepath:
+                return {"CANCELLED"}
+            if not self.armature_object_name:
+                armature = search.current_armature(context)
+            else:
+                armature = context.blend_data.objects.get(self.armature_object_name)
+            if not armature:
+                return {"CANCELLED"}
+            return UniVrmVrmAnimationExporter.execute(
+                context, Path(self.filepath), armature
+            )
+        except Exception:
+            show_error_dialog(
+                pgettext("Failed to export VRM Animation."),
+                traceback.format_exc(),
+            )
+            raise
 
     def invoke(self, context: Context, event: Event) -> set[str]:
         if WM_OT_vrma_export_prerequisite.detect_errors(
