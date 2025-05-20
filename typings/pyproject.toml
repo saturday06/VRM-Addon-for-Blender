@@ -12,6 +12,7 @@ packages = [
   "bpy_extras-stubs",
   "gpu-stubs",
   "gpu_extras-stubs",
+  "io_scene_gltf2-stubs",
   "idprop-stubs",
   "mathutils-stubs",
 ]
