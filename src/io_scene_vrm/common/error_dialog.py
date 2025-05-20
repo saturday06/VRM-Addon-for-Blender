@@ -39,18 +39,17 @@ def show_error_dialog(
     if append_environment:
         if lines:
             lines[0] = f"Python: {lines[0]}"
+
+        runtime_platform = platform.system() + " " + platform.machine()
+        build_platform = sysconfig.get_platform()
         lines.insert(
             0,
-            f"Environment: Blender {bpy.app.version_string}"
-            + " / VRM Add-on "
-            + ".".join(map(str, get_addon_version()))
-            + " / "
-            + platform.system()
-            + " "
-            + platform.machine()
-            + " ("
-            + sysconfig.get_platform()
-            + ")",
+            "Environment: Blender {} / VRM Add-on {} / {} ({})".format(
+                bpy.app.version_string,
+                ".".join(map(str, get_addon_version())),
+                runtime_platform,
+                build_platform,
+            ),
         )
     return ops.wm.vrm_error_dialog(
         "INVOKE_DEFAULT",
