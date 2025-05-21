@@ -40,6 +40,7 @@
       "settings": {
         "python.testing.unittestArgs": ["-v", "-s", ".", "-p", "test_*.py"],
         "python.defaultInterpreterPath": "./.venv/bin/python",
+        "python.terminal.activateEnvironment": false,
         "python.testing.pytestEnabled": false,
         "python.testing.unittestEnabled": true,
         "terminal.integrated.scrollback": 50000,
