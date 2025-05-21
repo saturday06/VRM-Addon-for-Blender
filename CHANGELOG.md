@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.4.2...v3.5.0) (2025-05-21)
+
+
+### 🚀 Features
+
+* implemented a dialog that displays errors during import and export ([2fd7e6f](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2fd7e6f2b7b9a51052979801da97cd8eeddaa0d0))
+
 ## [3.4.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.4.1...v3.4.2) (2025-05-14)
 
 
