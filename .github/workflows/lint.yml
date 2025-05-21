@@ -88,7 +88,7 @@ jobs:
         run: |
           for failure_vrm_path in failure.vrm tests/failure.vrm; do
             touch "$failure_vrm_path"
-            if npm exec --yes --package=gltf-validator -- node ./tools/vrm_validator.js; then
+            if ./tools/lint.sh; then
               echo "VRM Validator dones't work correctly"
               exit 1
             fi
