@@ -16,7 +16,7 @@
   "imports": {
     "@types/node": "npm:@types/node@22.15.21",
     "gltf-validator": "npm:gltf-validator@2.0.0-dev.3.10",
-    "pyright": "npm:pyright@1.1.400",
+    "pyright": "npm:pyright@1.1.401",
     "vitepress": "npm:vitepress@1.6.3",
     "vue": "npm:vue@3.5.14"
   }
