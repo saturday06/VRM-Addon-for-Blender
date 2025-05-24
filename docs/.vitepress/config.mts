@@ -56,6 +56,30 @@ export default defineConfig({
               { text: "Development How-To", link: "/en/development" },
             ],
           },
+          {
+            text: "User Interface Reference",
+            items: [
+              { text: "Import", link: "/en/installation" },
+              { text: "Export", link: "/en/installation" },
+              { text: "Operators", link: "/en/installation" },
+              { text: "Material", link: "/en/installation" },
+              {
+                text: "VRM 0.0",
+                items: [
+                  { text: "Humanoid", link: "/en/installation" },
+                  { text: "Spring Bone", link: "/en/installation" },
+                  { text: "Node Constraint", link: "/en/installation" },
+                ],
+              },
+              {
+                text: "VRM 0.0",
+                items: [
+                  { text: "Humanoid", link: "/en/installation" },
+                  { text: "Look At", link: "/en/installation" },
+                ],
+              },
+            ],
+          },
         ],
       },
     },
@@ -99,6 +123,30 @@ export default defineConfig({
               },
               { text: "VRMアニメーション", link: "/ja/animation" },
               { text: "改造するには", link: "/ja/development" },
+            ],
+          },
+          {
+            text: "User Interface Reference",
+            items: [
+              { text: "Import", link: "/en/installation" },
+              { text: "Export", link: "/en/installation" },
+              { text: "Operators", link: "/en/installation" },
+              { text: "Material", link: "/en/installation" },
+              {
+                text: "VRM 0.0",
+                items: [
+                  { text: "Humanoid", link: "/en/installation" },
+                  { text: "Spring Bone", link: "/en/installation" },
+                  { text: "Node Constraint", link: "/en/installation" },
+                ],
+              },
+              {
+                text: "VRM 0.0",
+                items: [
+                  { text: "Humanoid", link: "/en/installation" },
+                  { text: "Look At", link: "/en/installation" },
+                ],
+              },
             ],
           },
         ],
