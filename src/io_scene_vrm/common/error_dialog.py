@@ -74,11 +74,10 @@ def show_error_dialog(
 
 
 def mask_private_string(message: str) -> str:
-    script_path = Path(__file__).parent.parent.parent
-    if len(script_path.parts) > 2:
-        message = message.replace(
-            str(Path(__file__).parent.parent.parent.parent), "<script path>"
-        )
+    script_path = Path(__file__).parent.parent.parent.parent.parent
+    if len(script_path.parts) > 3:
+        message = message.replace(str(script_path), "<script path>")
+
     message = message.replace(getpass.getuser(), "<username>")
     return message
 
