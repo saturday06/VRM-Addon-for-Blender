@@ -18,6 +18,9 @@ paths.forEach(async (path) => {
   if (!path.endsWith(".vrm") && !path.endsWith(".vrma")) {
     return;
   }
+  if ((await stat(path)).isDirectory()) {
+    return;
+  }
 
   let result;
   try {
