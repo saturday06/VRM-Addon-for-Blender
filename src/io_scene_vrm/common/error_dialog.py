@@ -78,6 +78,7 @@ def mask_private_string(message: str) -> str:
     if len(script_path.parts) > 3:
         message = message.replace(str(script_path), "<script path>")
 
+    message = message.replace(str(Path.home()), "<home path>")
     message = message.replace(getpass.getuser(), "<username>")
     return message
 
