@@ -35,7 +35,16 @@ def show_error_dialog(
     *,
     append_environment: bool = True,
 ) -> set[str]:
-    lines = lines.splitlines() if isinstance(lines, str) else list(lines)
+    if isinstance(lines, str):
+        lines = list(map(str.rstrip, lines.splitlines()))
+        while lines and not lines[0].strip():
+            del lines[0]
+        while lines and not lines[-1].strip():
+            del lines[-1]
+    else:
+        lines = list(lines)
+    if not lines:
+        return {"CANCELLED"}
     if append_environment:
         if lines:
             lines[0] = f"Python: {lines[0]}"
