@@ -7,26 +7,28 @@ import {
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  sitemap: {
-    hostname: "https://vrm-addon-for-blender.info",
-  },
-  themeConfig: {
-    socialLinks: [
-      {
-        icon: "github",
-        link: "https://github.com/saturday06/VRM-Addon-for-Blender",
-      },
-      {
-        icon: "x",
-        link: "https://x.com/saturday06",
-      },
-    ],
-    editLink: {
-      pattern:
-        "https://github.com/saturday06/VRM-Addon-for-Blender/edit/main/docs/:path",
-    },
-  },
   locales: {
+    en: {
+      lang: "en",
+      label: "English",
+      title: "VRM Format / VRM Add-on for Blender",
+      description:
+        "VRM format adds VRM import, export, and editing capabilities to Blender." +
+        " It supports Blender versions 2.93 to 4.4.",
+      themeConfig: {
+        nav: [
+          {
+            text: "Download",
+            link:
+              "https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip",
+          },
+          {
+            text: "Report Bugs",
+            link: "https://github.com/saturday06/VRM-Addon-for-Blender/issues",
+          },
+        ],
+      },
+    },
     ja: {
       lang: "ja",
       label: "日本語",
@@ -48,26 +50,24 @@ export default defineConfig({
         ],
       },
     },
-    en: {
-      lang: "en",
-      label: "English",
-      title: "VRM Format / VRM Add-on for Blender",
-      description:
-        "VRM format adds VRM import, export, and editing capabilities to Blender." +
-        " It supports Blender versions 2.93 to 4.4.",
-      themeConfig: {
-        nav: [
-          {
-            text: "Download",
-            link:
-              "https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip",
-          },
-          {
-            text: "Report Bugs",
-            link: "https://github.com/saturday06/VRM-Addon-for-Blender/issues",
-          },
-        ],
+  },
+  sitemap: {
+    hostname: "https://vrm-addon-for-blender.info",
+  },
+  themeConfig: {
+    socialLinks: [
+      {
+        icon: "github",
+        link: "https://github.com/saturday06/VRM-Addon-for-Blender",
       },
+      {
+        icon: "x",
+        link: "https://x.com/saturday06",
+      },
+    ],
+    editLink: {
+      pattern:
+        "https://github.com/saturday06/VRM-Addon-for-Blender/edit/main/docs/:path",
     },
   },
   head: [
