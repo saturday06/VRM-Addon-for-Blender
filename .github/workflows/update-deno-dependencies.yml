@@ -30,7 +30,10 @@ jobs:
       - name: Update .dvmrc
         run: deno eval 'console.log(Deno.version.deno)' | tee .dvmrc
       - name: Update deno.jsonc and deno.lock
-        run: deno outdated --latest --update
+        run: |
+          deno outdated --latest --update
+          # deno.lockから `"npm:vitepress@*": ...` が消えるので、復活させる
+          deno run docs:build
       - name: Create PR
         run: |
           set -x
