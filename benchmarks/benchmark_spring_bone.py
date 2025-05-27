@@ -9,6 +9,7 @@ from bpy.types import Armature, Context
 from mathutils import Vector
 
 from io_scene_vrm.common import ops, version
+from io_scene_vrm.common.debug import clean_scene
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     get_armature_extension,
@@ -17,16 +18,6 @@ from io_scene_vrm.editor.spring_bone1.handler import update_pose_bone_rotations
 
 addon_version = version.get_addon_version()
 spec_version = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1
-
-
-def clean_scene(context: Context) -> None:
-    if context.view_layer.objects.active:
-        bpy.ops.object.mode_set(mode="OBJECT")
-    bpy.ops.object.select_all(action="SELECT")
-    bpy.ops.object.delete()
-    while context.blend_data.collections:
-        context.blend_data.collections.remove(context.blend_data.collections[0])
-    bpy.ops.outliner.orphans_purge(do_recursive=True)
 
 
 def benchmark_spring_bone(context: Context) -> None:

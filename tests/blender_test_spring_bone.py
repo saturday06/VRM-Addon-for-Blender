@@ -8,6 +8,7 @@ from bpy.types import Armature, Context
 from mathutils import Euler, Quaternion, Vector
 
 from io_scene_vrm.common import ops, version
+from io_scene_vrm.common.debug import clean_scene
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     get_armature_extension,
@@ -38,16 +39,6 @@ def assert_vector3_equals(
     if abs(expected[2] - actual[2]) > threshold:
         message = f"{message}: {tuple(expected)} is different from {tuple(actual)}"
         raise AssertionError(message)
-
-
-def clean_scene(context: Context) -> None:
-    if context.view_layer.objects.active:
-        bpy.ops.object.mode_set(mode="OBJECT")
-    bpy.ops.object.select_all(action="SELECT")
-    bpy.ops.object.delete()
-    while context.blend_data.collections:
-        context.blend_data.collections.remove(context.blend_data.collections[0])
-    bpy.ops.outliner.orphans_purge(do_recursive=True)
 
 
 def one_joint_extending_in_y_direction(context: Context) -> None:
