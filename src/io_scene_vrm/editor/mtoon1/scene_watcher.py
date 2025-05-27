@@ -63,11 +63,12 @@ class OutlineUpdater(SceneWatcher):
 
         # オブジェクトの数が前回の状態よりも減っていてインデックス範囲を超える場合、
         # 先頭からやり直す
-        if self.object_index >= len(blend_data.objects):
+        objects_len = len(blend_data.objects)
+        if self.object_index >= objects_len:
             self.object_index = 0
 
         # オブジェクトを走査して、比較用オブジェクトと差分がないかを調査
-        for object_index in range(self.object_index, len(blend_data.objects)):
+        for object_index in range(self.object_index, objects_len):
             self.object_index = object_index
             obj = blend_data.objects[object_index]
 
@@ -100,18 +101,19 @@ class OutlineUpdater(SceneWatcher):
 
             # MaterialSlotの数が前回の状態よりも減っていてインデックス範囲を超える場合、
             # 先頭からやり直す
-            if self.material_slot_index >= len(obj.material_slots):
+            material_slots_len = len(obj.material_slots)
+            if self.material_slot_index >= material_slots_len:
                 self.material_slot_index = 0
 
             # MaterialSlotの数と比較用Materialの数を同一化
-            while len(obj.material_slots) > len(comparison_object.comparison_materials):
+            while material_slots_len > len(comparison_object.comparison_materials):
                 comparison_object.comparison_materials.append(None)
-            while len(obj.material_slots) < len(comparison_object.comparison_materials):
+            while material_slots_len < len(comparison_object.comparison_materials):
                 comparison_object.comparison_materials.pop()
 
             # MaterialSlotを走査して、比較用Materialと差分がないかを調査
             for material_slot_index in range(
-                self.material_slot_index, len(obj.material_slots)
+                self.material_slot_index, material_slots_len
             ):
                 self.material_slot_index = material_slot_index
                 material_slot = obj.material_slots[material_slot_index]

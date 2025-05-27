@@ -29,11 +29,12 @@ class LookAtPreviewUpdater(SceneWatcher):
 
         count = 20
 
-        if self.armature_index >= len(blend_data.armatures):
+        armatures_len = len(blend_data.armatures)
+        if self.armature_index >= armatures_len:
             self.armature_index = 0
 
         start_armature_index = self.armature_index
-        end_armature_index = min(self.armature_index + count, len(blend_data.armatures))
+        end_armature_index = min(self.armature_index + count, armatures_len)
         changed = False
         for armature in blend_data.armatures[start_armature_index:end_armature_index]:
             ext = get_armature_extension(armature)
@@ -58,7 +59,7 @@ class LookAtPreviewUpdater(SceneWatcher):
 
         self.armature_index += count
 
-        if end_armature_index < len(blend_data.armatures):
+        if end_armature_index < armatures_len:
             return RunState.PREEMPT
 
         return RunState.FINISH
