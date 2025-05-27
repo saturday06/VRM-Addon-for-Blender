@@ -1,11 +1,17 @@
+import base64
+import hashlib
+import inspect
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
 from typing import Final, Optional, Protocol
 
 import bpy
 from bpy.app.handlers import persistent
 from bpy.types import Context
+
+from .debug import clean_scene
 
 
 class RunState(Enum):
@@ -148,6 +154,45 @@ def process_scene_watcher_scheduler() -> Optional[float]:
 
     scene_watcher_scheduler.process(context)
     return SceneWatcherScheduler.INTERVAL
+
+
+def create_fast_path_performance_test_scene(
+    context: Context, scene_watcher: SceneWatcher
+) -> None:
+    class_file_path_str = inspect.getfile(type(scene_watcher))
+    if not class_file_path_str:
+        message = f"No path for class {type(scene_watcher)}"
+        raise ValueError(message)
+    class_file_path = Path(class_file_path_str)
+    if not class_file_path.exists():
+        message = f"No {class_file_path} found"
+        raise ValueError(message)
+    class_source_hash = (
+        base64.urlsafe_b64encode(
+            hashlib.sha3_224(class_file_path.read_bytes()).digest()
+        )
+        .rstrip(b"=")
+        .decode()
+    )
+    cached_blend_path = (
+        Path(__file__).parent.parent.parent.parent
+        / "tests"
+        / "temp"
+        / (
+            type(scene_watcher).__name__
+            + "-"
+            + "_".join(map(str, bpy.app.version))
+            + "-"
+            + class_source_hash
+            + ".blend"
+        )
+    )
+    if cached_blend_path.exists():
+        bpy.ops.wm.open_mainfile(filepath=str(cached_blend_path))
+    else:
+        clean_scene(context)
+        scene_watcher.create_fast_path_performance_test_objects(context)
+        bpy.ops.wm.save_as_mainfile(filepath=str(cached_blend_path))
 
 
 def trigger_scene_watcher(scene_watcher_type: type[SceneWatcher]) -> None:
