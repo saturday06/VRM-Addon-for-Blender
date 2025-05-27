@@ -69,7 +69,8 @@ class LookAtPreviewUpdater(SceneWatcher):
         for i in range(300):
             if i % 3 != 0:
                 mesh = blend_data.meshes.new(f"Mesh#{i}")
-                blend_data.objects.new(f"Object#{i}", mesh)
+                obj = blend_data.objects.new(f"Object#{i}", mesh)
+                context.scene.collection.objects.link(obj)
                 continue
 
             ops.icyp.make_basic_armature()

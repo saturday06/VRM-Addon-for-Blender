@@ -191,7 +191,8 @@ class OutlineUpdater(SceneWatcher):
 
         for i in range(100):
             mesh = blend_data.meshes.new(f"Mesh#{i}")
-            blend_data.objects.new(f"Object#{i}", mesh)
+            obj = blend_data.objects.new(f"Object#{i}", mesh)
+            context.scene.collection.objects.link(obj)
             for k in range(50):
                 material = blend_data.materials[(k * 3) % len(blend_data.materials)]
                 mesh.materials.append(material)
@@ -302,7 +303,8 @@ class MToon1AutoSetup(SceneWatcher):
 
         for i in range(100):
             mesh = blend_data.meshes.new(f"Mesh#{i}")
-            blend_data.objects.new(f"Object#{i}", mesh)
+            obj = blend_data.objects.new(f"Object#{i}", mesh)
+            context.scene.collection.objects.link(obj)
             for k in range(50):
                 material = blend_data.materials[(k * 3) % len(blend_data.materials)]
                 mesh.materials.append(material)
