@@ -2,13 +2,12 @@
 title: "Development How-To"
 ---
 
-The repository contains code formatting settings, code type checking settings,
-and software testing settings.
-
-These are strongly dependent on the tool
+[The repository](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main)
+contains source code, code formatting settings, code type checking settings, and
+software testing settings. These are strongly dependent on the tool
 [astral-sh/uv](https://docs.astral.sh/uv/), so you will need to install that
-first. Alternatively, you can use Visual Studio Code's devcontainer to set them
-up automatically.
+first. Alternatively, you can use [Dev Container](https://containers.dev/) to
+set them up automatically.
 
 ## Link the repository to the add-on folder
 

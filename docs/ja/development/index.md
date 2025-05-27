@@ -2,11 +2,12 @@
 title: "開発環境のセットアップ"
 ---
 
-このリポジトリには、コードフォーマット設定、型チェック設定、ソフトウェアテスト設定が含まれています。
-
+[リポジトリ](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main)
+に、本体のソースコード、コードフォーマット設定、型チェック設定、ソフトウェアテスト設定が含まれています。
 これらは [astral-sh/uv](https://docs.astral.sh/uv/)
-に強く依存しているので、まずそれをインストールする必要があります。あるいは、Visual
-Studio Codeのdevcontainerを使って全自動で設定することもできます。
+に強く依存しているので、まずそれをインストールする必要があります。あるいは
+[Dev Container](https://containers.dev/)
+を使って全自動で設定することもできます。
 
 ## Blenderのアドオンフォルダにレポジトリにリンクする
 
