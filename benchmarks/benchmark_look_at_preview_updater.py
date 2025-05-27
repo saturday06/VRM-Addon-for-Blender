@@ -35,7 +35,7 @@ def benchmark_look_at_preview_updater(context: Context) -> None:
 
     profiler = cProfile.Profile()
     with profiler:
-        for _ in range(1000):
+        for _ in range(50000):
             run_and_reset_scene_watcher(scene_watcher, context)
 
     Stats(profiler).sort_stats(SortKey.TIME).print_stats(50)
