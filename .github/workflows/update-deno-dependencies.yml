@@ -31,7 +31,13 @@ jobs:
         run: deno eval 'console.log(Deno.version.deno)' | tee .dvmrc
       - name: Update deno.jsonc and deno.lock
         run: |
+          # deno outdatedだけだと、deno.lockのspecifiersの
+          # `"npm:vitepress@*": "1.6.3_vite@ ... @types+node@22.15.21"`
+          # のtypes+nodeのバージョンが固定されたままなので、deno.lock自体を作り直す
+          rm deno.lock
+
           deno outdated --latest --update
+
           # deno.lockから `"npm:vitepress@*": ...` が消えるので、復活させる
           deno run docs:build
       - name: Create PR
