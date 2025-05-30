@@ -1,5 +1,11 @@
 ---
-title: "Create VRM Animation"
+title: 'VRM Animation'
+prev:
+  text: 'Create Anime Style Material'
+  link: '../material-mtoon'
+next:
+  text: 'Automation with Python scripts'
+  link: '../scripting-api'
 ---
 
 An English tutorial is currently being written.

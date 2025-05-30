@@ -1,5 +1,11 @@
 ---
-title: "VRMアニメーション"
+title: 'VRMアニメーション'
+prev:
+  text: 'アニメ風のマテリアル設定'
+  link: '../material-mtoon'
+next:
+  text: 'Pythonスクリプトによる自動化'
+  link: '../scripting-api'
 ---
 
 VRM

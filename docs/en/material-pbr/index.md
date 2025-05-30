@@ -1,6 +1,12 @@
 ---
-title: "Create Physics Based Material"
-description: "Set up physics-based materials using Principled BSDF shaders."
+title: 'Create Physics Based Material'
+description: 'Set up physics-based materials using Principled BSDF shaders.'
+prev:
+  text: 'Create Humanoid VRM'
+  link: '../create-humanoid-vrm-from-scratch'
+next:
+  text: 'Create Anime Style Material'
+  link: '../material-mtoon'
 ---
 
 Set up realistic physics-based materials for VRM.
@@ -92,8 +98,3 @@ If successful, the VRM file will be saved to the specified location.
 You can check the operation on this page.
 
 - https://hub.vroid.com/en/characters/3819557420301868457/models/3988362170085862123
-
-## Links
-
-- [Top](../)
-- [Create Anime Style Material](../material-mtoon/)

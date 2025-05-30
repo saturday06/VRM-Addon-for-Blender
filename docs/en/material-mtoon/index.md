@@ -1,6 +1,12 @@
 ---
-title: "Create Anime Style Material"
-description: "Set up an anime-style material with MToon shaders."
+title: 'Create Anime Style Material'
+description: 'Set up an anime-style material with MToon shaders.'
+prev:
+  text: 'Create Physics Based Material'
+  link: '../material-pbr'
+next:
+  text: 'VRM Animation'
+  link: '../animation'
 ---
 
 Set an anime-style material to VRM.
@@ -120,8 +126,3 @@ If successful, the VRM file will be saved to the specified location.
 You can check the operation on this page.
 
 - https://hub.vroid.com/en/characters/2368193253669776229/models/7692418309335351071
-
-## Links
-
-- [Top](../)
-- [Create Physics Based Material](../material-pbr/)

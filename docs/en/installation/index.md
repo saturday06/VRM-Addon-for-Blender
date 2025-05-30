@@ -1,5 +1,8 @@
 ---
-title: "Add-on Installation"
+title: 'Add-on Installation'
+next:
+  text: 'Create Simple VRM'
+  link: '../create-simple-vrm-from-scratch'
 ---
 
 _This tutorial is for Blender 2.93 to 4.1. For Blender 4.2 or later, please
@@ -48,9 +51,3 @@ met
 Press the checkbox to complete the installation of the add-on.
 
 ![](7.png)
-
-## Related links
-
-- [Top](../)
-- [Create Simple VRM](../create-simple-vrm-from-scratch/)
-- [Create Humanoid VRM](../create-humanoid-vrm-from-scratch/)

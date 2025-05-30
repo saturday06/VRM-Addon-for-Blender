@@ -3,6 +3,8 @@ title: VRM Add-on for Blender
 description: VRM Add-on for BlenderはBlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。
 aside: false
 outline: false
+prev: false
+next: false
 ---
 
 <style>
@@ -26,13 +28,13 @@ Blenderは、BlenderにVRMのインポート、エクスポートや編集機能
 
 ## 使い方
 
-| [アドオンのインストール](installation/)               | [シンプルなVRMモデルを作る](create-simple-vrm-from-scratch/)      | [人型のVRMモデルを作る](create-humanoid-vrm-from-scratch/)            |
-| ----------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------- |
-| [![](/assets/images/installation.gif)](installation/) | [![](/assets/images/simple.gif)](create-simple-vrm-from-scratch/) | [![](/assets/images/humanoid.gif)](create-humanoid-vrm-from-scratch/) |
-| [物理ベースのマテリアル設定](material-pbr/)           | [アニメ風のマテリアル設定](material-mtoon/)                       | [Pythonスクリプトによる自動化](scripting-api/)                        |
-| [![](/assets/images/material_pbr.gif)](material-pbr/) | [![](/assets/images/material_mtoon.gif)](material-mtoon/)         | [![](/assets/images/scripting_api.gif)](scripting-api/)               |
-| [VRMアニメーション](animation/)                       | [改造するには](development/)                                      |                                                                       |
-| [![](/assets/images/animation.gif)](animation/)       | [![](/assets/images/animation.gif)](development/)                 |                                                                       |
+| [アドオンのインストール](installation/)                 | [シンプルなVRMモデルを作る](create-simple-vrm-from-scratch/)      | [人型のVRMモデルを作る](create-humanoid-vrm-from-scratch/)            |
+| ------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [![](/assets/images/installation.gif)](installation/)   | [![](/assets/images/simple.gif)](create-simple-vrm-from-scratch/) | [![](/assets/images/humanoid.gif)](create-humanoid-vrm-from-scratch/) |
+| [物理ベースのマテリアル設定](material-pbr/)             | [アニメ風のマテリアル設定](material-mtoon/)                       | [VRMアニメーション](animation/)                                       |
+| [![](/assets/images/material_pbr.gif)](material-pbr/)   | [![](/assets/images/material_mtoon.gif)](material-mtoon/)         | [![](/assets/images/animation.gif)](animation/)                       |
+| [Pythonスクリプトによる自動化](scripting-api/)          | [改造するには](development/)                                      |                                                                       |
+| [![](/assets/images/scripting_api.gif)](scripting-api/) | [![](/assets/images/animation.gif)](development/)                 |                                                                       |
 
 ## 概要
 

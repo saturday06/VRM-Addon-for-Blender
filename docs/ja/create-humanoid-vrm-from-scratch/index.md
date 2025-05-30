@@ -1,6 +1,12 @@
 ---
-title: "人型のVRMモデルを作る"
-description: "シンプルな人型のVRMモデルを作ります。"
+title: '人型のVRMモデルを作る'
+description: 'シンプルな人型のVRMモデルを作ります。'
+prev:
+  text: 'シンプルなVRMモデルを作る'
+  link: '../create-simple-vrm-from-scratch'
+next:
+  text: '物理ベースのマテリアル設定'
+  link: '../material-pbr'
 ---
 
 シンプルな人型のVRMモデルを作ります。
@@ -127,8 +133,3 @@ ICO球をアーマチュアの左手上腕のボーンに関連付けます。IC
 こちらのページで動作確認ができます。
 
 - https://hub.vroid.com/characters/6595382014094436897/models/1372267393572384142
-
-## 関連リンク
-
-- [トップページ](../)
-- [シンプルなVRMモデルを作る](../create-simple-vrm-from-scratch/)

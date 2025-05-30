@@ -1,6 +1,12 @@
 ---
-title: "物理ベースのマテリアル設定"
-description: "プリンシプルBSDFシェーダーを用いた物理ベースのマテリアルを設定します。"
+title: '物理ベースのマテリアル設定'
+description: 'プリンシプルBSDFシェーダーを用いた物理ベースのマテリアルを設定します。'
+prev:
+  text: '人型のVRMモデルを作る'
+  link: '../create-humanoid-vrm-from-scratch'
+next:
+  text: 'アニメ風のマテリアル設定'
+  link: '../material-mtoon'
 ---
 
 リアルな物理ベースのマテリアルをVRMに設定します。
@@ -88,8 +94,3 @@ Blenderを起動したら、初めから表示されている立方体を削除�
 こちらのページで動作確認ができます。
 
 - https://hub.vroid.com/characters/3819557420301868457/models/3988362170085862123
-
-## 関連リンク
-
-- [トップページ](../)
-- [アニメ風のマテリアル設定](../material-mtoon/)

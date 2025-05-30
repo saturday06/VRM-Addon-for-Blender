@@ -1,5 +1,9 @@
 ---
-title: "開発環境のセットアップ"
+title: '開発環境のセットアップ'
+prev:
+  text: 'Pythonスクリプトによる自動化'
+  link: '../scripting-api.html'
+next: false
 ---
 
 [リポジトリ](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main)

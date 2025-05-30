@@ -1,6 +1,12 @@
 ---
-title: "Create Humanoid VRM"
-description: "We will create a simple Humanoid VRM model."
+title: 'Create Humanoid VRM'
+description: 'We will create a simple Humanoid VRM model.'
+prev:
+  text: 'Create Simple VRM'
+  link: '../create-simple-vrm-from-scratch'
+next:
+  text: 'Create Physics Based Material'
+  link: '../material-pbr'
 ---
 
 We will create a simple Humanoid VRM model.
@@ -129,8 +135,3 @@ If successful, the VRM file will be saved to the specified location.
 You can check the operation on this page.
 
 - https://hub.vroid.com/en/characters/6595382014094436897/models/1372267393572384142
-
-## Links
-
-- [Top](../)
-- [Create Simple VRM](../create-simple-vrm-from-scratch/)

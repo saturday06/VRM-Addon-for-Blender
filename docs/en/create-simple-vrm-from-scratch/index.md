@@ -1,6 +1,12 @@
 ---
-title: "Create Simple VRM"
-description: "Convert the cube displayed from the beginning when you start Blender to a VRM model."
+title: 'Create Simple VRM'
+description: 'Convert the cube displayed from the beginning when you start Blender to a VRM model.'
+prev:
+  text: 'Installation'
+  link: '../installation/'
+next:
+  text: 'Create Humanoid VRM'
+  link: '../create-humanoid-vrm-from-scratch/'
 ---
 
 Convert the cube displayed from the beginning when you start Blender to a VRM
@@ -28,8 +34,3 @@ If successful, the VRM file will be saved to the specified location.
 You can check the operation on this page.
 
 - https://hub.vroid.com/en/characters/2535511199028537879/models/127230567429676411
-
-## Links
-
-- [Top](../)
-- [Create Humanoid VRM](../create-humanoid-vrm-from-scratch/)

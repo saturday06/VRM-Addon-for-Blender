@@ -1,5 +1,9 @@
 ---
-title: "Development How-To"
+title: 'Development How-To'
+prev:
+  text: 'Automation with Python scripts'
+  link: '../scripting-api.html'
+next: false
 ---
 
 [The repository](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main)

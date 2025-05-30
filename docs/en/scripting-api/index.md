@@ -1,16 +1,13 @@
 ---
-title: "Automation samples with Python scripts"
-description: "A sample of automating VRM-related processes using a Python script."
+title: 'Automation samples with Python scripts'
+description: 'A sample of automating VRM-related processes using a Python script.'
+prev:
+  text: 'VRM Animation'
+  link: '../material-mtoon'
+next:
+  text: 'Development How-To'
+  link: '../development'
 ---
-
-<!-- TableOfContentsの設定は自動でやりたい -->
-
-- [Importing VRM files](#importing-vrm-files)
-- [Exporting VRM files](#exporting-vrm-files)
-- [VRM Metadata Settings](#vrm-metadata-settings)
-- [VRM Human Bone Settings](#vrm-human-bone-settings)
-- [VRM MToon Material Settings](#vrm-mtoon-material-settings)
-- [Dynamically generate VRM characters and export to file](#dynamically-generate-vrm-characters-and-export-to-file)
 
 ## Importing VRM files
 
@@ -255,7 +252,3 @@ if result != {"FINISHED"}:
 
 print(f"{output_filepath=}")
 ```
-
-## Related links
-
-- [Top](../)

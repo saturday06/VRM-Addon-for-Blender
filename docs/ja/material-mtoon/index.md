@@ -1,6 +1,12 @@
 ---
-title: "アニメ風のマテリアル設定"
-description: "MToonシェーダーを用いたアニメ風マテリアルを設定します。"
+title: 'アニメ風のマテリアル設定'
+description: 'MToonシェーダーを用いたアニメ風マテリアルを設定します。'
+prev:
+  text: '物理ベースのマテリアル設定'
+  link: '../material-pbr'
+next:
+  text: 'VRMアニメーション'
+  link: '../animation'
 ---
 
 アニメ風マテリアルをVRMに設定します。
@@ -111,8 +117,3 @@ Blenderを起動したら、まずは初めから表示されている立方体�
 こちらのページで動作確認ができます。
 
 - https://hub.vroid.com/characters/2368193253669776229/models/7692418309335351071
-
-## 関連リンク
-
-- [トップページ](../)
-- [物理ベースのマテリアル設定](../material-pbr/)

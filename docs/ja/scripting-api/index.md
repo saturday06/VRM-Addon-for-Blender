@@ -1,16 +1,13 @@
 ---
-title: Pythonスクリプトによる自動化サンプル
-description: Pythonスクリプトを利用してVRM関連処理を自動化するサンプルです。
+title: 'Pythonスクリプトによる自動化サンプル'
+description: 'Pythonスクリプトを利用してVRM関連処理を自動化するサンプルです。'
+prev:
+  text: 'VRMアニメーション'
+  link: '../material-mtoon'
+next:
+  text: '改造するには'
+  link: '../development'
 ---
-
-<!-- TableOfContentsの設定は自動でやりたい -->
-
-- [VRMファイルのインポート](#vrmファイルのインポート)
-- [VRMファイルのエクスポート](#vrmファイルのエクスポート)
-- [VRMメタデータの設定](#vrmメタデータの設定)
-- [VRMヒューマンボーンの設定](#vrmヒューマンボーンの設定)
-- [VRM MToonマテリアルの値を設定](#vrm-mtoonマテリアルの値を設定)
-- [VRMのキャラクターを動的に生成しファイルにエクスポート](#vrmのキャラクターを動的に生成しファイルにエクスポート)
 
 ## VRMファイルのインポート
 
@@ -253,7 +250,3 @@ if result != {"FINISHED"}:
 
 print(f"{output_filepath=}")
 ```
-
-## 関連リンク
-
-- [トップページ](../)
