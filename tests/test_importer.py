@@ -5,10 +5,15 @@ from unittest import TestCase
 import bpy
 
 from io_scene_vrm.common import ops
+from io_scene_vrm.common.debug import clean_scene
 from io_scene_vrm.importer import license_validation
 
 
 class TestImporter(TestCase):
+    def setUp(self) -> None:
+        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
+        clean_scene(bpy.context)
+
     def test_validate_license_url(self) -> None:
         for url, confirmation_required in [
             ("", False),
