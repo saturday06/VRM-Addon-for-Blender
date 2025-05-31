@@ -1311,8 +1311,9 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             bone_name = self.bone_names.get(node_index)
             if isinstance(bone_name, str):
                 collider.node.bone_name = bone_name
-                if collider.bpy_object:
-                    collider.bpy_object.name = f"{bone_name} Collider"
+                collider_bpy_object = collider.bpy_object
+                if collider_bpy_object:
+                    collider_bpy_object.name = f"{bone_name} Collider"
                 bone = self.armature_data.bones.get(collider.node.bone_name)
 
         shape_dict = collider_dict.get("shape")
@@ -1485,9 +1486,10 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 )
             extended_shape.plane.normal = normal
 
-            if collider.bpy_object:
+            collider_bpy_object = collider.bpy_object
+            if collider_bpy_object:
                 # フォールバックのコライダーをロードする際に入った値を固定値で上書きする
-                collider.bpy_object.empty_display_size = 0.125
+                collider_bpy_object.empty_display_size = 0.125
 
         else:
             return
@@ -1531,13 +1533,14 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             colliders_collection = self.context.blend_data.collections.new("Colliders")
             self.context.scene.collection.children.link(colliders_collection)
             for collider in spring_bone.colliders:
-                if not collider.bpy_object:
+                collider_bpy_object = collider.bpy_object
+                if not collider_bpy_object:
                     continue
-                colliders_collection.objects.link(collider.bpy_object)
-                collider_object_names.append(collider.bpy_object.name)
-                if collider.bpy_object.name in self.context.scene.collection.objects:
-                    self.context.scene.collection.objects.unlink(collider.bpy_object)
-                for child in collider.bpy_object.children:
+                colliders_collection.objects.link(collider_bpy_object)
+                collider_object_names.append(collider_bpy_object.name)
+                if collider_bpy_object.name in self.context.scene.collection.objects:
+                    self.context.scene.collection.objects.unlink(collider_bpy_object)
+                for child in collider_bpy_object.children:
                     collider_object_names.append(child.name)
                     colliders_collection.objects.link(child)
                     if child.name in self.context.scene.collection.objects:

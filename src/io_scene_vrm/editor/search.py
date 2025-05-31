@@ -345,10 +345,11 @@ def export_objects(
     for armature_data in context.blend_data.armatures:
         ext = get_armature_extension(armature_data)
         for spring_bone1_collider in ext.spring_bone1.colliders:
-            if not spring_bone1_collider.bpy_object:
+            spring_bone1_collider_bpy_object = spring_bone1_collider.bpy_object
+            if not spring_bone1_collider_bpy_object:
                 continue
-            collider_bpy_objects.append(spring_bone1_collider.bpy_object)
-            collider_bpy_objects.extend(spring_bone1_collider.bpy_object.children)
+            collider_bpy_objects.append(spring_bone1_collider_bpy_object)
+            collider_bpy_objects.extend(spring_bone1_collider_bpy_object.children)
         for collider_group in ext.vrm0.secondary_animation.collider_groups:
             collider_bpy_objects.extend(
                 collider.bpy_object for collider in collider_group.colliders
@@ -397,8 +398,8 @@ def roll_constraint_or_none(
         not isinstance(constraint, CopyRotationConstraint)
         or not constraint.is_valid
         or constraint.mute
-        or not constraint.target
-        or constraint.target not in objs
+        or not (constraint_target := constraint.target)
+        or constraint_target not in objs
         or constraint.mix_mode != "ADD"
         or (int(constraint.use_x) + int(constraint.use_y) + int(constraint.use_z)) != 1
         or constraint.owner_space != "LOCAL"
@@ -406,10 +407,10 @@ def roll_constraint_or_none(
     ):
         return None
 
-    if constraint.target.type != "ARMATURE":
+    if constraint_target.type != "ARMATURE":
         return constraint
 
-    if constraint.target != armature:
+    if constraint_target != armature:
         return None
 
     armature_data = armature.data
@@ -431,15 +432,15 @@ def aim_constraint_or_none(
         not isinstance(constraint, DampedTrackConstraint)
         or not constraint.is_valid
         or constraint.mute
-        or not constraint.target
-        or constraint.target not in objs
+        or not (constraint_target := constraint.target)
+        or constraint_target not in objs
     ):
         return None
 
-    if constraint.target.type != "ARMATURE":
+    if constraint_target.type != "ARMATURE":
         return constraint
 
-    if constraint.target != armature:
+    if constraint_target != armature:
         return None
 
     armature_data = armature.data
@@ -462,7 +463,7 @@ def rotation_constraint_or_none(
         not isinstance(constraint, CopyRotationConstraint)
         or not constraint.is_valid
         or constraint.mute
-        or not constraint.target
+        or not (constraint_target := constraint.target)
         or constraint.target not in objs
         or constraint.invert_x
         or constraint.invert_y
@@ -476,10 +477,10 @@ def rotation_constraint_or_none(
     ):
         return None
 
-    if constraint.target.type != "ARMATURE":
+    if constraint_target.type != "ARMATURE":
         return constraint
 
-    if constraint.target != armature:
+    if constraint_target != armature:
         return None
 
     armature_data = armature.data

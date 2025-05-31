@@ -331,11 +331,12 @@ def draw_vrm1_humanoid_layout(
             text=label,
             translate=False,
         )
-        if humanoid.pose_library and humanoid.pose_library.pose_markers:
+        pose_library = humanoid.pose_library
+        if pose_library and pose_library.pose_markers:
             column.prop_search(
                 humanoid,
                 "pose_marker_name",
-                humanoid.pose_library,
+                pose_library,
                 "pose_markers",
                 text="Pose",
                 translate=False,

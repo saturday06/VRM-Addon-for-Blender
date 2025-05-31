@@ -365,11 +365,12 @@ def draw_vrm0_humanoid_layout(
             text=label,
             translate=False,
         )
-        if humanoid.pose_library and humanoid.pose_library.pose_markers:
+        pose_library = humanoid.pose_library
+        if pose_library and pose_library.pose_markers:
             column.prop_search(
                 humanoid,
                 "pose_marker_name",
-                humanoid.pose_library,
+                pose_library,
                 "pose_markers",
                 text="Pose",
                 translate=False,
@@ -732,14 +733,14 @@ def draw_vrm0_blend_shape_master_layout(
                 material_value, "material", blend_data, "materials"
             )
 
-            if not material_value.material:
+            material = material_value.material
+            if not material:
                 material_value_column.prop(
                     material_value, "property_name", icon="PROPERTIES"
                 )
             else:
                 scene_extension = get_scene_extension(context.scene)
                 scene_extension.defer_update_vrm0_material_property_names()
-                material = material_value.material
                 ext = get_material_extension(material)
                 node, legacy_shader_name = search.legacy_shader_node(material)
                 if ext.mtoon1.enabled or (

@@ -62,7 +62,7 @@ def generate_many_spring_bones(armature_object: Object) -> None:
     for root_mop_strand_bone in [
         b
         for b in armature_object.pose.bones
-        if b.parent and b.parent.name == root_bone_name
+        if (p := b.parent) and p.name == root_bone_name
     ]:
         spring_index = len(spring_bone1.springs)
 

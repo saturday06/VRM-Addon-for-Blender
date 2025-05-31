@@ -251,8 +251,9 @@ class VRM_UL_vrm1_material_color_bind(UIList):
             return
 
         name = ""
-        if material_color_bind.material:
-            name = material_color_bind.material.name
+        material = material_color_bind.material
+        if material:
+            name = material.name
             type_name = next(
                 (
                     enum.name
@@ -295,6 +296,7 @@ class VRM_UL_vrm1_texture_transform_bind(UIList):
             return
 
         name = ""
-        if texture_transform_bind.material:
-            name = texture_transform_bind.material.name
+        material = texture_transform_bind.material
+        if material:
+            name = material.name
         layout.label(text=name, translate=False, icon="MATERIAL")

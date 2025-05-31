@@ -34,8 +34,9 @@ def draw_spring_bone1_collider_sphere_layout(
 ) -> None:
     layout.prop_search(collider.node, "bone_name", armature_data, "bones")
     layout.prop(collider, "ui_collider_type")
-    if collider.bpy_object:
-        layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Offset")
+    bpy_object = collider.bpy_object
+    if bpy_object:
+        layout.prop(bpy_object, "name", icon="MESH_UVSPHERE", text="Offset")
     layout.prop(collider.shape.sphere, "offset", text="")
     layout.separator(factor=0.5)
     layout.prop(collider.shape.sphere, "radius", slider=True)
@@ -49,15 +50,16 @@ def draw_spring_bone1_collider_capsule_layout(
 ) -> None:
     layout.prop_search(collider.node, "bone_name", armature_data, "bones")
     layout.prop(collider, "ui_collider_type")
-    if collider.bpy_object:
-        layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Head")
+    bpy_object = collider.bpy_object
+    if bpy_object:
+        layout.prop(bpy_object, "name", icon="MESH_UVSPHERE", text="Head")
     layout.prop(collider.shape.capsule, "offset", text="")
     layout.separator(factor=0.5)
     layout.prop(collider.shape.capsule, "radius", slider=True)
     layout.separator(factor=0.5)
-    if collider.bpy_object and collider.bpy_object.children:
+    if bpy_object and bpy_object.children:
         layout.prop(
-            collider.bpy_object.children[0],
+            bpy_object.children[0],
             "name",
             icon="MESH_UVSPHERE",
             text="Tail",
@@ -96,8 +98,9 @@ def draw_spring_bone1_collider_extended_sphere_layout(
     extended = collider.extensions.vrmc_spring_bone_extended_collider
     layout.prop_search(collider.node, "bone_name", armature_data, "bones")
     layout.prop(collider, "ui_collider_type")
-    if collider.bpy_object:
-        layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Offset")
+    bpy_object = collider.bpy_object
+    if bpy_object:
+        layout.prop(bpy_object, "name", icon="MESH_UVSPHERE", text="Offset")
     layout.prop(extended.shape.sphere, "offset", text="")
     layout.separator(factor=0.5)
     layout.prop(extended.shape.sphere, "radius", slider=True)
@@ -118,15 +121,16 @@ def draw_spring_bone1_collider_extended_capsule_layout(
     extended = collider.extensions.vrmc_spring_bone_extended_collider
     layout.prop_search(collider.node, "bone_name", armature_data, "bones")
     layout.prop(collider, "ui_collider_type")
-    if collider.bpy_object:
-        layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Head")
+    bpy_object = collider.bpy_object
+    if bpy_object:
+        layout.prop(bpy_object, "name", icon="MESH_UVSPHERE", text="Head")
     layout.prop(extended.shape.capsule, "offset", text="")
     layout.separator(factor=0.5)
     layout.prop(extended.shape.capsule, "radius", slider=True)
     layout.separator(factor=0.5)
-    if collider.bpy_object and collider.bpy_object.children:
+    if bpy_object and bpy_object.children:
         layout.prop(
-            collider.bpy_object.children[0],
+            bpy_object.children[0],
             "name",
             icon="MESH_UVSPHERE",
             text="Tail",
@@ -149,8 +153,9 @@ def draw_spring_bone1_collider_extended_plane_layout(
     extended = collider.extensions.vrmc_spring_bone_extended_collider
     layout.prop_search(collider.node, "bone_name", armature_data, "bones")
     layout.prop(collider, "ui_collider_type")
-    if collider.bpy_object:
-        layout.prop(collider.bpy_object, "name", icon="MESH_UVSPHERE", text="Offset")
+    bpy_object = collider.bpy_object
+    if bpy_object:
+        layout.prop(bpy_object, "name", icon="MESH_UVSPHERE", text="Offset")
     layout.prop(extended.shape.plane, "offset", text="")
     layout.separator(factor=0.5)
     layout.prop(extended.shape.plane, "normal")

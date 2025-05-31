@@ -518,12 +518,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             material_value_dicts: list[Json] = []
             blend_shape_group_dict["materialValues"] = material_value_dicts
             for material_value in blend_shape_group.material_values:
-                if not material_value.material or not material_value.material.name:
+                material_value_material = material_value.material
+                if not material_value_material or not material_value_material.name:
                     continue
 
                 material_value_dicts.append(
                     {
-                        "materialName": material_value.material.name,
+                        "materialName": material_value_material.name,
                         "propertyName": material_value.property_name,
                         "targetValue": [v.value for v in material_value.target_value],
                     }

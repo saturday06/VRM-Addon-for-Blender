@@ -2452,8 +2452,8 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
             elif (
                 node.type == "GROUP"
                 and isinstance(node, ShaderNodeGroup)
-                and node.node_tree
-                and node.node_tree.name.startswith("VRM_TextureTransform_")
+                and (node_node_tree := node.node_tree)
+                and node_node_tree.name.startswith("VRM_TextureTransform_")
             ):
                 nodes_to_remove.append(node)
                 # Handle links for group nodes

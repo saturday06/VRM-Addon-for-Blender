@@ -168,9 +168,9 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
             )
 
         base_quaternion: Optional[Quaternion] = None
-        if bone.parent:
+        if bone_parent := bone.parent:
             base_quaternion = (
-                bone.parent.matrix.inverted_safe() @ bone.matrix
+                bone_parent.matrix.inverted_safe() @ bone.matrix
             ).to_quaternion()
         else:
             base_quaternion = bone.matrix.to_quaternion()

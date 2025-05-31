@@ -266,17 +266,17 @@ class WM_OT_vrm_validator(Operator):
                     node_names.append(obj.name)
             if (
                 obj.type == "MESH"
-                and isinstance(obj.data, Mesh)
-                and obj.data.shape_keys is not None
-                and len(obj.data.shape_keys.key_blocks)
+                and isinstance(obj_data := obj.data, Mesh)
+                and (obj_data_shape_keys := obj_data.shape_keys) is not None
+                and len(obj_data_shape_keys.key_blocks)
                 >= 2  # Exclude a "Basis" shape key
                 and any(
                     modifier.type != "ARMATURE"
                     and not (
                         modifier.type == "NODES"
                         and isinstance(modifier, NodesModifier)
-                        and modifier.node_group
-                        and modifier.node_group.name
+                        and (modifier_node_group := modifier.node_group)
+                        and modifier_node_group.name
                         == shader.OUTLINE_GEOMETRY_GROUP_NAME
                     )
                     for modifier in obj.modifiers
@@ -469,8 +469,8 @@ class WM_OT_vrm_validator(Operator):
 
         if (
             armature is not None
-            and isinstance(armature.data, Armature)
-            and get_armature_extension(armature.data).is_vrm1()
+            and isinstance(armature_data := armature.data, Armature)
+            and get_armature_extension(armature_data).is_vrm1()
         ):
             error_messages.extend(
                 pgettext(
@@ -483,7 +483,7 @@ class WM_OT_vrm_validator(Operator):
             )
 
             joint_chain_bone_names_to_spring_vrm_name: dict[str, str] = {}
-            for spring in get_armature_extension(armature.data).spring_bone1.springs:
+            for spring in get_armature_extension(armature_data).spring_bone1.springs:
                 joint_bone_names: list[str] = []
                 for joint in spring.joints:
                     bone_name = joint.node.bone_name
@@ -493,7 +493,7 @@ class WM_OT_vrm_validator(Operator):
                 joint_chain_bone_names: list[str] = []
                 for bone_name in joint_bone_names:
                     search_joint_chain_bone_names: list[str] = []
-                    bone = armature.data.bones.get(bone_name)
+                    bone = armature_data.bones.get(bone_name)
                     terminated = False
                     while bone:
                         if bone.name != bone_name and bone.name in joint_bone_names:
@@ -529,9 +529,11 @@ class WM_OT_vrm_validator(Operator):
 
         used_materials = search.export_materials(context, export_objects)
         used_images: list[Image] = []
-        bones_name = []
-        if armature is not None and isinstance(armature.data, Armature):
-            bones_name = [b.name for b in armature.data.bones]
+        bones_names = []
+        if armature is not None and isinstance(
+            armature_data := armature.data, Armature
+        ):
+            bones_names = [b.name for b in armature_data.bones]
         vertex_error_count = 0
 
         for mesh in [obj for obj in export_objects if obj.type == "MESH"]:
@@ -546,8 +548,8 @@ class WM_OT_vrm_validator(Operator):
                         continue
                     if (
                         armature is not None
-                        and isinstance(armature.data, Armature)
-                        and get_armature_extension(armature.data).is_vrm1()
+                        and isinstance((armature_data := armature.data), Armature)
+                        and get_armature_extension(armature_data).is_vrm1()
                     ):
                         continue
                     info_messages.append(
@@ -563,7 +565,7 @@ class WM_OT_vrm_validator(Operator):
                     for g in v.groups:
                         if (
                             0 <= g.group < len(mesh_vertex_group_names)
-                            and mesh_vertex_group_names[g.group] in bones_name
+                            and mesh_vertex_group_names[g.group] in bones_names
                             and g.weight < float_info.epsilon
                         ):
                             weight_count += 1
@@ -579,9 +581,12 @@ class WM_OT_vrm_validator(Operator):
                         vertex_error_count = vertex_error_count + 1
 
         for mat in used_materials:
-            if not mat.node_tree or get_material_extension(mat).mtoon1.enabled:
+            if (
+                not (mat_node_tree := mat.node_tree)
+                or get_material_extension(mat).mtoon1.enabled
+            ):
                 continue
-            for node in mat.node_tree.nodes:
+            for node in mat_node_tree.nodes:
                 if node.type != "OUTPUT_MATERIAL":
                     continue
 
@@ -673,8 +678,8 @@ class WM_OT_vrm_validator(Operator):
             for texture in gltf.all_textures(
                 downgrade_to_mtoon0=(
                     armature is None
-                    or not isinstance(armature.data, Armature)
-                    or get_armature_extension(armature.data).is_vrm0()
+                    or not isinstance(armature_data := armature.data, Armature)
+                    or get_armature_extension(armature_data).is_vrm0()
                 )
             ):
                 source = texture.get_connected_node_image()
@@ -704,8 +709,8 @@ class WM_OT_vrm_validator(Operator):
 
                 if (
                     armature is None
-                    or not isinstance(armature.data, Armature)
-                    or not get_armature_extension(armature.data).is_vrm0()
+                    or not isinstance((armature_data := armature.data), Armature)
+                    or not get_armature_extension(armature_data).is_vrm0()
                     or not source
                 ):
                     continue
@@ -751,11 +756,11 @@ class WM_OT_vrm_validator(Operator):
 
         if (
             armature is not None
-            and isinstance(armature.data, Armature)
-            and get_armature_extension(armature.data).is_vrm0()
+            and isinstance(armature_data := armature.data, Armature)
+            and get_armature_extension(armature_data).is_vrm0()
         ):
             # first_person
-            first_person = get_armature_extension(armature.data).vrm0.first_person
+            first_person = get_armature_extension(armature_data).vrm0.first_person
             if not first_person.first_person_bone.bone_name:
                 info_messages.append(
                     pgettext(
@@ -767,7 +772,7 @@ class WM_OT_vrm_validator(Operator):
             # blend_shape_master
             # TODO: material value and material existence
             blend_shape_master = get_armature_extension(
-                armature.data
+                armature_data
             ).vrm0.blend_shape_master
             for blend_shape_group in blend_shape_master.blend_shape_groups:
                 for bind in blend_shape_group.binds:
@@ -971,9 +976,9 @@ def node_material_input_check(
                 )
             )
         elif expect_node_type == "TEX_IMAGE" and isinstance(n, ShaderNodeTexImage):
-            if n.image is not None:
-                if n.image not in used_images:
-                    used_images.append(n.image)
+            if (image := n.image) is not None:
+                if image not in used_images:
+                    used_images.append(image)
             else:
                 messages.append(
                     pgettext(

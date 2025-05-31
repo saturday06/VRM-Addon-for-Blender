@@ -906,11 +906,11 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
         ) = mtoon.outline_width_multiply_texture.extensions.khr_texture_transform.scale
 
         uv_layer_name = None
-        if isinstance(obj.data, Mesh):
+        if isinstance((mesh_data := obj.data), Mesh):
             uv_layer_name = next(
                 (
                     uv_layer.name
-                    for uv_layer in obj.data.uv_layers
+                    for uv_layer in mesh_data.uv_layers
                     if uv_layer and uv_layer.active_render
                 ),
                 None,
@@ -963,9 +963,9 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
                 input_key.extrude_mesh_individual_key,
                 (
                     obj.type == "MESH"
-                    and isinstance(obj.data, Mesh)
-                    and not (has_auto_smooth and obj.data.use_auto_smooth)
-                    and not any(polygon.use_smooth for polygon in obj.data.polygons)
+                    and isinstance(mesh_data := obj.data, Mesh)
+                    and not (has_auto_smooth and mesh_data.use_auto_smooth)
+                    and not any(polygon.use_smooth for polygon in mesh_data.polygons)
                 ),
             ),
             (input_key.object_key, obj),

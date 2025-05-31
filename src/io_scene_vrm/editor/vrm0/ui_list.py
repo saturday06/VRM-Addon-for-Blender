@@ -278,22 +278,23 @@ class VRM_UL_vrm0_secondary_animation_collider_group_collider(UIList):
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
             return
 
-        if collider.bpy_object is None:
+        bpy_object = collider.bpy_object
+        if bpy_object is None:
             return
 
         row = layout.split(align=True, factor=0.7)
         if index == collider_group.active_collider_index:
             row.prop(
-                collider.bpy_object,
+                bpy_object,
                 "name",
                 icon=icon,
                 translate=False,
                 text="",
             )
-            row.prop(collider.bpy_object, "empty_display_size", text="")
+            row.prop(bpy_object, "empty_display_size", text="")
         else:
-            row.label(text=collider.bpy_object.name, icon=icon, translate=False)
-            row.prop(collider.bpy_object, "empty_display_size", text="", emboss=False)
+            row.label(text=bpy_object.name, icon=icon, translate=False)
+            row.prop(bpy_object, "empty_display_size", text="", emboss=False)
 
 
 class VRM_UL_vrm0_blend_shape_group(UIList):
@@ -409,8 +410,9 @@ class VRM_UL_vrm0_material_value_bind(UIList):
             return
 
         name = ""
-        if material_value_bind.material:
-            name = material_value_bind.material.name
+        material = material_value_bind.material
+        if material:
+            name = material.name
             if material_value_bind.property_name:
                 name += " / " + material_value_bind.property_name
         layout.label(text=name, translate=False, icon="MATERIAL")

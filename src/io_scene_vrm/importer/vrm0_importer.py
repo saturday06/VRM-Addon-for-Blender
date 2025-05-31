@@ -1124,26 +1124,29 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                         continue
                     bone_prop.bone_name = bone_name
 
-            collider_group_dicts = bone_group_dict.get("colliderGroups")
-            if isinstance(collider_group_dicts, list):
-                for collider_group in collider_group_dicts:
-                    if not isinstance(collider_group, int) or not (
-                        0 <= collider_group < len(secondary_animation.collider_groups)
+            collider_group_indices = bone_group_dict.get("colliderGroups")
+            if isinstance(collider_group_indices, list):
+                for collider_group_index in collider_group_indices:
+                    if not isinstance(collider_group_index, int) or not (
+                        0
+                        <= collider_group_index
+                        < len(secondary_animation.collider_groups)
                     ):
                         continue
                     collider_group_uuid = bone_group.collider_groups.add()
-                    collider_group_uuid.value = secondary_animation.collider_groups[
-                        collider_group
-                    ].uuid
+                    collider_group = secondary_animation.collider_groups[
+                        collider_group_index
+                    ]
+                    collider_group_uuid.value = collider_group.uuid
 
         for bone_group in secondary_animation.bone_groups:
             bone_group.refresh(armature)
 
         collider_object_names = [
-            collider.bpy_object.name
+            collider_bpy_object.name
             for collider_group in secondary_animation.collider_groups
             for collider in collider_group.colliders
-            if collider.bpy_object is not None
+            if (collider_bpy_object := collider.bpy_object)
         ]
         if collider_object_names:
             imported_object_names = self.imported_object_names
@@ -1221,14 +1224,15 @@ def setup_bones(context: Context, armature: Object) -> None:
         Headの角度を、親の角度から30度以内に制限
         ToesやFootが接地していない場合は仰角をつける。
     """
-    if not isinstance(armature.data, Armature):
+    armature_data = armature.data
+    if not isinstance(armature_data, Armature):
         return
-    addon_extension = get_armature_extension(armature.data)
+    addon_extension = get_armature_extension(armature_data)
 
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
     Vrm0HumanoidPropertyGroup.update_all_node_candidates(
         context,
-        armature.data.name,
+        armature_data.name,
         force=True,
     )
 

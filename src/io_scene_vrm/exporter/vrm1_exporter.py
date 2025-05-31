@@ -612,13 +612,14 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         material_color_bind_dicts: list[Json] = []
         for material_color_bind in expression.material_color_binds:
+            material_color_bind_material = material_color_bind.material
             if (
-                not material_color_bind.material
-                or not material_color_bind.material.name
+                not material_color_bind_material
+                or not material_color_bind_material.name
             ):
                 continue
             material_index = material_name_to_index_dict.get(
-                material_color_bind.material.name
+                material_color_bind_material.name
             )
             if not isinstance(material_index, int):
                 continue
@@ -639,13 +640,14 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         texture_transform_binds: list[Json] = []
         for texture_transform_bind in expression.texture_transform_binds:
+            texture_transform_bind_material = texture_transform_bind.material
             if (
-                not texture_transform_bind.material
-                or not texture_transform_bind.material.name
+                not texture_transform_bind_material
+                or not texture_transform_bind_material.name
             ):
                 continue
             material_index = material_name_to_index_dict.get(
-                texture_transform_bind.material.name
+                texture_transform_bind_material.name
             )
             if not isinstance(material_index, int):
                 continue

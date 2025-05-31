@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
-import importlib
 import sys
 import zipfile
 from os.path import commonpath
@@ -13,6 +12,7 @@ import bpy
 sys.path.append(str(Path(__file__).parent.parent / "src"))
 
 from io_scene_vrm.common import ops
+from io_scene_vrm.importer.vrm_diff import vrm_diff
 
 context = bpy.context
 
@@ -51,8 +51,7 @@ if ops.export_scene.vrm(filepath=str(actual_path)) != {"FINISHED"}:
 
 float_tolerance = 0.000001
 
-vrm_diff = importlib.import_module(module_name + ".importer.vrm_diff")
-diffs = vrm_diff.vrm_diff(
+diffs = vrm_diff(
     actual_path.read_bytes(),
     expected_path.read_bytes(),
     float_tolerance,

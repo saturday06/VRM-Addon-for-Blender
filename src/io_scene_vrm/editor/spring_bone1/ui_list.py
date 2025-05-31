@@ -44,8 +44,9 @@ class VRM_UL_spring_bone1_collider(UIList):
             return
 
         name = ""
-        if collider.bpy_object:
-            name = collider.bpy_object.name
+        bpy_object = collider.bpy_object
+        if bpy_object:
+            name = bpy_object.name
         layout.label(text=name, translate=False, icon=icon)
 
 

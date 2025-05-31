@@ -195,18 +195,20 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
     humanoid_action = context.blend_data.actions.new(name="Humanoid")
     if not armature.animation_data:
         armature.animation_data_create()
-    if not armature.animation_data:
+    armature_animation_data = armature.animation_data
+    if not armature_animation_data:
         message = "armature.animation_data is None"
         raise ValueError(message)
-    armature.animation_data.action = humanoid_action
+    armature_animation_data.action = humanoid_action
 
     expression_action = context.blend_data.actions.new(name="Expressions")
     if not armature_data.animation_data:
         armature_data.animation_data_create()
-    if not armature_data.animation_data:
+    armature_data_animation_data = armature_data.animation_data
+    if not armature_data_animation_data:
         message = "armature_data.animation_data is None"
         raise ValueError(message)
-    armature_data.animation_data.action = expression_action
+    armature_data_animation_data.action = expression_action
 
     node_index_to_translation_keyframes: dict[
         int, tuple[tuple[float, Vector], ...]

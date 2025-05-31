@@ -541,11 +541,11 @@ def calculate_joint_pair_head_pose_bone_rotations(
     current_tail_pose_bone_matrix = tail_pose_bone.matrix
 
     if next_head_pose_bone_before_rotation_matrix is None:
-        if head_pose_bone.parent:
-            current_head_parent_matrix = head_pose_bone.parent.matrix
+        if head_pose_bone_parent := head_pose_bone.parent:
+            current_head_parent_matrix = head_pose_bone_parent.matrix
             current_head_parent_rest_object_matrix = (
-                head_pose_bone.parent.bone.convert_local_to_pose(
-                    Matrix(), head_pose_bone.parent.bone.matrix_local
+                head_pose_bone_parent.bone.convert_local_to_pose(
+                    Matrix(), head_pose_bone_parent.bone.matrix_local
                 )
             )
             next_head_pose_bone_before_rotation_matrix = current_head_parent_matrix @ (

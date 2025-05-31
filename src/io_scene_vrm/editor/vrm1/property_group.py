@@ -448,7 +448,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         bone_names: list[str] = []
         for bone in sorted(armature_data.bones.values(), key=lambda b: str(b.name)):
             bone_names.append(bone.name)
-            bone_names.append(bone.parent.name if bone.parent else "")
+            bone_names.append(parent_bone.name if (parent_bone := bone.parent) else "")
 
         if not force:
             up_to_date = bone_names == [

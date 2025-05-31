@@ -632,7 +632,8 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         out_node_socket_name: str,
         node_socket_target: NodeSocketTarget,
     ) -> None:
-        if not material.node_tree:
+        node_tree = material.node_tree
+        if not node_tree:
             return
 
         select_in_node = node_socket_target.create_node_selector(material)
@@ -642,7 +643,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         connection_check_node = next(
             (
                 link.from_node
-                for link in material.node_tree.links
+                for link in node_tree.links
                 if select_in_node(link.to_node)
                 and link.to_socket
                 and link.to_socket.name == in_socket_name
@@ -671,7 +672,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         cls.unlink_nodes(material, node_socket_target)
 
         # 出力ノードとソケットを探す
-        out_node = material.node_tree.nodes.get(out_node_name)
+        out_node = node_tree.nodes.get(out_node_name)
         if not isinstance(out_node, out_node_type):
             logger.error("No output node: %s", out_node_name)
             return
@@ -698,7 +699,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
         # 入力ノードとソケットを探す
         in_node = next(
-            (n for n in material.node_tree.nodes if select_in_node(n)),
+            (n for n in node_tree.nodes if select_in_node(n)),
             None,
         )
         if not in_node:
@@ -710,7 +711,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             logger.error("No input socket: %s", in_socket_name)
             return
 
-        material.node_tree.links.new(in_socket, out_socket)
+        node_tree.links.new(in_socket, out_socket)
 
     @classmethod
     def unlink_nodes(
@@ -720,7 +721,8 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
     ) -> None:
         while True:
             # Refresh in_node/out_node. These nodes may be invalidated.
-            if not material.node_tree:
+            node_tree = material.node_tree
+            if not node_tree:
                 return
 
             select_in_node = node_socket_target.create_node_selector(material)
@@ -728,7 +730,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             disconnecting_link = next(
                 (
                     link
-                    for link in material.node_tree.links
+                    for link in node_tree.links
                     if select_in_node(link.to_node)
                     and link.to_socket
                     and link.to_socket.name == in_socket_name
@@ -738,7 +740,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             if not disconnecting_link:
                 return
 
-            material.node_tree.links.remove(disconnecting_link)
+            node_tree.links.remove(disconnecting_link)
 
     @classmethod
     def link_or_unlink_nodes(
@@ -3931,16 +3933,18 @@ def reset_shader_node_group(
             material,
             reset_node_groups=reset_node_groups,
         )
-        if gltf.outline_material:
+        outline_material = gltf.outline_material
+        if outline_material:
             shader.load_mtoon1_shader(
                 context,
-                gltf.outline_material,
+                outline_material,
                 reset_node_groups=reset_node_groups,
             )
 
     gltf.is_outline_material = False
-    if gltf.outline_material:
-        get_material_mtoon1_extension(gltf.outline_material).is_outline_material = True
+    outline_material = gltf.outline_material
+    if outline_material:
+        get_material_mtoon1_extension(outline_material).is_outline_material = True
 
     gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
     gltf.pbr_metallic_roughness.base_color_texture.restore(base_color_texture)
