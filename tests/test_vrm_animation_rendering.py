@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import base64
+import functools
 import hashlib
 import math
 import re
@@ -19,7 +20,7 @@ from io_scene_vrm.editor.search import current_armature
 from io_scene_vrm.editor.vrm1.property_group import Vrm1LookAtPropertyGroup
 
 
-class TestVrmAnimationRendering(TestCase):
+class __TestVrmAnimationRenderingBase(TestCase):
     OBJECT_SUFFIX: Final[str] = "-TestVrmAnimationRenderingObject"
     OBJECT_DATA_SUFFIX: Final[str] = "-TestVrmAnimationRenderingObjectData"
 
@@ -28,7 +29,9 @@ class TestVrmAnimationRendering(TestCase):
         super().setUpClass()
 
         context = bpy.context
-        cls.reset_scene(context)
+
+        bpy.ops.wm.read_homefile(use_empty=True)
+        cls.init_scene(context)
         bpy.ops.wm.save_as_mainfile(filepath=str(cls.base_blend_path()))
 
     @classmethod
@@ -54,17 +57,6 @@ class TestVrmAnimationRendering(TestCase):
         )
 
     @classmethod
-    def reset_scene(cls, context: Context) -> None:
-        if context.view_layer.objects.active:
-            bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="SELECT")
-        bpy.ops.object.delete()
-        while context.blend_data.collections:
-            context.blend_data.collections.remove(context.blend_data.collections[0])
-        bpy.ops.outliner.orphans_purge(do_recursive=True)
-        cls.init_scene(context)
-
-    @classmethod
     def init_scene(cls, context: Context) -> None:
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
         scene = context.scene
@@ -75,10 +67,14 @@ class TestVrmAnimationRendering(TestCase):
                 obj.hide_viewport = True
 
         scene.view_settings.view_transform = "Standard"
-        scene.world.use_nodes = False
-        scene.world.color[0] = 0
-        scene.world.color[1] = 0
-        scene.world.color[2] = 0
+        world = scene.world
+        if not world:
+            world = context.blend_data.worlds.new(name="World")
+            scene.world = world
+        world.use_nodes = False
+        world.color[0] = 0
+        world.color[1] = 0
+        world.color[2] = 0
 
         cls.add_camera(
             context,
@@ -299,7 +295,7 @@ class TestVrmAnimationRendering(TestCase):
         bpy.ops.wm.save_as_mainfile(filepath=str(debug_blend_path))
         self.assert_rendering(context, input_vrma_path.with_suffix(""), suffix=suffix)
 
-    def test_import(self) -> None:
+    def assert_import(self, input_vrma_path: Path) -> None:
         context = bpy.context
 
         default_input_vrm_path = (
@@ -310,14 +306,10 @@ class TestVrmAnimationRendering(TestCase):
             / "debug_robot.vrm"
         )
 
-        input_vrma_folder_path = Path(__file__).parent / "resources" / "vrma"
-
-        for input_vrma_path in sorted(input_vrma_folder_path.glob("*.vrma")):
-            input_vrm_path = input_vrma_path.with_suffix(".vrm")
-            if not input_vrm_path.exists():
-                input_vrm_path = default_input_vrm_path
-            with self.subTest([input_vrm_path.name, input_vrma_path.name]):
-                self.assert_vrma_rendering(context, input_vrm_path, input_vrma_path)
+        input_vrm_path = input_vrma_path.with_suffix(".vrm")
+        if not input_vrm_path.exists():
+            input_vrm_path = default_input_vrm_path
+        self.assert_vrma_rendering(context, input_vrm_path, input_vrma_path)
 
     def assert_blend_rendering(
         self, context: Context, input_blend_path: Path, *, lossless: bool
@@ -351,43 +343,67 @@ class TestVrmAnimationRendering(TestCase):
 
         self.assert_vrma_rendering(context, vrm_path, vrma_path, suffix="_roundtrip")
 
-    def test_lossless_export(self) -> None:
+    def assert_lossless_export(self, input_blend_path: Path) -> None:
         context = bpy.context
 
-        input_blend_folder_path = (
-            Path(__file__).parent / "resources" / "blend" / "lossless_animation"
+        if input_blend_path.name.endswith(
+            ".render.blend"
+        ) or input_blend_path.name.endswith(".render_roundtrip.blend"):
+            return
+
+        self.assert_blend_rendering(
+            context,
+            input_blend_path,
+            lossless=True,
         )
 
-        for input_blend_path in sorted(input_blend_folder_path.glob("*.blend")):
-            if input_blend_path.name.endswith(
-                ".render.blend"
-            ) or input_blend_path.name.endswith(".render_roundtrip.blend"):
-                continue
-            with self.subTest(input_blend_path.name):
-                self.assert_blend_rendering(
-                    context,
-                    input_blend_path,
-                    lossless=True,
-                )
-
-    def test_lossy_export(self) -> None:
+    def assert_lossy_export(self, input_blend_path: Path) -> None:
         context = bpy.context
 
-        input_blend_folder_path = (
-            Path(__file__).parent / "resources" / "blend" / "lossy_animation"
+        if input_blend_path.name.endswith(
+            ".render.blend"
+        ) or input_blend_path.name.endswith(".render_roundtrip.blend"):
+            return
+
+        self.assert_blend_rendering(
+            context,
+            input_blend_path,
+            lossless=False,
         )
 
-        for input_blend_path in sorted(input_blend_folder_path.glob("*.blend")):
-            if input_blend_path.name.endswith(
-                ".render.blend"
-            ) or input_blend_path.name.endswith(".render_roundtrip.blend"):
-                continue
-            with self.subTest(input_blend_path.name):
-                self.assert_blend_rendering(
-                    context,
-                    input_blend_path,
-                    lossless=False,
-                )
+
+TestVrmAnimationRendering = type(
+    "TestVrmAnimationRendering",
+    (__TestVrmAnimationRenderingBase,),
+    {
+        "test_import_" + path.stem: functools.partialmethod(
+            __TestVrmAnimationRenderingBase.assert_import, path
+        )
+        for path in sorted(
+            (Path(__file__).parent / "resources" / "vrma").glob("*.vrma")
+        )
+    }
+    | {
+        "test_lossless_export_" + path.stem: functools.partialmethod(
+            __TestVrmAnimationRenderingBase.assert_lossless_export, path
+        )
+        for path in sorted(
+            (Path(__file__).parent / "resources" / "blend" / "lossless_animation").glob(
+                "*.blend"
+            )
+        )
+    }
+    | {
+        "test_lossy_export_" + path.stem: functools.partialmethod(
+            __TestVrmAnimationRenderingBase.assert_lossy_export, path
+        )
+        for path in sorted(
+            (Path(__file__).parent / "resources" / "blend" / "lossy_animation").glob(
+                "*.blend"
+            )
+        )
+    },
+)
 
 
 def compare_image(image1_path: Path, image2_path: Path, diff_image_path: Path) -> float:
