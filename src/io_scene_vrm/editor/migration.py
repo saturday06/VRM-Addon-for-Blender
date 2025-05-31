@@ -16,13 +16,10 @@ from .extension import (
     get_armature_extension,
 )
 from .mtoon1 import migration as mtoon1_migration
-from .mtoon1 import ops as mtoon1_ops
 from .property_group import BonePropertyGroup
 from .spring_bone1 import migration as spring_bone1_migration
 from .vrm0 import migration as vrm0_migration
-from .vrm0.property_group import Vrm0HumanoidPropertyGroup
 from .vrm1 import migration as vrm1_migration
-from .vrm1 import property_group as vrm1_property_group
 
 logger = get_logger(__name__)
 
@@ -275,60 +272,3 @@ def have_vrm_model(context: Context) -> bool:
 
         return True
     return False
-
-
-def on_change_bpy_object_name() -> None:
-    context = bpy.context
-
-    for armature in context.blend_data.armatures:
-        ext = getattr(armature, "vrm_addon_extension", None)
-        if not isinstance(ext, VrmAddonArmatureExtensionPropertyGroup):
-            continue
-        if (
-            tuple(ext.addon_version)
-            == VrmAddonArmatureExtensionPropertyGroup.INITIAL_ADDON_VERSION
-        ):
-            continue
-
-        # TODO: Needs optimization!
-        for collider in ext.spring_bone1.colliders:
-            collider.broadcast_bpy_object_name(context)
-
-
-def on_change_bpy_object_mode() -> None:
-    context = bpy.context
-
-    active_object = context.active_object
-    if not active_object:
-        return
-    mtoon1_ops.VRM_OT_refresh_mtoon1_outline.refresh_object(context, active_object)
-
-
-def on_change_bpy_object_location() -> None:
-    context = bpy.context
-    active_object = context.active_object
-    if not active_object:
-        return
-    vrm1_property_group.Vrm1LookAtPropertyGroup.update_all_previews(context)
-
-
-def on_change_bpy_bone_name() -> None:
-    context = bpy.context
-
-    for armature in context.blend_data.armatures:
-        ext = getattr(armature, "vrm_addon_extension", None)
-        if not isinstance(ext, VrmAddonArmatureExtensionPropertyGroup):
-            continue
-        if (
-            tuple(ext.addon_version)
-            == VrmAddonArmatureExtensionPropertyGroup.INITIAL_ADDON_VERSION
-        ):
-            continue
-
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(context, armature.name)
-
-
-def on_change_bpy_armature_name() -> None:
-    context = bpy.context
-
-    migrate_all_objects(context, skip_non_migrated_armatures=True)
