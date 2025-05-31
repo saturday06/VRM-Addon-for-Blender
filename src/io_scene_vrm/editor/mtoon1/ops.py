@@ -721,10 +721,6 @@ class NodesModifierInputKey:
     object_key: str
     enabled_key: str
 
-    @staticmethod
-    def keys_len() -> int:
-        return 15
-
     def outline_width_multiply_texture_uv_use_attribute_key(self) -> str:
         return self.outline_width_multiply_texture_uv_key + "_use_attribute"
 
@@ -750,10 +746,26 @@ def get_nodes_modifier_input_key(
             and isinstance(item, NodeTreeInterfaceSocket)
             and item.in_out == "INPUT"
         ]
-    keys_len = NodesModifierInputKey.keys_len()
-    if len(keys) < keys_len:
+
+    if len(keys) < 15:
         return None
-    return NodesModifierInputKey(*keys[:keys_len])
+    return NodesModifierInputKey(
+        geometry_key=keys[0],
+        material_key=keys[1],
+        outline_material_key=keys[2],
+        outline_width_mode_key=keys[3],
+        outline_width_factor_key=keys[4],
+        outline_width_multiply_texture_key=keys[5],
+        outline_width_multiply_texture_exists_key=keys[6],
+        outline_width_multiply_texture_uv_key=keys[7],
+        outline_width_multiply_texture_uv_offset_x_key=keys[8],
+        outline_width_multiply_texture_uv_offset_y_key=keys[9],
+        outline_width_multiply_texture_uv_scale_x_key=keys[10],
+        outline_width_multiply_texture_uv_scale_y_key=keys[11],
+        extrude_mesh_individual_key=keys[12],
+        object_key=keys[13],
+        enabled_key=keys[14],
+    )
 
 
 class VRM_OT_refresh_mtoon1_outline(Operator):

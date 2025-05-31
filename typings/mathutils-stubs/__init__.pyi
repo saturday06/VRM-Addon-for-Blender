@@ -147,6 +147,10 @@ class Color:
     r: float
     s: float
     v: float
+    def __getitem__(
+        self,
+        index: int,
+    ) -> float: ...  # ドキュメントには存在しない?
     def __setitem__(
         self,
         index: int,

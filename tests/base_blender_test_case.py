@@ -136,7 +136,8 @@ class BaseBlenderTestCase(TestCase):
             if spec is None:
                 return
             mod = importlib.util.module_from_spec(spec)
-            if spec.loader is None:
+            spec_loader = spec.loader
+            if spec_loader is None:
                 return
 
             bpy.ops.preferences.addon_enable(module="io_scene_vrm")
@@ -157,7 +158,7 @@ class BaseBlenderTestCase(TestCase):
                 old_argv = deepcopy(sys.argv)
                 try:
                     sys.argv = [str(script_path), "--", *args]
-                    spec.loader.exec_module(mod)
+                    spec_loader.exec_module(mod)
                 finally:
                     sys.argv = old_argv
             finally:

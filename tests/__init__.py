@@ -11,10 +11,11 @@ def io_scene_vrm_tests_generate_dynamic_tests() -> None:
     )
     if spec is None:
         return
+    spec_loader = spec.loader
     mod = importlib.util.module_from_spec(spec)
-    if spec.loader is None:
+    if spec_loader is None:
         return
-    spec.loader.exec_module(mod)
+    spec_loader.exec_module(mod)
 
 
 io_scene_vrm_tests_generate_dynamic_tests()

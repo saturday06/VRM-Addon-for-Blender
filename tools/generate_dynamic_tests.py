@@ -98,11 +98,12 @@ def render_body(test_src_dir: Path, path: str, path_without_ext: str) -> str:
                 AssertionError("Failed to create module spec")
             )
         mod = module_from_spec(spec)
-        if spec.loader is None:
+        spec_loader = spec.loader
+        if spec_loader is None:
             return render_generation_failed_test(
                 AssertionError("Failed to create module spec loader")
             )
-        spec.loader.exec_module(mod)
+        spec_loader.exec_module(mod)
 
         func: object = getattr(mod, "get_test_command_args", None)
         if callable(func):
