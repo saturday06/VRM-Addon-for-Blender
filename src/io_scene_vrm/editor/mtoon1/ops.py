@@ -845,8 +845,9 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
         modifier_name = f"MToon Outline ({material.name})"
 
         outline_material = get_material_extension(material).mtoon1.outline_material
-        reset_outline_material = not outline_material
-        if reset_outline_material:
+        reset_outline_material = False
+        if not outline_material:
+            reset_outline_material = True
             outline_material = context.blend_data.materials.new(
                 name=outline_material_name
             )
