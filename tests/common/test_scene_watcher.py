@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+import functools
+import platform
+from os import getenv
+from timeit import timeit
+from unittest import TestCase
+
+import bpy
+from bpy.types import Context
+
+from io_scene_vrm.common.scene_watcher import (
+    RunState,
+    SceneWatcher,
+    SceneWatcherScheduler,
+    create_fast_path_performance_test_scene,
+)
+
+
+class TestSceneWatcher(TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
+
+    @staticmethod
+    def run_and_reset_scene_watcher(
+        scene_watcher: SceneWatcher, context: Context
+    ) -> None:
+        if scene_watcher.run(context) == RunState.FINISH:
+            scene_watcher.reset_run_progress()
+
+    def test_performance(self) -> None:
+        context = bpy.context
+
+        for scene_watcher_type in SceneWatcherScheduler.get_all_scene_watcher_types():
+            with self.subTest(scene_watcher_type.__name__):
+                scene_watcher = scene_watcher_type()
+                create_fast_path_performance_test_scene(context, scene_watcher)
+
+                run = functools.partial(
+                    self.run_and_reset_scene_watcher, scene_watcher, context
+                )
+                run()  # 初回実行は時間がかかっても良い
+
+                timeout_margin_factor = 1.0
+                if getenv("CI") == "true":
+                    # CIサーバーでの実行ではマージンを追加
+                    timeout_margin_factor *= 2.0
+                if platform.system() == "Darwin" and platform.machine() == "x86_64":
+                    # macOSのx86_64は古いマシンしか存在しないのでマージンを追加
+                    timeout_margin_factor *= 1.5
+
+                number = 20000
+                timeout_seconds = 0.000_100 * timeout_margin_factor
+                elapsed = timeit(run, number=number)
+                self.assertLess(
+                    elapsed / float(number),
+                    timeout_seconds,
+                    f"{scene_watcher_type}.run()の実行時間は{timeout_seconds}秒未満である必要がありますが"
+                    f"{elapsed / float(number)}秒経過しました。",
+                )

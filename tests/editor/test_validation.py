@@ -10,8 +10,11 @@ from io_scene_vrm.editor.extension import get_armature_extension
 
 
 class TestValidation(TestCase):
-    def setUp(self) -> None:
+    @classmethod
+    def setUpClass(cls) -> None:
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
+
+    def setUp(self) -> None:
         clean_scene(bpy.context)
 
     def test_bone_order_validation(self) -> None:
