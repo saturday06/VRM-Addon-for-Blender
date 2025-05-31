@@ -7,7 +7,6 @@ from bpy.types import Armature, Context, Object
 from mathutils import Vector
 
 from io_scene_vrm.common import ops, version
-from io_scene_vrm.common.debug import clean_scene
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     get_armature_extension,
@@ -92,7 +91,7 @@ def generate_many_spring_bones(armature_object: Object) -> None:
 
 def benchmark_spring_bone(context: Context) -> None:
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-    clean_scene(context)
+    bpy.ops.wm.read_homefile(use_empty=True)
 
     ops.icyp.make_basic_armature()
 

@@ -8,7 +8,6 @@ from bpy.types import Armature
 from mathutils import Euler, Quaternion, Vector
 
 from io_scene_vrm.common import ops, version
-from io_scene_vrm.common.debug import clean_scene
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     get_armature_extension,
@@ -43,7 +42,7 @@ class TestSpringBone1(TestCase):
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     def setUp(self) -> None:
-        clean_scene(bpy.context)
+        bpy.ops.wm.read_homefile(use_empty=True)
 
     def test_one_joint_extending_in_y_direction(self) -> None:
         context = bpy.context

@@ -11,8 +11,6 @@ import bpy
 from bpy.app.handlers import persistent
 from bpy.types import Context
 
-from .debug import clean_scene
-
 
 class RunState(Enum):
     PREEMPT = 1
@@ -190,7 +188,7 @@ def create_fast_path_performance_test_scene(
     if cached_blend_path.exists():
         bpy.ops.wm.open_mainfile(filepath=str(cached_blend_path))
     else:
-        clean_scene(context)
+        bpy.ops.wm.read_homefile(use_empty=True)
         scene_watcher.create_fast_path_performance_test_objects(context)
         bpy.ops.wm.save_as_mainfile(filepath=str(cached_blend_path))
 

@@ -10,7 +10,7 @@ from bpy.types import Armature
 from mathutils import Vector
 
 from io_scene_vrm.common import deep, ops, version
-from io_scene_vrm.common.debug import assert_vector3_equals, clean_scene
+from io_scene_vrm.common.debug import assert_vector3_equals
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     get_armature_extension,
@@ -25,7 +25,7 @@ class TestSimplifyVroidBones(TestCase):
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     def setUp(self) -> None:
-        clean_scene(bpy.context)
+        bpy.ops.wm.read_homefile(use_empty=True)
 
     def test_bones_rename(self) -> None:
         context = bpy.context
@@ -59,7 +59,7 @@ class TestSaveHumanBoneMappings(TestCase):
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     def setUp(self) -> None:
-        clean_scene(bpy.context)
+        bpy.ops.wm.read_homefile(use_empty=True)
 
     def test(self) -> None:
         ops.icyp.make_basic_armature()
@@ -143,7 +143,7 @@ class TestLoadHumanBoneMappings(TestCase):
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     def setUp(self) -> None:
-        clean_scene(bpy.context)
+        bpy.ops.wm.read_homefile(use_empty=True)
 
     def test(self) -> None:
         context = bpy.context
@@ -181,7 +181,7 @@ class TestMakeEstimatedHumanoidTPose(TestCase):
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     def setUp(self) -> None:
-        clean_scene(bpy.context)
+        bpy.ops.wm.read_homefile(use_empty=True)
 
     def test_right_upper_arm_a(self) -> None:
         context = bpy.context

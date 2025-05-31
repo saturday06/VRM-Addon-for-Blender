@@ -5,7 +5,6 @@ import bpy
 from bpy.types import Armature
 
 from io_scene_vrm.common import ops
-from io_scene_vrm.common.debug import clean_scene
 from io_scene_vrm.common.vrm0.human_bone import HumanBoneName
 from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
@@ -17,7 +16,7 @@ class TestVrm0HumanoidPropertyGroup(TestCase):
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     def setUp(self) -> None:
-        clean_scene(bpy.context)
+        bpy.ops.wm.read_homefile(use_empty=True)
 
     def test_fixup_human_bones(self) -> None:
         context = bpy.context

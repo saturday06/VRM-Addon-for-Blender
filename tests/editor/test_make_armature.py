@@ -11,7 +11,6 @@ from bpy.types import Armature
 from mathutils import Vector
 
 from io_scene_vrm.common import ops
-from io_scene_vrm.common.debug import clean_scene
 from io_scene_vrm.editor.make_armature import MIN_BONE_LENGTH
 from io_scene_vrm.importer.vrm_diff import vrm_diff
 
@@ -22,7 +21,7 @@ class TestMakeArmature(TestCase):
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     def setUp(self) -> None:
-        clean_scene(bpy.context)
+        bpy.ops.wm.read_homefile(use_empty=True)
 
     def test_make_basic_armature(self) -> None:
         context = bpy.context

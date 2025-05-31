@@ -3,7 +3,6 @@ from unittest import TestCase
 
 import bpy
 
-from io_scene_vrm.common.debug import clean_scene
 from io_scene_vrm.importer import license_validation
 
 
@@ -13,7 +12,7 @@ class TestLicenseValidation(TestCase):
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     def setUp(self) -> None:
-        clean_scene(bpy.context)
+        bpy.ops.wm.read_homefile(use_empty=True)
 
     def test_validate_license_url(self) -> None:
         for url, confirmation_required in [

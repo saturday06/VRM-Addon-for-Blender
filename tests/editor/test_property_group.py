@@ -8,7 +8,6 @@ from bpy.types import Armature, EditBone, Object
 from mathutils import Vector
 
 from io_scene_vrm.common import ops
-from io_scene_vrm.common.debug import clean_scene
 from io_scene_vrm.common.vrm0.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
@@ -24,7 +23,7 @@ class TestBonePropertyGroup(TestCase):
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     def setUp(self) -> None:
-        clean_scene(bpy.context)
+        bpy.ops.wm.read_homefile(use_empty=True)
 
     def assert_bone_candidates(
         self,

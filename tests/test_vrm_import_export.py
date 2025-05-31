@@ -31,8 +31,6 @@ class __TestVrmImportExportBase(TestCase):
     def assert_vrm_import_export(
         self, in_path: Path, *, extract_textures: bool
     ) -> None:
-        context = bpy.context
-
         environ["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
         environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
         update_failed_vrm = environ.get("BLENDER_VRM_TEST_UPDATE_FAILED_VRM") == "true"
@@ -47,14 +45,7 @@ class __TestVrmImportExportBase(TestCase):
             logger.warning("Skipped: %s", in_path)
             return
 
-        if context.view_layer.objects.active:
-            bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="SELECT")
-        bpy.ops.object.delete()
-        while context.blend_data.collections:
-            context.blend_data.collections.remove(context.blend_data.collections[0])
-        bpy.ops.outliner.orphans_purge(do_recursive=True)
-
+        bpy.ops.wm.read_homefile(use_empty=True)
         ops.import_scene.vrm(
             filepath=str(in_path),
             extract_textures_into_folder=extract_textures,

@@ -8,7 +8,6 @@ from bpy.types import Armature, Context
 from mathutils import Vector
 
 from io_scene_vrm.common import ops, version
-from io_scene_vrm.common.debug import clean_scene
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     get_armature_extension,
@@ -108,7 +107,7 @@ def benchmark_spring_bone_many_springs(context: Context) -> None:
         Path(__file__).parent / "temp" / f"spring_bone_many_springs_{version_str}.blend"
     )
     if not path.exists():
-        clean_scene(context)
+        bpy.ops.wm.read_homefile(use_empty=True)
         generate_many_springs(context)
         context.view_layer.update()
         bpy.ops.wm.save_as_mainfile(filepath=str(path))

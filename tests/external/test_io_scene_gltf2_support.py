@@ -5,7 +5,6 @@ from unittest import TestCase, main
 
 import bpy
 
-from io_scene_vrm.common.debug import clean_scene
 from io_scene_vrm.external import io_scene_gltf2_support
 
 
@@ -15,7 +14,7 @@ class TestIoSceneGltf2Support(TestCase):
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     def setUp(self) -> None:
-        clean_scene(bpy.context)
+        bpy.ops.wm.read_homefile(use_empty=True)
 
     def test_image_to_image_bytes(self) -> None:
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")

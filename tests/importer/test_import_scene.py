@@ -9,7 +9,6 @@ from unittest import TestCase, main
 import bpy
 
 from io_scene_vrm.common import ops
-from io_scene_vrm.common.debug import clean_scene
 from io_scene_vrm.common.logger import get_logger
 
 logger = get_logger(__name__)
@@ -32,7 +31,7 @@ class TestImportNonObjectMode(TestCase):
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     def setUp(self) -> None:
-        clean_scene(bpy.context)
+        bpy.ops.wm.read_homefile(use_empty=True)
 
     def test_import_non_object_mode(self) -> None:
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
@@ -58,7 +57,7 @@ class __TestImportSceneBrokenVrmBase(TestCase):
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     def setUp(self) -> None:
-        clean_scene(bpy.context)
+        bpy.ops.wm.read_homefile(use_empty=True)
 
     def assert_broken_vrm(self, vrm_path: Path) -> None:
         environ["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"

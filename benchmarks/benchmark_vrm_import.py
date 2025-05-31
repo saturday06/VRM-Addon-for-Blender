@@ -8,7 +8,6 @@ import requests
 from bpy.types import Context
 
 from io_scene_vrm.common import ops, version
-from io_scene_vrm.common.debug import clean_scene
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
 )
@@ -19,7 +18,7 @@ spec_version = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1
 
 def benchmark_vrm_import(context: Context) -> None:
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-    clean_scene(context)
+    bpy.ops.wm.read_homefile(use_empty=True)
 
     url = "https://raw.githubusercontent.com/vrm-c/vrm-specification/c24d76d99a18738dd2c266be1c83f089064a7b5e/samples/Seed-san/vrm/Seed-san.vrm"
     path = Path(__file__).parent / "temp" / "Seed-san.vrm"
