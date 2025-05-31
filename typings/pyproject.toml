@@ -17,6 +17,9 @@ packages = [
   "mathutils-stubs",
 ]
 
+[tool.ty.src]
+root = "."
+
 [tool.ruff]
 extend = "../pyproject.toml"
 
