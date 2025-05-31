@@ -122,9 +122,9 @@ TestVrmImportExport = type(
 
 
 class __TestBlendExportBase(TestCase):
-    def setUp(self) -> None:
+    @classmethod
+    def setUpClass(cls) -> None:
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-        clean_scene(bpy.context)
 
     def assert_blend_export(self, blend_path: Path) -> None:
         environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
