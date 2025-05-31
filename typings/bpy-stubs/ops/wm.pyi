@@ -80,6 +80,17 @@ def append(
     set_fake: bool = False,
     use_recursive: bool = True,
 ) -> set[str]: ...
+def read_homefile(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    filepath: str = "",
+    load_ui: bool = True,
+    use_splash: bool = False,
+    use_factory_startup: bool = False,
+    app_template: str = "Template",
+    use_empty: bool = False,
+) -> set[str]: ...
 def redraw_timer(
     execution_context: str = "EXEC_DEFAULT",
     /,
