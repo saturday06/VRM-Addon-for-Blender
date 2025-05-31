@@ -254,6 +254,24 @@ class WM_OT_vrm_validator(Operator):
             info_messages.append(pgettext("No armature exists."))
 
         for obj in export_objects:
+            if (parnet_obj := obj.parent) and obj.parent_type in ["VERTEX", "VERTEX_3"]:
+                skippable_warning_messages.append(
+                    pgettext(
+                        'The vertex "{parent_name}" is set as the parent of "{name}",'
+                        + " but this is not supported in VRM"
+                    ).format(name=obj.name, parent_name=parnet_obj.name)
+                )
+            if (parnet_obj := obj.parent) and obj.parent_type == "LATTICE":
+                skippable_warning_messages.append(
+                    pgettext(
+                        '"{lattice}" is set as the {parent_type} for "{name}",'
+                        + " but this is not supported in VRM"
+                    ).format(
+                        name=obj.name,
+                        parent_type=pgettext("Parent Type"),
+                        lattice=pgettext("Lattice"),
+                    )
+                )
             if obj.type in search.MESH_CONVERTIBLE_OBJECT_TYPES:
                 if obj.name in node_names:
                     error_messages.append(

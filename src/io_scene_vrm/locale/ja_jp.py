@@ -191,6 +191,18 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "このVRMは改変不可に設定されています。ライセンスを確認してください。",
     (
         "*",
+        'The vertex "{parent_name}" is set as the parent of "{name}",'
+        + " but this is not supported in VRM",
+    ): "「{name}」の親として「{parent_name}」の頂点が設定されていますが、"
+    + "VRMでは未対応です",
+    (
+        "*",
+        '"{lattice}" is set as the {parent_type} for "{name}",'
+        + " but this is not supported in VRM",
+    ): "「{name}」の{parent_type}として「{lattice}」が設定されていますが、"
+    + "VRMでは未対応です",
+    (
+        "*",
         "glTF nodes (mesh, bone) cannot have duplicate names."
         + " {name} is duplicated.",
     ): "glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。"
