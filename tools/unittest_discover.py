@@ -4,9 +4,10 @@
 import argparse
 import contextlib
 import sys
-import unittest
 from pathlib import Path
 from typing import TextIO
+from unittest import TestLoader
+from unittest.runner import TextTestRunner
 
 # This is not necessary if executed from uv
 sys.path.append(str(Path(__file__).parent.parent / "src"))
@@ -27,8 +28,8 @@ def run(stream: TextIO) -> None:
     parser.add_argument("-f", "--failfast", action="store_true")
     args = parser.parse_args(argv)
 
-    test = unittest.TestLoader().discover(start_dir=str(Path(__file__).parent.parent))
-    runner = unittest.runner.TextTestRunner(stream=stream, failfast=args.failfast)
+    test = TestLoader().discover(start_dir=str(Path(__file__).parent.parent))
+    runner = TextTestRunner(stream=stream, failfast=args.failfast)
     result = runner.run(test)
     if not result.wasSuccessful():
         sys.exit(1)
