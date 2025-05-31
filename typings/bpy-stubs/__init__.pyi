@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from . import app as app
-from . import msgbus as msgbus
-from . import ops as ops
-from . import path as path
-from . import props as props
-from . import types as types
-from . import utils as utils
+from bpy import app as app
+from bpy import msgbus as msgbus
+from bpy import ops as ops
+from bpy import path as path
+from bpy import props as props
+from bpy import types as types
+from bpy import utils as utils
 
 context: types.Context
 data: types.BlendData

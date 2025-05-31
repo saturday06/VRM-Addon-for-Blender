@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from . import handlers as handlers
-from . import timers as timers
-from . import translations as translations
+from bpy.app import handlers as handlers
+from bpy.app import timers as timers
+from bpy.app import translations as translations
 
 debug: bool
 debug_depsgraph: bool
