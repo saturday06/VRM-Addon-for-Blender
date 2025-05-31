@@ -114,11 +114,9 @@ def migrate_all_objects(
     show_progress: bool = False,
 ) -> None:
     for obj in context.blend_data.objects:
-        if obj.type == "ARMATURE":
+        if obj.type == "ARMATURE" and isinstance(armature_data := obj.data, Armature):
             if skip_non_migrated_armatures:
-                ext = getattr(obj.data, "vrm_addon_extension", None)
-                if not isinstance(ext, VrmAddonArmatureExtensionPropertyGroup):
-                    continue
+                ext = get_armature_extension(armature_data)
                 if (
                     tuple(ext.addon_version)
                     == VrmAddonArmatureExtensionPropertyGroup.INITIAL_ADDON_VERSION

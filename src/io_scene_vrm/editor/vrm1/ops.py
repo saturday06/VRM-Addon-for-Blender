@@ -1952,25 +1952,19 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         armature = bpy.data.objects.get(self.armature_object_name)
         if not armature or armature.type != "ARMATURE":
             return []
-
-        extension = getattr(armature.data, "vrm_addon_extension", None)
-        if (
-            extension is not None
-            and extension.vrm1 is not None
-            and extension.vrm1.expressions is not None
-        ):
-            expressions = extension.vrm1.expressions
-        else:
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
             return []
+        ext = get_armature_extension(armature_data)
+        expressions = ext.vrm1.expressions
 
         all_expressions: list[tuple[Vrm1ExpressionPropertyGroup, str, str]] = []
-        if expressions is not None:
-            for preset_name in self.preset_name_mapping.values():
-                preset_expr = getattr(expressions.preset, preset_name, None)
-                if preset_expr:
-                    all_expressions.append((preset_expr, "preset", preset_name))
-            for i, custom_expr in enumerate(expressions.custom):
-                all_expressions.append((custom_expr, "custom", str(i)))
+        for preset_name in self.preset_name_mapping.values():
+            preset_expr = getattr(expressions.preset, preset_name, None)
+            if preset_expr:
+                all_expressions.append((preset_expr, "preset", preset_name))
+        for i, custom_expr in enumerate(expressions.custom):
+            all_expressions.append((custom_expr, "custom", str(i)))
 
         return all_expressions
 

@@ -388,11 +388,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
     @staticmethod
     def fixup_human_bones(obj: Object) -> None:
         armature_data = obj.data
-        if (
-            obj.type != "ARMATURE"
-            or not isinstance(armature_data, Armature)
-            or not hasattr(armature_data, "vrm_addon_extension")
-        ):
+        if obj.type != "ARMATURE" or not isinstance(armature_data, Armature):
             return
 
         human_bones = get_armature_vrm1_extension(armature_data).humanoid.human_bones

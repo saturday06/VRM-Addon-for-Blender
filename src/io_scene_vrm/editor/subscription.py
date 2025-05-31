@@ -5,7 +5,7 @@ import bpy
 from bpy.types import Armature, Bone, Object
 
 from ..common.logger import get_logger
-from .extension import VrmAddonArmatureExtensionPropertyGroup
+from .extension import VrmAddonArmatureExtensionPropertyGroup, get_armature_extension
 from .migration import migrate_all_objects
 from .mtoon1 import ops as mtoon1_ops
 from .vrm0.property_group import Vrm0HumanoidPropertyGroup
@@ -98,9 +98,7 @@ def on_change_bpy_object_name() -> None:
     context = bpy.context
 
     for armature in context.blend_data.armatures:
-        ext = getattr(armature, "vrm_addon_extension", None)
-        if not isinstance(ext, VrmAddonArmatureExtensionPropertyGroup):
-            continue
+        ext = get_armature_extension(armature)
         if (
             tuple(ext.addon_version)
             == VrmAddonArmatureExtensionPropertyGroup.INITIAL_ADDON_VERSION
@@ -133,9 +131,7 @@ def on_change_bpy_bone_name() -> None:
     context = bpy.context
 
     for armature in context.blend_data.armatures:
-        ext = getattr(armature, "vrm_addon_extension", None)
-        if not isinstance(ext, VrmAddonArmatureExtensionPropertyGroup):
-            continue
+        ext = get_armature_extension(armature)
         if (
             tuple(ext.addon_version)
             == VrmAddonArmatureExtensionPropertyGroup.INITIAL_ADDON_VERSION

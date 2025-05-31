@@ -669,9 +669,6 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
 
         self.search_one_time_uuid = uuid.uuid4().hex
         for armature in context.blend_data.armatures:
-            if not hasattr(armature, "vrm_addon_extension"):
-                continue
-
             spring_bone = get_armature_spring_bone1_extension(armature)
 
             for collider in spring_bone.colliders:
@@ -1281,9 +1278,8 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
 def get_armature_spring_bone1_extension(
     armature: Armature,
 ) -> SpringBone1SpringBonePropertyGroup:
-    spring_bone1 = getattr(
-        getattr(armature, "vrm_addon_extension", None), "spring_bone1", None
-    )
-    if not isinstance(spring_bone1, SpringBone1SpringBonePropertyGroup):
-        raise TypeError
+    from ..extension import get_armature_extension
+
+    ext = get_armature_extension(armature)
+    spring_bone1: SpringBone1SpringBonePropertyGroup = ext.spring_bone1
     return spring_bone1

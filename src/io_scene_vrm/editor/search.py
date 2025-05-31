@@ -216,8 +216,7 @@ def current_armature_is_vrm0(context: Context) -> bool:
     if not live_armature_datum:
         return False
     if all(
-        hasattr(armature_data, "vrm_addon_extension")
-        and get_armature_extension(armature_data).is_vrm0()
+        get_armature_extension(armature_data).is_vrm0()
         for armature_data in live_armature_datum
     ) and any(obj.type == "ARMATURE" for obj in context.blend_data.objects):
         return True
@@ -239,8 +238,7 @@ def current_armature_is_vrm1(context: Context) -> bool:
     if not live_armature_datum:
         return False
     if all(
-        hasattr(armature_data, "vrm_addon_extension")
-        and get_armature_extension(armature_data).is_vrm1()
+        get_armature_extension(armature_data).is_vrm1()
         for armature_data in live_armature_datum
     ) and any(obj.type == "ARMATURE" for obj in context.blend_data.objects):
         return True
