@@ -106,10 +106,10 @@ def draw_template_list(
         translate=False,
     )
 
-    if length >= 2 and 0 <= active_index < length and can_move(active_index):
-        move_operator_parent = list_side_column
-    else:
-        move_operator_parent = list_side_column.column(align=True)
+    move_operator_parent = list_side_column.column(align=True)
+    # separatorがないと、リスト要素が0個の際になぜかボタンの横幅が変化する
+    move_operator_parent.separator()
+    if length <= 1 or not (0 <= active_index < length) or not can_move(active_index):
         move_operator_parent.enabled = False
 
     collection_ops: list[
@@ -120,7 +120,6 @@ def draw_template_list(
     ] = [remove_operator]
 
     if length > int(compact):
-        move_operator_parent.separator()
         move_up_operator = layout_operator(
             move_operator_parent,
             move_up_operator_type,
