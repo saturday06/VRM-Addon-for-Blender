@@ -163,6 +163,7 @@ end
 
 File.write(output_path, output)
 CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE
+cat "$blender_extensions_release_note_path"
 
 if [ "$release_postfix" = "release" ]; then
   (
