@@ -180,6 +180,7 @@ if [ "$release_postfix" = "release" ]; then
     --retry-delay 60 \
     --retry-all-errors \
     --show-error \
+    --output blender_extensions_upload.log \
     --request POST \
     --header "Authorization:bearer $BLENDER_EXTENSIONS_TOKEN" \
     --form "version_file=@$extension_path" \
