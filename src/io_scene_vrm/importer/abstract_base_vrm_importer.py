@@ -337,7 +337,7 @@ class AbstractBaseVrmImporter(ABC):
                         r"^\d+_",
                         "",
                         image_path_stem[
-                            slice(len(legacy_image_name_prefix), len(image_path_stem))
+                            len(legacy_image_name_prefix) : len(image_path_stem)
                         ],
                     )
             if not image_path_stem:

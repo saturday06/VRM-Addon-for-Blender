@@ -22,7 +22,7 @@ def run(stream: TextIO) -> None:
         in_blender = bool(bpy.app.binary_path)
 
     if in_blender:
-        argv = argv[slice(argv.index("--") + 1, len(argv))] if "--" in argv else []
+        argv = argv[argv.index("--") + 1 :] if "--" in argv else []
 
     parser = argparse.ArgumentParser(prog=Path(__file__).name)
     parser.add_argument("-f", "--failfast", action="store_true")

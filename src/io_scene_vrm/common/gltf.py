@@ -211,7 +211,7 @@ def read_accessor_as_bytes(
         return None
     if not 0 <= byte_offset + byte_length <= len(buffer_bytes):
         return None
-    return buffer_bytes[slice(byte_offset, byte_offset + byte_length)]
+    return buffer_bytes[byte_offset : byte_offset + byte_length]
 
 
 def unpack_component(
