@@ -175,6 +175,9 @@ if [ "$release_postfix" = "release" ]; then
   set +x # Authorization用の変数の内容を隠す
   curl \
     --fail-with-body \
+    --retry 5 \
+    --retry-delay 60 \
+    --retry-all-errors \
     --show-error \
     --request POST \
     --header "Authorization:bearer $BLENDER_EXTENSIONS_TOKEN" \
