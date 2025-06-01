@@ -174,7 +174,7 @@ if [ "$release_postfix" = "release" ]; then
   # https://developer.blender.org/docs/features/extensions/ci_cd/
   set +x # Authorization用の変数の内容を隠す
   curl \
-    --fail \
+    --fail-with-body \
     --show-error \
     --request POST \
     --header "Authorization:bearer $BLENDER_EXTENSIONS_TOKEN" \
