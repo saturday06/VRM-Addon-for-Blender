@@ -140,9 +140,9 @@ diff -ru "$addon_check_unzip_dir/${prefix_name}-${release_postfix}" "$addon_dir"
 
 # Blender Extensions向けのリリースノートを作成
 github_release_body_path=$(mktemp)
-release_note_path=$(mktemp)
+blender_extensions_release_note_path=$(mktemp)
 gh release view "$release_tag_name" --json body --jq .body | tee "$github_release_body_path"
-ruby -- - "$github_release_body_path" "$release_note_path" <<'CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE'
+ruby -- - "$github_release_body_path" "$blender_extensions_release_note_path" <<'CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE'
 require "uri"
 
 input_path, output_path = ARGV
@@ -182,7 +182,7 @@ if [ "$release_postfix" = "release" ]; then
     --request POST \
     --header "Authorization:bearer $BLENDER_EXTENSIONS_TOKEN" \
     --form "version_file=@$extension_path" \
-    --form "release_notes=<$release_note_path" \
+    --form "release_notes=<$blender_extensions_release_note_path" \
     "https://extensions.blender.org/api/v1/extensions/vrm/versions/upload/"
   set -x
 else
