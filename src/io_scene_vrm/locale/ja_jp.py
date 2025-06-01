@@ -192,15 +192,15 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         'The vertex "{parent_name}" is set as the parent of "{name}",'
-        + " but this is not supported in VRM",
+        + " but this is not supported in VRM.",
     ): "「{name}」の親として「{parent_name}」の頂点が設定されていますが、"
-    + "VRMでは未対応です",
+    + "VRMでは未対応です。",
     (
         "*",
         '"{lattice}" is set as the {parent_type} for "{name}",'
-        + " but this is not supported in VRM",
+        + " but this is not supported in VRM.",
     ): "「{name}」の{parent_type}として「{lattice}」が設定されていますが、"
-    + "VRMでは未対応です",
+    + "VRMでは未対応です。",
     (
         "*",
         "glTF nodes (mesh, bone) cannot have duplicate names."
@@ -235,7 +235,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "There is no mesh to export."): "エクスポート対象のメッシュがありません。",
     (
         "*",
-        "VRM exporter needs only one armature not some armatures",
+        "VRM exporter needs only one armature not some armatures.",
     ): "VRM出力の際、選択できるアーマチュアは1つのみです。複数選択されています。",
     (
         "*",

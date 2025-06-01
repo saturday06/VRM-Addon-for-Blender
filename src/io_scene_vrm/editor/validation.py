@@ -248,7 +248,7 @@ class WM_OT_vrm_validator(Operator):
         armature_count = len([True for obj in export_objects if obj.type == "ARMATURE"])
         if armature_count >= 2:  # only one armature
             error_messages.append(
-                pgettext("VRM exporter needs only one armature not some armatures")
+                pgettext("VRM exporter needs only one armature not some armatures.")
             )
         if armature_count == 0:
             info_messages.append(pgettext("No armature exists."))
@@ -258,14 +258,14 @@ class WM_OT_vrm_validator(Operator):
                 skippable_warning_messages.append(
                     pgettext(
                         'The vertex "{parent_name}" is set as the parent of "{name}",'
-                        + " but this is not supported in VRM"
+                        + " but this is not supported in VRM."
                     ).format(name=obj.name, parent_name=parnet_obj.name)
                 )
             if (parnet_obj := obj.parent) and obj.parent_type == "LATTICE":
                 skippable_warning_messages.append(
                     pgettext(
                         '"{lattice}" is set as the {parent_type} for "{name}",'
-                        + " but this is not supported in VRM"
+                        + " but this is not supported in VRM."
                     ).format(
                         name=obj.name,
                         parent_type=pgettext("Parent Type"),
