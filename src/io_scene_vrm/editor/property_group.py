@@ -144,21 +144,18 @@ class FloatPropertyGroup(PropertyGroup):
 
 class MeshObjectPropertyGroup(PropertyGroup):
     def get_mesh_object_name(self) -> str:
-        if (
-            not self.bpy_object
-            or not self.bpy_object.name
-            or self.bpy_object.type != "MESH"
-        ):
+        bpy_object = self.bpy_object
+        if not bpy_object or not bpy_object.name or bpy_object.type != "MESH":
             return ""
-        return str(self.bpy_object.name)
+        return str(bpy_object.name)
 
     def set_mesh_object_name(self, value: object) -> None:
         context = bpy.context
 
         if (
             not isinstance(value, str)
-            or value not in context.blend_data.objects
-            or context.blend_data.objects[value].type != "MESH"
+            or not (obj := context.blend_data.objects.get(value))
+            or obj.type != "MESH"
         ):
             self.bpy_object = None
             return
