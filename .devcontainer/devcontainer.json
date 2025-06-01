@@ -57,6 +57,7 @@
         "cesium.gltf-vscode",
         "charliermarsh.ruff",
         "denoland.vscode-deno",
+        "github.vscode-github-actions",
         "ms-azuretools.vscode-containers",
         "ms-python.python",
         "ms-python.vscode-pylance"
