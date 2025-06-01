@@ -37,10 +37,7 @@ expected_path = (
 )
 actual_path = repository_root_dir / "out.vrm"
 
-bpy.ops.object.select_all(action="SELECT")
-bpy.ops.object.delete()
-while context.blend_data.collections:
-    context.blend_data.collections.remove(context.blend_data.collections[0])
+bpy.ops.wm.read_homefile(use_empty=True)
 
 if ops.import_scene.vrm(filepath=str(input_path)) != {"FINISHED"}:
     message = f"Import failure: {input_path}"

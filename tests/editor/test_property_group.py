@@ -66,13 +66,6 @@ class TestBonePropertyGroup(TestCase):
     def test_bone_filter(self) -> None:
         context = bpy.context
 
-        if context.view_layer.objects.active:
-            bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="SELECT")
-        bpy.ops.object.delete()
-        while context.blend_data.collections:
-            context.blend_data.collections.remove(context.blend_data.collections[0])
-
         ops.icyp.make_basic_armature()
         armatures = [
             obj for obj in context.blend_data.objects if obj.type == "ARMATURE"

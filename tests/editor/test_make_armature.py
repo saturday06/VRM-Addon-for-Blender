@@ -24,8 +24,6 @@ class TestMakeArmature(TestCase):
         bpy.ops.wm.read_homefile(use_empty=True)
 
     def test_make_basic_armature(self) -> None:
-        context = bpy.context
-
         environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
 
         repository_root_dir = Path(__file__).resolve(strict=True).parent.parent.parent
@@ -41,11 +39,6 @@ class TestMakeArmature(TestCase):
         expected_path = vrm_dir / "in" / vrm
         temp_dir_path = vrm_dir / major_minor / "temp"
         temp_dir_path.mkdir(parents=True, exist_ok=True)
-
-        bpy.ops.object.select_all(action="SELECT")
-        bpy.ops.object.delete()
-        while context.blend_data.collections:
-            context.blend_data.collections.remove(context.blend_data.collections[0])
 
         self.assertEqual(ops.icyp.make_basic_armature(), {"FINISHED"})
         self.assertEqual(ops.vrm.model_validate(), {"FINISHED"})
@@ -80,13 +73,6 @@ class TestMakeArmature(TestCase):
 
     def test_min_bone_length(self) -> None:
         context = bpy.context
-
-        if context.view_layer.objects.active:
-            bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="SELECT")
-        bpy.ops.object.delete()
-        while context.blend_data.collections:
-            context.blend_data.collections.remove(context.blend_data.collections[0])
 
         bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
         armature = context.object
