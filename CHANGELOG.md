@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.6.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.5.0...v3.6.0) (2025-06-01)
+
+
+### 🚀 Features
+
+* warn unsupported parenting ([0d8b8bd](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0d8b8bd457747be31efc52091b10fbdc78074c3a))
+
+
+### 🐞 Bug Fixes
+
+* fix empty list's button alignment ([fb6016c](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fb6016c8bca3ef03f8cf13ecbaacd14ec0f4e55d))
+
+
+### 📝 Documentation
+
+* cleanup links ([668e31b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/668e31b2a689cb1d01c1c10e8272510a341714ac))
+
 ## [3.5.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.4.2...v3.5.0) (2025-05-21)
 
 
