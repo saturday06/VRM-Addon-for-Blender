@@ -157,9 +157,12 @@ class MeshObjectPropertyGroup(PropertyGroup):
             or not (obj := context.blend_data.objects.get(value))
             or obj.type != "MESH"
         ):
-            self.bpy_object = None
+            if self.bpy_object:
+                self.bpy_object = None
             return
-        self.bpy_object = context.blend_data.objects[value]
+
+        if self.bpy_object != obj:
+            self.bpy_object = obj
 
     mesh_object_name: StringProperty(  # type: ignore[valid-type]
         get=get_mesh_object_name, set=set_mesh_object_name
