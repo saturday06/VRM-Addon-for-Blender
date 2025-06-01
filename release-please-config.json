@@ -31,7 +31,7 @@
         },
         {
           "type": "generic",
-          "path": "tests/test_common.py"
+          "path": "tests/common/test_version.py"
         },
         {
           "type": "toml",
