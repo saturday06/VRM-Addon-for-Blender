@@ -336,9 +336,7 @@ class AbstractBaseVrmImporter(ABC):
                     image_path_stem = re.sub(
                         r"^\d+_",
                         "",
-                        image_path_stem[
-                            len(legacy_image_name_prefix) : len(image_path_stem)
-                        ],
+                        image_path_stem[len(legacy_image_name_prefix) :],
                     )
             if not image_path_stem:
                 image_path_stem = image.name
