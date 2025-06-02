@@ -2764,11 +2764,12 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             original_shape_keys = original_mesh_convertible.shape_keys
 
         with save_workspace(self.context):
-            main_mesh_data = force_apply_modifiers(self.context, obj, persistent=False)
+            main_mesh_data = force_apply_modifiers(self.context, obj)
             if not main_mesh_data:
                 return scene_node_index
 
-            shape_key_name_to_mesh_data: dict[str, Mesh] = {}
+            shape_key_name_to_mesh_data: Optional[dict[str, Mesh]] = None
+            shape_key_name_to_mesh_data = {}
             if original_shape_keys:
                 # シェイプキーごとにモディファイアを適用したメッシュを作成する。
                 # これは、VRM 0.x用にglTF Nodeの回転やスケールを正規化するが、
@@ -2783,9 +2784,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
                     shape_key.value = 1.0
                     self.context.view_layer.update()
-                    shape_mesh = force_apply_modifiers(
-                        self.context, obj, persistent=False
-                    )
+                    shape_mesh = force_apply_modifiers(self.context, obj)
                     shape_key.value = 0.0
                     self.context.view_layer.update()
 
@@ -2910,6 +2909,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 )
 
                 vertex_indices.extend(vertex_indices_struct.pack(vertex_index))
+
+        for temporary_mesh in [main_mesh_data, *shape_key_name_to_mesh_data.values()]:
+            if temporary_mesh.users > 0:
+                continue
+            self.context.blend_data.meshes.remove(temporary_mesh)
+        main_mesh_data = None
+        shape_key_name_to_mesh_data = None
 
         if not material_index_to_vertex_indices:
             return scene_node_index

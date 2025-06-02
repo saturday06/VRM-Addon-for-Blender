@@ -223,9 +223,7 @@ def assign_dict(
     return True
 
 
-def force_apply_modifiers(
-    context: Context, obj: Object, *, persistent: bool
-) -> Optional[Mesh]:
+def force_apply_modifiers(context: Context, obj: Object) -> Optional[Mesh]:
     if obj.type not in MESH_CONVERTIBLE_OBJECT_TYPES:
         return None
     obj_data = obj.data
@@ -242,9 +240,6 @@ def force_apply_modifiers(
     if not evaluated_temporary_mesh:
         return None
 
-    if not persistent:
-        return evaluated_temporary_mesh.copy()
-
     # ドキュメントにはBlendDataMeshes.new_from_object()を使うべきと書いてあるが、
     # それだとシェイプキーが保持されない。
     if isinstance(obj_data, Mesh):
@@ -256,10 +251,13 @@ def force_apply_modifiers(
             obj_data.name,
         )
         evaluated_mesh = context.blend_data.meshes.new(name=obj_data.name)
+
     bm = bmesh.new()
     try:
         bm.from_mesh(evaluated_temporary_mesh)
         bm.to_mesh(evaluated_mesh)
     finally:
         bm.free()
+
+    evaluated_obj.to_mesh_clear()
     return evaluated_mesh
