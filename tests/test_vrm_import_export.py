@@ -66,6 +66,9 @@ class __TestVrmImportExportBase(TestCase):
         pre_armature_names = [
             armature.name for armature in context.blend_data.armatures
         ]
+        pre_material_names = [
+            material.name for material in context.blend_data.materials
+        ]
 
         self.assertEqual(ops.export_scene.vrm(filepath=str(actual_path)), {"FINISHED"})
 
@@ -74,9 +77,13 @@ class __TestVrmImportExportBase(TestCase):
         post_armature_names = [
             armature.name for armature in context.blend_data.armatures
         ]
+        post_material_names = [
+            material.name for material in context.blend_data.materials
+        ]
         self.assertEqual(pre_object_names, post_object_names)
         self.assertEqual(pre_mesh_names, post_mesh_names)
         self.assertEqual(pre_armature_names, post_armature_names)
+        self.assertEqual(pre_material_names, post_material_names)
 
         actual_bytes = actual_path.read_bytes()
 
