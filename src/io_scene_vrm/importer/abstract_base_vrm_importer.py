@@ -1189,43 +1189,34 @@ class AbstractBaseVrmImporter(ABC):
             if self.is_temp_object_name(obj.name):
                 self.context.scene.collection.objects.unlink(obj)
 
-        while True:
-            temp_object = next(
-                (
-                    o
-                    for o in self.context.blend_data.objects
-                    if o and o.users <= 0 and self.is_temp_object_name(o.name)
-                ),
-                None,
-            )
-            if not temp_object:
-                break
+        while temp_object := next(
+            (
+                obj
+                for obj in self.context.blend_data.objects
+                if obj.users <= 0 and self.is_temp_object_name(obj.name)
+            ),
+            None,
+        ):
             self.context.blend_data.objects.remove(temp_object)
 
-        while True:
-            temp_mesh = next(
-                (
-                    m
-                    for m in self.context.blend_data.meshes
-                    if m and m.users <= 0 and self.is_temp_object_name(m.name)
-                ),
-                None,
-            )
-            if not temp_mesh:
-                break
+        while temp_mesh := next(
+            (
+                mesh
+                for mesh in self.context.blend_data.meshes
+                if mesh.users <= 0 and self.is_temp_object_name(mesh.name)
+            ),
+            None,
+        ):
             self.context.blend_data.meshes.remove(temp_mesh)
 
-        while True:
-            temp_material = next(
-                (
-                    m
-                    for m in self.context.blend_data.materials
-                    if m and m.users <= 0 and self.is_temp_object_name(m.name)
-                ),
-                None,
-            )
-            if not temp_material:
-                break
+        while temp_material := next(
+            (
+                material
+                for material in self.context.blend_data.materials
+                if material.users <= 0 and self.is_temp_object_name(material.name)
+            ),
+            None,
+        ):
             self.context.blend_data.materials.remove(temp_material)
 
         if self.armature is None:
