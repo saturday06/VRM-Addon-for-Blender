@@ -33,6 +33,8 @@ class __TestBlendExportBase(TestCase):
         bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     def assert_blend_export(self, blend_path: Path) -> None:
+        context = bpy.context
+
         environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
         update_failed_vrm = environ.get("BLENDER_VRM_TEST_UPDATE_FAILED_VRM") == "true"
         enable_second_export = not environ.get("BLENDER_VRM_TEST_RESOURCES_PATH")
@@ -63,7 +65,23 @@ class __TestBlendExportBase(TestCase):
         if actual_second_path.exists():
             actual_second_path.unlink()
 
+        pre_object_names = [obj.name for obj in context.blend_data.objects]
+        pre_mesh_names = [mesh.name for mesh in context.blend_data.meshes]
+        pre_armature_names = [
+            armature.name for armature in context.blend_data.armatures
+        ]
+
         self.assertEqual(ops.export_scene.vrm(filepath=str(actual_path)), {"FINISHED"})
+
+        post_object_names = [obj.name for obj in context.blend_data.objects]
+        post_mesh_names = [mesh.name for mesh in context.blend_data.meshes]
+        post_armature_names = [
+            armature.name for armature in context.blend_data.armatures
+        ]
+        self.assertEqual(pre_object_names, post_object_names)
+        self.assertEqual(pre_mesh_names, post_mesh_names)
+        self.assertEqual(pre_armature_names, post_armature_names)
+
         if enable_second_export:
             self.assertEqual(
                 ops.export_scene.vrm(filepath=str(actual_second_path)), {"FINISHED"}
