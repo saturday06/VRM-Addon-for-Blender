@@ -1190,7 +1190,7 @@ class AbstractBaseVrmImporter(ABC):
                 (
                     o
                     for o in self.context.blend_data.objects
-                    if o and o.users <= 1 and self.is_temp_object_name(o.name)
+                    if o and o.users <= 0 and self.is_temp_object_name(o.name)
                 ),
                 None,
             )
@@ -1203,7 +1203,7 @@ class AbstractBaseVrmImporter(ABC):
                 (
                     m
                     for m in self.context.blend_data.meshes
-                    if m and m.users <= 1 and self.is_temp_object_name(m.name)
+                    if m and m.users <= 0 and self.is_temp_object_name(m.name)
                 ),
                 None,
             )
@@ -1216,7 +1216,7 @@ class AbstractBaseVrmImporter(ABC):
                 (
                     m
                     for m in self.context.blend_data.materials
-                    if m and m.users <= 1 and self.is_temp_object_name(m.name)
+                    if m and m.users <= 0 and self.is_temp_object_name(m.name)
                 ),
                 None,
             )
