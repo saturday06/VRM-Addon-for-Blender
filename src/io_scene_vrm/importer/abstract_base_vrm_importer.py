@@ -1185,6 +1185,10 @@ class AbstractBaseVrmImporter(ABC):
         if self.context.object is not None and self.context.object.mode == "EDIT":
             bpy.ops.object.mode_set(mode="OBJECT")
 
+        for obj in list(self.context.scene.collection.objects):
+            if self.is_temp_object_name(obj.name):
+                self.context.scene.collection.objects.unlink(obj)
+
         while True:
             temp_object = next(
                 (
