@@ -67,7 +67,7 @@ class __TestVrmImportExportBase(TestCase):
             armature.name for armature in context.blend_data.armatures
         ]
 
-        ops.export_scene.vrm(filepath=str(actual_path))
+        self.assertEqual(ops.export_scene.vrm(filepath=str(actual_path)), {"FINISHED"})
 
         post_object_names = [obj.name for obj in context.blend_data.objects]
         post_mesh_names = [mesh.name for mesh in context.blend_data.meshes]
