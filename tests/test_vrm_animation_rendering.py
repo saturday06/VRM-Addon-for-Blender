@@ -372,19 +372,24 @@ class __TestVrmAnimationRenderingBase(TestCase):
         )
 
 
-TestVrmAnimationRendering = type(
-    "TestVrmAnimationRendering",
+TestVrmAnimationImport = type(
+    "TestVrmAnimationImport",
     (__TestVrmAnimationRenderingBase,),
     {
-        "test_import_" + path.stem: functools.partialmethod(
+        "test_" + path.stem: functools.partialmethod(
             __TestVrmAnimationRenderingBase.assert_import, path
         )
         for path in sorted(
             (Path(__file__).parent / "resources" / "vrma").glob("*.vrma")
         )
-    }
-    | {
-        "test_lossless_export_" + path.stem: functools.partialmethod(
+    },
+)
+
+TestVrmAnimationLosslessExport = type(
+    "TestVrmAnimationLosslessExport",
+    (__TestVrmAnimationRenderingBase,),
+    {
+        "test_" + path.stem: functools.partialmethod(
             __TestVrmAnimationRenderingBase.assert_lossless_export, path
         )
         for path in sorted(
@@ -392,9 +397,14 @@ TestVrmAnimationRendering = type(
                 "*.blend"
             )
         )
-    }
-    | {
-        "test_lossy_export_" + path.stem: functools.partialmethod(
+    },
+)
+
+TestVrmAnimationLossyExport = type(
+    "TestVrmAnimationLossyExport",
+    (__TestVrmAnimationRenderingBase,),
+    {
+        "test_" + path.stem: functools.partialmethod(
             __TestVrmAnimationRenderingBase.assert_lossy_export, path
         )
         for path in sorted(
