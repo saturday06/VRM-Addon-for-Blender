@@ -318,11 +318,11 @@ def export_vrm(
     Path(filepath).write_bytes(vrm_bytes)
 
     if armature_object_is_temporary:
-        if armature_object.users <= 1:
+        if armature_object.users > 0:
+            logger.warning("Failed to remove temporary armature")
+        else:
             # アクティブオブジェクトから外れた後にremoveする
             context.blend_data.objects.remove(armature_object)
-        else:
-            logger.warning("Failed to remove temporary armature")
 
     return {"FINISHED"}
 

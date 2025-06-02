@@ -300,7 +300,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if restored_export_obj.name in scene_collection_objects:
                 scene_collection_objects.unlink(restored_export_obj)
 
-            if restored_export_obj.users > 1:
+            if restored_export_obj.users > 0:
                 logger.warning(
                     'Failed to remove "%s" with %d users (temp object for "%s")',
                     restored_export_obj.name,
@@ -316,7 +316,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             # 名前をランダム化
             removing_object_data.name = "Export-Data-" + uuid4().hex
 
-            if removing_object_data.users > 1:
+            if removing_object_data.users > 0:
                 logger.warning(
                     'Failed to remove "%s" with %d users',
                     removing_object_data.name,
@@ -3272,7 +3272,13 @@ def force_apply_modifiers_to_object(
             return
 
         original_mesh_data.user_remap(mesh_data)
-        if original_mesh_data.users <= 1:
+        if original_mesh_data.users > 0:
+            logger.warning(
+                'Failed to remove "%s" with %d users while applying modifiers',
+                original_mesh_data.name,
+                original_mesh_data.users,
+            )
+        else:
             context.blend_data.meshes.remove(original_mesh_data)
 
         mesh_data.name = mesh_data_name
