@@ -28,6 +28,10 @@ blend_dir = resources_dir / "blend"
 
 
 class __TestVrmImportExportBase(TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
+
     def assert_vrm_import_export(
         self, in_path: Path, *, extract_textures: bool
     ) -> None:
