@@ -82,6 +82,7 @@ class ID(bpy_struct, __CustomProperty):
     is_evaluated: bool
     users: int
     use_fake_user: bool
+    use_extra_user: bool  # bpy.app.version >= (3, 2)
 
     def animation_data_create(self) -> Optional[AnimData]: ...
     def animation_data_clear(self) -> None: ...

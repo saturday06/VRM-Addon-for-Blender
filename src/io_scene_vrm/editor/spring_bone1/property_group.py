@@ -841,13 +841,23 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
             ]
         ):
             children = list(self.bpy_object.children)
-            for collection in context.blend_data.collections:
+            for collection in [
+                context.scene.collection,
+                *context.blend_data.collections,
+            ]:
                 for child in children:
                     child.parent = None
                     if child.name in collection.objects:
                         collection.objects.unlink(child)
             for child in children:
-                if child.users <= 1:
+                if child.users:
+                    logger.warning(
+                        'Failed to remove "%s" with %d users'
+                        " while changing spring bone collider type",
+                        child.name,
+                        child.users,
+                    )
+                else:
                     context.blend_data.objects.remove(child, do_unlink=True)
             empty_display_type = "SPHERE"
             if extended.shape_type == extended.SHAPE_TYPE_EXTENDED_PLANE.identifier:

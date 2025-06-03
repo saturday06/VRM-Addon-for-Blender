@@ -2911,7 +2911,12 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 vertex_indices.extend(vertex_indices_struct.pack(vertex_index))
 
         for temporary_mesh in [main_mesh_data, *shape_key_name_to_mesh_data.values()]:
-            if temporary_mesh.users > 0:
+            if temporary_mesh.users:
+                logger.warning(
+                    'Failed to remove "%s" with %d users while exporting meshes',
+                    temporary_mesh.name,
+                    temporary_mesh.users,
+                )
                 continue
             self.context.blend_data.meshes.remove(temporary_mesh)
         main_mesh_data = None

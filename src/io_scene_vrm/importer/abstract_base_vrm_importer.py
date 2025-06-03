@@ -1192,7 +1192,7 @@ class AbstractBaseVrmImporter(ABC):
         for obj in list(self.context.blend_data.objects):
             if not self.is_temp_object_name(obj.name):
                 continue
-            if obj.users > 0:
+            if obj.users:
                 logger.warning(
                     'Failed to remove "%s" with %d users while removing temp objects',
                     obj.name,
@@ -1204,7 +1204,7 @@ class AbstractBaseVrmImporter(ABC):
         for mesh in list(self.context.blend_data.meshes):
             if not self.is_temp_object_name(mesh.name):
                 continue
-            if mesh.users > 0:
+            if mesh.users:
                 logger.warning(
                     'Failed to remove "%s" with %d users while removing temp meshes',
                     mesh.name,
@@ -1216,7 +1216,7 @@ class AbstractBaseVrmImporter(ABC):
         for material in list(self.context.blend_data.materials):
             if not self.is_temp_object_name(material.name):
                 continue
-            if material.users > 0:
+            if material.users:
                 logger.warning(
                     'Failed to remove "%s" with %d users while removing temp materials',
                     material.name,

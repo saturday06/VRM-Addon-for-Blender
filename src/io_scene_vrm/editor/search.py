@@ -202,7 +202,7 @@ def object_distance(
 
 
 def armature_exists(context: Context) -> bool:
-    return any(armature.users for armature in context.blend_data.armatures) and any(
+    return any(armature.users > 0 for armature in context.blend_data.armatures) and any(
         obj.type == "ARMATURE" for obj in context.blend_data.objects
     )
 

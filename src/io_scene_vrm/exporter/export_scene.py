@@ -318,7 +318,7 @@ def export_vrm(
     Path(filepath).write_bytes(vrm_bytes)
 
     if armature_object_is_temporary:
-        if armature_object.users > 0:
+        if armature_object.users:
             logger.warning("Failed to remove temporary armature")
         else:
             # アクティブオブジェクトから外れた後にremoveする

@@ -10,6 +10,10 @@ import bpy
 from bpy.types import Context, Object
 from mathutils import Matrix
 
+from .logger import get_logger
+
+logger = get_logger(__name__)
+
 
 @dataclass(frozen=True)
 class SavedWorkspace:
@@ -189,10 +193,27 @@ def wm_append_without_library(
         for library in reversed(list(context.blend_data.libraries)):
             if not blend_path.samefile(library.filepath):
                 continue
-            if (
-                library.users <= 1
-                and library.as_pointer() not in existing_library_pointers
-            ):
+
+            if library.as_pointer() in existing_library_pointers:
+                continue
+
+            if bpy.app.version >= (3, 2):
+                library.use_extra_user = False
+
+            if library.users:
+                if bpy.app.version >= (3, 2):
+                    logger.warning(
+                        'Failed to remove "%s" with %d users'
+                        " while appending blend file:"
+                        ' filepath="%s" filename="%s" directory="%s"',
+                        library.name,
+                        library.users,
+                        append_filepath,
+                        append_filename,
+                        append_directory,
+                    )
+            else:
                 context.blend_data.libraries.remove(library)
+
             break
         return result

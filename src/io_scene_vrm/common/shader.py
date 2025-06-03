@@ -337,8 +337,15 @@ def load_mtoon1_node_group(
         copy_node_tree(context, template_node_group, node_group)
         get_node_tree_extension(node_group).addon_version = get_addon_version()
     finally:
-        if template_node_group and template_node_group.users <= 1:
-            context.blend_data.node_groups.remove(template_node_group)
+        if template_node_group:
+            if template_node_group.users:
+                logger.warning(
+                    'Failed to remove "%s" with %d users while loading mtoon shader',
+                    template_node_group.name,
+                    template_node_group.users,
+                )
+            else:
+                context.blend_data.node_groups.remove(template_node_group)
 
         # プログラムロジック的には既にremoveされている可能性もあるので、取得しなおす
         old_template_node_group = context.blend_data.node_groups.get(
@@ -452,8 +459,15 @@ def load_mtoon1_shader(
         else:
             copy_node_tree(context, template_material_node_tree, material_node_tree)
     finally:
-        if template_material and template_material.users <= 1:
-            context.blend_data.materials.remove(template_material)
+        if template_material:
+            if template_material.users:
+                logger.warning(
+                    'Failed to remove "%s" with %d users while loading mtoon shader',
+                    template_material.name,
+                    template_material.users,
+                )
+            else:
+                context.blend_data.materials.remove(template_material)
 
         # Materialをアペンドする際に同時にアペンドされたNodeTreeを削除
         for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
@@ -461,8 +475,16 @@ def load_mtoon1_shader(
             template_group = context.blend_data.node_groups.get(
                 shader_node_group_template_name
             )
-            if template_group and template_group.users <= 1:
-                context.blend_data.node_groups.remove(template_group)
+            if template_group:
+                if template_group.users:
+                    logger.warning(
+                        'Failed to remove "%s" with %d users'
+                        " while loading mtoon shader",
+                        template_group.name,
+                        template_group.users,
+                    )
+                else:
+                    context.blend_data.node_groups.remove(template_group)
 
         # プログラムロジック的には既にremoveされている可能性もあるので、取得しなおす
         old_material = context.blend_data.materials.get(

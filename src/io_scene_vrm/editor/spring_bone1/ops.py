@@ -111,16 +111,28 @@ class VRM_OT_remove_spring_bone1_collider(Operator):
         if len(spring_bone.colliders) <= self.collider_index:
             return {"CANCELLED"}
 
-        bpy_object = spring_bone.colliders[self.collider_index].bpy_object
+        collider = spring_bone.colliders[self.collider_index]
+        bpy_object = collider.bpy_object
         if bpy_object:
+            collider.bpy_object = None
             remove_objects = [*bpy_object.children, bpy_object]
-            for collection in context.blend_data.collections:
+            for collection in [
+                context.scene.collection,
+                *context.blend_data.collections,
+            ]:
                 for remove_object in remove_objects:
                     remove_object.parent = None
                     if remove_object.name in collection.objects:
                         collection.objects.unlink(remove_object)
             for remove_object in remove_objects:
-                if remove_object.users <= 1:
+                if remove_object.users:
+                    logger.warning(
+                        'Failed to remove "%s" with %d users'
+                        " while removing spring bone collider object",
+                        remove_object.name,
+                        remove_object.users,
+                    )
+                else:
                     context.blend_data.objects.remove(remove_object, do_unlink=True)
 
         collider_uuid = spring_bone.colliders[self.collider_index].uuid
