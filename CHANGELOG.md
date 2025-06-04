@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.6.1...v3.6.2) (2025-06-04)
+
+
+### 🐞 Bug Fixes
+
+* fix reference counter evaluation ([d636f92](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d636f92fcf420e7ad63a40c20f1c743d976eb0db))
+
 ## [3.6.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.6.0...v3.6.1) (2025-06-02)
 
 
