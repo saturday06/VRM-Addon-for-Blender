@@ -559,8 +559,9 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             "_ShadingGradeRate", 0.5
         )
 
-        if material_property.render_queue is not None:
-            gltf.mtoon0_render_queue = material_property.render_queue
+        render_queue = material_property.render_queue
+        if render_queue is not None:
+            gltf.mtoon0_render_queue = render_queue
 
     def assign_transparent_z_write_property(
         self,

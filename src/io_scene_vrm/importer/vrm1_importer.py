@@ -228,7 +228,10 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 )
 
         alpha_mode = gltf_dict.get("alphaMode")
-        if alpha_mode in gltf.alpha_mode_enum.identifiers():
+        if (
+            isinstance(alpha_mode, str)
+            and alpha_mode in gltf.alpha_mode_enum.identifiers()
+        ):
             gltf.alpha_mode = alpha_mode
 
         alpha_cutoff = gltf_dict.get("alphaCutoff")
