@@ -16,7 +16,7 @@ addon_version = version.get_addon_version()
 spec_version = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1
 
 
-def benchmark_vrm_import(context: Context) -> None:
+def benchmark_vrm1_import(context: Context) -> None:
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
     bpy.ops.wm.read_homefile(use_empty=True)
 
@@ -36,4 +36,4 @@ def benchmark_vrm_import(context: Context) -> None:
 
 
 if __name__ == "__main__":
-    benchmark_vrm_import(bpy.context)
+    benchmark_vrm1_import(bpy.context)
