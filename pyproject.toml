@@ -14,7 +14,6 @@ dependencies = [
   "bpy == 3.6.*; platform_system == 'Darwin' and platform_machine == 'arm64'",
   "bpy == 3.6.*; platform_system == 'Linux' and platform_machine == 'x86_64'",
   "bpy == 3.6.*; platform_system == 'Windows' and platform_machine == 'AMD64'",
-  "ty>=0.0.1a7",
 ]
 
 [tool.ty.src]
@@ -29,6 +28,7 @@ dev-dependencies = [
   "ruff ==0.11.13",
   "starry-bpy-typings",
   "tqdm ==4.67.1",
+  "ty ==0.0.1a8",
   "types-pygit2 ==1.15.0.20250319",
   "types-tqdm ==4.67.0.20250516",
 ]
