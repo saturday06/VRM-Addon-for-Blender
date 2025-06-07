@@ -136,6 +136,7 @@ dev = [
     { name = "codespell" },
     { name = "mypy" },
     { name = "pygit2" },
+    { name = "pyrefly" },
     { name = "requests" },
     { name = "ruff" },
     { name = "starry-bpy-typings" },
@@ -158,6 +159,7 @@ dev = [
     { name = "codespell", specifier = "==2.4.1" },
     { name = "mypy", specifier = "==1.16.0" },
     { name = "pygit2", specifier = "==1.18.0" },
+    { name = "pyrefly", specifier = "==0.18.1" },
     { name = "requests", specifier = "==2.32.3" },
     { name = "ruff", specifier = "==0.11.13" },
     { name = "starry-bpy-typings", directory = "typings" },
@@ -254,6 +256,22 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/e8/bb/70e2d5f666a9648241cc5c4b7ac3822fc6823ae59e3f328bb456fba4220b/pygit2-1.18.0-cp310-cp310-win_amd64.whl", hash = "sha256:330f5fb6c167682574b59d865baee6e02c0f435ab9dc16bdc6e520c6da3f19f4", size = 1306422, upload-time = "2025-04-24T18:21:40.644Z" },
     { url = "https://files.pythonhosted.org/packages/08/73/e2186a958fb9dae9baa3b80fa2efe17d65cce8b5dcd00b6c10d305301134/pygit2-1.18.0-pp310-pypy310_pp73-manylinux_2_28_aarch64.whl", hash = "sha256:081841b01cec4db40ccb0b1ad283aed308e5f663b24995af2b8118c83032539a", size = 5254523, upload-time = "2025-04-24T18:39:59.839Z" },
     { url = "https://files.pythonhosted.org/packages/bd/e6/716cb4188339eca5951bfd9febf5bf8363e460e8b01772b479ed15268ef1/pygit2-1.18.0-pp310-pypy310_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:2acda38a46eb9fa3807ba7790d6f94871b14b43483377fb4db957b58f7ce4732", size = 4985392, upload-time = "2025-04-24T18:40:01.723Z" },
+]
+
+[[package]]
+name = "pyrefly"
+version = "0.18.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c1/25/a01a7c1dbad97d9108f0445a75b971170b5f748781864e01e942b572161d/pyrefly-0.18.1.tar.gz", hash = "sha256:e192edc0a4916b56bc89362d569956a93f6fdd2ed60c63cbc14ea86a8d7c072b", size = 1000813, upload-time = "2025-06-07T00:19:35.917Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/21/53/ae13e448e4fab6f6106ab3b690ea36ec6d33a824f10507e5cf63515c4420/pyrefly-0.18.1-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:311cd1855fb991dd79aee550c26be88457ea2e547bc08568a6481dfcb8f35a4a", size = 5619666, upload-time = "2025-06-07T00:19:19.911Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/78/8551414e7300d4937afd74af474435d20b6e42d33962700b2c2e02c5cf85/pyrefly-0.18.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:3abb545a427f105f5c743a0aa8a4bd59a8481df31c1feb6c886336804ed58395", size = 5210517, upload-time = "2025-06-07T00:19:22.192Z" },
+    { url = "https://files.pythonhosted.org/packages/23/52/edf7bda660cf7e6a7a25a75a067d46708ecf61ffa423aeb727476dcc85e8/pyrefly-0.18.1-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:443b4376a6c6f38cdab521e3268e3844e88c3f465eccfd757387725245640e01", size = 5415912, upload-time = "2025-06-07T00:19:24.024Z" },
+    { url = "https://files.pythonhosted.org/packages/1d/4a/1b1c626a4d076c3c63d6f2fe80d6317dee61bf957766353aded6abcfb75e/pyrefly-0.18.1-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:4c5c2a3d458eae1a293ba1b3acae679ae611fd22ec486e095c02f828f2c60f06", size = 6086858, upload-time = "2025-06-07T00:19:25.944Z" },
+    { url = "https://files.pythonhosted.org/packages/0f/35/995862038f8e708cab59f5f45fe830044bd85bcdd2fba330b08934e9bc2f/pyrefly-0.18.1-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fe5801cf26fafe0cfcc99d89a2c7632bf8b1edfa05b142ad1ac18621a042de68", size = 5849624, upload-time = "2025-06-07T00:19:27.988Z" },
+    { url = "https://files.pythonhosted.org/packages/15/cb/181aada3e76fc740a6bc628b597c092042b880285c3a2fd2a465e6dfffa5/pyrefly-0.18.1-py3-none-win32.whl", hash = "sha256:31e663ca9208cfb4021026784936cd21c4350235d51bbc3cbad7c0dc97649421", size = 5243708, upload-time = "2025-06-07T00:19:29.932Z" },
+    { url = "https://files.pythonhosted.org/packages/d8/3e/d1ca8927cdde89e2f202ac7b734d7cbe6970405e4c34a0329dfead0ef5a8/pyrefly-0.18.1-py3-none-win_amd64.whl", hash = "sha256:bb7da09aadd6a53bb210b8eaa4ce86471fb27222e7d2c785bb32d02254f17a66", size = 5668996, upload-time = "2025-06-07T00:19:31.88Z" },
+    { url = "https://files.pythonhosted.org/packages/15/a8/1aff0e1d26cee78fdadf86777a1ad5b305a7dec7b61e27b51d84e255f4d8/pyrefly-0.18.1-py3-none-win_arm64.whl", hash = "sha256:88220a9ff947c9f2c9ab81e06a5e334b0104b9987317e961219d218b367d9192", size = 5321319, upload-time = "2025-06-07T00:19:33.657Z" },
 ]
 
 [[package]]
@@ -373,14 +391,14 @@ wheels = [
 
 [[package]]
 name = "types-requests"
-version = "2.32.0.20250515"
+version = "2.32.0.20250602"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/06/c1/cdc4f9b8cfd9130fbe6276db574f114541f4231fcc6fb29648289e6e3390/types_requests-2.32.0.20250515.tar.gz", hash = "sha256:09c8b63c11318cb2460813871aaa48b671002e59fda67ca909e9883777787581", size = 23012, upload-time = "2025-05-15T03:04:31.817Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/48/b0/5321e6eeba5d59e4347fcf9bf06a5052f085c3aa0f4876230566d6a4dc97/types_requests-2.32.0.20250602.tar.gz", hash = "sha256:ee603aeefec42051195ae62ca7667cd909a2f8128fdf8aad9e8a5219ecfab3bf", size = 23042, upload-time = "2025-06-02T03:15:02.958Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fe/0f/68a997c73a129287785f418c1ebb6004f81e46b53b3caba88c0e03fcd04a/types_requests-2.32.0.20250515-py3-none-any.whl", hash = "sha256:f8eba93b3a892beee32643ff836993f15a785816acca21ea0ffa006f05ef0fb2", size = 20635, upload-time = "2025-05-15T03:04:30.5Z" },
+    { url = "https://files.pythonhosted.org/packages/da/18/9b782980e575c6581d5c0c1c99f4c6f89a1d7173dad072ee96b2756c02e6/types_requests-2.32.0.20250602-py3-none-any.whl", hash = "sha256:f4f335f87779b47ce10b8b8597b409130299f6971ead27fead4fe7ba6ea3e726", size = 20638, upload-time = "2025-06-02T03:15:01.959Z" },
 ]
 
 [[package]]
@@ -406,11 +424,11 @@ wheels = [
 
 [[package]]
 name = "typing-extensions"
-version = "4.13.2"
+version = "4.14.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f6/37/23083fcd6e35492953e8d2aaaa68b860eb422b34627b13f2ce3eb6106061/typing_extensions-4.13.2.tar.gz", hash = "sha256:e6c81219bd689f51865d9e372991c540bda33a0379d5573cddb9a3a23f7caaef", size = 106967, upload-time = "2025-04-10T14:19:05.416Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d1/bc/51647cd02527e87d05cb083ccc402f93e441606ff1f01739a62c8ad09ba5/typing_extensions-4.14.0.tar.gz", hash = "sha256:8676b788e32f02ab42d9e7c61324048ae4c6d844a399eebace3d4979d75ceef4", size = 107423, upload-time = "2025-06-02T14:52:11.399Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8b/54/b1ae86c0973cc6f0210b53d508ca3641fb6d0c56823f288d108bc7ab3cc8/typing_extensions-4.13.2-py3-none-any.whl", hash = "sha256:a439e7c04b49fec3e5d3e2beaa21755cadbbdc391694e28ccdd36ca4a1408f8c", size = 45806, upload-time = "2025-04-10T14:19:03.967Z" },
+    { url = "https://files.pythonhosted.org/packages/69/e0/552843e0d356fbb5256d21449fa957fa4eff3bbc135a74a691ee70c7c5da/typing_extensions-4.14.0-py3-none-any.whl", hash = "sha256:a1514509136dd0b477638fc68d6a91497af5076466ad0fa6c338e44e359944af", size = 43839, upload-time = "2025-06-02T14:52:10.026Z" },
 ]
 
 [[package]]
