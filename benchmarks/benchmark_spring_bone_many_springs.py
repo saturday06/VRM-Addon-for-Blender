@@ -111,8 +111,8 @@ def benchmark_spring_bone_many_springs(context: Context) -> None:
         generate_many_springs(context)
         context.view_layer.update()
         bpy.ops.wm.save_as_mainfile(filepath=str(path))
-    else:
-        bpy.ops.wm.open_mainfile(filepath=str(path))
+        bpy.ops.wm.read_homefile(use_empty=True)
+    bpy.ops.wm.open_mainfile(filepath=str(path))
 
     armature = context.blend_data.objects.get("Armature")
     if (

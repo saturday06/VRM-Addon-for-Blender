@@ -185,12 +185,12 @@ def create_fast_path_performance_test_scene(
             + ".blend"
         )
     )
-    if cached_blend_path.exists():
-        bpy.ops.wm.open_mainfile(filepath=str(cached_blend_path))
-    else:
+    if not cached_blend_path.exists():
         bpy.ops.wm.read_homefile(use_empty=True)
         scene_watcher.create_fast_path_performance_test_objects(context)
         bpy.ops.wm.save_as_mainfile(filepath=str(cached_blend_path))
+        bpy.ops.wm.read_homefile(use_empty=True)
+    bpy.ops.wm.open_mainfile(filepath=str(cached_blend_path))
 
 
 def trigger_scene_watcher(scene_watcher_type: type[SceneWatcher]) -> None:
