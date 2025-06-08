@@ -166,6 +166,13 @@ reportMissingModuleSource = false
 reportCallInDefaultInitializer = true
 reportShadowedImports = true
 
+[tool.pyrefly]
+search-path = [
+  "typings",
+  "src",
+]
+python-version = "3.9.0"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
