@@ -633,6 +633,7 @@ class AddonPreferences(bpy_struct):
     layout: UILayout  # TODO: No documentation
 
 class Addon(bpy_struct):
+    module: str
     @property
     def preferences(self) -> AddonPreferences: ...
 
