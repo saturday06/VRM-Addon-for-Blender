@@ -555,12 +555,12 @@ class WM_OT_vrm_validator(Operator):
         vertex_error_count = 0
 
         for mesh in [obj for obj in export_objects if obj.type == "MESH"]:
-            if not isinstance(mesh.data, Mesh):
+            if not isinstance(mesh_data := mesh.data, Mesh):
                 continue
 
             mesh_vertex_group_names = [g.name for g in mesh.vertex_groups]
 
-            for v in mesh.data.vertices:
+            for v in mesh_data.vertices:
                 if not v.groups and mesh.parent_bone == "":
                     if vertex_error_count > 5:
                         continue
