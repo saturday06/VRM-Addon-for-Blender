@@ -35,6 +35,11 @@
         },
         {
           "type": "toml",
+          "path": "pyproject.toml",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "toml",
           "path": "src/io_scene_vrm/blender_manifest.toml",
           "jsonpath": "$.version"
         }
