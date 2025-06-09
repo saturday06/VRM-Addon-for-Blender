@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import math
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, TypeVar
 
 import bpy
 from bpy.props import (
@@ -470,49 +470,51 @@ class VrmAddonNodeTreeExtensionPropertyGroup(PropertyGroup):
         addon_version: Sequence[int]  # type: ignore[no-redef]
 
 
+__Extension = TypeVar("__Extension")
+
+
+def get_vrm_addon_extension_or_raise(
+    obj: object, expected_type: type[__Extension]
+) -> __Extension:
+    extension = getattr(obj, "vrm_addon_extension", None)
+    if isinstance(extension, expected_type):
+        return extension
+
+    message = f"{extension} is not a {expected_type} but {type(extension)}"
+    raise TypeError(message)
+
+
 def get_material_extension(
     material: Material,
 ) -> VrmAddonMaterialExtensionPropertyGroup:
-    extension = getattr(material, "vrm_addon_extension", None)
-    if not isinstance(extension, VrmAddonMaterialExtensionPropertyGroup):
-        raise TypeError
-    return extension
+    return get_vrm_addon_extension_or_raise(
+        material, VrmAddonMaterialExtensionPropertyGroup
+    )
 
 
 def get_armature_extension(
     armature: Armature,
 ) -> VrmAddonArmatureExtensionPropertyGroup:
-    extension = getattr(armature, "vrm_addon_extension", None)
-    if not isinstance(extension, VrmAddonArmatureExtensionPropertyGroup):
-        raise TypeError
-    return extension
+    return get_vrm_addon_extension_or_raise(
+        armature, VrmAddonArmatureExtensionPropertyGroup
+    )
 
 
 def get_node_tree_extension(
     node_tree: NodeTree,
 ) -> VrmAddonNodeTreeExtensionPropertyGroup:
-    extension = getattr(node_tree, "vrm_addon_extension", None)
-    if not isinstance(extension, VrmAddonNodeTreeExtensionPropertyGroup):
-        raise TypeError
-    return extension
+    return get_vrm_addon_extension_or_raise(
+        node_tree, VrmAddonNodeTreeExtensionPropertyGroup
+    )
 
 
 def get_scene_extension(scene: Scene) -> VrmAddonSceneExtensionPropertyGroup:
-    extension = getattr(scene, "vrm_addon_extension", None)
-    if not isinstance(extension, VrmAddonSceneExtensionPropertyGroup):
-        raise TypeError
-    return extension
+    return get_vrm_addon_extension_or_raise(scene, VrmAddonSceneExtensionPropertyGroup)
 
 
 def get_bone_extension(bone: Bone) -> VrmAddonBoneExtensionPropertyGroup:
-    extension = getattr(bone, "vrm_addon_extension", None)
-    if not isinstance(extension, VrmAddonBoneExtensionPropertyGroup):
-        raise TypeError
-    return extension
+    return get_vrm_addon_extension_or_raise(bone, VrmAddonBoneExtensionPropertyGroup)
 
 
 def get_object_extension(obj: Object) -> VrmAddonObjectExtensionPropertyGroup:
-    extension = getattr(obj, "vrm_addon_extension", None)
-    if not isinstance(extension, VrmAddonObjectExtensionPropertyGroup):
-        raise TypeError
-    return extension
+    return get_vrm_addon_extension_or_raise(obj, VrmAddonObjectExtensionPropertyGroup)
