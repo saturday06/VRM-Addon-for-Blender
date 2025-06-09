@@ -5,13 +5,14 @@ import shutil
 import sys
 from os import environ
 from pathlib import Path
-from unittest import TestCase
 
 import bpy
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.logger import get_logger
 from io_scene_vrm.importer.vrm_diff import vrm_diff
+
+from .addon_test_case import AddonTestCase
 
 logger = get_logger(__name__)
 
@@ -27,11 +28,7 @@ vrm_dir = resources_dir / "vrm"
 blend_dir = resources_dir / "blend"
 
 
-class __TestVrmImportExportBase(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-
+class __TestVrmImportExportBase(AddonTestCase):
     def assert_vrm_import_export(
         self, in_path: Path, *, extract_textures: bool
     ) -> None:
@@ -50,7 +47,6 @@ class __TestVrmImportExportBase(TestCase):
             logger.warning("Skipped: %s", in_path)
             return
 
-        bpy.ops.wm.read_homefile(use_empty=True)
         ops.import_scene.vrm(
             filepath=str(in_path),
             extract_textures_into_folder=extract_textures,

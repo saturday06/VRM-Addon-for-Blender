@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from unittest import TestCase, main
+from unittest import main
 
 import bpy
 from bpy.types import Armature
@@ -7,15 +7,10 @@ from bpy.types import Armature
 from io_scene_vrm.common import ops
 from io_scene_vrm.editor.extension import get_armature_extension
 
+from ..addon_test_case import AddonTestCase
 
-class TestValidation(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
-    def setUp(self) -> None:
-        bpy.ops.wm.read_homefile(use_empty=True)
-
+class TestValidation(AddonTestCase):
     def test_bone_order_validation(self) -> None:
         context = bpy.context
 

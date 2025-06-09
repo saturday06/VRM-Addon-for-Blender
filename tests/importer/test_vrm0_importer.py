@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from unittest import TestCase, main
+from unittest import main
 
 import bpy
 from bpy.types import Armature
@@ -9,15 +9,10 @@ from io_scene_vrm.common import ops
 from io_scene_vrm.common.debug import assert_vector3_equals
 from io_scene_vrm.importer.vrm0_importer import setup_bones
 
+from ..addon_test_case import AddonTestCase
 
-class TestVrm0Importer(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
-    def setUp(self) -> None:
-        bpy.ops.wm.read_homefile(use_empty=True)
-
+class TestVrm0Importer(AddonTestCase):
     def test_eye_bone_world_minus_y(self) -> None:
         context = bpy.context
 

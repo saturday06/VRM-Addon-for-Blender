@@ -16,3 +16,9 @@ def addon_enable(
     *,
     module: str = "",
 ) -> set[str]: ...
+def addon_disable(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    module: str = "",
+) -> set[str]: ...

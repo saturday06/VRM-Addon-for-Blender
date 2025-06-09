@@ -4,12 +4,14 @@ import functools
 import sys
 from os import environ
 from pathlib import Path
-from unittest import TestCase, main
+from unittest import main
 
 import bpy
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.logger import get_logger
+
+from ..addon_test_case import AddonTestCase
 
 logger = get_logger(__name__)
 
@@ -25,16 +27,8 @@ vrm_dir = resources_dir / "vrm"
 blend_dir = resources_dir / "blend"
 
 
-class TestImportNonObjectMode(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-
-    def setUp(self) -> None:
-        bpy.ops.wm.read_homefile(use_empty=True)
-
+class TestImportNonObjectMode(AddonTestCase):
     def test_import_non_object_mode(self) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
         self.assertEqual(ops.icyp.make_basic_armature(), {"FINISHED"})
         self.assertEqual(bpy.ops.object.posemode_toggle(), {"FINISHED"})
         self.assertEqual(
@@ -51,14 +45,7 @@ class TestImportNonObjectMode(TestCase):
         )
 
 
-class __TestImportSceneBrokenVrmBase(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-
-    def setUp(self) -> None:
-        bpy.ops.wm.read_homefile(use_empty=True)
-
+class __TestImportSceneBrokenVrmBase(AddonTestCase):
     def assert_broken_vrm(self, vrm_path: Path) -> None:
         environ["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
 

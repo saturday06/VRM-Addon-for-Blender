@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from unittest import TestCase, main
+from unittest import main
 
 import bpy
 from bpy.types import Armature
@@ -9,15 +9,10 @@ from io_scene_vrm.common.vrm0.human_bone import HumanBoneName
 from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
 
+from ...addon_test_case import AddonTestCase
 
-class TestVrm0HumanoidPropertyGroup(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
-    def setUp(self) -> None:
-        bpy.ops.wm.read_homefile(use_empty=True)
-
+class TestVrm0HumanoidPropertyGroup(AddonTestCase):
     def test_fixup_human_bones(self) -> None:
         context = bpy.context
 

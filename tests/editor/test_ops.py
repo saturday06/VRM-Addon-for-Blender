@@ -3,7 +3,7 @@ import json
 import sys
 import tempfile
 from pathlib import Path
-from unittest import TestCase, main
+from unittest import main
 
 import bpy
 from bpy.types import Armature
@@ -16,17 +16,12 @@ from io_scene_vrm.editor.extension import (
     get_armature_extension,
 )
 
+from ..addon_test_case import AddonTestCase
+
 addon_version = version.get_addon_version()
 
 
-class TestSimplifyVroidBones(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-
-    def setUp(self) -> None:
-        bpy.ops.wm.read_homefile(use_empty=True)
-
+class TestSimplifyVroidBones(AddonTestCase):
     def test_bones_rename(self) -> None:
         context = bpy.context
 
@@ -53,14 +48,7 @@ class TestSimplifyVroidBones(TestCase):
         self.assertEqual(upper_arm_r, armature.data.bones["UpperArm_R"])
 
 
-class TestSaveHumanBoneMappings(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-
-    def setUp(self) -> None:
-        bpy.ops.wm.read_homefile(use_empty=True)
-
+class TestSaveHumanBoneMappings(AddonTestCase):
     def test(self) -> None:
         ops.icyp.make_basic_armature()
 
@@ -137,14 +125,7 @@ class TestSaveHumanBoneMappings(TestCase):
         raise AssertionError(message)
 
 
-class TestLoadHumanBoneMappings(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-
-    def setUp(self) -> None:
-        bpy.ops.wm.read_homefile(use_empty=True)
-
+class TestLoadHumanBoneMappings(AddonTestCase):
     def test(self) -> None:
         context = bpy.context
         ops.icyp.make_basic_armature()
@@ -173,15 +154,8 @@ class TestLoadHumanBoneMappings(TestCase):
         )
 
 
-class TestMakeEstimatedHumanoidTPose(TestCase):
+class TestMakeEstimatedHumanoidTPose(AddonTestCase):
     spec_version = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-
-    def setUp(self) -> None:
-        bpy.ops.wm.read_homefile(use_empty=True)
 
     def test_right_upper_arm_a(self) -> None:
         context = bpy.context

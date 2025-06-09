@@ -1,19 +1,12 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from unittest import TestCase
 
-import bpy
 
 from io_scene_vrm.importer import license_validation
 
+from ..addon_test_case import AddonTestCase
 
-class TestLicenseValidation(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
-    def setUp(self) -> None:
-        bpy.ops.wm.read_homefile(use_empty=True)
-
+class TestLicenseValidation(AddonTestCase):
     def test_validate_license_url(self) -> None:
         for url, confirmation_required in [
             ("", False),

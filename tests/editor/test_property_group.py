@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from collections.abc import Mapping
 from typing import Optional
-from unittest import TestCase, main
+from unittest import main
 
 import bpy
 from bpy.types import Armature, EditBone, Object
@@ -14,17 +14,12 @@ from io_scene_vrm.common.vrm0.human_bone import (
 )
 from io_scene_vrm.editor.property_group import BonePropertyGroup
 
+from ..addon_test_case import AddonTestCase
+
 Tree = dict[str, "Tree"]
 
 
-class TestBonePropertyGroup(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-
-    def setUp(self) -> None:
-        bpy.ops.wm.read_homefile(use_empty=True)
-
+class TestBonePropertyGroup(AddonTestCase):
     def assert_bone_candidates(
         self,
         armature: Object,

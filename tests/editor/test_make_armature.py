@@ -4,7 +4,7 @@ import sys
 from os import environ
 from pathlib import Path
 from sys import float_info
-from unittest import TestCase, main
+from unittest import main
 
 import bpy
 from bpy.types import Armature
@@ -14,15 +14,10 @@ from io_scene_vrm.common import ops
 from io_scene_vrm.editor.make_armature import MIN_BONE_LENGTH
 from io_scene_vrm.importer.vrm_diff import vrm_diff
 
+from ..addon_test_case import AddonTestCase
 
-class TestMakeArmature(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
-    def setUp(self) -> None:
-        bpy.ops.wm.read_homefile(use_empty=True)
-
+class TestMakeArmature(AddonTestCase):
     def test_make_basic_armature(self) -> None:
         environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
 

@@ -8,7 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Final, Optional
-from unittest import SkipTest, TestCase
+from unittest import SkipTest
 
 import bpy
 from bpy.types import Armature, Camera, Context
@@ -19,8 +19,10 @@ from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.search import current_armature
 from io_scene_vrm.editor.vrm1.property_group import Vrm1LookAtPropertyGroup
 
+from .addon_test_case import AddonTestCase
 
-class __TestVrmAnimationRenderingBase(TestCase):
+
+class __TestVrmAnimationRenderingBase(AddonTestCase):
     OBJECT_SUFFIX: Final[str] = "-TestVrmAnimationRenderingObject"
     OBJECT_DATA_SUFFIX: Final[str] = "-TestVrmAnimationRenderingObjectData"
 
@@ -58,7 +60,6 @@ class __TestVrmAnimationRenderingBase(TestCase):
 
     @classmethod
     def init_scene(cls, context: Context) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
         scene = context.scene
 
         for obj in scene.collection.objects:

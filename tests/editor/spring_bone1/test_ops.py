@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import math
 from collections.abc import Sequence
-from unittest import TestCase, main
+from unittest import main
 
 import bpy
 from bpy.types import Armature
@@ -12,6 +12,8 @@ from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     get_armature_extension,
 )
+
+from ...addon_test_case import AddonTestCase
 
 addon_version = version.get_addon_version()
 spec_version = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1
@@ -36,14 +38,7 @@ def assert_vector3_equals(
         raise AssertionError(message)
 
 
-class TestSpringBone1(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-
-    def setUp(self) -> None:
-        bpy.ops.wm.read_homefile(use_empty=True)
-
+class TestSpringBone1(AddonTestCase):
     def test_one_joint_extending_in_y_direction(self) -> None:
         context = bpy.context
 

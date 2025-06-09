@@ -3,7 +3,6 @@ import functools
 import platform
 from os import getenv
 from timeit import timeit
-from unittest import TestCase
 
 import bpy
 from bpy.types import Context
@@ -15,13 +14,10 @@ from io_scene_vrm.common.scene_watcher import (
     create_fast_path_performance_test_scene,
 )
 
+from ..addon_test_case import AddonTestCase
 
-class __TestSceneWatcherBase(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        super().setUpClass()
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
+class __TestSceneWatcherBase(AddonTestCase):
     @staticmethod
     def run_and_reset_scene_watcher(
         scene_watcher: SceneWatcher, context: Context

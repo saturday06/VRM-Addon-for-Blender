@@ -9,15 +9,7 @@ from io_scene_vrm.external import io_scene_gltf2_support
 
 
 class TestIoSceneGltf2Support(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-
-    def setUp(self) -> None:
-        bpy.ops.wm.read_homefile(use_empty=True)
-
     def test_image_to_image_bytes(self) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
         context = bpy.context
 
         tga_path = Path(__file__).parent.parent / "resources" / "blend" / "tga_test.tga"

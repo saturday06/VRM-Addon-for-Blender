@@ -5,13 +5,14 @@ import shutil
 import sys
 from os import environ
 from pathlib import Path
-from unittest import TestCase
 
 import bpy
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.logger import get_logger
 from io_scene_vrm.importer.vrm_diff import vrm_diff
+
+from ..addon_test_case import AddonTestCase
 
 logger = get_logger(__name__)
 
@@ -27,11 +28,7 @@ vrm_dir = resources_dir / "vrm"
 blend_dir = resources_dir / "blend"
 
 
-class __TestBlendExportBase(TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-
+class __TestBlendExportBase(AddonTestCase):
     def assert_blend_export(self, blend_path: Path) -> None:
         context = bpy.context
 
