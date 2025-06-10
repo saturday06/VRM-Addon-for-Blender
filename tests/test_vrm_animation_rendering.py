@@ -275,12 +275,10 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
             {"FINISHED"},
         )
 
-        # 本来は戻り値チェックが必要
-        # self.assertEqual(
-        #     ops.import_scene.vrma(filepath=str(input_vrma_path)),
-        #     {"FINISHED"},
-        # )
-        ops.import_scene.vrma(filepath=str(input_vrma_path))
+        self.assertEqual(
+            ops.import_scene.vrma(filepath=str(input_vrma_path)),
+            {"FINISHED"},
+        )
 
         debug_blend_path = (
             Path(__file__).parent
