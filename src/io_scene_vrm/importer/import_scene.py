@@ -400,13 +400,13 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
 
     def execute(self, context: Context) -> set[str]:
         try:
-            if WM_OT_vrma_import_prerequisite.detect_errors(
+            errors = WM_OT_vrma_import_prerequisite.detect_errors(
                 context, self.armature_object_name
-            ):
-                return ops.wm.vrma_import_prerequisite(
-                    "INVOKE_DEFAULT",
-                    armature_object_name=self.armature_object_name,
-                )
+            )
+            if errors:
+                for error in errors:
+                    logger.error(error)
+                return {"CANCELLED"}
 
             filepath = Path(self.filepath)
             if not filepath.is_file():
