@@ -27,8 +27,6 @@ jobs:
           - 3.3
           - 3.6
           - 4.2
-    env:
-      BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
       - uses: actions/checkout@v4
       - name: Cache archive
@@ -82,8 +80,6 @@ jobs:
         include:
           - blender_major_minor_version: 4.2
             blender_arch: x64
-    env:
-      BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
       - uses: actions/checkout@v4
       - name: Cache archive
@@ -123,8 +119,6 @@ jobs:
       matrix:
         blender_major_minor_version:
           - 4.2
-    env:
-      BLENDER_VRM_EXCLUDE_GUI_TEST: true
     steps:
       - uses: actions/checkout@v4
       - name: Cache archive
