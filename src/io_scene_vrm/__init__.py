@@ -33,22 +33,6 @@ bl_info = {
 MINIMUM_UNSUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (4, 5)
 
 
-def cleanse_modules() -> None:
-    """Search for your plugin modules in blender python sys.modules and remove them.
-
-    To support reload properly, try to access a package var, if it's there,
-    reload everything
-    """
-    import sys
-
-    all_modules = sys.modules
-    all_modules = dict(sorted(all_modules.items(), key=lambda x: x[0]))  # sort them
-
-    for k in all_modules:
-        if k == __name__ or k.startswith(__name__ + "."):
-            del sys.modules[k]
-
-
 def register() -> None:
     if "bl_info" in globals():
         raise_error_if_too_old_blender()
@@ -68,15 +52,9 @@ def register() -> None:
 
 def unregister() -> None:
     # Lazy import to minimize initialization before blender version checking.
-    import os
-
     from . import registration
 
     registration.unregister()
-
-    # https://github.com/saturday06/VRM-Addon-for-Blender/issues/506#issuecomment-2183766778
-    if os.getenv("BLENDER_VRM_DEVELOPMENT_MODE") == "yes":
-        cleanse_modules()
 
 
 def raise_error_if_too_old_blender() -> None:

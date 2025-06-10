@@ -38,3 +38,23 @@ def assert_vector3_equals(
     if abs(expected[2] - actual[2]) > threshold:
         message = f"{message}: {tuple(expected)} is different from {tuple(actual)}"
         raise AssertionError(message)
+
+
+def cleanse_modules() -> None:
+    """Search for your plugin modules in blender python sys.modules and remove them.
+
+    To support reload properly, try to access a package var, if it's there,
+    reload everything.
+
+    This function may cause errors that are difficult to investigate. Please use with
+    caution. See also:
+    https://github.com/saturday06/VRM-Addon-for-Blender/issues/506#issuecomment-2183766778
+    """
+    import sys
+
+    all_modules = sys.modules
+    all_modules = dict(sorted(all_modules.items(), key=lambda x: x[0]))  # sort them
+
+    for k in all_modules:
+        if k == __name__ or k.startswith(__name__ + "."):
+            del sys.modules[k]
