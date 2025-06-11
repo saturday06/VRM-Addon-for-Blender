@@ -5,6 +5,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
+from tempfile import mkdtemp
 from typing import Final, Optional, Protocol
 
 import bpy
@@ -172,18 +173,20 @@ def create_fast_path_performance_test_scene(
         .rstrip(b"=")
         .decode()
     )
-    cached_blend_path = (
-        Path(__file__).parent.parent.parent.parent
-        / "tests"
-        / "temp"
-        / (
-            type(scene_watcher).__name__
-            + "-"
-            + "_".join(map(str, bpy.app.version))
-            + "-"
-            + class_source_hash
-            + ".blend"
-        )
+    repository_root_path = Path(__file__).parent.parent.parent.parent
+    if (repository_root_path / ".git").exists() and (
+        repository_root_path / "pyproject.toml"
+    ).exists():
+        temp_path = repository_root_path / "tests" / "temp"
+    else:
+        temp_path = Path(mkdtemp(prefix="vrm-format-"))
+    cached_blend_path = temp_path / (
+        type(scene_watcher).__name__
+        + "-"
+        + "_".join(map(str, bpy.app.version))
+        + "-"
+        + class_source_hash
+        + ".blend"
     )
     if not cached_blend_path.exists():
         bpy.ops.wm.read_homefile(use_empty=True)
