@@ -14,9 +14,9 @@
   // https://github.com/denoland/deno/issues/20609#issuecomment-2762970307
   "nodeModulesDir": "auto",
   "imports": {
-    "@types/node": "npm:@types/node@22.15.30",
+    "@types/node": "npm:@types/node@24.0.0",
     "gltf-validator": "npm:gltf-validator@2.0.0-dev.3.10",
-    "pyright": "npm:pyright@1.1.401",
+    "pyright": "npm:pyright@1.1.402",
     "vitepress": "npm:vitepress@1.6.3",
     "vue": "npm:vue@3.5.16"
   }
