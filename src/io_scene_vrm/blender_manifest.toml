@@ -12,7 +12,7 @@ website = "https://vrm-addon-for-blender.info"
 tags = ["Import-Export", "Animation", "Modeling", "Material", "Physics"]
 
 blender_version_min = "4.2.0"
-blender_version_max = "4.5.0"
+blender_version_max = "5.0.0"
 
 license = ["SPDX:MIT", "SPDX:GPL-3.0-or-later"]
 
