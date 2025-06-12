@@ -49,16 +49,26 @@ class __TestImportSceneBrokenVrmBase(AddonTestCase):
     def assert_broken_vrm(self, vrm_path: Path) -> None:
         environ["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
 
+        success = True
         if (
             vrm_path.name == "draco.vrm"
             and sys.platform == "linux"
             and not bpy.app.binary_path
         ):
             # Linuxかつmoduleとしてビルドされている場合、dracoのライブラリが読めなくて
-            # エラーになるので該当するテストは実施しない
+            # エラーになる
+            success = False
+        elif bpy.app.version >= (4, 5) and vrm_path.name == "empty.vrm":
+            success = False
+
+        if success:
+            self.assertEqual(ops.import_scene.vrm(filepath=str(vrm_path)), {"FINISHED"})
             return
 
-        self.assertEqual(ops.import_scene.vrm(filepath=str(vrm_path)), {"FINISHED"})
+        self.assertRaises(
+            RuntimeError,
+            lambda: ops.import_scene.vrm(filepath=str(vrm_path)),
+        )
 
 
 TestImportSceneBrokenVrm = type(
