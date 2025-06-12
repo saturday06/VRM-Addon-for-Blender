@@ -173,7 +173,9 @@ def create_fast_path_performance_test_scene(
         .rstrip(b"=")
         .decode()
     )
-    repository_root_path = Path(__file__).parent.parent.parent.parent
+    repository_root_path = (
+        Path(__file__).resolve(strict=True).parent.parent.parent.parent
+    )
     if (repository_root_path / ".git").exists() and (
         repository_root_path / "pyproject.toml"
     ).exists():
