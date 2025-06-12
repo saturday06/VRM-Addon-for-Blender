@@ -27,6 +27,7 @@ jobs:
           - 3.3
           - 3.6
           - 4.2
+          - 4.5
     steps:
       - uses: actions/checkout@v4
       - name: Cache archive
@@ -41,6 +42,9 @@ jobs:
           BLENDER_MAJOR_MINOR_VERSION: ${{ matrix.blender_major_minor_version }}
         run: |
           $url = "${env:BLENDER_ARCHIVE_BASE_URL}/Blender${env:BLENDER_MAJOR_MINOR_VERSION}/blender-${env:BLENDER_MAJOR_MINOR_VERSION}.0-windows-x64.zip"
+          if ($env:BLENDER_MAJOR_MINOR_VERSION -eq "4.5") {
+            $url = "https://cdn.builder.blender.org/download/daily/blender-4.5.0-beta+v45.f87c821b9659-windows.amd64-release.zip"
+          }
           $retry = 10
           for (; $true; $retry--) {
             try {
@@ -75,6 +79,7 @@ jobs:
           - 3.3
           - 3.6
           - 4.2
+          - 4.5
         blender_arch:
           - arm64
         include:
@@ -95,6 +100,9 @@ jobs:
           BLENDER_ARCH: ${{ matrix.blender_arch }}
         run: |
           url="${BLENDER_ARCHIVE_BASE_URL}/Blender${BLENDER_MAJOR_MINOR_VERSION}/blender-${BLENDER_MAJOR_MINOR_VERSION}.0-macos-${BLENDER_ARCH}.dmg"
+          if [ "$BLENDER_MAJOR_MINOR_VERSION" = "4.5" ]; then
+            url="https://cdn.builder.blender.org/download/daily/blender-4.5.0-beta+v45.f87c821b9659-darwin.arm64-release.dmg"
+          fi
           curl -fsLS --retry 5 --retry-all-errors "$url" -o blender.dmg
       - name: Install dependencies
         run: |
@@ -119,6 +127,7 @@ jobs:
       matrix:
         blender_major_minor_version:
           - 4.2
+          - 4.5
     steps:
       - uses: actions/checkout@v4
       - name: Cache archive
@@ -133,6 +142,9 @@ jobs:
           BLENDER_MAJOR_MINOR_VERSION: ${{ matrix.blender_major_minor_version }}
         run: |
           url="${BLENDER_ARCHIVE_BASE_URL}/Blender${BLENDER_MAJOR_MINOR_VERSION}/blender-${BLENDER_MAJOR_MINOR_VERSION}.0-linux-x64.tar.xz"
+          if [ "$BLENDER_MAJOR_MINOR_VERSION" = "4.5" ]; then
+            url="https://cdn.builder.blender.org/download/daily/blender-4.5.0-beta+v45.f87c821b9659-linux.x86_64-release.tar.xz"
+          fi
           curl -fsLS --retry 5 --retry-all-errors "$url" -o blender.tar.xz
       - name: Install dependencies
         run: sudo ./tools/install_ubuntu_packages.sh
