@@ -29,7 +29,7 @@ dev-dependencies = [
   "ruff ==0.11.13",
   "starry-bpy-typings",
   "tqdm ==4.67.1",
-  "ty ==0.0.1a9",
+  "ty ==0.0.1a10",
   "types-pygit2 ==1.15.0.20250319",
   "types-tqdm ==4.67.0.20250516",
 ]
