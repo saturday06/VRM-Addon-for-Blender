@@ -263,6 +263,16 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 emissive_texture_dict,
             )
 
+        emissive_strength_dict = extensions_dict.get("KHR_materials_emissive_strength")
+        if isinstance(emissive_strength_dict, dict):
+            emissive_strength = convert.float_or_none(
+                emissive_strength_dict.get("emissiveStrength")
+            )
+            if emissive_strength is not None:
+                gltf.extensions.khr_materials_emissive_strength.emissive_strength = (
+                    emissive_strength
+                )
+
         shade_color_factor = shader.rgb_or_none(mtoon_dict.get("shadeColorFactor"))
         if shade_color_factor:
             mtoon.shade_color_factor = shade_color_factor
