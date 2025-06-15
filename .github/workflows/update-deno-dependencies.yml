@@ -51,7 +51,7 @@ jobs:
 
           git config --global user.name "$GIT_USER_NAME"
           git config --global user.email "$GIT_USER_EMAIL"
-          git commit -m 'chore(deps): update deno dependencies'
+          git commit -m 'chore(deps): update deno dependencies [BOT]'
 
           git fetch --prune origin "$PR_BRANCH" || true
           if git diff --exit-code "origin/$PR_BRANCH" --; then
