@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.7.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.7.0...v3.7.1) (2025-06-15)
+
+
+### 🐞 Bug Fixes
+
+* fixed a bug that KHR_materials_emissive_strength was not read when importing VRM1 ([5549c58](https://github.com/saturday06/VRM-Addon-for-Blender/commit/5549c5877735b93a2ef5c19aebe97b6507c35d76))
+* MatCap display now matches UniVRM ([19b944b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/19b944bb595d9af9c301906b049456258ee975d4))
+
 ## [3.7.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.6.2...v3.7.0) (2025-06-13)
 
 
