@@ -5,19 +5,8 @@ set -eu -o pipefail
 
 cd "$(dirname "$0")/.."
 
-create_venv() (
-  uv venv --prompt venv
-)
-
-create=yes
-
-if grep -E "^home = /home/developer/.local/share/uv/python/" .venv/pyvenv.cfg >/dev/null &&
-  readlink -e .venv/bin/python >/dev/null \
-  ; then
-  create=no
-fi
-
-if ([ "$create" = "yes" ] && ! create_venv) || ! uv run --isolated -- python -c ""; then
+venv_prompt=venv
+if ! uv venv --allow-existing --prompt "$venv_prompt"; then
   if ! sudo rm -fr .venv; then
     # Docker for Windowsバックエンド切り替え時などに消せないファイルが残ることがある
     echo >&2 # ログ表示成形のため改行出力
@@ -26,7 +15,7 @@ if ([ "$create" = "yes" ] && ! create_venv) || ! uv run --isolated -- python -c 
     echo >&2 "####################################################"
     exit 1
   fi
-  create_venv
+  uv venv --prompt "$venv_prompt"
 fi
 
 # 環境によってはパッケージのインストールは5%くらいの頻度で失敗するのでリトライする
