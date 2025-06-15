@@ -15,10 +15,6 @@ on:
     branches: [README]
     types: [completed]
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
-
 jobs:
   deploy:
     environment:
