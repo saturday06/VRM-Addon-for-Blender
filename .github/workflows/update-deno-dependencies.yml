@@ -60,7 +60,7 @@ jobs:
 
           # GH_TOKENが無効な場合はここでエラー終了
           if ! gh repo view --json name --jq .name; then
-            echo "GH_TOKEN is empty or expired"
+            echo "GH_TOKEN is invalid or expired"
             exit 1
           fi
 
@@ -83,3 +83,4 @@ jobs:
           #   Contents      | Read and write | PR自動マージ用
           #   Pull requests | Read and write | PR作成用
           GH_TOKEN: ${{ secrets.UPDATE_DENO_DEPENDENCIES_GH_TOKEN }}
+        if: ${{ env.GH_TOKEN }}
