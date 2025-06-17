@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from collections.abc import Sequence
-from typing import Callable, Optional, TypeVar, Union
+from typing import Callable, TypeVar
 
 from bpy.types import AddonPreferences, Context, Operator, PropertyGroup
 from mathutils import Vector
@@ -8,7 +8,7 @@ from mathutils import Vector
 __PointerPropertyTarget = TypeVar("__PointerPropertyTarget", bound=type)
 __CollectionPropertyElement = TypeVar("__CollectionPropertyElement", bound=type)
 __CallbackSelf = TypeVar(
-    "__CallbackSelf", bound=Union[AddonPreferences, Operator, PropertyGroup]
+    "__CallbackSelf", bound=AddonPreferences | Operator | PropertyGroup
 )
 
 def BoolProperty(
@@ -20,9 +20,9 @@ def BoolProperty(
     override: set[str] = ...,
     tags: set[str] = ...,  # TODO: 型がわからない
     subtype: str = "NONE",
-    update: Optional[Callable[[__CallbackSelf, Context], None]] = None,
-    get: Optional[Callable[[__CallbackSelf], bool]] = None,
-    set: Optional[Callable[[__CallbackSelf, bool], None]] = None,
+    update: Callable[[__CallbackSelf, Context], None] | None = None,
+    get: Callable[[__CallbackSelf], bool] | None = None,
+    set: Callable[[__CallbackSelf, bool], None] | None = None,
 ) -> bool: ...
 def CollectionProperty(
     *,
@@ -35,21 +35,17 @@ def CollectionProperty(
 ) -> __CollectionPropertyElement: ...
 def EnumProperty(
     *,
-    items: Union[
-        Sequence[tuple[str, str, str, int]],
-        Sequence[tuple[str, str, str, str, int]],
-    ],
+    items: Sequence[tuple[str, str, str, int]]
+    | Sequence[tuple[str, str, str, str, int]],
     name: str = "",
     description: str = "",
-    default: Optional[
-        Union[str, int]
-    ] = None,  # setも受け取れるらしいが仕様が読み取れなかった
+    default: str | int | None = None,  # setも受け取れるらしいが仕様が読み取れなかった
     options: set[str] = ...,
     override: set[str] = ...,
     tags: set[str] = ...,
-    update: Optional[Callable[[__CallbackSelf, Context], None]] = None,
-    get: Optional[Callable[[__CallbackSelf], int]] = None,
-    set: Optional[Callable[[__CallbackSelf, int], None]] = None,
+    update: Callable[[__CallbackSelf, Context], None] | None = None,
+    get: Callable[[__CallbackSelf], int] | None = None,
+    set: Callable[[__CallbackSelf, int], None] | None = None,
 ) -> str: ...
 def FloatProperty(
     *,
@@ -67,9 +63,9 @@ def FloatProperty(
     tags: set[str] = ...,
     subtype: str = "NONE",
     unit: str = "NONE",
-    update: Optional[Callable[[__CallbackSelf, Context], None]] = None,
-    get: Optional[Callable[[__CallbackSelf], float]] = None,
-    set: Optional[Callable[[__CallbackSelf, float], None]] = None,
+    update: Callable[[__CallbackSelf, Context], None] | None = None,
+    get: Callable[[__CallbackSelf], float] | None = None,
+    set: Callable[[__CallbackSelf, float], None] | None = None,
 ) -> float: ...
 def FloatVectorProperty(
     *,
@@ -88,9 +84,9 @@ def FloatVectorProperty(
     subtype: str = "NONE",
     unit: str = "NONE",
     size: int = 3,
-    update: Optional[Callable[[__CallbackSelf, Context], None]] = None,
-    get: Optional[Callable[[__CallbackSelf], tuple[float, ...]]] = None,
-    set: Optional[Callable[[__CallbackSelf, Sequence[float]], None]] = None,
+    update: Callable[[__CallbackSelf, Context], None] | None = None,
+    get: Callable[[__CallbackSelf], tuple[float, ...]] | None = None,
+    set: Callable[[__CallbackSelf, Sequence[float]], None] | None = None,
 ) -> Vector: ...  # TODO: たしかVectorが返ったけど自信がない
 def IntProperty(
     *,
@@ -106,9 +102,9 @@ def IntProperty(
     override: set[str] = ...,
     tags: set[str] = ...,
     subtype: str = "NONE",
-    update: Optional[Callable[[__CallbackSelf, Context], None]] = None,
-    get: Optional[Callable[[__CallbackSelf], int]] = None,
-    set: Optional[Callable[[__CallbackSelf, int], None]] = None,
+    update: Callable[[__CallbackSelf, Context], None] | None = None,
+    get: Callable[[__CallbackSelf], int] | None = None,
+    set: Callable[[__CallbackSelf, int], None] | None = None,
 ) -> int: ...
 def IntVectorProperty(
     *,
@@ -126,9 +122,9 @@ def IntVectorProperty(
     tags: set[str] = ...,
     subtype: str = "NONE",
     size: int = ...,
-    update: Optional[Callable[[__CallbackSelf, Context], None]] = None,
-    get: Optional[Callable[[__CallbackSelf], tuple[int, ...]]] = None,
-    set: Optional[Callable[[__CallbackSelf, Sequence[int]], None]] = None,
+    update: Callable[[__CallbackSelf, Context], None] | None = None,
+    get: Callable[[__CallbackSelf], tuple[int, ...]] | None = None,
+    set: Callable[[__CallbackSelf, Sequence[int]], None] | None = None,
 ) -> Vector: ...  # TODO: たしかVectorが返ったけど自信がない
 def PointerProperty(
     *,
@@ -138,8 +134,8 @@ def PointerProperty(
     options: set[str] = ...,
     override: set[str] = ...,
     tags: set[str] = ...,  # TODO: 型がわからない
-    poll: Optional[Callable[[__CallbackSelf, object], bool]] = None,
-    update: Optional[Callable[[__CallbackSelf, Context], None]] = None,
+    poll: Callable[[__CallbackSelf, object], bool] | None = None,
+    update: Callable[[__CallbackSelf, Context], None] | None = None,
 ) -> __PointerPropertyTarget: ...
 def StringProperty(
     *,
@@ -151,7 +147,7 @@ def StringProperty(
     override: set[str] = ...,
     tags: set[str] = ...,  # TODO: 型がわからない
     subtype: str = "NONE",
-    update: Optional[Callable[[__CallbackSelf, Context], None]] = None,
-    get: Optional[Callable[[__CallbackSelf], str]] = None,
-    set: Optional[Callable[[__CallbackSelf, str], None]] = None,
+    update: Callable[[__CallbackSelf, Context], None] | None = None,
+    get: Callable[[__CallbackSelf], str] | None = None,
+    set: Callable[[__CallbackSelf, str], None] | None = None,
 ) -> str: ...

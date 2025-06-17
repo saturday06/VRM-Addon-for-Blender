@@ -9,14 +9,14 @@ from collections.abc import (
     Sequence,
     ValuesView,
 )
-from typing import Callable, Generic, Optional, TypeVar, Union, overload
+from typing import Callable, Generic, TypeVar, overload
 
 from mathutils import Color, Euler, Matrix, Quaternion, Vector
 from typing_extensions import TypeAlias
 
 class bpy_struct:
     def as_pointer(self) -> int: ...
-    id_data: Optional[ID]
+    id_data: ID | None
     def path_from_id(self, property: str = "") -> str: ...
     def keyframe_insert(
         self,
@@ -26,7 +26,7 @@ class bpy_struct:
         group: str = "",
         options: set[str] = ...,
     ) -> bool: ...
-    def driver_add(self, path: str, index: int = -1) -> Union[FCurve, list[FCurve]]: ...
+    def driver_add(self, path: str, index: int = -1) -> FCurve | list[FCurve]: ...
     def driver_remove(self, path: str, index: int = -1) -> bool: ...
 
     bl_rna: BlenderRNA  # ドキュメントには存在しない。TODO: read only
@@ -37,15 +37,15 @@ class bpy_prop_collection(Generic[__BpyPropCollectionElement]):
     def get(
         self,
         key: str,
-        default: Optional[__BpyPropCollectionElement] = None,
-    ) -> Optional[__BpyPropCollectionElement]: ...
+        default: __BpyPropCollectionElement | None = None,
+    ) -> __BpyPropCollectionElement | None: ...
     def __contains__(self, key: str) -> bool: ...
     def __iter__(self) -> Iterator[__BpyPropCollectionElement]: ...
     @overload
-    def __getitem__(self, key: Union[int, str]) -> __BpyPropCollectionElement: ...
+    def __getitem__(self, key: int | str) -> __BpyPropCollectionElement: ...
     @overload
     def __getitem__(
-        self, index: slice[Optional[int], Optional[int], Optional[int]]
+        self, index: slice[int | None, int | None, int | None]
     ) -> tuple[__BpyPropCollectionElement, ...]: ...
     def __len__(self) -> int: ...
     def keys(self) -> KeysView[str]: ...
@@ -61,7 +61,7 @@ class bpy_prop_array(Generic[__BpyPropArrayElement]):
     def __getitem__(self, index: int) -> __BpyPropArrayElement: ...
     @overload
     def __getitem__(
-        self, index: slice[Optional[int], Optional[int], Optional[int]]
+        self, index: slice[int | None, int | None, int | None]
     ) -> tuple[__BpyPropArrayElement, ...]: ...
     def __setitem__(self, index: int, value: __BpyPropArrayElement) -> None: ...
 
@@ -84,7 +84,7 @@ class ID(bpy_struct, __CustomProperty):
     use_fake_user: bool
     use_extra_user: bool  # bpy.app.version >= (3, 2)
 
-    def animation_data_create(self) -> Optional[AnimData]: ...
+    def animation_data_create(self) -> AnimData | None: ...
     def animation_data_clear(self) -> None: ...
     def user_remap(self, new_id: ID) -> None: ...
     def update_tag(self, refresh: set[str] = ...) -> None: ...
@@ -133,7 +133,7 @@ class CollectionProperty(Property):
     @overload
     def __getitem__(
         self,
-        index: slice[Optional[int], Optional[int], Optional[int]],
+        index: slice[int | None, int | None, int | None],
     ) -> tuple[Property, ...]: ...  # TODO: undocumented
     def remove(self, index: int) -> None: ...  # TODO: undocumented
     def values(self) -> ValuesView[Property]: ...  # TODO: undocumented
@@ -224,8 +224,8 @@ class Image(ID):
     bindcode: int
     source: str
     @property
-    def packed_file(self) -> Optional[PackedFile]: ...  # Optionalっぽい
-    def filepath_from_user(self, image_user: Optional[ImageUser] = None) -> str: ...
+    def packed_file(self) -> PackedFile | None: ...  # Optionalっぽい
+    def filepath_from_user(self, image_user: ImageUser | None = None) -> str: ...
     def update(self) -> None: ...
     def gl_load(self, frame: int = 0) -> None: ...
     def unpack(self, method: str = "USE_LOCAL") -> None: ...
@@ -245,7 +245,7 @@ class FCurve(bpy_struct):
     color_mode: str
     data_path: str
     @property
-    def driver(self) -> Optional[Driver]: ...  # TODO: 本当にOptionalか?
+    def driver(self) -> Driver | None: ...  # TODO: 本当にOptionalか?
     extrapolation: str
     is_valid: bool
     mute: bool
@@ -302,7 +302,7 @@ class Action(ID):
 class Texture(ID): ...
 
 class LayerObjects(bpy_prop_collection["Object"]):
-    active: Optional[Object]
+    active: Object | None
 
 class Space(bpy_struct):
     @property
@@ -380,7 +380,7 @@ class ViewLayer(bpy_struct):
 
 class Bone(bpy_struct, __CustomProperty):
     name: str
-    parent: Optional[Bone]
+    parent: Bone | None
     use_inherit_rotation: bool
     select: bool
     tail_radius: float
@@ -438,7 +438,7 @@ class EditBone(bpy_struct):
     @property
     def vector(self) -> Vector: ...
 
-    parent: Optional[EditBone]
+    parent: EditBone | None
     length: float
     roll: float
     use_local_location: bool
@@ -468,10 +468,10 @@ class PoseBone(bpy_struct, __CustomProperty):
     bbone_curveinz: float
     bbone_curveoutx: float
     bbone_curveoutz: float
-    custom_shape: Optional[Object]
+    custom_shape: Object | None
 
     @property
-    def parent(self) -> Optional[PoseBone]: ...
+    def parent(self) -> PoseBone | None: ...
     @property
     def constraints(self) -> PoseBoneConstraints: ...
     @property
@@ -498,7 +498,7 @@ class PoseBone(bpy_struct, __CustomProperty):
     def scale(self, value: Iterable[float]) -> None: ...
 
 class ArmatureBones(bpy_prop_collection[Bone]):
-    active: Optional[Bone]  # TODO: Noneになるか?
+    active: Bone | None  # TODO: Noneになるか?
 
 class OperatorProperties(bpy_struct): ...
 
@@ -648,7 +648,7 @@ class MeshUVLoopLayer(bpy_struct):
     active_render: bool
 
 class UVLoopLayers(bpy_prop_collection[MeshUVLoopLayer]):
-    active: Optional[MeshUVLoopLayer]
+    active: MeshUVLoopLayer | None
     def new(self, name: str = "UVMap", do_init: bool = True) -> MeshUVLoopLayer: ...
 
 class MeshLoopTriangle(bpy_struct):
@@ -737,7 +737,7 @@ class Mesh(ID):
     @property
     def vertices(self) -> MeshVertices: ...
     @property
-    def shape_keys(self) -> Optional[Key]: ...  # Optional
+    def shape_keys(self) -> Key | None: ...  # Optional
     @property
     def polygons(self) -> MeshPolygons: ...
     @property
@@ -778,7 +778,7 @@ class NlaTracks(bpy_prop_collection[NlaTrack]):  # TODO: 型が不明瞭
     ...
 
 class AnimData(bpy_struct):
-    action: Optional[Action]
+    action: Action | None
     action_blend_type: str
     action_extrapolation: str
     action_influence: float
@@ -801,7 +801,7 @@ class Armature(ID):
     pose_position: str
 
     @property
-    def animation_data(self) -> Optional[AnimData]: ...  # TODO: 本当にOptionalか確認
+    def animation_data(self) -> AnimData | None: ...  # TODO: 本当にOptionalか確認
     @property
     def bones(self) -> ArmatureBones: ...
     @property
@@ -1001,7 +1001,7 @@ class Node(bpy_struct):
     location: tuple[float, float]
     mute: bool
     name: str
-    parent: Optional[Node]
+    parent: Node | None
     select: bool
     show_options: bool
     show_preview: bool
@@ -1132,7 +1132,7 @@ class ShaderNodeGamma(ShaderNode): ...
 
 class ShaderNodeGroup(ShaderNode):
     # https://github.com/KhronosGroup/glTF-Blender-IO/issues/1797
-    node_tree: Optional[NodeTree]
+    node_tree: NodeTree | None
 
 class ShaderNodeHairInfo(ShaderNode): ...
 class ShaderNodeHoldout(ShaderNode): ...
@@ -1237,10 +1237,10 @@ class ShaderNodeTexChecker(ShaderNode): ...
 
 class ShaderNodeTexCoord(ShaderNode):
     from_instancer: bool
-    object: Optional[Object]
+    object: Object | None
 
 class ShaderNodeTexEnvironment(ShaderNode):
-    image: Optional[Image]
+    image: Image | None
     interpolation: str
     projection: str
 
@@ -1254,7 +1254,7 @@ class ShaderNodeTexIES(ShaderNode):
 
 class ShaderNodeTexImage(ShaderNode):
     extension: str
-    image: Optional[Image]
+    image: Image | None
     interpolation: str
     projection: str
     projection_blend: float
@@ -1273,7 +1273,7 @@ class ShaderNodeTexNoise(ShaderNode):
 
 class ShaderNodeTexPointDensity(ShaderNode):
     interpolation: str
-    object: Optional[Object]
+    object: Object | None
     particle_color_source: str
     point_source: str
     radius: float
@@ -1379,9 +1379,7 @@ class Pose(bpy_struct):
 class MaterialSlot(bpy_struct):
     @property
     def name(self) -> str: ...
-    material: Optional[
-        Material
-    ]  # マテリアル一覧の+を押したまま何も選ばないとNoneになる
+    material: Material | None  # マテリアル一覧の+を押したまま何も選ばないとNoneになる
 
 class ObjectModifiers(bpy_prop_collection["Modifier"]):
     def new(self, name: str, type: str) -> Modifier: ...
@@ -1400,7 +1398,7 @@ class VertexGroups(bpy_prop_collection[VertexGroup]):
 class Object(ID):
     name: str
     type: str
-    data: Optional[ID]  # ドキュメントにはIDと書いてあるがtypeがemptyの場合はNoneになる
+    data: ID | None  # ドキュメントにはIDと書いてあるがtypeがemptyの場合はNoneになる
     @property
     def mode(self) -> str: ...
     @property
@@ -1408,7 +1406,7 @@ class Object(ID):
     def select_set(
         self,
         state: bool,
-        view_layer: Optional[ViewLayer] = None,
+        view_layer: ViewLayer | None = None,
     ) -> None: ...
 
     hide_render: bool
@@ -1418,11 +1416,11 @@ class Object(ID):
     def material_slots(self) -> bpy_prop_collection[MaterialSlot]: ...
     @property
     def users_collection(self) -> bpy_prop_collection[Collection]: ...
-    parent: Optional[Object]
+    parent: Object | None
     def visible_get(
         self,
-        view_layer: Optional[ViewLayer] = None,
-        viewport: Optional[SpaceView3D] = None,
+        view_layer: ViewLayer | None = None,
+        viewport: SpaceView3D | None = None,
     ) -> bool: ...
     @property
     def constraints(self) -> ObjectConstraints: ...
@@ -1465,17 +1463,17 @@ class Object(ID):
     def to_mesh(
         self,
         preserve_all_data_layers: bool = False,
-        depsgraph: Optional[Depsgraph] = None,
+        depsgraph: Depsgraph | None = None,
     ) -> Mesh: ...
     def to_mesh_clear(self) -> None: ...
     @property
     def modifiers(self) -> ObjectModifiers: ...
     @property
-    def animation_data(self) -> Optional[AnimData]: ...
+    def animation_data(self) -> AnimData | None: ...
     def shape_key_add(self, name: str = "Key", from_mix: bool = True) -> ShapeKey: ...
-    def select_get(self, view_layer: Optional[ViewLayer] = None) -> bool: ...
-    def hide_get(self, view_layer: Optional[ViewLayer] = None) -> bool: ...
-    def hide_set(self, state: bool, view_layer: Optional[ViewLayer] = None) -> bool: ...
+    def select_get(self, view_layer: ViewLayer | None = None) -> bool: ...
+    def hide_get(self, view_layer: ViewLayer | None = None) -> bool: ...
+    def hide_set(self, state: bool, view_layer: ViewLayer | None = None) -> bool: ...
     @property
     def children(self) -> Sequence[Object]: ...  # ドキュメントでは型が不明瞭
     def copy(self) -> Object: ...  # override ID.copy
@@ -1651,7 +1649,7 @@ class NodeTreeInterface(bpy_struct):
         description: str = "",
         in_out: str = ...,
         socket_type: str = "DEFAULT",
-        parent: Optional[NodeTreeInterfacePanel] = None,
+        parent: NodeTreeInterfacePanel | None = None,
     ) -> NodeTreeInterfaceSocket: ...
     def clear(self) -> None: ...
     def remove(
@@ -1668,7 +1666,7 @@ class NodeTree(ID):
     @property
     def type(self) -> str: ...
     @property
-    def animation_data(self) -> Optional[AnimData]: ...
+    def animation_data(self) -> AnimData | None: ...
 
     # bpy.app.version < (4, 0)
     @property
@@ -1683,12 +1681,12 @@ class NodeTree(ID):
 
 class Material(ID):
     @property
-    def animation_data(self) -> Optional[AnimData]: ...
+    def animation_data(self) -> AnimData | None: ...
 
     blend_method: str
 
     @property
-    def node_tree(self) -> Optional[NodeTree]: ...
+    def node_tree(self) -> NodeTree | None: ...
 
     use_nodes: bool
     alpha_threshold: float
@@ -1699,7 +1697,7 @@ class Material(ID):
     diffuse_color: bpy_prop_array[float]
     roughness: float
 
-class IDMaterials(bpy_prop_collection[Optional[Material]]):
+class IDMaterials(bpy_prop_collection[Material | None]):
     def append(self, value: Material) -> None: ...  # TODO: ドキュメントには存在しない
 
 class Curve(ID):
@@ -1724,10 +1722,10 @@ class Modifier(bpy_struct):
     def __setitem__(self, key: str, value: object) -> None: ...
 
 class ArmatureModifier(Modifier):
-    object: Optional[Object]
+    object: Object | None
 
 class NodesModifier(Modifier):
-    node_group: Optional[NodeTree]  # Noneになるかは要検証
+    node_group: NodeTree | None  # Noneになるかは要検証
 
 class OperatorFileListElement(PropertyGroup): ...
 
@@ -1743,12 +1741,12 @@ class ObjectConstraints(bpy_prop_collection[Constraint]):
 class DampedTrackConstraint(Constraint):
     head_tail: float
     subtarget: str
-    target: Optional[Object]
+    target: Object | None
     track_axis: str
 
 class CopyRotationConstraint(Constraint):
     euler_order: str
-    target: Optional[Object]
+    target: Object | None
     mix_mode: str
     use_x: bool
     use_y: bool
@@ -1818,8 +1816,8 @@ class Scene(ID):
     @property
     def cycles(self) -> CyclesRenderSettings: ...
 
-    camera: Optional[Object]
-    world: Optional[World]
+    camera: Object | None
+    world: World | None
 
 class AreaSpaces(bpy_prop_collection[Space]): ...
 
@@ -1876,7 +1874,7 @@ class WindowManager(ID):
     def event_timer_add(
         self,
         time_step: float,
-        window: Optional[Window] = None,
+        window: Window | None = None,
     ) -> Timer: ...
 
 class SpaceFileBrowser(Space):
@@ -1933,13 +1931,13 @@ class Context(bpy_struct):
     def window_manager(self) -> WindowManager: ...
 
     # Screen Context
-    object: Optional[Object]
-    active_object: Optional[Object]
+    object: Object | None
+    active_object: Object | None
     selectable_objects: Sequence[Object]
     selected_objects: Sequence[Object]
 
     # Buttons Context or Node Context
-    material: Optional[Material]
+    material: Material | None
 
 class CollectionObjects(bpy_prop_collection[Object]):
     def link(self, obj: Object) -> None: ...
@@ -1961,10 +1959,10 @@ class BlendDataCollections(bpy_prop_collection[Collection]):
         do_id_user: bool = True,
         do_ui_user: bool = True,
     ) -> None: ...
-    active: Optional[Object]
+    active: Object | None
 
 class BlendDataObjects(bpy_prop_collection[Object]):
-    def new(self, name: str, object_data: Optional[ID]) -> Object: ...
+    def new(self, name: str, object_data: ID | None) -> Object: ...
     def remove(
         self,
         element: Object,
@@ -1976,9 +1974,9 @@ class BlendDataObjects(bpy_prop_collection[Object]):
 class Library(ID):
     filepath: str
     @property
-    def packed_file(self) -> Optional[PackedFile]: ...
+    def packed_file(self) -> PackedFile | None: ...
     @property
-    def library(self) -> Optional[Library]: ...
+    def library(self) -> Library | None: ...
     @property
     def version(self) -> tuple[int, int, int]: ...
     @property
@@ -2021,7 +2019,7 @@ class BlendDataMeshes(bpy_prop_collection[Mesh]):
         self,
         obj: Object,
         preserve_all_data_layers: bool = False,
-        depsgraph: Optional[Depsgraph] = None,
+        depsgraph: Depsgraph | None = None,
     ) -> Mesh: ...
     def remove(
         self,
@@ -2233,7 +2231,7 @@ class Operator(bpy_struct):
     def layout(self) -> UILayout: ...
 
 # この型はUILayout.prop_searchで使うけど、ドキュメントが曖昧なためいまいちな定義になる
-AnyType: TypeAlias = Union[ID, BlendData, Operator, PropertyGroup]
+AnyType: TypeAlias = ID | BlendData | Operator | PropertyGroup
 
 class Panel(bpy_struct):
     bl_idname: str

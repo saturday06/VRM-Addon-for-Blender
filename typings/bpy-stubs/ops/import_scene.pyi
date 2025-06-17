@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from typing import Optional
 
 from bpy.types import OperatorFileListElement, bpy_prop_collection
 
@@ -9,7 +8,7 @@ def gltf(
     *,
     filepath: str = "",
     filter_glob: str = "*.glb;*.gltf",
-    files: Optional[bpy_prop_collection[OperatorFileListElement]] = None,
+    files: bpy_prop_collection[OperatorFileListElement] | None = None,
     loglevel: int = 0,
     import_pack_images: bool = True,
     merge_vertices: bool = False,

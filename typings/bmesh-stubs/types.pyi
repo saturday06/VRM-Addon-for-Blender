@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from collections.abc import Iterator, Sequence
-from typing import Generic, Optional, TypeVar
+from typing import Generic, TypeVar
 
 from bpy.types import Mesh
 from mathutils import Vector
@@ -45,7 +45,7 @@ class BMVertSeq:
     def new(
         self,
         co: Sequence[float] = (0.0, 0.0, 0.0),
-        example: Optional[BMVert] = None,
+        example: BMVert | None = None,
     ) -> BMVert: ...
     @property
     def layers(self) -> BMLayerAccessVert: ...
@@ -63,7 +63,7 @@ class BMEdgeSeq:
             BMVert,
             BMVert,
         ],  # 実際にはSequenceだと思うが、2要素チェックをしたいのでtuple
-        example: Optional[BMEdge] = None,
+        example: BMEdge | None = None,
     ) -> BMEdge: ...
     def ensure_lookup_table(self) -> None: ...
 
@@ -91,7 +91,7 @@ class BMFaceSeq:
     def new(
         self,
         verts: Sequence[BMVert],
-        example: Optional[BMFace] = None,
+        example: BMFace | None = None,
     ) -> BMFace: ...
     def __iter__(self) -> Iterator[BMFace]: ...
     def ensure_lookup_table(self) -> None: ...

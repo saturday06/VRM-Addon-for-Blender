@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from typing import Optional
 
 from bpy.types import OperatorFileListElement, bpy_prop_collection
 
@@ -52,7 +51,7 @@ def append(
     filepath: str = "",
     directory: str = "",
     filename: str = "",
-    files: Optional[bpy_prop_collection[OperatorFileListElement]] = None,
+    files: bpy_prop_collection[OperatorFileListElement] | None = None,
     filter_blender: bool = True,
     filter_backup: bool = False,
     filter_image: bool = False,

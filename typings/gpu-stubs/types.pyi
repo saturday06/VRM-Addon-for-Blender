@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import contextlib
 from collections.abc import Sequence
-from typing import Optional, Union
 
 from mathutils import Matrix
 
@@ -21,7 +20,7 @@ class GPUBatch:
         self,
         type: str,
         buf: GPUVertBuf,
-        elem: Optional[GPUIndexBuf] = None,
+        elem: GPUIndexBuf | None = None,
     ) -> None: ...
 
 class GPUShader:
@@ -29,15 +28,15 @@ class GPUShader:
         self,
         vertexcode: str,
         fragcode: str,
-        geocode: Optional[str] = None,
-        libcode: Optional[str] = None,
-        defines: Optional[str] = None,
+        geocode: str | None = None,
+        libcode: str | None = None,
+        defines: str | None = None,
     ) -> None: ...
     def uniform_float(
         self,
         name: str,
         # どうやらMatrixも直接渡せるようだが、要確認
-        value: Union[float, Sequence[float], Matrix],
+        value: float | Sequence[float] | Matrix,
     ) -> None: ...
     def bind(self) -> None: ...
-    def uniform_int(self, name: str, seq: Union[int, Sequence[int]]) -> None: ...
+    def uniform_int(self, name: str, seq: int | Sequence[int]) -> None: ...
