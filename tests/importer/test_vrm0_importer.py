@@ -7,9 +7,8 @@ from mathutils import Vector
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.debug import assert_vector3_equals
+from io_scene_vrm.common.test_helper import AddonTestCase
 from io_scene_vrm.importer.vrm0_importer import setup_bones
-
-from ..addon_test_case import AddonTestCase
 
 
 class TestVrm0Importer(AddonTestCase):

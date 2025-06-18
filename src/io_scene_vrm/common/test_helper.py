@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import bpy
 
-MODULE = "io_scene_vrm"
+MODULE = ".".join(__name__.split(".")[:-2])
 
 
 class AddonTestCase(TestCase):

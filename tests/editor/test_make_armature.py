@@ -11,10 +11,9 @@ from bpy.types import Armature
 from mathutils import Vector
 
 from io_scene_vrm.common import ops
+from io_scene_vrm.common.test_helper import AddonTestCase
 from io_scene_vrm.editor.make_armature import MIN_BONE_LENGTH
 from io_scene_vrm.importer.vrm_diff import vrm_diff
-
-from ..addon_test_case import AddonTestCase
 
 
 class TestMakeArmature(AddonTestCase):

@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
 
+from io_scene_vrm.common.test_helper import AddonTestCase
 from io_scene_vrm.importer import license_validation
-
-from ..addon_test_case import AddonTestCase
 
 
 class TestLicenseValidation(AddonTestCase):

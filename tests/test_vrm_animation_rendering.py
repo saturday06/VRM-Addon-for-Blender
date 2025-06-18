@@ -15,11 +15,10 @@ from bpy.types import Armature, Camera, Context
 from mathutils import Color, Euler, Vector
 
 from io_scene_vrm.common import ops
+from io_scene_vrm.common.test_helper import AddonTestCase
 from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.search import current_armature
 from io_scene_vrm.editor.vrm1.property_group import Vrm1LookAtPropertyGroup
-
-from .addon_test_case import AddonTestCase
 
 
 class __TestVrmAnimationRenderingBase(AddonTestCase):

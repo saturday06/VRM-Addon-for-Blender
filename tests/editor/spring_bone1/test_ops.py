@@ -8,12 +8,11 @@ from bpy.types import Armature
 from mathutils import Euler, Quaternion, Vector
 
 from io_scene_vrm.common import ops, version
+from io_scene_vrm.common.test_helper import AddonTestCase
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     get_armature_extension,
 )
-
-from ...addon_test_case import AddonTestCase
 
 addon_version = version.get_addon_version()
 spec_version = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1

@@ -11,12 +11,11 @@ from mathutils import Vector
 
 from io_scene_vrm.common import deep, ops, version
 from io_scene_vrm.common.debug import assert_vector3_equals
+from io_scene_vrm.common.test_helper import AddonTestCase
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     get_armature_extension,
 )
-
-from ..addon_test_case import AddonTestCase
 
 addon_version = version.get_addon_version()
 

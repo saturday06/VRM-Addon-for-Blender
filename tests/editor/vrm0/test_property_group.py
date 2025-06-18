@@ -5,11 +5,10 @@ import bpy
 from bpy.types import Armature
 
 from io_scene_vrm.common import ops
+from io_scene_vrm.common.test_helper import AddonTestCase
 from io_scene_vrm.common.vrm0.human_bone import HumanBoneName
 from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
-
-from ...addon_test_case import AddonTestCase
 
 
 class TestVrm0HumanoidPropertyGroup(AddonTestCase):

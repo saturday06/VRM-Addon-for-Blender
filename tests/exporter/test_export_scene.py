@@ -10,9 +10,8 @@ import bpy
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.logger import get_logger
+from io_scene_vrm.common.test_helper import AddonTestCase
 from io_scene_vrm.importer.vrm_diff import vrm_diff
-
-from ..addon_test_case import AddonTestCase
 
 logger = get_logger(__name__)
 
