@@ -172,6 +172,14 @@ search-path = [
   "typings",
   "src",
 ]
+project-excludes = [
+  "node_modules/**",
+
+  # デフォルトの除外設定が消えてしまうので、再設定
+  # https://github.com/facebook/pyrefly/blob/0.20.2/website/docs/configuration.mdx?plain=1#L129
+  "**/.[!/.]*",
+  "**/*venv/**",
+]
 python-version = "3.9.0" # It overrides 'project.requires-python = "== 3.10.*"'
 
 [build-system]
