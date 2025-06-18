@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.7.1...v3.7.2) (2025-06-18)
+
+
+### 🐞 Bug Fixes
+
+* don't create gltf scene collections by default in blender 4.5 beta ([af4a971](https://github.com/saturday06/VRM-Addon-for-Blender/commit/af4a9712f934a885648f93dd8e130deda86b4162))
+
 ## [3.7.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.7.0...v3.7.1) (2025-06-15)
 
 
