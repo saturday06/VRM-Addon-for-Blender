@@ -16,4 +16,5 @@ def gltf(
     bone_heuristic: str = "TEMPERANCE",
     guess_original_bind_pose: bool = True,
     disable_bone_shape: bool = False,
+    import_scene_as_collection: bool = True,
 ) -> set[str]: ...

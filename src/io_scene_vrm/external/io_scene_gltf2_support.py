@@ -168,6 +168,7 @@ class ImportSceneGltfArguments:
     bone_heuristic: str
     guess_original_bind_pose: bool
     disable_bone_shape: bool
+    import_scene_as_collection: bool
 
 
 def import_scene_gltf(arguments: ImportSceneGltfArguments) -> set[str]:
@@ -179,12 +180,22 @@ def import_scene_gltf(arguments: ImportSceneGltfArguments) -> set[str]:
             guess_original_bind_pose=arguments.guess_original_bind_pose,
         )
 
+    if bpy.app.version < (4, 5):
+        return bpy.ops.import_scene.gltf(
+            filepath=arguments.filepath,
+            import_pack_images=arguments.import_pack_images,
+            bone_heuristic=arguments.bone_heuristic,
+            guess_original_bind_pose=arguments.guess_original_bind_pose,
+            disable_bone_shape=arguments.disable_bone_shape,
+        )
+
     return bpy.ops.import_scene.gltf(
         filepath=arguments.filepath,
         import_pack_images=arguments.import_pack_images,
         bone_heuristic=arguments.bone_heuristic,
         guess_original_bind_pose=arguments.guess_original_bind_pose,
         disable_bone_shape=arguments.disable_bone_shape,
+        import_scene_as_collection=arguments.import_scene_as_collection,
     )
 
 
