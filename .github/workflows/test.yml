@@ -98,8 +98,16 @@ jobs:
           curl -fsLS --retry 5 --retry-all-errors "$url" -o blender.dmg
       - name: Install dependencies
         run: |
-          brew update
-          brew install ffmpeg imagemagick
+          for retry in $(seq 5 -1 0); do
+            if [ "$retry" -eq 0 ]; then
+              >&2 echo "Failed to install dependencies"
+              exit 1
+            fi
+            if brew update && brew install ffmpeg imagemagick; then
+              break
+            fi
+            sleep 60
+          done
       - name: Test
         run: |
           hdiutil attach blender.dmg
