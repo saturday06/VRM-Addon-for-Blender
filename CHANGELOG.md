@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.7.2...v3.7.3) (2025-06-22)
+
+
+### 🐞 Bug Fixes
+
+* fixed a bug in Blender 4.5 that caused temporary objects to remain on import ([1980f84](https://github.com/saturday06/VRM-Addon-for-Blender/commit/1980f841485020c7eddd9e024df687f203ddae6b))
+
 ## [3.7.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.7.1...v3.7.2) (2025-06-18)
 
 
