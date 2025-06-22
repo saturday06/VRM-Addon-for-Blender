@@ -1187,9 +1187,27 @@ class AbstractBaseVrmImporter(ABC):
         if self.context.object is not None and self.context.object.mode == "EDIT":
             bpy.ops.object.mode_set(mode="OBJECT")
 
-        for obj in list(self.context.scene.collection.objects):
-            if self.is_temp_object_name(obj.name):
-                self.context.scene.collection.objects.unlink(obj)
+        for scene in list(self.context.blend_data.scenes):
+            if not self.is_temp_object_name(scene.name):
+                continue
+            if bpy.app.version >= (3, 2):
+                scene.use_extra_user = False
+            if scene.users:
+                logger.warning(
+                    'Failed to remove "%s" with %d users while removing temp scenes',
+                    scene.name,
+                    scene.users,
+                )
+            else:
+                self.context.blend_data.scenes.remove(scene)
+
+        for collection in [
+            *[scene.collection for scene in self.context.blend_data.scenes],
+            *self.context.blend_data.collections,
+        ]:
+            for obj in list(collection.objects):
+                if self.is_temp_object_name(obj.name):
+                    collection.objects.unlink(obj)
 
         for obj in list(self.context.blend_data.objects):
             if not self.is_temp_object_name(obj.name):
