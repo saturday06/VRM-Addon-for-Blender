@@ -35,6 +35,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   supervisor \
   uchardet \
   unzip \
+  xdotool \
   xorgxrdp \
   xubuntu-desktop \
   xrdp \
