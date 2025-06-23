@@ -16,11 +16,13 @@ class TestBlenderManifest(TestCase):
     def test_read(self) -> None:
         text = (
             "foo = bar\n"
+            + 'id = "baz"\n'
             + 'version = "1.23.456"\n'
             + 'blender_version_min = "9.8.7"\n'
             + 'blender_version_max = "12.34.56"\n'
         )
         blender_manifest = BlenderManifest.read(text)
+        self.assertEqual(blender_manifest.id, "baz")
         self.assertEqual(blender_manifest.version, (1, 23, 456))
         self.assertEqual(blender_manifest.blender_version_min, (9, 8, 7))
         self.assertEqual(blender_manifest.blender_version_max, (12, 34, 56))

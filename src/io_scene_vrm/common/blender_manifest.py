@@ -7,6 +7,7 @@ from typing import Optional
 
 @dataclass(frozen=True)
 class BlenderManifest:
+    id: str
     version: tuple[int, int, int]
     blender_version_min: tuple[int, int, int]
     blender_version_max: Optional[tuple[int, int, int]]
@@ -14,6 +15,21 @@ class BlenderManifest:
     @classmethod
     def default_blender_manifest_path(cls) -> Path:
         return Path(__file__).parent.parent / "blender_manifest.toml"
+
+    @classmethod
+    def read_str(cls, blender_manifest: str, key: str) -> Optional[str]:
+        # When the version of Python used by the minimum supported version of Blender
+        # exceeds 3.11, it is rewritten in the tomli library.
+        lines = list(map(str.strip, blender_manifest.splitlines()))
+
+        pattern = key + r' = "([^"]+)"'
+        for line in lines:
+            match = re.fullmatch(pattern, line)
+            if not match:
+                continue
+            return match[1]
+
+        return None
 
     @classmethod
     def read_3_tuple_version(
@@ -39,6 +55,11 @@ class BlenderManifest:
                 encoding="UTF-8"
             )
 
+        addon_id = cls.read_str(blender_manifest, "id")
+        if addon_id is None:
+            message = "'id' was not found in blender manifest"
+            raise ValueError(message)
+
         version = cls.read_3_tuple_version(blender_manifest, "version")
         if version is None:
             message = "'version' was not found in blender manifest"
@@ -52,6 +73,7 @@ class BlenderManifest:
             raise ValueError(message)
 
         return BlenderManifest(
+            id=addon_id,
             version=version,
             blender_version_min=blender_version_min,
             blender_version_max=cls.read_3_tuple_version(
