@@ -1,4 +1,7 @@
 {
   "name": "node-js-tools-for-vrm-format",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@anthropic-ai/claude-code": "^1.0.33"
+  }
 }
