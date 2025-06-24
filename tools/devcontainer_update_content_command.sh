@@ -17,8 +17,7 @@ sudo ./tools/install_ubuntu_packages.sh
 # その場合も処理を続行する。将来的にはトークンを渡せるようにする。
 uv self update || true
 
-# https://github.com/Schniz/fnm/blob/c054f1a7ccb2fe257dcc7ee048e1c131c5efa7f7/README.md?plain=1#L42
-curl --fail --show-error --location https://fnm.vercel.app/install | bash -s -- --skip-shell
+./tools/install_nvm.sh
 
 deno upgrade
 
