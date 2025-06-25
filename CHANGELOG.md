@@ -34,7 +34,7 @@
 
 ### 🐞 Bug Fixes
 
-* fix reference counter evaluation ([d636f92](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d636f92fcf420e7ad63a40c20f1c743d976eb0db))
+* fix random crash ([d636f92](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d636f92fcf420e7ad63a40c20f1c743d976eb0db) [75abd47](https://github.com/saturday06/VRM-Addon-for-Blender/commit/75abd47599f625af08a3e94f6343dc3cc8d6abc0))
 
 ## [3.6.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.6.0...v3.6.1) (2025-06-02)
 
@@ -49,7 +49,8 @@
 ### 🚀 Features
 
 * warn unsupported parenting ([0d8b8bd](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0d8b8bd457747be31efc52091b10fbdc78074c3a))
-
+* hides personal information when import/export errors occur ([f9c861f](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f9c861ff7a8b04f2f874e7aaefb0a80fc236870c))
+* small optimization ([0cd6e21](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0cd6e2191101d43ad4dd0d5c35b5bd740d1b585a) [5eab625](https://github.com/saturday06/VRM-Addon-for-Blender/commit/5eab62560cb0591f6b458e5ba1a75593c1de804e) [1b2d718](https://github.com/saturday06/VRM-Addon-for-Blender/commit/1b2d7187ee501ad2350e44f318afa36a4c457d5a))
 
 ### 🐞 Bug Fixes
 
@@ -108,6 +109,8 @@
 ### 🚀 Features
 
 * human bone assignment diagnostics ([7f2eebd](https://github.com/saturday06/VRM-Addon-for-Blender/commit/7f2eebdbc20d1a61a321e18d2ccd2ae48f4a4c17))
+<img width="973" alt="diagnostics" src="https://github.com/user-attachments/assets/9081376c-7926-4274-8491-d4bfdb9e657e" />
+
 
 ## [3.2.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.1.0...v3.2.0) (2025-05-02)
 
@@ -131,12 +134,7 @@
 
 ### 🐞 Bug Fixes
 
-* fix line length issues in ja_jp.py ([d64e197](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d64e197b5fcadd9f515e44053fd2b968c5c94f8c))
-* improve unnatural English phrases (cont) ([d77b673](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d77b673ea968f6358060fde5ec7601bd81351c7e))
-* improve unnatural English phrases in error messages ([7e095dc](https://github.com/saturday06/VRM-Addon-for-Blender/commit/7e095dc89eda288cb24bc12b7e99c426e8171a6a))
-* improve unnatural English phrases in ja_jp.py ([d82b0da](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d82b0daebcbbce841bfeb4d3deec577bbb03af6c))
-* improve unnatural English phrases in locale files ([80a1d48](https://github.com/saturday06/VRM-Addon-for-Blender/commit/80a1d48bc185e845958acb34290950cb536c8968))
-* improve unnatural English phrases in locale files (cont.) ([4c24fc1](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4c24fc1efb2b00da009206ce2807ae5bde2381f3))
+* improve unnatural English phrases ([d77b673](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d77b673ea968f6358060fde5ec7601bd81351c7e)) ([7e095dc](https://github.com/saturday06/VRM-Addon-for-Blender/commit/7e095dc89eda288cb24bc12b7e99c426e8171a6a)) ([d82b0da](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d82b0daebcbbce841bfeb4d3deec577bbb03af6c)) ([80a1d48](https://github.com/saturday06/VRM-Addon-for-Blender/commit/80a1d48bc185e845958acb34290950cb536c8968)) ([4c24fc1](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4c24fc1efb2b00da009206ce2807ae5bde2381f3))
 
 ## [3.0.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.0.0...v3.0.1) (2025-04-17)
 
@@ -155,10 +153,17 @@
 
 ## [3.0.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.40.0...v3.0.0) (2025-04-14)
 
+### 💥 Breaking Change
 
-### ⚠ BREAKING CHANGES
+Introduce "MToon" shader node group instead of "MToon_unversioned" ([b6dd21d](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b6dd21d1268e08d52facb5efa567c324b0432f76))
 
-* introduce "MToon" shader node group instead of "MToon_unversioned" ([b6dd21d](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b6dd21d1268e08d52facb5efa567c324b0432f76))
+The "MToon_unversioned" shader node group, which was left in place for
+compatibility, is no longer added. Instead, a new "MToon" shader node
+group will be added.
+
+The "MToon_unversioned" will not be removed and will continue to be
+included with the add-on. Alternatively, it can be obtained from
+https://github.com/saturday06/VRM-Addon-for-Blender/blob/v2.40.0/src/io_scene_vrm/common/mtoon0.blend
 
 ## [2.40.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.39.0...v2.40.0) (2025-04-10)
 
@@ -174,12 +179,12 @@
 * fix initialization error on startup mode is not an object mode ([2ff1392](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2ff139218d1478282bbfde9f180556beac65851e))
 * restore bone selection on apply t-pose ([7a15c53](https://github.com/saturday06/VRM-Addon-for-Blender/commit/7a15c533b68e5ca3b761a06ea2cba88f906b7bb5))
 
-## [2.39.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.37.0...v2.39.0) (2025-04-05)
+## [2.39.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.38.0...v2.39.0) (2025-04-05)
 
 
 ### 🚀 Features
 
-* improved spring bone animation performance ([0bcef80](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0bcef80a9ad10286426a41a8c00eb2b783ff932e))
+* improved spring bone animation performance ([0bcef8](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0bcef80a9ad10286426a41a8c00eb2b783ff932e))
 
 ## [2.37.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.36.0...v2.37.0) (2025-03-31)
 
@@ -213,7 +218,8 @@
 
 ### 🐞 Bug Fixes
 
-* scene duplication bug when pasting mtoon enabled objects in Blender 3.5.1 or earlier ([6e9ff94](https://github.com/saturday06/VRM-Addon-for-Blender/commit/6e9ff94c0f8922ba2cbb63a5f42696afa63cbec5))
+* Remove workaround for 'Bone.use_deform' expot bug in Blender 4.4 ([6bbd3ca98](https://github.com/saturday06/VRM-Addon-for-Blender/commit/6bbd3ca98f66e9ba4601c7116f8f2ad6e53d48da))
+* Fix scene duplication bug when pasting mtoon enabled objects in Blender 3.5.1 or earlier ([6e9ff94](https://github.com/saturday06/VRM-Addon-for-Blender/commit/6e9ff94c0f8922ba2cbb63a5f42696afa63cbec5))
 
 ## [2.35.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.34.1...v2.35.0) (2025-03-17)
 
@@ -241,7 +247,7 @@
 
 ### 🐞 Bug Fixes
 
-* export error during automatic modifier application ([48f526b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/48f526b8ca98992f7df1beb19a72a648911506cf))
+* fix export error during automatic modifier application ([48f526b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/48f526b8ca98992f7df1beb19a72a648911506cf))
 
 ## [2.33.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.32.2...v2.33.0) (2024-12-15)
 
@@ -268,12 +274,12 @@
 
 ### 🐞 Bug Fixes
 
-* VRM export causes unexpected constrainted bone rotation ([2425087](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2425087a43b3f29f05a69fbf23745c2590cf54c8))
+* fix the bug that VRM export causes unexpected constrainted bone rotation ([2425087](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2425087a43b3f29f05a69fbf23745c2590cf54c8))
 
 
 ### 📝 Documentation
 
-* remove deunnecessary notice ([24532bf](https://github.com/saturday06/VRM-Addon-for-Blender/commit/24532bf55d9a38420b731dd0d9637207cb57cff2))
+* remove unnecessary notice ([24532bf](https://github.com/saturday06/VRM-Addon-for-Blender/commit/24532bf55d9a38420b731dd0d9637207cb57cff2))
 
 ## [2.32.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.31.1...v2.32.0) (2024-12-04)
 
@@ -299,10 +305,9 @@
 
 ## [2.30.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.30.0...v2.30.1) (2024-11-24)
 
+### 🚀 Features
 
-### 🐞 Bug Fixes
-
-* run ruff formatter ([4a577b1](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4a577b1b77f9731d17ca9535b7d4bb6b70a60e5f))
+* improve Simplified Chinese translation (https://github.com/saturday06/VRM-Addon-for-Blender/pull/653 by uitcis)
 
 ## [2.30.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.29.0...v2.30.0) (2024-11-22)
 
@@ -328,40 +333,29 @@
 
 ## [2.28.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.27.0...v2.28.0) (2024-11-14)
 
+### 💣 Breaking Changes
+
+* [change the license from "MIT" to "MIT OR GPL-3.0-or-later](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a8ecfabb724731c2ae262bf59f7acc9ff964e74d) 
+* [temporary disable Simplified Chinese translation for the Blender Extensions platform](https://github.com/saturday06/VRM-Addon-for-Blender/commit/324c093a0c407ee7182a14b1885830e408be6912) 
+```
+For anyone who is interested in the Simplified Chinese translation.
+
+Simplified Chinese translation has been temporarily disabled. This is to comply
+with the license requirements of the Blender Extensions platform.
+
+Please check the URL below for more details:
+https://github.com/saturday06/VRM-Addon-for-Blender/issues/627
+```
+
+* [temporary revert the English translation improvement for the Blender Extensions platform](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2593ec2b49215c6883f62febc971bec3cd5f959a) 
 
 ### 🚀 Features
 
-* mtoon outline preview switching ([2d22868](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2d228687638fec0a188a8db303a6257ed1079388))
-* release-please action ([f7b1b68](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f7b1b6894d89ba21cfeaf7727bae9086e51daf74))
-
-
-### 🐞 Bug Fixes
-
-* paths ([b8157c5](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b8157c54bc21496ed97452526e647fc00d743a72))
-
-
-### 📝 Documentation
-
-* add release note entry for experimental texture transform bind preview ([6ec9f3b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/6ec9f3bc9aca38b5515abecacca10d6979377911))
-* remove deprecated diagrams ([238e77a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/238e77a0b1d7b6af1b9017efe99c0be47b37f602))
-* use emojis ([87f32fb](https://github.com/saturday06/VRM-Addon-for-Blender/commit/87f32fb4783f4dfea8bc73830cbfa93f2cedd91b))
-
-## [2.27.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v2.26.0...v2.27.0) (2024-11-14)
-
-
-### 🚀 Features
-
-* mtoon outline preview switching ([2d22868](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2d228687638fec0a188a8db303a6257ed1079388))
-* release-please action ([f7b1b68](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f7b1b6894d89ba21cfeaf7727bae9086e51daf74))
-
+* [experimental texture transform bind preview](https://github.com/saturday06/VRM-Addon-for-Blender/pull/552)
+* [mtoon outline preview switching](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2d228687638fec0a188a8db303a6257ed1079388)
+* [create basic armature on import vrma into an empty workspace](https://github.com/saturday06/VRM-Addon-for-Blender/commit/782f793a13cb871b21b8ba8abf591e3f7c40671f)
 
 ### 🐞 Bug Fixes
 
-* paths ([b8157c5](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b8157c54bc21496ed97452526e647fc00d743a72))
+* [workaround for blender 4.2 multi root armature error](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fe8f06d0452780306595fb87e84cd383df456879)
 
-
-### 📝 Documentation
-
-* add release note entry for experimental texture transform bind preview ([6ec9f3b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/6ec9f3bc9aca38b5515abecacca10d6979377911))
-* remove deprecated diagrams ([238e77a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/238e77a0b1d7b6af1b9017efe99c0be47b37f602))
-* use emojis ([87f32fb](https://github.com/saturday06/VRM-Addon-for-Blender/commit/87f32fb4783f4dfea8bc73830cbfa93f2cedd91b))
