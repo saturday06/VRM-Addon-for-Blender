@@ -7,12 +7,14 @@ from bpy.types import Armature, Object
 from ..logger import get_logger
 from ..vrm1.human_bone import HumanBoneSpecification
 from . import (
+    biped_mapping,
     cats_blender_plugin_fix_model_mapping,
     microsoft_rocketbox_mapping,
     mixamo_mapping,
     mmd_mapping,
     ready_player_me_mapping,
     rigify_meta_rig_mapping,
+    unreal_mapping,
     vrm_addon_mapping,
     vroid_mapping,
 )
@@ -104,7 +106,9 @@ def create_human_bone_mapping(
             (match_counts(armature.data, mapping), name, mapping)
             for name, mapping in [
                 mmd_mapping.create_config(armature),
+                biped_mapping.create_config(armature),
                 mixamo_mapping.CONFIG,
+                unreal_mapping.CONFIG,
                 ready_player_me_mapping.CONFIG,
                 cats_blender_plugin_fix_model_mapping.CONFIG,
                 microsoft_rocketbox_mapping.CONFIG_BIP01,
