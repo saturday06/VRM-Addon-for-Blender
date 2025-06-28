@@ -1,8 +1,9 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:@anthropic-ai/claude-code@^1.0.33": "1.0.35",
+    "npm:@anthropic-ai/claude-code@^1.0.37": "1.0.37",
     "npm:@types/node@24.0.4": "24.0.4",
+    "npm:@types/node@24.0.6": "24.0.6",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
     "npm:pyright@1.1.402": "1.1.402",
     "npm:vitepress@*": "1.6.3_vite@5.4.19__@types+node@24.0.4_vue@3.5.17_focus-trap@7.6.5_@types+node@24.0.4",
@@ -141,8 +142,8 @@
         "@algolia/client-common"
       ]
     },
-    "@anthropic-ai/claude-code@1.0.35": {
-      "integrity": "sha512-rQr03moVxUZSR9hZGHXatjukxmgK9VoihiVG/lkUWFb6NDxhG+EZB+jSY2gtTsxJwnE1pQciLvOPVI/UxXo4TA==",
+    "@anthropic-ai/claude-code@1.0.37": {
+      "integrity": "sha512-QRuw8700pzRxGxmq2LPmy/YH6eNcdKGmfncVj2nAg/6VG8PFDQfxzOcYOp4YDAFjYAfcWLrNTxiLm5sT3PxUEA==",
       "optionalDependencies": [
         "@img/sharp-darwin-arm64",
         "@img/sharp-darwin-x64",
@@ -575,6 +576,12 @@
     },
     "@types/node@24.0.4": {
       "integrity": "sha512-ulyqAkrhnuNq9pB76DRBTkcS6YsmDALy6Ua63V8OhrOBgbcYt6IOdzpw5P1+dyRIyMerzLkeYWBeOXPpA9GMAA==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
+    "@types/node@24.0.6": {
+      "integrity": "sha512-ZOyn+gOs749xU7ovp+Ibj0g1o3dFRqsfPnT22C2t5JzcRvgsEDpGawPbCISGKLudJk9Y0wiu9sYd6kUh0pc9TA==",
       "dependencies": [
         "undici-types"
       ]
@@ -1092,7 +1099,7 @@
     "vite@5.4.19_@types+node@24.0.4": {
       "integrity": "sha512-qO3aKv3HoQC8QKiNSTuUM1l9o/XX3+c+VTgLHbJWHZGeTPVAg2XwazI9UWzoxjIJCGCV2zU60uqMzjeLZuULqA==",
       "dependencies": [
-        "@types/node",
+        "@types/node@24.0.4",
         "esbuild",
         "postcss",
         "rollup"
@@ -1101,7 +1108,7 @@
         "fsevents"
       ],
       "optionalPeers": [
-        "@types/node"
+        "@types/node@24.0.4"
       ],
       "bin": true
     },
@@ -1145,7 +1152,7 @@
   },
   "workspace": {
     "dependencies": [
-      "npm:@types/node@24.0.4",
+      "npm:@types/node@24.0.6",
       "npm:gltf-validator@2.0.0-dev.3.10",
       "npm:pyright@1.1.402",
       "npm:vitepress@1.6.3",
@@ -1153,7 +1160,7 @@
     ],
     "packageJson": {
       "dependencies": [
-        "npm:@anthropic-ai/claude-code@^1.0.33"
+        "npm:@anthropic-ai/claude-code@^1.0.37"
       ]
     }
   }
