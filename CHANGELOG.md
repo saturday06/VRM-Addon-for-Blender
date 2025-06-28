@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.7.3...v3.7.4) (2025-06-28)
+
+
+### 🐞 Bug Fixes
+
+* **deps:** update dependency @anthropic-ai/claude-code to v1.0.34 ([#928](https://github.com/saturday06/VRM-Addon-for-Blender/issues/928)) ([f4a4e16](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f4a4e1657fa74c4f4004ebb6beb88a299d1f4a83))
+
 ## [3.7.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.7.2...v3.7.3) (2025-06-22)
 
 
@@ -358,4 +365,3 @@ https://github.com/saturday06/VRM-Addon-for-Blender/issues/627
 ### 🐞 Bug Fixes
 
 * [workaround for blender 4.2 multi root armature error](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fe8f06d0452780306595fb87e84cd383df456879)
-
