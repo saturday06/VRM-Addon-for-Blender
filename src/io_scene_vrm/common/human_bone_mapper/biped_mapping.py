@@ -8,7 +8,7 @@ from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 
 logger = get_logger(__name__)
 
-biped_mapping = {  # type:ignore
+biped_mapping = {
     ("Bip001", "Pelvis"): HumanBoneSpecifications.HIPS,
     ("Bip001", "Spine"): HumanBoneSpecifications.SPINE,
     ("Bip001", "Spine2"): HumanBoneSpecifications.CHEST,
@@ -68,13 +68,13 @@ def create_config(
 ) -> tuple[str, Mapping[str, HumanBoneSpecification]]:
     mapping: dict[str, HumanBoneSpecification] = {}
     for bone in armature.pose.bones:
-        for biped_bone in biped_mapping.keys():
+        for biped_bone, specification in biped_mapping.items():
             if (
                 bone.name.startswith(biped_bone[0])
                 and bone.name.endswith(biped_bone[-1])
                 and biped_bone[1] in bone.name
             ):
-                mapping[bone.name] = biped_mapping[biped_bone]
+                mapping[bone.name] = specification
 
     name = "Bip001"
     for specification in HumanBoneSpecifications.all_human_bones:
