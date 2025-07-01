@@ -1,9 +1,10 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:@anthropic-ai/claude-code@^1.0.37": "1.0.37",
+    "npm:@anthropic-ai/claude-code@^1.0.37": "1.0.38",
     "npm:@octokit/rest@22.0.0": "22.0.0_@octokit+core@7.0.2",
     "npm:@types/node@24.0.7": "24.0.7",
+    "npm:@types/node@24.0.8": "24.0.8",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
     "npm:pyright@1.1.402": "1.1.402",
     "npm:vitepress@*": "1.6.3_vite@5.4.19__@types+node@24.0.7_vue@3.5.17_focus-trap@7.6.5_@types+node@24.0.7",
@@ -142,8 +143,8 @@
         "@algolia/client-common"
       ]
     },
-    "@anthropic-ai/claude-code@1.0.37": {
-      "integrity": "sha512-QRuw8700pzRxGxmq2LPmy/YH6eNcdKGmfncVj2nAg/6VG8PFDQfxzOcYOp4YDAFjYAfcWLrNTxiLm5sT3PxUEA==",
+    "@anthropic-ai/claude-code@1.0.38": {
+      "integrity": "sha512-hPZbJCt7O8T872wbCXGiwF210DzMBo/k3EVKB6EZQB10b73ZQIEflAWGTC2ZvBcMp79qAR4F6c82V0+Cc6o0sg==",
       "optionalDependencies": [
         "@img/sharp-darwin-arm64",
         "@img/sharp-darwin-x64",
@@ -309,8 +310,8 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@iconify-json/simple-icons@1.2.40": {
-      "integrity": "sha512-sr2fbrS8rRhJNap41ucTStctxTcWQ3lcsHkY3loc4Yt1KNOne6D+l1JTOQCDj9f/VrUktVIEdaRQoYTvqfuSSw==",
+    "@iconify-json/simple-icons@1.2.41": {
+      "integrity": "sha512-4tt29cKzNsxvt6rjAOVhEgpZV0L8jleTDTMdtvIJjF14Afp9aH8peuwGYyX35l6idfFwuzbvjSVfVyVjJtfmYA==",
       "dependencies": [
         "@iconify/types"
       ]
@@ -388,8 +389,8 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@jridgewell/sourcemap-codec@1.5.1": {
-      "integrity": "sha512-mBLKRHc7Ffw/hObYb9+cunuGNjshQk+vZdwZBJoqiysK/mW3Jq0UXosq8aIhMnLevANhR9yoYfdUEOHg6M9y0g=="
+    "@jridgewell/sourcemap-codec@1.5.3": {
+      "integrity": "sha512-AiR5uKpFxP3PjO4R19kQGIMwxyRyPuXmKEEy301V1C0+1rVjS94EZQXf1QKZYN8Q0YM+estSPhmx5JwNftv6nw=="
     },
     "@octokit/auth-token@6.0.0": {
       "integrity": "sha512-P4YJBPdPSpWTQ1NU4XYdvHvXJJDxM6YwpS0FZHRgP7YFkdVxsWcpWGy/NVqlAA7PcPCnMacXlRm1y2PFZRWL/w=="
@@ -660,6 +661,12 @@
     },
     "@types/node@24.0.7": {
       "integrity": "sha512-YIEUUr4yf8q8oQoXPpSlnvKNVKDQlPMWrmOcgzoduo7kvA2UF0/BwJ/eMKFTiTtkNL17I0M6Xe2tvwFU7be6iw==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
+    "@types/node@24.0.8": {
+      "integrity": "sha512-WytNrFSgWO/esSH9NbpWUfTMGQwCGIKfCmNlmFDNiI5gGhgMmEA+V1AEvKLeBNvvtBnailJtkrEa2OIISwrVAA==",
       "dependencies": [
         "undici-types"
       ]
@@ -1186,7 +1193,7 @@
     "vite@5.4.19_@types+node@24.0.7": {
       "integrity": "sha512-qO3aKv3HoQC8QKiNSTuUM1l9o/XX3+c+VTgLHbJWHZGeTPVAg2XwazI9UWzoxjIJCGCV2zU60uqMzjeLZuULqA==",
       "dependencies": [
-        "@types/node",
+        "@types/node@24.0.7",
         "esbuild",
         "postcss",
         "rollup"
@@ -1195,7 +1202,7 @@
         "fsevents"
       ],
       "optionalPeers": [
-        "@types/node"
+        "@types/node@24.0.7"
       ],
       "bin": true
     },
@@ -1240,7 +1247,7 @@
   "workspace": {
     "dependencies": [
       "npm:@octokit/rest@22.0.0",
-      "npm:@types/node@24.0.7",
+      "npm:@types/node@24.0.8",
       "npm:gltf-validator@2.0.0-dev.3.10",
       "npm:pyright@1.1.402",
       "npm:vitepress@1.6.3",

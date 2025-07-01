@@ -16,7 +16,7 @@
   "nodeModulesDir": "auto",
   "imports": {
     "@octokit/rest": "npm:@octokit/rest@22.0.0",
-    "@types/node": "npm:@types/node@24.0.7",
+    "@types/node": "npm:@types/node@24.0.8",
     "gltf-validator": "npm:gltf-validator@2.0.0-dev.3.10",
     "pyright": "npm:pyright@1.1.402",
     "vitepress": "npm:vitepress@1.6.3",
