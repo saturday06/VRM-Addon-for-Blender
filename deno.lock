@@ -1,32 +1,31 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:@anthropic-ai/claude-code@^1.0.37": "1.0.38",
+    "npm:@anthropic-ai/claude-code@^1.0.40": "1.0.40",
     "npm:@octokit/rest@22.0.0": "22.0.0_@octokit+core@7.0.2",
-    "npm:@types/node@24.0.7": "24.0.7",
-    "npm:@types/node@24.0.8": "24.0.8",
+    "npm:@types/node@24.0.10": "24.0.10",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
     "npm:pyright@1.1.402": "1.1.402",
-    "npm:vitepress@*": "1.6.3_vite@5.4.19__@types+node@24.0.7_vue@3.5.17_focus-trap@7.6.5_@types+node@24.0.7",
-    "npm:vitepress@1.6.3": "1.6.3_vite@5.4.19__@types+node@24.0.7_vue@3.5.17_focus-trap@7.6.5_@types+node@24.0.7",
+    "npm:vitepress@*": "1.6.3_vite@5.4.19__@types+node@24.0.10_vue@3.5.17_focus-trap@7.6.5_@types+node@24.0.10",
+    "npm:vitepress@1.6.3": "1.6.3_vite@5.4.19__@types+node@24.0.10_vue@3.5.17_focus-trap@7.6.5_@types+node@24.0.10",
     "npm:vue@3.5.17": "3.5.17"
   },
   "npm": {
-    "@algolia/autocomplete-core@1.17.7_algoliasearch@5.29.0": {
+    "@algolia/autocomplete-core@1.17.7_algoliasearch@5.30.0": {
       "integrity": "sha512-BjiPOW6ks90UKl7TwMv7oNQMnzU+t/wk9mgIDi6b1tXpUek7MW0lbNOUHpvam9pe3lVCf4xPFT+lK7s+e+fs7Q==",
       "dependencies": [
         "@algolia/autocomplete-plugin-algolia-insights",
         "@algolia/autocomplete-shared"
       ]
     },
-    "@algolia/autocomplete-plugin-algolia-insights@1.17.7_search-insights@2.17.3_algoliasearch@5.29.0": {
+    "@algolia/autocomplete-plugin-algolia-insights@1.17.7_search-insights@2.17.3_algoliasearch@5.30.0": {
       "integrity": "sha512-Jca5Ude6yUOuyzjnz57og7Et3aXjbwCSDf/8onLHSQgw1qW3ALl9mrMWaXb5FmPVkV3EtkD2F/+NkT6VHyPu9A==",
       "dependencies": [
         "@algolia/autocomplete-shared",
         "search-insights"
       ]
     },
-    "@algolia/autocomplete-preset-algolia@1.17.7_@algolia+client-search@5.29.0_algoliasearch@5.29.0": {
+    "@algolia/autocomplete-preset-algolia@1.17.7_@algolia+client-search@5.30.0_algoliasearch@5.30.0": {
       "integrity": "sha512-ggOQ950+nwbWROq2MOCIL71RE0DdQZsceqrg32UqnhDz8FlO9rL8ONHNsI2R1MH0tkgVIDKI/D0sMiUchsFdWA==",
       "dependencies": [
         "@algolia/autocomplete-shared",
@@ -34,15 +33,15 @@
         "algoliasearch"
       ]
     },
-    "@algolia/autocomplete-shared@1.17.7_@algolia+client-search@5.29.0_algoliasearch@5.29.0": {
+    "@algolia/autocomplete-shared@1.17.7_@algolia+client-search@5.30.0_algoliasearch@5.30.0": {
       "integrity": "sha512-o/1Vurr42U/qskRSuhBH+VKxMvkkUVTLU6WZQr+L5lGZZLYWyhdzWjW0iGXY7EkwRTjBqvN2EsR81yCTGV/kmg==",
       "dependencies": [
         "@algolia/client-search",
         "algoliasearch"
       ]
     },
-    "@algolia/client-abtesting@5.29.0": {
-      "integrity": "sha512-AM/6LYMSTnZvAT5IarLEKjYWOdV+Fb+LVs8JRq88jn8HH6bpVUtjWdOZXqX1hJRXuCAY8SdQfb7F8uEiMNXdYQ==",
+    "@algolia/client-abtesting@5.30.0": {
+      "integrity": "sha512-Q3OQXYlTNqVUN/V1qXX8VIzQbLjP3yrRBO9m6NRe1CBALmoGHh9JrYosEGvfior28+DjqqU3Q+nzCSuf/bX0Gw==",
       "dependencies": [
         "@algolia/client-common",
         "@algolia/requester-browser-xhr",
@@ -50,8 +49,8 @@
         "@algolia/requester-node-http"
       ]
     },
-    "@algolia/client-analytics@5.29.0": {
-      "integrity": "sha512-La34HJh90l0waw3wl5zETO8TuukeUyjcXhmjYZL3CAPLggmKv74mobiGRIb+mmBENybiFDXf/BeKFLhuDYWMMQ==",
+    "@algolia/client-analytics@5.30.0": {
+      "integrity": "sha512-/b+SAfHjYjx/ZVeVReCKTTnFAiZWOyvYLrkYpeNMraMT6akYRR8eC1AvFcvR60GLG/jytxcJAp42G8nN5SdcLg==",
       "dependencies": [
         "@algolia/client-common",
         "@algolia/requester-browser-xhr",
@@ -59,11 +58,11 @@
         "@algolia/requester-node-http"
       ]
     },
-    "@algolia/client-common@5.29.0": {
-      "integrity": "sha512-T0lzJH/JiCxQYtCcnWy7Jf1w/qjGDXTi2npyF9B9UsTvXB97GRC6icyfXxe21mhYvhQcaB1EQ/J2575FXxi2rA=="
+    "@algolia/client-common@5.30.0": {
+      "integrity": "sha512-tbUgvkp2d20mHPbM0+NPbLg6SzkUh0lADUUjzNCF+HiPkjFRaIW3NGMlESKw5ia4Oz6ZvFzyREquUX6rdkdJcQ=="
     },
-    "@algolia/client-insights@5.29.0": {
-      "integrity": "sha512-A39F1zmHY9aev0z4Rt3fTLcGN5AG1VsVUkVWy6yQG5BRDScktH+U5m3zXwThwniBTDV1HrPgiGHZeWb67GkR2Q==",
+    "@algolia/client-insights@5.30.0": {
+      "integrity": "sha512-caXuZqJK761m32KoEAEkjkE2WF/zYg1McuGesWXiLSgfxwZZIAf+DljpiSToBUXhoPesvjcLtINyYUzbkwE0iw==",
       "dependencies": [
         "@algolia/client-common",
         "@algolia/requester-browser-xhr",
@@ -71,8 +70,8 @@
         "@algolia/requester-node-http"
       ]
     },
-    "@algolia/client-personalization@5.29.0": {
-      "integrity": "sha512-ibxmh2wKKrzu5du02gp8CLpRMeo+b/75e4ORct98CT7mIxuYFXowULwCd6cMMkz/R0LpKXIbTUl15UL5soaiUQ==",
+    "@algolia/client-personalization@5.30.0": {
+      "integrity": "sha512-7K6P7TRBHLX1zTmwKDrIeBSgUidmbj6u3UW/AfroLRDGf9oZFytPKU49wg28lz/yulPuHY0nZqiwbyAxq9V17w==",
       "dependencies": [
         "@algolia/client-common",
         "@algolia/requester-browser-xhr",
@@ -80,8 +79,8 @@
         "@algolia/requester-node-http"
       ]
     },
-    "@algolia/client-query-suggestions@5.29.0": {
-      "integrity": "sha512-VZq4/AukOoJC2WSwF6J5sBtt+kImOoBwQc1nH3tgI+cxJBg7B77UsNC+jT6eP2dQCwGKBBRTmtPLUTDDnHpMgA==",
+    "@algolia/client-query-suggestions@5.30.0": {
+      "integrity": "sha512-WMjWuBjYxJheRt7Ec5BFr33k3cV0mq2WzmH9aBf5W4TT8kUp34x91VRsYVaWOBRlxIXI8o/WbhleqSngiuqjLA==",
       "dependencies": [
         "@algolia/client-common",
         "@algolia/requester-browser-xhr",
@@ -89,8 +88,8 @@
         "@algolia/requester-node-http"
       ]
     },
-    "@algolia/client-search@5.29.0": {
-      "integrity": "sha512-cZ0Iq3OzFUPpgszzDr1G1aJV5UMIZ4VygJ2Az252q4Rdf5cQMhYEIKArWY/oUjMhQmosM8ygOovNq7gvA9CdCg==",
+    "@algolia/client-search@5.30.0": {
+      "integrity": "sha512-puc1/LREfSqzgmrOFMY5L/aWmhYOlJ0TTpa245C0ZNMKEkdOkcimFbXTXQ8lZhzh+rlyFgR7cQGNtXJ5H0XgZg==",
       "dependencies": [
         "@algolia/client-common",
         "@algolia/requester-browser-xhr",
@@ -98,8 +97,8 @@
         "@algolia/requester-node-http"
       ]
     },
-    "@algolia/ingestion@1.29.0": {
-      "integrity": "sha512-scBXn0wO5tZCxmO6evfa7A3bGryfyOI3aoXqSQBj5SRvNYXaUlFWQ/iKI70gRe/82ICwE0ICXbHT/wIvxOW7vw==",
+    "@algolia/ingestion@1.30.0": {
+      "integrity": "sha512-NfqiIKVgGKTLr6T9F81oqB39pPiEtILTy0z8ujxPKg2rCvI/qQeDqDWFBmQPElCfUTU6kk67QAgMkQ7T6fE+gg==",
       "dependencies": [
         "@algolia/client-common",
         "@algolia/requester-browser-xhr",
@@ -107,8 +106,8 @@
         "@algolia/requester-node-http"
       ]
     },
-    "@algolia/monitoring@1.29.0": {
-      "integrity": "sha512-FGWWG9jLFhsKB7YiDjM2dwQOYnWu//7Oxrb2vT96N7+s+hg1mdHHfHNRyEudWdxd4jkMhBjeqNA21VbTiOIPVg==",
+    "@algolia/monitoring@1.30.0": {
+      "integrity": "sha512-/eeM3aqLKro5KBZw0W30iIA6afkGa+bcpvEM0NDa92m5t3vil4LOmJI9FkgzfmSkF4368z/SZMOTPShYcaVXjA==",
       "dependencies": [
         "@algolia/client-common",
         "@algolia/requester-browser-xhr",
@@ -116,8 +115,8 @@
         "@algolia/requester-node-http"
       ]
     },
-    "@algolia/recommend@5.29.0": {
-      "integrity": "sha512-xte5+mpdfEARAu61KXa4ewpjchoZuJlAlvQb8ptK6hgHlBHDnYooy1bmOFpokaAICrq/H9HpoqNUX71n+3249A==",
+    "@algolia/recommend@5.30.0": {
+      "integrity": "sha512-iWeAUWqw+xT+2IyUyTqnHCK+cyCKYV5+B6PXKdagc9GJJn6IaPs8vovwoC0Za5vKCje/aXQ24a2Z1pKpc/tdHg==",
       "dependencies": [
         "@algolia/client-common",
         "@algolia/requester-browser-xhr",
@@ -125,26 +124,26 @@
         "@algolia/requester-node-http"
       ]
     },
-    "@algolia/requester-browser-xhr@5.29.0": {
-      "integrity": "sha512-og+7Em75aPHhahEUScq2HQ3J7ULN63Levtd87BYMpn6Im5d5cNhaC4QAUsXu6LWqxRPgh4G+i+wIb6tVhDhg2A==",
+    "@algolia/requester-browser-xhr@5.30.0": {
+      "integrity": "sha512-alo3ly0tdNLjfMSPz9dmNwYUFHx7guaz5dTGlIzVGnOiwLgIoM6NgA+MJLMcH6e1S7OpmE2AxOy78svlhst2tQ==",
       "dependencies": [
         "@algolia/client-common"
       ]
     },
-    "@algolia/requester-fetch@5.29.0": {
-      "integrity": "sha512-JCxapz7neAy8hT/nQpCvOrI5JO8VyQ1kPvBiaXWNC1prVq0UMYHEL52o1BsPvtXfdQ7BVq19OIq6TjOI06mV/w==",
+    "@algolia/requester-fetch@5.30.0": {
+      "integrity": "sha512-WOnTYUIY2InllHBy6HHMpGIOo7Or4xhYUx/jkoSK/kPIa1BRoFEHqa8v4pbKHtoG7oLvM2UAsylSnjVpIhGZXg==",
       "dependencies": [
         "@algolia/client-common"
       ]
     },
-    "@algolia/requester-node-http@5.29.0": {
-      "integrity": "sha512-lVBD81RBW5VTdEYgnzCz7Pf9j2H44aymCP+/eHGJu4vhU+1O8aKf3TVBgbQr5UM6xoe8IkR/B112XY6YIG2vtg==",
+    "@algolia/requester-node-http@5.30.0": {
+      "integrity": "sha512-uSTUh9fxeHde1c7KhvZKUrivk90sdiDftC+rSKNFKKEU9TiIKAGA7B2oKC+AoMCqMymot1vW9SGbeESQPTZd0w==",
       "dependencies": [
         "@algolia/client-common"
       ]
     },
-    "@anthropic-ai/claude-code@1.0.38": {
-      "integrity": "sha512-hPZbJCt7O8T872wbCXGiwF210DzMBo/k3EVKB6EZQB10b73ZQIEflAWGTC2ZvBcMp79qAR4F6c82V0+Cc6o0sg==",
+    "@anthropic-ai/claude-code@1.0.40": {
+      "integrity": "sha512-qC2SFowyHWvvik2ZbNCuE9V6+VXIsk2XB/liFMJxZBk0C8y2Hc6LEqGltKTjaFwkq2+NPcrImE4RZwBPfh2N3A==",
       "optionalDependencies": [
         "@img/sharp-darwin-arm64",
         "@img/sharp-darwin-x64",
@@ -186,7 +185,7 @@
         "preact"
       ]
     },
-    "@docsearch/react@3.8.2_algoliasearch@5.29.0": {
+    "@docsearch/react@3.8.2_algoliasearch@5.30.0": {
       "integrity": "sha512-xCRrJQlTt8N9GU0DG4ptwHRkfnSnD/YpdeaXe02iKfqs97TkZJv60yE+1eq/tjPcVnTW8dP5qLP7itifFVV5eg==",
       "dependencies": [
         "@algolia/autocomplete-core",
@@ -389,8 +388,8 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@jridgewell/sourcemap-codec@1.5.3": {
-      "integrity": "sha512-AiR5uKpFxP3PjO4R19kQGIMwxyRyPuXmKEEy301V1C0+1rVjS94EZQXf1QKZYN8Q0YM+estSPhmx5JwNftv6nw=="
+    "@jridgewell/sourcemap-codec@1.5.4": {
+      "integrity": "sha512-VT2+G1VQs/9oz078bLrYbecdZKs912zQlkelYpuf+SXF+QvZDYJlbx/LSx+meSAwdDFnF8FVXW92AVjjkVmgFw=="
     },
     "@octokit/auth-token@6.0.0": {
       "integrity": "sha512-P4YJBPdPSpWTQ1NU4XYdvHvXJJDxM6YwpS0FZHRgP7YFkdVxsWcpWGy/NVqlAA7PcPCnMacXlRm1y2PFZRWL/w=="
@@ -659,14 +658,8 @@
     "@types/mdurl@2.0.0": {
       "integrity": "sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg=="
     },
-    "@types/node@24.0.7": {
-      "integrity": "sha512-YIEUUr4yf8q8oQoXPpSlnvKNVKDQlPMWrmOcgzoduo7kvA2UF0/BwJ/eMKFTiTtkNL17I0M6Xe2tvwFU7be6iw==",
-      "dependencies": [
-        "undici-types"
-      ]
-    },
-    "@types/node@24.0.8": {
-      "integrity": "sha512-WytNrFSgWO/esSH9NbpWUfTMGQwCGIKfCmNlmFDNiI5gGhgMmEA+V1AEvKLeBNvvtBnailJtkrEa2OIISwrVAA==",
+    "@types/node@24.0.10": {
+      "integrity": "sha512-ENHwaH+JIRTDIEEbDK6QSQntAYGtbvdDXnMXnZaZ6k13Du1dPMmprkEHIL7ok2Wl2aZevetwTAb5S+7yIF+enA==",
       "dependencies": [
         "undici-types"
       ]
@@ -680,7 +673,7 @@
     "@ungap/structured-clone@1.3.0": {
       "integrity": "sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g=="
     },
-    "@vitejs/plugin-vue@5.2.4_vite@5.4.19__@types+node@24.0.7_vue@3.5.17_@types+node@24.0.7": {
+    "@vitejs/plugin-vue@5.2.4_vite@5.4.19__@types+node@24.0.10_vue@3.5.17_@types+node@24.0.10": {
       "integrity": "sha512-7Yx/SXSOcQq5HiiV3orevHUFn+pmMB4cgbEkDYgnkUWb0WfeQ/wa2yFv6D5ICiCQOVpjA7vYDXrC7AGO8yjDHA==",
       "dependencies": [
         "vite",
@@ -812,8 +805,8 @@
         "vue"
       ]
     },
-    "algoliasearch@5.29.0": {
-      "integrity": "sha512-E2l6AlTWGznM2e7vEE6T6hzObvEyXukxMOlBmVlMyixZyK1umuO/CiVc6sDBbzVH0oEviCE5IfVY1oZBmccYPQ==",
+    "algoliasearch@5.30.0": {
+      "integrity": "sha512-ILSdPX4je0n5WUKD34TMe57/eqiXUzCIjAsdtLQYhomqOjTtFUg1s6dE7kUegc4Mc43Xr7IXYlMutU9HPiYfdw==",
       "dependencies": [
         "@algolia/client-abtesting",
         "@algolia/client-analytics",
@@ -1190,10 +1183,10 @@
         "vfile-message"
       ]
     },
-    "vite@5.4.19_@types+node@24.0.7": {
+    "vite@5.4.19_@types+node@24.0.10": {
       "integrity": "sha512-qO3aKv3HoQC8QKiNSTuUM1l9o/XX3+c+VTgLHbJWHZGeTPVAg2XwazI9UWzoxjIJCGCV2zU60uqMzjeLZuULqA==",
       "dependencies": [
-        "@types/node@24.0.7",
+        "@types/node",
         "esbuild",
         "postcss",
         "rollup"
@@ -1202,11 +1195,11 @@
         "fsevents"
       ],
       "optionalPeers": [
-        "@types/node@24.0.7"
+        "@types/node"
       ],
       "bin": true
     },
-    "vitepress@1.6.3_vite@5.4.19__@types+node@24.0.7_vue@3.5.17_focus-trap@7.6.5_@types+node@24.0.7": {
+    "vitepress@1.6.3_vite@5.4.19__@types+node@24.0.10_vue@3.5.17_focus-trap@7.6.5_@types+node@24.0.10": {
       "integrity": "sha512-fCkfdOk8yRZT8GD9BFqusW3+GggWYZ/rYncOfmgcDtP3ualNHCAg+Robxp2/6xfH1WwPHtGpPwv7mbA3qomtBw==",
       "dependencies": [
         "@docsearch/css",
@@ -1247,7 +1240,7 @@
   "workspace": {
     "dependencies": [
       "npm:@octokit/rest@22.0.0",
-      "npm:@types/node@24.0.8",
+      "npm:@types/node@24.0.10",
       "npm:gltf-validator@2.0.0-dev.3.10",
       "npm:pyright@1.1.402",
       "npm:vitepress@1.6.3",
@@ -1255,7 +1248,7 @@
     ],
     "packageJson": {
       "dependencies": [
-        "npm:@anthropic-ai/claude-code@^1.0.37"
+        "npm:@anthropic-ai/claude-code@^1.0.40"
       ]
     }
   }
