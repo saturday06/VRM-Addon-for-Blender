@@ -24,7 +24,7 @@ dev-dependencies = [
   "codespell ==2.4.1",
   "mypy ==1.16.1",
   "pygit2 ==1.18.0",
-  "pyrefly ==0.22.0",
+  "pyrefly ==0.22.1",
   "requests ==2.32.4",
   "ruff ==0.12.1",
   "starry-bpy-typings",
