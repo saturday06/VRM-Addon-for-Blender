@@ -1,7 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:@anthropic-ai/claude-code@^1.0.40": "1.0.40",
+    "npm:@anthropic-ai/claude-code@^1.0.40": "1.0.41",
     "npm:@octokit/rest@22.0.0": "22.0.0_@octokit+core@7.0.2",
     "npm:@types/node@24.0.10": "24.0.10",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
@@ -142,8 +142,8 @@
         "@algolia/client-common"
       ]
     },
-    "@anthropic-ai/claude-code@1.0.40": {
-      "integrity": "sha512-qC2SFowyHWvvik2ZbNCuE9V6+VXIsk2XB/liFMJxZBk0C8y2Hc6LEqGltKTjaFwkq2+NPcrImE4RZwBPfh2N3A==",
+    "@anthropic-ai/claude-code@1.0.41": {
+      "integrity": "sha512-6E5SCb1I/pC4WCEFGwmyo4M4bL9vBuk7qkC78v9ZFX9PAxmKX94SEj422igdLeucBYX99ZqKSMYfsJEqTeIo2Q==",
       "optionalDependencies": [
         "@img/sharp-darwin-arm64",
         "@img/sharp-darwin-x64",
@@ -161,15 +161,15 @@
     "@babel/helper-validator-identifier@7.27.1": {
       "integrity": "sha512-D2hP9eA+Sqx1kBZgzxZh0y1trbuU+JoDkiEwqhQ36nodYqJwyEIhPSdMNd7lOm/4io72luTPWH20Yda0xOuUow=="
     },
-    "@babel/parser@7.27.7": {
-      "integrity": "sha512-qnzXzDXdr/po3bOTbTIQZ7+TxNKxpkN5IifVLXS+r7qwynkZfPyjZfE7hCXbo7IoO9TNcSyibgONsf2HauUd3Q==",
+    "@babel/parser@7.28.0": {
+      "integrity": "sha512-jVZGvOxOuNSsuQuLRTh13nU0AogFlw32w/MT+LV6D3sP5WdbW61E77RnkbaO2dUvmPAYrBDJXGn5gGS6tH4j8g==",
       "dependencies": [
         "@babel/types"
       ],
       "bin": true
     },
-    "@babel/types@7.27.7": {
-      "integrity": "sha512-8OLQgDScAOHXnAz2cV+RfzzNMipuLVBz2biuAJFMV9bfkNf393je3VM8CLkjQodW5+iWsSJdSgSWT6rsZoXHPw==",
+    "@babel/types@7.28.0": {
+      "integrity": "sha512-jYnje+JyZG5YThjHiF28oT4SIZLnYOcSBb6+SDaFIyzDVSkXQmQQYclJ2R+YxcdmK0AX6x1E5OQNtuh3jHDrUg==",
       "dependencies": [
         "@babel/helper-string-parser",
         "@babel/helper-validator-identifier"
