@@ -2,7 +2,7 @@
 import process from "node:process";
 import { basename, dirname } from "node:path";
 import { readdir, readFile, stat } from "node:fs/promises";
-import gltfValidator from "gltf-validator";
+import gltfValidator from "npm:gltf-validator";
 
 const basePath = process.env.BLENDER_VRM_TEST_RESOURCES_PATH || process.cwd();
 if (!(await stat(basePath)).isDirectory()) {
