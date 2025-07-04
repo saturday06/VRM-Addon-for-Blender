@@ -1,7 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:@anthropic-ai/claude-code@^1.0.40": "1.0.41",
+    "npm:@anthropic-ai/claude-code@^1.0.40": "1.0.43",
     "npm:@octokit/rest@22.0.0": "22.0.0_@octokit+core@7.0.2",
     "npm:@types/node@24.0.10": "24.0.10",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
@@ -142,8 +142,8 @@
         "@algolia/client-common"
       ]
     },
-    "@anthropic-ai/claude-code@1.0.41": {
-      "integrity": "sha512-6E5SCb1I/pC4WCEFGwmyo4M4bL9vBuk7qkC78v9ZFX9PAxmKX94SEj422igdLeucBYX99ZqKSMYfsJEqTeIo2Q==",
+    "@anthropic-ai/claude-code@1.0.43": {
+      "integrity": "sha512-VnuRK4s/R9ZRTkwH4gUjsp4SiBQXq7Y0B47OtgeXIZYVQYkhTW8m+E0IisFzXXFIyTQrE0SodGCpvgLhAYzGCg==",
       "optionalDependencies": [
         "@img/sharp-darwin-arm64",
         "@img/sharp-darwin-x64",
