@@ -36,10 +36,8 @@ jobs:
           # のtypes+nodeのバージョンが固定されたままなので、deno.lock自体を作り直す
           rm deno.lock
 
-          deno outdated --latest --update
-
-          # deno.lockから `"npm:vitepress@*": ...` が消えるので、復活させる
-          deno run docs:build
+          deno cache . --allow-scripts
+          deno outdated --update --latest
       - name: Create PR
         run: |
           set -x
