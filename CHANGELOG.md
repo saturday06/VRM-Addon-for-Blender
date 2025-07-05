@@ -7,6 +7,12 @@
 
 * fixed a bug where the parent of the spring bone1 collider was not updated ([ae45306](https://github.com/saturday06/VRM-Addon-for-Blender/commit/ae45306c2e5f3c9230a27e6d72443561b3547425))
 
+## [3.7.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.7.3...v3.7.4) (2025-06-28)
+
+### 🚀 Features
+
+* add ue4humanoid and bip001 mappings ([#939](https://github.com/saturday06/VRM-Addon-for-Blender/pull/939)) by [@elbadcode](https://github.com/elbadcode)
+
 ## [3.7.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.7.2...v3.7.3) (2025-06-22)
 
 

@@ -45,7 +45,7 @@ async function updateChangelog(
     }
     newContent += `${release.body}\n\n`;
   }
-  await Deno.writeTextFile(changelogPath, newContent);
+  await Deno.writeTextFile(changelogPath, newContent.trimEnd() + "\n");
 }
 
 if (import.meta.main) {
