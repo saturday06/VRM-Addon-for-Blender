@@ -2,6 +2,7 @@
 *.blend1
 *.orig
 .DS_Store
+.env
 .mypy_cache/
 .ruff_cache/
 /.idea/
