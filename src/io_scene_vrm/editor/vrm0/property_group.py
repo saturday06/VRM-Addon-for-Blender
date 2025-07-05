@@ -727,9 +727,13 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
     def refresh(self, armature: Object) -> None:
         from ..extension import get_armature_extension
 
-        self.name = (
+        name = (
             str(self.node.bone_name) if self.node and self.node.bone_name else ""
         ) + f"#{self.uuid}"
+
+        if self.name != name:
+            self.name = name
+
         for index, collider in reversed(
             tuple((index, collider) for index, collider in enumerate(self.colliders))
         ):
@@ -737,9 +741,11 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
                 self.colliders.remove(index)
             else:
                 collider.refresh(armature, self.node.bone_name)
+
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
+
         for bone_group in get_armature_extension(
             armature_data
         ).vrm0.secondary_animation.bone_groups:
@@ -871,7 +877,8 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
                 self.collider_groups.remove(index)
                 continue
 
-            collider_group.value = name
+            if collider_group.value != name:
+                collider_group.value = name
 
     if TYPE_CHECKING:
         # This code is auto generated.
