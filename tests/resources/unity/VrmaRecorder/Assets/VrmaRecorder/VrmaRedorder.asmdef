@@ -17,8 +17,7 @@
         "LinuxStandalone64",
         "CloudRendering",
         "macOSStandalone",
-        "WindowsStandalone64",
-        "WindowsStandalone64Server"
+        "WindowsStandalone64"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
