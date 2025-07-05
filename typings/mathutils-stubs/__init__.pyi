@@ -113,6 +113,10 @@ class Quaternion:
     def __matmul__(self, other: Quaternion) -> Quaternion: ...
     @overload
     def __matmul__(self, other: Vector) -> Vector: ...
+    def __getitem__(
+        self,
+        index: int,
+    ) -> float: ...  # ドキュメントには存在しない?
     def __setitem__(
         self,
         index: int,
