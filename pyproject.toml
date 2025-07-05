@@ -16,8 +16,8 @@ dependencies = [
   "bpy == 3.6.*; platform_system == 'Windows' and platform_machine == 'AMD64'",
 ]
 
-[tool.ty.src]
-root = "./src"
+[tool.ty.environment]
+root = ["src"]
 
 [tool.uv]
 dev-dependencies = [
