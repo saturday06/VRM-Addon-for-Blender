@@ -611,6 +611,10 @@ class BonePropertyGroup(PropertyGroup):
             for collider_group in ext.vrm0.secondary_animation.collider_groups:
                 collider_group.refresh(armature)
 
+        if bone_property_group_type == BonePropertyGroupType.SPRING_BONE1_COLLIDER:
+            for collider in ext.spring_bone1.colliders:
+                collider.reset_bpy_object(context, armature)
+
         if (
             ext.is_vrm0()
             and bone_property_group_type == BonePropertyGroupType.VRM0_HUMAN
