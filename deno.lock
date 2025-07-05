@@ -2,12 +2,11 @@
   "version": "5",
   "specifiers": {
     "npm:@anthropic-ai/claude-code@^1.0.40": "1.0.43",
-    "npm:@octokit/rest@*": "22.0.0_@octokit+core@7.0.2",
     "npm:@octokit/rest@22.0.0": "22.0.0_@octokit+core@7.0.2",
-    "npm:@octokit/types@*": "14.1.0",
     "npm:@types/node@24.0.10": "24.0.10",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
     "npm:pyright@1.1.402": "1.1.402",
+    "npm:vitepress@*": "1.6.3_vite@5.4.19__@types+node@24.0.10_vue@3.5.17_focus-trap@7.6.5_@types+node@24.0.10",
     "npm:vitepress@1.6.3": "1.6.3_vite@5.4.19__@types+node@24.0.10_vue@3.5.17_focus-trap@7.6.5_@types+node@24.0.10",
     "npm:vue@3.5.17": "3.5.17"
   },
