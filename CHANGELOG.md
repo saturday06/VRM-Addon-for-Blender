@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.5](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.7.4...v3.7.5) (2025-07-05)
+
+
+### 🐞 Bug Fixes
+
+* fixed a bug where the parent of the spring bone1 collider was not updated ([ae45306](https://github.com/saturday06/VRM-Addon-for-Blender/commit/ae45306c2e5f3c9230a27e6d72443561b3547425))
+
 ## [3.7.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.7.2...v3.7.3) (2025-06-22)
 
 
@@ -358,4 +365,3 @@ https://github.com/saturday06/VRM-Addon-for-Blender/issues/627
 ### 🐞 Bug Fixes
 
 * [workaround for blender 4.2 multi root armature error](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fe8f06d0452780306595fb87e84cd383df456879)
-
