@@ -3,6 +3,7 @@ import uuid
 import warnings
 from collections.abc import Iterator, Mapping, Sequence, ValuesView
 from dataclasses import dataclass
+from enum import Enum
 from typing import TYPE_CHECKING, ClassVar, Final, Optional, Protocol, TypeVar, overload
 
 import bpy
@@ -223,11 +224,23 @@ class MaterialPropertyGroup(PropertyGroup):
         material: Optional[Material]  # type: ignore[no-redef]
 
 
+class BonePropertyGroupType(Enum):
+    VRM0_FIRST_PERSON = 1
+    VRM0_HUMAN = 2
+    VRM0_COLLIDER_GROUP = 3
+    VRM0_BONE_GROUP_CENTER = 4
+    VRM0_BONE_GROUP = 5
+    VRM1_HUMAN = 6
+    VRM1_COLLIDER = 7
+    VRM1_SPRING_CENTER = 8
+    VRM1_SPRING_JOINT = 9
+
+
 class BonePropertyGroup(PropertyGroup):
     @staticmethod
     def get_all_bone_property_groups(
         armature: Object,
-    ) -> Iterator[tuple["BonePropertyGroup", bool, bool]]:
+    ) -> Iterator[tuple["BonePropertyGroup", BonePropertyGroupType]]:
         """Return (bone: BonePropertyGroup, is_vrm0: bool, is_vrm1: bool)."""
         from .extension import get_armature_extension
 
@@ -235,24 +248,30 @@ class BonePropertyGroup(PropertyGroup):
         if not isinstance(armature_data, Armature):
             return
         ext = get_armature_extension(armature_data)
-        yield ext.vrm0.first_person.first_person_bone, False, False
+        yield (
+            ext.vrm0.first_person.first_person_bone,
+            BonePropertyGroupType.VRM0_FIRST_PERSON,
+        )
         for human_bone in ext.vrm0.humanoid.human_bones:
-            yield human_bone.node, True, False
+            yield human_bone.node, BonePropertyGroupType.VRM0_HUMAN
         for collider_group in ext.vrm0.secondary_animation.collider_groups:
-            yield collider_group.node, False, False
+            yield collider_group.node, BonePropertyGroupType.VRM0_COLLIDER_GROUP
         for bone_group in ext.vrm0.secondary_animation.bone_groups:
-            yield bone_group.center, False, False
-            yield from ((bone, False, False) for bone in bone_group.bones)
+            yield bone_group.center, BonePropertyGroupType.VRM0_BONE_GROUP_CENTER
+            yield from (
+                (bone, BonePropertyGroupType.VRM0_BONE_GROUP)
+                for bone in bone_group.bones
+            )
         for (
             human_bone
         ) in ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone().values():
-            yield human_bone.node, False, True
+            yield human_bone.node, BonePropertyGroupType.VRM1_HUMAN
         for collider in ext.spring_bone1.colliders:
-            yield collider.node, False, False
+            yield collider.node, BonePropertyGroupType.VRM1_COLLIDER
         for spring in ext.spring_bone1.springs:
-            yield spring.center, False, False
+            yield spring.center, BonePropertyGroupType.VRM1_SPRING_CENTER
             for joint in spring.joints:
-                yield joint.node, False, False
+                yield joint.node, BonePropertyGroupType.VRM1_SPRING_JOINT
 
     @staticmethod
     def find_bone_candidates(
@@ -523,8 +542,7 @@ class BonePropertyGroup(PropertyGroup):
         context = bpy.context
 
         armature: Optional[Object] = None
-        bone_is_vrm0_human_bone = False
-        bone_is_vrm1_human_bone = False
+        bone_property_group_type: Optional[BonePropertyGroupType] = None
 
         # Reassign self.armature_data_name in case of armature duplication.
         self.search_one_time_uuid = uuid.uuid4().hex
@@ -535,16 +553,14 @@ class BonePropertyGroup(PropertyGroup):
             same_uuid_bone_found = False
             for (
                 bone_property_group,
-                found_bone_is_vrm0_human_bone,
-                found_bone_is_vrm1_human_bone,
+                found_bone_property_group_type,
             ) in BonePropertyGroup.get_all_bone_property_groups(found_armature):
                 if (
                     bone_property_group.search_one_time_uuid
                     == self.search_one_time_uuid
                 ):
                     same_uuid_bone_found = True
-                    bone_is_vrm0_human_bone = found_bone_is_vrm0_human_bone
-                    bone_is_vrm1_human_bone = found_bone_is_vrm1_human_bone
+                    bone_property_group_type = found_bone_property_group_type
                     break
             if not same_uuid_bone_found:
                 continue
@@ -590,9 +606,15 @@ class BonePropertyGroup(PropertyGroup):
         for collider_group in ext.vrm0.secondary_animation.collider_groups:
             collider_group.refresh(armature)
 
-        if ext.is_vrm0() and bone_is_vrm0_human_bone:
+        if (
+            ext.is_vrm0()
+            and bone_property_group_type == BonePropertyGroupType.VRM0_HUMAN
+        ):
             self.update_all_vrm0_node_candidates(armature_data)
-        if ext.is_vrm1() and bone_is_vrm1_human_bone:
+        if (
+            ext.is_vrm1()
+            and bone_property_group_type == BonePropertyGroupType.VRM1_HUMAN
+        ):
             self.update_all_vrm1_node_candidates(armature_data)
 
     @staticmethod

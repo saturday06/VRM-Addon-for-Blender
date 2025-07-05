@@ -67,7 +67,7 @@ class TestBonePropertyGroup(AddonTestCase):
         self.assertEqual(len(armatures), 1)
         armature = armatures[0]
 
-        for props, _vrm0, _vrm1 in BonePropertyGroup.get_all_bone_property_groups(
+        for props, _props_type in BonePropertyGroup.get_all_bone_property_groups(
             armature
         ):
             self.assertTrue(

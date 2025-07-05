@@ -509,8 +509,7 @@ def migrate_link_to_bone_object(
 
     for (
         bone_property_group,
-        _vrm0,
-        _vrm1,
+        _bone_property_group_type,
     ) in BonePropertyGroup.get_all_bone_property_groups(armature):
         bone_property_group.armature_data_name = armature_data.name
 
@@ -533,8 +532,7 @@ def migrate_link_to_bone_object(
 
     for (
         bone_property_group,
-        _vrm0,
-        _vrm1,
+        _bone_property_group_type,
     ) in BonePropertyGroup.get_all_bone_property_groups(armature):
         link_to_bone = bone_property_group.pop("link_to_bone", None)
         if not isinstance(link_to_bone, Object):

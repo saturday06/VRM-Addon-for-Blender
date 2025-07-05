@@ -87,8 +87,7 @@ def migrate(context: Optional[Context], armature_object_name: str) -> bool:
 
     for (
         bone_property_group,
-        _vrm0,
-        _vrm1,
+        _type,
     ) in BonePropertyGroup.get_all_bone_property_groups(armature):
         bone_property_group.armature_data_name = armature_data.name
 
