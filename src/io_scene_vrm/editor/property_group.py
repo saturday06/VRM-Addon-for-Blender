@@ -231,9 +231,9 @@ class BonePropertyGroupType(Enum):
     VRM0_BONE_GROUP_CENTER = 4
     VRM0_BONE_GROUP = 5
     VRM1_HUMAN = 6
-    VRM1_COLLIDER = 7
-    VRM1_SPRING_CENTER = 8
-    VRM1_SPRING_JOINT = 9
+    SPRING_BONE1_COLLIDER = 7
+    SPRING_BONE1_SPRING_CENTER = 8
+    SPRING_BONE1_SPRING_JOINT = 9
 
 
 class BonePropertyGroup(PropertyGroup):
@@ -267,11 +267,11 @@ class BonePropertyGroup(PropertyGroup):
         ) in ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone().values():
             yield human_bone.node, BonePropertyGroupType.VRM1_HUMAN
         for collider in ext.spring_bone1.colliders:
-            yield collider.node, BonePropertyGroupType.VRM1_COLLIDER
+            yield collider.node, BonePropertyGroupType.SPRING_BONE1_COLLIDER
         for spring in ext.spring_bone1.springs:
-            yield spring.center, BonePropertyGroupType.VRM1_SPRING_CENTER
+            yield spring.center, BonePropertyGroupType.SPRING_BONE1_SPRING_CENTER
             for joint in spring.joints:
-                yield joint.node, BonePropertyGroupType.VRM1_SPRING_JOINT
+                yield joint.node, BonePropertyGroupType.SPRING_BONE1_SPRING_JOINT
 
     @staticmethod
     def find_bone_candidates(
