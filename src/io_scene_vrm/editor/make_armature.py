@@ -163,20 +163,8 @@ class ICYP_OT_make_armature(Operator):
         return self.head_size() * 0.75 * self.float_prop("hand_ratio")
 
     def make_armature(self, context: Context) -> tuple[Object, dict[str, str]]:
-        bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
-        armature = context.object
-        if not armature:
-            message = "armature is not created"
-            raise ValueError(message)
-        armature_data = armature.data
-        if not isinstance(armature_data, Armature):
-            message = "armature data is not an Armature"
-            raise TypeError(message)
-        get_armature_extension(armature_data).addon_version = get_addon_version()
-
-        bone_dict: dict[str, EditBone] = {}
-
         def bone_add(
+            armature_data: Armature,
             name: str,
             head_pos: Vector,
             tail_pos: Vector,
@@ -184,10 +172,6 @@ class ICYP_OT_make_armature(Operator):
             radius: float = 0.1,
             roll: float = 0,
         ) -> EditBone:
-            armature_data = armature.data
-            if not isinstance(armature_data, Armature):
-                message = "armature data is not an Armature"
-                raise TypeError(message)
             added_bone = armature_data.edit_bones.new(name)
             added_bone.head = head_pos
             added_bone.tail = tail_pos
@@ -200,8 +184,8 @@ class ICYP_OT_make_armature(Operator):
             bone_dict.update({name: added_bone})
             return added_bone
 
-        # bone_type = "leg" or "arm" for roll setting
         def x_mirror_bones_add(
+            armature_data: Armature,
             base_name: str,
             right_head_pos: Vector,
             right_tail_pos: Vector,
@@ -217,6 +201,7 @@ class ICYP_OT_make_armature(Operator):
                 right_roll = 0
                 left_roll = 0
             left_bone = bone_add(
+                armature_data,
                 base_name + ".L",
                 right_head_pos,
                 right_tail_pos,
@@ -228,6 +213,7 @@ class ICYP_OT_make_armature(Operator):
             head_pos = [pos * axis for pos, axis in zip(right_head_pos, (-1, 1, 1))]
             tail_pos = [pos * axis for pos, axis in zip(right_tail_pos, (-1, 1, 1))]
             right_bone = bone_add(
+                armature_data,
                 base_name + ".R",
                 Vector((head_pos[0], head_pos[1], head_pos[2])),
                 Vector((tail_pos[0], tail_pos[1], tail_pos[2])),
@@ -249,6 +235,85 @@ class ICYP_OT_make_armature(Operator):
         def z_add(pos_a: Vector, add_z: float) -> Vector:
             pos = [p_a + _add for p_a, _add in zip(pos_a, [0, 0, add_z])]
             return Vector((pos[0], pos[1], pos[2]))
+
+        def fingers(
+            armature_data: Armature,
+            finger_name: str,
+            proximal_pos: Vector,
+            finger_len_sum: float,
+        ) -> tuple[
+            tuple[EditBone, EditBone],
+            tuple[EditBone, EditBone],
+            tuple[EditBone, EditBone],
+        ]:
+            finger_normalize = 1 / (
+                self.finger_1_2_ratio * self.finger_2_3_ratio
+                + self.finger_1_2_ratio
+                + 1
+            )
+            proximal_finger_len = finger_len_sum * finger_normalize
+            intermediate_finger_len = (
+                finger_len_sum * finger_normalize * self.finger_1_2_ratio
+            )
+            distal_finger_len = (
+                finger_len_sum
+                * finger_normalize
+                * self.finger_1_2_ratio
+                * self.finger_2_3_ratio
+            )
+            proximal_bones = x_mirror_bones_add(
+                armature_data,
+                f"{finger_name}_proximal",
+                proximal_pos,
+                x_add(proximal_pos, proximal_finger_len),
+                hands,
+                self.hand_size() / 18,
+                bone_type="arm",
+            )
+            intermediate_bones = x_mirror_bones_add(
+                armature_data,
+                f"{finger_name}_intermediate",
+                proximal_bones[0].tail,
+                x_add(proximal_bones[0].tail, intermediate_finger_len),
+                proximal_bones,
+                self.hand_size() / 18,
+                bone_type="arm",
+            )
+            distal_bones = x_mirror_bones_add(
+                armature_data,
+                f"{finger_name}_distal",
+                intermediate_bones[0].tail,
+                x_add(intermediate_bones[0].tail, distal_finger_len),
+                intermediate_bones,
+                self.hand_size() / 18,
+                bone_type="arm",
+            )
+            if self.nail_bone:
+                x_mirror_bones_add(
+                    armature_data,
+                    f"{finger_name}_nail",
+                    distal_bones[0].tail,
+                    x_add(distal_bones[0].tail, distal_finger_len),
+                    distal_bones,
+                    self.hand_size() / 20,
+                    bone_type="arm",
+                )
+            return proximal_bones, intermediate_bones, distal_bones
+
+        bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
+        armature = context.object
+        if not armature:
+            message = "armature is not created"
+            raise ValueError(message)
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            message = "armature data is not an Armature"
+            raise TypeError(message)
+        get_armature_extension(armature_data).addon_version = get_addon_version()
+
+        bone_dict: dict[str, EditBone] = {}
+
+        # bone_type = "leg" or "arm" for roll setting
 
         head_size = self.head_size()
         # down side (前は8頭身の時の股上/股下の股下側割合、
@@ -276,9 +341,10 @@ class ICYP_OT_make_armature(Operator):
         # by Humanoid Doc
         spine_len = backbone_len * 5 / 17
 
-        root = bone_add("root", Vector((0, 0, 0)), Vector((0, 0, 0.3)))
+        root = bone_add(armature_data, "root", Vector((0, 0, 0)), Vector((0, 0, 0.3)))
         # 仙骨基部
         hips = bone_add(
+            armature_data,
             "hips",
             Vector((0, 0, body_separate)),
             Vector((0, 0, hips_tall)),
@@ -286,12 +352,20 @@ class ICYP_OT_make_armature(Operator):
             roll=0,
         )
         # 骨盤基部->胸郭基部
-        spine = bone_add("spine", hips.tail, z_add(hips.tail, spine_len), hips, roll=0)
+        spine = bone_add(
+            armature_data, "spine", hips.tail, z_add(hips.tail, spine_len), hips, roll=0
+        )
         # 胸郭基部->首元
         chest = bone_add(
-            "chest", spine.tail, z_add(hips.tail, backbone_len), spine, roll=0
+            armature_data,
+            "chest",
+            spine.tail,
+            z_add(hips.tail, backbone_len),
+            spine,
+            roll=0,
         )
         neck = bone_add(
+            armature_data,
             "neck",
             Vector((0, 0, self.tall - head_size - neck_len / 2)),
             Vector((0, 0, self.tall - head_size + neck_len / 2)),
@@ -300,6 +374,7 @@ class ICYP_OT_make_armature(Operator):
         )
         # 首の1/2は顎の後ろに隠れてる
         head = bone_add(
+            armature_data,
             "head",
             Vector((0, 0, self.tall - head_size + neck_len / 2)),
             Vector((0, 0, self.tall)),
@@ -310,6 +385,7 @@ class ICYP_OT_make_armature(Operator):
         # 目
         eye_depth = self.eye_depth
         eyes = x_mirror_bones_add(
+            armature_data,
             "eye",
             Vector(
                 (head_size * self.head_width_ratio / 5, 0, self.tall - head_size / 2)
@@ -329,6 +405,7 @@ class ICYP_OT_make_armature(Operator):
 
         leg_bone_length = (body_separate + head_size * 3 / 8 - self.tall * 0.05) / 2
         upside_legs = x_mirror_bones_add(
+            armature_data,
             "upper_leg",
             x_add(Vector((0, 0, body_separate + head_size * 3 / 8)), leg_width),
             x_add(
@@ -345,6 +422,7 @@ class ICYP_OT_make_armature(Operator):
             bone_type="leg",
         )
         lower_legs = x_mirror_bones_add(
+            armature_data,
             "lower_leg",
             upside_legs[0].tail,
             Vector((leg_width, 0, self.tall * 0.05)),
@@ -353,6 +431,7 @@ class ICYP_OT_make_armature(Operator):
             bone_type="leg",
         )
         foots = x_mirror_bones_add(
+            armature_data,
             "foot",
             lower_legs[0].tail,
             Vector((leg_width, -leg_size * (2 / 3), 0)),
@@ -361,6 +440,7 @@ class ICYP_OT_make_armature(Operator):
             bone_type="leg",
         )
         toes = x_mirror_bones_add(
+            armature_data,
             "toes",
             foots[0].tail,
             Vector((leg_width, -leg_size, 0)),
@@ -374,6 +454,7 @@ class ICYP_OT_make_armature(Operator):
 
         shoulder_parent = chest
         shoulders = x_mirror_bones_add(
+            armature_data,
             "shoulder",
             x_add(shoulder_parent.tail, shoulder_in_pos),
             x_add(shoulder_parent.tail, shoulder_in_pos + self.shoulder_width),
@@ -388,6 +469,7 @@ class ICYP_OT_make_armature(Operator):
             * self.arm_length_ratio
         )
         arms = x_mirror_bones_add(
+            armature_data,
             "upper_arm",
             shoulders[0].tail,
             x_add(shoulders[0].tail, arm_length),
@@ -400,6 +482,7 @@ class ICYP_OT_make_armature(Operator):
         # 概ね一緒、けど手がでかすぎると破綻する
         forearm_length = max(arm_length - self.hand_size() / 2, arm_length * 0.8)
         forearms = x_mirror_bones_add(
+            armature_data,
             "lower_arm",
             arms[0].tail,
             x_add(arms[0].tail, forearm_length),
@@ -408,6 +491,7 @@ class ICYP_OT_make_armature(Operator):
             bone_type="arm",
         )
         hands = x_mirror_bones_add(
+            armature_data,
             "hand",
             forearms[0].tail,
             x_add(forearms[0].tail, self.hand_size() / 2),
@@ -416,67 +500,9 @@ class ICYP_OT_make_armature(Operator):
             bone_type="arm",
         )
 
-        def fingers(
-            finger_name: str,
-            proximal_pos: Vector,
-            finger_len_sum: float,
-        ) -> tuple[
-            tuple[EditBone, EditBone],
-            tuple[EditBone, EditBone],
-            tuple[EditBone, EditBone],
-        ]:
-            finger_normalize = 1 / (
-                self.finger_1_2_ratio * self.finger_2_3_ratio
-                + self.finger_1_2_ratio
-                + 1
-            )
-            proximal_finger_len = finger_len_sum * finger_normalize
-            intermediate_finger_len = (
-                finger_len_sum * finger_normalize * self.finger_1_2_ratio
-            )
-            distal_finger_len = (
-                finger_len_sum
-                * finger_normalize
-                * self.finger_1_2_ratio
-                * self.finger_2_3_ratio
-            )
-            proximal_bones = x_mirror_bones_add(
-                f"{finger_name}_proximal",
-                proximal_pos,
-                x_add(proximal_pos, proximal_finger_len),
-                hands,
-                self.hand_size() / 18,
-                bone_type="arm",
-            )
-            intermediate_bones = x_mirror_bones_add(
-                f"{finger_name}_intermediate",
-                proximal_bones[0].tail,
-                x_add(proximal_bones[0].tail, intermediate_finger_len),
-                proximal_bones,
-                self.hand_size() / 18,
-                bone_type="arm",
-            )
-            distal_bones = x_mirror_bones_add(
-                f"{finger_name}_distal",
-                intermediate_bones[0].tail,
-                x_add(intermediate_bones[0].tail, distal_finger_len),
-                intermediate_bones,
-                self.hand_size() / 18,
-                bone_type="arm",
-            )
-            if self.nail_bone:
-                x_mirror_bones_add(
-                    f"{finger_name}_nail",
-                    distal_bones[0].tail,
-                    x_add(distal_bones[0].tail, distal_finger_len),
-                    distal_bones,
-                    self.hand_size() / 20,
-                    bone_type="arm",
-                )
-            return proximal_bones, intermediate_bones, distal_bones
-
         finger_y_offset = -self.hand_size() / 16
         thumbs = fingers(
+            armature_data,
             "thumb",
             y_add(hands[0].head, finger_y_offset * 3),
             self.hand_size() / 2,
@@ -494,19 +520,25 @@ class ICYP_OT_make_armature(Operator):
                 thumbs[j][n].roll = 0
 
         index_fingers = fingers(
+            armature_data,
             "index",
             y_add(hands[0].tail, finger_y_offset * 3),
             (self.hand_size() / 2) - (1 / 2.3125) * (self.hand_size() / 2) / 3,
         )
         middle_fingers = fingers(
-            "middle", y_add(hands[0].tail, finger_y_offset), self.hand_size() / 2
+            armature_data,
+            "middle",
+            y_add(hands[0].tail, finger_y_offset),
+            self.hand_size() / 2,
         )
         ring_fingers = fingers(
+            armature_data,
             "ring",
             y_add(hands[0].tail, -finger_y_offset),
             (self.hand_size() / 2) - (1 / 2.3125) * (self.hand_size() / 2) / 3,
         )
         little_fingers = fingers(
+            armature_data,
             "little",
             y_add(hands[0].tail, -finger_y_offset * 3),
             ((self.hand_size() / 2) - (1 / 2.3125) * (self.hand_size() / 2) / 3)
