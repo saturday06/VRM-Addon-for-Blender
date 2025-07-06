@@ -18,14 +18,13 @@ from io_scene_vrm.common import convert, convert_any
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-RUFF_LINE_LENGTH_LIMIT = 88
-LONG_STRING_SPLIT_THRESHOLD = 89
+LONG_STRING_SPLIT_THRESHOLD = 88
 STRING_TRUNCATION_LENGTH = 63
 TYPE_IGNORE_COMMENT = "  # type: ignore[no-redef]"
 SPELLCHECK_IGNORE_COMMENT = "  # noqa: SC200"
 
 
-def _handle_string_property(property_name: str) -> tuple[str, str, str]:
+def handle_string_property(property_name: str) -> tuple[str, str, str]:
     """Handle StringProperty and EnumProperty types."""
     comment = TYPE_IGNORE_COMMENT
     if property_name == "stiffiness" or property_name.endswith("_ussage_name"):
@@ -35,7 +34,7 @@ def _handle_string_property(property_name: str) -> tuple[str, str, str]:
     return line, "str", '""'
 
 
-def _handle_float_property(property_name: str) -> tuple[str, str, float]:
+def handle_float_property(property_name: str) -> tuple[str, str, float]:
     """Handle FloatProperty type."""
     comment = TYPE_IGNORE_COMMENT
     if property_name == "stiffiness" or property_name.endswith("_ussage_name"):
@@ -45,14 +44,14 @@ def _handle_float_property(property_name: str) -> tuple[str, str, float]:
     return line, "float", 0.0
 
 
-def _handle_float_vector_property(property_name: str) -> str:
+def handle_float_vector_property(property_name: str) -> str:
     """Handle FloatVectorProperty type."""
     comment = TYPE_IGNORE_COMMENT
     if property_name == "stiffiness" or property_name.endswith("_ussage_name"):
         comment += SPELLCHECK_IGNORE_COMMENT
 
     line = f"        {property_name}: Sequence[float]{comment}"
-    if len(line) > RUFF_LINE_LENGTH_LIMIT:
+    if len(line) > LONG_STRING_SPLIT_THRESHOLD:
         line = (
             f"        {property_name}: ({comment}\n"
             "            Sequence[float]\n"
@@ -61,7 +60,7 @@ def _handle_float_vector_property(property_name: str) -> str:
     return line
 
 
-def _handle_int_property(property_name: str) -> tuple[str, str, int]:
+def handle_int_property(property_name: str) -> tuple[str, str, int]:
     """Handle IntProperty type."""
     comment = TYPE_IGNORE_COMMENT
     if property_name == "stiffiness" or property_name.endswith("_ussage_name"):
@@ -71,21 +70,21 @@ def _handle_int_property(property_name: str) -> tuple[str, str, int]:
     return line, "int", 0
 
 
-def _handle_int_vector_property(property_name: str) -> str:
+def handle_int_vector_property(property_name: str) -> str:
     """Handle IntVectorProperty type."""
     comment = TYPE_IGNORE_COMMENT
     if property_name == "stiffiness" or property_name.endswith("_ussage_name"):
         comment += SPELLCHECK_IGNORE_COMMENT
 
     line = f"        {property_name}: Sequence[int]{comment}"
-    if len(line) > RUFF_LINE_LENGTH_LIMIT:
+    if len(line) > LONG_STRING_SPLIT_THRESHOLD:
         line = (
             f"        {property_name}: ({comment}\n            Sequence[int]\n        )"
         )
     return line
 
 
-def _handle_bool_property(property_name: str) -> tuple[str, str, str]:
+def handle_bool_property(property_name: str) -> tuple[str, str, str]:
     """Handle BoolProperty type."""
     comment = TYPE_IGNORE_COMMENT
     if property_name == "stiffiness" or property_name.endswith("_ussage_name"):
@@ -95,14 +94,14 @@ def _handle_bool_property(property_name: str) -> tuple[str, str, str]:
     return line, "bool", "False"
 
 
-def _handle_bool_vector_property(property_name: str) -> str:
+def handle_bool_vector_property(property_name: str) -> str:
     """Handle BoolVectorProperty type."""
     comment = TYPE_IGNORE_COMMENT
     if property_name == "stiffiness" or property_name.endswith("_ussage_name"):
         comment += SPELLCHECK_IGNORE_COMMENT
 
     line = f"        {property_name}: Sequence[bool]{comment}"
-    if len(line) > RUFF_LINE_LENGTH_LIMIT:
+    if len(line) > LONG_STRING_SPLIT_THRESHOLD:
         line = (
             f"        {property_name}: ({comment}\n"
             "            Sequence[bool]\n"
@@ -111,7 +110,7 @@ def _handle_bool_vector_property(property_name: str) -> str:
     return line
 
 
-def _handle_pointer_property(property_name: str, keywords: dict[str, object]) -> str:
+def handle_pointer_property(property_name: str, keywords: dict[str, object]) -> str:
     """Handle PointerProperty type."""
     target_type = keywords.get("type")
     if not isinstance(target_type, type):
@@ -130,7 +129,7 @@ def _handle_pointer_property(property_name: str, keywords: dict[str, object]) ->
         comment += SPELLCHECK_IGNORE_COMMENT
 
     line = f"        {property_name}: {target_name}{comment}"
-    if len(line) > RUFF_LINE_LENGTH_LIMIT:
+    if len(line) > LONG_STRING_SPLIT_THRESHOLD:
         line = (
             f"        {property_name}: ({comment}\n"
             + f"            {target_name}\n"
@@ -139,7 +138,7 @@ def _handle_pointer_property(property_name: str, keywords: dict[str, object]) ->
     return line
 
 
-def _handle_collection_property(
+def handle_collection_property(
     property_name: str, keywords: dict[str, object]
 ) -> tuple[str, str, Optional[object], str]:
     """Handle CollectionProperty type."""
@@ -196,23 +195,23 @@ def write_property_typing(
     logger.info("  ==> prop=%s", property_name)
 
     if property_type in ["bpy.props.StringProperty", "bpy.props.EnumProperty"]:
-        line, arg_type, arg_default = _handle_string_property(property_name)
+        line, arg_type, arg_default = handle_string_property(property_name)
     elif property_type == "bpy.props.FloatProperty":
-        line, arg_type, arg_default = _handle_float_property(property_name)
+        line, arg_type, arg_default = handle_float_property(property_name)
     elif property_type == "bpy.props.FloatVectorProperty":
-        line = _handle_float_vector_property(property_name)
+        line = handle_float_vector_property(property_name)
     elif property_type == "bpy.props.IntProperty":
-        line, arg_type, arg_default = _handle_int_property(property_name)
+        line, arg_type, arg_default = handle_int_property(property_name)
     elif property_type == "bpy.props.IntVectorProperty":
-        line = _handle_int_vector_property(property_name)
+        line = handle_int_vector_property(property_name)
     elif property_type == "bpy.props.BoolProperty":
-        line, arg_type, arg_default = _handle_bool_property(property_name)
+        line, arg_type, arg_default = handle_bool_property(property_name)
     elif property_type == "bpy.props.BoolVectorProperty":
-        line = _handle_bool_vector_property(property_name)
+        line = handle_bool_vector_property(property_name)
     elif property_type == "bpy.props.PointerProperty":
-        line = _handle_pointer_property(property_name, keywords)
+        line = handle_pointer_property(property_name, keywords)
     elif property_type == "bpy.props.CollectionProperty":
-        line, arg_type, arg_default, arg_call_line = _handle_collection_property(
+        line, arg_type, arg_default, arg_call_line = handle_collection_property(
             property_name, keywords
         )
     elif property_type.startswith("bpy.props."):
