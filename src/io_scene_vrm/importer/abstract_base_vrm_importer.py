@@ -131,10 +131,6 @@ class AbstractBaseVrmImporter(ABC):
                     self.context.view_layer.update()
                     progress.update(0.96)
 
-                    # テクスチャの展開を行う。その際に.blendファイルの保存が発生して
-                    # 保存時のコールバックが走ることがあるため、中途半端にインポート
-                    # されたVRMのデータに対してそのコールバックが適用されないように
-                    # 注意する
                     if self.preferences.extract_textures_into_folder:
                         self.extract_textures(repack=False)
                     elif bpy.app.version < (3, 1):
@@ -168,7 +164,6 @@ class AbstractBaseVrmImporter(ABC):
         if not isinstance(armature_data, Armature):
             return None
 
-        # 編集前のボーンの子オブジェクトのワールド行列を保存
         context.view_layer.update()
         bone_child_object_world_matrices: dict[str, Matrix] = {}
         for obj in context.blend_data.objects:
@@ -191,8 +186,6 @@ class AbstractBaseVrmImporter(ABC):
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
-        # 編集前のボーンの子オブジェクトのワールド行列を復元
-        context.view_layer.update()
         for name, matrix_world in bone_child_object_world_matrices.items():
             restore_obj = context.blend_data.objects.get(name)
             if (
