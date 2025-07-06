@@ -33,14 +33,14 @@ class __TestSceneWatcherBase(AddonTestCase):
         run = functools.partial(
             self.run_and_reset_scene_watcher, scene_watcher, context
         )
-        run()  # 初回実行は時間がかかっても良い
+        run()  # Initial execution can take longer
 
         timeout_margin_factor = 1.0
         if getenv("CI") == "true":
-            # CIサーバーでの実行ではマージンを追加
+            # Add margin for CI server execution
             timeout_margin_factor *= 2.0
         if platform.system() == "Darwin" and platform.machine() == "x86_64":
-            # macOSのx86_64は古いマシンしか存在しないのでマージンを追加
+            # Add margin for macOS x86_64 as only older machines exist
             timeout_margin_factor *= 1.5
 
         number = 20000
@@ -49,8 +49,8 @@ class __TestSceneWatcherBase(AddonTestCase):
         self.assertLess(
             elapsed / float(number),
             timeout_seconds,
-            f"{scene_watcher_type}.run()の実行時間は{timeout_seconds}秒未満である必要がありますが"
-            f"{elapsed / float(number)}秒経過しました。",
+            f"{scene_watcher_type}.run() execution time must be less than "
+            f"{timeout_seconds}s, but {elapsed / float(number)}s elapsed.",
         )
 
 

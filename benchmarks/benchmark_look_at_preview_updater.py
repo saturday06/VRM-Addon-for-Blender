@@ -30,7 +30,7 @@ def benchmark_look_at_preview_updater(context: Context) -> None:
 
     scene_watcher = LookAtPreviewUpdater()
     create_fast_path_performance_test_scene(context, scene_watcher)
-    # 初回実行は時間がかかっても良い
+    # Initial execution can take longer
     run_and_reset_scene_watcher(scene_watcher, context)
 
     profiler = cProfile.Profile()

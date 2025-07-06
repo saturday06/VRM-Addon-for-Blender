@@ -40,8 +40,8 @@ class __TestVrmImportExportBase(AddonTestCase):
         temp_vrm_dir = vrm_dir / major_minor / "temp"
         temp_vrm_dir.mkdir(parents=True, exist_ok=True)
 
-        # 非公開のテストモデルの中に特定のBlenderバージョンで
-        # 出力結果が不安定なものがある
+        # Some private test models have unstable output results
+        # on specific Blender versions
         if f"(unstable-{major_minor})" in in_path.name:
             logger.warning("Skipped: %s", in_path)
             return

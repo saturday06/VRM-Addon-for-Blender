@@ -96,30 +96,32 @@ class TestSpringBone1(AddonTestCase):
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "Initial state joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 2, 0), "初期状態のjoint1"
+            armature.pose.bones["joint1"].head, (0, 2, 0), "Initial state joint1"
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=1)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 1 second joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1.7071, -0.7071), "1秒後のjoint1"
+            armature.pose.bones["joint1"].head,
+            (0, 1.7071, -0.7071),
+            "After 1 second joint1",
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=10000)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "10000秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 10000 seconds joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1, -1), "10000秒後のjoint1"
+            armature.pose.bones["joint1"].head, (0, 1, -1), "After 10000 seconds joint1"
         )
 
     def test_one_joint_extending_in_y_direction_with_rotating_armature(self) -> None:
@@ -182,30 +184,34 @@ class TestSpringBone1(AddonTestCase):
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "Initial state joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 2, 0), "初期状態のjoint1"
+            armature.pose.bones["joint1"].head, (0, 2, 0), "Initial state joint1"
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=1)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 1 second joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1.7071, -0.7071), "1秒後のjoint1"
+            armature.pose.bones["joint1"].head,
+            (0, 1.7071, -0.7071),
+            "After 1 second joint1",
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=100000)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "100000秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 100000 seconds joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1, -1), "100000秒後のjoint1"
+            armature.pose.bones["joint1"].head,
+            (0, 1, -1),
+            "After 100000 seconds joint1",
         )
 
     def test_one_joint_extending_in_y_direction_with_rotating_armature_stiffness(
@@ -274,30 +280,32 @@ class TestSpringBone1(AddonTestCase):
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "Initial state joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1, -1), "初期状態のjoint1"
+            armature.pose.bones["joint1"].head, (0, 1, -1), "Initial state joint1"
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=1)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 1 second joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1.7071, -0.7071), "1秒後のjoint1"
+            armature.pose.bones["joint1"].head,
+            (0, 1.7071, -0.7071),
+            "After 1 second joint1",
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=100000)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "100000秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 100000 seconds joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 2, 0), "100000秒後のjoint1"
+            armature.pose.bones["joint1"].head, (0, 2, 0), "After 100000 seconds joint1"
         )
 
     def test_two_joints_extending_in_y_direction(self) -> None:
@@ -373,39 +381,47 @@ class TestSpringBone1(AddonTestCase):
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "Initial state joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 2, 0), "初期状態のjoint1"
+            armature.pose.bones["joint1"].head, (0, 2, 0), "Initial state joint1"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 3, 0), "初期状態のjoint2"
+            armature.pose.bones["joint2"].head, (0, 3, 0), "Initial state joint2"
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=1)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 1 second joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1.7071, -0.7071), "1秒後のjoint1"
+            armature.pose.bones["joint1"].head,
+            (0, 1.7071, -0.7071),
+            "After 1 second joint1",
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 2.6824, -0.9280), "1秒後のjoint2"
+            armature.pose.bones["joint2"].head,
+            (0, 2.6824, -0.9280),
+            "After 1 second joint2",
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=100000)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "100000秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 100000 seconds joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1, -1), "100000秒後のjoint1"
+            armature.pose.bones["joint1"].head,
+            (0, 1, -1),
+            "After 100000 seconds joint1",
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 1, -2), "100000秒後のjoint2"
+            armature.pose.bones["joint2"].head,
+            (0, 1, -2),
+            "After 100000 seconds joint2",
         )
 
     def test_two_joints_extending_in_y_direction_roll(self) -> None:
@@ -484,39 +500,47 @@ class TestSpringBone1(AddonTestCase):
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "Initial state joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 2, 0), "初期状態のjoint1"
+            armature.pose.bones["joint1"].head, (0, 2, 0), "Initial state joint1"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 3, 0), "初期状態のjoint2"
+            armature.pose.bones["joint2"].head, (0, 3, 0), "Initial state joint2"
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=1)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 1 second joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1.7071, -0.7071), "1秒後のjoint1"
+            armature.pose.bones["joint1"].head,
+            (0, 1.7071, -0.7071),
+            "After 1 second joint1",
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 2.6824, -0.9280), "1秒後のjoint2"
+            armature.pose.bones["joint2"].head,
+            (0, 2.6824, -0.9280),
+            "After 1 second joint2",
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=100000)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "100000秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 100000 seconds joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1, -1), "100000秒後のjoint1"
+            armature.pose.bones["joint1"].head,
+            (0, 1, -1),
+            "After 100000 seconds joint1",
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 1, -2), "100000秒後のjoint2"
+            armature.pose.bones["joint2"].head,
+            (0, 1, -2),
+            "After 100000 seconds joint2",
         )
 
     def test_two_joints_extending_in_y_direction_local_translation(self) -> None:
@@ -596,39 +620,47 @@ class TestSpringBone1(AddonTestCase):
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "Initial state joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 2, 0), "初期状態のjoint1"
+            armature.pose.bones["joint1"].head, (0, 2, 0), "Initial state joint1"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 3, 0), "初期状態のjoint2"
+            armature.pose.bones["joint2"].head, (0, 3, 0), "Initial state joint2"
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=1)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 1 second joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1.7071, -0.7071), "1秒後のjoint1"
+            armature.pose.bones["joint1"].head,
+            (0, 1.7071, -0.7071),
+            "After 1 second joint1",
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 2.6824, -0.9280), "1秒後のjoint2"
+            armature.pose.bones["joint2"].head,
+            (0, 2.6824, -0.9280),
+            "After 1 second joint2",
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=100000)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "100000秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 100000 seconds joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1, -1), "100000秒後のjoint1"
+            armature.pose.bones["joint1"].head,
+            (0, 1, -1),
+            "After 100000 seconds joint1",
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 1, -2), "100000秒後のjoint2"
+            armature.pose.bones["joint2"].head,
+            (0, 1, -2),
+            "After 100000 seconds joint2",
         )
 
     def test_two_joints_extending_in_y_direction_connected(self) -> None:
@@ -708,39 +740,47 @@ class TestSpringBone1(AddonTestCase):
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "Initial state joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 2, 0), "初期状態のjoint1"
+            armature.pose.bones["joint1"].head, (0, 2, 0), "Initial state joint1"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 3, 0), "初期状態のjoint2"
+            armature.pose.bones["joint2"].head, (0, 3, 0), "Initial state joint2"
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=1)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 1 second joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1.7071, -0.7071), "1秒後のjoint1"
+            armature.pose.bones["joint1"].head,
+            (0, 1.7071, -0.7071),
+            "After 1 second joint1",
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 2.6824, -0.9280), "1秒後のjoint2"
+            armature.pose.bones["joint2"].head,
+            (0, 2.6824, -0.9280),
+            "After 1 second joint2",
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=100000)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "100000秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 100000 seconds joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1, -1), "100000秒後のjoint1"
+            armature.pose.bones["joint1"].head,
+            (0, 1, -1),
+            "After 100000 seconds joint1",
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 1, -2), "100000秒後のjoint2"
+            armature.pose.bones["joint2"].head,
+            (0, 1, -2),
+            "After 100000 seconds joint2",
         )
 
     def test_one_joint_extending_in_y_direction_gravity_y_object_move_to_z(
@@ -805,20 +845,20 @@ class TestSpringBone1(AddonTestCase):
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "初期状態のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "Initial state joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 2, 0), "初期状態のjoint1"
+            armature.pose.bones["joint1"].head, (0, 2, 0), "Initial state joint1"
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=1)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 1 second joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 2, 0), "1秒後のjoint1"
+            armature.pose.bones["joint1"].head, (0, 2, 0), "After 1 second joint1"
         )
 
         armature.location = Vector((0, 0, 1))
@@ -827,22 +867,26 @@ class TestSpringBone1(AddonTestCase):
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "2秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 2 seconds joint0"
         )
         assert_vector3_equals(
             armature.pose.bones["joint1"].head,
             (0, 1.8944271802, -0.4472135901),
-            "2秒後のjoint1",
+            "After 2 seconds joint1",
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=1000000)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "1000000秒後のjoint0"
+            armature.pose.bones["joint0"].head,
+            (0, 1, 0),
+            "After 1000000 seconds joint0",
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 2, 0), "1000000秒後のjoint1"
+            armature.pose.bones["joint1"].head,
+            (0, 2, 0),
+            "After 1000000 seconds joint1",
         )
 
     def test_one_joint_extending_in_y_direction_rounding_180_degree(self) -> None:
@@ -892,7 +936,7 @@ class TestSpringBone1(AddonTestCase):
 
         joints = get_armature_extension(armature.data).spring_bone1.springs[0].joints
         joints[0].node.bone_name = "joint0"
-        joints[0].gravity_power = 1  # はじめに重力で勢いをつける
+        joints[0].gravity_power = 1  # First apply gravity to gain momentum
         joints[0].drag_force = 0
         joints[0].stiffness = 0
         joints[1].node.bone_name = "joint1"
@@ -909,10 +953,12 @@ class TestSpringBone1(AddonTestCase):
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 1, 0), "1秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 1, 0), "After 1 second joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1.7071, -0.7071), "1秒後のjoint1"
+            armature.pose.bones["joint1"].head,
+            (0, 1.7071, -0.7071),
+            "After 1 second joint1",
         )
 
     def test_two_joints_extending_in_y_direction_root_down(self) -> None:
@@ -993,30 +1039,30 @@ class TestSpringBone1(AddonTestCase):
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 0, -1), "初期状態のjoint0"
+            armature.pose.bones["joint0"].head, (0, 0, -1), "Initial state joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 0, -2), "初期状態のjoint1"
+            armature.pose.bones["joint1"].head, (0, 0, -2), "Initial state joint1"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 0, -3), "初期状態のjoint2"
+            armature.pose.bones["joint2"].head, (0, 0, -3), "Initial state joint2"
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=1)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 0, -1), "1秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 0, -1), "After 1 second joint0"
         )
         assert_vector3_equals(
             armature.pose.bones["joint1"].head,
             (0, 0, -2),
-            "1秒後のjoint1",
+            "After 1 second joint1",
         )
         assert_vector3_equals(
             armature.pose.bones["joint2"].head,
             (0, 0, -3),
-            "1秒後のjoint2",
+            "After 1 second joint2",
         )
 
     def test_two_joints_extending_in_y_direction_with_child_stiffness(self) -> None:
@@ -1104,17 +1150,17 @@ class TestSpringBone1(AddonTestCase):
         assert_vector3_equals(
             armature.pose.bones["joint0"].head,
             (0, 1, 0),
-            "初期状態のjoint0",
+            "Initial state joint0",
         )
         assert_vector3_equals(
             armature.pose.bones["joint1"].head,
             (0, 1, 1),
-            "初期状態のjoint1",
+            "Initial state joint1",
         )
         assert_vector3_equals(
             armature.pose.bones["joint2"].head,
             (0, 0, 1),
-            "初期状態のjoint2",
+            "Initial state joint2",
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=1)
@@ -1123,17 +1169,17 @@ class TestSpringBone1(AddonTestCase):
         assert_vector3_equals(
             armature.pose.bones["joint0"].head,
             (0, 1, 0),
-            "1秒後のjoint0",
+            "After 1 second joint0",
         )
         assert_vector3_equals(
             armature.pose.bones["joint1"].head,
             (0, 1, 1),
-            "1秒後のjoint1",
+            "After 1 second joint1",
         )
         assert_vector3_equals(
             armature.pose.bones["joint2"].head,
             (0, 0.2929, 1.7071),
-            "1秒後のjoint2",
+            "After 1 second joint2",
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=100000)
@@ -1142,17 +1188,17 @@ class TestSpringBone1(AddonTestCase):
         assert_vector3_equals(
             armature.pose.bones["joint0"].head,
             (0, 1, 0),
-            "100000秒後のjoint0",
+            "After 100000 seconds joint0",
         )
         assert_vector3_equals(
             armature.pose.bones["joint1"].head,
             (0, 1, 1),
-            "100000秒後のjoint1",
+            "After 100000 seconds joint1",
         )
         assert_vector3_equals(
             armature.pose.bones["joint2"].head,
             (0, 1, 2),
-            "100000秒後のjoint2",
+            "After 100000 seconds joint2",
         )
 
     def test_one_joint_extending_in_y_direction_with_roll_stiffness(self) -> None:
@@ -1216,12 +1262,12 @@ class TestSpringBone1(AddonTestCase):
         assert_vector3_equals(
             armature.pose.bones["joint0"].head,
             (-1, 0, 0),
-            "初期状態のjoint0",
+            "Initial state joint0",
         )
         assert_vector3_equals(
             armature.pose.bones["joint1"].head,
             (-1, 0, -1),
-            "初期状態のjoint1",
+            "Initial state joint1",
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=1)
@@ -1230,12 +1276,12 @@ class TestSpringBone1(AddonTestCase):
         assert_vector3_equals(
             armature.pose.bones["joint0"].head,
             (-1, 0, 0),
-            "1秒後のjoint0",
+            "After 1 second joint0",
         )
         assert_vector3_equals(
             armature.pose.bones["joint1"].head,
             (-1, 0, -1),
-            "1秒後のjoint1",
+            "After 1 second joint1",
         )
 
     def test_two_joints_extending_in_y_direction_center_move_to_z(self) -> None:
@@ -1314,26 +1360,26 @@ class TestSpringBone1(AddonTestCase):
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 0, 0), "1秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 0, 0), "After 1 second joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1, 0), "1秒後のjoint1"
+            armature.pose.bones["joint1"].head, (0, 1, 0), "After 1 second joint1"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 2, 0), "1秒後のjoint2"
+            armature.pose.bones["joint2"].head, (0, 2, 0), "After 1 second joint2"
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=1)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 0, 0), "2秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 0, 0), "After 2 seconds joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1, 0), "2秒後のjoint1"
+            armature.pose.bones["joint1"].head, (0, 1, 0), "After 2 seconds joint1"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 2, 0), "2秒後のjoint2"
+            armature.pose.bones["joint2"].head, (0, 2, 0), "After 2 seconds joint2"
         )
 
     def test_two_joints_extending_in_y_direction_center_move_to_z_no_inertia(
@@ -1414,26 +1460,26 @@ class TestSpringBone1(AddonTestCase):
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 0, 0), "1秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 0, 0), "After 1 second joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1, 0), "1秒後のjoint1"
+            armature.pose.bones["joint1"].head, (0, 1, 0), "After 1 second joint1"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 2, 0), "1秒後のjoint2"
+            armature.pose.bones["joint2"].head, (0, 2, 0), "After 1 second joint2"
         )
 
         ops.vrm.update_spring_bone1_animation(delta_time=1)
         context.view_layer.update()
 
         assert_vector3_equals(
-            armature.pose.bones["joint0"].head, (0, 0, 0), "2秒後のjoint0"
+            armature.pose.bones["joint0"].head, (0, 0, 0), "After 2 seconds joint0"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint1"].head, (0, 1, 0), "2秒後のjoint1"
+            armature.pose.bones["joint1"].head, (0, 1, 0), "After 2 seconds joint1"
         )
         assert_vector3_equals(
-            armature.pose.bones["joint2"].head, (0, 2, 0), "2秒後のjoint2"
+            armature.pose.bones["joint2"].head, (0, 2, 0), "After 2 seconds joint2"
         )
 
 
