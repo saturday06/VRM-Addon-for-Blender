@@ -16,7 +16,7 @@ next: false
 ![](top.png)
 
 VRM Add-on for
-Blenderは、BlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。バージョン2.93から4.4のBlenderに対応しています。
+Blenderは、BlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。バージョン2.93から4.5のBlenderに対応しています。
 
 ## ダウンロード
 

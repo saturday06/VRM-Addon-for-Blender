@@ -78,7 +78,7 @@ def image_to_image_bytes(
 
 def init_extras_export() -> None:
     try:
-        if bpy.app.version < (4, 5, 0):
+        if bpy.app.version < (4, 5):
             from io_scene_gltf2.blender.com.gltf2_blender_extras import BLACK_LIST
         else:
             from io_scene_gltf2.blender.com.extras import BLACK_LIST
