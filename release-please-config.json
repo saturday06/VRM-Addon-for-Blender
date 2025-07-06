@@ -36,7 +36,7 @@
         {
           "type": "toml",
           "path": "pyproject.toml",
-          "jsonpath": "$.version"
+          "jsonpath": "$.project.version"
         },
         {
           "type": "toml",
