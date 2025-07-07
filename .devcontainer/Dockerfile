@@ -44,6 +44,6 @@ SHELL_PROFILE_SCRIPT
 
   # https://github.com/denoland/deno/issues/25931#issuecomment-2406073767
   curl --fail --show-error --location https://deno.land/install.sh | sh -s -- --yes
-  # denoはシェルの設定の最終行に改行を追加しないので自前で追加する。
+  # Deno doesn't add newlines to the final line of shell config, so add them manually.
   echo | tee -a ~/.profile ~/.bashrc ~/.zshrc
 SETUP_USER_DEVELOPER_LOCAL_ENVIRONMENT

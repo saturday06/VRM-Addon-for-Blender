@@ -78,7 +78,7 @@ jobs:
             exit 1
           fi
 
-          # README.mdやExtensions Platformからの画像リンクがある。そのうち整理する。
+          # There are image links from README.md and Extensions Platform. Will organize later.
           mkdir -p docs/.vitepress/dist/images
           cp -fr docs/assets/images/*.gif docs/.vitepress/dist/images
       - uses: actions/configure-pages@v5

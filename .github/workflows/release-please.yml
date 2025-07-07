@@ -23,17 +23,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # これをやるとrelease-please-actionが安定する気がする
+          fetch-depth: 0 # This seems to make release-please-action more stable
       - uses: googleapis/release-please-action@v4
         id: release
         with:
           target-branch: main
-          # 通常の運用ではskip-github-pull-requestはfalseのままにする。
-          # しかし、このレポジトリの運用ではrelease-please-actionがrelease-prがマージされたかを検知できないため
-          # release-prがマージされたタイミングで、バージョンだけ進んだ不要なrelease-prが新規作成されてしまう。
-          # それを防ぐため、はじめに `skip-github-pull-request: true` で一度release-please-actionを実行する。
-          # 結果release_createdがfalseの場合ときは再度release-please-actionを実行し、通常通りrelease-prを
-          # 作成したり更新したりする。
+          # Normally, skip-github-pull-request should remain false.
+          # However, in this repository's workflow, release-please-action cannot detect
+          # when release-pr is merged, so an unnecessary release-pr with just a version
+          # bump gets created when release-pr is merged.
+          # To prevent this, we first run release-please-action with `skip-github-pull-request: true`.
+          # If release_created is false, we run release-please-action again to create or update
+          # release-pr as usual.
           skip-github-pull-request: true
       - uses: googleapis/release-please-action@v4
         if: ${{ !steps.release.outputs.release_created }}
