@@ -31,9 +31,9 @@ jobs:
         run: deno eval 'console.log(Deno.version.deno)' | tee .dvmrc
       - name: Update deno.jsonc and deno.lock
         run: |
-          # deno outdatedだけだと、deno.lockのspecifiersの
+          # Just `deno outdated` doesn't update the types+node version in deno.lock's specifiers
           # `"npm:vitepress@*": "1.6.3_vite@ ... @types+node@22.15.21"`
-          # のtypes+nodeのバージョンが固定されたままなので、deno.lock自体を作り直す
+          # so we need to recreate deno.lock itself
           rm deno.lock
 
           deno cache . --allow-scripts
@@ -56,16 +56,16 @@ jobs:
             exit 0
           fi
 
-          # GH_TOKENが無効な場合はここでエラー終了
+          # Exit with error if GH_TOKEN is invalid
           if ! gh repo view --json name --jq .name; then
             echo "GH_TOKEN is invalid or expired"
             exit 1
           fi
 
-          # ブランチをforce pushして既存のPRを再利用したいが、それだとPRの
-          # Status Checksが実行されないようなので毎回PRを作り直すようにした。
-          # 本当は --delete-branch オプションを使いたいが、それだと後処理として
-          # デフォルトブランチをチェックアウトしようとしてエラーになるのでつけない。
+          # We want to force push to reuse existing PRs, but that doesn't trigger
+          # Status Checks, so we recreate PRs each time.
+          # We'd like to use --delete-branch option, but it tries to checkout
+          # the default branch as cleanup and fails, so we don't use it.
           gh pr close "$PR_BRANCH" || true
 
           git push -f origin "$PR_BRANCH"
@@ -76,9 +76,9 @@ jobs:
           # https://github.com/orgs/community/discussions/40405#discussioncomment-8361451
           GIT_USER_NAME: ${{ format('[BOT] {0}', github.actor) }}
           GIT_USER_EMAIL: ${{ format('{0}+{1}@users.noreply.github.com', github.actor_id, github.actor) }}
-          # GH_TOKENには次の権限を設定する
-          #   Actions       | Read and write | PR作成時に自動でActionsを実行する用
-          #   Contents      | Read and write | PR自動マージ用
-          #   Pull requests | Read and write | PR作成用
+          # Set the following permissions for GH_TOKEN:
+          #   Actions       | Read and write | To automatically run Actions when creating PRs
+          #   Contents      | Read and write | For automatic PR merging
+          #   Pull requests | Read and write | For creating PRs
           GH_TOKEN: ${{ secrets.UPDATE_DENO_DEPENDENCIES_GH_TOKEN }}
         if: ${{ env.GH_TOKEN }}
