@@ -393,7 +393,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
 
         human_bones = get_armature_vrm1_extension(armature_data).humanoid.human_bones
 
-        # 複数のボーンマップに同一のBlenderのボーンが設定されていたら片方を削除
+        # If the same Blender bone is set in multiple bone maps, delete one of them
         fixup = True
         while fixup:
             fixup = False
@@ -426,8 +426,9 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
     def update_all_node_candidates_timer_callback(
         armature_object_name: str, *, force: bool = False
     ) -> None:
-        """update_all_node_candidates()の型をbpy.app.timers.registerに合わせるためのラッパー."""
-        context = bpy.context  # Contextはフレームを跨げないので新たに取得する
+        """Wrap to match the type of update_all_node_candidates() to timers.register."""
+        # Context cannot be passed across frames, so get a new one
+        context = bpy.context
         Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
             context, armature_object_name, force=force
         )
@@ -1276,8 +1277,9 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         name="Texture Transform Binds"
     )
 
-    # アニメーション再生中はframe_change_pre/frame_change_postでしかシェイプキーの値の
-    # 変更ができないので、変更された値をここに保存しておく
+    # Since the value of the shape key can only be changed in
+    # frame_change_pre/frame_change_post during animation playback, the
+    # changed value is saved here.
     frame_change_post_shape_key_updates: ClassVar[dict[tuple[str, str], float]] = {}
 
     def get_preview(self) -> float:
@@ -1334,7 +1336,8 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
                     if not node_tree:
                         continue
 
-                    # update()メソッドはドキュメントには存在するが、呼び出し失敗する
+                    # The update() method exists in the documentation, but
+                    # the call fails
                     # https://docs.blender.org/api/4.2/bpy.types.NodeTree.html#bpy.types.NodeTree.update
                     # node_tree.update()
                 expression.materials_to_update.clear()
@@ -1650,7 +1653,8 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
             result[custom_expression.custom_name] = custom_expression
         return result
 
-    # expressionのUIList表示のため、expressionの数だけ空の要素を持つ
+    # An empty element is held for the number of expressions for UIList
+    # display of expressions
     expression_ui_list_elements: CollectionProperty(  # type: ignore[valid-type]
         type=StringPropertyGroup
     )

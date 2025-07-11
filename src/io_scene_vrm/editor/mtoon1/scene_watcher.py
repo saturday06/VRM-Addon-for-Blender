@@ -47,11 +47,12 @@ class OutlineUpdater(SceneWatcher):
         self.material_slot_index = 0
 
     def run(self, context: Context) -> RunState:
-        """オブジェクトへのマテリアルの割り当て変更を検知し、アウトラインを割り当て."""
+        """Detect changes in material assignments to objects and assign outlines."""
         blend_data = context.blend_data
 
-        # この値がゼロになったらPREEMPTを返して処理を中断。
-        # 変更を検知したら実質無限の値を設定して最後まで処理が進むようにする。
+        # If this value becomes zero, return PREEMPT and interrupt the process.
+        # If a change is detected, set a virtually infinite value so that the
+        # process proceeds to the end.
         preempt_countdown = 15
 
         changed = False
@@ -61,13 +62,13 @@ class OutlineUpdater(SceneWatcher):
         if not blend_data.objects:
             return RunState.FINISH
 
-        # オブジェクトの数が前回の状態よりも減っていてインデックス範囲を超える場合、
-        # 先頭からやり直す
+        # If the number of objects is less than the previous state and the index
+        # range is exceeded, start over from the beginning
         objects_len = len(blend_data.objects)
         if self.object_index >= objects_len:
             self.object_index = 0
 
-        # オブジェクトを走査して、比較用オブジェクトと差分がないかを調査
+        # Scan objects and check for differences with the comparison object
         for object_index in range(self.object_index, objects_len):
             self.object_index = object_index
             obj = blend_data.objects[object_index]
@@ -76,42 +77,43 @@ class OutlineUpdater(SceneWatcher):
             if preempt_countdown <= 0:
                 return RunState.PREEMPT
 
-            # メッシュオブジェクトのみが調査対象。
-            # メッシュオブジェクトでない場合はスキップ
+            # Only mesh objects are subject to investigation.
+            # Skip if it is not a mesh object
             obj_data = obj.data
             if not isinstance(obj_data, Mesh):
                 continue
             mesh = obj_data
 
-            # 比較用オブジェクトの数が足りない場合は、比較用オブジェクトを新規追加
+            # If the number of comparison objects is insufficient, add a new
+            # comparison object
             while self.comparison_object_index >= len(self.comparison_objects):
                 self.comparison_objects.append(ComparisonObject())
 
-            # 比較用オブジェクトを得る
+            # Get a comparison object
             comparison_object = self.comparison_objects[self.comparison_object_index]
 
-            # use_auto_smoothの比較
+            # Comparison of use_auto_smooth
             if HAS_AUTO_SMOOTH and (
                 (use_auto_smooth := comparison_object.use_auto_smooth) is None
                 or (use_auto_smooth != mesh.use_auto_smooth)
             ):
                 changed, preempt_countdown = True, sys.maxsize
-                # 変更差分を解消
+                # Resolve change differences
                 comparison_object.use_auto_smooth = mesh.use_auto_smooth
 
-            # MaterialSlotの数が前回の状態よりも減っていてインデックス範囲を超える場合、
-            # 先頭からやり直す
+            # If the number of MaterialSlots is less than the previous state and
+            # the index range is exceeded, start over from the beginning
             material_slots_len = len(obj.material_slots)
             if self.material_slot_index >= material_slots_len:
                 self.material_slot_index = 0
 
-            # MaterialSlotの数と比較用Materialの数を同一化
+            # Match the number of MaterialSlots and the number of comparison Materials
             while material_slots_len > len(comparison_object.comparison_materials):
                 comparison_object.comparison_materials.append(None)
             while material_slots_len < len(comparison_object.comparison_materials):
                 comparison_object.comparison_materials.pop()
 
-            # MaterialSlotを走査して、比較用Materialと差分がないかを調査
+            # Scan MaterialSlots and check for differences with the comparison Material
             for material_slot_index in range(
                 self.material_slot_index, material_slots_len
             ):
@@ -122,7 +124,8 @@ class OutlineUpdater(SceneWatcher):
                 if preempt_countdown <= 0:
                     return RunState.PREEMPT
 
-                # 比較用オブジェクトの数が足りない場合は、比較用オブジェクトを新規追加
+                # If the number of comparison objects is insufficient, add a new
+                # comparison object
                 while material_slot_index >= len(
                     comparison_object.comparison_materials
                 ):
@@ -131,7 +134,7 @@ class OutlineUpdater(SceneWatcher):
                     material_slot_index
                 ]
 
-                # 差分チェック
+                # Difference check
                 if (
                     (material_slot_material := material_slot.material)
                     and (
@@ -147,35 +150,38 @@ class OutlineUpdater(SceneWatcher):
                         not comparison_material
                         or comparison_material.name != material.name
                     ):
-                        # material slotのマテリアルのMToonが有効状態だが、
-                        # 比較用オブジェクトが存在しないか、名前不一致の場合、変更検知
+                        # MToon of the material in the material slot is enabled,
+                        # but if the comparison object does not exist or the name
+                        # does not match, a change is detected
                         changed, preempt_countdown = True, sys.maxsize
-                        # 変更差分を解消
+                        # Resolve change differences
                         comparison_object.comparison_materials[material_slot_index] = (
                             ComparisonMaterial(material.name)
                         )
-                        # オブジェクトにMToon有効状態のマテリアルが新たに割り当てられた
-                        # ので、アウトラインのモディファイアが必要な場合新規作成する。
-                        # 本来はオブジェクトとマテリアルのペアごとにTrue/Falseを
-                        # 設定するべきだが、現状は、実用上固定で問題ないと思う。
+                        # A material with MToon enabled has been newly assigned
+                        # to the object so, if necessary, create a new outline
+                        # modifier.
+                        # Originally, True/False should be set for each object and
+                        # material pair, but for now, I think it's okay to fix it
+                        # for practical use.
                         create_modifier = True
                 elif comparison_material is not None:
-                    # material slotのマテリアルのMToonが無効状態だが、
-                    # 比較用オブジェクトが有効状態の場合、変更検知
+                    # MToon of the material in the material slot is disabled,
+                    # but if the comparison object is enabled, a change is detected
                     changed, preempt_countdown = True, sys.maxsize
-                    # 変更差分を解消
+                    # Resolve change differences
                     comparison_object.comparison_materials[material_slot_index] = None
 
-            # MaterialSlotの走査が完了したので、
-            # 次の走査のインデックスを0に戻す。
+            # Since the scanning of MaterialSlots is complete,
+            # reset the next scanning index to 0.
             self.material_slot_index = 0
 
-            # 次のオブジェクトの走査をする前に、
-            # 次の比較用オブジェクトのインデックスを進める。
+            # Before scanning the next object,
+            # advance the index of the next comparison object.
             self.comparison_object_index += 1
 
-        # self.comparison_objectsの要素数が不必要なサイズになる場合があるため、
-        # 十分なサイズまで縮小
+        # Since the number of elements in self.comparison_objects may be
+        # unnecessarily large, reduce it to a sufficient size
         while len(self.comparison_objects) > self.comparison_object_index:
             self.comparison_objects.pop()
 
@@ -212,17 +218,17 @@ class MToon1AutoSetup(SceneWatcher):
         self.last_node_index: int = 0
 
     def run(self, context: Context) -> RunState:
-        """MToon自動セットアップノードグループの出現を監視し、発見したら自動でセットアップ.
+        """Monitor the appearance of MToon auto-setup node groups and set them up.
 
-        この関数は高頻度で呼ばれるので、処理は軽量にし、IOやGC Allocationを
-        最小にするように気を付ける。
+        Since this function is called frequently, keep the processing lightweight and
+        be careful to minimize IO and GC Allocation.
         """
-        # この値が0以下になったら処理を中断
+        # If this value becomes 0 or less, interrupt the process
         search_preempt_countdown = 100
 
         materials = context.blend_data.materials
 
-        # マテリアルの巡回開始位置を前回中断した状態から復元する。
+        # Restore the material traversal start position from the last interrupted state.
         end_material_index = len(materials)
         start_material_index = self.last_material_index
         if start_material_index >= end_material_index:
@@ -230,7 +236,7 @@ class MToon1AutoSetup(SceneWatcher):
             self.last_node_index = 0
             start_material_index = 0
 
-        # マテリアルを巡回し、MToonを有効化する必要がある場合は有効化する。
+        # Traverse the materials and enable MToon if necessary.
         for material_index in range(start_material_index, end_material_index):
             self.last_material_index = material_index
 
@@ -247,14 +253,14 @@ class MToon1AutoSetup(SceneWatcher):
 
             nodes = node_tree.nodes
 
-            # ノードの巡回開始位置を前回中断した状態から復元する。
+            # Restore the node traversal start position from the last interrupted state.
             end_node_index = len(nodes)
             start_node_index = self.last_node_index
             if start_node_index >= end_node_index:
                 start_node_index = 0
 
-            # ノードを巡回し、MToonのプレースホルダのノードがShaderNodeOutputMaterialに
-            # 接続されていたらマテリアルをMToonに変換する。
+            # Traverse the nodes and convert the material to MToon if the MToon
+            # placeholder node is connected to ShaderNodeOutputMaterial.
             for node_index in range(start_node_index, end_node_index):
                 self.last_node_index = node_index
 

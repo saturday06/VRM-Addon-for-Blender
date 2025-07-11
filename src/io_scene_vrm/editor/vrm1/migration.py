@@ -257,8 +257,9 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
     migrate_pose(context, armature, armature_data)
     migrate_auto_pose(context, armature_data)
 
-    # Expressionのプリセットに名前を設定する
-    # 管理上は無くてもよいが、アニメーションキーフレームに表示されるので設定しておきたい
+    # Set a name for the expression preset.
+    # It's not necessary for management, but I want to set it because it's
+    # displayed in the animation keyframes.
     expressions = get_armature_extension(armature_data).vrm1.expressions
     preset_name_to_expression_dict = expressions.preset.name_to_expression_dict()
     for preset_name, preset_expression in preset_name_to_expression_dict.items():

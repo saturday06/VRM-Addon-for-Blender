@@ -21,7 +21,7 @@ class LookAtPreviewUpdater(SceneWatcher):
         self.armature_index = 0
 
     def run(self, context: Context) -> RunState:
-        """Look Atの対象オブジェクトの更新を検知し、LookAtの状態を更新."""
+        """Detect updates to the target object of Look At and update the state."""
         blend_data = context.blend_data
 
         if not blend_data.armatures:
