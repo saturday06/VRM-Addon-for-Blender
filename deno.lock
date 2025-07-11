@@ -1,7 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:@octokit/rest@*": "22.0.0_@octokit+core@7.0.2",
+    "npm:@octokit/rest@*": "22.0.0_@octokit+core@7.0.3",
     "npm:@octokit/types@*": "14.1.0",
     "npm:@types/node@*": "22.15.15",
     "npm:gltf-validator@*": "2.0.0-dev.3.10",
@@ -310,8 +310,8 @@
     "@octokit/auth-token@6.0.0": {
       "integrity": "sha512-P4YJBPdPSpWTQ1NU4XYdvHvXJJDxM6YwpS0FZHRgP7YFkdVxsWcpWGy/NVqlAA7PcPCnMacXlRm1y2PFZRWL/w=="
     },
-    "@octokit/core@7.0.2": {
-      "integrity": "sha512-ODsoD39Lq6vR6aBgvjTnA3nZGliknKboc9Gtxr7E4WDNqY24MxANKcuDQSF0jzapvGb3KWOEDrKfve4HoWGK+g==",
+    "@octokit/core@7.0.3": {
+      "integrity": "sha512-oNXsh2ywth5aowwIa7RKtawnkdH6LgU1ztfP9AIUCQCvzysB+WeU8o2kyyosDPwBZutPpjZDKPQGIzzrfTWweQ==",
       "dependencies": [
         "@octokit/auth-token",
         "@octokit/graphql",
@@ -340,20 +340,20 @@
     "@octokit/openapi-types@25.1.0": {
       "integrity": "sha512-idsIggNXUKkk0+BExUn1dQ92sfysJrje03Q0bv0e+KPLrvyqZF8MnBpFz8UNfYDwB3Ie7Z0TByjWfzxt7vseaA=="
     },
-    "@octokit/plugin-paginate-rest@13.1.1_@octokit+core@7.0.2": {
+    "@octokit/plugin-paginate-rest@13.1.1_@octokit+core@7.0.3": {
       "integrity": "sha512-q9iQGlZlxAVNRN2jDNskJW/Cafy7/XE52wjZ5TTvyhyOD904Cvx//DNyoO3J/MXJ0ve3rPoNWKEg5iZrisQSuw==",
       "dependencies": [
         "@octokit/core",
         "@octokit/types"
       ]
     },
-    "@octokit/plugin-request-log@6.0.0_@octokit+core@7.0.2": {
+    "@octokit/plugin-request-log@6.0.0_@octokit+core@7.0.3": {
       "integrity": "sha512-UkOzeEN3W91/eBq9sPZNQ7sUBvYCqYbrrD8gTbBuGtHEuycE4/awMXcYvx6sVYo7LypPhmQwwpUe4Yyu4QZN5Q==",
       "dependencies": [
         "@octokit/core"
       ]
     },
-    "@octokit/plugin-rest-endpoint-methods@16.0.0_@octokit+core@7.0.2": {
+    "@octokit/plugin-rest-endpoint-methods@16.0.0_@octokit+core@7.0.3": {
       "integrity": "sha512-kJVUQk6/dx/gRNLWUnAWKFs1kVPn5O5CYZyssyEoNYaFedqZxsfYs7DwI3d67hGz4qOwaJ1dpm07hOAD1BXx6g==",
       "dependencies": [
         "@octokit/core",
@@ -376,7 +376,7 @@
         "universal-user-agent"
       ]
     },
-    "@octokit/rest@22.0.0_@octokit+core@7.0.2": {
+    "@octokit/rest@22.0.0_@octokit+core@7.0.3": {
       "integrity": "sha512-z6tmTu9BTnw51jYGulxrlernpsQYXpui1RK21vmXn8yF5bp6iX16yfTtJYGK5Mh1qDkvDOmp2n8sRMcQmR8jiA==",
       "dependencies": [
         "@octokit/core",
