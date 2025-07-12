@@ -3296,7 +3296,6 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         if not node_tree:
             return
 
-        # glTFのノードに合わせる
         # https://docs.blender.org/manual/en/4.2/addons/import_export/scene_gltf2.html#alpha-modes
         mtoon1 = get_material_mtoon1_extension(material)
         texture = mtoon1.pbr_metallic_roughness.base_color_texture
@@ -3816,18 +3815,12 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         if self.mtoon0_render_queue != mtoon0_render_queue:
             self.mtoon0_render_queue = mtoon0_render_queue
 
-    # MToon0用のRender Queueの値を設定する。値代入時にクランプを行う。
-    # UniVRMはUIからの値設定時や、Alpha Modeなどの変更時にクランプを行うため、
-    # それと挙動を合わせる際はこちらを使う。
     mtoon0_render_queue_and_clamp: IntProperty(  # type: ignore[valid-type]
         name="Render Queue",
         get=get_mtoon0_render_queue_and_clamp,
         set=set_mtoon0_render_queue_and_clamp,
     )
 
-    # MToon0用のRender Queueの値を設定する。値代入時にクランプを行わない。
-    # UniVRMはVRM0のインポート時やエクスポート時はクランプを行わないため、
-    # それと挙動を合わせるためインポート時やエクスポート時はこちらを使う。
     mtoon0_render_queue: IntProperty(  # type: ignore[valid-type]
         name="Render Queue",
         default=2000,
