@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-# TODO: 正しい型
+# TODO: Correct type
 def subscribe_rna(
     key: object,
     owner: object,

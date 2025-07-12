@@ -29,7 +29,7 @@ class bpy_struct:
     def driver_add(self, path: str, index: int = -1) -> FCurve | list[FCurve]: ...
     def driver_remove(self, path: str, index: int = -1) -> bool: ...
 
-    bl_rna: BlenderRNA  # ドキュメントには存在しない。TODO: read only
+    bl_rna: BlenderRNA  # Does not exist in documentation. TODO: read only
 
 __BpyPropCollectionElement = TypeVar("__BpyPropCollectionElement")
 
@@ -52,7 +52,7 @@ class bpy_prop_collection(Generic[__BpyPropCollectionElement]):
     def values(self) -> ValuesView[__BpyPropCollectionElement]: ...
     def items(self) -> ItemsView[str, __BpyPropCollectionElement]: ...
 
-# ドキュメントには存在しない
+# Does not exist in documentation
 __BpyPropArrayElement = TypeVar("__BpyPropArrayElement")
 
 class bpy_prop_array(Generic[__BpyPropArrayElement]):
@@ -65,7 +65,7 @@ class bpy_prop_array(Generic[__BpyPropArrayElement]):
     ) -> tuple[__BpyPropArrayElement, ...]: ...
     def __setitem__(self, index: int, value: __BpyPropArrayElement) -> None: ...
 
-# カスタムプロパティ対応クラス。2.93ではID,Bone,PoseBoneのみ
+# Custom property compatible classes. In 2.93, only ID, Bone, PoseBone
 # https://docs.blender.org/api/2.93/bpy.types.bpy_struct.html#bpy.types.bpy_struct.values
 class __CustomProperty:
     def __getitem__(self, key: str) -> object: ...
@@ -98,7 +98,9 @@ class Property(bpy_struct):
 
 class PointerProperty(Property):
     @property
-    def fixed_type(self) -> type[bpy_struct]: ...  # TODO: ここの正しい定義を調べる
+    def fixed_type(
+        self,
+    ) -> type[bpy_struct]: ...  # TODO: Need to investigate the correct definition
 
 class FloatProperty(Property):
     @property
@@ -123,7 +125,9 @@ class EnumProperty(Property):
 class StringProperty(Property): ...
 
 class CollectionProperty(Property):
-    def fixed_type(self) -> type: ...  # TODO: 正しい実装を調べる必要がある
+    def fixed_type(
+        self,
+    ) -> type: ...  # TODO: Need to investigate the correct implementation
     def add(self) -> Property: ...  # TODO: undocumented
     def __len__(self) -> int: ...  # TODO: undocumented
     def __iter__(self) -> Iterator[Property]: ...  # TODO: undocumented
@@ -142,15 +146,15 @@ class CollectionProperty(Property):
 class PropertyGroup(bpy_struct):
     name: str
 
-    # TODO: 本当はbpy_structのメソッド
+    # TODO: Actually a method of bpy_struct
     def get(self, key: str, default: object = None) -> object: ...
-    # TODO: 本当はbpy_structのメソッド
+    # TODO: Actually a method of bpy_struct
     def __setitem__(self, key: str, value: object) -> None: ...
-    # TODO: 本当はbpy_structのメソッド
+    # TODO: Actually a method of bpy_struct
     def __delitem__(self, key: str) -> None: ...
-    # TODO: 多分本当はbpy_structのメソッド
+    # TODO: Probably actually a method of bpy_struct
     def __contains__(self, key: str) -> bool: ...
-    # TODO: 多分本当はbpy_structのメソッド
+    # TODO: Probably actually a method of bpy_struct
     def pop(self, key: str, default: object = None) -> object: ...
 
 class BlenderRNA(bpy_struct):
@@ -158,15 +162,15 @@ class BlenderRNA(bpy_struct):
     def properties(
         self,
     ) -> bpy_prop_collection[
-        Property  # TODO: これがbpy.types.Propertyと一致するかは要検証
-    ]: ...  # ドキュメントには存在しない。
+        Property  # TODO: verify if this matches bpy.types.Property
+    ]: ...  # Does not exist in documentation.
 
 class Gizmo(bpy_struct):
     alpha: float
     alpha_highlight: float
     color: tuple[float, float, float]
     color_highlight: tuple[float, float, float]
-    matrix_basis: Matrix  # TODO: 型はMatrix?
+    matrix_basis: Matrix  # TODO: Type is Matrix?
     scale_basis: float
 
     def target_set_prop(
@@ -205,7 +209,7 @@ class ImageUser(bpy_struct): ...
 
 class PackedFile(bpy_struct):
     @property
-    def data(self) -> bytes: ...  # ドキュメントにはstrと書いてあるが、実際にはbytes
+    def data(self) -> bytes: ...  # Documentation says str, but actually bytes
     @property
     def size(self) -> int: ...
 
@@ -213,7 +217,7 @@ class Image(ID):
     colorspace_settings: ColorManagedInputColorspaceSettings
     size: bpy_prop_array[float]
     alpha_mode: str
-    generated_color: tuple[float, float, float, float]  # Vectorかもしれない
+    generated_color: tuple[float, float, float, float]  # Might be Vector
     depth: int
     file_format: str
     filepath: str
@@ -224,7 +228,7 @@ class Image(ID):
     bindcode: int
     source: str
     @property
-    def packed_file(self) -> PackedFile | None: ...  # Optionalっぽい
+    def packed_file(self) -> PackedFile | None: ...  # Seems Optional
     def filepath_from_user(self, image_user: ImageUser | None = None) -> str: ...
     def update(self) -> None: ...
     def gl_load(self, frame: int = 0) -> None: ...
@@ -241,11 +245,11 @@ class ActionPoseMarkers(bpy_prop_collection[TimelineMarker]): ...
 class FCurve(bpy_struct):
     array_index: int
     auto_smoothing: str
-    # color: tuple[float, float, float]  # TODO: Vectorかもしれない
+    # color: tuple[float, float, float]  # TODO: Might be Vector
     color_mode: str
     data_path: str
     @property
-    def driver(self) -> Driver | None: ...  # TODO: 本当にOptionalか?
+    def driver(self) -> Driver | None: ...  # TODO: Is it really Optional?
     extrapolation: str
     is_valid: bool
     mute: bool
@@ -314,14 +318,14 @@ class View3DShading(bpy_struct):
 class SpaceView3D(Space):
     @property
     def shading(self) -> View3DShading: ...
-    @staticmethod  # TODO: 本当にstaticなのか確認
+    @staticmethod  # TODO: Verify if it's really static
     def draw_handler_add(
         callback: Callable[[], None],
         args: tuple[object, ...],
         region_type: str,
         draw_type: str,
     ) -> object: ...
-    @staticmethod  # TODO: 本当にstaticなのか確認
+    @staticmethod  # TODO: Verify if it's really static
     def draw_handler_remove(
         handler: object,
         region_type: str,
@@ -349,7 +353,7 @@ class DriverVariable(bpy_struct):
     type: str
 
 class ChannelDriverVariables(bpy_prop_collection[DriverVariable]):
-    # TODO: ドキュメントにはbpy_structから継承していると記載されている
+    # TODO: Documentation states that it inherits from bpy_struct
     def new(self) -> DriverVariable: ...
     def remove(self, variable: DriverVariable) -> None: ...
 
@@ -360,7 +364,7 @@ class Driver(bpy_struct):
     @property
     def is_valid(
         self,
-    ) -> bool: ...  # TODO: これreadonlyな気がするがドキュメントでは違う
+    ) -> bool: ...  # TODO: This seems readonly but the documentation says otherwise
     type: str
     use_self: bool
     @property
@@ -386,25 +390,25 @@ class Bone(bpy_struct, __CustomProperty):
     tail_radius: float
 
     @property
-    def head(self) -> Vector: ...  # TODO: 型が正しいか?
+    def head(self) -> Vector: ...  # TODO: Is the type correct?
     @head.setter
-    def head(self, value: Sequence[float]) -> None: ...  # TODO: 型が正しいか?
+    def head(self, value: Sequence[float]) -> None: ...  # TODO: Is the type correct?
     @property
-    def tail(self) -> Vector: ...  # TODO: 型が正しいか?
+    def tail(self) -> Vector: ...  # TODO: Is the type correct?
     @tail.setter
-    def tail(self, value: Sequence[float]) -> None: ...  # TODO: 型が正しいか?
+    def tail(self, value: Sequence[float]) -> None: ...  # TODO: Is the type correct?
 
-    head_local: Vector  # TODO: 型が正しいか?
+    head_local: Vector  # TODO: Is the type correct?
     head_radius: float
 
-    # ドキュメントには3要素のfloat配列と書いてあるが、実際にはVector
+    # Documentation says 3-element float array, but actually Vector
     tail_local: Vector
 
     def use_connect(self) -> bool: ...
 
     use_deform: bool
 
-    # ドキュメントには二次元のfloat配列と書いてあるが、実際にはMatrix
+    # Documentation says 2D float array, but actually Matrix
     matrix_local: Matrix
 
     @property
@@ -426,13 +430,13 @@ class EditBone(bpy_struct):
     @property
     def head(
         self,
-    ) -> Vector: ...  # ドキュメントには3要素のfloat配列と書いてあるが、実際にはVector
+    ) -> Vector: ...  # Documentation says 3-element float array, but actually Vector
     @head.setter
     def head(self, value: Iterable[float]) -> None: ...
     @property
     def tail(
         self,
-    ) -> Vector: ...  # ドキュメントには3要素のfloat配列と書いてあるが、実際にはVector
+    ) -> Vector: ...  # Documentation says 3-element float array, but actually Vector
     @tail.setter
     def tail(self, value: Iterable[float]) -> None: ...
     @property
@@ -477,28 +481,28 @@ class PoseBone(bpy_struct, __CustomProperty):
     @property
     def head(
         self,
-    ) -> Vector: ...  # ドキュメントには3要素のfloat配列と書いてあるが、実際にはVector
+    ) -> Vector: ...  # Documentation says 3-element float array, but actually Vector
     rotation_axis_angle: Sequence[float]
     rotation_euler: Euler
     rotation_mode: str
     rotation_quaternion: Quaternion
     @property
     def bone(self) -> Bone: ...
-    matrix: Matrix  # これもドキュメントと異なりMatrix
-    matrix_basis: Matrix  # これもドキュメントと異なりMatrix
+    matrix: Matrix  # This also differs from documentation, it's Matrix
+    matrix_basis: Matrix  # This also differs from documentation, it's Matrix
     @property
     def children(self) -> Sequence[PoseBone]: ...
     @property
-    def location(self) -> Vector: ...  # TODO: 本当にVectorなのか確認
+    def location(self) -> Vector: ...  # TODO: Confirm if it's really Vector
     @location.setter
     def location(self, value: Iterable[float]) -> None: ...
     @property
-    def scale(self) -> Vector: ...  # TODO: 本当にVectorなのか確認
+    def scale(self) -> Vector: ...  # TODO: Confirm if it's really Vector
     @scale.setter
     def scale(self, value: Iterable[float]) -> None: ...
 
 class ArmatureBones(bpy_prop_collection[Bone]):
-    active: Bone | None  # TODO: Noneになるか?
+    active: Bone | None  # TODO: Can it be None?
 
 class OperatorProperties(bpy_struct): ...
 
@@ -1698,7 +1702,9 @@ class Material(ID):
     roughness: float
 
 class IDMaterials(bpy_prop_collection[Material | None]):
-    def append(self, value: Material) -> None: ...  # TODO: ドキュメントには存在しない
+    def append(
+        self, value: Material
+    ) -> None: ...  # TODO: does not exist in documentation
 
 class Curve(ID):
     @property

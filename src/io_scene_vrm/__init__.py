@@ -78,8 +78,9 @@ def raise_error_if_too_old_blender() -> None:
             + " Your current version is {current_version}."
         ),
         ja_jp_message=(
-            "このアドオンはBlenderのバージョン{minimum_supported_version}未満には未対応です。"
-            + "お使いのBlenderのバージョンは{current_version}です。"
+            "This add-on does not support Blender versions below "
+            + "{minimum_supported_version}. Your current Blender version is "
+            + "{current_version}."
         ),
     )
 
@@ -98,8 +99,9 @@ def raise_error_if_too_new_blender(exception: object) -> None:
             + " {current_version}."
         ),
         ja_jp_message=(
-            "このアドオンはBlenderのバージョン{minimum_unsupported_version}以降には未対応です。"
-            + "お使いのBlenderのバージョンは{current_version}です。"
+            "This add-on is not compatible with Blender version "
+            + "{minimum_unsupported_version} or later. Your current Blender "
+            + "version is {current_version}."
         ),
     )
 
@@ -147,15 +149,19 @@ def raise_not_implemented_error(
 
 
 def extract_github_private_partial_code_archive_if_necessary() -> None:
-    """GitHubの "Code" -> "Download ZIP" からのダウンロードを検知し、ソースを展開する.
+    """Detect downloads from GitHub's "Code" -> "Download ZIP" and extract the source.
 
-    このアドオンは昔GitHubの "Code" -> "Download ZIP" からダウンロードして使う方式を採用
-    していた。しかし、そのためにはレポジトリのルートに__init__.pyを配置する必要があり、それだとPythonの標準的な
-    ソースコード配置から離れてしまい、開発ツールのサポートが弱くなってしまうのでそのダウンロード方式は廃止した。
-    しかし、その昔の廃止した方式でダウンロードしてしまい、結果アドオンがうまく動かないという報告が多数あがるため
-    どうにかソースコード配置を変えずに、その方式でも動作するように頑張った結果がこれである。
+    This add-on used to adopt the method of downloading and using from GitHub's
+    "Code" -> "Download ZIP". However, for this to work, it was necessary to
+    place __init__.py in the root of the repository, which would deviate from
+    Python's standard source code layout and weaken development tool support,
+    so that download method was discontinued. However, there have been many
+    reports that the add-on does not work properly when downloaded using the
+    old discontinued method, so this is the result of trying to make it work
+    with that method as well without changing the source code layout.
 
-    この問題はBlender Extensions Platformの登場で解決すると思うのでそれまでは我慢。
+    This problem should be solved with the advent of the Blender Extensions
+    Platform, so please bear with it until then.
     https://code.blender.org/2022/10/blender-extensions-platform/
     """
     import shutil

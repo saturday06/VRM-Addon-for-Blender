@@ -14,7 +14,7 @@ fi
 if ! command -v deno; then
   # https://github.com/denoland/deno/issues/25931#issuecomment-2406073767
   curl --fail --show-error --location https://deno.land/install.sh | sh -s -- --yes
-  # denoは.bashrcの最終行に改行を追加しないので自前で追加する。
+  # deno doesn't add a newline to the last line of .bashrc, so we add it ourselves.
   echo >>~/.bashrc
 fi
 

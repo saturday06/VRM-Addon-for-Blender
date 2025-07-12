@@ -97,10 +97,9 @@ class AbstractBaseVrmExporter(ABC):
         )
         try:
             yield
-            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
-            # 無効になることがある。その状態でアクセスするとクラッシュするため、
-            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
-            # 注意する
+            # After yield, native bpy objects may be deleted or frames may advance,
+            # becoming invalid. Accessing them in this state causes crashes, so
+            # be careful not to access potentially invalid native objects after yield
         finally:
             self.leave_clear_blend_shape_proxy_previews(
                 armature_data, saved_vrm0_previews, saved_vrm1_previews
@@ -179,10 +178,9 @@ class AbstractBaseVrmExporter(ABC):
         )
         try:
             yield
-            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
-            # 無効になることがある。その状態でアクセスするとクラッシュするため、
-            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
-            # 注意する
+            # After yield, native bpy objects may be deleted or frames may advance,
+            # becoming invalid. Accessing them in this state causes crashes, so
+            # be careful not to access potentially invalid native objects after yield
         finally:
             AbstractBaseVrmExporter.exit_hide_mtoon1_outline_geometry_nodes(
                 context, object_name_to_modifier_names
@@ -190,10 +188,10 @@ class AbstractBaseVrmExporter(ABC):
 
     @staticmethod
     def setup_mtoon_gltf_fallback_nodes(context: Context, *, is_vrm0: bool) -> None:
-        """MToonのノードの値を、glTFのフォールバック値に使われるノードに反映する.
+        """Reflect MToon node values to nodes used for glTF fallback values.
 
-        MToonのノードを直接編集した場合、glTFのフォールバック値は自動で設定されない。
-        そのためエクスポート時に明示的に値を設定する。
+        When MToon nodes are directly edited, glTF fallback values are not
+        automatically set. Therefore, we explicitly set values during export.
         """
         for material in context.blend_data.materials:
             mtoon1 = get_material_extension(material).mtoon1
@@ -231,7 +229,7 @@ def force_apply_modifiers(context: Context, obj: Object) -> Optional[Mesh]:
         return None
 
     # https://docs.blender.org/api/2.80/Depsgraph.html
-    # TODO: シェイプキーが壊れることがあるらしい
+    # TODO: Shape keys may sometimes break
     depsgraph = context.evaluated_depsgraph_get()
     evaluated_obj = obj.evaluated_get(depsgraph)
     evaluated_temporary_mesh = evaluated_obj.to_mesh(
@@ -240,8 +238,8 @@ def force_apply_modifiers(context: Context, obj: Object) -> Optional[Mesh]:
     if not evaluated_temporary_mesh:
         return None
 
-    # ドキュメントにはBlendDataMeshes.new_from_object()を使うべきと書いてあるが、
-    # それだとシェイプキーが保持されない。
+    # The documentation says to use BlendDataMeshes.new_from_object(), but
+    # that doesn't preserve shape keys.
     if isinstance(obj_data, Mesh):
         evaluated_mesh = obj_data.copy()
     else:

@@ -367,7 +367,7 @@ def export_objects(
         objects.append(obj)
 
     return [
-        # コライダーと重複の削除
+        # Remove colliders and duplicates
         obj
         for obj in dict.fromkeys(objects)
         if obj not in collider_bpy_objects

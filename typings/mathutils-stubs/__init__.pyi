@@ -2,7 +2,7 @@
 from collections.abc import Iterable, Iterator, Sequence
 from typing import TypeVar, overload
 
-# TODO: 引数のIterableは本当はSequenceだったりしないか?
+# TODO: Should the Iterable argument actually be Sequence?
 
 __MatrixFallbackType = TypeVar("__MatrixFallbackType")
 
@@ -79,7 +79,7 @@ class Vector(Sequence[float]):
         self,
         other: Vector,
         fallback: float | None = None,
-    ) -> float: ...  # fallbackの型のドキュメントが曖昧
+    ) -> float: ...  # The type of fallback is ambiguous in the documentation
     @property
     def magnitude(self) -> float: ...
 
@@ -116,12 +116,12 @@ class Quaternion:
     def __getitem__(
         self,
         index: int,
-    ) -> float: ...  # ドキュメントには存在しない?
+    ) -> float: ...  # Does not exist in documentation?
     def __setitem__(
         self,
         index: int,
         value: float,
-    ) -> None: ...  # ドキュメントには存在しない?
+    ) -> None: ...  # Does not exist in documentation?
     def to_euler(
         self,
         order: str = "XYZ",
@@ -154,12 +154,12 @@ class Color:
     def __getitem__(
         self,
         index: int,
-    ) -> float: ...  # ドキュメントには存在しない?
+    ) -> float: ...  # Does not exist in documentation?
     def __setitem__(
         self,
         index: int,
         value: float,
-    ) -> None: ...  # ドキュメントには存在しない?
+    ) -> None: ...  # Does not exist in documentation?
 
 class Euler:
     def __init__(self, angles: Iterable[float], order: str = "XYZ") -> None: ...
@@ -182,7 +182,7 @@ class Euler:
     y: float
     z: float
 
-    # 以下、ドキュメントに存在しない
+    # The following are not in the documentation
     @overload
     def __getitem__(self, index: int) -> float: ...
     @overload

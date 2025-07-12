@@ -118,7 +118,8 @@ class PrincipledBsdfNodeSocketTarget(NodeSocketTarget):
 
     @staticmethod
     def get_node_name(material: Material) -> Optional[str]:
-        # nodeはネイティブ側の生存期間が短く危険なため、関数の外に露出しないようにする
+        # node has a short lifetime on the native side and is dangerous, so avoid
+        # exposing it outside the function
         node = PrincipledBSDFWrapper(material).node_principled_bsdf
         if node is None:
             return None

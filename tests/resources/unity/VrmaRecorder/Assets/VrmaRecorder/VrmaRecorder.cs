@@ -28,7 +28,7 @@ namespace VrmaRecorder
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
         public static void BeforeSplashScreen()
         {
-            // fpsを固定
+            // Fix fps
             Application.targetFrameRate = 60;
         }
 
@@ -232,14 +232,14 @@ namespace VrmaRecorder
             Camera rightCamera
         )
         {
-            // SpringBoneはデフォルトではTime.deltaTimeを使って動く。
-            // VRMのロードはとても重く1フレームの周期に収まらないこともあるため
-            // そのままだとSpringBoneの最初のフレームの動きが非決定的になる。
-            // これを防ぐため、VRMのロードは時間を止めて行う。
+            // SpringBone uses Time.deltaTime by default.
+            // VRM loading is very heavy and may not fit within one frame cycle,
+            // so the initial frame movement of SpringBone becomes non-deterministic.
+            // To prevent this, VRM loading is done with time stopped.
             Time.timeScale = 0;
             await Awaitable.NextFrameAsync();
 
-            // この時点で、Time.deltaTimeはゼロになっているはず
+            // At this point, Time.deltaTime should be zero
             if (Mathf.Abs(Time.deltaTime) > 0)
             {
                 throw new Exception($"Mathf.Abs(Time.deltaTime={Time.deltaTime} > 0)");
@@ -272,15 +272,15 @@ namespace VrmaRecorder
             Directory.CreateDirectory(outputFolderPath);
 
             await Awaitable.NextFrameAsync();
-            // ここから先の処理は、1フレームの周期に収まるようにする
+            // From this point on, processing should fit within one frame cycle
 
-            // この時点で、Time.deltaTimeはゼロ
+            // At this point, Time.deltaTime is zero
             if (Mathf.Abs(Time.deltaTime) > 0)
             {
                 throw new Exception($"Mathf.Abs(Time.deltaTime={Time.deltaTime} > 0)");
             }
 
-            // 次のフレームから時間が進み、Time.deltaTimeが設定されるようになる。
+            // Time advances from the next frame, and Time.deltaTime becomes set.
             Time.timeScale = 1;
             var startTime = Time.time;
 
@@ -322,11 +322,11 @@ namespace VrmaRecorder
                 );
             }
 
-            // これらだけだとリソースリークする。そのうち修正。
+            // These alone cause resource leaks. Will fix eventually.
             Destroy(vrmInstance.gameObject);
             Destroy(vrmaGltfInstance.gameObject);
 
-            await Awaitable.NextFrameAsync(); // Destroy処理待ち
+            await Awaitable.NextFrameAsync(); // Wait for Destroy processing
         }
 
         private byte[] CreatePngImage(Camera renderCamera)

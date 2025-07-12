@@ -18,7 +18,7 @@ def BoolProperty(
     default: bool = False,
     options: set[str] = ...,
     override: set[str] = ...,
-    tags: set[str] = ...,  # TODO: 型がわからない
+    tags: set[str] = ...,  # TODO: Type unknown
     subtype: str = "NONE",
     update: Callable[[__CallbackSelf, Context], None] | None = None,
     get: Callable[[__CallbackSelf], bool] | None = None,
@@ -39,7 +39,9 @@ def EnumProperty(
     | Sequence[tuple[str, str, str, str, int]],
     name: str = "",
     description: str = "",
-    default: str | int | None = None,  # setも受け取れるらしいが仕様が読み取れなかった
+    default: str
+    | int
+    | None = None,  # set can also be accepted, but the specification could not be read
     options: set[str] = ...,
     override: set[str] = ...,
     tags: set[str] = ...,
@@ -87,7 +89,7 @@ def FloatVectorProperty(
     update: Callable[[__CallbackSelf, Context], None] | None = None,
     get: Callable[[__CallbackSelf], tuple[float, ...]] | None = None,
     set: Callable[[__CallbackSelf, Sequence[float]], None] | None = None,
-) -> Vector: ...  # TODO: たしかVectorが返ったけど自信がない
+) -> Vector: ...  # TODO: I think Vector was returned, but I'm not confident
 def IntProperty(
     *,
     name: str = "",
@@ -125,7 +127,7 @@ def IntVectorProperty(
     update: Callable[[__CallbackSelf, Context], None] | None = None,
     get: Callable[[__CallbackSelf], tuple[int, ...]] | None = None,
     set: Callable[[__CallbackSelf, Sequence[int]], None] | None = None,
-) -> Vector: ...  # TODO: たしかVectorが返ったけど自信がない
+) -> Vector: ...  # TODO: I think Vector was returned, but I'm not confident
 def PointerProperty(
     *,
     type: __PointerPropertyTarget,
@@ -133,7 +135,7 @@ def PointerProperty(
     description: str = "",
     options: set[str] = ...,
     override: set[str] = ...,
-    tags: set[str] = ...,  # TODO: 型がわからない
+    tags: set[str] = ...,  # TODO: Type unknown
     poll: Callable[[__CallbackSelf, object], bool] | None = None,
     update: Callable[[__CallbackSelf, Context], None] | None = None,
 ) -> __PointerPropertyTarget: ...
@@ -145,7 +147,7 @@ def StringProperty(
     maxlen: int = 0,
     options: set[str] = ...,
     override: set[str] = ...,
-    tags: set[str] = ...,  # TODO: 型がわからない
+    tags: set[str] = ...,  # TODO: Type unknown
     subtype: str = "NONE",
     update: Callable[[__CallbackSelf, Context], None] | None = None,
     get: Callable[[__CallbackSelf], str] | None = None,

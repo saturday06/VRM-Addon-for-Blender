@@ -138,7 +138,7 @@ diff -ru "$addon_check_unzip_dir/${prefix_name}-${release_postfix}" "$addon_dir"
   git push origin HEAD:release-archive
 )
 
-# Blender Extensions向けのリリースノートを作成
+# Create release notes for Blender Extensions
 github_release_body_path=$(mktemp)
 blender_extensions_release_note_path=$(mktemp)
 gh release view "$release_tag_name" --json body --jq .body | tee "$github_release_body_path"
@@ -173,7 +173,7 @@ if [ "$release_postfix" = "release" ]; then
   gh release edit "$release_tag_name" --draft=false --latest
 
   # https://developer.blender.org/docs/features/extensions/ci_cd/
-  set +x # Authorization用の変数の内容を隠す
+  set +x # Hide the content of Authorization variables
   curl \
     --fail-with-body \
     --retry 5 \

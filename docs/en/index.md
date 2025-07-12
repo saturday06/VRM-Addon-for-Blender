@@ -9,7 +9,7 @@ next: false
 
 <style>
   img[src$=".gif"], img[src^="data:image/gif;"] {
-    max-width: 175px; /* テーブルタグで横スクロールバーが出ないように調整 */
+    max-width: 175px; /* Adjust to prevent horizontal scrollbars from appearing with table tags */
   }
 </style>
 

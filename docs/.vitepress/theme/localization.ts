@@ -6,7 +6,7 @@ const autoRedirectionTargetLocaleKey =
 const hasPendingAutoRedirectionKey = "vrm-format-has-pending-auto-redirection";
 
 /**
- * 自動リダイレクト先のLocaleを登録。
+ * Register automatic redirection target locale.
  */
 export function registerAutoRedirectionTargetLocale(
   storage: Storage,
@@ -24,7 +24,7 @@ export function registerAutoRedirectionTargetLocale(
 }
 
 /**
- * Storageとブラウザの言語設定から、自動リダイレクト先のLocaleを検知。
+ * Detect automatic redirection target locale from storage and browser language settings.
  *
  * @returns {string} The guessed language code, either "en" (default) or "ja".
  */

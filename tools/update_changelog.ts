@@ -21,7 +21,7 @@ async function fetchGithubReleases(
 ): Promise<Release[]> {
   const [owner, repoName] = repo.split("/");
   const octokit = new Octokit({ auth: token });
-  // 全リリースをページネーションで取得
+  // Get all releases with pagination
   const releases: ListReleasesResponse = await octokit.paginate(
     octokit.repos.listReleases,
     { owner, repo: repoName },

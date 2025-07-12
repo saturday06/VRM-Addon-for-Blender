@@ -63,8 +63,8 @@ def defer_migrate(armature_object_name: str) -> bool:
 
 
 def migrate_timer_callback(armature_object_name: str) -> None:
-    """migrate()の型をbpy.app.timers.registerに合わせるためのラッパー."""
-    context = bpy.context  # Contextはフレームを跨げないので新たに取得する
+    """Match the type of migrate() to bpy.app.timers.register."""
+    context = bpy.context  # Context cannot span frames, so get it anew
     migrate(context, armature_object_name)
 
 
@@ -149,10 +149,11 @@ def migrate_all_objects(
 
 
 def validate_blend_file_compatibility(context: Context) -> None:
-    """新しいBlenderで作成されたファイルを古いBlenderで編集しようとした場合に警告をする.
+    """Warn when attempting to edit a file created in newer Blender with older Blender.
 
-    アドオンの対応バージョンの事情で新しいBlenderで編集されたファイルを古いBlenderで編集しようとし、
-    それによりシェイプキーが壊れるなどの報告がよく上がる。警告を出すことでユーザーに注意を促す。
+    Due to add-on version support issues, there are often reports of users trying to
+    edit files created in newer Blender with older Blender, which can cause shape keys
+    to break. This warning alerts users to be careful.
     """
     if not context.blend_data.filepath:
         return

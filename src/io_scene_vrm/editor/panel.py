@@ -107,7 +107,7 @@ def draw_template_list(
     )
 
     move_operator_parent = list_side_column.column(align=True)
-    # separatorがないと、リスト要素が0個の際になぜかボタンの横幅が変化する
+    # Without separator, the button width changes mysteriously when list elements are 0
     move_operator_parent.separator()
     if length <= 1 or not (0 <= active_index < length) or not can_move(active_index):
         move_operator_parent.enabled = False

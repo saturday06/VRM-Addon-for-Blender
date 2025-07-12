@@ -12,24 +12,24 @@ An English tutorial is currently being written.
 
 ---
 
-VRM
-Animationのインポートとエクスポートの解説です。執筆時点ではまだ仕様がDraftのため、今後変更される可能性があります。
+VRM Animation import and export explanation. As of the time of writing, the
+specification is still in Draft stage, so it may change in the future.
 
-<!-- TableOfContentsの設定は自動でやりたい -->
+<!-- TableOfContents setting should be automated -->
 
-- [VRM Animationファイルのエクスポート](#vrm-animationファイルのエクスポート)
-- [VRM Animationファイルのインポート](#vrm-animationファイルのインポート)
+- [VRM Animation file export](#vrm-animation-file-export)
+- [VRM Animation file import](#vrm-animation-file-import)
 
-## VRM Animationファイルのエクスポート
+## VRM Animation file export
 
-VRM Animationのエクスポートには、VRM
-1.0のアーマチュアが必要です。エクスポートされるアニメーションは次の通りです
+VRM Animation export requires a VRM 1.0 armature. The exported animations are as
+follows:
 
-- Humanoidボーンの回転値
-- Humanoid Hipsボーンの移動値
-- Expressionのプレビュー値 (Look At値のエクスポートは現在未対応)
+- Humanoid bone rotation values
+- Humanoid Hips bone movement values
+- Expression preview values (Look At value export is currently not supported)
 
-最低限のアニメーションをエクスポートしてみます。
+Let's try exporting a minimal animation.
 
 ![](1.png)
 
@@ -61,7 +61,7 @@ VRM Animationのエクスポートには、VRM
 
 ![](15.png)
 
-## VRM Animationファイルのインポート
+## VRM Animation file import
 
 ![](16.png)
 
