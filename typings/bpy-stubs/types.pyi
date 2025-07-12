@@ -644,7 +644,7 @@ class Addon(bpy_struct):
 class Addons(bpy_prop_collection[Addon]): ...
 
 class MeshUVLoop(bpy_struct):
-    uv: Vector  # TODO: 正しい方を調べる
+    uv: Vector  # TODO: Check the correct type
 
 class MeshUVLoopLayer(bpy_struct):
     name: str
@@ -662,14 +662,14 @@ class MeshLoopTriangle(bpy_struct):
         tuple[float, float, float],
         tuple[float, float, float],
         tuple[float, float, float],
-    ]  # TODO: 正しい型を調べる
-    loops: tuple[int, int, int]  # TODO: 正しい型を調べる
+    ]  # TODO: Check the correct type
+    loops: tuple[int, int, int]  # TODO: Check the correct type
 
 class MeshLoop(bpy_struct):
     edge_index: int
     index: int
     normal: Vector
-    tangent: Vector  # TODO: 正しい型を調べる
+    tangent: Vector  # TODO: Check the correct type
     vertex_index: int
 
 class MeshLoops(bpy_prop_collection[MeshLoop]): ...
@@ -681,8 +681,8 @@ class VertexGroupElement(bpy_struct):
     def group(self) -> int: ...
 
 class MeshVertex(bpy_struct):
-    co: tuple[float, float, float]  # Vectorかも?
-    normal: Vector  # TODO: 正しい型を調べる
+    co: tuple[float, float, float]  # Maybe Vector?
+    normal: Vector  # TODO: Check the correct type
     @property
     def groups(self) -> bpy_prop_collection[VertexGroupElement]: ...
     @property
@@ -697,9 +697,9 @@ class ShapeKeyPoint(bpy_struct):
 class ShapeKey(bpy_struct):
     name: str
     value: float
-    @property  # TODO: UnknownTypeになっている
+    @property  # TODO: It's becoming UnknownType
     def data(self) -> bpy_prop_collection[ShapeKeyPoint]: ...
-    def normals_split_get(self) -> Sequence[float]: ...  # TODO: 正しい型
+    def normals_split_get(self) -> Sequence[float]: ...  # TODO: Correct type
 
 class Key(ID):
     @property
@@ -710,15 +710,15 @@ class Key(ID):
 class MeshPolygon(bpy_struct):
     material_index: int
     use_smooth: bool
-    vertices: tuple[int, int, int]  # TODO: 正しい型を調べる
-    loop_indices: Sequence[int]  # TODO: 正しい型を調べる
+    vertices: tuple[int, int, int]  # TODO: Check the correct type
+    loop_indices: Sequence[int]  # TODO: Check the correct type
     @property
     def loop_total(self) -> int: ...
 
 class MeshPolygons(bpy_prop_collection[MeshPolygon]): ...
 
 class MeshLoopColor(bpy_struct):
-    color: Sequence[float]  # TODO: 正しい型を調べる
+    color: Sequence[float]  # TODO: Check the correct type
 
 class MeshLoopColorLayer(bpy_struct):
     @property
@@ -775,10 +775,10 @@ class Mesh(ID):
         clean_customdata: bool = True,
     ) -> bool: ...
 
-class AnimDataDrivers(bpy_prop_collection[FCurve]):  # TODO: 型が不明瞭
+class AnimDataDrivers(bpy_prop_collection[FCurve]):  # TODO: Type is unclear
     ...
 class NlaTrack(bpy_struct): ...
-class NlaTracks(bpy_prop_collection[NlaTrack]):  # TODO: 型が不明瞭
+class NlaTracks(bpy_prop_collection[NlaTrack]):  # TODO: Type is unclear
     ...
 
 class AnimData(bpy_struct):
@@ -805,7 +805,9 @@ class Armature(ID):
     pose_position: str
 
     @property
-    def animation_data(self) -> AnimData | None: ...  # TODO: 本当にOptionalか確認
+    def animation_data(
+        self,
+    ) -> AnimData | None: ...  # TODO: Confirm if it's really Optional
     @property
     def bones(self) -> ArmatureBones: ...
     @property
@@ -873,7 +875,7 @@ class NodeSocketInterfaceFloatUnsigned(NodeSocketInterfaceStandard):
     min_value: float
 
 class NodeSocketInterfaceColor(NodeSocketInterfaceStandard):
-    default_value: tuple[float, float, float, float]  # TODO: これはカラー?
+    default_value: tuple[float, float, float, float]  # TODO: Is this a color?
 
 class NodeSocketInterfaceVector(NodeSocketInterfaceStandard):
     default_value: tuple[float, float, float]
@@ -1301,14 +1303,14 @@ class ShaderNodeTexVoronoi(ShaderNode):
     color_mapping: ColorMapping
     distance: str
     feature: str
-    texture_mapping: object  # TODO: 型をつける
+    texture_mapping: object  # TODO: Add type
     voronoi_dimensions: str
 
 class ShaderNodeTexWave(ShaderNode):
     bands_direction: str
     color_mapping: ColorMapping
     rings_direction: str
-    texture_mapping: object  # TODO: 型をつける
+    texture_mapping: object  # TODO: Add type
     wave_profile: str
     wave_type: str
 
@@ -1383,7 +1385,9 @@ class Pose(bpy_struct):
 class MaterialSlot(bpy_struct):
     @property
     def name(self) -> str: ...
-    material: Material | None  # マテリアル一覧の+を押したまま何も選ばないとNoneになる
+    material: (
+        Material | None
+    )  # When pressing + in material list without selecting, it becomes None
 
 class ObjectModifiers(bpy_prop_collection["Modifier"]):
     def new(self, name: str, type: str) -> Modifier: ...
@@ -1402,7 +1406,7 @@ class VertexGroups(bpy_prop_collection[VertexGroup]):
 class Object(ID):
     name: str
     type: str
-    data: ID | None  # ドキュメントにはIDと書いてあるがtypeがemptyの場合はNoneになる
+    data: ID | None  # The document says ID, but when type is empty, it becomes None
     @property
     def mode(self) -> str: ...
     @property
@@ -1436,20 +1440,20 @@ class Object(ID):
     show_in_front: bool
 
     rotation_mode: str
-    rotation_quaternion: Quaternion  # TODO: 型あってる?
+    rotation_quaternion: Quaternion  # TODO: Is the type correct?
     rotation_euler: Euler
-    rotation_axis_angle: Sequence[float]  # 本当はbpy_prop_array[float]
+    rotation_axis_angle: Sequence[float]  # Actually bpy_prop_array[float]
 
     @property
     def bound_box(self) -> bpy_prop_array[bpy_prop_array[float]]: ...
 
-    # ドキュメントには4x4の2次元配列って書いてあるけど実際にはMatrix
+    # The document says 4x4 2D array, but it's actually Matrix
     matrix_basis: Matrix
-    # ドキュメントには4x4の2次元配列って書いてあるけど実際にはMatrix
+    # The document says 4x4 2D array, but it's actually Matrix
     matrix_world: Matrix
-    # ドキュメントには4x4の2次元配列って書いてあるけど実際にはMatrix
+    # The document says 4x4 2D array, but it's actually Matrix
     matrix_local: Matrix
-    # ドキュメントには3要素のfloat配列って書いてあるけど実際にはVector
+    # The document says 3-element float array, but it's actually Vector
     scale: Vector
 
     @property
@@ -1458,12 +1462,14 @@ class Object(ID):
     def location(
         self,
     ) -> (
-        # ドキュメントには3要素のfloat配列と書いてあるが、実際にはVector
+        # The document says 3-element float array, but it's actually Vector
         Vector
     ): ...
     @location.setter
     def location(self, value: Iterable[float]) -> None: ...
-    def evaluated_get(self, depsgraph: Depsgraph) -> Object: ...  # 本当はIDのメソッド
+    def evaluated_get(
+        self, depsgraph: Depsgraph
+    ) -> Object: ...  # Actually an ID method
     def to_mesh(
         self,
         preserve_all_data_layers: bool = False,
@@ -1479,7 +1485,7 @@ class Object(ID):
     def hide_get(self, view_layer: ViewLayer | None = None) -> bool: ...
     def hide_set(self, state: bool, view_layer: ViewLayer | None = None) -> bool: ...
     @property
-    def children(self) -> Sequence[Object]: ...  # ドキュメントでは型が不明瞭
+    def children(self) -> Sequence[Object]: ...  # The type is unclear in the document
     def copy(self) -> Object: ...  # override ID.copy
 
 class PreferencesView:
@@ -1649,7 +1655,7 @@ class NodeTreeInterface(bpy_struct):
     def new_socket(
         self,
         name: str,
-        *,  # キーワード専用とはドキュメントに記載は無いが?
+        *,  # It's not mentioned in the document that it's keyword-only?
         description: str = "",
         in_out: str = ...,
         socket_type: str = "DEFAULT",
@@ -1720,18 +1726,18 @@ class Modifier(bpy_struct):
     @property
     def type(self) -> str: ...
 
-    # TODO: 本当はbpy_structのメソッド
+    # TODO: Actually a bpy_struct method
     def get(self, key: str, default: object = None) -> object: ...
-    # TODO: 本当はbpy_structのメソッド
+    # TODO: Actually a bpy_struct method
     def __getitem__(self, key: str) -> object: ...
-    # TODO: 本当はbpy_structのメソッド
+    # TODO: Actually a bpy_struct method
     def __setitem__(self, key: str, value: object) -> None: ...
 
 class ArmatureModifier(Modifier):
     object: Object | None
 
 class NodesModifier(Modifier):
-    node_group: NodeTree | None  # Noneになるかは要検証
+    node_group: NodeTree | None  # Whether it becomes None needs verification
 
 class OperatorFileListElement(PropertyGroup): ...
 
@@ -1765,7 +1771,7 @@ class CopyRotationConstraint(Constraint):
     subtarget: str
 
 class ViewLayers(bpy_prop_collection[ViewLayer]):
-    def update(self) -> None: ...  # TODO: ドキュメントに記載されていない
+    def update(self) -> None: ...  # TODO: Not mentioned in the document
 
 class ColorManagedViewSettings(bpy_struct):
     view_transform: str
@@ -1792,7 +1798,7 @@ class World(ID):
     color: Color
 
 class CyclesRenderSettings(bpy_struct):
-    # TODO: このクラスはドキュメントに記載が無いことがある
+    # TODO: This class is sometimes not mentioned in the document
     samples: int
     adaptive_min_samples: int
     use_denoising: bool
@@ -1899,11 +1905,11 @@ class Region(bpy_struct):
     def y(self) -> int: ...
 
 class RegionView3D(bpy_struct):
-    # ドキュメントには二次元配列と書いてあるので要確認
+    # The document says 2D array, so needs confirmation
     perspective_matrix: Matrix
-    # ドキュメントには二次元配列と書いてあるので要確認
+    # The document says 2D array, so needs confirmation
     view_matrix: Matrix
-    # ドキュメントには二次元配列と書いてあるので要確認
+    # The document says 2D array, so needs confirmation
     window_matrix: Matrix
 
 class Context(bpy_struct):
@@ -2042,7 +2048,7 @@ class BlendDataLibraries(bpy_prop_collection[Library]):
         link: bool,
     ) -> contextlib.AbstractContextManager[
         tuple[BlendData, BlendData]
-    ]: ...  # ドキュメントに存在しない
+    ]: ...  # Does not exist in the document
     def remove(
         self,
         library: Library,
@@ -2060,7 +2066,7 @@ class BlendDataNodeTrees(bpy_prop_collection[NodeTree]):
         do_id_user: bool = True,
         do_ui_user: bool = True,
     ) -> None: ...
-    def append(self, value: NodeTree) -> None: ...  # ドキュメントに存在しない
+    def append(self, value: NodeTree) -> None: ...  # Does not exist in the document
 
 class BlendDataActions(bpy_prop_collection[Action]):
     def new(self, name: str) -> Action: ...
@@ -2237,7 +2243,7 @@ class Operator(bpy_struct):
     @property
     def layout(self) -> UILayout: ...
 
-# この型はUILayout.prop_searchで使うけど、ドキュメントが曖昧なためいまいちな定義になる
+# This type is used with UILayout.prop_search, but definition is unclear due to docs
 AnyType: TypeAlias = ID | BlendData | Operator | PropertyGroup
 
 class Panel(bpy_struct):
