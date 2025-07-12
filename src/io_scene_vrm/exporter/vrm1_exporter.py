@@ -2479,9 +2479,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         for material in self.context.blend_data.materials:
             material[self.extras_material_name_key] = material.name
 
-        # glTF 2.0アドオンのコメントにはPoseBoneとのカスタムプロパティを保存すると
-        # 書いてあるが、実際にはBoneのカスタムプロパティを参照している。
-        # そのため、いちおう両方に書いておく
+        # The glTF 2.0 addon comment states that it saves custom properties with PoseBone,
+        # but it actually references custom properties of Bone.
+        # Therefore, write to both just in case
         for pose_bone in self.armature.pose.bones:
             pose_bone[self.extras_bone_name_key] = pose_bone.name
         for bone in armature_data.bones:
@@ -2520,16 +2520,16 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def gltf_export_armature_object_remove(
         context: Context, mesh_object_names: Sequence[str]
     ) -> bool:
-        """export_armature_object_removeを有効にするかどうかを返す.
+        """Return whether to enable export_armature_object_remove.
 
-        export_armature_object_removeは非常に便利でぜひ使いたいが、
-        バグも多いので、そのバグの影響を受けない場合のみ有効にする。
+        export_armature_object_remove is very useful and we'd like to use it,
+        but it has many bugs, so enable it only when not affected by those bugs.
         """
         if bpy.app.version < (4, 2):
             return False
 
         if bpy.app.version < (4, 4):
-            # ルートボーンにnot use_deformのものがあったらFalse
+            # Root bone with non-deform bones returns False
             # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2394
             for selected_object in context.selected_objects:
                 if selected_object.type != "ARMATURE":

@@ -66,7 +66,7 @@ def export_materials(context: Context, objects: Sequence[Object]) -> Sequence[Ma
                 continue
             result.append(material)
 
-    return list(dict.fromkeys(result))  # 重複削除
+    return list(dict.fromkeys(result))  # Remove duplicates
 
 
 LEGACY_SHADER_NAMES: Final = (
