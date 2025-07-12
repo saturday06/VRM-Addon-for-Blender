@@ -8,6 +8,7 @@ from typing import Optional, Union
 
 import bmesh
 from bpy.types import Armature, Context, Mesh, NodesModifier, Object
+from mathutils import Vector
 
 from ..common import shader
 from ..common.convert import Json
@@ -269,14 +270,16 @@ def force_apply_modifiers(context: Context, obj: Object) -> Optional[Mesh]:
     if not shape_keys:
         return evaluated_mesh
 
-    evaluated_shape_keys = evaluated_mesh.shape_keys
-    if not evaluated_shape_keys:
+    evaluated_mesh_shape_keys = evaluated_mesh.shape_keys
+    if not evaluated_mesh_shape_keys:
         return evaluated_mesh
 
     # If the mesh has shape keys, reproduce them as much as possible
     for shape_key in shape_keys.key_blocks:
-        evaluated_shape_key = evaluated_shape_keys.key_blocks.get(shape_key.name)
-        if not evaluated_shape_key:
+        evaluated_mesh_shape_key = evaluated_mesh_shape_keys.key_blocks.get(
+            shape_key.name
+        )
+        if not evaluated_mesh_shape_key:
             continue
 
         if shape_key.name == shape_keys.reference_key.name:
@@ -285,14 +288,29 @@ def force_apply_modifiers(context: Context, obj: Object) -> Optional[Mesh]:
         shape_key.value = 1.0
         context.view_layer.update()
 
-        evaluated_shape_key_data = evaluated_shape_key.data
-        shape_key_data = shape_key.data
-        # TODO: If the number of vertices is different, we should use advanced graph
-        # matching algorithm.
-        for i in range(min(len(evaluated_shape_key_data), len(shape_key_data))):
-            evaluated_shape_key_data[i].co = shape_key_data[i].co
+        depsgraph = context.evaluated_depsgraph_get()
+        baked_shape_key_obj = obj.evaluated_get(depsgraph)
+        baked_shape_key_mesh = baked_shape_key_obj.to_mesh(
+            preserve_all_data_layers=True, depsgraph=depsgraph
+        )
+        if baked_shape_key_mesh:
+            evaluated_mesh_shape_key_data = evaluated_mesh_shape_key.data
+            baked_shape_key_mesh_vertices = baked_shape_key_mesh.vertices
+
+            # TODO: If the number of vertices is different, we should use advanced graph
+            # matching algorithm.
+            for i in range(
+                min(
+                    len(evaluated_mesh_shape_key_data),
+                    len(baked_shape_key_mesh_vertices),
+                )
+            ):
+                evaluated_mesh_shape_key_data[i].co = Vector(
+                    baked_shape_key_mesh_vertices[i].co
+                )
 
         shape_key.value = 0.0
-        context.view_layer.update()
+        baked_shape_key_obj.to_mesh_clear()
 
+    context.view_layer.update()
     return evaluated_mesh
