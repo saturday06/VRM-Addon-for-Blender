@@ -24,7 +24,7 @@ def register_class(
         | KeyingSetInfo
         | RenderEngine
         |
-        # 以下、ドキュメントには存在しないもの
+        # The following do not exist in documentation
         AddonPreferences
         | PropertyGroup
     ],
@@ -40,7 +40,7 @@ def unregister_class(
         | KeyingSetInfo
         | RenderEngine
         |
-        # 以下、ドキュメントには存在しないもの
+        # The following do not exist in documentation
         AddonPreferences
         | PropertyGroup
     ],

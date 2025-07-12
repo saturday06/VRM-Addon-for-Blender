@@ -161,10 +161,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         )
         try:
             yield
-            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
-            # 無効になることがある。その状態でアクセスするとクラッシュするため、
-            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
-            # 注意する
+            # After yield, bpy's native objects may be deleted or frames may advance
+            # and become invalid. Accessing them in that state can cause crashes, so
+            # be careful not to access such potentially invalid native objects
+            # after yield
         finally:
             self.leave_overwrite_object_visibility_and_selection(
                 self.context, object_visibility_and_selection
@@ -182,10 +182,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         export_objects: list[Object] = []
 
-        # オブジェクトを複製。
-        # 新しいオブジェクトはエクスポートに利用する
-        # 古いオブジェクトはバックアップ名を付与し、エクスポート後に戻す
-        # また、オブジェクトデータにもバックアップ名を付与
+        # Duplicate objects.
+        # New objects are used for export
+        # Old objects are given backup names and restored after export
+        # Also, object data is given backup names
         for obj in context.view_layer.objects:
             if obj not in original_export_objects:
                 continue
@@ -217,9 +217,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             backup_data_name_to_original_data_name[backup_data_name] = obj_data.name
             obj_data.name = backup_data_name
 
-        # オブジェクトデータを複製
-        # ただし、Armatureモディファイア以外の有効なモディファイアが付与されている場合
-        # オブジェクトデータを共有する
+        # Duplicate object data
+        # However, if active modifiers other than Armature modifiers are attached,
+        # share the object data
         data_to_non_sharing_objects: dict[ID, list[Object]] = {}
         data_to_sharing_objects: dict[ID, list[Object]] = {}
         for export_object in export_objects:
@@ -249,7 +249,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         for data, sharing_export_objects in data_to_sharing_objects.items():
             original_data_name = backup_data_name_to_original_data_name.get(data.name)
             if not original_data_name:
-                continue  # ここには来ないはず
+                continue  # This should not happen
             export_data = data.copy()
             export_data.name = original_data_name
             for sharing_export_object in sharing_export_objects:
@@ -258,7 +258,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         for data, non_sharing_export_objects in data_to_non_sharing_objects.items():
             original_data_name = backup_data_name_to_original_data_name.get(data.name)
             if not original_data_name:
-                continue  # ここには来ないはず
+                continue  # This should not happen
             for non_sharing_export_object in non_sharing_export_objects:
                 export_data = data.copy()
                 export_data.name = original_data_name
@@ -277,14 +277,14 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     ) -> None:
         removing_object_datum: list[ID] = []
 
-        # エクスポート用のオブジェクトを削除
+        # Delete export objects
         for original_obj_name in backup_obj_name_to_original_obj_name.values():
             restored_export_obj = context.blend_data.objects.get(original_obj_name)
             if not restored_export_obj:
                 continue
 
-            # dataは複数のオブジェクトから参照がある可能性があるので、
-            # ここで集めてあとで一括削除する
+            # Data may be referenced by multiple objects, so
+            # collect them here and delete them all at once later
             restored_export_obj_data = restored_export_obj.data
             if (
                 restored_export_obj_data
@@ -292,8 +292,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             ):
                 removing_object_datum.append(restored_export_obj_data)
 
-            # 削除できなかった時でも、元のオブジェクトと混同しないように
-            # 名前をランダム化
+            # Even if deletion fails, randomize the name to avoid
+            # confusion with the original object
             restored_export_obj.name = "Export-" + uuid4().hex
 
             scene_collection_objects = context.scene.collection.objects
@@ -310,10 +310,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             else:
                 context.blend_data.objects.remove(restored_export_obj)
 
-        # エクスポート用のオブジェクトデータを削除
+        # Delete export object data
         for removing_object_data in removing_object_datum:
-            # 削除できなかった時でも、元のオブジェクトデータと混同しないように
-            # 名前をランダム化
+            # Even if deletion fails, randomize the name to avoid
+            # confusion with the original object data
             removing_object_data.name = "Export-Data-" + uuid4().hex
 
             if removing_object_data.users:
@@ -335,7 +335,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     removing_object_data.users,
                 )
 
-        # バックアップされたオブジェクトの名前を戻す
+        # Restore the names of backed up objects
         for (
             backup_obj_name,
             original_obj_name,
@@ -347,7 +347,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             restored_obj.name = original_obj_name
             restored_obj.select_set(True)
 
-            # バックアップされたオブジェクトデータの名前を戻す
+            # Restore the names of backed up object data
             restored_obj_data = restored_obj.data
             if not restored_obj_data:
                 continue
@@ -368,10 +368,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         )
         try:
             yield list(backup_obj_name_to_original_obj_name.values())
-            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
-            # 無効になることがある。その状態でアクセスするとクラッシュするため、
-            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
-            # 注意する
+            # After yield, bpy's native objects may be deleted or frames may advance
+            # and become invalid. Accessing them in that state can cause crashes, so
+            # be careful not to access such potentially invalid native objects
+            # after yield
         finally:
             self.leave_save_selected_mesh_compat_objects(
                 self.context,
@@ -415,13 +415,14 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
     @contextmanager
     def mount_skinned_mesh_parent(self) -> Iterator[None]:
-        # Blender 3.1.2付属アドオンのglTF 2.0エクスポート処理には次の条件をすべて満たす
-        # ときinverseBindMatricesが不正なglbが出力される:
-        # - アーマチュアの子孫になっていないメッシュがそのアーマチュアのボーンに
-        #   スキニングされている
-        # - スキニングされたボーンの子供に別のメッシュが存在する
-        # そのため、アーマチュアの子孫になっていないメッシュの先祖の親をアーマチュアに
-        # し、後で戻す
+        # The glTF 2.0 export processing of the addon included with Blender 3.1.2
+        # outputs invalid glb with incorrect inverseBindMatrices when all of the
+        # following conditions are met:
+        # - A mesh that is not a descendant of the armature is skinned to bones
+        #   of that armature
+        # - Another mesh exists as a child of the skinned bone
+        # Therefore, make the ancestor parent of meshes that are not descendants
+        # of the armature as the armature, and restore it later
 
         armature = self.armature
         if not armature:
@@ -435,10 +436,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         mounted_object_names = self.enter_mount_skinned_mesh_parent(armature)
         try:
             yield
-            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
-            # 無効になることがある。その状態でアクセスするとクラッシュするため、
-            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
-            # 注意する
+            # After yield, bpy's native objects may be deleted or frames may advance
+            # and become invalid. Accessing them in that state can cause crashes, so
+            # be careful not to access such potentially invalid native objects
+            # after yield
         finally:
             self.leave_mount_skinned_mesh_parent(mounted_object_names)
 
@@ -2082,10 +2083,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         disabled_material_names = cls.enter_disable_mtoon1_material_nodes(context)
         try:
             yield
-            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
-            # 無効になることがある。その状態でアクセスするとクラッシュするため、
-            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
-            # 注意する
+            # After yield, bpy's native objects may be deleted or frames may advance
+            # and become invalid. Accessing them in that state can cause crashes, so
+            # be careful not to access such potentially invalid native objects
+            # after yield
         finally:
             cls.leave_disable_mtoon1_material_nodes(context, disabled_material_names)
 
@@ -2351,10 +2352,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         )
         try:
             yield
-            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
-            # 無効になることがある。その状態でアクセスするとクラッシュするため、
-            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
-            # 注意する
+            # After yield, bpy's native objects may be deleted or frames may advance
+            # and become invalid. Accessing them in that state can cause crashes, so
+            # be careful not to access such potentially invalid native objects
+            # after yield
         finally:
             if human_bone_name_to_bone_name is not None:
                 cls.leave_setup_dummy_human_bones(
@@ -2424,7 +2425,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         object_name_and_constraint_name: Sequence[tuple[str, str]],
         bone_name_and_constraint_name: Sequence[tuple[str, str]],
     ) -> None:
-        # ObjectやConstraintが消えている可能性を考慮し、それらを取得し直す
+        # Consider the possibility that Object or Constraint may have been
+        # deleted, and retrieve them again
         for object_name, constraint_name in object_name_and_constraint_name:
             obj = context.blend_data.objects.get(object_name)
             if not obj:
@@ -2450,10 +2452,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         )
         try:
             yield
-            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
-            # 無効になることがある。その状態でアクセスするとクラッシュするため、
-            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
-            # 注意する
+            # After yield, bpy's native objects may be deleted or frames may advance
+            # and become invalid. Accessing them in that state can cause crashes, so
+            # be careful not to access such potentially invalid native objects
+            # after yield
         finally:
             self.leave_disable_constraints(
                 context,
@@ -2469,17 +2471,17 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         if not isinstance(armature_data, Armature):
             return
 
-        # 他glTF2ExportUserExtensionの影響を最小化するため、
-        # 影響が少ないと思われるカスタムプロパティを使って
-        # Blenderのオブジェクトとインデックスの対応をとる。
+        # To minimize the impact of other glTF2ExportUserExtensions,
+        # use custom properties that seem to have less impact
+        # to establish correspondence between Blender objects and indices.
         for obj in self.context.blend_data.objects:
             obj[self.extras_object_name_key] = obj.name
         for material in self.context.blend_data.materials:
             material[self.extras_material_name_key] = material.name
 
-        # glTF 2.0アドオンのコメントにはPoseBoneとのカスタムプロパティを保存すると
-        # 書いてあるが、実際にはBoneのカスタムプロパティを参照している。
-        # そのため、いちおう両方に書いておく
+        # The glTF 2.0 addon comment states that it saves custom properties with
+        # PoseBone, but it actually references custom properties of Bone.
+        # Therefore, write to both just in case
         for pose_bone in self.armature.pose.bones:
             pose_bone[self.extras_bone_name_key] = pose_bone.name
         for bone in armature_data.bones:
@@ -2507,10 +2509,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         self.enter_assign_export_custom_properties()
         try:
             yield
-            # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
-            # 無効になることがある。その状態でアクセスするとクラッシュするため、
-            # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
-            # 注意する
+            # After yield, bpy's native objects may be deleted or frames may advance
+            # and become invalid. Accessing them in that state can cause crashes, so
+            # be careful not to access such potentially invalid native objects
+            # after yield
         finally:
             self.leave_assign_export_custom_properties()
 
@@ -2518,16 +2520,16 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def gltf_export_armature_object_remove(
         context: Context, mesh_object_names: Sequence[str]
     ) -> bool:
-        """export_armature_object_removeを有効にするかどうかを返す.
+        """Return whether to enable export_armature_object_remove.
 
-        export_armature_object_removeは非常に便利でぜひ使いたいが、
-        バグも多いので、そのバグの影響を受けない場合のみ有効にする。
+        export_armature_object_remove is very useful and we'd like to use it,
+        but it has many bugs, so enable it only when not affected by those bugs.
         """
         if bpy.app.version < (4, 2):
             return False
 
         if bpy.app.version < (4, 4):
-            # ルートボーンにnot use_deformのものがあったらFalse
+            # Root bone with non-deform bones returns False
             # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2394
             for selected_object in context.selected_objects:
                 if selected_object.type != "ARMATURE":
@@ -2541,7 +2543,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     if not bone.use_deform:
                         return False
 
-        # Armatureモディファイアがついていて、ウエイトがついていない頂点があったらFalse
+        # Return False if there are vertices with Armature modifier but no weights
         # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2436
         armature_data_name_to_deform_bone_names: dict[str, set[str]] = {}
         for mesh_object_name in mesh_object_names:
@@ -2674,16 +2676,17 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         node_dicts: list[Json],
         armature_node_index: int,
     ) -> None:
-        """Blender 4.2未満でシーンのアーマチュアオブジェクトが削除可能なら削除.
+        """Delete scene armature object if it can be deleted in Blender < 4.2.
 
-        これはBlenderで再インポートした際に、Armatureのオブジェクトがボーン扱いされるのを
-        防ぐため。TODO: 本当はskin.skeletonなどを使って賢く処理するべき
+        This is to prevent the Armature object from being treated as a bone
+        when re-importing in Blender. TODO: Should be handled more intelligently
+        using skin.skeleton etc.
 
-        メインアーマチュアにトランスフォームが入っている場合、現在の方式では
-        Blender 4.2.1やUniVRM 0.126.0などでうまく処理できないためやらない
+        When the main armature has transforms, the current method doesn't work
+        well with Blender 4.2.1, UniVRM 0.126.0, etc., so we don't do it.
 
-        Skin Jointが登録されているルートボーンが複数ある場合は、skin.jointsは共通の
-        ルートボーンが必要な制約があるため、削除しない。
+        When there are multiple root bones with Skin Joints registered,
+        skin.joints requires a common root bone constraint, so we don't delete it.
         """
         if bpy.app.version >= (4, 2):
             return
@@ -2741,7 +2744,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if not isinstance(scene_node_indices, list):
                 continue
 
-            # シーンに属するノードのうち、そのアーマチュアの祖先ノードを削除
+            # Remove ancestor nodes of that armature among nodes belonging to the scene
             for scene_node_index in list(scene_node_indices):
                 if not isinstance(scene_node_index, int):
                     continue
@@ -2773,7 +2776,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 scene_node_indices.append(armature_child_index)
                 if armature_replaced:
                     continue
-                # メインアーマチュアまでのワールド行列をその子供に適用
+                # Apply world matrix up to main armature to its children
                 child_node_dict = node_dicts[armature_child_index]
                 if not isinstance(child_node_dict, dict):
                     continue

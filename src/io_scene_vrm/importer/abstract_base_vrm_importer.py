@@ -131,10 +131,9 @@ class AbstractBaseVrmImporter(ABC):
                     self.context.view_layer.update()
                     progress.update(0.96)
 
-                    # テクスチャの展開を行う。その際に.blendファイルの保存が発生して
-                    # 保存時のコールバックが走ることがあるため、中途半端にインポート
-                    # されたVRMのデータに対してそのコールバックが適用されないように
-                    # 注意する
+                    # Texture extraction occurs. During this process, .blend file saving
+                    # may occur and save callbacks may run, so be careful not to apply
+                    # those callbacks to incompletely imported VRM data
                     if self.preferences.extract_textures_into_folder:
                         self.extract_textures(repack=False)
                     elif bpy.app.version < (3, 1):
@@ -168,7 +167,7 @@ class AbstractBaseVrmImporter(ABC):
         if not isinstance(armature_data, Armature):
             return None
 
-        # 編集前のボーンの子オブジェクトのワールド行列を保存
+        # Save the world matrices of child objects of bones before editing
         context.view_layer.update()
         bone_child_object_world_matrices: dict[str, Matrix] = {}
         for obj in context.blend_data.objects:
@@ -191,7 +190,7 @@ class AbstractBaseVrmImporter(ABC):
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
-        # 編集前のボーンの子オブジェクトのワールド行列を復元
+        # Restore the world matrices of child objects of bones before editing
         context.view_layer.update()
         for name, matrix_world in bone_child_object_world_matrices.items():
             restore_obj = context.blend_data.objects.get(name)
@@ -221,10 +220,9 @@ class AbstractBaseVrmImporter(ABC):
                     message = f"{type(armature_data)} is not an Armature"
                     raise TypeError(message)
                 yield armature_data
-                # yield後にbpyのネイティブオブジェクトは削除されたりフレームが進んで
-                # 無効になることがある。その状態でアクセスするとクラッシュするため、
-                # yield後はその可能性のあるネイティブオブジェクトにアクセスしないように
-                # 注意する
+                # After yield, bpy native objects may be deleted or frames may advance
+                # making them invalid. Accessing them in this state can cause crashes,
+                # so be careful not to access such native objects after yield
         finally:
             if bone_child_object_world_matrices is not None:
                 AbstractBaseVrmImporter.leave_save_bone_child_object_transforms(
@@ -232,8 +230,8 @@ class AbstractBaseVrmImporter(ABC):
                 )
 
     def use_fake_user_for_thumbnail(self) -> None:
-        # サムネイルはVRMの仕様ではimageのインデックスとあるが、UniVRMの実装ではtexture
-        # のインデックスになっている
+        # The thumbnail is specified as an image index in the VRM specification,
+        # but in UniVRM's implementation it's a texture index
         # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterself.context.cs#L308
         meta_dict = self.parse_result.vrm0_extension_dict.get("meta")
         if not isinstance(meta_dict, dict):
@@ -303,10 +301,11 @@ class AbstractBaseVrmImporter(ABC):
                 image.filepath_raw = f"//{image_name}.{image_type}"
 
     def extract_textures(self, *, repack: bool) -> None:
-        """テクスチャをファイルにフォルダに展開します.
+        """Extract textures to a folder as files.
 
-        Blender 3.1以降ではテクスチャの展開は.blendファイルを保存しないとできない。
-        そのためファイルを保存するが、その際にファイル保存コールバックが走るのに注意してください。
+        In Blender 3.1 and later, texture extraction requires saving the .blend file.
+        Therefore, the file is saved, but be careful that file save callbacks may run
+        during this process.
         """
         dir_path = self.parse_result.filepath.with_suffix(".vrm.textures").absolute()
         if self.preferences.make_new_texture_folder or repack:
@@ -382,10 +381,10 @@ class AbstractBaseVrmImporter(ABC):
         if repack:
             shutil.rmtree(dir_path, ignore_errors=True)
 
-    # VRM再インポートを繰り返すことでボーンが増殖しないように注意。
-    # 特に注意するべきもの:
-    # - ルートボーン
-    # - メッシュがペアレンティングされているボーン
+    # Be careful not to let bones proliferate by repeating VRM re-import.
+    # Things to pay special attention to:
+    # - Root bones
+    # - Bones that have meshes parented to them
     def find_retain_node_indices(self, scene_dict: dict[str, Json]) -> list[int]:
         scene_node_index_jsons = scene_dict.get("nodes")
         if not isinstance(scene_node_index_jsons, list):
@@ -409,8 +408,8 @@ class AbstractBaseVrmImporter(ABC):
 
         bone_node_indices = self.find_vrm_bone_node_indices()
 
-        # シーンノードツリーのうち、hipsボーンが存在するツリーの全てのノードを集める。
-        # また、そのツリーのルートノードもボーン扱いする。
+        # Collect all nodes in the scene node tree where the hips bone exists.
+        # Also treat the root node of that tree as a bone.
         all_scene_node_indices: list[int] = []
         hips_found = False
         for scene_node_index in scene_node_indices:
@@ -443,7 +442,7 @@ class AbstractBaseVrmImporter(ABC):
 
         all_scene_node_indices = list(dict.fromkeys(all_scene_node_indices))  # Distinct
 
-        # skinに登録されているインデックスもボーン扱いする
+        # Also treat indices registered in skin as bones
         for node_index in all_scene_node_indices:
             if not 0 <= node_index < len(node_dicts):
                 continue
@@ -461,12 +460,12 @@ class AbstractBaseVrmImporter(ABC):
                     if isinstance(joint_index, int):
                         bone_node_indices.append(joint_index)
 
-        # ボーンインデックスからシーンノードindexに入ってないヤツを削除
+        # Remove bone indices that are not in the scene node index
         for bone_node_index in list(bone_node_indices):
             if bone_node_index not in all_scene_node_indices:
                 bone_node_indices.remove(bone_node_index)
 
-        # 現在見つかっているボーンノードから、メッシュノードにぶつかるまで子供を追加
+        # Add children from currently found bone nodes until hitting mesh nodes
         search_bone_node_indices = list(bone_node_indices)
         while search_bone_node_indices:
             search_bone_node_index = search_bone_node_indices.pop()
@@ -488,8 +487,8 @@ class AbstractBaseVrmImporter(ABC):
                     continue
                 search_bone_node_indices.append(child_index)
 
-        # メッシュノードの子供にボーンノードが存在する場合は、
-        # そのメッシュノードもボーン扱いする
+        # If a mesh node has bone nodes as children,
+        # treat that mesh node as a bone too
         bone_node_indices.extend(
             functools.reduce(
                 operator.iconcat,
@@ -908,8 +907,8 @@ class AbstractBaseVrmImporter(ABC):
 
                 scene_nodes.append(skin_node_index)
 
-        # glTF 2.0アドオンが未対応のエクステンションが
-        # "extensionsRequired"に含まれている場合はエラーになる。それを抑止。
+        # Prevent errors when extensions not supported by the glTF 2.0 add-on
+        # are included in "extensionsRequired"
         extensions_required = json_dict.get("extensionsRequired")
         if isinstance(extensions_required, list):
             for supported_extension in [
@@ -1013,7 +1012,7 @@ class AbstractBaseVrmImporter(ABC):
                     )
                     self.cleanup_gltf2_with_indices()
                     raise
-        # glTFインポート直後のオブジェクトの選択状態を保存
+        # Save the selection state of objects immediately after glTF import
         self.imported_object_names = [
             selected_object.name for selected_object in self.context.selected_objects
         ]
@@ -1121,8 +1120,8 @@ class AbstractBaseVrmImporter(ABC):
             obj.pop(extras_mesh_index_key, None)
             data.pop(extras_mesh_index_key, None)
 
-            # Blender 3.6ではevaluatedされたメッシュから参照されるマテリアルの
-            # カスタムプロパティも消さないとキャッシュとしてずっと残ることがある
+            # In Blender 3.6, custom properties of materials referenced from
+            # evaluated meshes may remain as cache forever if not deleted
             restore_modifiers_names: list[str] = []
             for modifier in obj.modifiers:
                 if modifier.show_viewport:
@@ -1140,7 +1139,7 @@ class AbstractBaseVrmImporter(ABC):
                 if modifier.name in restore_modifiers_names:
                     modifier.show_viewport = True
 
-            # ここでupdateしないとエクスポート時にCustom Propertyが復活することがある
+            # If not updated here, Custom Property may revive during export
             data.update()
 
         for image in list(self.context.blend_data.images):
@@ -1159,8 +1158,8 @@ class AbstractBaseVrmImporter(ABC):
             if isinstance(image_dicts, list) and 0 <= custom_image_index < len(
                 image_dicts
             ):
-                # image.nameはインポート時に勝手に縮められてしまうことがあるので、
-                # jsonの値から復元する
+                # image.name may be automatically shortened during import, so
+                # restore it from the json value
                 image_dict = image_dicts[custom_image_index]
                 indexed_image_name = None
 

@@ -1012,7 +1012,7 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
     active_collider_index: IntProperty(min=0)  # type: ignore[valid-type]
 
     # for reference
-    # オブジェクトをコピーした場合同じuuidをもつオブジェクトが複数ある可能性がある
+    # When copying objects, there may be multiple objects with the same uuid
     uuid: StringProperty()  # type: ignore[valid-type]
 
     search_one_time_uuid: StringProperty()  # type: ignore[valid-type]

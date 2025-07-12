@@ -8,8 +8,8 @@ cd "$(dirname "$0")/.."
 venv_prompt=venv
 if ! uv venv --allow-existing --prompt "$venv_prompt"; then
   if ! sudo rm -fr .venv; then
-    # Docker for Windowsバックエンド切り替え時などに消せないファイルが残ることがある
-    echo >&2 # ログ表示成形のため改行出力
+    # Files that cannot be deleted may remain when switching Docker for Windows backends, etc.
+    echo >&2 # Output newline for log formatting
     echo >&2 "####################################################"
     echo >&2 "Failed to remove '.venv'. Please remove it manually."
     echo >&2 "####################################################"
@@ -18,7 +18,7 @@ if ! uv venv --allow-existing --prompt "$venv_prompt"; then
   uv venv --prompt "$venv_prompt"
 fi
 
-# 環境によってはパッケージのインストールは5%くらいの頻度で失敗するのでリトライする
+# Package installation fails about 5% of the time depending on the environment, so retry
 for _ in $(seq 5); do
   if uv sync --reinstall-package starry-bpy-typings; then
     break

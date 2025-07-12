@@ -5,7 +5,7 @@ set -eu -o pipefail
 
 cd "$(dirname "$0")/.."
 
-# Dockerイメージは積極的にキャッシュされ、パッケージが古いままのことが多いのでここでアップデート
+# Docker images are aggressively cached and packages often remain outdated, so we update here
 sudo ./tools/install_ubuntu_packages.sh
 
 ./tools/devcontainer_fixup_workspace.sh
@@ -13,15 +13,15 @@ sudo ./tools/install_ubuntu_packages.sh
 ./tools/install_hadolint.sh
 ./tools/install_editorconfig-checker.sh
 
-# error: GitHub API rate limit exceeded のエラーが発生することがある。
-# その場合も処理を続行する。将来的にはトークンを渡せるようにする。
+# error: GitHub API rate limit exceeded error may occur.
+# In such cases, processing continues. In the future, we will make it possible to pass tokens.
 uv self update || true
 
 ./tools/install_nvm.sh
 
 deno upgrade
 
-# deno installは失敗することがあるので何度かリトライする。
+# deno install may fail, so retry several times.
 for _ in $(seq 5); do
   if deno install; then
     break
@@ -29,7 +29,7 @@ for _ in $(seq 5); do
   sleep 10
 done
 
-# システムのBlenderから開発中のアドオンをすぐに動作確認できるようにする
+# Enable immediate testing of the addon under development from the system Blender
 for blender_version in \
   5.2 \
   5.1 \

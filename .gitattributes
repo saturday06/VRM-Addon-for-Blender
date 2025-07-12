@@ -34,9 +34,9 @@ uv.lock text eol=lf
 /tests/resources/unity/**/csc.rsp text eol=lf
 /tests/resources/unity/**/Directory.Build.props text eol=crlf
 
-# 昔はGitHubの "Code" -> "Download ZIP" からダウンロードしたファイルをアドオンとして扱う方式を採用していたが、現在は廃止している。
-# しかし、その昔の廃止した方式でダウンロードしてしまい、結果アドオンがうまく動かないという報告が多数あがって来てしまった。
-# デフォルトでユーザーが閲覧するREADMEブランチに関しては対策をしたが、他のmainブランチなどではできていない。
-# 対策ができていないブランチでの混乱を最小化するため、アーカイブする場合はソースコードをすべて除外しNotice.txtだけを含め、正しいダウンロード先を案内する。
+# In the past, we used to treat files downloaded from GitHub's "Code" -> "Download ZIP" as add-ons, but this method is now deprecated.
+# However, many users still download using this old deprecated method, resulting in numerous reports that the add-on doesn't work properly.
+# We've implemented measures for the README branch that users view by default, but not for other branches like main.
+# To minimize confusion on branches without countermeasures, when archiving, we exclude all source code and include only Notice.txt to guide users to the correct download location.
 * export-ignore
 /Notice.txt -export-ignore

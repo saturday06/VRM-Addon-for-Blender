@@ -6,7 +6,7 @@ from typing import overload
 from bpy.types import Material
 from io_scene_gltf2.io.com import gltf2_io
 
-# Blender 3.2未満では引数は2つ
+# In Blender versions before 3.2, there are 2 arguments
 # https://projects.blender.org/blender/blender-addons/src/tag/v2.93.0/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L32
 @overload
 def gather_material(
@@ -14,7 +14,7 @@ def gather_material(
     export_settings: dict[str, object],
 ) -> gltf2_io.Material | None: ...
 
-# Blender 3.2以降では引数は3つ
+# In Blender versions 3.2 and later, there are 3 arguments
 # https://projects.blender.org/blender/blender-addons/src/tag/v3.2.0/io_scene_gltf2/blender/exp/gltf2_blender_gather_materials.py#L31
 @overload
 def gather_material(

@@ -22,7 +22,7 @@ class BMVert:
     def __getitem__(
         self,
         value: BMLoopUV,
-    ) -> Vector: ...  # ドキュメントには存在しない
+    ) -> Vector: ...  # Does not exist in documentation
 
 class BMLayerItem:
     def copy_from(self, other: BMLayerItem) -> None: ...
@@ -30,7 +30,7 @@ class BMLayerItem:
     def name(self) -> str: ...
 
 class BMLayerCollection:
-    def __getitem__(self, key: str) -> BMLoopUV: ...  # ドキュメントに記載はない?
+    def __getitem__(self, key: str) -> BMLoopUV: ...  # Not documented?
     def keys(self) -> Iterator[str]: ...
     def values(self) -> Iterator[BMLayerItem]: ...
     def items(self) -> Iterator[tuple[str, BMLayerItem]]: ...
@@ -51,8 +51,8 @@ class BMVertSeq:
     def layers(self) -> BMLayerAccessVert: ...
     def ensure_lookup_table(self) -> None: ...
     def index_update(self) -> None: ...
-    def __getitem__(self, key: int) -> BMVert: ...  # ドキュメントに記載はない?
-    def __len__(self) -> int: ...  # ドキュメントに記載はない?
+    def __getitem__(self, key: int) -> BMVert: ...  # Not documented?
+    def __len__(self) -> int: ...  # Not documented?
 
 class BMEdge: ...
 
@@ -62,7 +62,7 @@ class BMEdgeSeq:
         verts: tuple[
             BMVert,
             BMVert,
-        ],  # 実際にはSequenceだと思うが、2要素チェックをしたいのでtuple
+        ],  # Actually, I think it's a Sequence, but I want to check for 2 elements
         example: BMEdge | None = None,
     ) -> BMEdge: ...
     def ensure_lookup_table(self) -> None: ...
@@ -76,7 +76,7 @@ class BMLoop:
     def __getitem__(
         self,
         uv: BMLoopUV,
-    ) -> BMLoopUV: ...  # TODO: ドキュメントに存在しない
+    ) -> BMLoopUV: ...  # TODO: Not in documentation
 
 class BMLoopSeq:
     @property
@@ -114,4 +114,4 @@ class BMesh:
         use_shape_key: bool = False,
         shape_key_index: int = 0,
     ) -> None: ...
-    def calc_loop_triangles(self) -> list[tuple[BMLoop, ...]]: ...  # TODO: 正しい型
+    def calc_loop_triangles(self) -> list[tuple[BMLoop, ...]]: ...  # TODO: Correct type

@@ -234,8 +234,8 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
     def update_all_node_candidates_timer_callback(
         armature_object_name: str, *, force: bool = False
     ) -> None:
-        """update_all_node_candidates()の型をbpy.app.timers.registerに合わせるためのラッパー."""
-        context = bpy.context  # Contextはフレームを跨げないので新たに取得する
+        """Wrap update_all_node_candidates() to match bpy.app.timers.register."""
+        context = bpy.context  # Context cannot cross frames so we need to get a new one
         Vrm0HumanoidPropertyGroup.update_all_node_candidates(
             context, armature_object_name, force=force
         )
@@ -284,7 +284,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
 
         humanoid = get_armature_extension(armature_data).vrm0.humanoid
 
-        # 存在していないボーンマップを追加
+        # Add bone maps that don't exist
         refresh = False
         for human_bone_name in HumanBoneSpecifications.all_names:
             if any(
@@ -296,7 +296,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
             human_bone.bone = human_bone_name
             refresh = True
 
-        # 二重に入っているボーンマップを削除
+        # Remove duplicate bone maps
         fixup = True
         while fixup:
             fixup = False
@@ -313,7 +313,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
                 fixup = True
                 break
 
-        # 複数のボーンマップに同一のBlenderのボーンが設定されていたら片方を削除
+        # If multiple bone maps have the same Blender bone assigned, remove one of them
         fixup = True
         while fixup:
             fixup = False
@@ -531,8 +531,8 @@ class Vrm0MaterialValueBindPropertyGroup(PropertyGroup):
         type=Material,
     )
 
-    # property_nameはEnumPropertyではなくStringPropertyを使う。
-    # これは任意の値を入力できるようにする必要があるため。
+    # Use StringProperty instead of EnumProperty for property_name.
+    # This is necessary to allow arbitrary values to be entered.
     property_name: StringProperty(  # type: ignore[valid-type]
         name="Property Name"
     )
@@ -602,8 +602,8 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
     active_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
     active_material_value_index: IntProperty(min=0)  # type: ignore[valid-type]
 
-    # アニメーション再生中はframe_change_pre/frame_change_postでしか
-    # シェイプキーの値の変更ができないので、変更された値をここに保存しておく
+    # During animation playback, shape key values can only be changed
+    # in frame_change_pre/frame_change_post, so we store the changed values here
     frame_change_post_shape_key_updates: ClassVar[dict[tuple[str, str], float]] = {}
 
     def get_preview(self) -> float:
@@ -718,7 +718,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
         name="Node",
         type=BonePropertyGroup,
     )
-    # offsetとradiusはコライダー自身のデータを用いる
+    # Use the collider's own data for offset and radius
     colliders: CollectionProperty(  # type: ignore[valid-type]
         name="Colliders",
         type=Vrm0SecondaryAnimationColliderPropertyGroup,

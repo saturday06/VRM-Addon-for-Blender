@@ -35,7 +35,7 @@ class GPUShader:
     def uniform_float(
         self,
         name: str,
-        # どうやらMatrixも直接渡せるようだが、要確認
+        # It seems that Matrix can be passed directly, but this needs to be confirmed
         value: float | Sequence[float] | Matrix,
     ) -> None: ...
     def bind(self) -> None: ...

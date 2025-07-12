@@ -20,7 +20,6 @@ class TestIoSceneGltf2Support(TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir) / "image.png"
             temp_path.write_bytes(image_bytes)
-
             converted_image = context.blend_data.images.load(
                 str(temp_path), check_existing=False
             )

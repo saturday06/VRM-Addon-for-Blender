@@ -2,7 +2,7 @@
 from bpy.types import Context, Event
 
 class ImportHelper:
-    filepath: str  # ドキュメントには記載がない
+    filepath: str  # Not documented
 
     def invoke(
         self,
@@ -11,7 +11,7 @@ class ImportHelper:
     ) -> set[str]: ...
 
 class ExportHelper:
-    filepath: str  # ドキュメントには記載がない
+    filepath: str  # Not documented
 
     def invoke(
         self,

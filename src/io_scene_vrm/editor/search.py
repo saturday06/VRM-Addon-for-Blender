@@ -66,7 +66,7 @@ def export_materials(context: Context, objects: Sequence[Object]) -> Sequence[Ma
                 continue
             result.append(material)
 
-    return list(dict.fromkeys(result))  # 重複削除
+    return list(dict.fromkeys(result))  # Remove duplicates
 
 
 LEGACY_SHADER_NAMES: Final = (
@@ -367,7 +367,7 @@ def export_objects(
         objects.append(obj)
 
     return [
-        # コライダーと重複の削除
+        # Remove colliders and duplicates
         obj
         for obj in dict.fromkeys(objects)
         if obj not in collider_bpy_objects

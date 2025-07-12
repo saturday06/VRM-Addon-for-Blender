@@ -289,7 +289,8 @@ class BonePropertyGroup(PropertyGroup):
 
         search_conditions: list[str] = []
 
-        # targetの祖先のHuman Boneの割り当てがある場合はそこから探索開始ボーンとする
+        # If the target's ancestor has a Human Bone assignment, use that as the
+        # search start bone
         searching_bones: Optional[list[Bone]] = None
         ancestor: Optional[HumanBoneSpecification] = target.parent()
         while ancestor:
@@ -297,12 +298,12 @@ class BonePropertyGroup(PropertyGroup):
             if not ancestor_bpy_bone_name or not (
                 ancestor_bpy_bone := bones.get(ancestor_bpy_bone_name)
             ):
-                # Human Boneの割り当てが無い場合、さらに親を辿る
+                # If there's no Human Bone assignment, traverse to the parent
                 ancestor = ancestor.parent()
                 continue
 
             if ancestor_bpy_bone.name in error_bpy_bone_names:
-                # Human Boneの割り当てにエラーが発生している場合、空の結果を返す
+                # If there's an error in the Human Bone assignment, return empty result
                 if diagnostics_layout:
                     diagnostics_message = pgettext(
                         'The bone assigned to the VRM Human Bone "{human_bone}" must'
@@ -325,7 +326,7 @@ class BonePropertyGroup(PropertyGroup):
                         )
                 return set()
 
-            # 見つかった祖先のボーンの子ボーンを探索開始ボーンとする
+            # Use the child bones of the found ancestor bone as the search start bones
             searching_bones = list(ancestor_bpy_bone.children)
             if diagnostics_layout:
                 search_conditions.append(
@@ -343,10 +344,10 @@ class BonePropertyGroup(PropertyGroup):
             bone for bone in bones.values() if not bone.parent
         ]
 
-        # 祖先のボーンが見つからなかった場合はルートボーンを探索開始ボーンとする
+        # If no ancestor bone is found, use the root bone as the search start bone
         if searching_bones is None and len(root_bones) > 1:
-            # ルートボーンが複数ある場合
-            # 既に割り当てのあるボーンのルートボーンを選択する
+            # If there are multiple root bones,
+            # select the root bone of the already assigned bone
             human_bone_specification = None
             for (
                 bpy_bone_name,
@@ -383,10 +384,10 @@ class BonePropertyGroup(PropertyGroup):
         if searching_bones is None:
             searching_bones = list(root_bones)
 
-        # ボーンの候補
+        # Bone candidates
         bone_candidates: set[Bone] = set(searching_bones)
 
-        # まずは、全ての子孫ボーンを候補に登録しておく
+        # First, register all descendant bones as candidates
         filling_bones = searching_bones.copy()
         while filling_bones:
             filling_bone = filling_bones.pop()
@@ -395,16 +396,16 @@ class BonePropertyGroup(PropertyGroup):
 
         removing_bone_tree = set[Bone]()
 
-        # 子孫ボーンを辿り、割り当て済みのボーンにぶつかったら
-        # そのボーンとの関係を調べ、不要な候補を除外する。
+        # Traverse descendant bones and when we encounter an already assigned bone,
+        # examine its relationship and exclude unnecessary candidates.
         while searching_bones:
             searching_bone = searching_bones.pop()
             human_bone_specification = bpy_bone_name_to_human_bone_specification.get(
                 searching_bone.name
             )
 
-            # Human Boneに割り当てられていない場合と、targetボーンの場合は
-            # 子ボーンを再帰的に辿る
+            # If not assigned to a Human Bone or if it's the target bone,
+            # recursively traverse child bones
             if (
                 human_bone_specification is None
                 or human_bone_specification == target
@@ -414,27 +415,28 @@ class BonePropertyGroup(PropertyGroup):
                 continue
 
             if human_bone_specification.is_ancestor_of(target):
-                # 祖先のボーンに割り当てがある場合
-                # 一番近い祖先のボーンからボーンをたどるので、このケースは存在しないはず
+                # If an ancestor bone has an assignment
+                # This case shouldn't exist since we start from the nearest
+                # ancestor bone
                 continue
 
             if target.is_ancestor_of(human_bone_specification):
-                # 子孫のボーンに割り当てがある場合は、
-                # - そのボーンと子孫を除外
-                # - そのボーンからルートボーンを辿る際の分岐を除外
+                # If a descendant bone has an assignment:
+                # - Exclude that bone and its descendants
+                # - Exclude branches when traversing from that bone to the root bone
                 removing_bone_tree.add(searching_bone)
 
                 parent = searching_bone
                 while parent:
                     grand_parent = parent.parent
                     if grand_parent is None:
-                        # parentがルートボーンの場合、
-                        # parent以外のルートボーンを除外
+                        # If parent is a root bone,
+                        # exclude other root bones except parent
                         removing_bone_tree.update(
                             root_bone for root_bone in root_bones if root_bone != parent
                         )
                         break
-                    # parentのsiblingボーンを除外
+                    # Exclude sibling bones of parent
                     removing_bone_tree.update(
                         parent_sibling
                         for parent_sibling in grand_parent.children
@@ -453,9 +455,9 @@ class BonePropertyGroup(PropertyGroup):
                         )
                     )
             else:
-                # 祖先でも子孫でもないボーンに割り当てがある場合は、
-                # - そのボーンと子孫を除外
-                # - そのボーンとその祖先を除外
+                # If a bone that is neither ancestor nor descendant has an assignment:
+                # - Exclude that bone and its descendants
+                # - Exclude that bone and its ancestors
                 removing_bone_tree.add(searching_bone)
 
                 parent = searching_bone
@@ -514,7 +516,7 @@ class BonePropertyGroup(PropertyGroup):
         if not armature_data:
             return ""
 
-        # プロファイルの結果この関数が時間かかっていたのでキャッシュを用いて高速化
+        # Use cache to speed up this function since profiling showed it was slow
         cache_key = (self.armature_data_name, self.bone_uuid)
         cached_bone_name = self.armature_data_name_and_bone_uuid_to_bone_name_cache.get(
             cache_key
@@ -524,7 +526,7 @@ class BonePropertyGroup(PropertyGroup):
                 cached_bone := armature_data.bones.get(cached_bone_name)
             ) and get_bone_extension(cached_bone).uuid == self.bone_uuid:
                 return cached_bone_name
-            # キャッシュに古い値が一つでも入っていたら安全のため全てクリア
+            # If there's even one old value in the cache, clear everything for safety
             self.armature_data_name_and_bone_uuid_to_bone_name_cache.clear()
 
         for bone in armature_data.bones:
@@ -645,7 +647,8 @@ class BonePropertyGroup(PropertyGroup):
                 vrm0_human_bone.HumanBoneSpecifications.get(human_bone_name)
             )
 
-        # 親ノードがエラーだと子ノードは必ずエラーになるため、親から順番に設定していく
+        # Set from parent to child since child nodes will always have errors
+        # if parent node has errors
         traversing_human_bone_specifications = [
             vrm0_human_bone.HumanBoneSpecifications.HIPS
         ]
@@ -704,7 +707,8 @@ class BonePropertyGroup(PropertyGroup):
                 vrm1_human_bone.HumanBoneSpecifications.get(human_bone_name)
             )
 
-        # 親ノードがエラーだと子ノードは必ずエラーになるため、親から順番に設定していく
+        # Set from parent to child since child nodes will always have errors
+        # if parent node has errors
         traversing_human_bone_specifications = [
             vrm1_human_bone.HumanBoneSpecifications.HIPS
         ]

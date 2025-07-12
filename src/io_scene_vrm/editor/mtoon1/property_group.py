@@ -118,13 +118,15 @@ class PrincipledBsdfNodeSocketTarget(NodeSocketTarget):
 
     @staticmethod
     def get_node_name(material: Material) -> Optional[str]:
-        # nodeはネイティブ側の生存期間が短く危険なため、関数の外に露出しないようにする
+        # node has a short lifetime on the native side and is dangerous, so avoid
+        # exposing it outside the function
         node = PrincipledBSDFWrapper(material).node_principled_bsdf
         if node is None:
             return None
-        # internを用い、将来破棄されるnodeから直接参照されているstrを使わない
-        # 以前、破棄されたBoneから参照されていたstrを使うと壊れていたことがある
-        # のでそれを意識しての対応だが、気にしすぎかもしれない
+        # Use intern to avoid using str directly referenced from node that will be
+        # destroyed in the future
+        # Previously, using str referenced from destroyed Bone caused problems,
+        # so this is a precautionary measure, though it might be overly cautious
         return sys.intern(node.name)
 
     def create_node_selector(self, material: Material) -> Callable[[Node], bool]:
@@ -162,13 +164,15 @@ class PrincipledBsdfNormalMapNodeSocketTarget(NodeSocketTarget):
 
     @staticmethod
     def get_node_name(material: Material) -> Optional[str]:
-        # nodeはネイティブ側の生存期間が短く危険なため、関数の外に露出しないようにする
+        # node has a short lifetime on the native side and is dangerous, so avoid
+        # exposing it outside the function
         node = PrincipledBSDFWrapper(material).node_normalmap
         if node is None:
             return None
-        # internを用い、将来破棄されるnodeから直接参照されているstrを使わない
-        # 以前、破棄されたBoneから参照されていたstrを使うと壊れていたことがある
-        # のでそれを意識しての対応だが、気にしすぎかもしれない
+        # Use intern to avoid using str directly referenced from node that will be
+        # destroyed in the future
+        # Previously, using str referenced from destroyed Bone caused problems,
+        # so this is a precautionary measure, though it might be overly cautious
         return sys.intern(node.name)
 
     def create_node_selector(self, material: Material) -> Callable[[Node], bool]:
@@ -211,27 +215,27 @@ class NodeGroupSocketTarget(NodeSocketTarget):
 
 class MaterialTraceablePropertyGroup(PropertyGroup):
     self_key_number_to_material_index_cache: Final[dict[int, int]] = {}
-    """selfを示す数値と、それに対応するマテリアルのインデックスのキャッシュ.
+    """Cache of numbers representing self and corresponding material indices.
 
-    本来ならselfからMaterialを引ける弱参照キャッシュにしたい。しかしそれらは
-    ネイティブオブジェクトであり、そのままキャッシュをするのは非常に危険になる。
-    そのため、代わりにselfに対応する数値からマテリアルのインデックスを引ける
-    キャッシュにした。
+    Ideally, this would be a weak reference cache that can retrieve Material from
+    self. However, those are native objects, and caching them directly would be
+    very dangerous. Therefore, instead, this is a cache that can retrieve
+    material indices from numbers corresponding to self.
     """
 
     def match_material(
         self, material: Material, material_property_chain: Sequence[str]
     ) -> bool:
-        """selfに対応するマテリアルかどうかを調べる."""
+        """Check if the material corresponds to self."""
         property_group: object = get_material_mtoon1_extension(material)
         for material_property in material_property_chain:
             property_group = getattr(property_group, material_property, None)
         return property_group == self
 
     def find_material(self) -> Material:
-        """selfに対応するマテリアルを取得する.
+        """Get the material corresponding to self.
 
-        このメソッドは利用頻度が高いので、プロファイルの結果に気をつける。
+        This method is called frequently, so pay attention to profiling results.
         """
         context = bpy.context
 
@@ -240,18 +244,18 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
 
         material_property_chain = self.get_material_property_chain()
 
-        # この関数を以前実行した際のキャッシュが残っているかを調べる。
-        # キャッシュを使わない場合、リニアサーチが必要になり遅いことがわかっているため、
-        # 結果をキャッシュして再利用を試みる。
+        # Check if cache from previous execution of this function remains.
+        # Without cache, linear search would be required which is known to be slow,
+        # so attempt to cache and reuse results.
         self_key_number = (
-            # ポインタをそのまま使わないで欲しいという気持ちを込める
+            # Express the intention not to use the pointer directly
             ~self.as_pointer() ^ 0x01234567_89ABCDEF
         )
         cached_material_index = self.self_key_number_to_material_index_cache.get(
             self_key_number
         )
         if cached_material_index is not None:
-            # キャッシュが残っている場合は、そのキャッシュが現在も有効かをチェックする
+            # If cache remains, check if the cache is still valid
             if (
                 0 <= cached_material_index < len(context.blend_data.materials)
                 and (
@@ -261,14 +265,14 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
                 )
                 and self.match_material(cached_material, material_property_chain)
             ):
-                # キャッシュが有効だった場合はキャッシュから取得したマテリアルを返す
+                # If cache is valid, return the material obtained from cache
                 return cached_material
-            # キャッシュが無効な場合、その他全てのキャッシュも無効になっている可能性が
-            # 高いので全てのキャッシュを削除する。
+            # If cache is invalid, there's a high possibility that all other caches
+            # are also invalid, so delete all caches.
             self.self_key_number_to_material_index_cache.clear()
 
-        # キャッシュが存在しなかった場合は、全てのマテリアルのリストの先頭からselfに
-        # 対応するものを探す。発見したらキャッシュにマテリアルのインデックスを保存。
+        # If cache doesn't exist, search for self-corresponding material from the
+        # beginning of the material list. When found, save the material index to cache.
         for material_index, material in enumerate(context.blend_data.materials):
             if not material:
                 continue
@@ -639,7 +643,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         select_in_node = node_socket_target.create_node_selector(material)
         in_socket_name = node_socket_target.get_in_socket_name()
 
-        # 既につながっている場合は何もしない
+        # Check if already connected
         connection_check_node = next(
             (
                 link.from_node
@@ -668,10 +672,10 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
                 continue
             break
 
-        # 関係ないノードとつながっている場合はリンクを切断
+        # If connected to unrelated node, disconnect the link
         cls.unlink_nodes(material, node_socket_target)
 
-        # 出力ノードとソケットを探す
+        # Search for output node and socket
         out_node = node_tree.nodes.get(out_node_name)
         if not isinstance(out_node, out_node_type):
             logger.error("No output node: %s", out_node_name)
@@ -697,7 +701,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
                 out_node = connection_check_node
                 break
 
-        # 入力ノードとソケットを探す
+        # Search for input node and socket
         in_node = next(
             (n for n in node_tree.nodes if select_in_node(n)),
             None,
@@ -1360,9 +1364,10 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         return default_value
 
     def set_mag_filter(self, value: int) -> None:
-        # 入力値がTexImageの値と矛盾する場合は、TexImageの値を変更する
-        # 入力値がGL_NEARESTかつTexImageがClosestの場合は、内部値を削除する
-        # 入力値がGL_LINEARかつTexImageがLinear/Cubic/Smartの場合は、内部値を削除する
+        # If input value conflicts with TexImage value, change TexImage value
+        # If input value is GL_NEAREST and TexImage is Closest, delete internal value
+        # If input value is GL_LINEAR and TexImage is Linear/Cubic/Smart,
+        # delete internal value
 
         if value not in self.mag_filter_enum.values():
             self.pop("mag_filter", None)
@@ -1413,8 +1418,9 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
         return default_value
 
     def set_min_filter(self, value: int) -> None:
-        # 入力値がGL_NEARESTかつTexImageがClosestの場合は、内部値を削除する
-        # 入力値がGL_LINEARかつTexImageがLinear/Cubic/Smartの場合は、内部値を削除する
+        # If input value is GL_NEAREST and TexImage is Closest, delete internal value
+        # If input value is GL_LINEAR and TexImage is Linear/Cubic/Smart,
+        # delete internal value
 
         if value not in self.min_filter_enum.values():
             self.pop("min_filter", None)
@@ -1661,12 +1667,14 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
     )
 
     def update_source_for_desynced_node_tree(self, context: Context) -> None:
-        """NodeTreeと同期してしていない場合にprop()に渡すPointerProperty()を更新.
+        """Update PointerProperty() passed to prop() when not synced with NodeTree.
 
-        NodeTreeと同期してしていない場合にprop()のPlaceholder側に正しいImageの名前を表示したい。
-        そのため、次のように動作する。
-        - 必ずPlaceholderを表示するため、値は常にNoneを返すようにする
-        - 値が外部から入力されたら、値をNoneに戻してself.sourceに転送
+        When not synced with NodeTree, want to display the correct Image name on
+        the Placeholder side of prop().
+        Therefore, it operates as follows:
+        - Always display Placeholder, so the value always returns None
+        - When a value is input from outside, reset the value to None and
+            transfer to self.source
         """
         original_syncing_source_name: Optional[str] = None
         if self.source_for_desynced_node_tree:
@@ -2091,8 +2099,8 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
                 + f".size[{size_index}]"
             )
             if target.data_path != target_data_path or (
-                # Blender 2.93では、一度imageを削除するとis_validがFalseになる。
-                # data_pathを再設定することで解消。
+                # Blender 2.93 sets is_valid to False once image is deleted.
+                # This is resolved by resetting data_path.
                 image_exists and (not fcurve.is_valid or not driver.is_valid)
             ):
                 target.data_path = target_data_path
@@ -3295,7 +3303,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         if not node_tree:
             return
 
-        # glTFのノードに合わせる
+        # Align with glTF nodes
         # https://docs.blender.org/manual/en/4.2/addons/import_export/scene_gltf2.html#alpha-modes
         mtoon1 = get_material_mtoon1_extension(material)
         texture = mtoon1.pbr_metallic_roughness.base_color_texture.index
@@ -3815,18 +3823,19 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         if self.mtoon0_render_queue != mtoon0_render_queue:
             self.mtoon0_render_queue = mtoon0_render_queue
 
-    # MToon0用のRender Queueの値を設定する。値代入時にクランプを行う。
-    # UniVRMはUIからの値設定時や、Alpha Modeなどの変更時にクランプを行うため、
-    # それと挙動を合わせる際はこちらを使う。
+    # Set the Render Queue value for MToon0. Performs clamping when assigning values.
+    # UniVRM performs clamping when setting values from UI or when changing
+    # Alpha Mode etc., so use this to match that behavior.
     mtoon0_render_queue_and_clamp: IntProperty(  # type: ignore[valid-type]
         name="Render Queue",
         get=get_mtoon0_render_queue_and_clamp,
         set=set_mtoon0_render_queue_and_clamp,
     )
 
-    # MToon0用のRender Queueの値を設定する。値代入時にクランプを行わない。
-    # UniVRMはVRM0のインポート時やエクスポート時はクランプを行わないため、
-    # それと挙動を合わせるためインポート時やエクスポート時はこちらを使う。
+    # Set the Render Queue value for MToon0. Does not perform clamping when
+    # assigning values.
+    # UniVRM does not perform clamping during VRM0 import or export,
+    # so use this during import or export to match that behavior.
     mtoon0_render_queue: IntProperty(  # type: ignore[valid-type]
         name="Render Queue",
         default=2000,

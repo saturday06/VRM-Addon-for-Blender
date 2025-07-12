@@ -63,8 +63,8 @@ def defer_migrate(armature_object_name: str) -> bool:
 
 
 def migrate_timer_callback(armature_object_name: str) -> None:
-    """migrate()の型をbpy.app.timers.registerに合わせるためのラッパー."""
-    context = bpy.context  # Contextはフレームを跨げないので新たに取得する
+    """Match the type of migrate() to bpy.app.timers.register."""
+    context = bpy.context  # Context cannot span frames, so get it anew
     migrate(context, armature_object_name)
 
 
@@ -149,10 +149,11 @@ def migrate_all_objects(
 
 
 def validate_blend_file_compatibility(context: Context) -> None:
-    """新しいBlenderで作成されたファイルを古いBlenderで編集しようとした場合に警告をする.
+    """Warn when attempting to edit a file created in newer Blender with older Blender.
 
-    アドオンの対応バージョンの事情で新しいBlenderで編集されたファイルを古いBlenderで編集しようとし、
-    それによりシェイプキーが壊れるなどの報告がよく上がる。警告を出すことでユーザーに注意を促す。
+    Due to add-on version support issues, there are often reports of users trying to
+    edit files created in newer Blender with older Blender, which can cause shape keys
+    to break. This warning alerts users to be careful.
     """
     if not context.blend_data.filepath:
         return
@@ -178,7 +179,8 @@ def validate_blend_file_compatibility(context: Context) -> None:
 
     if not state.blend_file_compatibility_warning_shown:
         state.blend_file_compatibility_warning_shown = True
-        # Blender 4.2.0ではtimerで実行しないとダイアログが自動で消えるのでタイマーを使う
+        # Use timer because dialog disappears automatically if not executed with
+        # timer in Blender 4.2.0
         bpy.app.timers.register(
             functools.partial(
                 show_blend_file_compatibility_warning,
@@ -198,12 +200,15 @@ def show_blend_file_compatibility_warning(file_version: str, app_version: str) -
 
 
 def validate_blend_file_addon_compatibility(context: Context) -> None:
-    """新しいVRMアドオンで作成されたファイルを古いVRMアドオンで編集しようとした場合に警告をする."""
+    """Warn when attempting to edit a file created with a newer VRM add-on.
+
+    This warning is for files using an older VRM add-on.
+    """
     if not context.blend_data.filepath:
         return
     installed_addon_version = get_addon_version()
 
-    # TODO: これはSceneあたりにバージョンを生やしたほうが良いかも
+    # TODO: It might be better to store the version in Scene or similar
     up_to_date = True
     file_addon_version: tuple[int, ...] = (0, 0, 0)
     for armature in context.blend_data.armatures:
@@ -225,7 +230,8 @@ def validate_blend_file_addon_compatibility(context: Context) -> None:
 
     if not state.blend_file_compatibility_warning_shown:
         state.blend_file_compatibility_warning_shown = True
-        # Blender 4.2.0ではtimerで実行しないとダイアログが自動で消えるのでタイマーを使う
+        # Use timer because dialog disappears automatically if not executed with
+        # timer in Blender 4.2.0
         bpy.app.timers.register(
             functools.partial(
                 show_blend_file_addon_compatibility_warning,

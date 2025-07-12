@@ -1,4 +1,4 @@
-// VitePressのドキュメント由来のコードです
+// This code is derived from VitePress documentation
 // https://github.com/vuejs/vitepress/blob/v1.6.3/docs/en/guide/custom-theme.md?plain=1#L52-L64
 
 import DefaultTheme from "vitepress/theme";
