@@ -228,6 +228,9 @@ def force_apply_modifiers(context: Context, obj: Object) -> Optional[Mesh]:
     if obj_data is None:
         return None
 
+    if isinstance(obj_data, Mesh):
+        obj_data.calc_loop_triangles()
+
     # https://docs.blender.org/api/2.80/Depsgraph.html
     # TODO: Shape keys may sometimes break
     depsgraph = context.evaluated_depsgraph_get()
@@ -258,4 +261,37 @@ def force_apply_modifiers(context: Context, obj: Object) -> Optional[Mesh]:
         bm.free()
 
     evaluated_obj.to_mesh_clear()
+
+    if not isinstance(obj_data, Mesh):
+        return evaluated_mesh
+
+    shape_keys = obj_data.shape_keys
+    if not shape_keys:
+        return evaluated_mesh
+
+    evaluated_shape_keys = evaluated_mesh.shape_keys
+    if not evaluated_shape_keys:
+        return evaluated_mesh
+
+    for shape_key in shape_keys.key_blocks:
+        evaluated_shape_key = evaluated_shape_keys.key_blocks.get(shape_key.name)
+        if not evaluated_shape_key:
+            continue
+
+        if shape_key.name == shape_keys.reference_key.name:
+            continue
+
+        shape_key.value = 1.0
+        context.view_layer.update()
+
+        evaluated_shape_key_data = evaluated_shape_key.data
+        shape_key_data = shape_key.data
+        # TODO: If the number of vertices is different, we should use advanced graph
+        # matching algorithm.
+        for i in range(min(len(evaluated_shape_key_data), len(shape_key_data))):
+            evaluated_shape_key_data[i].co = shape_key_data[i].co
+
+        shape_key.value = 0.0
+        context.view_layer.update()
+
     return evaluated_mesh
