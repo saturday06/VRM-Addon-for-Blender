@@ -273,6 +273,7 @@ def force_apply_modifiers(context: Context, obj: Object) -> Optional[Mesh]:
     if not evaluated_shape_keys:
         return evaluated_mesh
 
+    # If the mesh has shape keys, reproduce them as much as possible
     for shape_key in shape_keys.key_blocks:
         evaluated_shape_key = evaluated_shape_keys.key_blocks.get(shape_key.name)
         if not evaluated_shape_key:
