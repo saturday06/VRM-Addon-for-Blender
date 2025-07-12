@@ -1,7 +1,6 @@
 @rem SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
 @echo off
-setlocal
 setlocal enabledelayedexpansion
 pushd "%~dp0.."
 set PYTHONUTF8=1
@@ -45,7 +44,6 @@ goto :quit
 :error
 rem echo error
 :quit
-endlocal
 endlocal
 pause
 echo on
