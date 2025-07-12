@@ -5,6 +5,9 @@ setlocal enabledelayedexpansion
 pushd "%~dp0.."
 set PYTHONUTF8=1
 
+set no_pause=0
+if "%1"=="/NoPause" set no_pause=1
+
 echo ### ruff format ###
 call uv run ruff format
 
@@ -27,6 +30,6 @@ goto :quit
 :error
 rem echo error
 :quit
+if %no_pause% equ 0 pause
 endlocal
-pause
 echo on
