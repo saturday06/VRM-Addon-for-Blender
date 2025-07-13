@@ -8,6 +8,7 @@ from typing import Optional, Union
 
 import bmesh
 from bpy.types import Armature, Context, Mesh, NodesModifier, Object
+from mathutils import Vector
 
 from ..common import shader
 from ..common.convert import Json
@@ -221,12 +222,17 @@ def assign_dict(
     return True
 
 
-def force_apply_modifiers(context: Context, obj: Object) -> Optional[Mesh]:
+def force_apply_modifiers(
+    context: Context, obj: Object, *, preserve_shape_keys: bool
+) -> Optional[Mesh]:
     if obj.type not in MESH_CONVERTIBLE_OBJECT_TYPES:
         return None
     obj_data = obj.data
     if obj_data is None:
         return None
+
+    if isinstance(obj_data, Mesh):
+        obj_data.calc_loop_triangles()
 
     # https://docs.blender.org/api/2.80/Depsgraph.html
     # TODO: Shape keys may sometimes break
@@ -258,4 +264,58 @@ def force_apply_modifiers(context: Context, obj: Object) -> Optional[Mesh]:
         bm.free()
 
     evaluated_obj.to_mesh_clear()
+
+    if not preserve_shape_keys:
+        return evaluated_mesh
+
+    if not isinstance(obj_data, Mesh):
+        return evaluated_mesh
+
+    shape_keys = obj_data.shape_keys
+    if not shape_keys:
+        return evaluated_mesh
+
+    evaluated_mesh_shape_keys = evaluated_mesh.shape_keys
+    if not evaluated_mesh_shape_keys:
+        return evaluated_mesh
+
+    # If the mesh has shape keys, reproduce them as much as possible
+    for shape_key in shape_keys.key_blocks:
+        evaluated_mesh_shape_key = evaluated_mesh_shape_keys.key_blocks.get(
+            shape_key.name
+        )
+        if not evaluated_mesh_shape_key:
+            continue
+
+        if shape_key.name == shape_keys.reference_key.name:
+            continue
+
+        shape_key.value = 1.0
+        context.view_layer.update()
+
+        depsgraph = context.evaluated_depsgraph_get()
+        baked_shape_key_obj = obj.evaluated_get(depsgraph)
+        baked_shape_key_mesh = baked_shape_key_obj.to_mesh(
+            preserve_all_data_layers=True, depsgraph=depsgraph
+        )
+        if baked_shape_key_mesh:
+            evaluated_mesh_shape_key_data = evaluated_mesh_shape_key.data
+            baked_shape_key_mesh_vertices = baked_shape_key_mesh.vertices
+
+            # TODO: If the number of vertices is different, we should use advanced graph
+            # matching algorithm.
+            for i in range(
+                min(
+                    len(evaluated_mesh_shape_key_data),
+                    len(baked_shape_key_mesh_vertices),
+                )
+            ):
+                evaluated_mesh_shape_key_data[i].co = Vector(
+                    baked_shape_key_mesh_vertices[i].co
+                )
+
+        shape_key.value = 0.0
+        baked_shape_key_obj.to_mesh_clear()
+
+    context.view_layer.update()
     return evaluated_mesh

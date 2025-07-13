@@ -3270,7 +3270,9 @@ def force_apply_modifiers_to_object(
         mesh_data_name = original_mesh_data.name
         original_mesh_data.name = "Backup-Apply-Data-" + uuid4().hex
 
-        mesh_data: Optional[ID] = force_apply_modifiers(context, mesh_object)
+        mesh_data: Optional[ID] = force_apply_modifiers(
+            context, mesh_object, preserve_shape_keys=True
+        )
         if not mesh_data:
             return
 

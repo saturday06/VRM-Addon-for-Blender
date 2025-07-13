@@ -2769,7 +2769,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             original_shape_keys = original_mesh_convertible.shape_keys
 
         with save_workspace(self.context):
-            main_mesh_data = force_apply_modifiers(self.context, obj)
+            main_mesh_data = force_apply_modifiers(
+                self.context, obj, preserve_shape_keys=False
+            )
             if not main_mesh_data:
                 return scene_node_index
 
@@ -2790,7 +2792,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
                     shape_key.value = 1.0
                     self.context.view_layer.update()
-                    shape_mesh = force_apply_modifiers(self.context, obj)
+                    shape_mesh = force_apply_modifiers(
+                        self.context, obj, preserve_shape_keys=False
+                    )
                     shape_key.value = 0.0
                     self.context.view_layer.update()
 
