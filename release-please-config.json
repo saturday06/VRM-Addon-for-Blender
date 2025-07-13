@@ -41,7 +41,7 @@
         {
           "type": "toml",
           "path": "uv.lock",
-          "jsonpath": "$.package[?(@.name == 'io-scene-vrm')].version"
+          "jsonpath": "$.package[?(@.name.value == 'io-scene-vrm')].version"
         },
         {
           "type": "toml",
