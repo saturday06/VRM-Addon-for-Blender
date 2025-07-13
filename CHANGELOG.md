@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.8.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.7.5...v3.8.0) (2025-07-13)
+
+
+### 🚀 Features
+
+* automatic application of modifiers when exporting VRM1 ([3e0b562](https://github.com/saturday06/VRM-Addon-for-Blender/commit/3e0b56240b4167bfa5d582fe23df0c470b142595))
+
+
+### 🐞 Bug Fixes
+
+* fix possible index error on export VRM0 ([c61bfea](https://github.com/saturday06/VRM-Addon-for-Blender/commit/c61bfeac8818c46214f4515444fe140922007972))
+
 ## [3.7.5](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.7.4...v3.7.5) (2025-07-05)
 
 
