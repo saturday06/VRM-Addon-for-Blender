@@ -2613,20 +2613,25 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             shape_key_name,
             shape_key_mesh_data,
         ) in shape_key_name_to_mesh_data.items():
-            (
-                shape_key_position_x,
-                shape_key_position_y,
-                shape_key_position_z,
-            ) = shape_key_mesh_data.vertices[vertex_index].co
-            targets_position.append(
-                convert.axis_blender_to_gltf(
-                    (
-                        shape_key_position_x - position_x,
-                        shape_key_position_y - position_y,
-                        shape_key_position_z - position_z,
+            shape_key_mesh_data_vertices = shape_key_mesh_data.vertices
+            if vertex_index < len(shape_key_mesh_data_vertices):
+                (
+                    shape_key_position_x,
+                    shape_key_position_y,
+                    shape_key_position_z,
+                ) = shape_key_mesh_data_vertices[vertex_index].co
+                targets_position.append(
+                    convert.axis_blender_to_gltf(
+                        (
+                            shape_key_position_x - position_x,
+                            shape_key_position_y - position_y,
+                            shape_key_position_z - position_z,
+                        )
                     )
                 )
-            )
+            else:
+                targets_position.append((0, 0, 0))
+
             if no_morph_normal_export:
                 targets_normal.append((0, 0, 0))
                 continue
