@@ -159,7 +159,7 @@ dev = [
     { name = "codespell", specifier = "==2.4.1" },
     { name = "mypy", specifier = "==1.16.1" },
     { name = "pygit2", specifier = "==1.18.0" },
-    { name = "pyrefly", specifier = "==0.24.1" },
+    { name = "pyrefly", specifier = "==0.24.2" },
     { name = "requests", specifier = "==2.32.4" },
     { name = "ruff", specifier = "==0.12.3" },
     { name = "starry-bpy-typings", directory = "typings" },
@@ -260,18 +260,18 @@ wheels = [
 
 [[package]]
 name = "pyrefly"
-version = "0.24.1"
+version = "0.24.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/cd/01/385d111ef74746bdc4def5f1232dd57eb265ef172039f1301c35d51fed75/pyrefly-0.24.1.tar.gz", hash = "sha256:9ca1492c3372886fe40c122cf8a6ad3719bbcc9fc062aeed59cfef66b8d1ccc7", size = 1128399, upload-time = "2025-07-14T21:10:47.2Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/26/c3/17be94de732d01d86a671eb1e93608000a0594e60d05a14c5d9f13dbe21d/pyrefly-0.24.2.tar.gz", hash = "sha256:671b9933c2a3f646983de68bc0422736f7ce364c4f645f742559423b0b9b5150", size = 1129442, upload-time = "2025-07-15T02:40:19.25Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1a/6d/5f76a1f1e0f161a5de9833dad503ad403dbb3a7ee250202ecbde3eb16f13/pyrefly-0.24.1-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:6d1e2372c4df9f3bd5102b638eb583b3e5a30a2124db41c267f815015c4565dd", size = 6036174, upload-time = "2025-07-14T21:10:31.781Z" },
-    { url = "https://files.pythonhosted.org/packages/57/71/23291ef19c87e1035f2bccfed76429b2a752ffbb7f1159f7ad455b2a9fa9/pyrefly-0.24.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:60c4b052deb358afe5fdb0b5b9e0fe3a420c6404187ca4fa42355af528479d3a", size = 5627049, upload-time = "2025-07-14T21:10:33.545Z" },
-    { url = "https://files.pythonhosted.org/packages/7c/e9/118aa3ab657ea1b51f5068e41acf2a0770ddf7cf05deb4f9d4fb324f18dc/pyrefly-0.24.1-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bde55fa01595c5aa1bc64e1b0edab3d6335ea90344a8331d996cb0259116a949", size = 5846841, upload-time = "2025-07-14T21:10:37.16Z" },
-    { url = "https://files.pythonhosted.org/packages/d3/ef/247b141b1210dcd7739dfcd0d043acb5c14b49c93099613af37dccf1a8d0/pyrefly-0.24.1-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:d829a1fe5c87116ac30335c35d360043b9b1d4bf5c113e1107ba067ed92e0fef", size = 6540566, upload-time = "2025-07-14T21:10:38.637Z" },
-    { url = "https://files.pythonhosted.org/packages/1f/92/3d96709ca2b1ed35f1e0baee241bed7541017bbaa47197f78a0c3baccff1/pyrefly-0.24.1-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bc5f3fdda75bf34b6f6d9388c4ca541a4a88b124d7405becbaa1fb0686f82082", size = 6288241, upload-time = "2025-07-14T21:10:40.147Z" },
-    { url = "https://files.pythonhosted.org/packages/c2/36/c476cb7b4574890359e778bf67c4b7bf17024f8146f608cef6b8a06d71d1/pyrefly-0.24.1-py3-none-win32.whl", hash = "sha256:62c824026bab3970b534fe3cf2071cfc69b4138df688305ce30ba33360cb364a", size = 5823105, upload-time = "2025-07-14T21:10:41.673Z" },
-    { url = "https://files.pythonhosted.org/packages/bf/f2/71cecccaf938dfd8fa5cb1aa389d6dcf5ca536a2db9323857dcb38dbd0e3/pyrefly-0.24.1-py3-none-win_amd64.whl", hash = "sha256:41fd4e5151838c24a405496eef852416b33139a79d6119eeaf515bc7596b8503", size = 6202359, upload-time = "2025-07-14T21:10:43.404Z" },
-    { url = "https://files.pythonhosted.org/packages/a1/bd/5e2e8048c221cd56949dc7b038116d3cc4d59051786662317678779d7f5a/pyrefly-0.24.1-py3-none-win_arm64.whl", hash = "sha256:2481766cc9d3ca4fca4d4f278d59f37ecf632b7f14b25512882fb561183f8acd", size = 5863828, upload-time = "2025-07-14T21:10:44.99Z" },
+    { url = "https://files.pythonhosted.org/packages/1b/cd/07862f0afd79e215617494495510d06cb7cc5907f5f32594498e7bb64f7e/pyrefly-0.24.2-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:7e6bd1b88ec53b3f1ce2ece844016d7e7f0848a77022857a7fa6674a49abcc13", size = 6049599, upload-time = "2025-07-15T02:40:03.363Z" },
+    { url = "https://files.pythonhosted.org/packages/b7/ce/680ce3c12a9d8cf0312207d1eee31947e5ceae169680fe2e341718f299be/pyrefly-0.24.2-py3-none-macosx_11_0_arm64.whl", hash = "sha256:83aa9013f2299dfc8ce11adec30a63be71528484c45e603375efe7496cb0538e", size = 5634851, upload-time = "2025-07-15T02:40:05.742Z" },
+    { url = "https://files.pythonhosted.org/packages/0f/12/3846ceefaeccb6209b4bcb3518143039effbe7f16f864377949b78952814/pyrefly-0.24.2-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3bf1689032b78f8f653244cd323ee1e06a0efb6192c4d7a415d1e85aedd37905", size = 5852019, upload-time = "2025-07-15T02:40:07.69Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/a3/cab8503091f244aa243995cb8745842198d71eb71225abe9ba8a1de78024/pyrefly-0.24.2-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:8404b804a5a1bc4a54cc8e58bceacdf49d7221531843c068547241d8f476af24", size = 6546257, upload-time = "2025-07-15T02:40:09.729Z" },
+    { url = "https://files.pythonhosted.org/packages/e0/06/b2881239f4a22c800003feaa3e653d6f635ea8979db506545e3c43bbf606/pyrefly-0.24.2-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:14d09f166a46e43655ea812611887ca16a0c54386296f4c9333f3f5fc7236709", size = 6296266, upload-time = "2025-07-15T02:40:11.667Z" },
+    { url = "https://files.pythonhosted.org/packages/66/39/c414c1a30c24badb5153dd2d1ddb974d5b5662f80be9f1fed626fcfe6479/pyrefly-0.24.2-py3-none-win32.whl", hash = "sha256:6c602df48dcfa3240f9076c7d1e9cf9dc2d94c90ee5b4c6745f3734125a2cf3a", size = 5833755, upload-time = "2025-07-15T02:40:13.539Z" },
+    { url = "https://files.pythonhosted.org/packages/0d/2b/36d211dd03b86cb6216968f64081437837507debe30f58834a97091eda83/pyrefly-0.24.2-py3-none-win_amd64.whl", hash = "sha256:9ed4690716eb47077082d4e99624e0a1165b9ac93300c8d823f42cae12ec1ef4", size = 6207616, upload-time = "2025-07-15T02:40:15.188Z" },
+    { url = "https://files.pythonhosted.org/packages/af/9a/d51db168fe6bdae00b813582287d251e116666f07cb388b62d1715808891/pyrefly-0.24.2-py3-none-win_arm64.whl", hash = "sha256:96ba49c02f374d716b8674409aa653093dad5263cf4e429a1d5ec603064db715", size = 5867507, upload-time = "2025-07-15T02:40:16.793Z" },
 ]
 
 [[package]]
