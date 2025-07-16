@@ -6,11 +6,7 @@ permissions: {}
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, labeled]
-    branches-ignore:
-      - README
   push:
-    branches-ignore:
-      - README
   workflow_dispatch:
 
 jobs:

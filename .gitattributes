@@ -36,7 +36,7 @@ uv.lock text eol=lf
 
 # In the past, we used to treat files downloaded from GitHub's "Code" -> "Download ZIP" as add-ons, but this method is now deprecated.
 # However, many users still download using this old deprecated method, resulting in numerous reports that the add-on doesn't work properly.
-# We've implemented measures for the README branch that users view by default, but not for other branches like main.
-# To minimize confusion on branches without countermeasures, when archiving, we exclude all source code and include only Notice.txt to guide users to the correct download location.
+# To minimize confusion on branches without countermeasures, when archiving, we exclude all source code and include only Notice.txt
+# to guide users to the correct download location.
 * export-ignore
 /Notice.txt -export-ignore
