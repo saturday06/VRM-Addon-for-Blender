@@ -14,21 +14,21 @@ env:
 
 jobs:
   test-windows:
-    name: test-windows | ${{ matrix.blender.job_name_postfix }}
+    name: test-windows / ${{ matrix.blender.job_name_postfix }}
     runs-on: windows-2025
     strategy:
       fail-fast: false
       matrix:
         blender:
-          - job_name_postfix: Blender 2.93
+          - job_name_postfix: blender 2.93
             archive_url_path: Blender2.93/blender-2.93.18-windows-x64.zip
-          - job_name_postfix: Blender 3.3
+          - job_name_postfix: blender 3.3
             archive_url_path: Blender3.3/blender-3.3.19-windows-x64.zip
-          - job_name_postfix: Blender 3.6
+          - job_name_postfix: blender 3.6
             archive_url_path: Blender3.6/blender-3.6.23-windows-x64.zip
-          - job_name_postfix: Blender 4.2
+          - job_name_postfix: blender 4.2
             archive_url_path: Blender4.2/blender-4.2.12-windows-x64.zip
-          - job_name_postfix: Blender 4.5
+          - job_name_postfix: blender 4.5
             archive_url_path: Blender4.5/blender-4.5.0-windows-x64.zip
     steps:
       - uses: actions/checkout@v4
@@ -68,23 +68,23 @@ jobs:
           path: tests/resources/vrm/*/temp
 
   test-macos:
-    name: test-macos | ${{ matrix.blender.job_name_postfix }}
+    name: test-macos / ${{ matrix.blender.job_name_postfix }}
     runs-on: macos-14
     strategy:
       fail-fast: false
       matrix:
         blender:
-          - job_name_postfix: Blender 2.93 arm64
+          - job_name_postfix: blender 2.93 arm64
             archive_url_path: Blender2.93/blender-2.93.18-macos-arm64.dmg
-          - job_name_postfix: Blender 3.3 arm64
+          - job_name_postfix: blender 3.3 arm64
             archive_url_path: Blender3.3/blender-3.3.19-macos-arm64.dmg
-          - job_name_postfix: Blender 3.6 arm64
+          - job_name_postfix: blender 3.6 arm64
             archive_url_path: Blender3.6/blender-3.6.23-macos-arm64.dmg
-          - job_name_postfix: Blender 4.2 arm64
+          - job_name_postfix: blender 4.2 arm64
             archive_url_path: Blender4.2/blender-4.2.12-macos-arm64.dmg
-          - job_name_postfix: Blender 4.5 arm64
+          - job_name_postfix: blender 4.5 arm64
             archive_url_path: Blender4.5/blender-4.5.0-macos-arm64.dmg
-          - job_name_postfix: Blender 4.5 x64
+          - job_name_postfix: blender 4.5 x64
             archive_url_path: Blender4.5/blender-4.5.0-macos-x64.dmg
     steps:
       - uses: actions/checkout@v4
@@ -125,13 +125,13 @@ jobs:
           path: tests/resources/vrm/*/temp
 
   test-linux:
-    name: test-linux | ${{ matrix.blender.job_name_postfix }}
+    name: test-linux / ${{ matrix.blender.job_name_postfix }}
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         blender:
-          - job_name_postfix: Blender 4.5
+          - job_name_postfix: blender 4.5
             archive_url_path: Blender4.5/blender-4.5.0-linux-x64.tar.xz
     steps:
       - uses: actions/checkout@v4
