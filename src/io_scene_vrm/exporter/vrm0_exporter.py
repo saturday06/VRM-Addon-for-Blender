@@ -33,7 +33,7 @@ from mathutils import Matrix, Vector
 
 from ..common import convert, gltf, shader
 from ..common.convert import Json
-from ..common.deep import make_json
+from ..common.deep import make_json, make_json_dict
 from ..common.gl import (
     GL_FLOAT,
     GL_LINEAR,
@@ -868,7 +868,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         gltf = get_material_extension(material).mtoon1
         mtoon = gltf.extensions.vrmc_materials_mtoon
 
-        material_dict.update(
+        material_dict |= make_json_dict(
             {
                 "alphaMode": gltf.alpha_mode,
                 "doubleSided": gltf.double_sided,
@@ -1404,7 +1404,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         keyword_map: dict[str, bool] = {}
         tag_map: dict[str, str] = {}
         texture_properties: dict[str, int] = {}
-        material_dict.update(
+        material_dict |= make_json_dict(
             {
                 "name": material.name,
                 "extensions": {"KHR_materials_unlit": {}},
@@ -1736,7 +1736,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         vrm_material_property_dict: dict[str, Json],
         node: ShaderNodeGroup,
     ) -> None:
-        vrm_material_property_dict.update(
+        vrm_material_property_dict |= make_json_dict(
             {
                 "name": material.name,
                 "shader": "VRM_USE_GLTFSHADER",
@@ -1759,7 +1759,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             "roughnessFactor": shader.get_float_value_or(node, "roughness", 0.0, 1.0),
         }
 
-        material_dict.update(
+        material_dict |= make_json_dict(
             {
                 "name": material.name,
                 "emissiveFactor": list(
@@ -1884,7 +1884,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         vector_properties: dict[str, Sequence[float]] = {}
         texture_properties: dict[str, int] = {}
 
-        vrm_material_property_dict.update(
+        vrm_material_property_dict |= make_json_dict(
             {
                 "name": material.name,
                 "shader": "VRM/UnlitTransparentZWrite",
@@ -1901,7 +1901,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             "roughnessFactor": 0.9,
         }
 
-        material_dict.update(
+        material_dict |= make_json_dict(
             {
                 "name": material.name,
                 "alphaMode": "BLEND",

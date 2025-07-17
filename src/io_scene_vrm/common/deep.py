@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import difflib
 import math
+from collections.abc import Mapping
 from json import dumps as json_dumps
 
 from . import convert
@@ -41,6 +42,10 @@ def make_json(v: object) -> Json:
 
     logger.warning("%s %s is unrecognized type", v, type(v))
     return None
+
+
+def make_json_dict(v: Mapping[str, object]) -> dict[str, Json]:
+    return {key: make_json(value) for key, value in v.items()}
 
 
 def diff(
