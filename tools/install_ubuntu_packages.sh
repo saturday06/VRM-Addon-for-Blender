@@ -4,7 +4,6 @@
 set -eux -o pipefail
 
 apt-get update -qq
-DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y
 DEBIAN_FRONTEND=noninteractive apt-get install \
   advancecomp \
   blender \
