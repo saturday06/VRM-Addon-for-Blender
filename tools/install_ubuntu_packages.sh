@@ -11,7 +11,6 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   diffutils \
   ffmpeg \
   file \
-  fonts-noto \
   git \
   git-lfs \
   gnupg \
@@ -31,13 +30,8 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   shellcheck \
   shfmt \
   sudo \
-  supervisor \
   uchardet \
   unzip \
-  xdotool \
-  xorgxrdp \
-  xubuntu-desktop \
-  xrdp \
   xz-utils \
   zopfli \
   -y --no-install-recommends
