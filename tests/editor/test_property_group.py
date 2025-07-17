@@ -15,7 +15,7 @@ from io_scene_vrm.common.vrm0.human_bone import (
 )
 from io_scene_vrm.editor.property_group import BonePropertyGroup
 
-Tree = dict[str, "Tree"]
+Tree = Mapping[str, "Tree"]
 
 
 class TestBonePropertyGroup(AddonTestCase):
