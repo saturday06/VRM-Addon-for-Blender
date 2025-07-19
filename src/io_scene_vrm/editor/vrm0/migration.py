@@ -663,6 +663,20 @@ def migrate_auto_pose(_context: Context, armature_data: Armature) -> None:
         humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
 
 
+def migrate_saved_mesh_object_name_to_restore(
+    _context: Context, armature_data: Armature
+) -> None:
+    ext = get_armature_extension(armature_data)
+    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or tuple(
+        ext.addon_version
+    ) >= (3, 9, 0):
+        return
+
+    for blend_shape_group in ext.vrm0.blend_shape_master.blend_shape_groups:
+        for bind in blend_shape_group.binds:
+            bind.mesh.saved_mesh_object_name_to_restore = bind.mesh.name
+
+
 def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
     if vrm0.humanoid.initial_automatic_bone_assignment:
         return False
@@ -703,6 +717,7 @@ def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None
     fixup_humanoid_feet_spacing(armature_data)
     migrate_pose(context, armature, armature_data)
     migrate_auto_pose(context, armature_data)
+    migrate_saved_mesh_object_name_to_restore(context, armature_data)
 
     Vrm0HumanoidPropertyGroup.update_all_node_candidates(
         context,

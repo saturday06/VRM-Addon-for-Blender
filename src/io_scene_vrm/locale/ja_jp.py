@@ -777,4 +777,5 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "https://github.com/vrm-c/vrm-specification/blob/c24d76d99a18738dd2c266be1c83f089064a7b5e/specification/VRMC_vrm-1.0/humanoid.md#humanoid-bone-parent-child-relationship",
     ): "https://github.com/vrm-c/vrm-specification/blob/c24d76d99a18738dd2c266be1c83f089064a7b5e/specification/VRMC_vrm-1.0/humanoid.ja.md#ヒューマノイドボーンの親子関係",
+    ("Operator", "Restore Mesh Assignments"): "メッシュの割り当てを復元する",
 }

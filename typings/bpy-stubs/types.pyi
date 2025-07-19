@@ -626,6 +626,15 @@ class UILayout(bpy_struct):
         sort_reverse: bool = False,
         sort_lock: bool = False,
     ) -> None: ...
+    def menu(
+        self,
+        menu: str,
+        text: str = "",
+        text_ctxt: str = "",
+        translate: bool = True,
+        icon: str = "NONE",
+        icon_value: int = 0,
+    ) -> None: ...
 
     alignment: str
     scale_x: float
@@ -2251,7 +2260,15 @@ class Panel(bpy_struct):
     @property
     def layout(self) -> UILayout: ...
 
-class Menu(bpy_struct): ...
+class Menu(bpy_struct):
+    bl_description: str
+    bl_idname: str
+    bl_label: str
+    bl_owner_id: str
+    bl_translation_context: str
+    @property
+    def layout(self) -> UILayout: ...
+
 class Header(bpy_struct): ...
 class KeyingSetInfo(bpy_struct): ...
 class RenderEngine(bpy_struct): ...

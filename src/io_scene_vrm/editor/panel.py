@@ -7,6 +7,7 @@ from bpy.types import (
     AnyType,
     Armature,
     Context,
+    Menu,
     Operator,
     Panel,
     UILayout,
@@ -44,6 +45,7 @@ def draw_template_list(
     can_remove: Callable[[int], bool] = lambda _: True,
     can_move: Callable[[int], bool] = lambda _: True,
     compact: bool = False,
+    menu: Optional[type[Menu]] = None,
 ) -> tuple[
     list[Union[__AddOperator, __RemoveOperator, __MoveUpOperator, __MoveDownOperator]],
     list[Union[__RemoveOperator, __MoveUpOperator, __MoveDownOperator]],
@@ -105,6 +107,10 @@ def draw_template_list(
         text="",
         translate=False,
     )
+
+    if menu is not None:
+        list_side_column.separator()
+        list_side_column.menu(menu=menu.bl_idname, text="", icon="DOWNARROW_HLT")
 
     move_operator_parent = list_side_column.column(align=True)
     # Without separator, the button width changes mysteriously when list elements are 0

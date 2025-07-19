@@ -14,6 +14,7 @@ from ..ops import layout_operator
 from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
 from ..search import active_object_is_vrm1_armature
 from . import ops as vrm1_ops
+from .menu import VRM_MT_vrm1_expression
 from .ops import draw_bone_prop_search
 from .property_group import (
     Vrm1CustomExpressionPropertyGroup,
@@ -816,6 +817,7 @@ def draw_vrm1_expressions_layout(
             len(expressions.custom) >= 2
             and active_collection_index >= len(preset_expressions)
         ),
+        menu=VRM_MT_vrm1_expression,
     )
 
     for expression_collection_op in expression_collection_ops:

@@ -55,11 +55,13 @@ from .editor.spring_bone1 import panel as spring_bone1_panel
 from .editor.spring_bone1 import property_group as spring_bone1_property_group
 from .editor.spring_bone1 import ui_list as spring_bone1_ui_list
 from .editor.vrm0 import handler as vrm0_handler
+from .editor.vrm0 import menu as vrm0_menu
 from .editor.vrm0 import ops as vrm0_ops
 from .editor.vrm0 import panel as vrm0_panel
 from .editor.vrm0 import property_group as vrm0_property_group
 from .editor.vrm0 import ui_list as vrm0_ui_list
 from .editor.vrm1 import handler as vrm1_handler
+from .editor.vrm1 import menu as vrm1_menu
 from .editor.vrm1 import ops as vrm1_ops
 from .editor.vrm1 import panel as vrm1_panel
 from .editor.vrm1 import property_group as vrm1_property_group
@@ -265,6 +267,7 @@ classes: list[
     panel.VRM_PT_controller_unsupported_blender_version_warning,
     panel.VRM_PT_controller,
     panel.VRM_PT_vrm_armature_object_property,
+    vrm0_menu.VRM_MT_vrm0_blend_shape_master,
     vrm0_ui_list.VRM_UL_vrm0_first_person_mesh_annotation,
     vrm0_ui_list.VRM_UL_vrm0_blend_shape_bind,
     vrm0_ui_list.VRM_UL_vrm0_blend_shape_group,
@@ -305,6 +308,7 @@ classes: list[
     spring_bone1_panel.VRM_PT_spring_bone1_armature_object_property,
     spring_bone1_panel.VRM_PT_spring_bone1_ui,
     spring_bone1_panel.VRM_PT_spring_bone1_collider_property,
+    vrm1_menu.VRM_MT_vrm1_expression,
     vrm1_ui_list.VRM_UL_vrm1_meta_author,
     vrm1_ui_list.VRM_UL_vrm1_meta_reference,
     vrm1_ui_list.VRM_UL_vrm1_first_person_mesh_annotation,
@@ -330,6 +334,7 @@ classes: list[
     vrm0_ops.VRM_OT_remove_vrm0_blend_shape_bind,
     vrm0_ops.VRM_OT_move_down_vrm0_blend_shape_bind,
     vrm0_ops.VRM_OT_move_up_vrm0_blend_shape_bind,
+    vrm0_ops.VRM_OT_restore_vrm0_blend_shape_group_bind_object,
     vrm0_ops.VRM_OT_add_vrm0_secondary_animation_collider_group_collider,
     vrm0_ops.VRM_OT_remove_vrm0_secondary_animation_collider_group_collider,
     vrm0_ops.VRM_OT_move_up_vrm0_secondary_animation_collider_group_collider,
@@ -368,6 +373,7 @@ classes: list[
     vrm1_ops.VRM_OT_remove_vrm1_expression_morph_target_bind,
     vrm1_ops.VRM_OT_move_up_vrm1_expression_morph_target_bind,
     vrm1_ops.VRM_OT_move_down_vrm1_expression_morph_target_bind,
+    vrm1_ops.VRM_OT_restore_vrm1_expression_morph_target_bind_object,
     vrm1_ops.VRM_OT_add_vrm1_expression_material_color_bind,
     vrm1_ops.VRM_OT_remove_vrm1_expression_material_color_bind,
     vrm1_ops.VRM_OT_move_up_vrm1_expression_material_color_bind,

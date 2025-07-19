@@ -1223,6 +1223,33 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(Operator):
         bind_index: int  # type: ignore[no-redef]
 
 
+class VRM_OT_restore_vrm1_expression_morph_target_bind_object(Operator):
+    bl_idname = "vrm.restore_vrm1_expression_morph_target_bind_object"
+    bl_label = "Restore Mesh Assignments"
+    bl_description = "Restore VRM 1.0 Expression Morph Target Bind Object Assignments"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_object_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+        expressions = get_armature_extension(armature_data).vrm1.expressions
+        expressions.restore_expression_morph_target_bind_object_assignments(context)
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+
+
 class VRM_OT_add_vrm1_expression_material_color_bind(Operator):
     bl_idname = "vrm.add_vrm1_expression_material_color_bind"
     bl_label = "Add Material Color Bind"

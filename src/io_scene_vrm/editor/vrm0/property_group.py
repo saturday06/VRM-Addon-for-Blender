@@ -1035,6 +1035,13 @@ class Vrm0BlendShapeMasterPropertyGroup(PropertyGroup):
         type=Vrm0BlendShapeGroupPropertyGroup,
     )
 
+    def restore_blend_shape_group_bind_object_assignments(
+        self, context: Context
+    ) -> None:
+        for blend_shape_group in self.blend_shape_groups:
+            for bind in blend_shape_group.binds:
+                bind.mesh.restore_object_assignment(context)
+
     # for UI
     active_blend_shape_group_index: IntProperty(min=0)  # type: ignore[valid-type]
 

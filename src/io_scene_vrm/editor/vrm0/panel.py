@@ -24,6 +24,7 @@ from ..ops import layout_operator
 from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
 from ..search import active_object_is_vrm0_armature
 from . import ops as vrm0_ops
+from .menu import VRM_MT_vrm0_blend_shape_master
 from .ops import draw_bone_prop_search
 from .property_group import (
     Vrm0BlendShapeBindPropertyGroup,
@@ -620,6 +621,7 @@ def draw_vrm0_blend_shape_master_layout(
         vrm0_ops.VRM_OT_remove_vrm0_blend_shape_group,
         vrm0_ops.VRM_OT_move_up_vrm0_blend_shape_group,
         vrm0_ops.VRM_OT_move_down_vrm0_blend_shape_group,
+        menu=VRM_MT_vrm0_blend_shape_master,
     )
 
     for blend_shape_group_collection_op in blend_shape_group_collection_ops:

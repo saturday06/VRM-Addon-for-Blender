@@ -1660,6 +1660,13 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
     )
     active_expression_ui_list_element_index: IntProperty(min=0)  # type: ignore[valid-type]
 
+    def restore_expression_morph_target_bind_object_assignments(
+        self, context: Context
+    ) -> None:
+        for expression in self.all_name_to_expression_dict().values():
+            for morph_target_bind in expression.morph_target_binds:
+                morph_target_bind.node.restore_object_assignment(context)
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.

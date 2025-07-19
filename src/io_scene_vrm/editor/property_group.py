@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, ClassVar, Final, Optional, Protocol, TypeVar, 
 import bpy
 from bpy.app.translations import pgettext
 from bpy.props import FloatProperty, PointerProperty, StringProperty
-from bpy.types import Armature, Bone, Material, Object, PropertyGroup, UILayout
+from bpy.types import Armature, Bone, Context, Material, Object, PropertyGroup, UILayout
 
 from ..common.logger import get_logger
 from ..common.vrm0 import human_bone as vrm0_human_bone
@@ -169,6 +169,8 @@ class MeshObjectPropertyGroup(PropertyGroup):
         get=get_mesh_object_name, set=set_mesh_object_name
     )
 
+    saved_mesh_object_name_to_restore: StringProperty()  # type: ignore[valid-type]
+
     def get_value(self) -> str:
         message = (
             "`MeshObjectPropertyGroup.value` is deprecated and will be removed in the"
@@ -200,15 +202,29 @@ class MeshObjectPropertyGroup(PropertyGroup):
     def poll_bpy_object(self, obj: object) -> bool:
         return isinstance(obj, Object) and obj.type == "MESH"
 
+    def update_bpy_object(self, _context: Context) -> None:
+        bpy_object = self.bpy_object
+        self.saved_mesh_object_name_to_restore = bpy_object.name if bpy_object else ""
+
     bpy_object: PointerProperty(  # type: ignore[valid-type]
         type=Object,
         poll=poll_bpy_object,
+        update=update_bpy_object,
     )
+
+    def restore_object_assignment(self, context: Context) -> None:
+        if self.bpy_object:
+            return
+        obj = context.blend_data.objects.get(self.saved_mesh_object_name_to_restore)
+        if not obj:
+            return
+        self.set_mesh_object_name(obj.name)
 
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         mesh_object_name: str  # type: ignore[no-redef]
+        saved_mesh_object_name_to_restore: str  # type: ignore[no-redef]
         value: str  # type: ignore[no-redef]
         bpy_object: Optional[Object]  # type: ignore[no-redef]
 

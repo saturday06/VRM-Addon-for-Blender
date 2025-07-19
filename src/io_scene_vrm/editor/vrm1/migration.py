@@ -266,6 +266,13 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
         if preset_expression.name != preset_name:
             preset_expression.name = preset_name
 
+    if tuple(get_armature_extension(armature_data).addon_version) < (3, 9, 0):
+        for expression in expressions.preset.name_to_expression_dict().values():
+            for morph_target_bind in expression.morph_target_binds:
+                morph_target_bind.node.saved_mesh_object_name_to_restore = (
+                    morph_target_bind.node.mesh_object_name
+                )
+
     Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
         context,
         armature_data.name,

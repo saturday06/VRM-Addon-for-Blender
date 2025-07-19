@@ -313,6 +313,20 @@ def move_up_vrm0_blend_shape_bind(
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
+def restore_vrm0_blend_shape_group_bind_object(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.restore_vrm0_blend_shape_group_bind_object(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm0_secondary_animation_collider_group_collider(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -934,6 +948,20 @@ def move_down_vrm1_expression_morph_target_bind(
         armature_object_name=armature_object_name,
         expression_name=expression_name,
         bind_index=bind_index,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def restore_vrm1_expression_morph_target_bind_object(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.restore_vrm1_expression_morph_target_bind_object(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
     )
 
 
