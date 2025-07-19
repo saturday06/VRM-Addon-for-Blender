@@ -2636,7 +2636,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 targets_normal.append((0, 0, 0))
                 continue
 
-            if not shape_key_name_to_vertex_index_to_morph_normal_diffs:
+            if shape_key_name_to_vertex_index_to_morph_normal_diffs is None:
                 targets_normal.append((0, 0, 0))
                 logger.error(
                     "BUG: shape key name to vertex index to morph normal diffs"
@@ -2644,9 +2644,19 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 )
                 continue
 
-            morph_normal_diff = shape_key_name_to_vertex_index_to_morph_normal_diffs[
-                shape_key_name
-            ][vertex_index]
+            morph_normal_diffs = (
+                shape_key_name_to_vertex_index_to_morph_normal_diffs.get(shape_key_name)
+            )
+            if morph_normal_diffs is None:
+                targets_normal.append((0, 0, 0))
+                continue
+
+            if vertex_index >= len(morph_normal_diffs):
+                targets_normal.append((0, 0, 0))
+                continue
+
+            morph_normal_diff = morph_normal_diffs[vertex_index]
+
             # logger.error(
             #     "MORPH_NORMAL_DIFF: %s %s", vertex_index, morph_normal_diff
             # )
