@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.9.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.8.0...v3.9.0) (2025-07-19)
+
+
+### 🚀 Features
+
+* add option to automatically include MToon shader node group ([b994b59](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b994b5904be59e57c26451788ab6864bdd163534))
+* add restore mesh assignments functionality ([f72ca66](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f72ca66782cdda0d8e6cbe8107e4de63961f68ce))
+
 ## [3.8.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.7.5...v3.8.0) (2025-07-13)
 
 
