@@ -5,7 +5,6 @@
     ":disableDependencyDashboard",
     "group:allNonMajor"
   ],
-  "baseBranches": ["main"],
   "schedule": ["* 0 * * 5"],
   "lockFileMaintenance": {
     "enabled": true,
