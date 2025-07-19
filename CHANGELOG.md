@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.9.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.9.0...v3.9.1) (2025-07-19)
+
+
+### 🐛 Bug Fixes
+
+* Mesh Assignment -&gt; Shape Key Assignment ([9da9694](https://github.com/saturday06/VRM-Addon-for-Blender/commit/9da969408bbbdd88e550b60f2fc5731da79506c0))
+
 ## [3.9.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.8.0...v3.9.0) (2025-07-19)
 
 
