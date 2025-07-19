@@ -227,6 +227,11 @@ class VrmAddonPreferences(AddonPreferences):
         default=INITIAL_ADDON_VERSION,
     )
 
+    add_mtoon_shader_node_group_automatically: BoolProperty(  # type: ignore[valid-type]
+        name="Add MToon shader node group automatically",
+        default=True,
+    )
+
     extract_textures_into_folder: BoolProperty(  # type: ignore[valid-type]
         name="Extract texture images into the folder",
         default=False,
@@ -297,6 +302,8 @@ class VrmAddonPreferences(AddonPreferences):
                     icon="NONE" if index else "ERROR",
                 )
 
+        layout.prop(self, "add_mtoon_shader_node_group_automatically")
+
         import_box = layout.box()
         import_box.label(text="Import", icon="IMPORT")
         draw_import_preferences_layout(self, import_box)
@@ -309,6 +316,7 @@ class VrmAddonPreferences(AddonPreferences):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         addon_version: Sequence[int]  # type: ignore[no-redef]
+        add_mtoon_shader_node_group_automatically: bool  # type: ignore[no-redef]
         extract_textures_into_folder: bool  # type: ignore[no-redef]
         make_new_texture_folder: bool  # type: ignore[no-redef]
         set_shading_type_to_material_on_import: bool  # type: ignore[no-redef]
