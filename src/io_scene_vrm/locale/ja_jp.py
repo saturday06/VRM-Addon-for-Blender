@@ -147,8 +147,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Check VRM Model"): "VRMモデルのチェック",
     (
         "*",
-        "Add MToon shader node group automatically",
-    ): "MToonシェーダーノードグループを自動追加",
+        "Add MToon shader node group",
+    ): "MToonシェーダーノードグループを追加",
     ("*", "Extract texture images into the folder"): "テクスチャ画像をフォルダに展開",
     (
         "*",

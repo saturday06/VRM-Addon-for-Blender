@@ -8,6 +8,10 @@ from bpy.types import AddonPreferences, Context, Operator, UILayout
 
 from . import version
 from .logger import get_logger
+from .shader import (
+    add_mtoon1_auto_setup_shader_node_group,
+    remove_mtoon1_auto_setup_shader_node_group,
+)
 
 logger = get_logger(__name__)
 
@@ -227,9 +231,16 @@ class VrmAddonPreferences(AddonPreferences):
         default=INITIAL_ADDON_VERSION,
     )
 
-    add_mtoon_shader_node_group_automatically: BoolProperty(  # type: ignore[valid-type]
-        name="Add MToon shader node group automatically",
+    def update_add_mtoon_shader_node_group(self, context: Context) -> None:
+        if self.add_mtoon_shader_node_group:
+            add_mtoon1_auto_setup_shader_node_group(context)
+        else:
+            remove_mtoon1_auto_setup_shader_node_group(context)
+
+    add_mtoon_shader_node_group: BoolProperty(  # type: ignore[valid-type]
+        name="Add MToon shader node group",
         default=True,
+        update=update_add_mtoon_shader_node_group,
     )
 
     extract_textures_into_folder: BoolProperty(  # type: ignore[valid-type]
@@ -302,7 +313,7 @@ class VrmAddonPreferences(AddonPreferences):
                     icon="NONE" if index else "ERROR",
                 )
 
-        layout.prop(self, "add_mtoon_shader_node_group_automatically")
+        layout.prop(self, "add_mtoon_shader_node_group")
 
         import_box = layout.box()
         import_box.label(text="Import", icon="IMPORT")
@@ -316,7 +327,7 @@ class VrmAddonPreferences(AddonPreferences):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         addon_version: Sequence[int]  # type: ignore[no-redef]
-        add_mtoon_shader_node_group_automatically: bool  # type: ignore[no-redef]
+        add_mtoon_shader_node_group: bool  # type: ignore[no-redef]
         extract_textures_into_folder: bool  # type: ignore[no-redef]
         make_new_texture_folder: bool  # type: ignore[no-redef]
         set_shading_type_to_material_on_import: bool  # type: ignore[no-redef]

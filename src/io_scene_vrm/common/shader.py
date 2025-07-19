@@ -135,6 +135,11 @@ VECTOR_SOCKET_CLASSES: Final = (
 COLOR_SOCKET_CLASSES: Final = (NodeSocketColor,)
 STRING_SOCKET_CLASSES: Final = (NodeSocketString,)
 
+MTOON1_AUTO_SETUP_GROUP_NAME: Final = "MToon"
+MTOON1_AUTO_SETUP_GROUP_NODE_TREE_CUSTOM_KEY: Final = (
+    "VRM Add-on MToon1 Auto Setup Placeholder"
+)
+
 OUTLINE_GEOMETRY_GROUP_NAME: Final = "VRM Add-on MToon 1.0 Outline Geometry Revision 1"
 
 UV_GROUP_NAME: Final = "VRM Add-on MToon 1.0 UV Revision 1"
@@ -248,21 +253,36 @@ def generate_backup_suffix() -> str:
     )
 
 
-def add_shaders(context: Context) -> None:
+def get_mtoon1_auto_setup_shader_node_group(context: Context) -> Optional[NodeTree]:
+    node_group = context.blend_data.node_groups.get(MTOON1_AUTO_SETUP_GROUP_NAME)
+    if not node_group:
+        return None
+    if node_group.get(MTOON1_AUTO_SETUP_GROUP_NODE_TREE_CUSTOM_KEY):
+        return node_group
+    return None
+
+
+def add_mtoon1_auto_setup_shader_node_group(context: Context) -> None:
     blend_path = Path(__file__).with_name("mtoon_auto_setup.blend")
     node_tree_path = str(blend_path) + "/NodeTree"
 
-    shader_node_group_name = "MToon"
-    if shader_node_group_name in context.blend_data.node_groups:
+    if get_mtoon1_auto_setup_shader_node_group(context):
         return
 
     wm_append_without_library(
         context,
         blend_path,
-        append_filepath=node_tree_path + "/" + shader_node_group_name,
-        append_filename=shader_node_group_name,
+        append_filepath=node_tree_path + "/" + MTOON1_AUTO_SETUP_GROUP_NAME,
+        append_filename=MTOON1_AUTO_SETUP_GROUP_NAME,
         append_directory=node_tree_path,
     )
+
+
+def remove_mtoon1_auto_setup_shader_node_group(context: Context) -> None:
+    node_group = get_mtoon1_auto_setup_shader_node_group(context)
+    if not node_group or node_group.users:
+        return
+    context.blend_data.node_groups.remove(node_group)
 
 
 def load_mtoon1_node_group(

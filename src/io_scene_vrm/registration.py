@@ -76,8 +76,8 @@ logger = get_logger(__name__)
 
 def setup(*, load_post: bool) -> None:
     context = bpy.context
-    if preferences.get_preferences(context).add_mtoon_shader_node_group_automatically:
-        shader.add_shaders(context)
+    if preferences.get_preferences(context).add_mtoon_shader_node_group:
+        shader.add_mtoon1_auto_setup_shader_node_group(context)
     migration.migrate_all_objects(context, show_progress=True)
     mtoon1_property_group.setup_drivers(context)
     subscription.setup_subscription(load_post=load_post)

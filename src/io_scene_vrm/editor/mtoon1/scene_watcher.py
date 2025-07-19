@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import sys
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Final, Optional
 
 import bpy
 from bpy.types import Context, Mesh, ShaderNodeGroup, ShaderNodeOutputMaterial
@@ -9,13 +9,14 @@ from bpy.types import Context, Mesh, ShaderNodeGroup, ShaderNodeOutputMaterial
 from ...common import ops
 from ...common.logger import get_logger
 from ...common.scene_watcher import RunState, SceneWatcher
+from ...common.shader import MTOON1_AUTO_SETUP_GROUP_NODE_TREE_CUSTOM_KEY
 from ..extension import get_material_extension
 from .ops import VRM_OT_refresh_mtoon1_outline
 
 logger = get_logger(__name__)
 
 
-HAS_AUTO_SMOOTH = tuple(bpy.app.version) < (4, 1)
+HAS_AUTO_SMOOTH: Final = tuple(bpy.app.version) < (4, 1)
 
 
 @dataclass
@@ -276,7 +277,9 @@ class MToon1AutoSetup(SceneWatcher):
                 if group_node_tree is None:
                     continue
 
-                if not group_node_tree.get("VRM Add-on MToon1 Auto Setup Placeholder"):
+                if not group_node_tree.get(
+                    MTOON1_AUTO_SETUP_GROUP_NODE_TREE_CUSTOM_KEY
+                ):
                     continue
 
                 found = False
