@@ -1225,7 +1225,7 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(Operator):
 
 class VRM_OT_restore_vrm1_expression_morph_target_bind_object(Operator):
     bl_idname = "vrm.restore_vrm1_expression_morph_target_bind_object"
-    bl_label = "Restore Mesh Assignments"
+    bl_label = "Restore Shape Key Assignments"
     bl_description = "Restore VRM 1.0 Expression Morph Target Bind Object Assignments"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 

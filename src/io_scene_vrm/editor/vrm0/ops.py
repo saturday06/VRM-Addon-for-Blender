@@ -926,7 +926,7 @@ class VRM_OT_move_down_vrm0_blend_shape_bind(Operator):
 
 class VRM_OT_restore_vrm0_blend_shape_group_bind_object(Operator):
     bl_idname = "vrm.restore_vrm0_blend_shape_group_bind_object"
-    bl_label = "Restore Mesh Assignments"
+    bl_label = "Restore Shape Key Assignments"
     bl_description = "Restore VRM 0.x Blend Shape Group Bind Object Assignments"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
