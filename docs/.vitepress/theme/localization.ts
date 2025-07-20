@@ -60,7 +60,7 @@ function detectAutoRedirectionTargetLocale(
 }
 
 /**
- * Storageとブラウザの言語設定から、対応するURLにリダイレクトする
+ * Redirect to the corresponding URL based on storage and browser language settings
  */
 export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
   storage.removeItem(hasPendingAutoRedirectionKey);
@@ -70,8 +70,8 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
     return;
   }
 
-  // リクエストされたpathnameを最初のフォルダとそれ以外に分離し、
-  // 最初のフォルダをlocaleとする。
+  // Separate the requested pathname into the first folder and the rest,
+  // and use the first folder as the locale.
   let requestLocale;
   let requestPathname;
   const requestUrl = new URL(window.location.href);
@@ -82,20 +82,20 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
   }
 
   if (requestLocale?.indexOf(".") !== -1) {
-    // 拡張子が含まれている場合は個別のファイルであるとし、リダイレクトしない。
+    // If an extension is included, treat it as an individual file and do not redirect.
     return;
   }
 
   if (requestLocale == "releases") {
-    // releasesフォルダにはロケール非依存のファイルが配置されているので、リダイレクトしない。
+    // The releases folder contains locale-independent files, so do not redirect.
     return;
   }
 
   let targetLocale = detectAutoRedirectionTargetLocale(storage);
   if (!targetLocale) {
     if (requestLocale) {
-      // リダイレクト先のロケールの自動取得に失敗した場合かつ、
-      // リクエストからロケールが取得できた場合は何もしない。
+      // If automatic detection of the redirect target locale failed and
+      // a locale can be obtained from the request, do nothing.
       return;
     }
     targetLocale = defaultLocale;
@@ -103,13 +103,13 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
 
   registerAutoRedirectionTargetLocale(storage, targetLocale);
 
-  // リクエストされたロケールと自動判定したロケールが同一なら何もしない
+  // If the requested locale and the automatically detected locale are the same, do nothing
   if (requestLocale === targetLocale) {
     return;
   }
 
-  // ここに到達した場合はリダイレクトが必要になる。
-  // URLを再構築してリダイレクトする。
+  // If we reach here, redirection is necessary.
+  // Reconstruct the URL and redirect.
   const redirectUrl = new URL(window.location.href);
   redirectUrl.pathname = "/" + targetLocale + "/";
   if (requestPathname) {

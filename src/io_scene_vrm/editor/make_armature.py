@@ -374,7 +374,7 @@ class ICYP_OT_make_armature(Operator):
             chest,
             roll=0,
         )
-        # 首の1/2は顎の後ろに隠れてる
+        # Half of the neck is hidden behind the jaw
         head = bone_add(
             armature_data,
             "head",
@@ -384,7 +384,7 @@ class ICYP_OT_make_armature(Operator):
             roll=0,
         )
 
-        # 目
+        # Eyes
         eye_depth = self.eye_depth
         eyes = x_mirror_bones_add(
             armature_data,
@@ -401,7 +401,7 @@ class ICYP_OT_make_armature(Operator):
             ),
             (head, head),
         )
-        # 足
+        # Legs
         leg_width = head_size / 4 * self.leg_width_ratio
         leg_size = self.leg_size
 
@@ -451,7 +451,7 @@ class ICYP_OT_make_armature(Operator):
             bone_type="leg",
         )
 
-        # 肩~指
+        # Shoulder to fingers
         shoulder_in_pos = self.shoulder_in_width / 2
 
         shoulder_parent = chest
@@ -480,8 +480,10 @@ class ICYP_OT_make_armature(Operator):
             bone_type="arm",
         )
 
-        # グーにするとパーの半分くらいになる、グーのとき手を含む下腕の長さと上腕の長さが
-        # 概ね一緒、けど手がでかすぎると破綻する
+        # When making a fist, it becomes about half the size of an open palm.
+        # When making a fist, the length of the forearm including the hand
+        # is roughly the same as the length of the upper arm,
+        # but it breaks down if the hand is too big.
         forearm_length = max(arm_length - self.hand_size() / 2, arm_length * 0.8)
         forearms = x_mirror_bones_add(
             armature_data,

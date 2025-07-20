@@ -1,27 +1,27 @@
 /* SPDX-License-Identifier: MIT OR GPL-3.0-or-later */
 
-/* タイトル「VRM Format / VRM Add-on for Blender」が長すぎてサイドバーのスクロールバーと重なるので、
-  サイドバーを--vp-nav-heightぶん下に移動 */
+/* The title "VRM Format / VRM Add-on for Blender" is too long and overlaps with the sidebar's scrollbar,
+  so move the sidebar down by --vp-nav-height */
 .Layout > aside.VPSidebar:not(.open) {
   --vp-layout-top-height: var(--vp-nav-height);
   padding-top: 0;
 }
 
-/* SideBarとNavBarの間の境界線のデザインがイマイチなので消す */
+/* Remove the border line between SideBar and NavBar as the design is not ideal */
 .VPNavBarTitle.has-sidebar .title {
   border-bottom-style: none;
 }
 
-/* SideBarと記事の間の境界線を、サイドバーとも重なるようにする */
+/* Make the border line between SideBar and articles overlap with the sidebar as well */
 .VPNavBar.has-sidebar .divider {
   --vp-sidebar-width: 0px;
 }
 
 .vp-doc img {
-  /* Blenderのスクショは660pxにしている。ピクセルパーフェクトにしないとUIや文字がぼやけてしまう。 */
+  /* Blender screenshots are set to 660px. Must be pixel-perfect or UI and text will appear blurry. */
   max-width: min(660px, 100%);
 
-  /* foo_icon.pngの表示調整 */
+  /* Display adjustment for foo_icon.png */
   display: inline;
   vertical-align: middle;
 }

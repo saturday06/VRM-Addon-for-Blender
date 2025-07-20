@@ -161,8 +161,8 @@ export default defineConfig({
   ],
 
   transformHead(context: TransformContext): Awaitable<HeadConfig[]> {
-    // 記事のパスからog:imageのパスを生成
-    // 上手くやる方法は無くてissueがあがっている
+    // Generate og:image path from article path
+    // There is no good way to do this, and an issue has been raised
     // https://github.com/vuejs/vitepress/issues/3161
     const pathComponents = context.pageData.relativePath.split("/");
     const _filePath = pathComponents.pop();
