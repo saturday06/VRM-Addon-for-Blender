@@ -39,7 +39,7 @@ jobs:
           path: |
             blender.zip
             tests/temp
-          key: ${{ matrix.blender.archive_url_path }}-archive-7
+          key: ${{ matrix.blender.archive_url_path }}-archive-8
       - name: Download archive
         if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
@@ -97,7 +97,7 @@ jobs:
           path: |
             blender.dmg
             tests/temp
-          key: ${{ matrix.blender.archive_url_path }}-archive-7
+          key: ${{ matrix.blender.archive_url_path }}-archive-8
       - name: Download archive
         if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
@@ -146,7 +146,7 @@ jobs:
           path: |
             blender.tar.gz
             tests/temp
-          key: ${{ matrix.blender.archive_url_path }}-archive-7
+          key: ${{ matrix.blender.archive_url_path }}-archive-8
       - name: Download archive
         if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
