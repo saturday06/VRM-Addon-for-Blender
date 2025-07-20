@@ -23,7 +23,7 @@ jobs:
           - job_name_postfix: blender 2.93
             archive_url_path: Blender2.93/blender-2.93.18-windows-x64.zip
           - job_name_postfix: blender 3.3
-            archive_url_path: Blender3.3/blender-3.3.19-windows-x64.zip
+            archive_url_path: Blender3.3/blender-3.3.21-windows-x64.zip
           - job_name_postfix: blender 3.6
             archive_url_path: Blender3.6/blender-3.6.23-windows-x64.zip
           - job_name_postfix: blender 4.2
@@ -79,7 +79,7 @@ jobs:
           - job_name_postfix: blender 2.93 arm64
             archive_url_path: Blender2.93/blender-2.93.18-macos-arm64.dmg
           - job_name_postfix: blender 3.3 arm64
-            archive_url_path: Blender3.3/blender-3.3.19-macos-arm64.dmg
+            archive_url_path: Blender3.3/blender-3.3.21-macos-arm64.dmg
           - job_name_postfix: blender 3.6 arm64
             archive_url_path: Blender3.6/blender-3.6.23-macos-arm64.dmg
           - job_name_postfix: blender 4.2 arm64
