@@ -144,7 +144,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            blender.tar.gz
+            blender.tar.xz
             tests/temp
           key: ${{ matrix.blender.archive_url_path }}-archive-8
       - name: Download archive
