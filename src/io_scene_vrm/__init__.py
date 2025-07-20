@@ -36,7 +36,6 @@ MINIMUM_UNSUPPORTED_BLENDER_MAJOR_MINOR_VERSION = (5, 0)
 def register() -> None:
     if "bl_info" in globals():
         raise_error_if_too_old_blender()
-        extract_github_private_partial_code_archive_if_necessary()
 
     # Lazy import to minimize initialization before blender version checking and
     # support unzipping the partial add-on archive.
@@ -144,84 +143,6 @@ def raise_not_implemented_error(
             + highlighted_message
         )
     raise NotImplementedError(highlighted_message)
-
-
-def extract_github_private_partial_code_archive_if_necessary() -> None:
-    """Detect downloads from GitHub's "Code" -> "Download ZIP" and extract the source.
-
-    This add-on used to adopt the method of downloading and using from GitHub's
-    "Code" -> "Download ZIP". However, for this to work, it was necessary to
-    place __init__.py in the root of the repository, which would deviate from
-    Python's standard source code layout and weaken development tool support,
-    so that download method was discontinued. However, there have been many
-    reports that the add-on does not work properly when downloaded using the
-    old discontinued method, so this is the result of trying to make it work
-    with that method as well without changing the source code layout.
-
-    This problem should be solved with the advent of the Blender Extensions
-    Platform, so please bear with it until then.
-    https://code.blender.org/2022/10/blender-extensions-platform/
-    """
-    import shutil
-    import tarfile
-    from io import BytesIO
-    from logging import getLogger
-    from pathlib import Path
-
-    logger = getLogger(__name__)
-
-    # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_20_33/src/io_scene_vrm/common/logging.py#L35-L38
-    log_warning_prefix = "[VRM Add-on:WARNING]"
-    log_exception_prefix = "[VRM Add-on:EXCEPTION]"
-
-    github_private_partial_code_archive_path = (
-        Path(__file__).parent
-        / ".github"
-        / "vrm_addon_for_blender_private"
-        / ("_".join(map(str, bl_info["version"])) + ".tar.xz")
-    )
-    if not github_private_partial_code_archive_path.exists():
-        return
-
-    logger.warning(
-        "%s Extracting the partial add-on archive for "
-        "users who downloaded the add-on "
-        'using the "Code" > "Download ZIP" link on GitHub...',
-        log_warning_prefix,
-    )
-
-    with tarfile.open(github_private_partial_code_archive_path, "r:xz") as tar_xz:
-        # Will be replaced with tar_xz.extractall(..., filter="data")
-        base_path = Path(__file__).parent
-        for member in tar_xz.getmembers():
-            if ".." in member.path or not member.isfile():
-                continue
-
-            member_path = Path(member.path)
-            if member_path.is_absolute():
-                continue
-
-            file = tar_xz.extractfile(member)
-            if not file:
-                continue
-            with file, BytesIO() as output:
-                shutil.copyfileobj(file, output)
-                output_bytes = output.getvalue()
-
-            output_path = base_path / member_path
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_bytes(output_bytes)
-
-    try:
-        github_private_partial_code_archive_path.unlink()
-    except OSError:
-        logger.exception(
-            "%s Unable to remove the partial add-on archive: %s",
-            log_exception_prefix,
-            github_private_partial_code_archive_path,
-        )
-
-    logger.warning("%s ...OK", log_warning_prefix)
 
 
 class glTF2ImportUserExtension:
