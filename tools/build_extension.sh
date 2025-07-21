@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.."
 
 if [ ! -f blender.tar.xz ]; then
   blender_archive_url="https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.3-linux-x64.tar.xz"
-  curl --fail --location --show-error --retry 5 --retry-all-errors "$blender_archive_url" -o blender.tar.xz
+  curl --fail --show-error --location --retry 5 --retry-all-errors --output blender.tar.xz "$blender_archive_url"
   if [ "$(md5sum blender.tar.xz)" != "34fe4456252a703c39cb93efbfa84f8c  blender.tar.xz" ]; then
     echo "Hash mismatch"
     exit 1

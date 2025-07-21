@@ -103,7 +103,7 @@ jobs:
         env:
           BLENDER_ARCHIVE_URL: ${{ env.BLENDER_ARCHIVE_BASE_URL }}/${{ matrix.blender.archive_url_path }}
         run: |
-          curl -fsLS --retry 5 --retry-all-errors "$BLENDER_ARCHIVE_URL" -o blender.dmg
+          curl --fail --show-error --location --retry 5 --retry-all-errors --output blender.dmg "$BLENDER_ARCHIVE_URL"
       - name: Install dependencies
         run: |
           for retry in $(seq 5 -1 0); do
@@ -152,7 +152,7 @@ jobs:
         env:
           BLENDER_ARCHIVE_URL: ${{ env.BLENDER_ARCHIVE_BASE_URL }}/${{ matrix.blender.archive_url_path }}
         run: |
-          curl -fsLS --retry 5 --retry-all-errors "$BLENDER_ARCHIVE_URL" -o blender.tar.xz
+          curl --fail --show-error --location --retry 5 --retry-all-errors --output blender.tar.xz "$BLENDER_ARCHIVE_URL"
       - name: Install dependencies
         run: sudo ./tools/install_ubuntu_packages.sh
       - name: Test

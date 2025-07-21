@@ -93,10 +93,10 @@ if [ "$release_postfix" = "release" ]; then
   set +x # Hide the content of Authorization variables
   curl \
     --fail-with-body \
+    --show-error \
     --retry 5 \
     --retry-delay 60 \
     --retry-all-errors \
-    --show-error \
     --output blender_extensions_upload.log \
     --request POST \
     --header "Authorization:bearer $BLENDER_EXTENSIONS_TOKEN" \
