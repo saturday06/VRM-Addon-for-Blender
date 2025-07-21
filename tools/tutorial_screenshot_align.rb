@@ -55,5 +55,5 @@ crop_pad_image.composite!(image, Magick::NorthGravity, Magick::OverCompositeOp)
 # png
 zopflipng_input_path = input_path + ".tmp.png"
 crop_pad_image.write(zopflipng_input_path)
-system("zopflipng", "-my", zopflipng_input_path, input_path) or fail
+system("zopflipng", "-my", "--lossy_transparent", zopflipng_input_path, input_path) or fail
 FileUtils.rm(zopflipng_input_path)
