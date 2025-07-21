@@ -9,6 +9,8 @@ next:
   link: '../development'
 ---
 
+Pythonスクリプトを利用してVRM関連処理を自動化するサンプルです。
+
 ## VRMファイルのインポート
 
 ```python

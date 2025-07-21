@@ -9,6 +9,8 @@ next:
   link: '../development'
 ---
 
+A sample of automating VRM-related processes using a Python script.
+
 ## Importing VRM files
 
 ```python
