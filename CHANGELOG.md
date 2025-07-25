@@ -6,6 +6,7 @@
 ### 🐛 Bug Fixes
 
 * fix a bug that prevented VRM0 export under certain conditions ([f590a3e](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f590a3e302152c33c6b72b31442c3b23398b8940))
+* fix a crash due to circular access of shader nodes ([76c15d0](https://github.com/saturday06/VRM-Addon-for-Blender/commit/76c15d05000f6ce2453531650214fd17502c14f9))
 
 ## [3.9.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.9.0...v3.9.1) (2025-07-19)
 
