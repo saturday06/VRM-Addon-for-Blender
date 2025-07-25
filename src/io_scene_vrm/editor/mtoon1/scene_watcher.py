@@ -136,15 +136,9 @@ class OutlineUpdater(SceneWatcher):
                 ]
 
                 # Difference check
-                if (
-                    (material_slot_material := material_slot.material)
-                    and (
-                        material := blend_data.materials.get(
-                            material_slot_material.name
-                        )
-                    )
-                    and get_material_extension(material).mtoon1.enabled
-                ):
+                if (material := material_slot.material) and get_material_extension(
+                    material
+                ).mtoon1.get_enabled():
                     if (
                         not comparison_material
                         or comparison_material.name != material.name
