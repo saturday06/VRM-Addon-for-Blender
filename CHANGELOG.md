@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.9.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.9.1...v3.9.2) (2025-07-25)
+
+
+### 🐛 Bug Fixes
+
+* fix a bug that prevented VRM0 export under certain conditions ([f590a3e](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f590a3e302152c33c6b72b31442c3b23398b8940))
+
 ## [3.9.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.9.0...v3.9.1) (2025-07-19)
 
 
