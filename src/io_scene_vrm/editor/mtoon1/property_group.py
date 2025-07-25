@@ -1762,7 +1762,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
     def setup_drivers(self, material: Material) -> None:
         mtoon1 = get_material_mtoon1_extension(material)
-        if not mtoon1.get_enabled_in_material(material):
+        if not mtoon1.enabled:
             return
         node_tree = material.node_tree
         if not node_tree:
@@ -3334,10 +3334,11 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         type=Mtoon1MaterialExtensionsPropertyGroup
     )
 
-    def get_enabled_in_material(self, material: Material) -> bool:
+    def get_enabled(self) -> bool:
         if self.is_outline_material:
             return False
 
+        material = self.find_material()
         if not material.use_nodes:
             return False
 
@@ -3358,9 +3359,6 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
         return bool(self.get("enabled"))
 
-    def get_enabled(self) -> bool:
-        return self.get_enabled_in_material(self.find_material())
-
     def set_enabled(self, value: object) -> None:
         material = self.find_material()
 
@@ -3372,7 +3370,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
         if not material.use_nodes:
             material.use_nodes = True
-        if self.get_enabled():
+        if self.enabled:
             return
 
         ops.vrm.convert_material_to_mtoon1(material_name=material.name)

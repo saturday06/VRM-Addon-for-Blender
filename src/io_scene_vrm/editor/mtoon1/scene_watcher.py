@@ -143,9 +143,7 @@ class OutlineUpdater(SceneWatcher):
                             material_slot_material.name
                         )
                     )
-                    and get_material_extension(material).mtoon1.get_enabled_in_material(
-                        material
-                    )
+                    and get_material_extension(material).mtoon1.enabled
                 ):
                     if (
                         not comparison_material
