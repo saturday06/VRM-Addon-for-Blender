@@ -214,77 +214,15 @@ class NodeGroupSocketTarget(NodeSocketTarget):
 
 
 class MaterialTraceablePropertyGroup(PropertyGroup):
-    self_key_number_to_material_index_cache: Final[dict[int, int]] = {}
-    """Cache of numbers representing self and corresponding material indices.
-
-    Ideally, this would be a weak reference cache that can retrieve Material from
-    self. However, those are native objects, and caching them directly would be
-    very dangerous. Therefore, instead, this is a cache that can retrieve
-    material indices from numbers corresponding to self.
-    """
-
-    def match_material(
-        self, material: Material, material_property_chain: Sequence[str]
-    ) -> bool:
-        """Check if the material corresponds to self."""
-        property_group: object = get_material_mtoon1_extension(material)
-        for material_property in material_property_chain:
-            property_group = getattr(property_group, material_property, None)
-        return property_group == self
-
     def find_material(self) -> Material:
-        """Get the material corresponding to self.
+        id_data = self.id_data
+        if isinstance(id_data, Material):
+            return id_data
 
-        This method is called frequently, so pay attention to profiling results.
-        """
-        context = bpy.context
-
-        if self.id_data and self.id_data.is_evaluated:
-            logger.error("%s is evaluated. May cause a problem.", self)
-
-        material_property_chain = self.get_material_property_chain()
-
-        # Check if cache from previous execution of this function remains.
-        # Without cache, linear search would be required which is known to be slow,
-        # so attempt to cache and reuse results.
-        self_key_number = (
-            # Express the intention not to use the pointer directly
-            ~self.as_pointer() ^ 0x01234567_89ABCDEF
+        message = (
+            f"{type(self)}/{self}.id_data is not a {Material}"
+            + f" but {type(id_data)}/{id_data}"
         )
-        cached_material_index = self.self_key_number_to_material_index_cache.get(
-            self_key_number
-        )
-        if cached_material_index is not None:
-            # If cache remains, check if the cache is still valid
-            if (
-                0 <= cached_material_index < len(context.blend_data.materials)
-                and (
-                    cached_material := context.blend_data.materials[
-                        cached_material_index
-                    ]
-                )
-                and self.match_material(cached_material, material_property_chain)
-            ):
-                # If cache is valid, return the material obtained from cache
-                return cached_material
-            # If cache is invalid, there's a high possibility that all other caches
-            # are also invalid, so delete all caches.
-            self.self_key_number_to_material_index_cache.clear()
-
-        # If cache doesn't exist, search for self-corresponding material from the
-        # beginning of the material list. When found, save the material index to cache.
-        for material_index, material in enumerate(context.blend_data.materials):
-            if not material:
-                continue
-            if cached_material_index == material_index:
-                continue
-            if self.match_material(material, material_property_chain):
-                self.self_key_number_to_material_index_cache[self_key_number] = (
-                    material_index
-                )
-                return material
-
-        message = f"No matching material: {type(self)} {material_property_chain}"
         raise AssertionError(message)
 
     @classmethod
