@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-import functools
 import re
 import sys
 from collections.abc import Mapping, Sequence
@@ -238,13 +237,11 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
                 "Base material and outline material are same. name={material.name}"
             )
             return None
-        chain = self.path_from_id().split(".")
-        attr: object = outline_material
-        for name in chain:
-            attr = getattr(attr, name, None)
-        if isinstance(attr, MaterialTraceablePropertyGroup):
-            return attr
-        message = f"No matching property group: {type(self)}/{self} {chain}"
+        path_from_id = self.path_from_id()
+        property_group = outline_material.path_resolve(path_from_id, False)
+        if isinstance(property_group, MaterialTraceablePropertyGroup):
+            return property_group
+        message = f"No matching property group: {type(self)}/{self} {path_from_id}"
         raise AssertionError(message)
 
     def get_bool(
@@ -531,7 +528,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         if chain[-1:] == ["extensions"]:
             chain = chain[:-1]
         material = self.find_material()
-        property_group = functools.reduce(getattr, chain, material)
+        property_group = material.path_resolve(".".join(chain), False)
         if not isinstance(property_group, Mtoon1TextureInfoPropertyGroup):
             message = f"{property_group} is not a Mtoon1TextureInfoPropertyGroup"
             raise TypeError(message)
