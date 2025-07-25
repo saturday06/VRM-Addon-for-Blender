@@ -225,24 +225,8 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         )
         raise AssertionError(message)
 
-    @classmethod
-    def get_material_property_chain(cls) -> list[str]:
-        chain = convert.sequence_or_none(getattr(cls, "material_property_chain", None))
-        if chain is None:
-            message = f"No material property chain: {cls}.{type(chain)} => {chain}"
-            raise NotImplementedError(message)
-        result: list[str] = []
-        for property_name in chain:
-            if isinstance(property_name, str):
-                result.append(property_name)
-                continue
-            message = f"Invalid material property chain: {cls}.{type(chain)} => {chain}"
-            raise AssertionError(message)
-        return result
-
-    @classmethod
     def find_outline_property_group(
-        cls, material: Material
+        self, material: Material
     ) -> Optional["MaterialTraceablePropertyGroup"]:
         if get_material_mtoon1_extension(material).is_outline_material:
             return None
@@ -254,13 +238,13 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
                 "Base material and outline material are same. name={material.name}"
             )
             return None
-        chain = cls.get_material_property_chain()
-        attr: object = get_material_mtoon1_extension(outline_material)
+        chain = self.path_from_id().split(".")
+        attr: object = outline_material
         for name in chain:
             attr = getattr(attr, name, None)
         if isinstance(attr, MaterialTraceablePropertyGroup):
             return attr
-        message = f"No matching property group: {cls} {chain}"
+        message = f"No matching property group: {type(self)}/{self} {chain}"
         raise AssertionError(message)
 
     def get_bool(
@@ -537,7 +521,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
 
 class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
     def get_texture_info_property_group(self) -> "Mtoon1TextureInfoPropertyGroup":
-        chain = self.get_material_property_chain()
+        chain = self.path_from_id().split(".")
         if chain[-1:] == ["sampler"]:
             chain = chain[:-1]
         if chain[-1:] == ["index"]:
@@ -547,8 +531,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         if chain[-1:] == ["extensions"]:
             chain = chain[:-1]
         material = self.find_material()
-        ext = get_material_mtoon1_extension(material)
-        property_group = functools.reduce(getattr, chain, ext)
+        property_group = functools.reduce(getattr, chain, material)
         if not isinstance(property_group, Mtoon1TextureInfoPropertyGroup):
             message = f"{property_group} is not a Mtoon1TextureInfoPropertyGroup"
             raise TypeError(message)
@@ -967,93 +950,48 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
 class Mtoon1BaseColorKhrTextureTransformPropertyGroup(
     Mtoon1KhrTextureTransformPropertyGroup
 ):
-    material_property_chain = (
-        "pbr_metallic_roughness",
-        "base_color_texture",
-        "extensions",
-        "khr_texture_transform",
-    )
+    pass
 
 
 class Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup(
     Mtoon1KhrTextureTransformPropertyGroup
 ):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "shade_multiply_texture",
-        "extensions",
-        "khr_texture_transform",
-    )
+    pass
 
 
 class Mtoon1NormalKhrTextureTransformPropertyGroup(
     Mtoon1KhrTextureTransformPropertyGroup
 ):
-    material_property_chain = (
-        "normal_texture",
-        "extensions",
-        "khr_texture_transform",
-    )
+    pass
 
 
 class Mtoon1ShadingShiftKhrTextureTransformPropertyGroup(
     Mtoon1KhrTextureTransformPropertyGroup
 ):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "shading_shift_texture",
-        "extensions",
-        "khr_texture_transform",
-    )
+    pass
 
 
 class Mtoon1EmissiveKhrTextureTransformPropertyGroup(
     Mtoon1KhrTextureTransformPropertyGroup
 ):
-    material_property_chain = (
-        "emissive_texture",
-        "extensions",
-        "khr_texture_transform",
-    )
+    pass
 
 
 class Mtoon1RimMultiplyKhrTextureTransformPropertyGroup(
     Mtoon1KhrTextureTransformPropertyGroup
 ):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "rim_multiply_texture",
-        "extensions",
-        "khr_texture_transform",
-    )
+    pass
 
 
 class Mtoon1MatcapKhrTextureTransformPropertyGroup(
     Mtoon1KhrTextureTransformPropertyGroup
 ):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "matcap_texture",
-        "extensions",
-        "khr_texture_transform",
-    )
+    pass
 
 
 class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
     Mtoon1KhrTextureTransformPropertyGroup
 ):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "outline_width_multiply_texture",
-        "extensions",
-        "khr_texture_transform",
-    )
-
     def set_texture_offset_and_outline(self, value: object) -> None:
         offset = convert.float2_or_none(value)
         if offset is None:
@@ -1106,13 +1044,7 @@ class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
 class Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup(
     Mtoon1KhrTextureTransformPropertyGroup
 ):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "uv_animation_mask_texture",
-        "extensions",
-        "khr_texture_transform",
-    )
+    pass
 
 
 class Mtoon1TextureInfoExtensionsPropertyGroup(PropertyGroup):
@@ -1507,88 +1439,39 @@ class Mtoon1SamplerPropertyGroup(TextureTraceablePropertyGroup):
 
 
 class Mtoon1BaseColorSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
-    material_property_chain = (
-        "pbr_metallic_roughness",
-        "base_color_texture",
-        "index",
-        "sampler",
-    )
+    pass
 
 
 class Mtoon1ShadeMultiplySamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "shade_multiply_texture",
-        "index",
-        "sampler",
-    )
+    pass
 
 
 class Mtoon1NormalSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
-    material_property_chain = (
-        "normal_texture",
-        "index",
-        "sampler",
-    )
+    pass
 
 
 class Mtoon1ShadingShiftSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "shading_shift_texture",
-        "index",
-        "sampler",
-    )
+    pass
 
 
 class Mtoon1EmissiveSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
-    material_property_chain = (
-        "emissive_texture",
-        "index",
-        "sampler",
-    )
+    pass
 
 
 class Mtoon1RimMultiplySamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "rim_multiply_texture",
-        "index",
-        "sampler",
-    )
+    pass
 
 
 class Mtoon1MatcapSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "matcap_texture",
-        "index",
-        "sampler",
-    )
+    pass
 
 
 class Mtoon1OutlineWidthMultiplySamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "outline_width_multiply_texture",
-        "index",
-        "sampler",
-    )
+    pass
 
 
 class Mtoon1UvAnimationMaskSamplerPropertyGroup(Mtoon1SamplerPropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "uv_animation_mask_texture",
-        "index",
-        "sampler",
-    )
+    pass
 
 
 class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
@@ -1646,12 +1529,6 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
 
 
 class Mtoon1BaseColorTexturePropertyGroup(Mtoon1TexturePropertyGroup):
-    material_property_chain = (
-        "pbr_metallic_roughness",
-        "base_color_texture",
-        "index",
-    )
-
     label = "Lit Color, Alpha"
     panel_label = label
     colorspace = "sRGB"
@@ -1676,13 +1553,6 @@ class Mtoon1BaseColorTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
 
 class Mtoon1ShadeMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "shade_multiply_texture",
-        "index",
-    )
-
     label = "Shade Color"
     panel_label = label
     colorspace = "sRGB"
@@ -1698,11 +1568,6 @@ class Mtoon1ShadeMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
 
 class Mtoon1NormalTexturePropertyGroup(Mtoon1TexturePropertyGroup):
-    material_property_chain = (
-        "normal_texture",
-        "index",
-    )
-
     label = "Normal Map"
     panel_label = label
     colorspace = "Non-Color"
@@ -1718,13 +1583,6 @@ class Mtoon1NormalTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
 
 class Mtoon1ShadingShiftTexturePropertyGroup(Mtoon1TexturePropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "shading_shift_texture",
-        "index",
-    )
-
     label = "Additive Shading Shift"
     panel_label = label
     colorspace = "Non-Color"
@@ -1740,11 +1598,6 @@ class Mtoon1ShadingShiftTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
 
 class Mtoon1EmissiveTexturePropertyGroup(Mtoon1TexturePropertyGroup):
-    material_property_chain = (
-        "emissive_texture",
-        "index",
-    )
-
     label = "Emission"
     panel_label = label
     colorspace = "sRGB"
@@ -1760,13 +1613,6 @@ class Mtoon1EmissiveTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
 
 class Mtoon1RimMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "rim_multiply_texture",
-        "index",
-    )
-
     label = "Rim Color"
     panel_label = label
     colorspace = "sRGB"
@@ -1782,13 +1628,6 @@ class Mtoon1RimMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
 
 class Mtoon1MatcapTexturePropertyGroup(Mtoon1TexturePropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "matcap_texture",
-        "index",
-    )
-
     label = "Matcap Rim"
     panel_label = label
     colorspace = "sRGB"
@@ -1804,13 +1643,6 @@ class Mtoon1MatcapTexturePropertyGroup(Mtoon1TexturePropertyGroup):
 
 
 class Mtoon1OutlineWidthMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "outline_width_multiply_texture",
-        "index",
-    )
-
     label = "Outline Width"
     panel_label = label
     colorspace = "Non-Color"
@@ -1833,13 +1665,6 @@ class Mtoon1OutlineWidthMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup)
 
 
 class Mtoon1UvAnimationMaskTexturePropertyGroup(Mtoon1TexturePropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "uv_animation_mask_texture",
-        "index",
-    )
-
     label = "UV Animation Mask"
     panel_label = "Mask"
     colorspace = "Non-Color"
@@ -2053,11 +1878,6 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/textureInfo.schema.json
 class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    material_property_chain = (
-        "pbr_metallic_roughness",
-        "base_color_texture",
-    )
-
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -2093,12 +1913,6 @@ class Mtoon1BaseColorTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 
 class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "shade_multiply_texture",
-    )
-
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -2126,8 +1940,6 @@ class Mtoon1ShadeMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/material.normalTextureInfo.schema.json
 class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    material_property_chain = ("normal_texture",)
-
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -2193,12 +2005,6 @@ class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/c5d1afdc4d59c292cb4fd6d54cad1dc0c4d19c60/specification/VRMC_materials_mtoon-1.0/schema/mtoon.shadingShiftTexture.schema.json
 class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "shading_shift_texture",
-    )
-
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -2249,8 +2055,6 @@ class Mtoon1ShadingShiftTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup)
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/textureInfo.schema.json
 class Mtoon1EmissiveTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    material_property_chain = ("emissive_texture",)
-
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -2281,12 +2085,6 @@ class Mtoon1EmissiveTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 
 class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "rim_multiply_texture",
-    )
-
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -2313,12 +2111,6 @@ class Mtoon1RimMultiplyTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 
 
 class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "matcap_texture",
-    )
-
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -2347,12 +2139,6 @@ class Mtoon1MatcapTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
 class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
     Mtoon1TextureInfoPropertyGroup
 ):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "outline_width_multiply_texture",
-    )
-
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -2379,12 +2165,6 @@ class Mtoon1OutlineWidthMultiplyTextureInfoPropertyGroup(
 
 
 class Mtoon1UvAnimationMaskTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "vrmc_materials_mtoon",
-        "uv_animation_mask_texture",
-    )
-
     node_socket_targets: Mapping[str, Sequence[NodeSocketTarget]] = {
         TEX_IMAGE_COLOR_OUTPUT_KEY: [
             NodeGroupSocketTarget(
@@ -2482,8 +2262,6 @@ class Mtoon0ShadingGradeTexturePropertyGroup(Mtoon0TexturePropertyGroup):
 
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/material.pbrMetallicRoughness.schema.json#L9-L26
 class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
-    material_property_chain = ("pbr_metallic_roughness",)
-
     def get_base_color_factor(self) -> tuple[float, float, float, float]:
         rgb = self.get_rgb(
             shader.OUTPUT_GROUP_NAME,
@@ -2557,8 +2335,6 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
 
 
 class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
-    material_property_chain = ("extensions", "vrmc_materials_mtoon")
-
     def get_transparent_with_z_write(self) -> bool:
         return self.get_bool(
             shader.OUTPUT_GROUP_NAME,
@@ -3114,11 +2890,6 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
 # https://github.com/KhronosGroup/glTF/blob/d997b7dc7e426bc791f5613475f5b4490da0b099/extensions/2.0/Khronos/KHR_materials_emissive_strength/schema/glTF.KHR_materials_emissive_strength.schema.json
 class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyGroup):
-    material_property_chain = (
-        "extensions",
-        "khr_materials_emissive_strength",
-    )
-
     def get_emissive_strength(self) -> float:
         return self.get_float(
             shader.OUTPUT_GROUP_NAME,
@@ -3197,8 +2968,6 @@ class Mtoon1MaterialExtensionsPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/8dc51ec7241be27ee95f159cefc0190a0e41967b/specification/VRMC_materials_mtoon-1.0-beta/schema/VRMC_materials_mtoon.schema.json
 class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
-    material_property_chain: tuple[str, ...] = ()
-
     INITIAL_ADDON_VERSION = VrmAddonPreferences.INITIAL_ADDON_VERSION
 
     addon_version: IntVectorProperty(  # type: ignore[valid-type]
