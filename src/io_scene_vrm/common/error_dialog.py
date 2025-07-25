@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
+import contextlib
 import getpass
 import platform
+import sys
 import sysconfig
 from collections.abc import Sequence
 from collections.abc import Set as AbstractSet
@@ -49,13 +51,27 @@ def show_error_dialog(
         if lines:
             lines[0] = f"Python: {lines[0]}"
 
-        runtime_platform = platform.system() + " " + platform.machine()
+        os_name = None
+        if platform.system() == "Linux" and sys.version_info >= (3, 10):
+            # https://github.com/python/cpython/blob/v3.10.18/Doc/library/platform.rst?plain=1#L271-L272
+            with contextlib.suppress(OSError):
+                os_name = platform.freedesktop_os_release().get("PRETTY_NAME")
+        if not os_name:
+            os_name = platform.system()
+
+        python_version = (
+            platform.python_implementation()
+            + " "
+            + ".".join(map(str, sys.version_info))
+        )
+        runtime_platform = os_name + " " + platform.machine()
         build_platform = sysconfig.get_platform()
         lines.insert(
             0,
-            "Environment: Blender {} / VRM Add-on {} / {} ({})".format(
+            "Environment: Blender {} / VRM Add-on {} / {} / {} ({})".format(
                 bpy.app.version_string,
                 ".".join(map(str, get_addon_version())),
+                python_version,
                 runtime_platform,
                 build_platform,
             ),
