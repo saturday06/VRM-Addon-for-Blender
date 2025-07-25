@@ -1,5 +1,44 @@
 # Changelog
 
+## [3.10.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.9.2...v3.10.0) (2025-07-25)
+
+
+### 🚀 Features
+
+* add option to automatically include MToon shader node group ([b994b59](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b994b5904be59e57c26451788ab6864bdd163534))
+* add restore mesh assignments functionality ([f72ca66](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f72ca66782cdda0d8e6cbe8107e4de63961f68ce))
+* automatic application of modifiers when exporting VRM1 ([3e0b562](https://github.com/saturday06/VRM-Addon-for-Blender/commit/3e0b56240b4167bfa5d582fe23df0c470b142595))
+* human bone assignment diagnostics ([7f2eebd](https://github.com/saturday06/VRM-Addon-for-Blender/commit/7f2eebdbc20d1a61a321e18d2ccd2ae48f4a4c17))
+* implemented a dialog that displays errors during import and export ([2fd7e6f](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2fd7e6f2b7b9a51052979801da97cd8eeddaa0d0))
+* support blender 4.5 ([4da6719](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4da67198e824afb58e0fab73b5129a5f25e6375a))
+* VRM Animation input and output are now as similar as possible to UniVRM ([75ebc21](https://github.com/saturday06/VRM-Addon-for-Blender/commit/75ebc2177a49166d84a37f978595583e51597314))
+* warn unsupported parenting ([0d8b8bd](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0d8b8bd457747be31efc52091b10fbdc78074c3a))
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update dependency @anthropic-ai/claude-code to v1.0.34 ([#928](https://github.com/saturday06/VRM-Addon-for-Blender/issues/928)) ([f4a4e16](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f4a4e1657fa74c4f4004ebb6beb88a299d1f4a83))
+* don't create gltf scene collections by default in blender 4.5 beta ([af4a971](https://github.com/saturday06/VRM-Addon-for-Blender/commit/af4a9712f934a885648f93dd8e130deda86b4162))
+* fix a bug that prevented VRM0 export under certain conditions ([f590a3e](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f590a3e302152c33c6b72b31442c3b23398b8940))
+* fix empty list's button alignment ([fb6016c](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fb6016c8bca3ef03f8cf13ecbaacd14ec0f4e55d))
+* fix invalid partial humanoid bone animation export ([a616799](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a6167996833c6c577f7d06abb4d9151641dab3e5))
+* fix invalid spring joint ordering on export under certain conditions ([5814740](https://github.com/saturday06/VRM-Addon-for-Blender/commit/5814740e168e1475721d317b1f8203a8bbfa75b1))
+* fix invalid spring json output on export under certain conditions ([597c323](https://github.com/saturday06/VRM-Addon-for-Blender/commit/597c3232544e3635a3a361e8f6b64f136695e5e2))
+* fix possible index error on export VRM0 ([c61bfea](https://github.com/saturday06/VRM-Addon-for-Blender/commit/c61bfeac8818c46214f4515444fe140922007972))
+* fix reference counter evaluation ([d636f92](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d636f92fcf420e7ad63a40c20f1c743d976eb0db))
+* fix resource leak on export ([4dea36a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4dea36a749abc6dde06aee81a24bf65192b61233))
+* fixed a bug in Blender 4.5 that caused temporary objects to remain on import ([1980f84](https://github.com/saturday06/VRM-Addon-for-Blender/commit/1980f841485020c7eddd9e024df687f203ddae6b))
+* fixed a bug that KHR_materials_emissive_strength was not read when importing VRM1 ([5549c58](https://github.com/saturday06/VRM-Addon-for-Blender/commit/5549c5877735b93a2ef5c19aebe97b6507c35d76))
+* fixed a bug where the parent of the spring bone1 collider was not updated ([ae45306](https://github.com/saturday06/VRM-Addon-for-Blender/commit/ae45306c2e5f3c9230a27e6d72443561b3547425))
+* MatCap display now matches UniVRM ([19b944b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/19b944bb595d9af9c301906b049456258ee975d4))
+* Mesh Assignment -&gt; Shape Key Assignment ([9da9694](https://github.com/saturday06/VRM-Addon-for-Blender/commit/9da969408bbbdd88e550b60f2fc5731da79506c0))
+* prevent mesh duplication on export ([45d8943](https://github.com/saturday06/VRM-Addon-for-Blender/commit/45d894307a957fbcd2fff596b2c329409f79819e))
+
+
+### 📝 Documentation
+
+* cleanup links ([668e31b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/668e31b2a689cb1d01c1c10e8272510a341714ac))
+
 ## [3.9.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.9.1...v3.9.2) (2025-07-25)
 
 
