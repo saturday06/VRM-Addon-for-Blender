@@ -2596,7 +2596,11 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
                 if joint is None:
                     message = "No fallback bone index found"
-                    raise ValueError(message)
+                    if not skin_joints:
+                        raise ValueError(message)
+                    logger.error(message)
+                    joint = skin_joints[0]
+
                 weights = (1.0, 0, 0, 0)
                 joints = (joint, 0, 0, 0)
             else:
@@ -2702,7 +2706,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         if obj.type not in MESH_CONVERTIBLE_OBJECT_TYPES:
             return None
 
-        have_skin = self.have_skin(obj)
+        have_skin = bool(skin_joints) and self.have_skin(obj)
 
         node_index = len(node_dicts)
         node_dict: dict[str, Json] = {
