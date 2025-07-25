@@ -27,7 +27,6 @@ jobs:
       - uses: googleapis/release-please-action@v4
         id: release
         with:
-          target-branch: main
           # Normally, skip-github-pull-request should remain false.
           # However, in this repository's workflow, release-please-action cannot detect
           # when release-pr is merged, so an unnecessary release-pr with just a version
@@ -38,8 +37,6 @@ jobs:
           skip-github-pull-request: true
       - uses: googleapis/release-please-action@v4
         if: ${{ !steps.release.outputs.release_created }}
-        with:
-          target-branch: main
 
   upload-release-archive:
     runs-on: ubuntu-24.04
