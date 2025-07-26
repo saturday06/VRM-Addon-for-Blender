@@ -165,7 +165,7 @@ function Get-HidpiScaleFactor {
     [ref]$hidpiScaleFactorPercentage
   )
   $hidpiScaleFactor = $hidpiScaleFactorPercentage / 100.0
-  return $hidpiScaleFactor
+  return 1.0
 }
 
 function Get-Password {
