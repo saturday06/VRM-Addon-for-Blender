@@ -68,7 +68,7 @@ from .editor.vrm1 import property_group as vrm1_property_group
 from .editor.vrm1 import ui_list as vrm1_ui_list
 from .exporter import export_scene
 from .external import io_scene_gltf2_support
-from .importer import file_handler, import_scene
+from .importer import import_scene
 from .locale.translation_dictionary import translation_dictionary
 
 logger = get_logger(__name__)
@@ -451,8 +451,6 @@ classes: list[
     import_scene.IMPORT_SCENE_OT_vrm,
     import_scene.IMPORT_SCENE_OT_vrma,
     import_scene.VRM_PT_import_unsupported_blender_version_warning,
-    file_handler.VRM_OT_import_vrm_via_file_handler,
-    file_handler.VRM_OT_import_vrma_via_file_handler,
     preferences.VrmAddonPreferences,
     extension.VrmAddonArmatureExtensionPropertyGroup,
     extension.VrmAddonBoneExtensionPropertyGroup,
@@ -462,8 +460,12 @@ classes: list[
     extension.VrmAddonNodeTreeExtensionPropertyGroup,
 ]
 if bpy.app.version >= (4, 1):
+    from .importer import file_handler
+
     classes.extend(
         [
+            file_handler.VRM_OT_import_vrm_via_file_handler,
+            file_handler.VRM_OT_import_vrma_via_file_handler,
             file_handler.VRM_FH_vrm_import,
             file_handler.VRM_FH_vrma_import,
         ]

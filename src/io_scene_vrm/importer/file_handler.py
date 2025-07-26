@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from typing import TYPE_CHECKING
 
-import bpy
 from bpy.props import StringProperty
-from bpy.types import Context, Event, Operator
+from bpy.types import Context, Event, FileHandler, Operator
 
 from ..common import ops
 
@@ -58,29 +57,27 @@ class VRM_OT_import_vrma_via_file_handler(Operator):
         filepath: str  # type: ignore[no-redef]
 
 
-if bpy.app.version >= (4, 1, 0):
-    from bpy.types import FileHandler
+class VRM_FH_vrm_import(FileHandler):
+    bl_idname = "VRM_FH_vrm_import"
+    bl_label = "Import VRM"
+    bl_import_operator = "vrm.import_vrm_via_file_handler"
+    bl_export_operator = "export_scene.vrm"
+    bl_file_extensions = ".vrm"
 
-    class VRM_FH_vrm_import(FileHandler):
-        bl_idname = "VRM_FH_vrm_import"
-        bl_label = "Import VRM"
-        bl_import_operator = "vrm.import_vrm_via_file_handler"
-        bl_export_operator = "export_scene.vrm"
-        bl_file_extensions = ".vrm"
+    @classmethod
+    def poll_drop(cls, context: Context) -> bool:
+        _ = context
+        return True
 
-        @classmethod
-        def poll_drop(cls, context: Context) -> bool:
-            _ = context
-            return True
 
-    class VRM_FH_vrma_import(FileHandler):
-        bl_idname = "VRM_FH_vrma_import"
-        bl_label = "Import VRMA"
-        bl_import_operator = "vrm.import_vrma_via_file_handler"
-        bl_export_operator = "export_scene.vrma"
-        bl_file_extensions = ".vrma"
+class VRM_FH_vrma_import(FileHandler):
+    bl_idname = "VRM_FH_vrma_import"
+    bl_label = "Import VRMA"
+    bl_import_operator = "vrm.import_vrma_via_file_handler"
+    bl_export_operator = "export_scene.vrma"
+    bl_file_extensions = ".vrma"
 
-        @classmethod
-        def poll_drop(cls, context: Context) -> bool:
-            _ = context
-            return True
+    @classmethod
+    def poll_drop(cls, context: Context) -> bool:
+        _ = context
+        return True
