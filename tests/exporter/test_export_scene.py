@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
 import functools
+import json
 import shutil
 import sys
 from os import environ
@@ -8,8 +9,9 @@ from pathlib import Path
 
 import bpy
 
-from io_scene_vrm.common import ops
+from io_scene_vrm.common import deep, ops
 from io_scene_vrm.common.logger import get_logger
+from io_scene_vrm.common.preferences import get_preferences
 from io_scene_vrm.common.test_helper import AddonTestCase
 from io_scene_vrm.importer.vrm_diff import vrm_diff
 
@@ -34,6 +36,26 @@ class __TestBlendExportBase(AddonTestCase):
         environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
         update_failed_vrm = environ.get("BLENDER_VRM_TEST_UPDATE_FAILED_VRM") == "true"
         enable_second_export = not environ.get("BLENDER_VRM_TEST_RESOURCES_PATH")
+
+        preferences = get_preferences(context)
+        additional_preferences_path = blend_path.with_name(blend_path.name + ".json")
+
+        use_addon_preferences = False
+        if additional_preferences_path.exists() and isinstance(
+            additional_preferences := deep.make_json(
+                json.loads(additional_preferences_path.read_text())
+            ),
+            dict,
+        ):
+            use_addon_preferences = True
+
+            if isinstance(
+                enable_advanced_preferences := additional_preferences.get(
+                    "enable_advanced_preferences"
+                ),
+                bool,
+            ):
+                preferences.enable_advanced_preferences = enable_advanced_preferences
 
         if blend_path.name.endswith(".merge.blend"):
             blend_path = blend_path.with_suffix("").with_suffix(".blend")
@@ -70,7 +92,13 @@ class __TestBlendExportBase(AddonTestCase):
             material.name for material in context.blend_data.materials
         ]
 
-        self.assertEqual(ops.export_scene.vrm(filepath=str(actual_path)), {"FINISHED"})
+        self.assertEqual(
+            ops.export_scene.vrm(
+                filepath=str(actual_path),
+                use_addon_preferences=use_addon_preferences,
+            ),
+            {"FINISHED"},
+        )
 
         post_object_names = [obj.name for obj in context.blend_data.objects]
         post_mesh_names = [mesh.name for mesh in context.blend_data.meshes]
@@ -87,7 +115,11 @@ class __TestBlendExportBase(AddonTestCase):
 
         if enable_second_export:
             self.assertEqual(
-                ops.export_scene.vrm(filepath=str(actual_second_path)), {"FINISHED"}
+                ops.export_scene.vrm(
+                    filepath=str(actual_second_path),
+                    use_addon_preferences=use_addon_preferences,
+                ),
+                {"FINISHED"},
             )
 
         if not expected_path.exists():
