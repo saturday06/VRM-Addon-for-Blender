@@ -22,7 +22,6 @@ root = ["src"]
 [tool.uv]
 dev-dependencies = [
   "codespell ==2.4.1",
-  "mypy ==1.17.0",
   "pygit2 ==1.18.0",
   "pyrefly ==0.24.2",
   "requests ==2.32.4",
@@ -131,12 +130,8 @@ max-statements = 550
 ignore-regex = ".* # codespell-ignore"
 
 [tool.mypy]
-python_version = "3.9" # It overrides 'project.requires-python = "== 3.10.*"'
-mypy_path = "$MYPY_CONFIG_FILE_DIR/typings:$MYPY_CONFIG_FILE_DIR/src"
-strict = true
-disallow_any_unimported = true
-disallow_any_decorated = true
-disallow_any_explicit = true
+exclude = ['.']
+ignore_errors = true # Please use pyright instead.
 
 [tool.black]
 extend-exclude = ".*" # Please use Ruff instead.

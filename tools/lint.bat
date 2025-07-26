@@ -18,10 +18,6 @@ echo ### codespell ###
 call uv run codespell %py_files%
 if %errorlevel% neq 0 goto :error
 
-echo ### mypy ###
-call uv run mypy --show-error-codes .
-if %errorlevel% neq 0 goto :error
-
 echo ### deno ###
 where deno > nul
 if %errorlevel% neq 0 (
