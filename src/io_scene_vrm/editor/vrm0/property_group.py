@@ -946,8 +946,8 @@ class Vrm0MetaPropertyGroup(PropertyGroup):
         ("CC_BY_NC", "CC BY NC", "", "NONE", 3),
         ("CC_BY_SA", "CC BY SA", "", "NONE", 4),
         ("CC_BY_NC_SA", "CC BY NC SA", "", "NONE", 5),
-        ("CC_BY_ND", "CC BY ND", "", "NONE", 6),  # codespell-ignore
-        ("CC_BY_NC_ND", "CC BY NC ND", "", "NONE", 7),  # codespell-ignore
+        ("CC_BY_ND", "CC BY ND", "", "NONE", 6),  # codespell:ignore nd
+        ("CC_BY_NC_ND", "CC BY NC ND", "", "NONE", 7),  # codespell:ignore nd
         ("Other", "Other", "", "NONE", 8),
     )
 

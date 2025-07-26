@@ -126,9 +126,6 @@ max-branches = 214
 max-returns = 25
 max-statements = 550
 
-[tool.codespell]
-ignore-regex = ".* # codespell-ignore"
-
 [tool.mypy]
 exclude = ['.']
 ignore_errors = true # Please use pyright instead.
