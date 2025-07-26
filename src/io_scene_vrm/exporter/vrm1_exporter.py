@@ -109,10 +109,6 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             export_preferences.enable_advanced_preferences
             and export_preferences.export_try_sparse_sk
         )
-        self.always_export_active_vertex_color = (
-            export_preferences.enable_advanced_preferences
-            and export_preferences.always_export_active_vertex_color
-        )
 
         self.extras_main_armature_key = (
             INTERNAL_NAME_PREFIX + self.export_id + "MainArmature"
@@ -2657,9 +2653,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         # TODO: Expose UI Option, Unity allows light export
                         export_lights=self.export_lights,
                         export_try_sparse_sk=self.export_try_sparse_sk,
-                        export_vertex_color="ACTIVE"
-                        if self.always_export_active_vertex_color
-                        else "MATERIAL",
+                        export_vertex_color="MATERIAL",
                     )
                 )
                 if export_scene_gltf_result == {"CANCELLED"}:

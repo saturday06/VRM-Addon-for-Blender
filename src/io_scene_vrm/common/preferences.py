@@ -2,7 +2,6 @@
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Protocol, TypedDict, Union
 
-import bpy
 from bpy.app.translations import pgettext
 from bpy.props import BoolProperty, IntVectorProperty
 from bpy.types import AddonPreferences, Context, Operator, UILayout
@@ -110,7 +109,6 @@ class ExportPreferencesProtocol(Protocol):
     export_lights: bool
     export_gltf_animations: bool
     export_try_sparse_sk: bool
-    always_export_active_vertex_color: bool
 
 
 def copy_export_preferences(
@@ -124,7 +122,6 @@ def copy_export_preferences(
         destination.export_lights,
         destination.export_gltf_animations,
         destination.export_try_sparse_sk,
-        destination.always_export_active_vertex_color,
     ) = (
         source.export_invisibles,
         source.export_only_selections,
@@ -133,7 +130,6 @@ def copy_export_preferences(
         source.export_lights,
         source.export_gltf_animations,
         source.export_try_sparse_sk,
-        source.always_export_active_vertex_color,
     )
 
 
@@ -224,20 +220,6 @@ def draw_export_preferences_layout(
         ),
     )
 
-    if tuple(bpy.app.version) >= (4, 2):
-        draw_advanced_options_description(
-            preferences,
-            "always_export_active_vertex_color",
-            advanced_options_column,
-            pgettext(
-                "By default, vertex color is\n"
-                + "only exported when used by\n"
-                + "material. Enable this option only\n"
-                + "when vertex color is always\n"
-                + "required for special purposes."
-            ),
-        )
-
 
 class VrmAddonPreferences(AddonPreferences):
     bl_idname = addon_package_name
@@ -316,9 +298,6 @@ class VrmAddonPreferences(AddonPreferences):
     export_try_sparse_sk: BoolProperty(  # type: ignore[valid-type]
         name="Use Sparse Accessors",
     )
-    always_export_active_vertex_color: BoolProperty(  # type: ignore[valid-type]
-        name="Always Export Vertex Color",
-    )
 
     def draw(self, _context: Context) -> None:
         layout = self.layout
@@ -364,7 +343,6 @@ class VrmAddonPreferences(AddonPreferences):
         export_lights: bool  # type: ignore[no-redef]
         export_gltf_animations: bool  # type: ignore[no-redef]
         export_try_sparse_sk: bool  # type: ignore[no-redef]
-        always_export_active_vertex_color: bool  # type: ignore[no-redef]
 
 
 def get_preferences(context: Context) -> VrmAddonPreferences:
