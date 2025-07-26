@@ -11,7 +11,7 @@ for /f "usebackq" %%i in (
 set super_linter_tag_name="super-linter-local-windows-%pwd_hash%"
 
 docker build --platform=linux/amd64 --tag "%super_linter_tag_name%" --file tools/super-linter.dockerfile .
-docker run -v "%cd%:/tmp/lint" "%super_linter_tag_name%"
+docker run --rm -v "%cd%:/tmp/lint" "%super_linter_tag_name%"
 
 endlocal
 exit /b
