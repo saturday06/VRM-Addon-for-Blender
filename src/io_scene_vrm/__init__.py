@@ -3,9 +3,7 @@
 
 #
 #
-# - Please avoid importing anything in the global scope to minimize initialization and
-#   support unzipping the partial add-on archive for users who downloaded the add-on
-#   from "Code" -> "Download ZIP" on GitHub.
+# - Please avoid importing anything in the global scope to minimize initialization.
 # - Ensure this script works with Blender 2.79.
 #   ruff: noqa: UP032
 #
@@ -37,8 +35,7 @@ def register() -> None:
     if "bl_info" in globals():
         raise_error_if_too_old_blender()
 
-    # Lazy import to minimize initialization before blender version checking and
-    # support unzipping the partial add-on archive.
+    # Lazy import to minimize initialization before blender version checking.
     try:
         from . import registration
 
