@@ -104,7 +104,10 @@ def raise_error_if_too_new_blender(exception: object) -> None:
 
 
 def raise_not_implemented_error(
-    *, exception: object = None, default_message: str, ja_jp_message: str
+    *,
+    exception: object = None,
+    default_message: str,
+    ja_jp_message: str,
 ) -> None:
     import bpy
 
