@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.9.2...v3.10.0) (2025-07-26)
+
+
+### 🚀 Features
+
+* added setting to always export vertex colors in VRM1 ([e73e617](https://github.com/saturday06/VRM-Addon-for-Blender/commit/e73e6177b427287a854f99cd888f9d543dcb28d6))
+
 ## [3.9.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.9.1...v3.9.2) (2025-07-25)
 
 
