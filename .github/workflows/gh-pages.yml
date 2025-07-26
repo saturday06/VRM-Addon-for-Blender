@@ -41,7 +41,7 @@ jobs:
             --location \
             --output releases_latest.json \
             --header "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest"; then
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest"; then
 
             if [ "$GITHUB_REPOSITORY_OWNER" != "saturday06" ]; then
               exit 0
