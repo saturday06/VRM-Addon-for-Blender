@@ -60,7 +60,7 @@ class VRM_OT_import_vrma_via_file_handler(Operator):
 class VRM_FH_vrm_import(FileHandler):
     bl_idname = "VRM_FH_vrm_import"
     bl_label = "Import VRM"
-    bl_import_operator = "vrm.import_vrm_via_file_handler"
+    bl_import_operator = VRM_OT_import_vrm_via_file_handler.bl_idname
     bl_export_operator = "export_scene.vrm"
     bl_file_extensions = ".vrm"
 
@@ -73,7 +73,7 @@ class VRM_FH_vrm_import(FileHandler):
 class VRM_FH_vrma_import(FileHandler):
     bl_idname = "VRM_FH_vrma_import"
     bl_label = "Import VRMA"
-    bl_import_operator = "vrm.import_vrma_via_file_handler"
+    bl_import_operator = VRM_OT_import_vrma_via_file_handler.bl_idname
     bl_export_operator = "export_scene.vrma"
     bl_file_extensions = ".vrma"
 
