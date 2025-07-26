@@ -1,0 +1,8 @@
+{
+  "rdp_width": 1800,
+  "rdp_port": 25389,
+  "rdp_height": 960,
+  "rdp_fullscreen": false,
+  "tag_name": "screenshot-en-us",
+  "container_name": "screenshot-en-us-container"
+}
