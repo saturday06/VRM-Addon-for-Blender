@@ -37,6 +37,21 @@ jobs:
           rm deno.lock
 
           deno cache . --allow-scripts
+          if deno outdated --update --latest; then
+            exit 0
+          fi
+
+          # Retrying deno v2.4.2 with the following error
+          # -----
+          # error: failed reading lockfile '/home/runner/work/VRM-Addon-for-Blender/VRM-Addon-for-Blender/deno.lock'
+          #
+          # Caused by:
+          #     0: The lockfile is corrupt. Remove the lockfile to regenerate it.
+          #     1: Could not find 'rollup@4.45.3' in the list of packages.
+          # Error: Process completed with exit code 1.
+          cat deno.lock || true
+          rm -f deno.lock
+          deno cache . --allow-scripts
           deno outdated --update --latest
       - name: Create PR
         run: |
