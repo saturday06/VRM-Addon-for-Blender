@@ -24,6 +24,8 @@
   /* Display adjustment for foo_icon.png */
   display: inline;
   vertical-align: middle;
+
+  border: 2px solid #444;
 }
 
 .vp-doc img[src$=".gif"], .vp-doc img[src^="data:image/gif;"] {
