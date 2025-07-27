@@ -11,6 +11,7 @@
   "updateContentCommand": "./tools/devcontainer_update_content_command.sh",
   "postAttachCommand": "./tools/devcontainer_post_attach_command.sh",
   "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/common-utils:2": {}
   },
   "workspaceFolder": "/workspace",
