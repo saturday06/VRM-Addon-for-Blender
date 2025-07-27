@@ -415,13 +415,26 @@ function Start-AiSandbox {
     $sharedWorkspacePath = [System.IO.Path]::ChangeExtension($ConfigPath, ".shared")
     New-Item -Path $sharedWorkspacePath -ItemType Directory -Force
 
+    $dockerRunArgs = @()
+
     docker run --rm --gpus=all busybox true
     if ($?) {
-      docker run --detach --volume "${sharedWorkspacePath}:/home/developer/Desktop/SharedFolder" --publish "127.0.0.1:${rdpPort}:3389/tcp" --name $containerName --hostname $hostName --gpus=all $tagName
+      $dockerRunArgs += "--gpus=all"
     }
-    else {
-      docker run --detach --volume "${sharedWorkspacePath}:/home/developer/Desktop/SharedFolder" --publish "127.0.0.1:${rdpPort}:3389/tcp" --name $containerName --hostname $hostName $tagName
-    }
+
+    $dockerRunArgs += @(
+      "--detach"
+      "--volume"
+      "${sharedWorkspacePath}:/home/developer/Desktop/SharedFolder"
+      "--publish"
+      "127.0.0.1:${rdpPort}:3389/tcp"
+      "--name"
+      $containerName
+      "--hostname"
+      $hostName
+      $tagName
+    )
+    docker run @dockerRunArgs
   }
 
   $rdpReady = $False
@@ -786,8 +799,9 @@ RUN <<'SETUP_USER'
   set -eu
   userdel -r ubuntu
   useradd --create-home --user-group --shell /bin/bash "$user_name"
+  mkdir -p "/home/${user_name}/Desktop/SharedFolder"
+  chown -R "${user_name}:${user_name}" "/home/${user_name}"
   echo "${user_name} ALL=(root) NOPASSWD:ALL" | tee "/etc/sudoers.d/${user_name}"
-  mkdir -p /workspace
   echo "${user_name}:$(openssl rand -hex 255)" | chpasswd
   xdg_runtime_dir="/run/user/$(id -u "$user_name")"
   mkdir -p "$xdg_runtime_dir"
@@ -1003,7 +1017,7 @@ PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
   kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key BorderSize Tiny
   kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key BorderSizeAuto false
 
-  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp', 'xkb:us::eng']"
+  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general preload-engines "['xkb:us::eng', 'mozc-jp']"
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general.hotkey triggers "['<Super>space', '<Alt>grave', '<Alt>Kanji', '<Alt>Zenkaku_Hankaku']"
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general use-system-keyboard-layout false
   xvfb-run --auto-servernum gsettings set org.gnome.desktop.interface text-scaling-factor "$hidpi_scale_factor"
@@ -1016,6 +1030,13 @@ PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
 
   # https://github.com/Schniz/fnm/blob/v1.38.1/README.md?plain=1#L25
   curl --fail --show-error --location --retry 5 --retry-all-errors https://fnm.vercel.app/install | bash
+
+  curl --fail --show-error --location --retry 5 --retry-all-errors --output blender.tar.xz https://download.blender.org/release/Blender4.2/blender-4.2.12-linux-x64.tar.xz
+  mkdir -p ~/.local/blender ~/.config/autostart
+  tar -C ~/.local/blender --strip-components 1 -xf blender.tar.xz
+  ln -s ~/.local/blender/blender ~/.local/bin/blender
+  cp ~/.local/blender/blender.desktop ~/.local/share/applications/blender.desktop
+  cp ~/.local/blender/blender.desktop ~/.config/autostart/blender.desktop
 SETUP_USER_LOCAL_ENVIRONMENT
 
 # ユーザーをrootにする。これは、entrypointでxrdpやdbus-daemonをrootで起動したいため。
