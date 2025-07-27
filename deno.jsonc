@@ -7,9 +7,9 @@
     "CHANGELOG.md"
   ],
   "tasks": {
-    "docs:build": "deno        run --allow-env --allow-ffi             --allow-read --allow-run --allow-sys --allow-write                         npm:vitepress build docs",
-    "docs:dev": "deno          run --allow-env --allow-ffi --allow-net --allow-read --allow-run --allow-sys --allow-write                         npm:vitepress dev docs",
-    "docs:preview": "deno      run --allow-env --allow-ffi --allow-net --allow-read --allow-run --allow-sys --allow-write                         npm:vitepress preview docs",
+    "docs:build": "deno        run --allow-env --allow-ffi             --allow-read --allow-run --allow-sys --allow-write                         vitepress build docs",
+    "docs:dev": "deno          run --allow-env --allow-ffi --allow-net --allow-read --allow-run --allow-sys --allow-write                         vitepress dev docs",
+    "docs:preview": "deno      run --allow-env --allow-ffi --allow-net --allow-read --allow-run --allow-sys --allow-write                         vitepress preview docs",
     "pyright": "uv run -- deno run --allow-env --allow-ffi             --allow-read --allow-run --allow-sys --allow-write --unstable-node-globals ./tools/pyright.cts --warnings",
     "update-changelog": "deno  run --allow-env             --allow-net                                      --allow-write                         ./tools/update_changelog.ts saturday06/VRM-Addon-for-Blender",
     "vrm-validator": "deno     run --allow-env                         --allow-read                                                               ./tools/vrm_validator.ts"
@@ -18,6 +18,9 @@
   // https://github.com/denoland/deno/issues/20609#issuecomment-2762970307
   "nodeModulesDir": "auto",
   "imports": {
+    "@octokit/rest": "npm:@octokit/rest@22.0.0",
+    "@octokit/types": "npm:@octokit/types@14.1.0",
+    "gltf-validator": "npm:gltf-validator@2.0.0-dev.3.10",
     "pyright": "npm:pyright@1.1.403",
     "vitepress": "npm:vitepress@1.6.3",
     "vue": "npm:vue@3.5.18"

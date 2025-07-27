@@ -2,8 +2,8 @@
  * Tool to fetch GitHub repository release info and auto-update CHANGELOG.md (TypeScript/Octokit)
  * Uses Deno import map (deno.jsonc) for Octokit
  */
-import { Octokit } from "npm:@octokit/rest";
-import type { Endpoints } from "npm:@octokit/types";
+import { Octokit } from "@octokit/rest";
+import type { Endpoints } from "@octokit/types";
 
 interface Release {
   tag_name: string;
