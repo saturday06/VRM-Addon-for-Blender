@@ -175,6 +175,28 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         default=False,
     )
 
+    enable_bone_hierarchy_filter: BoolProperty(  # type: ignore[valid-type]
+        name="Enable Bone Hierarchy Filter",
+        default=True,
+    )
+
+    BONE_ASSIGNMENT_MODE_DEFAULT = (
+        Vrm1HumanoidPropertyGroup.BONE_ASSIGNMENT_MODE_DEFAULT
+    )
+    BONE_ASSIGNMENT_MODE_MANUAL = Vrm1HumanoidPropertyGroup.BONE_ASSIGNMENT_MODE_MANUAL
+    BONE_ASSIGNMENT_MODE_RIGIFY = Vrm1HumanoidPropertyGroup.BONE_ASSIGNMENT_MODE_RIGIFY
+    BONE_ASSIGNMENT_MODE_AUTO_RIG_PRO = (
+        Vrm1HumanoidPropertyGroup.BONE_ASSIGNMENT_MODE_AUTO_RIG_PRO
+    )
+
+    bone_assignment_mode: EnumProperty(  # type: ignore[valid-type]
+        items=Vrm1HumanoidPropertyGroup.bone_assignment_mode_enum.items(),
+        name="Bone Assignment",
+        description="Bone Assignment Mode",
+        default=BONE_ASSIGNMENT_MODE_DEFAULT.identifier,
+    )
+
+    # for T-Pose
     POSE_AUTO_POSE = Vrm1HumanoidPropertyGroup.POSE_AUTO_POSE
     POSE_REST_POSITION_POSE = Vrm1HumanoidPropertyGroup.POSE_REST_POSITION_POSE
     POSE_CURRENT_POSE = Vrm1HumanoidPropertyGroup.POSE_CURRENT_POSE
@@ -187,7 +209,6 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         default=POSE_AUTO_POSE.identifier,
     )
 
-    # for T-Pose
     def update_pose_library(self, _context: Context) -> None:
         self.pose_marker_name = ""
 
@@ -350,6 +371,8 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         lower_leg_twist: float  # type: ignore[no-redef]
         feet_spacing: float  # type: ignore[no-redef]
         has_translation_dof: bool  # type: ignore[no-redef]
+        enable_bone_hierarchy_filter: bool  # type: ignore[no-redef]
+        bone_assignment_mode: str  # type: ignore[no-redef]
         pose: str  # type: ignore[no-redef]
         pose_library: Optional[Action]  # type: ignore[no-redef]
         pose_marker_name: str  # type: ignore[no-redef]

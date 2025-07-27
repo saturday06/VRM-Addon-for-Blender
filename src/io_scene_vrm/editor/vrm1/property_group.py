@@ -526,6 +526,57 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
 class Vrm1HumanoidPropertyGroup(PropertyGroup):
     human_bones: PointerProperty(type=Vrm1HumanBonesPropertyGroup)  # type: ignore[valid-type]
 
+    enable_bone_hierarchy_filter: BoolProperty(  # type: ignore[valid-type]
+        name="Enable Bone Hierarchy Filter",
+        default=True,
+    )
+
+    (
+        bone_assignment_mode_enum,
+        (
+            BONE_ASSIGNMENT_MODE_DEFAULT,
+            BONE_ASSIGNMENT_MODE_MANUAL,
+            BONE_ASSIGNMENT_MODE_RIGIFY,
+            BONE_ASSIGNMENT_MODE_AUTO_RIG_PRO,
+        ),
+    ) = property_group_enum(
+        (
+            "default",
+            "Default",
+            "Default",
+            "ARMATURE_DATA",
+            0,
+        ),
+        (
+            "manual",
+            "Manual",
+            "Manual Bone Assignment",
+            "ARMATURE_DATA",
+            1,
+        ),
+        (
+            "rigify",
+            "Rigify",
+            "Rigify",
+            "ARMATURE_DATA",
+            2,
+        ),
+        (
+            "autoRigPro",
+            "Auto-Rig Pro",
+            "Auto-Rig Pro",
+            "ARMATURE_DATA",
+            3,
+        ),
+    )
+
+    bone_assignment_mode: EnumProperty(  # type: ignore[valid-type]
+        items=bone_assignment_mode_enum.items(),
+        name="Bone Assignment",
+        description="Bone Assignment Mode",
+        default=BONE_ASSIGNMENT_MODE_DEFAULT.identifier,
+    )
+
     # for T-Pose
     def update_pose_library(self, _context: Context) -> None:
         self.pose_marker_name = ""
@@ -586,6 +637,8 @@ class Vrm1HumanoidPropertyGroup(PropertyGroup):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         human_bones: Vrm1HumanBonesPropertyGroup  # type: ignore[no-redef]
+        enable_bone_hierarchy_filter: bool  # type: ignore[no-redef]
+        bone_assignment_mode: str  # type: ignore[no-redef]
         pose: str  # type: ignore[no-redef]
         pose_library: Optional[Action]  # type: ignore[no-redef]
         pose_marker_name: str  # type: ignore[no-redef]
