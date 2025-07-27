@@ -1,4 +1,7 @@
 {
+  "lock": {
+    "frozen": true
+  },
   "exclude": [
     "tests/resources/unity/*/ProjectSettings/*.json",
     "CHANGELOG.md"
