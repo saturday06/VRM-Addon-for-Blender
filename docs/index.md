@@ -6,4 +6,4 @@ prev: false
 next: false
 ---
 
-Loading ...
+<span style="color: gray">Loading ...</span>
