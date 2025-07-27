@@ -25,3 +25,15 @@
   display: inline;
   vertical-align: middle;
 }
+
+.vp-doc img[src$=".gif"], .vp-doc img[src^="data:image/gif;"] {
+  border: 0;
+}
+
+.vp-doc img.tutorial {
+  max-width: 175px; /* Adjust to prevent horizontal scrollbars from appearing with table tags */
+}
+
+.vp-doc img.logo {
+  border: 0;
+}

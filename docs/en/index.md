@@ -7,13 +7,7 @@ prev: false
 next: false
 ---
 
-<style>
-  img[src$=".gif"], img[src^="data:image/gif;"] {
-    max-width: 175px; /* Adjust to prevent horizontal scrollbars from appearing with table tags */
-  }
-</style>
-
-![](top.png)
+![](top.png){.logo}
 
 VRM Add-on for Blender adds VRM import, export, and editing capabilities to
 Blender. It supports Blender versions 2.93 to 4.5.
@@ -27,13 +21,13 @@ Blender. It supports Blender versions 2.93 to 4.5.
 
 ## Tutorials
 
-| [Installation](installation/)                           | [Create Simple VRM](create-simple-vrm-from-scratch/)              | [Create Humanoid VRM](create-humanoid-vrm-from-scratch/)              |
-| ------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------- |
-| [![](/assets/images/installation.gif)](installation/)   | [![](/assets/images/simple.gif)](create-simple-vrm-from-scratch/) | [![](/assets/images/humanoid.gif)](create-humanoid-vrm-from-scratch/) |
-| [Create Physics Based Material](material-pbr/)          | [Create Anime Style Material](material-mtoon/)                    | [VRM Animation](animation/)                                           |
-| [![](/assets/images/material_pbr.gif)](material-pbr/)   | [![](/assets/images/material_mtoon.gif)](material-mtoon/)         | [![](/assets/images/animation.gif)](animation/)                       |
-| [Automation with Python scripts](scripting-api/)        | [Development How-To](development/)                                |                                                                       |
-| [![](/assets/images/scripting_api.gif)](scripting-api/) | [![](/assets/images/animation.gif)](development/)                 |                                                                       |
+| [Installation](installation/)                                      | [Create Simple VRM](create-simple-vrm-from-scratch/)                         | [Create Humanoid VRM](create-humanoid-vrm-from-scratch/)                         |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| [![](/assets/images/installation.gif){.tutorial}](installation/)   | [![](/assets/images/simple.gif){.tutorial}](create-simple-vrm-from-scratch/) | [![](/assets/images/humanoid.gif){.tutorial}](create-humanoid-vrm-from-scratch/) |
+| [Create Physics Based Material](material-pbr/)                     | [Create Anime Style Material](material-mtoon/)                               | [VRM Animation](animation/)                                                      |
+| [![](/assets/images/material_pbr.gif){.tutorial}](material-pbr/)   | [![](/assets/images/material_mtoon.gif){.tutorial}](material-mtoon/)         | [![](/assets/images/animation.gif){.tutorial}](animation/)                       |
+| [Automation with Python scripts](scripting-api/)                   | [Development How-To](development/)                                           |                                                                                  |
+| [![](/assets/images/scripting_api.gif){.tutorial}](scripting-api/) | [![](/assets/images/animation.gif){.tutorial}](development/)                 |                                                                                  |
 
 ## Overview
 
