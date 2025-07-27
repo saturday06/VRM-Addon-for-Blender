@@ -7,11 +7,11 @@ import {
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  title: "VRM Format / VRM Add-on for Blender",
   locales: {
     en: {
       lang: "en",
       label: "English",
-      title: "VRM Format / VRM Add-on for Blender",
       description:
         "VRM format adds VRM import, export, and editing capabilities to Blender." +
         " It supports Blender versions 2.93 to 4.5.",
@@ -32,7 +32,6 @@ export default defineConfig({
     ja: {
       lang: "ja",
       label: "日本語",
-      title: "VRM Format / VRM Add-on for Blender",
       description:
         "VRMファイルのインポート・エクスポート・編集機能をBlenderに追加するアドオンです。" +
         "Blender 2.93 から 4.5 をサポートしています。",
