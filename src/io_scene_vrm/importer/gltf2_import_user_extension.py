@@ -11,7 +11,7 @@ from ..common.logger import get_logger
 logger = get_logger(__name__)
 
 
-class Gltf2AddonImporterUserExtension:
+class glTF2ImportUserExtension:
     current_import_id: Optional[str] = None
 
     @classmethod

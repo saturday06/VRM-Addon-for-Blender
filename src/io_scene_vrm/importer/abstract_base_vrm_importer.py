@@ -53,7 +53,7 @@ from ..external.io_scene_gltf2_support import (
     ImportSceneGltfArguments,
     import_scene_gltf,
 )
-from .gltf2_addon_importer_user_extension import Gltf2AddonImporterUserExtension
+from .gltf2_import_user_extension import glTF2ImportUserExtension
 from .license_validation import validate_license
 
 logger = get_logger(__name__)
@@ -88,7 +88,7 @@ class AbstractBaseVrmImporter(ABC):
         self.bone_names: dict[int, str] = {}
         self.materials: dict[int, Material] = {}
         self.bone_child_object_world_matrices: dict[str, Matrix] = {}
-        self.import_id = Gltf2AddonImporterUserExtension.update_current_import_id()
+        self.import_id = glTF2ImportUserExtension.update_current_import_id()
         self.temp_object_name_count = 0
         self.object_names: dict[int, str] = {}
         self.mesh_object_names: dict[int, str] = {}
@@ -146,7 +146,7 @@ class AbstractBaseVrmImporter(ABC):
                 self.setup_object_selection_and_activation()
                 progress.update(0.98)
         finally:
-            Gltf2AddonImporterUserExtension.clear_current_import_id()
+            glTF2ImportUserExtension.clear_current_import_id()
 
     @property
     def armature_data(self) -> Armature:
