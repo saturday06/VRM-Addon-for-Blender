@@ -1,18 +1,14 @@
 # Changelog
 
-## [3.10.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.10.0...v3.10.1) (2025-07-30)
-
+## [3.10.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.9.2...v3.10.1) (2025-07-30)
 
 ### 🐛 Bug Fixes
 
-* retry release process ([bab531d](https://github.com/saturday06/VRM-Addon-for-Blender/commit/bab531d0f2e0c7e0993cc6c340764ea263855e5d))
+* fixed potential bugs that could occur at startup ([886b97](https://github.com/saturday06/VRM-Addon-for-Blender/commit/886b97c1b8e74a15ddd4b2269a7c8fdbc0374c64))
 
-## [3.10.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.9.2...v3.10.0) (2025-07-29)
+### 📈 Performance Improvements
 
-
-### 🚀 Features
-
-* added setting to always export vertex colors in VRM1 ([e73e617](https://github.com/saturday06/VRM-Addon-for-Blender/commit/e73e6177b427287a854f99cd888f9d543dcb28d6))
+* improved performance of detecting the need to add outline modifiers ([469935](https://github.com/saturday06/VRM-Addon-for-Blender/commit/46993585111010ae91782552aa09775ed2ea1b04))
 
 ## [3.9.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.9.1...v3.9.2) (2025-07-25)
 
