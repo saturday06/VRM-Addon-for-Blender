@@ -2,8 +2,8 @@ version = 1
 revision = 3
 requires-python = "==3.10.*"
 resolution-markers = [
-    "platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "platform_machine == 'arm64' and sys_platform == 'darwin'",
+    "platform_machine == 'x86_64' and sys_platform == 'darwin'",
     "platform_machine == 'x86_64' and sys_platform == 'linux'",
     "platform_machine == 'AMD64' and sys_platform == 'win32'",
     "(platform_machine != 'arm64' and platform_machine != 'x86_64' and sys_platform == 'darwin') or (platform_machine != 'x86_64' and sys_platform == 'linux') or (platform_machine != 'AMD64' and sys_platform == 'win32') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",

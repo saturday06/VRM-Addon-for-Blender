@@ -21,13 +21,9 @@
       "automerge": true
     },
     {
-      "description": [
-        "Do not automatically update Blender and Python versions to the latest. Specify them manually. ",
-        "Blender fixes the Python version, but common package managers cannot derive the Python version ",
-        "from the Blender version, so the Python version is also specified manually."
-      ],
+      "matchCategories": ["python"],
+      "matchUpdateTypes": ["patch"],
       "matchPackageNames": ["python", "bpy"],
-      "rangeStrategy": "in-range-only",
       "automerge": true
     },
     {
