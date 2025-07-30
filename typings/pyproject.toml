@@ -34,7 +34,6 @@ extend-ignore = [
   "FBT002", # Boolean default positional argument in function definition
   "N801", # Class name `x` should use CapWords convention
   "N802", # Function name `X` should be lowercase
-  "UP007", # Use `X | Y` for type annotations
 ]
 
 [tool.ruff.lint.pylint]
