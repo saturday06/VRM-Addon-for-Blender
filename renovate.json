@@ -22,8 +22,8 @@
     },
     {
       "matchCategories": ["python"],
-      "matchUpdateTypes": ["patch"],
       "matchPackageNames": ["python", "bpy"],
+      "rangeStrategy": "in-range-only",
       "automerge": true
     },
     {
