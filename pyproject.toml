@@ -22,13 +22,13 @@ root = ["src"]
 [tool.uv]
 dev-dependencies = [
   "codespell ==2.4.1",
-  "pygit2 ==1.18.0",
-  "pyrefly ==0.24.2",
+  "pygit2 ==1.18.1",
+  "pyrefly ==0.26.0",
   "requests ==2.32.4",
-  "ruff ==0.12.4",
+  "ruff ==0.12.7",
   "starry-bpy-typings",
   "tqdm ==4.67.1",
-  "ty ==0.0.1a15",
+  "ty ==0.0.1a16",
   "types-pygit2 ==1.15.0.20250319",
   "types-tqdm ==4.67.0.20250516",
 ]
