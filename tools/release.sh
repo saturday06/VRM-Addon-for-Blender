@@ -26,9 +26,19 @@ fi
 
 underscore_version=$(ruby -e "puts ARGV[0].sub(/^v/, '').split('.', 3).join('_')" "$release_tag_name")
 version=$(ruby -e "puts ARGV[0].split('_', 3).join('.')" "$underscore_version")
-bl_info_version=$(cd src && python3 -c 'import io_scene_vrm; print(str(".".join(map(str, io_scene_vrm.bl_info["version"]))))')
+blender_manifest_version=$(
+  python3 <<'PRINT_BLENDER_MANIFEST_VERSION'
+import tomllib
+from pathlib import Path
 
-if [ "$version" != "$bl_info_version" ]; then
+blender_manifest_path = Path("src/io_scene_vrm/blender_manifest.toml")
+blender_manifest_text = blender_manifest_path.read_text()
+blender_manifest = tomllib.loads(blender_manifest_text)
+print(blender_manifest["version"])
+PRINT_BLENDER_MANIFEST_VERSION
+)
+
+if [ "$version" != "$blender_manifest_version" ]; then
   release_postfix=draft
 else
   release_postfix=release
