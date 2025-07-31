@@ -17,9 +17,6 @@ dependencies = [
   "bpy ==3.6.*; platform_machine == 'AMD64' and sys_platform == 'win32'",
 ]
 
-[tool.ty.environment]
-root = ["src"]
-
 [tool.uv]
 dev-dependencies = [
   "codespell ==2.4.1",
@@ -44,7 +41,7 @@ url = "https://download.blender.org/pypi/"
 
 [tool.ruff]
 target-version = "py39" # It overrides 'project.requires-python = "== 3.10.*"'
-src = ["typings", "src"]
+src = ["typings/src", "src"]
 
 [tool.ruff.lint]
 allowed-confusables = [
@@ -145,10 +142,14 @@ extend_skip_glob = ["*"] # Please use Ruff instead.
 [tool.pylint.main]
 ignore-paths = "." # Please use Ruff instead.
 
+[tool.ty.environment]
+extra-paths = ["typings/src"]
+
 [tool.pyright]
 pythonVersion = "3.9" # It overrides 'project.requires-python = "== 3.10.*"'
 pythonPlatform = "All"
 typeCheckingMode = "strict"
+stubPath = "typings/src"
 exclude = [
   # Too many files in Unity folders, causing
   # 'Enumeration of workspace source files is taking longer than 10 seconds.'
@@ -168,7 +169,7 @@ reportShadowedImports = true
 
 [tool.pyrefly]
 search-path = [
-  "typings",
+  "typings/src",
   "src",
 ]
 project-excludes = [
@@ -182,5 +183,5 @@ project-excludes = [
 python-version = "3.9.0" # It overrides 'project.requires-python = "== 3.10.*"'
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.8.4,<0.9.0"]
+build-backend = "uv_build"
