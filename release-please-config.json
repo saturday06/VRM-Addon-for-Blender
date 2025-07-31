@@ -44,8 +44,13 @@
         },
         {
           "type": "toml",
+          "path": "typings/pyproject.toml",
+          "jsonpath": "$.project.version"
+        },
+        {
+          "type": "toml",
           "path": "uv.lock",
-          "jsonpath": "$.package[?(@.name.value == 'io-scene-vrm')].version"
+          "jsonpath": "$.package[?match(@.name.value, '(io-scene-vrm|starry-bpy-typings)')].version"
         },
         {
           "type": "toml",
