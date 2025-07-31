@@ -50,7 +50,12 @@
         {
           "type": "toml",
           "path": "uv.lock",
-          "jsonpath": "$.package[?match(@.name.value, '(io-scene-vrm|starry-bpy-typings)')].version"
+          "jsonpath": "$.package[?(@.name.value == 'io-scene-vrm')].version"
+        },
+        {
+          "type": "toml",
+          "path": "uv.lock",
+          "jsonpath": "$.package[?(@.name.value == 'starry-bpy-typings')].version"
         },
         {
           "type": "toml",
