@@ -2,8 +2,8 @@ schema_version = "1.0.0"
 
 id = "vrm"
 version = "3.10.1"
-name = "VRM format"
-tagline = "VRM import, export and editing capabilities"
+name = "KHR Avatar/VRM format"
+tagline = "Import, export, and editing functions for VRM format and experimental KHR avatar format."
 maintainer = "Isamu Mogi <dyob@lunaport.net>"
 type = "add-on"
 
@@ -22,4 +22,4 @@ copyright = [
 ]
 
 [permissions]
-files = "Import/export VRM from/to disk"
+files = "Import/export KHR Avatar/VRM from/to disk"
