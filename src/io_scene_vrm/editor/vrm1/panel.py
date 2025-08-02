@@ -463,7 +463,7 @@ def draw_vrm1_first_person_layout(
         _,
     ) = draw_template_list(
         column,
-        VRM_UL_vrm1_first_person_mesh_annotation.bl_idname,
+        VRM_UL_vrm1_first_person_mesh_annotation,
         first_person,
         "mesh_annotations",
         "active_mesh_annotation_index",
@@ -802,7 +802,7 @@ def draw_vrm1_expressions_layout(
         _,
     ) = draw_template_list(
         layout,
-        VRM_UL_vrm1_expression.bl_idname,
+        VRM_UL_vrm1_expression,
         expressions,
         "expression_ui_list_elements",
         "active_expression_ui_list_element_index",
@@ -864,7 +864,7 @@ def draw_vrm1_expressions_layout(
         _,
     ) = draw_template_list(
         morph_target_binds_box,
-        VRM_UL_vrm1_morph_target_bind.bl_idname,
+        VRM_UL_vrm1_morph_target_bind,
         expression,
         "morph_target_binds",
         "active_morph_target_bind_index",
@@ -901,7 +901,7 @@ def draw_vrm1_expressions_layout(
         _,
     ) = draw_template_list(
         material_color_binds_box,
-        VRM_UL_vrm1_material_color_bind.bl_idname,
+        VRM_UL_vrm1_material_color_bind,
         expression,
         "material_color_binds",
         "active_material_color_bind_index",
@@ -939,7 +939,7 @@ def draw_vrm1_expressions_layout(
         _,
     ) = draw_template_list(
         texture_transform_binds_box,
-        VRM_UL_vrm1_texture_transform_bind.bl_idname,
+        VRM_UL_vrm1_texture_transform_bind,
         expression,
         "texture_transform_binds",
         "active_texture_transform_bind_index",
@@ -1059,7 +1059,7 @@ def draw_vrm1_meta_layout(
         _,
     ) = draw_template_list(
         authors_column,
-        VRM_UL_vrm1_meta_author.bl_idname,
+        VRM_UL_vrm1_meta_author,
         meta,
         "authors",
         "active_author_index",
@@ -1091,7 +1091,7 @@ def draw_vrm1_meta_layout(
         _,
     ) = draw_template_list(
         references_column,
-        VRM_UL_vrm1_meta_reference.bl_idname,
+        VRM_UL_vrm1_meta_reference,
         meta,
         "references",
         "active_reference_index",

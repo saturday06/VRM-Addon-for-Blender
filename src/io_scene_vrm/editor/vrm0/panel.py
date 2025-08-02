@@ -495,7 +495,7 @@ def draw_vrm0_first_person_layout(
         _,
     ) = draw_template_list(
         layout,
-        VRM_UL_vrm0_first_person_mesh_annotation.bl_idname,
+        VRM_UL_vrm0_first_person_mesh_annotation,
         first_person,
         "mesh_annotations",
         "active_mesh_annotation_index",
@@ -613,7 +613,7 @@ def draw_vrm0_blend_shape_master_layout(
         (add_blend_shape_group_op, _, _, _),
     ) = draw_template_list(
         layout,
-        VRM_UL_vrm0_blend_shape_group.bl_idname,
+        VRM_UL_vrm0_blend_shape_group,
         blend_shape_master,
         "blend_shape_groups",
         "active_blend_shape_group_index",
@@ -653,7 +653,7 @@ def draw_vrm0_blend_shape_master_layout(
             _,
         ) = draw_template_list(
             binds_box,
-            VRM_UL_vrm0_blend_shape_bind.bl_idname,
+            VRM_UL_vrm0_blend_shape_bind,
             blend_shape_group,
             "binds",
             "active_bind_index",
@@ -706,7 +706,7 @@ def draw_vrm0_blend_shape_master_layout(
             _,
         ) = draw_template_list(
             material_value_binds_box,
-            VRM_UL_vrm0_material_value_bind.bl_idname,
+            VRM_UL_vrm0_material_value_bind,
             blend_shape_group,
             "material_values",
             "active_material_value_index",
@@ -917,7 +917,7 @@ def draw_vrm0_secondary_animation_bone_groups_layout(
         _,
     ) = draw_template_list(
         box,
-        VRM_UL_vrm0_secondary_animation_group.bl_idname,
+        VRM_UL_vrm0_secondary_animation_group,
         secondary_animation,
         "bone_groups",
         "active_bone_group_index",
@@ -969,7 +969,7 @@ def draw_vrm0_secondary_animation_bone_groups_layout(
         _,
     ) = draw_template_list(
         column,
-        VRM_UL_vrm0_secondary_animation_group_bone.bl_idname,
+        VRM_UL_vrm0_secondary_animation_group_bone,
         bone_group,
         "bones",
         "active_bone_index",
@@ -997,7 +997,7 @@ def draw_vrm0_secondary_animation_bone_groups_layout(
         _,
     ) = draw_template_list(
         column,
-        VRM_UL_vrm0_secondary_animation_group_collider_group.bl_idname,
+        VRM_UL_vrm0_secondary_animation_group_collider_group,
         bone_group,
         "collider_groups",
         "active_collider_group_index",
@@ -1047,7 +1047,7 @@ def draw_vrm0_secondary_animation_collider_groups_layout(
         _,
     ) = draw_template_list(
         box,
-        VRM_UL_vrm0_secondary_animation_collider_group.bl_idname,
+        VRM_UL_vrm0_secondary_animation_collider_group,
         secondary_animation,
         "collider_groups",
         "active_collider_group_index",
@@ -1079,7 +1079,7 @@ def draw_vrm0_secondary_animation_collider_groups_layout(
         _,
     ) = draw_template_list(
         column,
-        VRM_UL_vrm0_secondary_animation_collider_group_collider.bl_idname,
+        VRM_UL_vrm0_secondary_animation_collider_group_collider,
         collider_group,
         "colliders",
         "active_collider_index",

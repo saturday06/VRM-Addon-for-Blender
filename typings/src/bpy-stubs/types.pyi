@@ -1506,6 +1506,7 @@ class Preferences(bpy_struct):
     addons: Addons
 
 class UIList(bpy_struct):
+    bl_idname: str
     layout_type: str
 
 class NodeLink(bpy_struct):

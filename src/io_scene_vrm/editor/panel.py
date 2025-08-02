@@ -11,6 +11,7 @@ from bpy.types import (
     Operator,
     Panel,
     UILayout,
+    UIList,
 )
 
 from ..common import version
@@ -33,7 +34,7 @@ class TemplateListCollectionProtocol(Protocol):
 
 def draw_template_list(
     layout: UILayout,
-    template_list_idname: str,
+    template_list: type[UIList],
     base_object: AnyType,
     collection_attribue_name: str,
     active_index_attribute_name: str,
@@ -81,7 +82,7 @@ def draw_template_list(
 
     list_row = layout.row()
     list_row.template_list(
-        template_list_idname,
+        template_list.bl_idname,
         "",
         base_object,
         collection_attribue_name,

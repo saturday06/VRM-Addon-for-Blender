@@ -237,7 +237,7 @@ def draw_spring_bone1_colliders_layout(
         _,
     ) = draw_template_list(
         colliders_box,
-        VRM_UL_spring_bone1_collider.bl_idname,
+        VRM_UL_spring_bone1_collider,
         spring_bone,
         "colliders",
         "active_collider_index",
@@ -285,7 +285,7 @@ def draw_spring_bone1_collider_groups_layout(
         _,
     ) = draw_template_list(
         collider_groups_box,
-        VRM_UL_spring_bone1_collider_group.bl_idname,
+        VRM_UL_spring_bone1_collider_group,
         spring_bone,
         "collider_groups",
         "active_collider_group_index",
@@ -322,7 +322,7 @@ def draw_spring_bone1_collider_groups_layout(
         _,
     ) = draw_template_list(
         colliders_column,
-        VRM_UL_spring_bone1_collider_group_collider.bl_idname,
+        VRM_UL_spring_bone1_collider_group_collider,
         collider_group,
         "colliders",
         "active_collider_index",
@@ -370,7 +370,7 @@ def draw_spring_bone1_springs_layout(
         _,
     ) = draw_template_list(
         springs_box,
-        VRM_UL_spring_bone1_spring.bl_idname,
+        VRM_UL_spring_bone1_spring,
         spring_bone,
         "springs",
         "active_spring_index",
@@ -414,7 +414,7 @@ def draw_spring_bone1_springs_layout(
         (add_joint_op, _, _, _),
     ) = draw_template_list(
         joints_column,
-        VRM_UL_spring_bone1_joint.bl_idname,
+        VRM_UL_spring_bone1_joint,
         spring,
         "joints",
         "active_joint_index",
@@ -453,7 +453,7 @@ def draw_spring_bone1_springs_layout(
         _,
     ) = draw_template_list(
         collider_groups_column,
-        VRM_UL_spring_bone1_spring_collider_group.bl_idname,
+        VRM_UL_spring_bone1_spring_collider_group,
         spring,
         "collider_groups",
         "active_collider_group_index",
