@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
 import contextlib
+import datetime
 import getpass
 import platform
 import sys
@@ -171,7 +172,9 @@ class VRM_OT_save_error_dialog_message(Operator, ExportHelper):
 
     def invoke(self, context: Context, event: Event) -> set[str]:
         if not self.filepath:
-            self.filepath = "vrm_error_message.txt"
+            local_now = datetime.datetime.now(tz=None)  # Get local time # noqa: DTZ005
+            formatted_time = local_now.strftime("%Y%m%d_%H%M%S")
+            self.filepath = f"vrm_error_message_{formatted_time}.txt"
         return ExportHelper.invoke(self, context, event)
 
     if TYPE_CHECKING:  # Make legacy mypy happy
