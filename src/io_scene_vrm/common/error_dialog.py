@@ -62,7 +62,7 @@ def show_error_dialog(
         python_version = (
             platform.python_implementation()
             + " "
-            + ".".join(map(str, sys.version_info))
+            + ".".join(map(str, sys.version_info[:3]))
         )
         runtime_platform = os_name + " " + platform.machine()
         build_platform = sysconfig.get_platform()
