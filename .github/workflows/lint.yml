@@ -61,9 +61,6 @@ jobs:
         run: ./tools/install_hadolint.sh
       - name: Lint
         run: ./tools/lint.sh
-      - name: Sanity Check
-        run: |
-          uv run python -c "import io_scene_vrm; io_scene_vrm.register(); io_scene_vrm.unregister()"
       - name: Check VRM Validator works correctly
         run: |
           for failure_vrm_path in failure.vrm tests/failure.vrm; do

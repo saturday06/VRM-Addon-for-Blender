@@ -24,6 +24,7 @@ validate_file_name_characters() (
 
 cd "$(dirname "$0")/.."
 
+uv run python -c "import io_scene_vrm; io_scene_vrm.register(); io_scene_vrm.unregister()"
 validate_file_name_characters
 git ls-files "*.sh" | xargs shellcheck
 git ls-files "*.py" "*.pyi" | xargs uv run ruff check
