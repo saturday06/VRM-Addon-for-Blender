@@ -85,7 +85,7 @@ jobs:
           for failure_vrm_path in failure.vrm tests/failure.vrm; do
             touch "$failure_vrm_path"
             if ./tools/lint.sh; then
-              echo "VRM Validator dones't work correctly"
+              echo "VRM Validator doesn't work correctly"
               exit 1
             fi
             rm "$failure_vrm_path"
