@@ -33,5 +33,6 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   uchardet \
   unzip \
   xz-utils \
+  xxd \
   zopfli \
   -y --no-install-recommends
