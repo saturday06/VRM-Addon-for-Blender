@@ -5,6 +5,7 @@ Inevitably, variables of type Any may occur, and such variables cannot be handle
 in mypy or pyright in strict mode. Any is allowed only in the module here.
 """
 
+import sys
 from collections.abc import Iterator
 from typing import (
     Any,  # Any is allowed only in the module here.
@@ -18,7 +19,11 @@ def to_object(  # type: ignore[explicit-any]
     # Interpret Unknown as object
     # https://github.com/microsoft/pyright/issues/3650
     if not isinstance(any_object, object):
-        raise TypeError  # typing.assert_never()
+        if sys.version_info >= (3, 11):
+            from typing import assert_never
+
+            assert_never(any_object)
+        raise TypeError
     return any_object
 
 
