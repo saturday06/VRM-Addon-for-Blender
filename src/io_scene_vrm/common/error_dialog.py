@@ -177,9 +177,6 @@ class VRM_OT_save_error_dialog_message(Operator, ExportHelper):
             self.filepath = f"vrm_error_message_{formatted_time}.txt"
         return ExportHelper.invoke(self, context, event)
 
-    if TYPE_CHECKING:  # Make legacy mypy happy
-        filepath: str
-
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.

@@ -29,6 +29,5 @@ def location_3d_to_region_2d(
     region: Region,
     rv3d: RegionView3D,
     coord: Sequence[float],
-    # https://github.com/python/mypy/issues/3737
-    default: __Default = None,  # type: ignore[assignment]
+    default: __Default = None,
 ) -> Vector | __Default: ...

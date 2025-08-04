@@ -35,7 +35,6 @@
     // Configure folders to exclude from sharing with host
     // https://github.com/microsoft/vscode-remote-release/issues/620#issuecomment-1086709509
     "type=volume,target=${containerWorkspaceFolder}/.cache",
-    "type=volume,target=${containerWorkspaceFolder}/.mypy_cache",
     "type=volume,target=${containerWorkspaceFolder}/.ruff_cache",
     "type=volume,target=${containerWorkspaceFolder}/.venv",
     "type=volume,target=${containerWorkspaceFolder}/node_modules"

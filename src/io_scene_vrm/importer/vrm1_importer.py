@@ -1866,13 +1866,6 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             else:
                 continue
 
-            # TODO: Remove this when mypy becomes smarter
-            if not isinstance(  # pyright: ignore [reportUnnecessaryIsInstance]
-                constraint,
-                (CopyRotationConstraint, DampedTrackConstraint),
-            ):
-                continue
-
             if isinstance(source_index, int):
                 source = self.get_object_or_bone_by_node_index(source_index)
                 if isinstance(source, Object):
