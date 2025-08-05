@@ -133,7 +133,9 @@ Request等歓迎します。[バージョン 0.79](https://github.com/iCyP/VRM_I
 
 [`src/io_scene_vrm`](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm)
 フォルダがアドオン本体です。 そのフォルダへのリンクをBlenderの `user_default`
-あるいは `addons` フォルダ内に作ることで効率的に開発をすることができます。
+あるいは `addons` フォルダ内に作ることで、
+開発中のソースコードをBlenderにアドオンとしてインストールした扱いにすることができ、
+効率的に動作確認をすることができるようになります。
 
 テストの実行など、より高度な開発をする場合は[開発環境のセットアップ方法のドキュメント](https://vrm-addon-for-blender.info/en/development?locale_redirection)にあります。
 

@@ -8,8 +8,8 @@ next: false
 
 [GitHubレポジトリ](https://github.com/saturday06/VRM-Addon-for-Blender)には本体のソースコード、
 コードフォーマット設定、型チェック設定、ソフトウェアテスト設定が含まれています。
-これらは [astral-sh/uv](https://docs.astral.sh/uv/)
-に強く依存しているので、まずそれをインストールする必要があります。あるいは
+これらは [astral-sh/uv](https://docs.astral.sh/uv/)に強く依存しているので、
+まずそれをインストールする必要があります。 あるいは
 [Dev Container](https://containers.dev/)
 を使って全自動で設定することもできます。
 
@@ -18,7 +18,9 @@ next: false
 GitHubレポジトリ内の
 [src/io_scene_vrm](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm)
 フォルダがアドオン本体です。そのフォルダへのリンクをBlenderの `user_default`
-あるいは `addons` フォルダ内に作ることで効率的に開発をすることができます。
+あるいは `addons` フォルダ内に作ることで、
+開発中のソースコードをBlenderにアドオンとしてインストールした扱いにすることができ、
+効率的に動作確認をすることができるようになります。
 
 ### Blender 4.2以上向けの、開発用リンクの作成方法
 
