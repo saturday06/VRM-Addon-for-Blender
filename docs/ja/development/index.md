@@ -6,8 +6,8 @@ prev:
 next: false
 ---
 
-[リポジトリ](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main)
-に、本体のソースコード、コードフォーマット設定、型チェック設定、ソフトウェアテスト設定が含まれています。
+[GitHubレポジトリ](https://github.com/saturday06/VRM-Addon-for-Blender)には本体のソースコード、
+コードフォーマット設定、型チェック設定、ソフトウェアテスト設定が含まれています。
 これらは [astral-sh/uv](https://docs.astral.sh/uv/)
 に強く依存しているので、まずそれをインストールする必要があります。あるいは
 [Dev Container](https://containers.dev/)
@@ -15,17 +15,12 @@ next: false
 
 ## Blenderのアドオンフォルダにレポジトリにリンクする
 
-開発用のソースコードは
-[main](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main)
-ブランチにあります。ブランチ内の
+GitHubレポジトリ内の
 [src/io_scene_vrm](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm)
-フォルダがアドオン本体です。 そのフォルダへのリンクをBlenderの `addons`
-フォルダ内に作ることで効率的に開発をすることができます。
+フォルダがアドオン本体です。 そのフォルダへのリンクをBlenderの `user_default`
+あるいは `addons` フォルダ内に作ることで効率的に開発をすることができます。
 
 ```text
-# レポジトリのセットアップ
-git checkout main
-
 # Blender 4.2以上の場合
 
 # Linux
@@ -71,8 +66,7 @@ Visual Studio Code の `Ruff` 拡張機能を使っても同じ結果が得ら�
 
 1. [astral-sh/uv](https://docs.astral.sh/uv/) をインストールする。
 2. Visual Studio Code のターミナルで `uv sync` コマンドを実行する。
-3. Visual Studio Code に `Ruff`、`Mypy Type Checker`、`Pylance`
-   拡張をインストールする。
+3. Visual Studio Code に `Ruff`、`Pyright` 拡張をインストールする。
 4. タイプチェックをしたい py ファイルを開く。
 
 ## ソフトウェアテストの実行方法
@@ -80,8 +74,8 @@ Visual Studio Code の `Ruff` 拡張機能を使っても同じ結果が得ら�
 1. [astral-sh/uv](https://docs.astral.sh/uv/) をインストールする。
 2. リポジトリの `tools\test.bat` をダブルクリックして実行する。
 3. Blenderが見つからないという趣旨のエラーが表示されたら、環境変数
-   `BLENDER_VRM_TEST_BLENDER_PATH` に Blender 4.2 または 3.6 または 3.3 または
-   2.93 の exe ファイルのパスを設定する。
+   `BLENDER_VRM_TEST_BLENDER_PATH` に Blender LTS 版の exe
+   ファイルのパスを設定する。
 
 ## Visual Studio Codeでのソフトウェアテストを実行方法
 
@@ -94,5 +88,5 @@ Visual Studio Code の `Ruff` 拡張機能を使っても同じ結果が得ら�
 7. テストファイルパターンとして `test_*` を選択する。
 8. `Run Tests` を押す。
 9. `Blender not found` というエラーが表示されたら、環境変数
-   `BLENDER_VRM_TEST_BLENDER_PATH` に Blender 4.2 または 3.6 または 3.3 または
-   2.93 の exe ファイルのパスを設定する。
+   `BLENDER_VRM_TEST_BLENDER_PATH` に Blender LTS 版の exe
+   ファイルのパスを設定する。

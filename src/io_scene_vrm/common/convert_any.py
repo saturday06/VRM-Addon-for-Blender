@@ -2,7 +2,7 @@
 """A module provides a function to convert a variable of type Any to a concrete type.
 
 Inevitably, variables of type Any may occur, and such variables cannot be handled
-in mypy or pyright in strict mode. Any is allowed only in the module here.
+in type checkers in strict mode. Any is allowed only in the module here.
 """
 
 import sys
