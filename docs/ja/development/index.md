@@ -51,11 +51,8 @@ mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\i
 
 ## Visual Studio Codeでのコードフォーマットの実行方法
 
-1. [astral-sh/uv](https://docs.astral.sh/uv/) をインストールする。
-2. Visual Studio Code のターミナルで `uv sync` コマンドを実行する。
-3. Visual Studio Code の `Format Document` を実行する。
-
-Visual Studio Code の `Ruff` 拡張機能を使っても同じ結果が得られる。
+1. Visual Studio Code の `Ruff` 拡張機能をインストールする。
+2. Visual Studio Code の `Format Document` を実行する。
 
 ## 型チェックの実行方法
 
@@ -64,18 +61,13 @@ Visual Studio Code の `Ruff` 拡張機能を使っても同じ結果が得ら�
 
 ## Visual Studio Codeでの型チェックの実行方法
 
-1. [astral-sh/uv](https://docs.astral.sh/uv/) をインストールする。
-2. Visual Studio Code のターミナルで `uv sync` コマンドを実行する。
-3. Visual Studio Code に `Ruff`、`Pyright` 拡張をインストールする。
-4. タイプチェックをしたい py ファイルを開く。
+1. Visual Studio Code の `Pyright` 拡張機能をインストールする。
+2. 型チェックをしたい py ファイルを開く。
 
 ## ソフトウェアテストの実行方法
 
 1. [astral-sh/uv](https://docs.astral.sh/uv/) をインストールする。
 2. リポジトリの `tools\test.bat` をダブルクリックして実行する。
-3. Blenderが見つからないという趣旨のエラーが表示されたら、環境変数
-   `BLENDER_VRM_TEST_BLENDER_PATH` に Blender LTS 版の exe
-   ファイルのパスを設定する。
 
 ## Visual Studio Codeでのソフトウェアテストを実行方法
 
@@ -87,6 +79,3 @@ Visual Studio Code の `Ruff` 拡張機能を使っても同じ結果が得ら�
 6. テストフォルダとして `Root Directory` を選択する。
 7. テストファイルパターンとして `test_*` を選択する。
 8. `Run Tests` を押す。
-9. `Blender not found` というエラーが表示されたら、環境変数
-   `BLENDER_VRM_TEST_BLENDER_PATH` に Blender LTS 版の exe
-   ファイルのパスを設定する。

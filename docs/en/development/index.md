@@ -52,12 +52,8 @@ mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\i
 
 ## To format the code in Visual Studio Code, follow these steps
 
-1. Install [astral-sh/uv](https://docs.astral.sh/uv/).
-2. In the Visual Studio Code terminal, run the `uv sync` command.
-3. Run Visual Studio Code's `Format Document`.
-
-The same result can be achieved by using the `Ruff` extension in Visual Studio
-Code.
+1. Install the `Ruff` extension in Visual Studio Code.
+2. Run Visual Studio Code's `Format Document`.
 
 ## To run type checking of the code, follow these steps
 
@@ -66,17 +62,13 @@ Code.
 
 ## To run type checking of the code in Visual Studio Code, follow these steps
 
-1. Install [astral-sh/uv](https://docs.astral.sh/uv/).
-2. In the Visual Studio Code terminal, run the `uv sync` command.
-3. Install the `Ruff` and `Pyright` extensions in Visual Studio Code.
-4. Open the Python file you want to type check.
+1. Install the `Pyright` extension in Visual Studio Code.
+2. Open the Python file you want to type check.
 
 ## To run the software tests of the code, follow these steps
 
 1. Install [astral-sh/uv](https://docs.astral.sh/uv/).
 2. Double-click `tools\test.bat` in the repository and run it.
-3. If you get the error `Blender not found`, set the environment variable
-   `BLENDER_VRM_TEST_BLENDER_PATH` to the path of the Blender LTS exe file.
 
 ## To run the software tests of the code in Visual Studio Code, follow these steps
 
@@ -88,5 +80,3 @@ Code.
 6. Select `Root Directory` as the test folder.
 7. Select `test_*` as the test file pattern.
 8. Press `Run Tests`.
-9. If you get the error `Blender not found`, set the environment variable
-   `BLENDER_VRM_TEST_BLENDER_PATH` to the path of the Blender LTS exe file.
