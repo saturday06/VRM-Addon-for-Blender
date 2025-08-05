@@ -21,28 +21,56 @@ folder in the GitHub repository contains the main add-on code. For efficient
 development, you can create a link to this folder in Blender's `user_default` or
 `addons` directory.
 
-```text
-# Blender 4.2 or later
+### Blender 4.2 or later
 
-# Linux
-ln -Ts "$PWD/src/io_scene_vrm" "$HOME/.config/blender/BLENDER_VERSION/extensions/user_default/vrm"
-# macOS
-ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/BLENDER_VERSION/extensions/user_default/vrm"
-# Windows PowerShell
-New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\BLENDER_VERSION\extensions\user_default\vrm" -Value "$(Get-Location)\src\io_scene_vrm"
-# Windows Command Prompt
-mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\extensions\user_default\vrm" src\io_scene_vrm
+#### Linux
 
-# Blender 4.1.1 or earlier
+```sh
+blender_version=4.5
+mkdir -p "$HOME/.config/blender/$blender_version/extensions/user_default"
+ln -Ts "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/extensions/user_default/vrm"
+```
 
-# Linux
-ln -Ts "$PWD/src/io_scene_vrm" "$HOME/.config/blender/BLENDER_VERSION/scripts/addons/io_scene_vrm"
-# macOS
-ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/BLENDER_VERSION/scripts/addons/io_scene_vrm"
-# Windows PowerShell
-New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\io_scene_vrm" -Value "$(Get-Location)\src\io_scene_vrm"
-# Windows Command Prompt
-mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\io_scene_vrm" src\io_scene_vrm
+#### macOS
+
+```sh
+blender_version=4.5
+mkdir -p "$HOME/Library/Application Support/Blender/$blender_version/extensions/user_default"
+ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/$blender_version/extensions/user_default/vrm"
+```
+
+#### Windows PowerShell
+
+```pwsh
+$blenderVersion = 4.5
+New-Item -ItemType Directory -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\extensions\user_default" -Force
+New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\extensions\user_default\vrm" -Value "$(Get-Location)\src\io_scene_vrm"
+```
+
+### Blender 4.1.1 or earlier
+
+#### Linux
+
+```sh
+blender_version=4.5
+mkdir -p "$HOME/.config/blender/$blender_version/scripts/addons"
+ln -Ts "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/scripts/addons/io_scene_vrm"
+```
+
+#### macOS
+
+```sh
+blender_version=4.5
+mkdir -p "$HOME/Library/Application Support/Blender/$blender_version/scripts/addons"
+ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/$blender_version/scripts/addons/io_scene_vrm"
+```
+
+#### Windows PowerShell
+
+```pwsh
+$blenderVersion = 4.5
+New-Item -ItemType Directory -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\scripts\addons" -Force
+New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\scripts\addons\io_scene_vrm" -Value "$(Get-Location)\src\io_scene_vrm"
 ```
 
 ## To format the code, follow these steps

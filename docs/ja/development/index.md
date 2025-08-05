@@ -17,31 +17,59 @@ next: false
 
 GitHubレポジトリ内の
 [src/io_scene_vrm](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm)
-フォルダがアドオン本体です。 そのフォルダへのリンクをBlenderの `user_default`
+フォルダがアドオン本体です。そのフォルダへのリンクをBlenderの `user_default`
 あるいは `addons` フォルダ内に作ることで効率的に開発をすることができます。
 
-```text
-# Blender 4.2以上の場合
+### Blender 4.2以上向けの、開発用リンクの作成方法
 
-# Linux
-ln -Ts "$PWD/src/io_scene_vrm" "$HOME/.config/blender/BLENDER_VERSION/extensions/user_default/vrm"
-# macOS
-ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/BLENDER_VERSION/extensions/user_default/vrm"
-# Windows PowerShell
-New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\BLENDER_VERSION\extensions\user_default\vrm" -Value "$(Get-Location)\src\io_scene_vrm"
-# Windows Command Prompt
-mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\extensions\user_default\vrm" src\io_scene_vrm
+#### Linux
 
-# Blender 4.2未満の場合
+```sh
+blender_version=4.5
+mkdir -p "$HOME/.config/blender/$blender_version/extensions/user_default"
+ln -Ts "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/extensions/user_default/vrm"
+```
 
-# Linux
-ln -Ts "$PWD/src/io_scene_vrm" "$HOME/.config/blender/BLENDER_VERSION/scripts/addons/io_scene_vrm"
-# macOS
-ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/BLENDER_VERSION/scripts/addons/io_scene_vrm"
-# Windows PowerShell
-New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\io_scene_vrm" -Value "$(Get-Location)\src\io_scene_vrm"
-# Windows Command Prompt
-mklink /j "%APPDATA%\Blender Foundation\Blender\BLENDER_VERSION\scripts\addons\io_scene_vrm" src\io_scene_vrm
+#### macOS
+
+```sh
+blender_version=4.5
+mkdir -p "$HOME/Library/Application Support/Blender/$blender_version/extensions/user_default"
+ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/$blender_version/extensions/user_default/vrm"
+```
+
+#### Windows PowerShell
+
+```pwsh
+$blenderVersion = 4.5
+New-Item -ItemType Directory -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\extensions\user_default" -Force
+New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\extensions\user_default\vrm" -Value "$(Get-Location)\src\io_scene_vrm"
+```
+
+### Blender 4.2未満向けの、開発用リンクの作成方法
+
+#### Linux
+
+```sh
+blender_version=4.5
+mkdir -p "$HOME/.config/blender/$blender_version/scripts/addons"
+ln -Ts "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/scripts/addons/io_scene_vrm"
+```
+
+#### macOS
+
+```sh
+blender_version=4.5
+mkdir -p "$HOME/Library/Application Support/Blender/$blender_version/scripts/addons"
+ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/$blender_version/scripts/addons/io_scene_vrm"
+```
+
+#### Windows PowerShell
+
+```pwsh
+$blenderVersion = 4.5
+New-Item -ItemType Directory -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\scripts\addons" -Force
+New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\scripts\addons\io_scene_vrm" -Value "$(Get-Location)\src\io_scene_vrm"
 ```
 
 ## コードフォーマットの実行方法
