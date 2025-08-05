@@ -17,11 +17,12 @@ set them up automatically.
 
 The
 [src/io_scene_vrm](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm)
-folder in the GitHub repository contains the main add-on code. For efficient
-development, you can create a link to this folder in Blender's `user_default` or
-`addons` directory.
+folder contains the main add-on code. By creating a symbolic link to this folder
+in Blender's `user_default` or `addons` directory, you can install the
+development source code as an add-on in Blender, making it easy to test changes
+efficiently.
 
-### Blender 4.2 or later
+### How to create a development link for Blender 4.2 or later
 
 #### Linux
 
@@ -47,7 +48,7 @@ New-Item -ItemType Directory -Path "$Env:APPDATA\Blender Foundation\Blender\$ble
 New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\extensions\user_default\vrm" -Value "$(Get-Location)\src\io_scene_vrm"
 ```
 
-### Blender 4.1.1 or earlier
+### How to create a development link for Blender 4.1.1 or earlier
 
 #### Linux
 

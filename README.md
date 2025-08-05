@@ -37,14 +37,15 @@ from the original author, [@iCyP](https://github.com/iCyP).
 
 The
 [`src/io_scene_vrm`](https://github.com/saturday06/VRM-Addon-for-Blender/tree/main/src/io_scene_vrm)
-folder is the main body of the add-on. For efficient development, you can create
-a symbolic link to that folder in the Blender `addons` folder.
+folder contains the main add-on code. By creating a symbolic link to this folder
+in Blender's `user_default` or `addons` directory, you can install the
+development source code as an add-on in Blender, making it easy to test changes
+efficiently.
 
-For more advanced development, such as running tests, please refer to
-[the development how-to tutorial](https://vrm-addon-for-blender.info/en/development?locale_redirection)
-for more information.
+For advanced development tasks such as running tests, refer to the
+[development environment setup documentation](https://vrm-addon-for-blender.info/en/development?locale_redirection).
 
-### Blender 4.2 or later
+### How to create a development link for Blender 4.2 or later
 
 #### Linux
 
@@ -70,7 +71,7 @@ New-Item -ItemType Directory -Path "$Env:APPDATA\Blender Foundation\Blender\$ble
 New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\extensions\user_default\vrm" -Value "$(Get-Location)\src\io_scene_vrm"
 ```
 
-### Blender 4.1.1 or earlier
+### How to create a development link for Blender 4.1.1 or earlier
 
 #### Linux
 
