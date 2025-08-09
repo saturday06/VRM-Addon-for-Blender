@@ -27,7 +27,7 @@ Blender. It supports Blender versions 2.93 to 4.5.
 | [Create Physics Based Material](material-pbr/)                     | [Create Anime Style Material](material-mtoon/)                               | [VRM Animation](animation/)                                                      |
 | [![](/assets/images/material_pbr.gif){.tutorial}](material-pbr/)   | [![](/assets/images/material_mtoon.gif){.tutorial}](material-mtoon/)         | [![](/assets/images/animation.gif){.tutorial}](animation/)                       |
 | [Automation with Python scripts](scripting-api/)                   | [Development How-To](development/)                                           |                                                                                  |
-| [![](/assets/images/scripting_api.gif){.tutorial}](scripting-api/) | [![](/assets/images/animation.gif){.tutorial}](development/)                 |                                                                                  |
+| [![](/assets/images/scripting_api.gif){.tutorial}](scripting-api/) | [![](/assets/images/development.gif){.tutorial}](development/)               |                                                                                  |
 
 ## Overview
 

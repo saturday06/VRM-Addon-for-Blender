@@ -28,7 +28,7 @@ Blenderは、BlenderにVRMのインポート、エクスポートや編集機能
 | [物理ベースのマテリアル設定](material-pbr/)                        | [アニメ風のマテリアル設定](material-mtoon/)                                  | [VRMアニメーション](animation/)                                                  |
 | [![](/assets/images/material_pbr.gif){.tutorial}](material-pbr/)   | [![](/assets/images/material_mtoon.gif){.tutorial}](material-mtoon/)         | [![](/assets/images/animation.gif){.tutorial}](animation/)                       |
 | [Pythonスクリプトによる自動化](scripting-api/)                     | [改造するには](development/)                                                 |                                                                                  |
-| [![](/assets/images/scripting_api.gif){.tutorial}](scripting-api/) | [![](/assets/images/animation.gif){.tutorial}](development/)                 |                                                                                  |
+| [![](/assets/images/scripting_api.gif){.tutorial}](scripting-api/) | [![](/assets/images/development.gif){.tutorial}](development/)               |                                                                                  |
 
 ## 概要
 
