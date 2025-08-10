@@ -14,16 +14,16 @@ class glTF2ExportUserExtension:
 
     # 3 arguments in Blender 2.93.0
     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/709630548cdc184af6ea50b2ff3ddc5450bc0af3/addons/io_scene_gltf2/blender/exp/gltf2_blender_export.py#L68
-    # 5 arguments in Blender 3.6.0
-    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/78c9556942e0780b471c9985e83e39e8c8d8f85a/addons/io_scene_gltf2/blender/exp/gltf2_blender_export.py#L84
+    # 5 arguments in Blender 3.3.0
+    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/92061fa5b8058c8dff964c9bf177e079926b9671/addons/io_scene_gltf2/blender/exp/gltf2_blender_export.py#L85
     def gather_gltf_hook(
         self,
         # The number of arguments and specifications vary widely from version to version
         # of the glTF 2.0 add-on.
-        _a: object,
-        _b: object,
-        _c: object,
-        _d: object,
+        _arg1: object,
+        _arg2: object,
+        _arg3: object = None,
+        _arg4: object = None,
     ) -> None:
         context = bpy.context
 
