@@ -22,7 +22,7 @@ from bpy_extras.io_utils import ExportHelper, ImportHelper
 
 from ..common.deep import make_json
 from ..common.human_bone_mapper.vroid_mapping import (
-    FULL__PATTERN,
+    FULL_PATTERN,
     symmetrise_vroid_bone_name,
 )
 from ..common.logger import get_logger
@@ -64,7 +64,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
 
     @staticmethod
     def vroid_bones_exist(armature: Armature) -> bool:
-        return any(map(FULL__PATTERN.match, armature.bones.keys()))
+        return any(map(FULL_PATTERN.match, armature.bones.keys()))
 
     def execute(self, context: Context) -> set[str]:
         if not self.armature_object_name and self.armature_name:

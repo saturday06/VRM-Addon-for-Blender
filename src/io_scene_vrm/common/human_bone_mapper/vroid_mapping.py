@@ -5,13 +5,15 @@ from typing import Final
 
 from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 
-LEFT__PATTERN: Final = re.compile("^J_(Adj|Bip|Opt|Sec)_L_")
-RIGHT_PATTERN: Final = re.compile("^J_(Adj|Bip|Opt|Sec)_R_")
-FULL__PATTERN: Final = re.compile("^J_(Adj|Bip|Opt|Sec)_([CLR]_)?")
+LEFT_PATTERN, RIGHT_PATTERN, FULL_PATTERN = (
+    re.compile("^J_(Adj|Bip|Opt|Sec)_L_"),
+    re.compile("^J_(Adj|Bip|Opt|Sec)_R_"),
+    re.compile("^J_(Adj|Bip|Opt|Sec)_([CLR]_)?"),
+)
 
 
 def symmetrise_vroid_bone_name(bone_name: str) -> str:
-    left = LEFT__PATTERN.sub("", bone_name)
+    left = LEFT_PATTERN.sub("", bone_name)
     if left != bone_name:
         return left + "_L"
 
@@ -19,7 +21,7 @@ def symmetrise_vroid_bone_name(bone_name: str) -> str:
     if right != bone_name:
         return right + "_R"
 
-    return FULL__PATTERN.sub("", bone_name)
+    return FULL_PATTERN.sub("", bone_name)
 
 
 MAPPING: Final[Mapping[str, HumanBoneSpecification]] = {
