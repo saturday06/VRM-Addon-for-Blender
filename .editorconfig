@@ -106,3 +106,7 @@ indent_size = unset
 indent_style = unset
 tab_width = unset
 trim_trailing_whitespace = unset
+
+[*.sh]
+# https://github.com/mvdan/sh/blob/v3.12.0/cmd/shfmt/shfmt.1.scd?plain=1#L132-L157
+simplify = true
