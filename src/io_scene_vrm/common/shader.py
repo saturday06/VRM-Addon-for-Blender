@@ -76,7 +76,6 @@ from bpy.types import (
     ShaderNodeTexImage,
     ShaderNodeTexMagic,
     ShaderNodeTexNoise,
-    ShaderNodeTexPointDensity,
     ShaderNodeTexSky,
     ShaderNodeTexVoronoi,
     ShaderNodeTexWave,
@@ -923,27 +922,6 @@ def copy_node(
             to_node.sun_direction = from_node_sun_direction
         if to_node.turbidity != from_node.turbidity:
             to_node.turbidity = from_node.turbidity
-    if isinstance(from_node, ShaderNodeTexPointDensity) and isinstance(
-        to_node, ShaderNodeTexPointDensity
-    ):
-        if to_node.interpolation != from_node.interpolation:
-            to_node.interpolation = from_node.interpolation
-        if to_node.object != from_node.object:
-            to_node.object = from_node.object
-        if to_node.particle_color_source != from_node.particle_color_source:
-            to_node.particle_color_source = from_node.particle_color_source
-        if to_node.point_source != from_node.point_source:
-            to_node.point_source = from_node.point_source
-        if to_node.radius != from_node.radius:
-            to_node.radius = from_node.radius
-        if to_node.resolution != from_node.resolution:
-            to_node.resolution = from_node.resolution
-        if to_node.space != from_node.space:
-            to_node.space = from_node.space
-        if to_node.vertex_attribute_name != from_node.vertex_attribute_name:
-            to_node.vertex_attribute_name = from_node.vertex_attribute_name
-        if to_node.vertex_color_source != from_node.vertex_color_source:
-            to_node.vertex_color_source = from_node.vertex_color_source
     if isinstance(from_node, ShaderNodeTexNoise) and isinstance(
         to_node, ShaderNodeTexNoise
     ):
@@ -1266,6 +1244,31 @@ def copy_node(
                 to_node.musgrave_dimensions = from_node.musgrave_dimensions
             if to_node.musgrave_type != from_node.musgrave_type:
                 to_node.musgrave_type = from_node.musgrave_type
+
+    if bpy.app.version < (5, 0):
+        from bpy.types import ShaderNodeTexPointDensity
+
+        if isinstance(from_node, ShaderNodeTexPointDensity) and isinstance(
+            to_node, ShaderNodeTexPointDensity
+        ):
+            if to_node.interpolation != from_node.interpolation:
+                to_node.interpolation = from_node.interpolation
+            if to_node.object != from_node.object:
+                to_node.object = from_node.object
+            if to_node.particle_color_source != from_node.particle_color_source:
+                to_node.particle_color_source = from_node.particle_color_source
+            if to_node.point_source != from_node.point_source:
+                to_node.point_source = from_node.point_source
+            if to_node.radius != from_node.radius:
+                to_node.radius = from_node.radius
+            if to_node.resolution != from_node.resolution:
+                to_node.resolution = from_node.resolution
+            if to_node.space != from_node.space:
+                to_node.space = from_node.space
+            if to_node.vertex_attribute_name != from_node.vertex_attribute_name:
+                to_node.vertex_attribute_name = from_node.vertex_attribute_name
+            if to_node.vertex_color_source != from_node.vertex_color_source:
+                to_node.vertex_color_source = from_node.vertex_color_source
 
 
 def clear_node_tree(
