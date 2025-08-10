@@ -29,7 +29,7 @@ validate_file_name_characters
 git ls-files "*.sh" | xargs shellcheck
 git ls-files "*.py" "*.pyi" | xargs uv run ruff check
 git ls-files "*.py" "*.pyi" | xargs uv run codespell
-git ls-files "*.sh" | xargs shfmt -d -s
+git ls-files "*.sh" | xargs shfmt -d
 git ls-files "*/Dockerfile" "*.dockerfile" | xargs hadolint
 deno lint
 deno task pyright
