@@ -7,12 +7,12 @@ mkdir -p ~/.local/bin
 
 case "$(uname -m)" in
 "x86_64")
-  url=https://github.com/mvdan/sh/releases/download/v3.11.0/shfmt_v3.11.0_linux_amd64
-  sha256=1904ec6bac715c1d05cd7f6612eec8f67a625c3749cb327e5bfb4127d09035ff
+  url=https://github.com/mvdan/sh/releases/download/v3.12.0/shfmt_v3.12.0_linux_amd64
+  sha256=d9fbb2a9c33d13f47e7618cf362a914d029d02a6df124064fff04fd688a745ea
   ;;
 "aarch64")
-  url=https://github.com/mvdan/sh/releases/download/v3.11.0/shfmt_v3.11.0_linux_arm64
-  sha256=b3976121710fd4b12bf641b0a7fb2686da598fb0da9f148c641b61b54cfa3407
+  url=https://github.com/mvdan/sh/releases/download/v3.12.0/shfmt_v3.12.0_linux_arm64
+  sha256=5f3fe3fa6a9f766e6a182ba79a94bef8afedafc57db0b1ad32b0f67fae971ba4
   ;;
 *)
   exit 0
