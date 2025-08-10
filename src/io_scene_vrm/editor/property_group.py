@@ -260,6 +260,25 @@ class BonePropertyGroupType(Enum):
     SPRING_BONE1_SPRING_CENTER = 8
     SPRING_BONE1_SPRING_JOINT = 9
 
+    @staticmethod
+    def is_vrm0(bone_property_group_type: "BonePropertyGroupType") -> bool:
+        return bone_property_group_type in {
+            BonePropertyGroupType.VRM0_FIRST_PERSON,
+            BonePropertyGroupType.VRM0_HUMAN,
+            BonePropertyGroupType.VRM0_COLLIDER_GROUP,
+            BonePropertyGroupType.VRM0_BONE_GROUP_CENTER,
+            BonePropertyGroupType.VRM0_BONE_GROUP,
+        }
+
+    @staticmethod
+    def is_vrm1(bone_property_group_type: "BonePropertyGroupType") -> bool:
+        return bone_property_group_type in {
+            BonePropertyGroupType.VRM1_HUMAN,
+            BonePropertyGroupType.SPRING_BONE1_COLLIDER,
+            BonePropertyGroupType.SPRING_BONE1_SPRING_CENTER,
+            BonePropertyGroupType.SPRING_BONE1_SPRING_JOINT,
+        }
+
 
 class BonePropertyGroup(PropertyGroup):
     @staticmethod

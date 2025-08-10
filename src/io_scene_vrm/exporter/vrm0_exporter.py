@@ -229,6 +229,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         with (
             save_workspace(self.context),
             self.clear_blend_shape_proxy_previews(self.armature_data),
+            self.enable_deform_for_all_referenced_bones(self.armature_data),
             setup_humanoid_t_pose(self.context, self.armature),
             self.hide_mtoon1_outline_geometry_nodes(self.context),
             create_progress(self.context) as progress,

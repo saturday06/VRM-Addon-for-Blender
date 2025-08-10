@@ -2613,6 +2613,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             save_workspace(self.context),
             self.setup_dummy_human_bones(self.context, self.armature),
             self.clear_blend_shape_proxy_previews(armature_data),
+            self.enable_deform_for_all_referenced_bones(armature_data),
             setup_humanoid_t_pose(self.context, self.armature),
             self.overwrite_object_visibility_and_selection(),
         ):

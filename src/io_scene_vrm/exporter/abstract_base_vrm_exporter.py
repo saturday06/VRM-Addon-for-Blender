@@ -15,6 +15,7 @@ from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.logger import get_logger
 from ..editor.extension import get_armature_extension, get_material_extension
+from ..editor.property_group import BonePropertyGroup, BonePropertyGroupType
 from ..editor.search import MESH_CONVERTIBLE_OBJECT_TYPES
 from ..external import io_scene_gltf2_support
 
@@ -104,6 +105,51 @@ class AbstractBaseVrmExporter(ABC):
         finally:
             self.leave_clear_blend_shape_proxy_previews(
                 armature_data, saved_vrm0_previews, saved_vrm1_previews
+            )
+
+    def enter_enable_deform_for_all_referenced_bones(
+        self, armature_data: Armature
+    ) -> list[str]:
+        ext = get_armature_extension(armature_data)
+        modified_non_deform_bone_names = list[str]()
+        for (
+            bone_property_group,
+            bone_property_group_type,
+        ) in BonePropertyGroup.get_all_bone_property_groups(armature_data):
+            bone = armature_data.bones.get(bone_property_group.bone_name)
+            if not bone or bone.use_deform:
+                continue
+            if (
+                ext.is_vrm0()
+                and BonePropertyGroupType.is_vrm0(bone_property_group_type)
+            ) or (
+                ext.is_vrm1()
+                and BonePropertyGroupType.is_vrm1(bone_property_group_type)
+            ):
+                bone.use_deform = True
+                modified_non_deform_bone_names.append(bone.name)
+        return modified_non_deform_bone_names
+
+    def leave_enable_deform_for_all_referenced_bones(
+        self, armature_data: Armature, modified_non_deform_bone_names: list[str]
+    ) -> None:
+        for modified_non_deform_bone_name in modified_non_deform_bone_names:
+            bone = armature_data.bones.get(modified_non_deform_bone_name)
+            if bone and bone.use_deform:
+                bone.use_deform = False
+
+    @contextmanager
+    def enable_deform_for_all_referenced_bones(
+        self, armature_data: Armature
+    ) -> Iterator[None]:
+        modified_non_deform_bone_names = (
+            self.enter_enable_deform_for_all_referenced_bones(armature_data)
+        )
+        try:
+            yield
+        finally:
+            self.leave_enable_deform_for_all_referenced_bones(
+                armature_data, modified_non_deform_bone_names
             )
 
     @staticmethod
