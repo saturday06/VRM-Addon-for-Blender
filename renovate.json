@@ -8,6 +8,7 @@
   "schedule": ["* 0 * * 5"],
   "lockFileMaintenance": {
     "enabled": true,
+    "groupName": "all non-major dependencies",
     "automerge": true
   },
   "packageRules": [
