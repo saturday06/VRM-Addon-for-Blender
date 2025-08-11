@@ -31,7 +31,7 @@ jobs:
         run: deno eval 'console.log(Deno.version.deno)' | tee .dvmrc
       - name: Update deno.jsonc and deno.lock
         run: |
-          deno cache . --allow-scripts --frozen=false
+          deno install --allow-scripts --frozen=false
           deno outdated --update --latest --frozen=false
 
           # Just `deno outdated` doesn't update the types+node version in deno.lock's specifiers
@@ -39,7 +39,7 @@ jobs:
           # so we need to recreate deno.lock itself
           rm -fr deno.lock node_modules || true
 
-          deno cache . --allow-scripts --frozen=false
+          deno install --allow-scripts --frozen=false
           deno outdated --update --latest --frozen=false
       - name: Create PR
         run: |
