@@ -6,7 +6,7 @@
 ### 🐛 Bug Fixes
 
 * fix export error on Blender 2.93 ([10d3a57](https://github.com/saturday06/VRM-Addon-for-Blender/commit/10d3a57bf86aaade94ae01d2f66901225350a4f6))
-* fixed a bug where referenced Non-Deform bones were not exported ([e725b50](https://github.com/saturday06/VRM-Addon-for-Blender/commit/e725b502e1f0df78bdd4a4b5ceddfdb2539cb90a))
+* fix a bug where referenced Non-Deform bones were not exported ([e725b50](https://github.com/saturday06/VRM-Addon-for-Blender/commit/e725b502e1f0df78bdd4a4b5ceddfdb2539cb90a))
 
 ## [3.10.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.9.2...v3.10.1) (2025-07-30)
 
