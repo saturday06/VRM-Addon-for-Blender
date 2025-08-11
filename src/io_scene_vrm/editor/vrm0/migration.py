@@ -511,8 +511,6 @@ def migrate_link_to_bone_object(
         bone_property_group,
         _bone_property_group_type,
     ) in BonePropertyGroup.get_all_bone_property_groups(armature):
-        bone_property_group.armature_data_name = armature_data.name
-
         link_to_bone = bone_property_group.get("link_to_bone")
         if not isinstance(link_to_bone, Object) or not link_to_bone.parent_bone:
             continue

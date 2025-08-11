@@ -4,7 +4,16 @@ import warnings
 from collections.abc import Iterator, Mapping, Sequence, ValuesView
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, ClassVar, Final, Optional, Protocol, TypeVar, overload
+from typing import (
+    TYPE_CHECKING,
+    ClassVar,
+    Final,
+    Optional,
+    Protocol,
+    TypeVar,
+    Union,
+    overload,
+)
 
 import bpy
 from bpy.app.translations import pgettext
@@ -255,14 +264,18 @@ class BonePropertyGroupType(Enum):
 class BonePropertyGroup(PropertyGroup):
     @staticmethod
     def get_all_bone_property_groups(
-        armature: Object,
+        armature: Union[Object, Armature],
     ) -> Iterator[tuple["BonePropertyGroup", BonePropertyGroupType]]:
         """Return (bone: BonePropertyGroup, is_vrm0: bool, is_vrm1: bool)."""
         from .extension import get_armature_extension
 
-        armature_data = armature.data
-        if not isinstance(armature_data, Armature):
-            return
+        if isinstance(armature, Object):
+            armature_data = armature.data
+            if not isinstance(armature_data, Armature):
+                return
+        else:
+            armature_data = armature
+
         ext = get_armature_extension(armature_data)
         yield (
             ext.vrm0.first_person.first_person_bone,
@@ -522,18 +535,13 @@ class BonePropertyGroup(PropertyGroup):
     def get_bone_name(self) -> str:
         from .extension import get_bone_extension
 
-        context = bpy.context
-
         if not self.bone_uuid:
             return ""
-        if not self.armature_data_name:
-            return ""
-        armature_data = context.blend_data.armatures.get(self.armature_data_name)
-        if not armature_data:
-            return ""
+
+        armature_data = self.find_armature()
 
         # Use cache to speed up this function since profiling showed it was slow
-        cache_key = (self.armature_data_name, self.bone_uuid)
+        cache_key = (armature_data.name, self.bone_uuid)
         cached_bone_name = self.armature_data_name_and_bone_uuid_to_bone_name_cache.get(
             cache_key
         )
@@ -554,70 +562,62 @@ class BonePropertyGroup(PropertyGroup):
 
         return ""
 
+    def find_armature(self) -> Armature:
+        id_data = self.id_data
+        if isinstance(id_data, Armature):
+            return id_data
+
+        message = (
+            f"{type(self)}/{self}.id_data is not a {Armature}"
+            + f" but {type(id_data)}/{id_data}"
+        )
+        raise AssertionError(message)
+
+    def get_bone_property_group_type(self) -> BonePropertyGroupType:
+        armature_data = self.find_armature()
+        for (
+            bone_property_group,
+            bone_property_group_type,
+        ) in self.get_all_bone_property_groups(armature_data):
+            if bone_property_group == self:
+                return bone_property_group_type
+
+        message = (
+            f"{type(self)}/{self} is not associated with "
+            + "BonePropertyGroupType.get_all_bone_property_groups"
+        )
+        raise AssertionError(message)
+
     def set_bone_name(self, value: str) -> None:
         from .extension import get_armature_extension, get_bone_extension
 
         context = bpy.context
 
-        armature: Optional[Object] = None
-        bone_property_group_type: Optional[BonePropertyGroupType] = None
+        armature_data = self.find_armature()
+        armature_objects = [
+            obj for obj in context.blend_data.objects if obj.data == armature_data
+        ]
+        bone_property_group_type = self.get_bone_property_group_type()
 
-        # Reassign self.armature_data_name in case of armature duplication.
-        self.search_one_time_uuid = uuid.uuid4().hex
-        for found_armature in context.blend_data.objects:
-            if found_armature.type != "ARMATURE":
-                continue
-
-            same_uuid_bone_found = False
-            for (
-                bone_property_group,
-                found_bone_property_group_type,
-            ) in BonePropertyGroup.get_all_bone_property_groups(found_armature):
-                if (
-                    bone_property_group.search_one_time_uuid
-                    == self.search_one_time_uuid
-                ):
-                    same_uuid_bone_found = True
-                    bone_property_group_type = found_bone_property_group_type
-                    break
-            if not same_uuid_bone_found:
-                continue
-
-            armature = found_armature
-            break
-        if not armature:
-            self.armature_data_name = ""
-            self.bone_uuid = ""
-            return
-
-        armature_data = armature.data
-        if not isinstance(armature_data, Armature):
-            self.armature_data_name = ""
-            self.bone_uuid = ""
-            return
-
-        self.armature_data_name = armature_data.name
-
-        # Reassign UUIDs if duplicate UUIDs exist in case of bone duplication.
+        # Assign UUIDs and regenerate it if duplication exist
         found_uuids: set[str] = set()
         for bone in armature_data.bones:
             bone_extension = get_bone_extension(bone)
             found_uuid = bone_extension.uuid
             if not found_uuid or found_uuid in found_uuids:
                 bone_extension.uuid = uuid.uuid4().hex
+                self.armature_data_name_and_bone_uuid_to_bone_name_cache.clear()
             found_uuids.add(bone_extension.uuid)
 
-        if not value or value not in armature_data.bones:
+        if not value or not (bone := armature_data.bones.get(value)):
             if not self.bone_uuid:
+                # Not changed
                 return
             self.bone_uuid = ""
-        elif (
-            self.bone_uuid
-            and self.bone_uuid == get_bone_extension(armature_data.bones[value]).uuid
-        ):
+        elif self.bone_uuid and self.bone_uuid == get_bone_extension(bone).uuid:
+            # Not changed
             return
         else:
-            bone = armature_data.bones[value]
             self.bone_uuid = get_bone_extension(bone).uuid
 
         ext = get_armature_extension(armature_data)
@@ -627,11 +627,13 @@ class BonePropertyGroup(PropertyGroup):
             BonePropertyGroupType.VRM0_BONE_GROUP,
         ]:
             for collider_group in ext.vrm0.secondary_animation.collider_groups:
-                collider_group.refresh(armature)
+                for armature_object in armature_objects:
+                    collider_group.refresh(armature_object)
 
         if bone_property_group_type == BonePropertyGroupType.SPRING_BONE1_COLLIDER:
             for collider in ext.spring_bone1.colliders:
-                collider.reset_bpy_object(context, armature)
+                for armature_object in armature_objects:
+                    collider.reset_bpy_object(context, armature_object)
 
         if (
             ext.is_vrm0()
@@ -792,16 +794,12 @@ class BonePropertyGroup(PropertyGroup):
     """
 
     bone_uuid: StringProperty()  # type: ignore[valid-type]
-    armature_data_name: StringProperty()  # type: ignore[valid-type]
-    search_one_time_uuid: StringProperty()  # type: ignore[valid-type]
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         bone_name: str  # type: ignore[no-redef]
         value: str  # type: ignore[no-redef]
         bone_uuid: str  # type: ignore[no-redef]
-        armature_data_name: str  # type: ignore[no-redef]
-        search_one_time_uuid: str  # type: ignore[no-redef]
 
 
 T_co = TypeVar("T_co", covariant=True)

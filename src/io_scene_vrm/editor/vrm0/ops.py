@@ -1290,8 +1290,7 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(Operator):
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
         bone_group = bone_groups[self.bone_group_index]
-        bone = bone_group.bones.add()
-        bone.armature_data_name = armature_data.name
+        bone_group.bones.add()
         bone_group.active_bone_index = len(bone_group.bones) - 1
         return {"FINISHED"}
 

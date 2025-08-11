@@ -16,7 +16,6 @@ from .extension import (
     get_armature_extension,
 )
 from .mtoon1 import migration as mtoon1_migration
-from .property_group import BonePropertyGroup
 from .spring_bone1 import migration as spring_bone1_migration
 from .vrm0 import migration as vrm0_migration
 from .vrm1 import migration as vrm1_migration
@@ -84,12 +83,6 @@ def migrate(context: Optional[Context], armature_object_name: str) -> bool:
 
     ext = get_armature_extension(armature_data)
     ext.armature_data_name = armature_data.name
-
-    for (
-        bone_property_group,
-        _type,
-    ) in BonePropertyGroup.get_all_bone_property_groups(armature):
-        bone_property_group.armature_data_name = armature_data.name
 
     vrm0_migration.migrate(context, ext.vrm0, armature)
     vrm1_migration.migrate(context, ext.vrm1, armature)

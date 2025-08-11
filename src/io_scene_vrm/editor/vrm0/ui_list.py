@@ -118,7 +118,7 @@ class VRM_UL_vrm0_secondary_animation_group_bone(UIList):
 
     def draw_item(
         self,
-        context: Context,
+        _context: Context,
         layout: UILayout,
         bone_group: object,
         bone: object,
@@ -132,9 +132,7 @@ class VRM_UL_vrm0_secondary_animation_group_bone(UIList):
             return
         if not isinstance(bone, BonePropertyGroup):
             return
-        armature = context.blend_data.armatures.get(bone.armature_data_name)
-        if armature is None:
-            return
+        armature = bone.find_armature()
 
         icon = "BONE_DATA"
 
