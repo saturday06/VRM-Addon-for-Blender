@@ -44,18 +44,18 @@ def fixup_gravity_dir(armature: Armature) -> None:
                 joint.gravity_dir = gravity_dir
 
 
-def fixup_collider_group_name(armature: Armature) -> None:
+def fixup_collider_group_name(context: Context, armature: Armature) -> None:
     ext = get_armature_extension(armature)
     if tuple(ext.addon_version) <= (2, 20, 38):
         spring_bone = get_armature_extension(armature).spring_bone1
         for collider_group in spring_bone.collider_groups:
-            collider_group.fix_index()
+            collider_group.fix_index(context)
 
 
-def migrate(_context: Context, armature: Object) -> None:
+def migrate(context: Context, armature: Object) -> None:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
     migrate_blender_object(armature_data)
     fixup_gravity_dir(armature_data)
-    fixup_collider_group_name(armature_data)
+    fixup_collider_group_name(context, armature_data)

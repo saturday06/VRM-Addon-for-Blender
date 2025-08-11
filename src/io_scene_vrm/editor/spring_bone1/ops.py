@@ -212,7 +212,7 @@ class VRM_OT_move_up_spring_bone1_collider_group(Operator):
         spring_bone.collider_groups.move(self.collider_group_index, new_index)
         spring_bone.active_collider_group_index = new_index
         for collider_group in spring_bone.collider_groups:
-            collider_group.fix_index()
+            collider_group.fix_index(context)
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -271,7 +271,7 @@ class VRM_OT_move_down_spring_bone1_collider_group(Operator):
         spring_bone.collider_groups.move(self.collider_group_index, new_index)
         spring_bone.active_collider_group_index = new_index
         for collider_group in spring_bone.collider_groups:
-            collider_group.fix_index()
+            collider_group.fix_index(context)
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -615,7 +615,7 @@ class VRM_OT_remove_spring_bone1_collider_group(Operator):
                 if not removed:
                     break
         for collider_group in collider_groups:
-            collider_group.fix_index()
+            collider_group.fix_index(context)
 
         spring_bone.active_collider_group_index = min(
             spring_bone.active_collider_group_index,

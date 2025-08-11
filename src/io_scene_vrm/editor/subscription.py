@@ -107,7 +107,7 @@ def on_change_bpy_object_name() -> None:
 
         # TODO: Needs optimization!
         for collider in ext.spring_bone1.colliders:
-            collider.broadcast_bpy_object_name()
+            collider.broadcast_bpy_object_name(context)
 
 
 def on_change_bpy_object_mode() -> None:
