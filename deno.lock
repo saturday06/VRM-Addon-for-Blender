@@ -3,10 +3,9 @@
   "specifiers": {
     "npm:@octokit/rest@22.0.0": "22.0.0_@octokit+core@7.0.3",
     "npm:@octokit/types@14.1.0": "14.1.0",
-    "npm:@types/node@*": "22.15.15",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
     "npm:pyright@1.1.403": "1.1.403",
-    "npm:vitepress@1.6.3": "1.6.3_vite@5.4.19_vue@3.5.18_focus-trap@7.6.5_@types+node@22.15.15",
+    "npm:vitepress@1.6.4": "1.6.4_vite@5.4.19_vue@3.5.18_focus-trap@7.6.5",
     "npm:vue@3.5.18": "3.5.18"
   },
   "npm": {
@@ -304,8 +303,8 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@iconify-json/simple-icons@1.2.45": {
-      "integrity": "sha512-POOz+NjYQDy2fy1u+sIZi05N6r6oSooIGBaBcZLh7w8QOmLgJAZ6mBt+7Messp7ku9ucRua61if33BPoOZCwRQ==",
+    "@iconify-json/simple-icons@1.2.47": {
+      "integrity": "sha512-wa/2O7G4sBmwSEWWLh5C+HeY00lVOoWYRKJOYQtk7lAbQrHUReD1ijiGOyTynV1YavxtNueL1CBA1UZmYJfOrQ==",
       "dependencies": [
         "@iconify/types"
       ]
@@ -583,12 +582,6 @@
     "@types/mdurl@2.0.0": {
       "integrity": "sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg=="
     },
-    "@types/node@22.15.15": {
-      "integrity": "sha512-R5muMcZob3/Jjchn5LcO8jdKwSCbzqmPB6ruBxMcf9kbxtniZHP327s6C37iOfuw8mbKK3cAQa7sEl7afLrQ8A==",
-      "dependencies": [
-        "undici-types"
-      ]
-    },
     "@types/unist@3.0.3": {
       "integrity": "sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q=="
     },
@@ -601,14 +594,7 @@
     "@vitejs/plugin-vue@5.2.4_vite@5.4.19_vue@3.5.18": {
       "integrity": "sha512-7Yx/SXSOcQq5HiiV3orevHUFn+pmMB4cgbEkDYgnkUWb0WfeQ/wa2yFv6D5ICiCQOVpjA7vYDXrC7AGO8yjDHA==",
       "dependencies": [
-        "vite@5.4.19",
-        "vue"
-      ]
-    },
-    "@vitejs/plugin-vue@5.2.4_vite@5.4.19_vue@3.5.18_@types+node@22.15.15": {
-      "integrity": "sha512-7Yx/SXSOcQq5HiiV3orevHUFn+pmMB4cgbEkDYgnkUWb0WfeQ/wa2yFv6D5ICiCQOVpjA7vYDXrC7AGO8yjDHA==",
-      "dependencies": [
-        "vite@5.4.19_@types+node@22.15.15",
+        "vite",
         "vue"
       ]
     },
@@ -1063,9 +1049,6 @@
     "trim-lines@3.0.1": {
       "integrity": "sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg=="
     },
-    "undici-types@6.21.0": {
-      "integrity": "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="
-    },
     "unist-util-is@6.0.0": {
       "integrity": "sha512-2qCTHimwdxLfz+YzdGfkqNlH0tLi9xjTnHddPmJwtIG9MGsdbutfTc4P+haPD7l7Cjxf/WZj+we5qfVPvvxfYw==",
       "dependencies": [
@@ -1128,24 +1111,8 @@
       ],
       "bin": true
     },
-    "vite@5.4.19_@types+node@22.15.15": {
-      "integrity": "sha512-qO3aKv3HoQC8QKiNSTuUM1l9o/XX3+c+VTgLHbJWHZGeTPVAg2XwazI9UWzoxjIJCGCV2zU60uqMzjeLZuULqA==",
-      "dependencies": [
-        "@types/node",
-        "esbuild",
-        "postcss",
-        "rollup"
-      ],
-      "optionalDependencies": [
-        "fsevents"
-      ],
-      "optionalPeers": [
-        "@types/node"
-      ],
-      "bin": true
-    },
-    "vitepress@1.6.3_vite@5.4.19_vue@3.5.18_focus-trap@7.6.5": {
-      "integrity": "sha512-fCkfdOk8yRZT8GD9BFqusW3+GggWYZ/rYncOfmgcDtP3ualNHCAg+Robxp2/6xfH1WwPHtGpPwv7mbA3qomtBw==",
+    "vitepress@1.6.4_vite@5.4.19_vue@3.5.18_focus-trap@7.6.5": {
+      "integrity": "sha512-+2ym1/+0VVrbhNyRoFFesVvBvHAVMZMK0rw60E3X/5349M1GuVdKeazuksqopEdvkKwKGs21Q729jX81/bkBJg==",
       "dependencies": [
         "@docsearch/css",
         "@docsearch/js",
@@ -1154,7 +1121,7 @@
         "@shikijs/transformers",
         "@shikijs/types",
         "@types/markdown-it",
-        "@vitejs/plugin-vue@5.2.4_vite@5.4.19_vue@3.5.18",
+        "@vitejs/plugin-vue",
         "@vue/devtools-api",
         "@vue/shared",
         "@vueuse/core",
@@ -1163,31 +1130,7 @@
         "mark.js",
         "minisearch",
         "shiki",
-        "vite@5.4.19",
-        "vue"
-      ],
-      "bin": true
-    },
-    "vitepress@1.6.3_vite@5.4.19_vue@3.5.18_focus-trap@7.6.5_@types+node@22.15.15": {
-      "integrity": "sha512-fCkfdOk8yRZT8GD9BFqusW3+GggWYZ/rYncOfmgcDtP3ualNHCAg+Robxp2/6xfH1WwPHtGpPwv7mbA3qomtBw==",
-      "dependencies": [
-        "@docsearch/css",
-        "@docsearch/js",
-        "@iconify-json/simple-icons",
-        "@shikijs/core",
-        "@shikijs/transformers",
-        "@shikijs/types",
-        "@types/markdown-it",
-        "@vitejs/plugin-vue@5.2.4_vite@5.4.19_vue@3.5.18_@types+node@22.15.15",
-        "@vue/devtools-api",
-        "@vue/shared",
-        "@vueuse/core",
-        "@vueuse/integrations",
-        "focus-trap",
-        "mark.js",
-        "minisearch",
-        "shiki",
-        "vite@5.4.19_@types+node@22.15.15",
+        "vite",
         "vue"
       ],
       "bin": true
@@ -1212,7 +1155,7 @@
       "npm:@octokit/types@14.1.0",
       "npm:gltf-validator@2.0.0-dev.3.10",
       "npm:pyright@1.1.403",
-      "npm:vitepress@1.6.3",
+      "npm:vitepress@1.6.4",
       "npm:vue@3.5.18"
     ]
   }
