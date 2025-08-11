@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import statistics
-import uuid
 from collections.abc import Sequence
 from sys import float_info
 from typing import TYPE_CHECKING, Callable, Optional
@@ -675,20 +674,13 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
             return
         self.name = self.bpy_object.name
 
-        self.search_one_time_uuid = uuid.uuid4().hex
         spring_bone = get_armature_spring_bone1_extension(armature)
-
-        for collider in spring_bone.colliders:
-            if collider.search_one_time_uuid != self.search_one_time_uuid:
-                continue
-
-            for collider_group in spring_bone.collider_groups:
-                for collider_reference in collider_group.colliders:
-                    if self.uuid != collider_reference.collider_uuid:
-                        continue
+        for collider_group in spring_bone.collider_groups:
+            for collider_reference in collider_group.colliders:
+                if self.uuid != collider_reference.collider_uuid:
+                    continue
+                if collider_reference.collider_name != self.name:
                     collider_reference.collider_name = self.name
-
-            return
 
     node: PointerProperty(type=BonePropertyGroup)  # type: ignore[valid-type]
     shape: PointerProperty(type=SpringBone1ColliderShapePropertyGroup)  # type: ignore[valid-type]
@@ -813,7 +805,6 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
 
     # for references
     uuid: StringProperty()  # type: ignore[valid-type]
-    search_one_time_uuid: StringProperty()  # type: ignore[valid-type]
 
     def reset_bpy_object(self, context: Context, armature: Object) -> None:
         armature_data = armature.data
@@ -922,7 +913,6 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
         ui_collider_type: str  # type: ignore[no-redef]
         bpy_object: Optional[Object]  # type: ignore[no-redef]
         uuid: str  # type: ignore[no-redef]
-        search_one_time_uuid: str  # type: ignore[no-redef]
 
 
 class SpringBone1ColliderReferencePropertyGroup(PropertyGroup):
@@ -946,30 +936,23 @@ class SpringBone1ColliderReferencePropertyGroup(PropertyGroup):
             return
         self["collider_name"] = value
 
-        self.search_one_time_uuid = uuid.uuid4().hex
         spring_bone = get_armature_spring_bone1_extension(armature)
-        for collider_group in spring_bone.collider_groups:
-            for collider_reference in collider_group.colliders:
-                if collider_reference.search_one_time_uuid != self.search_one_time_uuid:
-                    continue
-
-                for collider in spring_bone.colliders:
-                    if collider.name == value:
-                        self.collider_uuid = collider.uuid
-                return
+        for collider in spring_bone.colliders:
+            if collider.name != value:
+                continue
+            if self.collider_uuid != collider.uuid:
+                self.collider_uuid = collider.uuid
 
     collider_name: StringProperty(  # type: ignore[valid-type]
         get=get_collider_name, set=set_collider_name
     )
     collider_uuid: StringProperty()  # type: ignore[valid-type]
-    search_one_time_uuid: StringProperty()  # type: ignore[valid-type]
 
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         collider_name: str  # type: ignore[no-redef]
         collider_uuid: str  # type: ignore[no-redef]
-        search_one_time_uuid: str  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/f2d8f158297fc883aef9c3071ca68fbe46b03f45/specification/0.0/schema/vrm.secondaryanimation.collidergroup.schema.json
@@ -993,11 +976,10 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
             )
             raise TypeError(message)
 
-        self.search_one_time_uuid = uuid.uuid4().hex
         spring_bone = get_armature_spring_bone1_extension(armature)
 
         for index, collider_group in enumerate(spring_bone.collider_groups):
-            if collider_group.search_one_time_uuid != self.search_one_time_uuid:
+            if collider_group.path_from_id() != self.path_from_id():
                 continue
 
             name = f"{self.vrm_name} #{index + 1}"
@@ -1029,8 +1011,6 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
     # When copying objects, there may be multiple objects with the same uuid
     uuid: StringProperty()  # type: ignore[valid-type]
 
-    search_one_time_uuid: StringProperty()  # type: ignore[valid-type]
-
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
@@ -1041,7 +1021,6 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
         show_expanded: bool  # type: ignore[no-redef]
         active_collider_index: int  # type: ignore[no-redef]
         uuid: str  # type: ignore[no-redef]
-        search_one_time_uuid: str  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/tree/993a90a5bda9025f3d9e2923ad6dea7506f88553/specification/VRMC_springBone-1.0#initialization
@@ -1148,38 +1127,27 @@ class SpringBone1ColliderGroupReferencePropertyGroup(PropertyGroup):
         if not isinstance(value, str):
             value = str(value)
         self.name = value
-        if self.get("collider_group_name") == value:
-            return
-        self["collider_group_name"] = value
+        if self.get("collider_group_name") != value:
+            self["collider_group_name"] = value
 
-        self.search_one_time_uuid = uuid.uuid4().hex
         spring_bone = get_armature_spring_bone1_extension(armature)
-        for spring in spring_bone.springs:
-            for collider_group_reference in spring.collider_groups:
-                if (
-                    collider_group_reference.search_one_time_uuid
-                    != self.search_one_time_uuid
-                ):
-                    continue
-
-                for collider_group in spring_bone.collider_groups:
-                    if collider_group.name == value:
-                        self.collider_group_uuid = collider_group.uuid
-                        break
-                return
+        for collider_group in spring_bone.collider_groups:
+            if collider_group.name != value:
+                continue
+            if self.collider_group_uuid != collider_group.uuid:
+                self.collider_group_uuid = collider_group.uuid
+            break
 
     collider_group_name: StringProperty(  # type: ignore[valid-type]
         get=get_collider_group_name, set=set_collider_group_name
     )
     collider_group_uuid: StringProperty()  # type: ignore[valid-type]
-    search_one_time_uuid: StringProperty()  # type: ignore[valid-type]
 
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         collider_group_name: str  # type: ignore[no-redef]
         collider_group_uuid: str  # type: ignore[no-redef]
-        search_one_time_uuid: str  # type: ignore[no-redef]
 
 
 class SpringBone1SpringAnimationStatePropertyGroup(PropertyGroup):
