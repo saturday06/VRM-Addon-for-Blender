@@ -31,8 +31,8 @@ jobs:
         run: deno eval 'console.log(Deno.version.deno)' | tee .dvmrc
       - name: Update deno.jsonc and deno.lock
         run: |
-          deno install --allow-scripts --frozen=false
-          deno outdated --update --latest --frozen=false
+          deno install --allow-scripts --frozen=false || true
+          deno outdated --update --latest --frozen=false || true
 
           # Just `deno outdated` doesn't update the types+node version in deno.lock's specifiers
           # `"npm:vitepress@*": "1.6.3_vite@ ... @types+node@22.15.21"`
