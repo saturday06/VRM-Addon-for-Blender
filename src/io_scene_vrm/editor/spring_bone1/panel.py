@@ -36,8 +36,8 @@ def draw_spring_bone1_collider_sphere_layout(
     layout.prop(collider, "ui_collider_type")
     bpy_object = collider.bpy_object
     if bpy_object:
-        layout.prop(bpy_object, "name", icon="MESH_UVSPHERE", text="Offset")
-    layout.prop(collider.shape.sphere, "offset", text="")
+        layout.prop(bpy_object, "name", icon="MESH_UVSPHERE", text="Name")
+    layout.prop(collider.shape.sphere, "offset", text="Offset")
     layout.separator(factor=0.5)
     layout.prop(collider.shape.sphere, "radius", slider=True)
     layout.prop(collider.extensions.vrmc_spring_bone_extended_collider, "enabled")
