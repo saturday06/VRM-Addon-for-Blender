@@ -867,7 +867,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
             for collider_group in ext.vrm0.secondary_animation.collider_groups
         }
         for index, collider_group in reversed(list(enumerate(self.collider_groups))):
-            uuid_str = collider_group.value.split("#")[-1:][0]
+            uuid_str = collider_group.value.split("#")[-1]
             if not uuid_str:
                 self.collider_groups.remove(index)
                 continue
