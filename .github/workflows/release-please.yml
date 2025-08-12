@@ -21,7 +21,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0 # This seems to make release-please-action more stable
       - uses: googleapis/release-please-action@v4
@@ -45,7 +45,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ needs.release-please.outputs.release_sha }}
       - name: Install deb packages
