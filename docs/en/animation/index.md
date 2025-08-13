@@ -2,12 +2,14 @@
 title: 'VRM Animation'
 ---
 
+![](/assets/images/animation.gif)
+
 An English tutorial is currently being written.
 
 ---
 
 VRM
-Animationのインポートとエクスポートの解説です。執筆時点ではまだ仕様がDraftのため、今後変更される可能性があります。
+Animationのインポートとエクスポートの解説です。
 
 <!-- TableOfContentsの設定は自動でやりたい -->
 

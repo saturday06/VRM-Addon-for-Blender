@@ -3,7 +3,10 @@ title: 'VRMアニメーション'
 ---
 
 VRM
-Animationのインポートとエクスポートの解説です。執筆時点ではまだ仕様がDraftのため、今後変更される可能性があります。
+Animationのインポートとエクスポートの解説です。
+
+![](/assets/images/animation.gif)
+
 
 <!-- TableOfContentsの設定は自動でやりたい -->
 
