@@ -142,6 +142,9 @@ export default defineConfig({
     hostname: "https://vrm-addon-for-blender.info",
   },
   themeConfig: {
+    search: {
+      provider: "local",
+    },
     socialLinks: [
       {
         icon: "github",

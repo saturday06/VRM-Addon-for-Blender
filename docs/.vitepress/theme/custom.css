@@ -5,6 +5,12 @@ html {
   overflow-y: scroll;
 }
 
+/* The title "VRM Format / VRM Add-on for Blender" is too long and overlaps with the search widget,
+    so move it */
+.VPNavBarSearch.search {
+  flex-grow: unset;
+}
+
 /* The title "VRM Format / VRM Add-on for Blender" is too long and overlaps with the sidebar's scrollbar,
   so move the sidebar down by --vp-nav-height */
 .Layout > aside.VPSidebar:not(.open) {
