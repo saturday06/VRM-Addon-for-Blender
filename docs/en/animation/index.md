@@ -8,8 +8,7 @@ An English tutorial is currently being written.
 
 ---
 
-VRM
-Animationのインポートとエクスポートの解説です。
+VRM Animationのインポートとエクスポートの解説です。
 
 ## VRM Animationファイルのエクスポート
 

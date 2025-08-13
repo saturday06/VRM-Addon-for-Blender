@@ -2,8 +2,7 @@
 title: 'VRMアニメーション'
 ---
 
-VRM
-Animationのインポートとエクスポートの解説です。
+VRM Animationのインポートとエクスポートの解説です。
 
 ![](/assets/images/animation.gif)
 
