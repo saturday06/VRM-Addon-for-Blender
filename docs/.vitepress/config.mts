@@ -33,7 +33,7 @@ export default defineConfig({
             items: [
               {
                 items: [
-                  { text: "Top Page", link: "/en/" },
+                  { text: "Top", link: "/en/" },
                 ],
               },
             ],
