@@ -1,5 +1,10 @@
 /* SPDX-License-Identifier: MIT OR GPL-3.0-or-later */
 
+html {
+  /* Prevent the entire layout from being rearranged when the scrollbar appears or disappears during page transitions */
+  overflow-y: scroll;
+}
+
 /* The title "VRM Format / VRM Add-on for Blender" is too long and overlaps with the sidebar's scrollbar,
   so move the sidebar down by --vp-nav-height */
 .Layout > aside.VPSidebar:not(.open) {
