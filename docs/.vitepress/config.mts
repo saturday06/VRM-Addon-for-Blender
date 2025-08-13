@@ -19,8 +19,7 @@ export default defineConfig({
         nav: [
           {
             text: "Download",
-            link:
-              "https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip",
+            link: "/en/#download",
           },
           {
             text: "Report Bugs",
@@ -83,8 +82,7 @@ export default defineConfig({
         nav: [
           {
             text: "ダウンロード",
-            link:
-              "https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip",
+            link: "/ja/#ダウンロード",
           },
           {
             text: "バグを報告",
