@@ -5,6 +5,8 @@ description: 'A sample of automating VRM-related processes using a Python script
 
 A sample of automating VRM-related processes using a Python script.
 
+![](/assets/images/scripting_api.gif)
+
 ## Importing VRM files
 
 ```python

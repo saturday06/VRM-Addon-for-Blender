@@ -2,6 +2,11 @@
 title: 'アドオンのインストール'
 ---
 
+このチュートリアルでは、Blender
+2.93から4.1でのアドオンのインストール手順を解説します。
+
+![](/assets/images/installation.gif)
+
 _このチュートリアルは、Blender 2.93から4.1を使う場合のものです。Blender
 4.2以降を利用される場合は
 [Blender Extension Platform (https://extensions.blender.org/add-ons/vrm)](https://extensions.blender.org/add-ons/vrm)

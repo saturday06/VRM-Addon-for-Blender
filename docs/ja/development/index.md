@@ -2,6 +2,10 @@
 title: '開発環境のセットアップ'
 ---
 
+アドオンの開発環境のセットアップ手順です。
+
+![](/assets/images/development.gif)
+
 [GitHubレポジトリ](https://github.com/saturday06/VRM-Addon-for-Blender)には本体のソースコード、
 コードフォーマット設定、型チェック設定、ソフトウェアテスト設定が含まれています。
 これらは [astral-sh/uv](https://docs.astral.sh/uv/)に強く依存しているので、

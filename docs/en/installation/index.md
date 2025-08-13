@@ -2,6 +2,11 @@
 title: 'Add-on Installation'
 ---
 
+This tutorial explains the steps to install the add-on in Blender versions 2.93
+to 4.1.
+
+![](/assets/images/installation.gif)
+
 _This tutorial is for Blender 2.93 to 4.1. For Blender 4.2 or later, please
 download and install from
 [Blender Extensions Platform (https://extensions.blender.org/add-ons/vrm)](https://extensions.blender.org/add-ons/vrm)._

@@ -2,6 +2,8 @@
 title: 'VRM Animation'
 ---
 
+This section explains how to import and export VRM Animation files.
+
 ![](/assets/images/animation.gif)
 
 An English tutorial is currently being written.

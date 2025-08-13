@@ -5,6 +5,8 @@ description: 'Pythonスクリプトを利用してVRM関連処理を自動化す
 
 Pythonスクリプトを利用してVRM関連処理を自動化するサンプルです。
 
+![](/assets/images/scripting_api.gif)
+
 ## VRMファイルのインポート
 
 ```python

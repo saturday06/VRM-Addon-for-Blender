@@ -2,6 +2,10 @@
 title: 'Development How-To'
 ---
 
+Instructions for setting up the add-on development environment.
+
+![](/assets/images/development.gif)
+
 [The repository](https://github.com/saturday06/VRM-Addon-for-Blender) contains
 source code, code formatting settings, code type checking settings, and software
 testing settings. These are strongly dependent on the tool
