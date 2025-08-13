@@ -29,6 +29,16 @@ export default defineConfig({
         ],
         sidebar: [
           {
+            text: "Top",
+            items: [
+              {
+                items: [
+                  { text: "Top Page", link: "/en/" },
+                ],
+              },
+            ],
+          },
+          {
             text: "Tutorials",
             items: [
               {
@@ -82,6 +92,16 @@ export default defineConfig({
           },
         ],
         sidebar: [
+          {
+            text: "トップ",
+            items: [
+              {
+                items: [
+                  { text: "トップページ", link: "/ja/" },
+                ],
+              },
+            ],
+          },
           {
             text: "チュートリアル",
             items: [
