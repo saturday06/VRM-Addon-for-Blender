@@ -11,11 +11,6 @@ An English tutorial is currently being written.
 VRM
 Animationのインポートとエクスポートの解説です。
 
-<!-- TableOfContentsの設定は自動でやりたい -->
-
-- [VRM Animationファイルのエクスポート](#vrm-animationファイルのエクスポート)
-- [VRM Animationファイルのインポート](#vrm-animationファイルのインポート)
-
 ## VRM Animationファイルのエクスポート
 
 VRM Animationのエクスポートには、VRM

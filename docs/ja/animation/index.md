@@ -7,12 +7,6 @@ Animationのインポートとエクスポートの解説です。
 
 ![](/assets/images/animation.gif)
 
-
-<!-- TableOfContentsの設定は自動でやりたい -->
-
-- [VRM Animationファイルのエクスポート](#vrm-animationファイルのエクスポート)
-- [VRM Animationファイルのインポート](#vrm-animationファイルのインポート)
-
 ## VRM Animationファイルのエクスポート
 
 VRM Animationのエクスポートには、VRM
