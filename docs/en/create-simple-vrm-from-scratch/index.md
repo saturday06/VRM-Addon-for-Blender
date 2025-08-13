@@ -1,12 +1,6 @@
 ---
 title: 'Create Simple VRM'
 description: 'Convert the cube displayed from the beginning when you start Blender to a VRM model.'
-prev:
-  text: 'Installation'
-  link: '../installation/'
-next:
-  text: 'Create Humanoid VRM'
-  link: '../create-humanoid-vrm-from-scratch/'
 ---
 
 Convert the cube displayed from the beginning when you start Blender to a VRM

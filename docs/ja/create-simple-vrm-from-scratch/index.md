@@ -1,12 +1,6 @@
 ---
 title: 'シンプルなVRMモデルを作る'
 description: 'Blenderを起動したときにはじめから表示されている立方体をそのままVRMモデルにします。'
-prev:
-  text: 'アドオンのインストール'
-  link: '../installation/'
-next:
-  text: '人型のVRMモデルを作る'
-  link: '../create-humanoid-vrm-from-scratch/'
 ---
 
 Blenderを起動したときにはじめから表示されている立方体をそのままVRMモデルにします。

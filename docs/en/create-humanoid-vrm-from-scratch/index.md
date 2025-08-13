@@ -1,12 +1,6 @@
 ---
 title: 'Create Humanoid VRM'
 description: 'We will create a simple Humanoid VRM model.'
-prev:
-  text: 'Create Simple VRM'
-  link: '../create-simple-vrm-from-scratch'
-next:
-  text: 'Create Physics Based Material'
-  link: '../material-pbr'
 ---
 
 We will create a simple Humanoid VRM model.

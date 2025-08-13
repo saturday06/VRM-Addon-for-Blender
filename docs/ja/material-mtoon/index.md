@@ -1,12 +1,6 @@
 ---
 title: 'アニメ風のマテリアル設定'
 description: 'MToonシェーダーを用いたアニメ風マテリアルを設定します。'
-prev:
-  text: '物理ベースのマテリアル設定'
-  link: '../material-pbr'
-next:
-  text: 'VRMアニメーション'
-  link: '../animation'
 ---
 
 アニメ風マテリアルをVRMに設定します。

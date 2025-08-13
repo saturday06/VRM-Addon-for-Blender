@@ -27,6 +27,40 @@ export default defineConfig({
             link: "https://github.com/saturday06/VRM-Addon-for-Blender/issues",
           },
         ],
+        sidebar: [
+          {
+            text: "Tutorials",
+            items: [
+              {
+                items: [
+                  { text: "Installation", link: "/en/installation/" },
+                  {
+                    text: "Create Simple VRM",
+                    link: "/en/create-simple-vrm-from-scratch/",
+                  },
+                  {
+                    text: "Create Humanoid VRM",
+                    link: "/en/create-humanoid-vrm-from-scratch/",
+                  },
+                  {
+                    text: "Create Physics Based Material",
+                    link: "/en/material-pbr/",
+                  },
+                  {
+                    text: "Create Anime Style Material",
+                    link: "/en/material-mtoon/",
+                  },
+                  { text: "VRM Animation", link: "/en/animation/" },
+                  {
+                    text: "Automation with Python scripts",
+                    link: "/en/scripting-api/",
+                  },
+                  { text: "Development How-To", link: "/en/development/" },
+                ],
+              },
+            ],
+          },
+        ],
       },
     },
     ja: {
@@ -45,6 +79,40 @@ export default defineConfig({
           {
             text: "バグを報告",
             link: "https://github.com/saturday06/VRM-Addon-for-Blender/issues",
+          },
+        ],
+        sidebar: [
+          {
+            text: "チュートリアル",
+            items: [
+              {
+                items: [
+                  { text: "アドオンのインストール", link: "/ja/installation/" },
+                  {
+                    text: "シンプルなVRMモデルを作る",
+                    link: "/ja/create-simple-vrm-from-scratch/",
+                  },
+                  {
+                    text: "人型のVRMモデルを作る",
+                    link: "/ja/create-humanoid-vrm-from-scratch/",
+                  },
+                  {
+                    text: "物理ベースのマテリアル設定",
+                    link: "/ja/material-pbr/",
+                  },
+                  {
+                    text: "アニメ風のマテリアル設定",
+                    link: "/ja/material-mtoon/",
+                  },
+                  { text: "VRMアニメーション", link: "/ja/animation/" },
+                  {
+                    text: "Pythonスクリプトによる自動化",
+                    link: "/ja/scripting-api/",
+                  },
+                  { text: "改造するには", link: "/ja/development/" },
+                ],
+              },
+            ],
           },
         ],
       },

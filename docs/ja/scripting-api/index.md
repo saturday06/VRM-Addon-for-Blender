@@ -1,12 +1,6 @@
 ---
 title: 'Pythonスクリプトによる自動化サンプル'
 description: 'Pythonスクリプトを利用してVRM関連処理を自動化するサンプルです。'
-prev:
-  text: 'VRMアニメーション'
-  link: '../animation'
-next:
-  text: '改造するには'
-  link: '../development'
 ---
 
 Pythonスクリプトを利用してVRM関連処理を自動化するサンプルです。

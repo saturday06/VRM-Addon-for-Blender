@@ -1,12 +1,6 @@
 ---
 title: '物理ベースのマテリアル設定'
 description: 'プリンシプルBSDFシェーダーを用いた物理ベースのマテリアルを設定します。'
-prev:
-  text: '人型のVRMモデルを作る'
-  link: '../create-humanoid-vrm-from-scratch'
-next:
-  text: 'アニメ風のマテリアル設定'
-  link: '../material-mtoon'
 ---
 
 リアルな物理ベースのマテリアルをVRMに設定します。

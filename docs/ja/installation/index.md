@@ -1,8 +1,5 @@
 ---
 title: 'アドオンのインストール'
-next:
-  text: 'シンプルなVRMモデルを作る'
-  link: '../create-simple-vrm-from-scratch'
 ---
 
 _このチュートリアルは、Blender 2.93から4.1を使う場合のものです。Blender

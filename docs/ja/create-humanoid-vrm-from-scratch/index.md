@@ -1,12 +1,6 @@
 ---
 title: '人型のVRMモデルを作る'
 description: 'シンプルな人型のVRMモデルを作ります。'
-prev:
-  text: 'シンプルなVRMモデルを作る'
-  link: '../create-simple-vrm-from-scratch'
-next:
-  text: '物理ベースのマテリアル設定'
-  link: '../material-pbr'
 ---
 
 シンプルな人型のVRMモデルを作ります。

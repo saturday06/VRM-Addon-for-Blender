@@ -1,12 +1,6 @@
 ---
 title: 'Automation samples with Python scripts'
 description: 'A sample of automating VRM-related processes using a Python script.'
-prev:
-  text: 'VRM Animation'
-  link: '../animation'
-next:
-  text: 'Development How-To'
-  link: '../development'
 ---
 
 A sample of automating VRM-related processes using a Python script.

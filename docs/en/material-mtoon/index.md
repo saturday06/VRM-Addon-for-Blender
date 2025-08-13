@@ -1,12 +1,6 @@
 ---
 title: 'Create Anime Style Material'
 description: 'Set up an anime-style material with MToon shaders.'
-prev:
-  text: 'Create Physics Based Material'
-  link: '../material-pbr'
-next:
-  text: 'VRM Animation'
-  link: '../animation'
 ---
 
 Set an anime-style material to VRM.

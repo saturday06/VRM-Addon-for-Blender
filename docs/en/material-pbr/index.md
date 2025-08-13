@@ -1,12 +1,6 @@
 ---
 title: 'Create Physics Based Material'
 description: 'Set up physics-based materials using Principled BSDF shaders.'
-prev:
-  text: 'Create Humanoid VRM'
-  link: '../create-humanoid-vrm-from-scratch'
-next:
-  text: 'Create Anime Style Material'
-  link: '../material-mtoon'
 ---
 
 Set up realistic physics-based materials for VRM.
