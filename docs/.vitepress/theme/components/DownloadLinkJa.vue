@@ -8,7 +8,7 @@ const latestVersionLocaleDateString = latestVersionDate.toLocaleDateString(
     year: "numeric",
     month: "short",
     day: "numeric",
-    timeZone: "JST",
+    timeZone: "Asia/Tokyo",
   },
 );
 </script>
