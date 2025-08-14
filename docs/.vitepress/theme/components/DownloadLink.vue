@@ -10,6 +10,7 @@ const latestVersionLocaleDateString = latestVersionDate.toLocaleDateString(
     month: "short",
     day: "numeric",
     timeZone: "Etc/UTC",
+    timeZoneName: "short",
   },
 );
 </script>
@@ -19,6 +20,5 @@ const latestVersionLocaleDateString = latestVersionDate.toLocaleDateString(
     Download Latest Version
     ({{ latestVersionName }})
     {{ latestVersionLocaleDateString }}
-    UTC
   </a>
 </template>
