@@ -5,13 +5,19 @@ html {
   overflow-y: scroll;
 }
 
-/* The title "VRM Format / VRM Add-on for Blender" is too long and overlaps with the search widget,
-    so move it */
+/* The title "VRM format / VRM Add-on for Blender" is too long and overlaps with the search widget,
+  so move it to the right side */
 .VPNavBarSearch.search {
   flex-grow: unset;
 }
 
-/* The title "VRM Format / VRM Add-on for Blender" is too long and overlaps with the sidebar's scrollbar,
+.VPNav .VPNavBar.has-sidebar div.title {
+  flex-shrink: 1; /* When the width is narrow, shrink the title width to prevent horizontal scrollbars */
+  white-space: break-spaces; /* Break the title text into multiple lines when the width is narrow */
+  width: auto; /* With `flex-shrink: 1;` and `white-space: break-spaces`, prevent the title from wrapping unnecessarily when the sidebar is open and the width is wide */
+}
+
+/* The title "VRM format / VRM Add-on for Blender" is too long and overlaps with the sidebar's scrollbar,
   so move the sidebar down by --vp-nav-height */
 .Layout > aside.VPSidebar:not(.open) {
   --vp-layout-top-height: var(--vp-nav-height);

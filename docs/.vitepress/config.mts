@@ -7,7 +7,7 @@ import {
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "VRM Format / VRM Add-on for Blender",
+  title: "VRM format / VRM Add-on for Blender",
   locales: {
     en: {
       lang: "en",
