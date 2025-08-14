@@ -9,6 +9,7 @@ const latestVersionLocaleDateString = latestVersionDate.toLocaleDateString(
     year: "numeric",
     month: "short",
     day: "numeric",
+    timeZone: "UTC",
   },
 );
 </script>
