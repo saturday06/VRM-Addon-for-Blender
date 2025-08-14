@@ -142,6 +142,9 @@ export default defineConfig({
   themeConfig: {
     search: {
       provider: "local",
+      options: {
+        detailedView: true,
+      },
     },
     socialLinks: [
       {
