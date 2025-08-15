@@ -1328,7 +1328,10 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             ext = get_armature_vrm1_extension(armature)
             expressions = ext.expressions
             for expression in expressions.all_name_to_expression_dict().values():
-                for material_property_group in expression.materials_to_update:
+                materials_to_update = expression.materials_to_update
+                if not materials_to_update:
+                    continue
+                for material_property_group in materials_to_update:
                     material = material_property_group.material
                     if not material:
                         continue
@@ -1340,7 +1343,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
                     # the call fails
                     # https://docs.blender.org/api/4.2/bpy.types.NodeTree.html#bpy.types.NodeTree.update
                     # node_tree.update()
-                expression.materials_to_update.clear()
+                materials_to_update.clear()
 
     active_morph_target_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
     active_material_color_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
