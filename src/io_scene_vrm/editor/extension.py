@@ -375,8 +375,6 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
         type=NodeConstraint1NodeConstraintPropertyGroup
     )
 
-    armature_data_name: StringProperty()  # type: ignore[valid-type]
-
     SPEC_VERSION_VRM0 = "0.0"
     SPEC_VERSION_VRM1 = "1.0"
     spec_version_items = (
@@ -436,7 +434,6 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
         node_constraint1: (  # type: ignore[no-redef]
             NodeConstraint1NodeConstraintPropertyGroup
         )
-        armature_data_name: str  # type: ignore[no-redef]
         spec_version: str  # type: ignore[no-redef]
 
 

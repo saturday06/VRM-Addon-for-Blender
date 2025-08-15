@@ -34,11 +34,9 @@ state: Final = State()
 
 def is_unnecessary(armature_data: Armature) -> bool:
     ext = get_armature_extension(armature_data)
-    return (
-        tuple(ext.addon_version) >= get_addon_version()
-        and armature_data.name == ext.armature_data_name
-        and vrm0_migration.is_unnecessary(ext.vrm0)
-    )
+    return tuple(
+        ext.addon_version
+    ) >= get_addon_version() and vrm0_migration.is_unnecessary(ext.vrm0)
 
 
 def defer_migrate(armature_object_name: str) -> bool:
@@ -82,7 +80,6 @@ def migrate(context: Optional[Context], armature_object_name: str) -> bool:
         return True
 
     ext = get_armature_extension(armature_data)
-    ext.armature_data_name = armature_data.name
 
     vrm0_migration.migrate(context, ext.vrm0, armature)
     vrm1_migration.migrate(context, ext.vrm1, armature)
