@@ -168,7 +168,12 @@ class Vrm0Importer(AbstractBaseVrmImporter):
     def load_materials(self, progress: PartialProgress) -> None:
         shader_to_assignment_method = {
             "VRM/MToon": self.assign_mtoon0_property,
-            "VRM/UnlitTransparentZWrite": self.assign_transparent_z_write_property,
+            "VRM/UnlitTexture": self.assign_unlit_texture_property,
+            "VRM/UnlitCutout": self.assign_unlit_cutout_property,
+            "VRM/UnlitTransparent": self.assign_unlit_transparent_property,
+            "VRM/UnlitTransparentZWrite": (
+                self.assign_unlit_transparent_z_write_property
+            ),
         }
 
         material_dicts = self.parse_result.json_dict.get("materials")
@@ -563,13 +568,12 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         if render_queue is not None:
             gltf.mtoon0_render_queue = render_queue
 
-    def assign_transparent_z_write_property(
+    def assign_unlit_common_property(
         self,
         material: Material,
         material_property: MaterialProperty,
     ) -> None:
         gltf = get_material_extension(material).mtoon1
-        gltf.enabled = True
         mtoon = gltf.extensions.vrmc_materials_mtoon
 
         main_texture_index = material_property.texture_properties.get("_MainTex")
@@ -584,26 +588,89 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                     image_index = texture_dict.get("source")
                     if isinstance(image_index, int):
                         main_texture_image = self.images.get(image_index)
-        if main_texture_image:
-            gltf.pbr_metallic_roughness.base_color_texture.index.source = (
-                main_texture_image
+
+        (texture_offset_u, texture_offset_v, texture_scale_u, texture_scale_v) = (
+            convert.float4_or(
+                material_property.vector_properties.get("_MainTex"),
+                (0.0, 0.0, 1.0, 1.0),
             )
-            gltf.emissive_texture.index.source = main_texture_image
-            mtoon.shade_multiply_texture.index.source = main_texture_image
+        )
+        if main_texture_image:
+            for texture in [
+                gltf.pbr_metallic_roughness.base_color_texture,
+                gltf.emissive_texture,
+                mtoon.shade_multiply_texture,
+            ]:
+                texture.index.source = main_texture_image
+                khr_texture_transform = texture.extensions.khr_texture_transform
+                khr_texture_transform.offset = (texture_offset_u, texture_offset_v)
+                khr_texture_transform.scale = (texture_scale_u, texture_scale_v)
 
         gltf.pbr_metallic_roughness.base_color_factor = (0, 0, 0, 1)
         gltf.emissive_factor = (1, 1, 1)
 
-        gltf.alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND.identifier
-        gltf.alpha_cutoff = 0.5
         gltf.double_sided = False
-        mtoon.transparent_with_z_write = True
         mtoon.shade_color_factor = (0, 0, 0)
         mtoon.shading_toony_factor = 0.95
         mtoon.shading_shift_factor = -0.05
         mtoon.rim_lighting_mix_factor = 1
         mtoon.parametric_rim_fresnel_power_factor = 5
         mtoon.parametric_rim_lift_factor = 0
+
+        render_queue = material_property.render_queue
+        if render_queue is not None:
+            gltf.mtoon0_render_queue = render_queue
+
+    def assign_unlit_texture_property(
+        self,
+        material: Material,
+        material_property: MaterialProperty,
+    ) -> None:
+        gltf = get_material_extension(material).mtoon1
+        gltf.enabled = True
+        gltf.alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE.identifier
+
+        self.assign_unlit_common_property(material, material_property)
+
+    def assign_unlit_cutout_property(
+        self,
+        material: Material,
+        material_property: MaterialProperty,
+    ) -> None:
+        gltf = get_material_extension(material).mtoon1
+        gltf.enabled = True
+        gltf.alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK.identifier
+
+        cutoff = material_property.float_properties.get("_Cutoff")
+        if isinstance(cutoff, (int, float)):
+            gltf.alpha_cutoff = cutoff
+
+        self.assign_unlit_common_property(material, material_property)
+
+    def assign_unlit_transparent_property(
+        self,
+        material: Material,
+        material_property: MaterialProperty,
+    ) -> None:
+        gltf = get_material_extension(material).mtoon1
+        gltf.enabled = True
+        gltf.alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND.identifier
+
+        self.assign_unlit_common_property(material, material_property)
+
+    def assign_unlit_transparent_z_write_property(
+        self,
+        material: Material,
+        material_property: MaterialProperty,
+    ) -> None:
+        gltf = get_material_extension(material).mtoon1
+        gltf.enabled = True
+        gltf.alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND.identifier
+
+        mtoon = gltf.extensions.vrmc_materials_mtoon
+        mtoon.transparent_with_z_write = True
+
+        self.assign_unlit_common_property(material, material_property)
 
     def load_gltf_extensions(self) -> None:
         armature = self.armature
