@@ -445,9 +445,9 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
             return
         human_bones = get_armature_vrm1_extension(armature_data).humanoid.human_bones
 
-        bone_names_str = chr(0).join(
+        bone_names_str = "\n".join(
             [
-                bone.name + chr(0) + (parent.name if (parent := bone.parent) else "")
+                bone.name + "\n" + (parent.name if (parent := bone.parent) else "")
                 for bone in sorted(armature_data.bones.values(), key=lambda b: b.name)
             ]
         )
