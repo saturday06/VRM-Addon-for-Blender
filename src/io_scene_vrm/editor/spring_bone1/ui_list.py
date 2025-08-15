@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from bpy.types import Context, UILayout, UIList
+from bpy.types import Armature, Context, UILayout, UIList
 
 from ...common.logger import get_logger
 from ..extension import get_armature_extension
@@ -86,7 +86,7 @@ class VRM_UL_spring_bone1_collider_group_collider(UIList):
 
     def draw_item(
         self,
-        context: Context,
+        _context: Context,
         layout: UILayout,
         collider_group: object,
         collider: object,
@@ -110,16 +110,11 @@ class VRM_UL_spring_bone1_collider_group_collider(UIList):
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
             return
 
-        # Search for armature
-        spring_bone = None
-        for armature in context.blend_data.armatures:
-            ext = get_armature_extension(armature)
-            if any(collider_group == c for c in ext.spring_bone1.collider_groups):
-                spring_bone = ext.spring_bone1
-                break
-        if spring_bone is None:
+        armature_data = collider_group.id_data
+        if not isinstance(armature_data, Armature):
             logger.error("Failed to find armature")
             return
+        spring_bone = get_armature_extension(armature_data).spring_bone1
 
         if index == collider_group.active_collider_index:
             layout.prop_search(
@@ -202,7 +197,7 @@ class VRM_UL_spring_bone1_spring_collider_group(UIList):
 
     def draw_item(
         self,
-        context: Context,
+        _context: Context,
         layout: UILayout,
         spring: object,
         collider_group: object,
@@ -229,16 +224,11 @@ class VRM_UL_spring_bone1_spring_collider_group(UIList):
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
             return
 
-        # Search for armature
-        spring_bone = None
-        for armature in context.blend_data.armatures:
-            ext = get_armature_extension(armature)
-            if any(spring == s for s in ext.spring_bone1.springs):
-                spring_bone = ext.spring_bone1
-                break
-        if spring_bone is None:
+        armature_data = spring.id_data
+        if not isinstance(armature_data, Armature):
             logger.error("Failed to find armature")
             return
+        spring_bone = get_armature_extension(armature_data).spring_bone1
 
         if index == spring.active_collider_group_index:
             layout.prop_search(

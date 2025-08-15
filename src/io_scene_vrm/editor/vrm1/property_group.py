@@ -1129,19 +1129,9 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             logger.debug("Unnamed expression: %s", type(triggered_expression))
             return
 
-        armature: Optional[Armature] = None
-        for search_armature in context.blend_data.armatures:
-            ext = get_armature_vrm1_extension(search_armature)
-            if (
-                triggered_expression
-                == ext.expressions.all_name_to_expression_dict().get(
-                    triggered_expression.name
-                )
-            ):
-                armature = search_armature
-                break
-
-        if not armature:  # This is getting triggered after importing VRMA files
+        armature = triggered_expression.id_data
+        if not isinstance(armature, Armature):
+            # This is getting triggered after importing VRMA files
             logger.error("No armature for %s", triggered_expression.name)
             return
 
@@ -1288,14 +1278,6 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             return float(value)
         return 0.0
 
-    def find_armature(self, context: Context) -> Armature:
-        for armature in context.blend_data.armatures:
-            ext = get_armature_vrm1_extension(armature)
-            ext.expressions.all_name_to_expression_dict()
-
-        message = f"No armature extension for {self.name}"
-        raise ValueError(message)
-
     def set_preview(self, value_obj: object) -> None:
         context = bpy.context
 
@@ -1383,25 +1365,15 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
         return str(self.get("custom_name", ""))
 
     def set_custom_name(self, value: str) -> None:
-        context = bpy.context
-
         if not value or self.get("custom_name") == value:
             return
 
-        vrm1: Optional[Vrm1PropertyGroup] = None
-        for search_armature in context.blend_data.armatures:
-            for custom_expression in get_armature_vrm1_extension(
-                search_armature
-            ).expressions.custom:
-                if custom_expression != self:
-                    continue
-                vrm1 = get_armature_vrm1_extension(search_armature)
-                break
-        if vrm1 is None:
-            logger.error("No armature extension for %s", self)
+        armature_data = self.id_data
+        if not isinstance(armature_data, Armature):
+            logger.error("No armature for %s", self)
             return
 
-        expressions = vrm1.expressions
+        expressions = get_armature_vrm1_extension(armature_data).expressions
         all_expression_names = expressions.all_name_to_expression_dict().keys()
         custom_name = value
         for index in range(sys.maxsize):
