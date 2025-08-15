@@ -2,8 +2,6 @@
 # SPDX-FileCopyrightText: 2018 iCyP
 
 from . import registration
-from .exporter import gltf2_export_user_extension
-from .importer import gltf2_import_user_extension
 
 bl_info = {
     "name": "VRM format",
@@ -31,11 +29,3 @@ def register() -> None:
 
 def unregister() -> None:
     registration.unregister()
-
-
-class glTF2ImportUserExtension(gltf2_import_user_extension.glTF2ImportUserExtension):
-    pass
-
-
-class glTF2ExportUserExtension(gltf2_export_user_extension.glTF2ExportUserExtension):
-    pass

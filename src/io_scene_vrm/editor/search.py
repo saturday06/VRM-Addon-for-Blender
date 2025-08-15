@@ -314,64 +314,7 @@ def export_objects(
     export_only_selections: bool,
     export_lights: bool,
 ) -> list[Object]:
-    selected_objects = []
-    if export_only_selections:
-        selected_objects = list(context.selected_objects)
-    elif export_invisibles:
-        selected_objects = list(context.blend_data.objects)
-    else:
-        selected_objects = list(context.selectable_objects)
-
-    objects: list[Object] = []
-
-    # https://projects.blender.org/blender/blender/issues/113378
-    context.view_layer.update()
-
-    armature_object = None
-    if armature_object_name:
-        armature_object = context.blend_data.objects.get(armature_object_name)
-        if armature_object and armature_object.name in context.view_layer.objects:
-            objects.append(armature_object)
-        else:
-            armature_object = None
-    if not armature_object:
-        objects.extend(
-            obj
-            for obj in context.blend_data.objects
-            if obj.type == "ARMATURE" and obj.name in context.view_layer.objects
-        )
-
-    collider_bpy_objects: list[Optional[Object]] = []
-    for armature_data in context.blend_data.armatures:
-        ext = get_armature_extension(armature_data)
-        for spring_bone1_collider in ext.spring_bone1.colliders:
-            spring_bone1_collider_bpy_object = spring_bone1_collider.bpy_object
-            if not spring_bone1_collider_bpy_object:
-                continue
-            collider_bpy_objects.append(spring_bone1_collider_bpy_object)
-            collider_bpy_objects.extend(spring_bone1_collider_bpy_object.children)
-        for collider_group in ext.vrm0.secondary_animation.collider_groups:
-            collider_bpy_objects.extend(
-                collider.bpy_object for collider in collider_group.colliders
-            )
-
-    for obj in selected_objects:
-        if obj.type in ["ARMATURE", "CAMERA"]:
-            continue
-        if obj.type == "LIGHT" and not export_lights:
-            continue
-        if obj.name not in context.view_layer.objects:
-            continue
-        if not export_invisibles and not obj.visible_get():
-            continue
-        objects.append(obj)
-
-    return [
-        # Remove colliders and duplicates
-        obj
-        for obj in dict.fromkeys(objects)
-        if obj not in collider_bpy_objects
-    ]
+    return []
 
 
 @dataclass(frozen=True)

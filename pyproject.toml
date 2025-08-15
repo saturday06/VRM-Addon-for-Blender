@@ -49,6 +49,11 @@ allowed-confusables = [
 ]
 select = ["ALL"]
 ignore = [
+  "ARG001",
+  "ARG002",
+  "ARG003",
+  "ARG004",
+
   # ----- fixing -----
 
   "FBT003", # Boolean positional value in function call
