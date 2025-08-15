@@ -33,7 +33,7 @@ class LicenseConfirmationRequiredError(Exception):
         super().__init__(self.description())
 
     def description(self) -> str:
-        return "\n".join([prop.description() for prop in self.props])
+        return "\n".join(prop.description() for prop in self.props)
 
     def license_confirmations(self) -> list[dict[str, str]]:
         return [

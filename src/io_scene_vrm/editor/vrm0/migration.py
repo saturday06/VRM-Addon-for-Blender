@@ -33,7 +33,7 @@ def read_textblock_json(context: Context, armature: Object, armature_key: str) -
         textblock = context.blend_data.texts.get(text_key)
     if not isinstance(textblock, Text):
         return None
-    textblock_str = "".join([line.body for line in textblock.lines])
+    textblock_str = "".join(line.body for line in textblock.lines)
     with contextlib.suppress(json.JSONDecodeError):
         return make_json(json.loads(textblock_str))
     return None

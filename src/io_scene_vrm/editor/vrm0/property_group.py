@@ -257,10 +257,8 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         humanoid = get_armature_extension(armature_data).vrm0.humanoid
 
         bone_names_str = "\n".join(
-            [
-                bone.name + "\n" + (parent.name if (parent := bone.parent) else "")
-                for bone in sorted(armature_data.bones.values(), key=lambda b: b.name)
-            ]
+            bone.name + "\n" + (parent.name if (parent := bone.parent) else "")
+            for bone in sorted(armature_data.bones.values(), key=lambda b: b.name)
         )
 
         if not force:
