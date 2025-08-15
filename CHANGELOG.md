@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.10.2...v3.10.3) (2025-08-15)
+
+
+### 🐛 Bug Fixes
+
+* slightly reduces performance issues with the list view in Blender 4.5. ([cb70239](https://github.com/saturday06/VRM-Addon-for-Blender/commit/cb7023981c0268ef5b56254d9732d82424866f6e))
+
 ## [3.10.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.10.1...v3.10.2) (2025-08-11)
 
 
