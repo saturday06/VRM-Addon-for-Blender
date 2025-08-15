@@ -270,9 +270,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
     )
 
     # for UI
-    last_bone_names: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
-    )
+    last_bone_names_str: StringProperty()  # type: ignore[valid-type]
     initial_automatic_bone_assignment: BoolProperty(  # type: ignore[valid-type]
         default=True
     )
@@ -446,22 +444,20 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         if not isinstance(armature_data, Armature):
             return
         human_bones = get_armature_vrm1_extension(armature_data).humanoid.human_bones
-        bone_names: list[str] = []
-        for bone in sorted(armature_data.bones.values(), key=lambda b: str(b.name)):
-            bone_names.append(bone.name)
-            bone_names.append(parent_bone.name if (parent_bone := bone.parent) else "")
+
+        bone_names_str = chr(0).join(
+            [
+                bone.name + chr(0) + (parent.name if (parent := bone.parent) else "")
+                for bone in sorted(armature_data.bones.values(), key=lambda b: b.name)
+            ]
+        )
 
         if not force:
-            up_to_date = bone_names == [
-                str(n.value) for n in human_bones.last_bone_names
-            ]
+            up_to_date = bone_names_str == human_bones.last_bone_names_str
             if up_to_date:
                 return
 
-        human_bones.last_bone_names.clear()
-        for bone_name in bone_names:
-            last_bone_name = human_bones.last_bone_names.add()
-            last_bone_name.value = bone_name
+        human_bones.last_bone_names_str = bone_names_str
 
         BonePropertyGroup.update_all_vrm1_node_candidates(armature_data)
 
@@ -523,9 +519,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         right_little_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         right_little_intermediate: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         right_little_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
-        last_bone_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            StringPropertyGroup
-        ]
+        last_bone_names_str: str  # type: ignore[no-redef]
         initial_automatic_bone_assignment: bool  # type: ignore[no-redef]
         allow_non_humanoid_rig: bool  # type: ignore[no-redef]
 

@@ -202,7 +202,7 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
         return
 
     human_bones = vrm1.humanoid.human_bones
-    human_bones.last_bone_names.clear()
+    human_bones.last_bone_names_str = ""
     Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
     Vrm1HumanBonesPropertyGroup.update_all_node_candidates(context, armature_data.name)
 

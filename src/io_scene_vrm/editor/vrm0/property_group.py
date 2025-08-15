@@ -200,9 +200,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
     pose_marker_name: StringProperty()  # type: ignore[valid-type]
 
     # for UI
-    last_bone_names: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
-    )
+    last_bone_names_str: StringProperty()  # type: ignore[valid-type]
     initial_automatic_bone_assignment: BoolProperty(  # type: ignore[valid-type]
         default=True
     )
@@ -255,22 +253,22 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         armature_data = context.blend_data.armatures.get(armature_data_name)
         if not armature_data:
             return
-        bones = armature_data.bones.values()
+
         humanoid = get_armature_extension(armature_data).vrm0.humanoid
-        bone_names: list[str] = []
-        for bone in sorted(bones, key=lambda b: str(b.name)):
-            bone_names.append(bone.name)
-            bone_names.append(bone.parent.name if bone.parent else "")
+
+        bone_names_str = chr(0).join(
+            [
+                bone.name + chr(0) + (parent.name if (parent := bone.parent) else "")
+                for bone in sorted(armature_data.bones.values(), key=lambda b: b.name)
+            ]
+        )
 
         if not force:
-            up_to_date = bone_names == [str(n.value) for n in humanoid.last_bone_names]
+            up_to_date = bone_names_str == humanoid.last_bone_names_str
             if up_to_date:
                 return
 
-        humanoid.last_bone_names.clear()
-        for bone_name in bone_names:
-            last_bone_name = humanoid.last_bone_names.add()
-            last_bone_name.value = bone_name
+        humanoid.last_bone_names_str = bone_names_str
 
         BonePropertyGroup.update_all_vrm0_node_candidates(armature_data)
 
@@ -357,9 +355,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         pose: str  # type: ignore[no-redef]
         pose_library: Optional[Action]  # type: ignore[no-redef]
         pose_marker_name: str  # type: ignore[no-redef]
-        last_bone_names: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            StringPropertyGroup
-        ]
+        last_bone_names_str: str  # type: ignore[no-redef]
         initial_automatic_bone_assignment: bool  # type: ignore[no-redef]
 
 
