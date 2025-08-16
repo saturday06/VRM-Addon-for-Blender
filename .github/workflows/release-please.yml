@@ -8,6 +8,7 @@ on:
     workflows: [test]
     branches: [main]
     types: [completed]
+  workflow_dispatch:
 
 jobs:
   release-please:
