@@ -887,7 +887,7 @@ def draw_help_message(layout: UILayout) -> None:
         icon="URL",
         text="Open help in a Web Browser",
     )
-    open_op.url = pgettext("https://vrm-addon-for-blender.info/en/animation/")
+    open_op.url = pgettext("https://vrm-addon-for-blender.info/en-us/animation/")
 
 
 def collect_export_objects(

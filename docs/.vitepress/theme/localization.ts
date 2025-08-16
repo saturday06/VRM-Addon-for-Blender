@@ -1,9 +1,16 @@
 // SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-const defaultLocale = "en";
-const supportedLocales: readonly string[] = [defaultLocale, "ja"];
+const defaultLocale = "en-us";
+const supportedLocales: readonly string[] = [defaultLocale, "ja-jp"];
 const autoRedirectionTargetLocaleKey =
   "vrm-format-auto-redirection-target-locale";
 const hasPendingAutoRedirectionKey = "vrm-format-has-pending-auto-redirection";
+const deletedLocaleToNewLocaleRedirectionMap: Readonly<Record<string, string>> =
+  {
+    // Mapping table for old, deleted locales.
+    // If you add a new locale, you do not need to add it here.
+    "en": "en-us",
+    "ja": "ja-jp",
+  };
 
 /**
  * Save automatic redirection target locale to storage.
@@ -12,6 +19,9 @@ export function setAutoRedirectionTargetLocaleToStorage(
   storage: Storage,
   locale: string,
 ): void {
+  locale = locale.toLowerCase();
+  locale = deletedLocaleToNewLocaleRedirectionMap[locale] ?? locale;
+
   if (storage.getItem(hasPendingAutoRedirectionKey)) {
     return;
   }
@@ -34,6 +44,8 @@ export function getAutoRedirectionTargetLocaleFromStorage(
     return null;
   }
   targetLocale = targetLocale.toLowerCase();
+  targetLocale = deletedLocaleToNewLocaleRedirectionMap[targetLocale] ??
+    targetLocale;
   if (!supportedLocales.includes(targetLocale)) {
     return null;
   }
@@ -162,9 +174,12 @@ function getRedirectUrl(storage: Storage, href: string): URL | null {
       // a supported locale can be obtained from the request, do nothing.
       return null;
     }
-    const lowerCaseRequestLocale = requestLocale.toLowerCase();
-    if (supportedLocales.includes(lowerCaseRequestLocale)) {
-      targetLocale = lowerCaseRequestLocale;
+    let canonicalizedRequestLocale = requestLocale.toLowerCase();
+    canonicalizedRequestLocale =
+      deletedLocaleToNewLocaleRedirectionMap[canonicalizedRequestLocale] ??
+        canonicalizedRequestLocale;
+    if (supportedLocales.includes(canonicalizedRequestLocale)) {
+      targetLocale = canonicalizedRequestLocale;
     }
   }
   targetLocale ??= defaultLocale;

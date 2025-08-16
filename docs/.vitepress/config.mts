@@ -9,8 +9,8 @@ import {
 export default defineConfig({
   title: "VRM format / VRM Add-on for Blender",
   locales: {
-    en: {
-      lang: "en",
+    "en-us": {
+      lang: "en-US",
       label: "English",
       description:
         "VRM format adds VRM import, export, and editing capabilities to Blender." +
@@ -19,7 +19,7 @@ export default defineConfig({
         nav: [
           {
             text: "Download",
-            link: "/en/#download",
+            link: "/en-us/#download",
           },
           {
             text: "Report Bugs",
@@ -31,7 +31,7 @@ export default defineConfig({
             items: [
               {
                 items: [
-                  { text: "Top", link: "/en/" },
+                  { text: "Top", link: "/en-us/" },
                 ],
               },
             ],
@@ -41,29 +41,29 @@ export default defineConfig({
             items: [
               {
                 items: [
-                  { text: "Installation", link: "/en/installation/" },
+                  { text: "Installation", link: "/en-us/installation/" },
                   {
                     text: "Create Simple VRM",
-                    link: "/en/create-simple-vrm-from-scratch/",
+                    link: "/en-us/create-simple-vrm-from-scratch/",
                   },
                   {
                     text: "Create Humanoid VRM",
-                    link: "/en/create-humanoid-vrm-from-scratch/",
+                    link: "/en-us/create-humanoid-vrm-from-scratch/",
                   },
                   {
                     text: "Create Physics Based Material",
-                    link: "/en/material-pbr/",
+                    link: "/en-us/material-pbr/",
                   },
                   {
                     text: "Create Anime Style Material",
-                    link: "/en/material-mtoon/",
+                    link: "/en-us/material-mtoon/",
                   },
-                  { text: "VRM Animation", link: "/en/animation/" },
+                  { text: "VRM Animation", link: "/en-us/animation/" },
                   {
                     text: "Automation with Python scripts",
-                    link: "/en/scripting-api/",
+                    link: "/en-us/scripting-api/",
                   },
-                  { text: "Development How-To", link: "/en/development/" },
+                  { text: "Development How-To", link: "/en-us/development/" },
                 ],
               },
             ],
@@ -71,8 +71,8 @@ export default defineConfig({
         ],
       },
     },
-    ja: {
-      lang: "ja",
+    "ja-jp": {
+      lang: "ja-JP",
       label: "日本語",
       description:
         "VRMファイルのインポート・エクスポート・編集機能をBlenderに追加するアドオンです。" +
@@ -81,7 +81,7 @@ export default defineConfig({
         nav: [
           {
             text: "ダウンロード",
-            link: "/ja/#download",
+            link: "/ja-jp/#download",
           },
           {
             text: "バグを報告",
@@ -93,7 +93,7 @@ export default defineConfig({
             items: [
               {
                 items: [
-                  { text: "トップページ", link: "/ja/" },
+                  { text: "トップページ", link: "/ja-jp/" },
                 ],
               },
             ],
@@ -103,29 +103,32 @@ export default defineConfig({
             items: [
               {
                 items: [
-                  { text: "アドオンのインストール", link: "/ja/installation/" },
+                  {
+                    text: "アドオンのインストール",
+                    link: "/ja-jp/installation/",
+                  },
                   {
                     text: "シンプルなVRMモデルを作る",
-                    link: "/ja/create-simple-vrm-from-scratch/",
+                    link: "/ja-jp/create-simple-vrm-from-scratch/",
                   },
                   {
                     text: "人型のVRMモデルを作る",
-                    link: "/ja/create-humanoid-vrm-from-scratch/",
+                    link: "/ja-jp/create-humanoid-vrm-from-scratch/",
                   },
                   {
                     text: "物理ベースのマテリアル設定",
-                    link: "/ja/material-pbr/",
+                    link: "/ja-jp/material-pbr/",
                   },
                   {
                     text: "アニメ風のマテリアル設定",
-                    link: "/ja/material-mtoon/",
+                    link: "/ja-jp/material-mtoon/",
                   },
-                  { text: "VRMアニメーション", link: "/ja/animation/" },
+                  { text: "VRMアニメーション", link: "/ja-jp/animation/" },
                   {
                     text: "Pythonスクリプトによる自動化",
-                    link: "/ja/scripting-api/",
+                    link: "/ja-jp/scripting-api/",
                   },
-                  { text: "改造するには", link: "/ja/development/" },
+                  { text: "改造するには", link: "/ja-jp/development/" },
                 ],
               },
             ],

@@ -491,8 +491,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Armature to be animated"): "动画的骨骼",
     (
         "*",
-        "https://vrm-addon-for-blender.info/en/animation/",
-    ): "https://vrm-addon-for-blender.info/ja/animation/",
+        "https://vrm-addon-for-blender.info/en-us/animation/",
+    ): "https://vrm-addon-for-blender.info/ja-jp/animation/",
     ("Operator", "Open help in a Web Browser"): "在 Web 浏览器中打开“帮助”",
     ("*", "Allow Non-Humanoid Rig"): "允许使用非人形骨骼",
     (
