@@ -40,7 +40,7 @@ function detectAutoRedirectionTargetLocale(
   if (navigator.languages) {
     for (const language of navigator.languages) {
       for (const supportedLocale of supportedLocales) {
-        if (language.startsWith(supportedLocale)) {
+        if (language.toLowerCase().startsWith(supportedLocale)) {
           return supportedLocale;
         }
       }
@@ -50,7 +50,7 @@ function detectAutoRedirectionTargetLocale(
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/language
   if (navigator.language) {
     for (const supportedLocale of supportedLocales) {
-      if (navigator.language.startsWith(supportedLocale)) {
+      if (navigator.language.toLowerCase().startsWith(supportedLocale)) {
         return supportedLocale;
       }
     }
@@ -92,14 +92,18 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
   }
 
   let targetLocale = detectAutoRedirectionTargetLocale(storage);
-  if (!targetLocale) {
-    if (requestLocale) {
+  if (!targetLocale && requestLocale) {
+    if (supportedLocales.includes(requestLocale)) {
       // If automatic detection of the redirect target locale failed and
       // a locale can be obtained from the request, do nothing.
       return;
     }
-    targetLocale = defaultLocale;
+    const lowerCaseRequestLocale = requestLocale.toLowerCase();
+    if (supportedLocales.includes(lowerCaseRequestLocale)) {
+      targetLocale = lowerCaseRequestLocale;
+    }
   }
+  targetLocale ||= defaultLocale;
 
   registerAutoRedirectionTargetLocale(storage, targetLocale);
 
