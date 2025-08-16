@@ -577,8 +577,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Armature to be animated"): "アニメーション適用対象のアーマチュア",
     (
         "*",
-        "https://vrm-addon-for-blender.info/en/animation/",
-    ): "https://vrm-addon-for-blender.info/ja/animation/",
+        "https://vrm-addon-for-blender.info/en-us/animation/",
+    ): "https://vrm-addon-for-blender.info/ja-jp/animation/",
     ("Operator", "Open help in a Web Browser"): "Webブラウザでヘルプを開く",
     ("*", "Allow Non-Humanoid Rig"): "人型以外のリグを許可する",
     (

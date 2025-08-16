@@ -1,9 +1,15 @@
 // SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-const defaultLocale = "en";
-const supportedLocales = [defaultLocale, "ja"];
+const defaultLocale = "en-us";
+const supportedLocales = [defaultLocale, "ja-jp"];
 const autoRedirectionTargetLocaleKey =
   "vrm-format-auto-redirection-target-locale";
 const hasPendingAutoRedirectionKey = "vrm-format-has-pending-auto-redirection";
+const deletedLocaleToNewLocaleRedirectionMap: Record<string, string> = {
+  // Mapping table for old, deleted locales.
+  // If you add a new locale, you do not need to add it here.
+  "en": "en-us",
+  "ja": "ja-jp",
+};
 
 /**
  * Register automatic redirection target locale.
@@ -12,6 +18,9 @@ export function registerAutoRedirectionTargetLocale(
   storage: Storage,
   locale: string,
 ): void {
+  locale = locale.toLowerCase();
+  locale = deletedLocaleToNewLocaleRedirectionMap[locale] || locale;
+
   if (storage.getItem(hasPendingAutoRedirectionKey)) {
     return;
   }
@@ -31,9 +40,13 @@ export function registerAutoRedirectionTargetLocale(
 function detectAutoRedirectionTargetLocale(
   storage: Storage,
 ): string | undefined {
-  const targetLocale = storage.getItem(autoRedirectionTargetLocaleKey);
-  if (targetLocale && supportedLocales.includes(targetLocale)) {
-    return targetLocale;
+  let targetLocale = storage.getItem(autoRedirectionTargetLocaleKey);
+  if (targetLocale) {
+    targetLocale = deletedLocaleToNewLocaleRedirectionMap[targetLocale] ||
+      targetLocale;
+    if (supportedLocales.includes(targetLocale)) {
+      return targetLocale;
+    }
   }
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages
@@ -101,6 +114,9 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
     const lowerCaseRequestLocale = requestLocale.toLowerCase();
     if (supportedLocales.includes(lowerCaseRequestLocale)) {
       targetLocale = lowerCaseRequestLocale;
+    } else {
+      targetLocale =
+        deletedLocaleToNewLocaleRedirectionMap[lowerCaseRequestLocale];
     }
   }
   targetLocale ||= defaultLocale;
