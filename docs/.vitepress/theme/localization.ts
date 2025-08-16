@@ -26,7 +26,7 @@ export function registerAutoRedirectionTargetLocale(
 /**
  * Detect automatic redirection target locale from storage and browser language settings.
  *
- * @returns {string} The guessed language code, either "en" (default) or "ja".
+ * @returns {string} The guessed language code.
  */
 function detectAutoRedirectionTargetLocale(
   storage: Storage,
