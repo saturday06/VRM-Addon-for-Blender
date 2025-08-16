@@ -29,11 +29,15 @@ export function setAutoRedirectionTargetLocaleToStorage(
 export function getAutoRedirectionTargetLocaleFromStorage(
   storage: Storage,
 ): string | null {
-  const targetLocale = storage.getItem(autoRedirectionTargetLocaleKey);
-  if (targetLocale && supportedLocales.includes(targetLocale)) {
-    return targetLocale;
+  let targetLocale = storage.getItem(autoRedirectionTargetLocaleKey);
+  if (!targetLocale) {
+    return null;
   }
-  return null;
+  targetLocale = targetLocale.toLowerCase();
+  if (!supportedLocales.includes(targetLocale)) {
+    return null;
+  }
+  return targetLocale;
 }
 
 /**
