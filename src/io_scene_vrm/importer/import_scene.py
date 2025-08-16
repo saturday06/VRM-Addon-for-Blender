@@ -252,7 +252,7 @@ class VRM_PT_import_unsupported_blender_version_warning(Panel):
 class WM_OT_vrm_license_confirmation(Operator):
     bl_label = "VRM License Confirmation"
     bl_idname = "wm.vrm_license_warning"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: AbstractSet[str] = {"REGISTER"}
 
     filepath: StringProperty()  # type: ignore[valid-type]
 
