@@ -13,5 +13,5 @@ if __name__ == "__main__":
     diffs = vrm_diff(
         Path(sys.argv[1]).read_bytes(), Path(sys.argv[2]).read_bytes(), float_tolerance
     )
-    sys.stdout.writelines(diffs)
+    sys.stdout.writelines(diff + "\n" for diff in diffs)
     sys.exit(1 if diffs else 0)
