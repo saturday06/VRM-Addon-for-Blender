@@ -24,6 +24,39 @@ export function registerAutoRedirectionTargetLocale(
 }
 
 /**
+ * Check if the navigator language contains the supported locale.
+ *
+ * @param navigatorLanguage
+ * @param supportedLocale
+ * @returns
+ */
+function navigatorLanguageContainsSupportedLocale(
+  navigatorLanguage: string | null,
+  supportedLocale: string,
+): boolean {
+  if (!navigatorLanguage) {
+    return false;
+  }
+  navigatorLanguage = navigatorLanguage.toLowerCase();
+
+  const navigatorLanguageComponents = navigatorLanguage.split("-");
+  const supportedLocaleComponents = supportedLocale.split("-");
+
+  for (let i = 0; i < navigatorLanguageComponents.length; i++) {
+    const navigatorLanguageComponent = navigatorLanguageComponents[i];
+    if (supportedLocaleComponents.length >= i) {
+      return false;
+    }
+    const supportedLocaleComponent = supportedLocaleComponents[i];
+    if (navigatorLanguageComponent !== supportedLocaleComponent) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
  * Detect automatic redirection target locale from storage and browser language settings.
  *
  * @returns {string} The guessed language code.
@@ -38,9 +71,14 @@ function detectAutoRedirectionTargetLocale(
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages
   if (navigator.languages) {
-    for (const language of navigator.languages) {
+    for (const navigatorLanguage of navigator.languages) {
       for (const supportedLocale of supportedLocales) {
-        if (language.toLowerCase().startsWith(supportedLocale)) {
+        if (
+          navigatorLanguageContainsSupportedLocale(
+            navigatorLanguage,
+            supportedLocale,
+          )
+        ) {
           return supportedLocale;
         }
       }
@@ -50,7 +88,12 @@ function detectAutoRedirectionTargetLocale(
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/language
   if (navigator.language) {
     for (const supportedLocale of supportedLocales) {
-      if (navigator.language.toLowerCase().startsWith(supportedLocale)) {
+      if (
+        navigatorLanguageContainsSupportedLocale(
+          navigator.language,
+          supportedLocale,
+        )
+      ) {
         return supportedLocale;
       }
     }
