@@ -1133,6 +1133,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             dst_blend = 0
             z_write = 1
             alphatest_on = False
+            alphablend_on = False
             render_queue = -1
             render_type = "Opaque"
         elif gltf.alpha_mode == gltf.ALPHA_MODE_MASK.identifier:
@@ -1141,6 +1142,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             dst_blend = 0
             z_write = 1
             alphatest_on = True
+            alphablend_on = False
             render_queue = gltf.mtoon0_render_queue
             render_type = "TransparentCutout"
             float_properties["_Cutoff"] = gltf.alpha_cutoff
@@ -1151,6 +1153,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             dst_blend = 10
             z_write = 0
             alphatest_on = False
+            alphablend_on = True
             render_queue = gltf.mtoon0_render_queue
             render_type = "Transparent"
         else:
@@ -1159,6 +1162,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             dst_blend = 10
             z_write = 1
             alphatest_on = False
+            alphablend_on = True
             render_queue = gltf.mtoon0_render_queue
             render_type = "Transparent"
             float_properties["_Cutoff"] = gltf.alpha_cutoff  # for compatibility
@@ -1177,7 +1181,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         )
         float_properties["_ReceiveShadowRate"] = gltf.mtoon0_receive_shadow_rate
 
-        keyword_map["_ALPHABLEND_ON"] = material.blend_method not in ("OPAQUE", "CLIP")
+        keyword_map["_ALPHABLEND_ON"] = alphablend_on
         keyword_map["_ALPHAPREMULTIPLY_ON"] = False
 
         float_properties["_BlendMode"] = blend_mode
