@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.11.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.10.2...v3.11.0) (2025-08-16)
+
+
+### 🚀 Features
+
+* support vrm0 legacy unlit shaders ([ae0ce39](https://github.com/saturday06/VRM-Addon-for-Blender/commit/ae0ce39547ca94e47822203a069ee9680804a704))
+
+
+### 🐛 Bug Fixes
+
+* slightly reduces performance issues with the list view in Blender 4.5. ([cb70239](https://github.com/saturday06/VRM-Addon-for-Blender/commit/cb7023981c0268ef5b56254d9732d82424866f6e))
+
 ## [3.10.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.10.1...v3.10.2) (2025-08-11)
 
 
