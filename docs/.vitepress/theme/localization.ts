@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 const defaultLocale = "en";
-const supportedLocales = [defaultLocale, "ja"];
+const supportedLocales: readonly string[] = [defaultLocale, "ja"];
 const autoRedirectionTargetLocaleKey =
   "vrm-format-auto-redirection-target-locale";
 const hasPendingAutoRedirectionKey = "vrm-format-has-pending-auto-redirection";
 
 /**
- * Register automatic redirection target locale.
+ * Save automatic redirection target locale to storage.
  */
-export function registerAutoRedirectionTargetLocale(
+export function setAutoRedirectionTargetLocaleToStorage(
   storage: Storage,
   locale: string,
 ): void {
@@ -24,13 +24,26 @@ export function registerAutoRedirectionTargetLocale(
 }
 
 /**
+ * Load automatic redirection target locale from storage.
+ */
+export function getAutoRedirectionTargetLocaleFromStorage(
+  storage: Storage,
+): string | null {
+  const targetLocale = storage.getItem(autoRedirectionTargetLocaleKey);
+  if (targetLocale && supportedLocales.includes(targetLocale)) {
+    return targetLocale;
+  }
+  return null;
+}
+
+/**
  * Check if the navigator language contains the supported locale.
  *
  * @param navigatorLanguage
  * @param supportedLocale
  * @returns
  */
-function navigatorLanguageContainsSupportedLocale(
+function isNavigatorLanguageContainsSupportedLocale(
   navigatorLanguage: string | null,
   supportedLocale: string,
 ): boolean {
@@ -57,24 +70,17 @@ function navigatorLanguageContainsSupportedLocale(
 }
 
 /**
- * Detect automatic redirection target locale from storage and browser language settings.
+ * Detect automatic redirection target locale from navigator language settings.
  *
  * @returns {string} The guessed language code.
  */
-function detectAutoRedirectionTargetLocale(
-  storage: Storage,
-): string | undefined {
-  const targetLocale = storage.getItem(autoRedirectionTargetLocaleKey);
-  if (targetLocale && supportedLocales.includes(targetLocale)) {
-    return targetLocale;
-  }
-
+function getAutoRedirectionTargetLocaleFromNavigatorLanguage(): string | null {
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages
   if (navigator.languages) {
     for (const navigatorLanguage of navigator.languages) {
       for (const supportedLocale of supportedLocales) {
         if (
-          navigatorLanguageContainsSupportedLocale(
+          isNavigatorLanguageContainsSupportedLocale(
             navigatorLanguage,
             supportedLocale,
           )
@@ -89,7 +95,7 @@ function detectAutoRedirectionTargetLocale(
   if (navigator.language) {
     for (const supportedLocale of supportedLocales) {
       if (
-        navigatorLanguageContainsSupportedLocale(
+        isNavigatorLanguageContainsSupportedLocale(
           navigator.language,
           supportedLocale,
         )
@@ -99,7 +105,7 @@ function detectAutoRedirectionTargetLocale(
     }
   }
 
-  return undefined;
+  return null;
 }
 
 /**
@@ -134,11 +140,14 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
     return;
   }
 
-  let targetLocale = detectAutoRedirectionTargetLocale(storage);
+  let targetLocale = getAutoRedirectionTargetLocaleFromStorage(storage);
+  if (!targetLocale) {
+    targetLocale = getAutoRedirectionTargetLocaleFromNavigatorLanguage();
+  }
   if (!targetLocale && requestLocale) {
     if (supportedLocales.includes(requestLocale)) {
       // If automatic detection of the redirect target locale failed and
-      // a locale can be obtained from the request, do nothing.
+      // a supported locale can be obtained from the request, do nothing.
       return;
     }
     const lowerCaseRequestLocale = requestLocale.toLowerCase();
@@ -148,7 +157,7 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
   }
   targetLocale ||= defaultLocale;
 
-  registerAutoRedirectionTargetLocale(storage, targetLocale);
+  setAutoRedirectionTargetLocaleToStorage(storage, targetLocale);
 
   // If the requested locale and the automatically detected locale are the same, do nothing
   if (requestLocale === targetLocale) {
