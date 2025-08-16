@@ -79,11 +79,11 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
   if (requestPathComponents.length >= 2) {
     requestLocale = requestPathComponents[1];
     requestPathname = requestPathComponents.slice(2).join("/");
-  }
 
-  if (requestLocale?.indexOf(".") !== -1) {
-    // If an extension is included, treat it as an individual file and do not redirect.
-    return;
+    if (requestLocale.indexOf(".") !== -1) {
+      // If an extension is included, treat it as an individual file and do not redirect.
+      return;
+    }
   }
 
   if (requestLocale == "releases") {
