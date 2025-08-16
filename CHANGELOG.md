@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.11.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.11.0...v3.11.1) (2025-08-16)
+
+
+### 🐛 Bug Fixes
+
+* fix a bug that _ALPHABLEND_ON is incorrectly enabled in Blender 4.2 and later ([a9d21b4](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a9d21b41f92eda5fc40b8168bde5dbe591c56389))
+
 ## [3.11.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.10.2...v3.11.0) (2025-08-16)
 
 
