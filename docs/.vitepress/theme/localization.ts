@@ -39,9 +39,9 @@ function navigatorLanguageContainsSupportedLocale(
   }
   navigatorLanguage = navigatorLanguage.toLowerCase();
 
+  // There should be a more accurate algorithm.
   const navigatorLanguageComponents = navigatorLanguage.split("-");
   const supportedLocaleComponents = supportedLocale.split("-");
-
   for (let i = 0; i < navigatorLanguageComponents.length; i++) {
     const navigatorLanguageComponent = navigatorLanguageComponents[i];
     if (supportedLocaleComponents.length >= i) {
