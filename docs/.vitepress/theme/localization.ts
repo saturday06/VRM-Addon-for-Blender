@@ -128,10 +128,10 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
   let requestLocale;
   let requestPathname;
   const requestUrl = new URL(window.location.href);
-  const requestPathComponents = requestUrl.pathname.split("/");
-  if (requestPathComponents.length >= 2) {
-    requestLocale = requestPathComponents[1];
-    requestPathname = requestPathComponents.slice(2).join("/");
+  const requestRawPathnameComponents = requestUrl.pathname.split("/");
+  if (requestRawPathnameComponents.length >= 2) {
+    requestLocale = requestRawPathnameComponents[1];
+    requestPathname = requestRawPathnameComponents.slice(2).join("/");
 
     if (requestLocale.indexOf(".") !== -1) {
       // If an extension is included, treat it as an individual file and do not redirect.
