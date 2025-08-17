@@ -82,7 +82,7 @@ export default defineConfig({
         nav: [
           {
             text: "ダウンロード",
-            link: "/ja/#ダウンロード",
+            link: "/ja/#download",
           },
           {
             text: "バグを報告",

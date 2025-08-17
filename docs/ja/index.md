@@ -12,7 +12,7 @@ next: false
 VRM Add-on for
 Blenderは、BlenderにVRMのインポート、エクスポートや編集機能を追加するアドオンです。バージョン2.93から4.5のBlenderに対応しています。
 
-## ダウンロード
+## ダウンロード {#download}
 
 - Blender 4.2以上をお使いの場合
   [Blender Extensions Platform](https://extensions.blender.org/add-ons/vrm)
