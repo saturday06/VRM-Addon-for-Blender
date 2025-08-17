@@ -113,21 +113,29 @@ function getAutoRedirectionTargetLocaleFromNavigatorLanguage(): string | null {
 }
 
 /**
- * Redirect to the corresponding URL based on storage and browser language settings
+ * Get the current location object.
  */
-export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
-  storage.removeItem(hasPendingAutoRedirectionKey);
-
+function getLocation(): Location | null {
   const window = globalThis;
-  if (!(window instanceof Window) || !(window.location instanceof Location)) {
-    return;
+  if (!(window instanceof Window)) {
+    return null;
   }
+  const location = window.location;
+  if (!(location instanceof Location)) {
+    return null;
+  }
+  return location;
+}
 
+/**
+ * Get the redirect URL based on the storage and requested URL.
+ */
+function getRedirectUrl(storage: Storage, href: string): URL | null {
   // Separate the requested pathname into the first folder and the rest,
   // and use the first folder as the locale.
   let requestLocale: string | null = null;
   let requestPathname: string | null = null;
-  const requestUrl = new URL(window.location.href);
+  const requestUrl = new URL(href);
   const requestRawPathnameComponents = requestUrl.pathname.split("/");
   if (requestRawPathnameComponents.length >= 2) {
     requestLocale = requestRawPathnameComponents[1];
@@ -135,12 +143,12 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
 
     if (requestLocale.indexOf(".") !== -1) {
       // If an extension is included, treat it as an individual file and do not redirect.
-      return;
+      return null;
     }
 
     if (requestLocale == "releases") {
       // The releases folder contains locale-independent files, so do not redirect.
-      return;
+      return null;
     }
   }
 
@@ -152,7 +160,7 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
     if (supportedLocales.includes(requestLocale)) {
       // If automatic detection of the redirect target locale failed and
       // a supported locale can be obtained from the request, do nothing.
-      return;
+      return null;
     }
     const lowerCaseRequestLocale = requestLocale.toLowerCase();
     if (supportedLocales.includes(lowerCaseRequestLocale)) {
@@ -161,21 +169,38 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
   }
   targetLocale ??= defaultLocale;
 
-  setAutoRedirectionTargetLocaleToStorage(storage, targetLocale);
-
   // If the requested locale and the automatically detected locale are the same, do nothing
   if (requestLocale === targetLocale) {
-    return;
+    return null;
   }
 
   // If we reach here, redirection is necessary.
   // Reconstruct the URL and redirect.
-  const redirectUrl = new URL(window.location.href);
+  const redirectUrl = new URL(href);
   redirectUrl.pathname = "/" + targetLocale + "/";
   if (requestPathname) {
     redirectUrl.pathname += requestPathname;
   }
+  return redirectUrl;
+}
+
+/**
+ * Redirect to the corresponding URL based on storage and browser language settings
+ */
+export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
+  storage.removeItem(hasPendingAutoRedirectionKey);
+
+  const location = getLocation();
+  if (!location) {
+    return;
+  }
+
+  const redirectUrl = getRedirectUrl(storage, location.href);
+  if (!redirectUrl) {
+    return;
+  }
 
   storage.setItem(hasPendingAutoRedirectionKey, "true");
-  window.location.replace(redirectUrl.toString());
+
+  location.replace(redirectUrl.toString());
 }
