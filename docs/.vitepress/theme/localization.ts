@@ -159,7 +159,7 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
       targetLocale = lowerCaseRequestLocale;
     }
   }
-  targetLocale ||= defaultLocale;
+  targetLocale ??= defaultLocale;
 
   setAutoRedirectionTargetLocaleToStorage(storage, targetLocale);
 
