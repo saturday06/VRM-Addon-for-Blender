@@ -11,10 +11,11 @@ import { useData, inBrowser } from 'vitepress'
 import { watchEffect } from 'vue'
 import { setAutoRedirectionTargetLocaleToStorage } from "./localization.ts";
 
-const { lang } = useData()
+// https://github.com/vuejs/vitepress/blob/v1.6.4/docs/en/reference/runtime-api.md?plain=1#L40
+const { localeIndex } = useData();
 watchEffect(() => {
   if (inBrowser) {
-    setAutoRedirectionTargetLocaleToStorage(localStorage, lang.value);
+    setAutoRedirectionTargetLocaleToStorage(localStorage, localeIndex.value);
   }
 })
 
