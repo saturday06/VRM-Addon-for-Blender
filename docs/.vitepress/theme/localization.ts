@@ -125,8 +125,8 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
 
   // Separate the requested pathname into the first folder and the rest,
   // and use the first folder as the locale.
-  let requestLocale;
-  let requestPathname;
+  let requestLocale: string | null = null;
+  let requestPathname: string | null = null;
   const requestUrl = new URL(window.location.href);
   const requestRawPathnameComponents = requestUrl.pathname.split("/");
   if (requestRawPathnameComponents.length >= 2) {
@@ -137,11 +137,11 @@ export function redirectToLocaleUrlIfNeeded(storage: Storage): void {
       // If an extension is included, treat it as an individual file and do not redirect.
       return;
     }
-  }
 
-  if (requestLocale == "releases") {
-    // The releases folder contains locale-independent files, so do not redirect.
-    return;
+    if (requestLocale == "releases") {
+      // The releases folder contains locale-independent files, so do not redirect.
+      return;
+    }
   }
 
   let targetLocale = getAutoRedirectionTargetLocaleFromStorage(storage);
