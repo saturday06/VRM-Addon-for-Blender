@@ -61,7 +61,7 @@ function isNavigatorLanguageContainsSupportedLocale(
   const supportedLocaleComponents = supportedLocale.split("-");
   for (let i = 0; i < navigatorLanguageComponents.length; i++) {
     const navigatorLanguageComponent = navigatorLanguageComponents[i];
-    if (supportedLocaleComponents.length >= i) {
+    if (i >= supportedLocaleComponents.length) {
       return false;
     }
     const supportedLocaleComponent = supportedLocaleComponents[i];
