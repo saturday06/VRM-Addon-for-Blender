@@ -303,8 +303,8 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@iconify-json/simple-icons@1.2.47": {
-      "integrity": "sha512-wa/2O7G4sBmwSEWWLh5C+HeY00lVOoWYRKJOYQtk7lAbQrHUReD1ijiGOyTynV1YavxtNueL1CBA1UZmYJfOrQ==",
+    "@iconify-json/simple-icons@1.2.48": {
+      "integrity": "sha512-EACOtZMoPJtERiAbX1De0asrrCtlwI27+03c9OJlYWsly9w1O5vcD8rTzh+kDPjo+K8FOVnq2Qy+h/CzljSKDA==",
       "dependencies": [
         "@iconify/types"
       ]
