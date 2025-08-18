@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.11.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.11.1...v3.11.2) (2025-08-18)
+
+
+### 🐛 Bug Fixes
+
+* fix export error when vertex weights are in certain situations ([53775d7](https://github.com/saturday06/VRM-Addon-for-Blender/commit/53775d78c1798fc6dfedd0fb05057e18f4e8e738))
+
 ## [3.11.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.11.0...v3.11.1) (2025-08-16)
 
 
