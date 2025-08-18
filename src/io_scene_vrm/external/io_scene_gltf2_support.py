@@ -307,16 +307,34 @@ def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
 
 
 def export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
+    last_exception: Optional[Exception] = None
     try:
         return __invoke_export_scene_gltf(arguments)
-    except RuntimeError:
-        if not arguments.export_animations:
-            raise
-        logger.exception("Failed to export VRM with animations")
-        # TODO: check traceback
+    except RuntimeError as exception:
+        last_exception = exception
 
-    arguments.export_animations = False
-    return __invoke_export_scene_gltf(arguments)
+    # export_armature_object_remove is unstable, and the conditions under which it
+    # fails are very complex, so I cannot fully grasp all of them.
+    # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2436
+    # https://github.com/saturday06/VRM-Addon-for-Blender/issues/1033
+    if arguments.export_armature_object_remove:
+        arguments.export_armature_object_remove = False
+        logger.warning("retrying with `export_armature_object_remove = False`")
+        try:
+            return __invoke_export_scene_gltf(arguments)
+        except RuntimeError as exception:
+            last_exception = exception
+
+    # https://github.com/saturday06/VRM-Addon-for-Blender/commit/26f566d43b15c7a403c0f007b0290f9aef569114
+    if arguments.export_animations:
+        arguments.export_animations = False
+        logger.warning("retrying with `export_animations = False`")
+        try:
+            return __invoke_export_scene_gltf(arguments)
+        except RuntimeError as exception:
+            last_exception = exception
+
+    raise last_exception
 
 
 def gather_gltf2_io_material(
