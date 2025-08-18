@@ -28,7 +28,6 @@ export default defineConfig({
         ],
         sidebar: [
           {
-            text: "Top",
             items: [
               {
                 items: [
@@ -91,7 +90,6 @@ export default defineConfig({
         ],
         sidebar: [
           {
-            text: "トップ",
             items: [
               {
                 items: [
