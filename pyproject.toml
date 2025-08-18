@@ -20,13 +20,13 @@ dependencies = [
 [tool.uv]
 dev-dependencies = [
   "codespell ==2.4.1",
-  "pygit2 ==1.18.1",
+  "pygit2 ==1.18.2",
   "pyrefly ==0.28.1",
   "requests ==2.32.4",
-  "ruff ==0.12.8",
+  "ruff ==0.12.9",
   "starry-bpy-typings",
   "tqdm ==4.67.1",
-  "ty ==0.0.1a17",
+  "ty ==0.0.1a18",
   "types-pygit2 ==1.15.0.20250319",
   "types-tqdm ==4.67.0.20250809",
 ]
