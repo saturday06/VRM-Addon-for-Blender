@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from unittest import TestCase
 
 from io_scene_vrm.common.blender_manifest import BlenderManifest
