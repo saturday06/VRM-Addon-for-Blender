@@ -32,6 +32,8 @@ jobs:
             archive_url_path: Blender4.5/blender-4.5.1-windows-x64.zip
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Cache archive
         id: cache-archive
         uses: actions/cache@v4
@@ -90,6 +92,8 @@ jobs:
             archive_url_path: Blender4.5/blender-4.5.1-macos-x64.dmg
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Cache archive
         id: cache-archive
         uses: actions/cache@v4
@@ -139,6 +143,8 @@ jobs:
             archive_url_path: Blender4.5/blender-4.5.1-linux-x64.tar.xz
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Cache archive
         id: cache-archive
         uses: actions/cache@v4

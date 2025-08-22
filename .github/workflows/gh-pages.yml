@@ -25,6 +25,8 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - uses: denoland/setup-deno@v2
         with:
           deno-version-file: .dvmrc

@@ -21,6 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          persist-credentials: false
           ref: ${{ env.PR_BASE_BRANCH }}
       - name: Switch to working branch
         run: git checkout -b "$PR_BRANCH"

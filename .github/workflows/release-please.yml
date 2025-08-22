@@ -25,6 +25,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0 # This seems to make release-please-action more stable
+          persist-credentials: false
       - uses: googleapis/release-please-action@v4
         id: release
         with:
@@ -48,6 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          persist-credentials: false
           ref: ${{ needs.release-please.outputs.release_sha }}
       - name: Install deb packages
         run: sudo ./tools/install_ubuntu_packages.sh
