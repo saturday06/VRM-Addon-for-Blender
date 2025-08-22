@@ -25,7 +25,7 @@ jobs:
           ref: ${{ env.PR_BASE_BRANCH }}
       - name: Switch to working branch
         run: git checkout -b "$PR_BRANCH"
-      - uses: denoland/setup-deno@v2
+      - uses: denoland/setup-deno@2f7698fd116bfedbd1c3cd4119337b5a787ef53a
         with:
           deno-version: vx.x.x
       - name: Update .dvmrc

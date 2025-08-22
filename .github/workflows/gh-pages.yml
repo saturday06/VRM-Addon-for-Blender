@@ -9,10 +9,7 @@ on:
       - main
       - website
   workflow_dispatch:
-  workflow_run:
-    workflows: [release-please]
-    branches: [main]
-    types: [completed]
+  workflow_call:
 
 jobs:
   deploy:
@@ -27,7 +24,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
-      - uses: denoland/setup-deno@v2
+      - uses: denoland/setup-deno@2f7698fd116bfedbd1c3cd4119337b5a787ef53a
         with:
           deno-version-file: .dvmrc
       - name: Build
