@@ -1,0 +1,3 @@
+AVD-DS-0002 # It is necessary to inherit the user from the super-linter Dockerfile.
+AVD-DS-0017 # The current Trivy cannot correctly interpret multi-line RUN instructions.
+AVD-DS-0026 # HEALTHCHECK is not required because the Dev Container and super-linter Dockerfile are not deployed to a server.
