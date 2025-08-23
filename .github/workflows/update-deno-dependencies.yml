@@ -75,7 +75,8 @@ jobs:
           # the default branch as cleanup and fails, so we don't use it.
           gh pr close "$PR_BRANCH" || true
 
-          git push -f origin "$PR_BRANCH"
+          git push --delete origin "$PR_BRANCH" || true
+          git push origin "$PR_BRANCH"
 
           gh pr create --base "$PR_BASE_BRANCH" --fill
           gh pr merge --merge --auto
