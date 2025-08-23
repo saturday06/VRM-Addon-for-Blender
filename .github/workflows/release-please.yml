@@ -59,4 +59,11 @@ jobs:
           # https://github.com/orgs/community/discussions/40405#discussioncomment-8361451
           GIT_USER_NAME: ${{ format('[BOT] {0}', github.actor) }}
           GIT_USER_EMAIL: ${{ format('{0}+{1}@users.noreply.github.com', github.actor_id, github.actor) }}
-      - uses: ./.github/workflows/gh-pages.yml
+
+  gh-pages:
+    needs: upload-release-archive
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/gh-pages.yml
