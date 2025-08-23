@@ -1,6 +1,6 @@
 ---
-title: 'Create Simple VRM'
-description: 'Convert the cube displayed from the beginning when you start Blender to a VRM model.'
+title: "Create Simple VRM"
+description: "Convert the cube displayed from the beginning when you start Blender to a VRM model."
 ---
 
 Convert the cube displayed from the beginning when you start Blender to a VRM

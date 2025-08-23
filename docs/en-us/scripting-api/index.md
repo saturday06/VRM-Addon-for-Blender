@@ -1,6 +1,6 @@
 ---
-title: 'Automation samples with Python scripts'
-description: 'A sample of automating VRM-related processes using a Python script.'
+title: "Automation samples with Python scripts"
+description: "A sample of automating VRM-related processes using a Python script."
 ---
 
 A sample of automating VRM-related processes using a Python script.

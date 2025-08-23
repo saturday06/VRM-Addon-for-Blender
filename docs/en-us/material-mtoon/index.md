@@ -1,6 +1,6 @@
 ---
-title: 'Create Anime Style Material'
-description: 'Set up an anime-style material with MToon shaders.'
+title: "Create Anime Style Material"
+description: "Set up an anime-style material with MToon shaders."
 ---
 
 Set an anime-style material to VRM.
