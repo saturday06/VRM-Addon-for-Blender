@@ -72,7 +72,7 @@ jobs:
           mkdir -p docs/.vitepress/dist/images
           cp -fr docs/assets/images/*.gif docs/.vitepress/dist/images
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: docs/.vitepress/dist
       - uses: actions/deploy-pages@v4
