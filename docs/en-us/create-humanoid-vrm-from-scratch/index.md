@@ -1,6 +1,6 @@
 ---
-title: 'Create Humanoid VRM'
-description: 'We will create a simple Humanoid VRM model.'
+title: "Create Humanoid VRM"
+description: "We will create a simple Humanoid VRM model."
 ---
 
 We will create a simple Humanoid VRM model.

@@ -1,5 +1,5 @@
 ---
-title: 'VRM Animation'
+title: "VRM Animation"
 ---
 
 This section explains how to import and export VRM Animation files.

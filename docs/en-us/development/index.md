@@ -1,5 +1,5 @@
 ---
-title: 'Development How-To'
+title: "Development How-To"
 ---
 
 Instructions for setting up the add-on development environment.

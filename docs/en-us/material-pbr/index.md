@@ -1,6 +1,6 @@
 ---
-title: 'Create Physics Based Material'
-description: 'Set up physics-based materials using Principled BSDF shaders.'
+title: "Create Physics Based Material"
+description: "Set up physics-based materials using Principled BSDF shaders."
 ---
 
 Set up realistic physics-based materials for VRM.

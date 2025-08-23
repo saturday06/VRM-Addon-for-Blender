@@ -1,5 +1,5 @@
 ---
-title: 'Add-on Installation'
+title: "Add-on Installation"
 ---
 
 This tutorial explains the steps to install the add-on in Blender versions 2.93
