@@ -21,12 +21,12 @@ dependencies = [
 dev-dependencies = [
   "codespell ==2.4.1",
   "pygit2 ==1.18.2",
-  "pyrefly ==0.28.1",
-  "requests ==2.32.4",
-  "ruff ==0.12.9",
+  "pyrefly ==0.29.2",
+  "requests ==2.32.5",
+  "ruff ==0.12.10",
   "starry-bpy-typings",
   "tqdm ==4.67.1",
-  "ty ==0.0.1a18",
+  "ty ==0.0.1a19",
   "types-pygit2 ==1.15.0.20250319",
   "types-tqdm ==4.67.0.20250809",
 ]
