@@ -29,6 +29,7 @@ dev-dependencies = [
   "ty ==0.0.1a19",
   "types-pygit2 ==1.15.0.20250319",
   "types-tqdm ==4.67.0.20250809",
+  "vncdotool ==1.2.0",
 ]
 
 [tool.uv.sources]
