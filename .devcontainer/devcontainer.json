@@ -1,5 +1,6 @@
 {
   "name": "VRM-Addon-for-Blender",
+  "runArgs": ["--hostname", "vrm-addon-for-blender-dev"],
   "build": {
     "dockerfile": "Dockerfile",
     "context": "../tools",
