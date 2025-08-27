@@ -3,6 +3,7 @@
     "frozen": true
   },
   "exclude": [
+    ".cache/",
     "tests/resources/unity/*/ProjectSettings/*.json",
     "CHANGELOG.md"
   ],

@@ -39,6 +39,17 @@ export BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 export UV_LINK_MODE=copy
 SHELL_PROFILE_SCRIPT
 
+  mkdir -p ~/.vnc
+  cat <<'VNC_XSTARTUP_SCRIPT' >>~/.vnc/xstartup
+#!/bin/bash
+unset SESSION_MANAGER
+unset DBUS_SESSION_BUS_ADDRESS
+xterm &
+blender &
+exec openbox-session
+VNC_XSTARTUP_SCRIPT
+  chmod +x ~/.vnc/xstartup
+
   # https://docs.astral.sh/uv/getting-started/installation/
   curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
 

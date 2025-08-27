@@ -8,6 +8,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   advancecomp \
   blender \
   curl \
+  dbus-x11 \
   diffutils \
   ffmpeg \
   file \
@@ -20,7 +21,9 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   libxi6 \
   libxkbcommon0 \
   moreutils \
+  netcat-openbsd \
   nkf \
+  novnc \
   patchutils \
   python3-pygit2 \
   python3-numpy \
@@ -30,8 +33,13 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   shellcheck \
   shfmt \
   sudo \
+  supervisor \
+  tigervnc-standalone-server \
   uchardet \
   unzip \
+  websockify \
+  openbox \
+  xterm \
   xz-utils \
   xxd \
   zopfli \

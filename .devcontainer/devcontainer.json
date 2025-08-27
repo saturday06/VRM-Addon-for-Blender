@@ -17,16 +17,13 @@
   "workspaceFolder": "/workspace",
   "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/workspace,consistency=cached",
   "portsAttributes": {
-    "23389": {
-      "label": "Remote Desktop",
-      "onAutoForward": "ignore"
-    },
-    "4173": {
-      "label": "deno task docs:preview",
-      "onAutoForward": "openBrowserOnce"
+    "6801": {
+      "label": "Web access to the desktop",
+      "protocol": "http"
     },
     "5173": {
-      "label": "deno task docs:dev",
+      "label": "Documentation development server",
+      "protocol": "http",
       "onAutoForward": "openBrowserOnce"
     }
   },

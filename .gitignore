@@ -5,6 +5,7 @@
 .env
 .mypy_cache/
 .ruff_cache/
+/.cache/
 /.idea/
 /.venv/
 /.vscode/
