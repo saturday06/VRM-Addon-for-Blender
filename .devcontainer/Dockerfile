@@ -51,6 +51,7 @@ exec openbox-session
 VNC_XSTARTUP_SCRIPT
   chmod +x ~/.vnc/xstartup
 
+  mkdir -p Desktop Documents Downloads Music Pictures Videos
   # https://docs.astral.sh/uv/getting-started/installation/
   curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
 
