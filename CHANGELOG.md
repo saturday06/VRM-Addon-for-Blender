@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.11.5](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.11.4...v3.11.5) (2025-08-31)
+
+
+### 🐛 Bug Fixes
+
+* fixed an issue where temporary armature might remain after VRM export ([fe9fc0e](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fe9fc0e950d6204c7277bedc237ab662d42e869b))
+
 ## [3.11.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.11.3...v3.11.4) (2025-08-23)
 
 
