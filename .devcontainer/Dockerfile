@@ -46,7 +46,7 @@ SHELL_PROFILE_SCRIPT
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
 xterm &
-blender &
+(while sleep 1; do xterm -e blender || true; done) &
 exec openbox-session
 VNC_XSTARTUP_SCRIPT
   chmod +x ~/.vnc/xstartup
