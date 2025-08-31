@@ -24,9 +24,10 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   netcat-openbsd \
   nkf \
   novnc \
+  openbox \
   patchutils \
-  python3-pygit2 \
   python3-numpy \
+  python3-pygit2 \
   python3-tqdm \
   python3-typing-extensions \
   ruby \
@@ -38,9 +39,8 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   uchardet \
   unzip \
   websockify \
-  openbox \
   xterm \
-  xz-utils \
   xxd \
+  xz-utils \
   zopfli \
   -y --no-install-recommends
