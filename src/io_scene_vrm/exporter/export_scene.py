@@ -318,6 +318,12 @@ def export_vrm(
     Path(filepath).write_bytes(vrm_bytes)
 
     if armature_object_is_temporary:
+        for collection in [
+            *[scene.collection for scene in context.blend_data.scenes],
+            *context.blend_data.collections,
+        ]:
+            if armature_object.name in collection.objects:
+                collection.objects.unlink(armature_object)
         if armature_object.users:
             logger.warning("Failed to remove temporary armature")
         else:
