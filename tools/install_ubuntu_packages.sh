@@ -36,6 +36,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   sudo \
   supervisor \
   tigervnc-standalone-server \
+  tint2 \
   uchardet \
   unzip \
   websockify \

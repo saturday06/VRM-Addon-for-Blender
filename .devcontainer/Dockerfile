@@ -45,6 +45,7 @@ SHELL_PROFILE_SCRIPT
 #!/bin/bash
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
+tint2 &
 xterm &
 (while sleep 1; do xterm -e blender || true; done) &
 exec openbox-session
