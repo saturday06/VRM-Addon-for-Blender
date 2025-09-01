@@ -13,6 +13,7 @@
 /docs/.vitepress/dist/
 /node_modules/
 /benchmarks/temp/*
+/extension_output/
 /super-linter-output/
 /tests/temp/*
 /tests/resources/unity/*/*.csproj
