@@ -65,6 +65,8 @@ for postfix in "$release_postfix" "$underscore_version"; do
   )
   cp "${work_dir}/${prefix_name}-${postfix}.zip" .
 done
+website_release_path="${prefix_name}-${release_postfix}.zip"
+github_release_path="${prefix_name}-${underscore_version}.zip"
 
 ./tools/build_extension.sh
 original_extension_path=$(find extension_output -name "vrm_*_*.zip" | sort | head -n 1)
@@ -75,6 +77,20 @@ fi
 
 extension_path="${prefix_name}-Extension-${underscore_version}.zip"
 mv -v "$original_extension_path" "$extension_path"
+mkdir -p website_release_output/releases
+cp "$website_release_path" website_release_output/releases/
+
+(
+  set +x
+  echo
+  echo "==================================================================="
+  echo "Release Build Completed"
+  echo "Blender 4.2 or later: ${extension_path}"
+  echo "Blender 2.93 - 4.1 website release: ${website_release_path}"
+  echo "Blender 2.93 - 4.1 github release: ${github_release_path}"
+  echo "==================================================================="
+  echo
+)
 
 if ! gh release view "$release_tag_name"; then
   echo "No release tag: $release_tag_name"
@@ -82,7 +98,7 @@ if ! gh release view "$release_tag_name"; then
 fi
 
 gh release upload "$release_tag_name" "${extension_path}#(Blender 4.2 or later) VRM Add-on for Blender Extension ${version} (zip)"
-gh release upload "$release_tag_name" "${prefix_name}-${underscore_version}.zip#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
+gh release upload "$release_tag_name" "${github_release_path}#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
 
 # Create release notes for Blender Extensions
 github_release_body_path=$(mktemp)
