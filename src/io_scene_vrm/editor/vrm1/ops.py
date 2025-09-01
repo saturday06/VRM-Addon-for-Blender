@@ -2501,7 +2501,7 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
 
         # Remove orphaned node groups
         for group in bpy.data.node_groups:
-            if group.name.startswith("VRM_TextureTransform_") and group.users == 0:
+            if group.name.startswith("VRM_TextureTransform_") and not group.users:
                 bpy.data.node_groups.remove(group)
 
     def connect_group_to_image_node(
