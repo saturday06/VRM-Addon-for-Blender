@@ -1253,17 +1253,17 @@ class AbstractBaseVrmImporter(ABC):
             nodes_key = self.import_id + "Nodes"
             remove_objs: list[Object] = []
             for obj in list(self.context.scene.collection.objects):
-                if isinstance(obj.data, Armature):
-                    for bone in obj.data.bones:
+                if isinstance(armature_data := obj.data, Armature):
+                    for bone in armature_data.bones:
                         if nodes_key in bone:
                             remove_objs.append(obj)
                             break
                     continue
 
-                if isinstance(obj.data, Mesh) and (
-                    nodes_key in obj.data
-                    or meshes_key in obj.data
-                    or self.is_temp_object_name(obj.data.name)
+                if isinstance(mesh_data := obj.data, Mesh) and (
+                    nodes_key in mesh_data
+                    or meshes_key in mesh_data
+                    or self.is_temp_object_name(mesh_data.name)
                 ):
                     remove_objs.append(obj)
                     continue
