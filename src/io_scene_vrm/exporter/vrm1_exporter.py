@@ -31,7 +31,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Quaternion, Vector
 
-from ..common import convert, shader
+from ..common import convert, safe_removal, shader
 from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.convert import Json
 from ..common.deep import make_json
@@ -295,20 +295,13 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             # Even if deletion fails, randomize the name to avoid
             # confusion with the original object
             restored_export_obj.name = "Export-" + uuid4().hex
-
-            scene_collection_objects = context.scene.collection.objects
-            if restored_export_obj.name in scene_collection_objects:
-                scene_collection_objects.unlink(restored_export_obj)
-
-            if restored_export_obj.users:
+            if not safe_removal.remove_object(context, restored_export_obj):
                 logger.warning(
                     'Failed to remove "%s" with %d users (temp object for "%s")',
                     restored_export_obj.name,
                     restored_export_obj.users,
                     original_obj_name,
                 )
-            else:
-                context.blend_data.objects.remove(restored_export_obj)
 
         # Delete export object data
         for removing_object_data in removing_object_datum:

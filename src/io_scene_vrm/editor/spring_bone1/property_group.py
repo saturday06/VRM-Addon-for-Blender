@@ -18,7 +18,7 @@ from bpy.props import (
 from bpy.types import Armature, Context, Object, PropertyGroup
 from mathutils import Matrix, Quaternion, Vector
 
-from ...common import convert
+from ...common import convert, safe_removal
 from ...common.logger import get_logger
 from ...common.rotation import (
     get_rotation_as_quaternion,
@@ -838,25 +838,14 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
                 extended.SHAPE_TYPE_EXTENDED_PLANE.identifier,
             ]
         ):
-            children = list(self.bpy_object.children)
-            for collection in [
-                context.scene.collection,
-                *context.blend_data.collections,
-            ]:
-                for child in children:
-                    child.parent = None
-                    if child.name in collection.objects:
-                        collection.objects.unlink(child)
-            for child in children:
-                if child.users:
+            for child in list(self.bpy_object.children):
+                if not safe_removal.remove_object(context, child):
                     logger.warning(
                         'Failed to remove "%s" with %d users'
                         " while changing spring bone collider type",
                         child.name,
                         child.users,
                     )
-                else:
-                    context.blend_data.objects.remove(child, do_unlink=True)
             empty_display_type = "SPHERE"
             if extended.shape_type == extended.SHAPE_TYPE_EXTENDED_PLANE.identifier:
                 empty_display_type = "CIRCLE"

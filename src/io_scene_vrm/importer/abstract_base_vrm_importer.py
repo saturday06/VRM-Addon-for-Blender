@@ -31,7 +31,7 @@ from bpy.types import (
 )
 from mathutils import Euler, Matrix
 
-from ..common import shader
+from ..common import safe_removal, shader
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.fs import (
@@ -1200,25 +1200,15 @@ class AbstractBaseVrmImporter(ABC):
             else:
                 self.context.blend_data.scenes.remove(scene)
 
-        for collection in [
-            *[scene.collection for scene in self.context.blend_data.scenes],
-            *self.context.blend_data.collections,
-        ]:
-            for obj in list(collection.objects):
-                if self.is_temp_object_name(obj.name):
-                    collection.objects.unlink(obj)
-
         for obj in list(self.context.blend_data.objects):
             if not self.is_temp_object_name(obj.name):
                 continue
-            if obj.users:
+            if not safe_removal.remove_object(self.context, obj):
                 logger.warning(
                     'Failed to remove "%s" with %d users while removing temp objects',
                     obj.name,
                     obj.users,
                 )
-            else:
-                self.context.blend_data.objects.remove(obj)
 
         for mesh in list(self.context.blend_data.meshes):
             if not self.is_temp_object_name(mesh.name):
@@ -1275,18 +1265,8 @@ class AbstractBaseVrmImporter(ABC):
                 ):
                     remove_objs.append(obj)
 
-            bpy.ops.object.select_all(action="DESELECT")
             for obj in remove_objs:
-                obj.select_set(True)
-            bpy.ops.object.delete()
-
-            retry = True
-            while retry:
-                retry = False
-                for obj in self.context.blend_data.objects:
-                    if obj in remove_objs and not obj.users:
-                        retry = True
-                        self.context.blend_data.objects.remove(obj, do_unlink=True)
+                safe_removal.remove_object(self.context, obj)
 
     def temp_object_name(self) -> str:
         self.temp_object_name_count += 1

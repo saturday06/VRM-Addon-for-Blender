@@ -19,7 +19,7 @@ from bpy.types import (
 )
 from bpy_extras.io_utils import ExportHelper
 
-from ..common import ops, version
+from ..common import ops, safe_removal, version
 from ..common.error_dialog import show_error_dialog
 from ..common.logger import get_logger
 from ..common.preferences import (
@@ -317,18 +317,10 @@ def export_vrm(
 
     Path(filepath).write_bytes(vrm_bytes)
 
-    if armature_object_is_temporary:
-        for collection in [
-            *[scene.collection for scene in context.blend_data.scenes],
-            *context.blend_data.collections,
-        ]:
-            if armature_object.name in collection.objects:
-                collection.objects.unlink(armature_object)
-        if armature_object.users:
-            logger.warning("Failed to remove temporary armature")
-        else:
-            # Remove after deactivating from active object
-            context.blend_data.objects.remove(armature_object)
+    if armature_object_is_temporary and not safe_removal.remove_object(
+        context, armature_object
+    ):
+        logger.warning("Failed to remove temporary armature")
 
     return {"FINISHED"}
 
