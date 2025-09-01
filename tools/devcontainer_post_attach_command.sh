@@ -65,7 +65,7 @@ if [ -f "$supervisord_pid_path" ]; then
   # TODO: No kill. Reload.
   supervisord_pid=$(cat "$supervisord_pid_path")
   kill "$supervisord_pid" || true
-  if ! timeout 10 sh -c "while kill -0 '$supervisord_pid'; do sleep 1; done"; then
+  if ! timeout 10 sh -c "while kill -0 '$supervisord_pid' 2>/dev/null; do sleep 1; done"; then
     kill -9 "$supervisord_pid" || true
   fi
   rm -f "$supervisord_pid_path"
