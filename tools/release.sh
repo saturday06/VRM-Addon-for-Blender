@@ -29,6 +29,8 @@ if ! git --no-pager diff --exit-code || ! git --no-pager diff --cached --exit-co
   exit 1
 fi
 
+git clean -xdff src
+
 underscore_version=$(ruby -e "puts ARGV[0].sub(/^v/, '').split('.', 3).join('_')" "$release_tag_name")
 version=$(ruby -e "puts ARGV[0].split('_', 3).join('.')" "$underscore_version")
 blender_manifest_version=$(
