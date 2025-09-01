@@ -14,6 +14,8 @@ fi
 set -x
 shellcheck "$0"
 
+cd "$(dirname "$0")/.."
+
 export PYTHONDONTWRITEBYTECODE=1
 prefix_name=VRM_Addon_for_Blender
 
