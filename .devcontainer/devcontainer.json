@@ -20,7 +20,8 @@
   "portsAttributes": {
     "6801": {
       "label": "Web access to the desktop",
-      "protocol": "http"
+      "protocol": "http",
+      "onAutoForward": "openPreview"
     },
     "5173": {
       "label": "Documentation development server",
