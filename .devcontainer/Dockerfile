@@ -47,7 +47,7 @@ unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
 tint2 &
 xterm &
-(while sleep 1; do xterm -e blender || true; done) &
+(while sleep 1; do xterm -e blender --open-last || true; done) &
 exec openbox-session
 VNC_XSTARTUP_SCRIPT
   chmod +x ~/.vnc/xstartup
