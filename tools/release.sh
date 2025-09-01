@@ -73,6 +73,12 @@ fi
 
 extension_path="${prefix_name}-Extension-${underscore_version}.zip"
 mv -v "$original_extension_path" "$extension_path"
+
+if ! gh release view "$release_tag_name"; then
+  echo "No release tag: $release_tag_name"
+  exit 1
+fi
+
 gh release upload "$release_tag_name" "${extension_path}#(Blender 4.2 or later) VRM Add-on for Blender Extension ${version} (zip)"
 gh release upload "$release_tag_name" "${prefix_name}-${underscore_version}.zip#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
 
