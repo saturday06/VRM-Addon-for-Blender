@@ -34,7 +34,6 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   shellcheck \
   shfmt \
   sudo \
-  supervisor \
   tigervnc-standalone-server \
   tint2 \
   uchardet \
