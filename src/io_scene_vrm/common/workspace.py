@@ -200,9 +200,8 @@ def wm_append_without_library(
             if library.as_pointer() in existing_library_pointers:
                 continue
 
-            if bpy.app.version >= (3, 2):
+            if bpy.app.version >= (3, 2) and library.use_extra_user:
                 library.use_extra_user = False
-
             if library.users:
                 logger.warning(
                     'Failed to remove "%s" with %d users'

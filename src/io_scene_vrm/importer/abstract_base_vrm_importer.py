@@ -1189,7 +1189,7 @@ class AbstractBaseVrmImporter(ABC):
         for scene in list(self.context.blend_data.scenes):
             if not self.is_temp_object_name(scene.name):
                 continue
-            if bpy.app.version >= (3, 2):
+            if bpy.app.version >= (3, 2) and scene.use_extra_user:
                 scene.use_extra_user = False
             if scene.users:
                 logger.warning(
