@@ -5,7 +5,10 @@ set -eu
 
 if [ $# -lt 1 ]; then
   echo "Usage: $0 <release_tag_name>"
-  exit 1
+  release_tag_name=v0.0.0
+  echo "Continuing with release_tag_name=${release_tag_name}"
+else
+  release_tag_name=$1
 fi
 
 set -x
