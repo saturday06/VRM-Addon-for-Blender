@@ -60,14 +60,15 @@ command=/usr/bin/vncserver :0 -useold -rfbunixpath /tmp/vnc0.sock -localhost -Se
 command=/usr/bin/websockify --unix-target=/tmp/vnc0.sock --web=/workspace/.cache/novnc 127.0.0.1:6801
 SUPERVISORD_CONF
 
-if [ -f "$HOME/.local/supervisord/supervisord.pid" ]; then
+supervisord_pid_path="$HOME/.local/supervisord/supervisord.pid"
+if [ -f "$supervisord_pid_path" ]; then
   # TODO: No kill. Reload.
-  supervisord_pid=$(cat "$HOME/.local/supervisord/supervisord.pid")
+  supervisord_pid=$(cat "$supervisord_pid_path")
   kill "$supervisord_pid" || true
   if ! timeout 10 sh -c "while kill -0 '$supervisord_pid'; do sleep 1; done"; then
     kill -9 "$supervisord_pid" || true
   fi
-  rm "$HOME/.local/supervisord/supervisord.pid"
+  rm -f "$supervisord_pid_path"
 fi
 supervisord -c "$HOME/.local/supervisord/supervisord.conf"
 
