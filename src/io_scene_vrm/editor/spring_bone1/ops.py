@@ -134,6 +134,7 @@ class VRM_OT_remove_spring_bone1_collider(Operator):
                     )
                 else:
                     context.blend_data.objects.remove(remove_object, do_unlink=True)
+        bpy_object = None
 
         collider_uuid = spring_bone.colliders[self.collider_index].uuid
         spring_bone.colliders.remove(self.collider_index)
