@@ -27,7 +27,9 @@ body {
 NOVNC_INDEX_HTML
 
 if ! nc -4z 127.0.0.1 5900; then
-  vncserver :0 -useold -localhost -SecurityTypes None -geometry 1024x768 -depth 24
+  pkill websockify || true
+  rm -fr /tmp/.X11-unix
+  vncserver :0 -localhost -SecurityTypes None -geometry 1024x768 -depth 24
 fi
 
 if ! timeout 10 sh -c "until nc -4z 127.0.0.1 5900; do sleep 0.1; done"; then
