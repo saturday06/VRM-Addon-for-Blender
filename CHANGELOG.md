@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.11.6](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.11.5...v3.11.6) (2025-09-02)
+
+
+### 🐛 Bug Fixes
+
+* trigger release workflow ([5aa88dc](https://github.com/saturday06/VRM-Addon-for-Blender/commit/5aa88dc095fefab5d1541bb3cb8772d819bdf0ec))
+
 ## [3.11.5](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.11.4...v3.11.5) (2025-08-31)
 
 
