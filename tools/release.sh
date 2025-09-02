@@ -92,9 +92,7 @@ cp "$website_release_path" website_release_output/releases/
   echo
 )
 
-if ! gh auth status; then
-  exit 1
-fi
+gh auth status
 
 if ! gh release view "$release_tag_name"; then
   echo "No release tag: $release_tag_name"
