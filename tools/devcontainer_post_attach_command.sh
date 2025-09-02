@@ -9,18 +9,13 @@ cd "$(dirname "$0")/.."
 rm -fr /workspace/.cache/novnc
 cp -fr /usr/share/novnc /workspace/.cache/
 cat <<'NOVNC_INDEX_HTML' >/workspace/.cache/novnc/index.html
+<!doctype html>
 <html lang="en">
 <head>
 <title>Loading ...</title>
-<meta http-equiv="refresh" content="0; url=vnc.html?compression=0&quality=9&resize=remote&autoconnect=true" />
-<style>
-body {
-  color: lightgray;
-  background-color: darkgray;
-}
-</style>
+<meta http-equiv="refresh" content="0; url=vnc.html?compression=0&quality=9&resize=remote&autoconnect=true">
 </head>
-<body>
+<body style="color: lightgray; background-color: darkgray;">
 <p>Loading ...</p>
 </body>
 </html>
@@ -37,7 +32,7 @@ if ! timeout 10 sh -c "until nc -4z 127.0.0.1 5900; do sleep 0.1; done"; then
   exit 1
 fi
 
-if ! curl --fail --silent http://127.0.0.1:6801; then
+if ! curl --fail-with-body --verbose http://127.0.0.1:6801; then
   pkill websockify || true
   websockify --daemon --wrap-mode=respawn --heartbeat=1 --web=/workspace/.cache/novnc 127.0.0.1:6801 127.0.0.1:5900
 fi
