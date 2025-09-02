@@ -153,13 +153,14 @@ function getRedirectUrl(storage: Storage, href: string): URL | null {
     requestLocale = requestRawPathnameComponents[1];
     requestPathname = requestRawPathnameComponents.slice(2).join("/");
 
-    if (requestLocale.indexOf(".") !== -1) {
-      // If an extension is included, treat it as an individual file and do not redirect.
-      return null;
-    }
-
-    if (requestLocale == "releases") {
-      // The releases folder contains locale-independent files, so do not redirect.
+    // If requestLocale is not included in supportedLocales or as a key in
+    // deletedLocaleToNewLocaleRedirectionMap, treat it as a locale-independent
+    // request and return null.
+    if (
+      requestLocale.trim() !== "" &&
+      !supportedLocales.includes(requestLocale) &&
+      !deletedLocaleToNewLocaleRedirectionMap[requestLocale]
+    ) {
       return null;
     }
   }
