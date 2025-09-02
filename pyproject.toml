@@ -1,6 +1,6 @@
 [project]
 name = "io_scene_vrm"
-version = "3.12.0"
+version = "3.13.0"
 authors = [
   {name = "Isamu Mogi"},
   {name = "iCyP"},
