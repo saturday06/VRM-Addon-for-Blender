@@ -59,13 +59,6 @@ jobs:
           # https://github.com/orgs/community/discussions/40405#discussioncomment-8361451
           GIT_USER_NAME: ${{ format('[BOT] {0}', github.actor) }}
           GIT_USER_EMAIL: ${{ format('{0}+{1}@users.noreply.github.com', github.actor_id, github.actor) }}
-      - name: Upload website release archive
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-archive
-          path: release_output/VRM_Addon_for_Blender-release.zip
-          if-no-files-found: error
-          retention-days: 1
 
   gh-pages:
     needs: upload-release-archive

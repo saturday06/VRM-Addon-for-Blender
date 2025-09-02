@@ -55,20 +55,16 @@ fi
 
 release_output_dir_path="$PWD/release_output"
 mkdir -p "$release_output_dir_path"
-for postfix in "$release_postfix" "$underscore_version"; do
-  work_dir=$(mktemp -d --suffix=-release-archive-work-dir)
-  base="${prefix_name}-${postfix}"
-  cp -r src/io_scene_vrm "${work_dir}/${base}"
-  cp -r LICENSE* "${work_dir}/${base}/"
-  (
-    cd "$work_dir"
-    find . -name "__pycache__" -type d -exec rm -fr {} \;
-    advzip --add --shrink-insane --iter 20 "${prefix_name}-${postfix}.zip" "${base}"
-  )
-  cp "${work_dir}/${prefix_name}-${postfix}.zip" "$release_output_dir_path"
-done
-website_release_path="${release_output_dir_path}/${prefix_name}-${release_postfix}.zip"
-github_release_path="${release_output_dir_path}/${prefix_name}-${underscore_version}.zip"
+website_release_path="${release_output_dir_path}/${prefix_name}-${underscore_version}.zip"
+
+compression_dir=$(mktemp -d --suffix=-release-archive-work-dir)
+archive_root_name="${prefix_name}-${release_postfix}"
+cp -r src/io_scene_vrm "${compression_dir}/${archive_root_name}"
+cp -r LICENSE* "${compression_dir}/${archive_root_name}/"
+(
+  cd "$compression_dir"
+  advzip --add --shrink-insane --iter 20 "$website_release_path" "$archive_root_name"
+)
 
 ./tools/build_extension.sh
 original_extension_path=$(find extension_output -name "vrm_*_*.zip" | sort | head -n 1)
@@ -79,7 +75,6 @@ fi
 
 extension_path="${release_output_dir_path}/${prefix_name}-Extension-${underscore_version}.zip"
 mv -v "$original_extension_path" "$extension_path"
-mkdir -p website_release_output/releases
 
 (
   set +x
@@ -91,11 +86,8 @@ mkdir -p website_release_output/releases
   echo "| - Blender 4.2 or later:"
   echo "|   ${extension_path}"
   echo "|"
-  echo "| - Blender 2.93 - 4.1 website release:"
+  echo "| - Blender 2.93 - 4.1:"
   echo "|   ${website_release_path}"
-  echo "|"
-  echo "| - Blender 2.93 - 4.1 github release:"
-  echo "|   ${github_release_path}"
   echo "|"
   echo "|"
   echo
@@ -109,7 +101,7 @@ if ! gh release view "$release_tag_name"; then
 fi
 
 gh release upload "$release_tag_name" "${extension_path}#(Blender 4.2 or later) VRM Add-on for Blender Extension ${version} (zip)"
-gh release upload "$release_tag_name" "${github_release_path}#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
+gh release upload "$release_tag_name" "${website_release_path}#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
 
 # Create release notes for Blender Extensions
 github_release_body_path=$(mktemp)

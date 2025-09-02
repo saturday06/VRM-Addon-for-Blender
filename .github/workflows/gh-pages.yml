@@ -24,28 +24,9 @@ jobs:
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
-      - name: Download release archive
-        id: download-release-archive
-        uses: actions/download-artifact@v4
-        with:
-          name: release-archive
-        continue-on-error: true
       - uses: denoland/setup-deno@2f7698fd116bfedbd1c3cd4119337b5a787ef53a
         with:
           deno-version-file: .dvmrc
-      - name: Download fallback release archive
-        if: ${{ steps.download-release-archive.outcome != 'success' }}
-        run: |
-          mkdir -p release_output
-          curl \
-            --fail \
-            --retry 20 \
-            --retry-all-errors \
-            --show-error \
-            --location \
-            --output release_output/VRM_Addon_for_Blender-release.zip \
-            "https://vrm-addon-for-blender.info/releases/VRM_Addon_for_Blender-release.zip"
-          zip -rT release_output/VRM_Addon_for_Blender-release.zip
       - name: Build
         run: |
           set -x
@@ -74,7 +55,19 @@ jobs:
           deno task docs:build
 
           mkdir -p docs/.vitepress/dist/releases
-          cp release_output/VRM_Addon_for_Blender-release.zip docs/.vitepress/dist/releases/
+          legacy_addon_release_url=$(jq -r '[.assets[] | select(.name | test("^VRM_Addon_for_Blender-[0-9]"))] | first | .browser_download_url' releases_latest.json)
+          if ! curl \
+            --fail \
+            --retry 20 \
+            --retry-all-errors \
+            --show-error \
+            --location \
+            --output docs/.vitepress/dist/releases/VRM_Addon_for_Blender-release.zip \
+            "$legacy_addon_release_url"; then
+
+            exit 1
+          fi
+          zip -rT docs/.vitepress/dist/releases/VRM_Addon_for_Blender-release.zip
 
           # There are image links from README.md and Extensions Platform. Will organize later.
           mkdir -p docs/.vitepress/dist/images
