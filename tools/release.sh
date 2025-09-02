@@ -129,6 +129,7 @@ File.write(output_path, output)
 CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE
 cat "$blender_extensions_release_note_path"
 
+release_postfix=debug
 if [ "$release_postfix" = "release" ]; then
   gh release edit "$release_tag_name" --draft=false --latest
 
