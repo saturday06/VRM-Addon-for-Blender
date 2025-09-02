@@ -4,7 +4,7 @@
 set -eu
 
 if [ $# -lt 1 ]; then
-  echo "Usage: $0 <release_tag_name>"
+  echo "Usage: ${0} <release_tag_name>"
   release_tag_name=v0.0.0
   echo "Continuing with release_tag_name=${release_tag_name}"
 else
@@ -53,7 +53,7 @@ else
   release_postfix=release
 fi
 
-release_output_dir_path="$PWD/release_output"
+release_output_dir_path="${PWD}/release_output"
 mkdir -p "$release_output_dir_path"
 website_release_path="${release_output_dir_path}/${prefix_name}-${underscore_version}.zip"
 
@@ -96,7 +96,7 @@ mv -v "$original_extension_path" "$extension_path"
 gh auth status
 
 if ! gh release view "$release_tag_name"; then
-  echo "No release tag: $release_tag_name"
+  echo "No release tag: ${release_tag_name}"
   exit 1
 fi
 
@@ -144,9 +144,9 @@ if [ "$release_postfix" = "release" ]; then
     --retry-all-errors \
     --output blender_extensions_upload.log \
     --request POST \
-    --header "Authorization:bearer $BLENDER_EXTENSIONS_TOKEN" \
-    --form "version_file=@$extension_path" \
-    --form "release_notes=<$blender_extensions_release_note_path" \
+    --header "Authorization:bearer ${BLENDER_EXTENSIONS_TOKEN}" \
+    --form "version_file=@${extension_path}" \
+    --form "release_notes=<${blender_extensions_release_note_path}" \
     "https://extensions.blender.org/api/v1/extensions/vrm/versions/upload/"
   set -x
 else
