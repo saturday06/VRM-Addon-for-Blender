@@ -10,6 +10,7 @@
   },
   "remoteUser": "developer",
   "updateContentCommand": "./tools/devcontainer_update_content_command.sh",
+  "postStartCommand": "./tools/devcontainer_post_start_command.sh",
   "postAttachCommand": "./tools/devcontainer_post_attach_command.sh",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
