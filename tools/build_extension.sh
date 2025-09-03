@@ -6,8 +6,8 @@ shellcheck "$0"
 
 cd "$(dirname "$0")/.."
 
-blender_archive_path="$PWD/.cache/blenders/extension-builder-blender.tar.xz"
-blender_path="$PWD/.cache/blenders/extension-builder-blender/blender"
+blender_archive_path="${PWD}/.cache/blenders/extension-builder-blender.tar.xz"
+blender_path="${PWD}/.cache/blenders/extension-builder-blender/blender"
 
 blender_archive_base_path="$(dirname "$blender_archive_path")"
 blender_base_path="$(dirname "$blender_path")"

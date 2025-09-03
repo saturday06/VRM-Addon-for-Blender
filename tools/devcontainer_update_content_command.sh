@@ -38,8 +38,8 @@ for blender_version in \
   4.4 \
   4.3 \
   4.2; do
-  mkdir -p "$HOME/.config/blender/$blender_version/extensions/user_default"
-  ln -Tfs "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/extensions/user_default/vrm"
+  mkdir -p "${HOME}/.config/blender/$blender_version/extensions/user_default"
+  ln -Tfs "${PWD}/src/io_scene_vrm" "${HOME}/.config/blender/$blender_version/extensions/user_default/vrm"
 done
 for blender_version in \
   4.1 \
@@ -52,8 +52,8 @@ for blender_version in \
   3.1 \
   3.0 \
   2.93; do
-  mkdir -p "$HOME/.config/blender/$blender_version/scripts/addons"
-  ln -Tfs "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/scripts/addons/io_scene_vrm"
+  mkdir -p "${HOME}/.config/blender/$blender_version/scripts/addons"
+  ln -Tfs "${PWD}/src/io_scene_vrm" "${HOME}/.config/blender/$blender_version/scripts/addons/io_scene_vrm"
 done
 
 blender --background --python-expr 'import bpy; bpy.ops.preferences.addon_enable(module="io_scene_vrm"); bpy.ops.wm.save_userpref()'

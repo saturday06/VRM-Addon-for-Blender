@@ -42,7 +42,7 @@ jobs:
       - name: Install UV
         run: |
           curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          echo "${HOME}/.cargo/bin" >> "$GITHUB_PATH"
       - name: Install UV dependencies
         run: |
           for _ in $(seq 5); do

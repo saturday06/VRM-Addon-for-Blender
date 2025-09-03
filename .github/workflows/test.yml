@@ -163,9 +163,9 @@ jobs:
         run: sudo ./tools/install_ubuntu_packages.sh
       - name: Test
         run: |
-          mkdir -p "$HOME/.local/blender"
-          tar -x --strip-components=1 -f blender.tar.xz -C "$HOME/.local/blender"
-          "$HOME/.local/blender/blender" --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
+          mkdir -p "${HOME}/.local/blender"
+          tar -x --strip-components=1 -f blender.tar.xz -C "${HOME}/.local/blender"
+          "${HOME}/.local/blender/blender" --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
         uses: actions/upload-artifact@v4
         if: failure()
