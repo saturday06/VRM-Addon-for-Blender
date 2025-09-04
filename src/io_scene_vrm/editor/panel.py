@@ -206,7 +206,7 @@ class VRM_PT_current_selected_armature(Panel):
     bl_label = "Current selected armature"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM"
+    bl_category = "KHR Character / VRM"
     bl_options: AbstractSet[str] = {"HIDE_HEADER"}
 
     @classmethod
@@ -226,7 +226,7 @@ class VRM_PT_controller(Panel):
     bl_label = "Operator"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM"
+    bl_category = "KHR Character / VRM"
 
     def draw_header(self, _context: Context) -> None:
         self.layout.label(icon="TOOL_SETTINGS")
@@ -270,7 +270,7 @@ class VRM_PT_controller_unsupported_blender_version_warning(Panel):
     bl_label = "Unsupported Blender Version Warning"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM"
+    bl_category = "KHR Character / VRM"
     bl_options: AbstractSet[str] = {"HIDE_HEADER"}
 
     @classmethod
