@@ -7,31 +7,34 @@
   "schedule": ["* 0 * * 5"],
   "lockFileMaintenance": {
     "enabled": true,
-    "groupName": "all non-major dependencies and lock file maintenance",
+    "groupName": "regular dependency updates",
     "automerge": true
   },
   "packageRules": [
-    {
-      "groupName": "all non-major dependencies and lock file maintenance",
-      "matchPackageNames": ["*"],
-      "matchUpdateTypes": ["minor", "patch"]
-    },
     {
       "matchUpdateTypes": ["major", "minor", "patch"],
       "automerge": true
     },
     {
+      "groupName": "regular dependency updates",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    },
+    {
+      "groupName": "regular dependency updates",
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["major", "minor", "patch", "digest"],
       "automerge": true
     },
     {
+      "groupName": "regular dependency updates",
       "matchCategories": ["python"],
       "matchPackageNames": ["python", "bpy"],
       "rangeStrategy": "in-range-only",
       "automerge": true
     },
     {
+      "groupName": "regular dependency updates",
       "matchFileNames": [".devcontainer/Dockerfile"],
       "matchUpdateTypes": ["patch", "digest"],
       "automerge": true
