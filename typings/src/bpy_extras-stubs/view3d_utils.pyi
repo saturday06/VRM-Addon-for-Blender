@@ -29,5 +29,5 @@ def location_3d_to_region_2d(
     region: Region,
     rv3d: RegionView3D,
     coord: Sequence[float],
-    default: __Default = None,
+    default: __Default | None = None,
 ) -> Vector | __Default: ...
