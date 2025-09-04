@@ -419,7 +419,7 @@ class VRM_PT_vrm1_humanoid_ui(Panel):
     bl_translation_context = "VRM"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM"
+    bl_category = "KHR Character / VRM"
     bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
 
     @classmethod
@@ -519,7 +519,7 @@ class VRM_PT_vrm1_first_person_ui(Panel):
     bl_translation_context = "VRM"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM"
+    bl_category = "KHR Character / VRM"
     bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
 
     @classmethod
@@ -626,7 +626,7 @@ class VRM_PT_vrm1_look_at_ui(Panel):
     bl_translation_context = "VRM"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM"
+    bl_category = "KHR Character / VRM"
     bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
 
     @classmethod
@@ -1012,7 +1012,7 @@ class VRM_PT_vrm1_expressions_ui(Panel):
     bl_translation_context = "VRM"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM"
+    bl_category = "KHR Character / VRM"
     bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
 
     @classmethod
@@ -1162,7 +1162,7 @@ class VRM_PT_vrm1_meta_ui(Panel):
     bl_translation_context = "VRM"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM"
+    bl_category = "KHR Character / VRM"
     bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
 
     @classmethod

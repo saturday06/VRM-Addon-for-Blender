@@ -9,6 +9,192 @@ import bpy
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
+def add_khr_xmp_json_ld_packet_dc_creator(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.add_khr_xmp_json_ld_packet_dc_creator(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def remove_khr_xmp_json_ld_packet_dc_creator(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+    dc_creator_index: int = 0,
+) -> set[str]:
+    return bpy.ops.vrm.remove_khr_xmp_json_ld_packet_dc_creator(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+        dc_creator_index=dc_creator_index,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def move_up_khr_xmp_json_ld_packet_dc_creator(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+    dc_creator_index: int = 0,
+) -> set[str]:
+    return bpy.ops.vrm.move_up_khr_xmp_json_ld_packet_dc_creator(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+        dc_creator_index=dc_creator_index,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def move_down_khr_xmp_json_ld_packet_dc_creator(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+    dc_creator_index: int = 0,
+) -> set[str]:
+    return bpy.ops.vrm.move_down_khr_xmp_json_ld_packet_dc_creator(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+        dc_creator_index=dc_creator_index,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def add_khr_xmp_json_ld_packet_dc_license(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.add_khr_xmp_json_ld_packet_dc_license(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def remove_khr_xmp_json_ld_packet_dc_license(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+    dc_license_index: int = 0,
+) -> set[str]:
+    return bpy.ops.vrm.remove_khr_xmp_json_ld_packet_dc_license(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+        dc_license_index=dc_license_index,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def move_up_khr_xmp_json_ld_packet_dc_license(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+    dc_license_index: int = 0,
+) -> set[str]:
+    return bpy.ops.vrm.move_up_khr_xmp_json_ld_packet_dc_license(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+        dc_license_index=dc_license_index,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def move_down_khr_xmp_json_ld_packet_dc_license(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+    dc_license_index: int = 0,
+) -> set[str]:
+    return bpy.ops.vrm.move_down_khr_xmp_json_ld_packet_dc_license(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+        dc_license_index=dc_license_index,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def add_khr_xmp_json_ld_packet_dc_subject(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.add_khr_xmp_json_ld_packet_dc_subject(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def remove_khr_xmp_json_ld_packet_dc_subject(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+    dc_subject_index: int = 0,
+) -> set[str]:
+    return bpy.ops.vrm.remove_khr_xmp_json_ld_packet_dc_subject(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+        dc_subject_index=dc_subject_index,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def move_up_khr_xmp_json_ld_packet_dc_subject(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+    dc_subject_index: int = 0,
+) -> set[str]:
+    return bpy.ops.vrm.move_up_khr_xmp_json_ld_packet_dc_subject(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+        dc_subject_index=dc_subject_index,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def move_down_khr_xmp_json_ld_packet_dc_subject(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+    dc_subject_index: int = 0,
+) -> set[str]:
+    return bpy.ops.vrm.move_down_khr_xmp_json_ld_packet_dc_subject(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+        dc_subject_index=dc_subject_index,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def add_vrm0_first_person_mesh_annotation(
     execution_context: str = "EXEC_DEFAULT",
     /,
