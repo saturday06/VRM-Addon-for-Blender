@@ -5,17 +5,23 @@ set -eu -o pipefail
 
 cd "$(dirname "$0")/.."
 
+if [ -d .venv ]; then
+  sudo chown developer:developer .venv
+  sudo chmod 700 .venv
+else
+  sudo rm -fr .venv
+fi
+
 venv_prompt=venv
 if ! uv venv --allow-existing --prompt "$venv_prompt"; then
-  if ! sudo rm -fr .venv; then
+  sudo find .venv -mindepth 1 -delete
+  if ! uv venv --prompt "$venv_prompt"; then
     # Files that cannot be deleted may remain when switching Docker for Windows backends, etc.
     echo >&2 # Output newline for log formatting
     echo >&2 "####################################################"
-    echo >&2 "Failed to remove '.venv'. Please remove it manually."
+    echo >&2 "Failed to update '.venv'. Please update it manually."
     echo >&2 "####################################################"
-    exit 1
   fi
-  uv venv --prompt "$venv_prompt"
 fi
 
 # Package installation fails about 5% of the time depending on the environment, so retry
