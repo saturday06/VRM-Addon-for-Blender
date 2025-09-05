@@ -5,7 +5,7 @@
     "dockerfile": "Dockerfile",
     "context": "../tools",
     // PyPI's bpy package only provides amd64 version for Linux
-    // https://github.com/saturday06/VRM-Addon-for-Blender/blob/v3.4.2/uv.lock#L23-L26
+    // https://github.com/saturday06/VRM-Addon-for-Blender/blob/v3.11.5/uv.lock#L41-L44
     "options": ["--platform=linux/amd64"]
   },
   "remoteUser": "developer",
