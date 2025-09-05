@@ -153,7 +153,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         "Don't overwrite existing texture folder",
-    ): "すでに存在するフォルダを上書きしない",
+    ): "すでに存在するテクスチャ画像フォルダを上書きしない",
     (
         "*",
         'Official add-on "glTF 2.0 format" is required. Please enable it.',
