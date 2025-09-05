@@ -13,7 +13,6 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   ffmpeg \
   file \
   git \
-  git-lfs \
   gnupg \
   imagemagick \
   less \
