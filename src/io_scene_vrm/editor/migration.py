@@ -85,6 +85,9 @@ def migrate(context: Optional[Context], armature_object_name: str) -> bool:
     vrm1_migration.migrate(context, ext.vrm1, armature)
     spring_bone1_migration.migrate(context, armature)
 
+    if tuple(ext.addon_version) < (3, 13, 1) and not getattr(ext, "spec_version", None):
+        ext.spec_version = ext.SPEC_VERSION_VRM0
+
     updated_addon_version = get_addon_version()
     logger.info(
         "Upgrade armature %s %s to %s",
