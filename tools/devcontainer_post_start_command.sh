@@ -6,10 +6,9 @@ set -eu -o pipefail
 cd "$(dirname "$0")/.."
 
 # Setup noVNC website
-pushd "$(mktemp -d)"
-public_folder_path="${PWD}/public"
-cp -fr /usr/share/novnc "$public_folder_path"
-cat <<'NOVNC_INDEX_HTML' >"${public_folder_path}/index.html"
+novnc_public_folder_path="$(mktemp -d)/novnc_public"
+cp -fr /usr/share/novnc "$novnc_public_folder_path"
+cat <<'NOVNC_INDEX_HTML' >"${novnc_public_folder_path}/index.html"
 <!doctype html>
 <html lang="en">
 <head>
@@ -35,7 +34,7 @@ fi
 
 if ! curl --fail-with-body --verbose http://127.0.0.1:6801; then
   pkill websockify || true
-  websockify --daemon --wrap-mode=respawn --heartbeat=1 --web="$public_folder_path" 127.0.0.1:6801 127.0.0.1:5900
+  websockify --daemon --wrap-mode=respawn --heartbeat=1 --web="$novnc_public_folder_path" 127.0.0.1:6801 127.0.0.1:5900
 fi
 
 if ! timeout 10 sh -c "until curl --fail-with-body --verbose http://127.0.0.1:6801; do sleep 0.1; done"; then
