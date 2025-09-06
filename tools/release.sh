@@ -65,6 +65,7 @@ cp -r LICENSE* "${compression_dir}/${archive_root_name}/"
   cd "$compression_dir"
   advzip --add --shrink-insane --iter 20 "$website_release_path" "$archive_root_name"
 )
+zip -T "$website_release_path"
 
 ./tools/build_extension.sh
 original_extension_path=$(find extension_output -name "vrm_*_*.zip" | sort | head -n 1)
@@ -75,6 +76,7 @@ fi
 
 extension_path="${release_output_dir_path}/${prefix_name}-Extension-${underscore_version}.zip"
 mv -v "$original_extension_path" "$extension_path"
+zip -T "$extension_path"
 
 (
   set +x

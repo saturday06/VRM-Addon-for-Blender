@@ -67,7 +67,7 @@ jobs:
 
             exit 1
           fi
-          zip -rT docs/.vitepress/dist/releases/VRM_Addon_for_Blender-release.zip
+          zip -T docs/.vitepress/dist/releases/VRM_Addon_for_Blender-release.zip
 
           # There are image links from README.md and Extensions Platform. Will organize later.
           mkdir -p docs/.vitepress/dist/images
