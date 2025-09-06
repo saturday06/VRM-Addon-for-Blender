@@ -15,7 +15,7 @@ cat <<'NOVNC_INDEX_HTML' >"${novnc_public_folder_path}/index.html"
 <title>Loading ...</title>
 <meta http-equiv="refresh" content="0; url=vnc.html?compression=0&quality=9&resize=remote&autoconnect=true">
 </head>
-<body style="color: lightgray; background-color: darkgray;">
+<body style="font-size: small; color: whitesmoke; background-color: darkslategray;">
 <p>Loading ...</p>
 </body>
 </html>
