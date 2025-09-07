@@ -3139,6 +3139,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         # Made targets shared by design
         primitive_targets = vertex_attributes_and_targets.targets
+        morph_target_names = make_json(target.name for target in primitive_targets)
         if primitive_targets:
             while len(buffer0) % 4:
                 buffer0.append(0)
@@ -3208,18 +3209,23 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             for primitive_dict in primitive_dicts:
                 primitive_dict["targets"] = make_json(primitive_target_dicts)
                 primitive_dict["extras"] = {
-                    # targetNames is not included in glTF specification, but is used
-                    # in many implementations
-                    # https://github.com/KhronosGroup/glTF/blob/0251c5c0cce8daec69bd54f29f891e3d0cdb52c8/specification/2.0/Specification.adoc?plain=1#L1500-L1504
-                    "targetNames": [target.name for target in primitive_targets]
+                    # for compatibility with legacy practices
+                    # https://github.com/vrm-c/UniVRM/blob/38ccb92300c9ab41c72eb3d5b8dc8ce664a659d5/Assets/UniGLTF/Runtime/UniGLTF/Format/ExtensionsAndExtras/gltf_mesh_extras_targetNames.cs#L7-L12
+                    "targetNames": morph_target_names,
                 }
 
-        mesh_dicts.append(
-            {
-                "name": original_mesh_convertible.name,
-                "primitives": make_json(primitive_dicts),
+        mesh_dict = {
+            "name": original_mesh_convertible.name,
+            "primitives": make_json(primitive_dicts),
+        }
+        if morph_target_names:
+            mesh_dict["extras"] = {
+                # targetNames is not included in glTF specification, but is used
+                # in many implementations
+                # https://github.com/KhronosGroup/glTF/blob/0251c5c0cce8daec69bd54f29f891e3d0cdb52c8/specification/2.0/Specification.adoc?plain=1#L1500-L1504
+                "targetNames": morph_target_names,
             }
-        )
+        mesh_dicts.append(mesh_dict)
         mesh_object_name_to_mesh_index[obj.name] = mesh_index
         if skin_dict and have_skin:
             # TODO: Create separate skin for each mesh
