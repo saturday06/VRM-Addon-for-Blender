@@ -492,18 +492,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 if not (
                     0 <= mesh_index < len(mesh_dicts)
                     and (mesh_dict := mesh_dicts[mesh_index])
+                    and isinstance(mesh_extras_dict := mesh_dict.get("extras"), dict)
                     and isinstance(
-                        mesh_primitive_dicts := mesh_dict.get("primitives"), list
-                    )
-                    and mesh_primitive_dicts
-                    and isinstance(mesh_primitive_dict := mesh_primitive_dicts[0], dict)
-                    and isinstance(
-                        mesh_primitive_extras_dict := mesh_primitive_dict.get("extras"),
-                        dict,
-                    )
-                    and isinstance(
-                        target_names := mesh_primitive_extras_dict.get("targetNames"),
-                        list,
+                        target_names := mesh_extras_dict.get("targetNames"), list
                     )
                 ):
                     continue
