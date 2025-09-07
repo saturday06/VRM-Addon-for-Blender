@@ -109,3 +109,28 @@ New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blen
 6. テストフォルダとして `Root Directory` を選択する。
 7. テストファイルパターンとして `test_*` を選択する。
 8. `Run Tests` を押す。
+
+## 配布用ビルドの作成方法
+
+配布用ビルドの作成はUbuntu Linux LTS上で行うことができます。
+
+1. `sudo ./tools/install_ubuntu_packages.sh`
+   コマンドを実行し、必要なパッケージをインストールします。
+2. `./tools/release.sh` コマンドを実行します。
+3. 次のような表示が出たら、ビルド成功です。
+
+```text
+|
+| Release Build Completed
+|
+| - Blender 4.2 or later:
+|   /workspace/release_output/VRM_Addon_for_Blender-Extension-0_0_0.zip
+|
+| - Blender 2.93 - 4.1:
+|   /workspace/release_output/VRM_Addon_for_Blender-0_0_0.zip
+|
+```
+
+詳しくは、GitHub Actionsのコード
+https://github.com/saturday06/VRM-Addon-for-Blender/blob/v3.11.5/.github/workflows/release-please.yml#L51-L54
+を参照ください。

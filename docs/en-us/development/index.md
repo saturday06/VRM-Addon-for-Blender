@@ -109,3 +109,27 @@ New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blen
 6. Select `Root Directory` as the test folder.
 7. Select `test_*` as the test file pattern.
 8. Press `Run Tests`.
+
+## How to create a distribution build
+
+You can create a distribution build on Ubuntu Linux LTS.
+
+1. Run the `sudo ./tools/install_ubuntu_packages.sh` command to install the
+   required packages.
+2. Run the `./tools/release.sh` command.
+3. If you see the following output, the build was successful:
+
+```text
+|
+| Release Build Completed
+|
+| - Blender 4.2 or later:
+|   /workspace/release_output/VRM_Addon_for_Blender-Extension-0_0_0.zip
+|
+| - Blender 2.93 - 4.1:
+|   /workspace/release_output/VRM_Addon_for_Blender-0_0_0.zip
+|
+```
+
+For more details, refer to the GitHub Actions code at
+https://github.com/saturday06/VRM-Addon-for-Blender/blob/v3.11.5/.github/workflows/release-please.yml#L51-L54.
