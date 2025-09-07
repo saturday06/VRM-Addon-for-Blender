@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.13.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.13.0...v3.13.1) (2025-09-07)
+
+
+### 🐛 Bug Fixes
+
+* fix an issue where VRM0 morph target names were not displayed in some applications ([9c956b8](https://github.com/saturday06/VRM-Addon-for-Blender/commit/9c956b89235427a78c3e8d5353943ba26c24c4b0))
+
 ## [3.13.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.11.5...v3.13.0) (2025-09-02)
 
 ### 🐛 Bug Fixes
