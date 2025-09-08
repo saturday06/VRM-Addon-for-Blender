@@ -22,8 +22,8 @@
     "@octokit/rest": "npm:@octokit/rest@22.0.0",
     "@octokit/types": "npm:@octokit/types@14.1.0",
     "gltf-validator": "npm:gltf-validator@2.0.0-dev.3.10",
-    "pyright": "npm:pyright@1.1.404",
+    "pyright": "npm:pyright@1.1.405",
     "vitepress": "npm:vitepress@1.6.4",
-    "vue": "npm:vue@3.5.20"
+    "vue": "npm:vue@3.5.21"
   }
 }
