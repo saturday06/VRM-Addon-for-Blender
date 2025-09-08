@@ -58,6 +58,6 @@ VNC_XSTARTUP_SCRIPT
 
   # https://github.com/denoland/deno/issues/25931#issuecomment-2406073767
   curl --fail --show-error --location https://deno.land/install.sh | sh -s -- --yes
-  # Deno doesn't add newlines to the final line of shell config, so add them manually.
+  # Deno doesnot add newlines to the final line of shell config, so add them manually.
   echo | tee -a ~/.profile ~/.bashrc ~/.zshrc
 SETUP_USER_DEVELOPER_LOCAL_ENVIRONMENT
