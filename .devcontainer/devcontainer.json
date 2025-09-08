@@ -54,6 +54,19 @@
         },
         "[jsonc]": {
           "editor.defaultFormatter": "denoland.vscode-deno"
+        },
+        "launch": {
+          "configurations": [
+            {
+              "name": "Python Debugger: Attach to the running Blender",
+              "type": "debugpy",
+              "request": "attach",
+              "connect": {
+                "host": "127.0.0.1",
+                "port": 5678
+              }
+            }
+          ]
         }
       },
       "extensions": [

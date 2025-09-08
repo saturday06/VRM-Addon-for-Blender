@@ -25,6 +25,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   novnc \
   openbox \
   patchutils \
+  python3-debugpy \
   python3-numpy \
   python3-pygit2 \
   python3-tqdm \
