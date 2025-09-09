@@ -58,7 +58,7 @@
         "launch": {
           "configurations": [
             {
-              "name": "Python Debugger: Attach to the running Blender",
+              "name": "Attach to Blender",
               "type": "debugpy",
               "request": "attach",
               "connect": {
