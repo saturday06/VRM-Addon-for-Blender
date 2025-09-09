@@ -1,10 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended",
+    "config:best-practices",
     ":disableDependencyDashboard"
   ],
   "schedule": ["* 0 * * 5"],
+  "minimumReleaseAge": "14 days",
   "lockFileMaintenance": {
     "enabled": true,
     "groupName": "regular dependency updates",
