@@ -64,7 +64,69 @@
               "connect": {
                 "host": "127.0.0.1",
                 "port": 5678
-              }
+              },
+              "pathMappings": [
+                {
+                  "localRoot": "${workspaceFolder}/src",
+                  "remoteRoot": "/home/developer/.config/blender/2.93/scripts/addons"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src",
+                  "remoteRoot": "/home/developer/.config/blender/3.0/scripts/addons"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src",
+                  "remoteRoot": "/home/developer/.config/blender/3.1/scripts/addons"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src",
+                  "remoteRoot": "/home/developer/.config/blender/3.2/scripts/addons"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src",
+                  "remoteRoot": "/home/developer/.config/blender/3.3/scripts/addons"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src",
+                  "remoteRoot": "/home/developer/.config/blender/3.4/scripts/addons"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src",
+                  "remoteRoot": "/home/developer/.config/blender/3.5/scripts/addons"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src",
+                  "remoteRoot": "/home/developer/.config/blender/3.6/scripts/addons"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src",
+                  "remoteRoot": "/home/developer/.config/blender/4.0/scripts/addons"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src",
+                  "remoteRoot": "/home/developer/.config/blender/4.1/scripts/addons"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src/io_scene_vrm",
+                  "remoteRoot": "/home/developer/.config/blender/4.2/extensions/user_default/vrm"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src/io_scene_vrm",
+                  "remoteRoot": "/home/developer/.config/blender/4.3/extensions/user_default/vrm"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src/io_scene_vrm",
+                  "remoteRoot": "/home/developer/.config/blender/4.4/extensions/user_default/vrm"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src/io_scene_vrm",
+                  "remoteRoot": "/home/developer/.config/blender/4.5/extensions/user_default/vrm"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src/io_scene_vrm",
+                  "remoteRoot": "/home/developer/.config/blender/5.0/extensions/user_default/vrm"
+                }
+              ]
             }
           ]
         }
