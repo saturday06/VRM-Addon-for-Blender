@@ -2,13 +2,14 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:best-practices",
+    "group:all",
     ":disableDependencyDashboard"
   ],
   "schedule": ["* 0 * * 5"],
   "minimumReleaseAge": "14 days",
   "lockFileMaintenance": {
     "enabled": true,
-    "groupName": "regular dependency updates",
+    "extends": ["group:all"],
     "automerge": true
   },
   "packageRules": [
@@ -17,25 +18,21 @@
       "automerge": true
     },
     {
-      "groupName": "regular dependency updates",
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true
     },
     {
-      "groupName": "regular dependency updates",
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["major", "minor", "patch", "digest"],
       "automerge": true
     },
     {
-      "groupName": "regular dependency updates",
       "matchCategories": ["python"],
       "matchPackageNames": ["python", "bpy"],
       "rangeStrategy": "in-range-only",
       "automerge": true
     },
     {
-      "groupName": "regular dependency updates",
       "matchFileNames": [".devcontainer/Dockerfile"],
       "matchUpdateTypes": ["patch", "digest"],
       "automerge": true
