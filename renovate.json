@@ -2,16 +2,19 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:best-practices",
-    "group:all",
     "schedule:weekends",
     ":automergeAll",
     ":disableDependencyDashboard"
   ],
   "lockFileMaintenance": {
-    "extends": ["group:all"],
+    "groupName": "regular dependency updates",
     "enabled": true
   },
   "packageRules": [
+    {
+      "groupName": "regular dependency updates",
+      "matchPackageNames": ["*"]
+    },
     {
       "matchCategories": ["python"],
       "matchPackageNames": ["python", "bpy"],
