@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0 # This seems to make release-please-action more stable
           persist-credentials: false
-      - uses: googleapis/release-please-action@58fbed0b875bc2f73d60680e175b4c152bf0eb39
+      - uses: googleapis/release-please-action@v4
         id: release
         with:
           # Normally, skip-github-pull-request should remain false.
@@ -34,7 +34,7 @@ jobs:
           # If release_created is false, we run release-please-action again to create or update
           # release-pr as usual.
           skip-github-pull-request: true
-      - uses: googleapis/release-please-action@58fbed0b875bc2f73d60680e175b4c152bf0eb39
+      - uses: googleapis/release-please-action@v4
         if: ${{ !steps.release.outputs.release_created }}
 
   upload-release-archive:
