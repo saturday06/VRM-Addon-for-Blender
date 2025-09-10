@@ -13,12 +13,12 @@ jobs:
   lint:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
       - name: Install deb packages
         run: sudo ./tools/install_ubuntu_packages.sh
-      - uses: denoland/setup-deno@v2.0.3
+      - uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # v2.0.3
         with:
           deno-version-file: .dvmrc
       - name: Disable git config core.quotepath
@@ -77,7 +77,7 @@ jobs:
   super-linter:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0 # for super-linter
           persist-credentials: false
@@ -87,10 +87,10 @@ jobs:
   docs:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
-      - uses: denoland/setup-deno@v2.0.3
+      - uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # v2.0.3
         with:
           deno-version-file: .dvmrc
       - name: Build
