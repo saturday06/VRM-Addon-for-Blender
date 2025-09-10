@@ -3,15 +3,14 @@
   "extends": [
     "config:best-practices",
     "group:all",
-    ":automergeMajor",
     "schedule:weekends",
+    ":automergeAll",
     ":disableDependencyDashboard"
   ],
   "minimumReleaseAge": "14 days",
   "lockFileMaintenance": {
     "enabled": true,
-    "extends": ["group:all"],
-    "automerge": true
+    "extends": ["group:all"]
   },
   "packageRules": [
     {
