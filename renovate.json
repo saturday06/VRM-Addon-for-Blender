@@ -7,7 +7,6 @@
     ":automergeAll",
     ":disableDependencyDashboard"
   ],
-  "minimumReleaseAge": "14 days",
   "lockFileMaintenance": {
     "extends": ["group:all"],
     "enabled": true
