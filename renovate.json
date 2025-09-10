@@ -3,6 +3,7 @@
   "extends": [
     "config:best-practices",
     "group:all",
+    ":automergeMajor",
     ":disableDependencyDashboard"
   ],
   "schedule": ["* 0 * * 5"],
@@ -14,28 +15,9 @@
   },
   "packageRules": [
     {
-      "matchUpdateTypes": ["major", "minor", "patch"],
-      "automerge": true
-    },
-    {
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true
-    },
-    {
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["major", "minor", "patch", "digest"],
-      "automerge": true
-    },
-    {
       "matchCategories": ["python"],
       "matchPackageNames": ["python", "bpy"],
-      "rangeStrategy": "in-range-only",
-      "automerge": true
-    },
-    {
-      "matchFileNames": [".devcontainer/Dockerfile"],
-      "matchUpdateTypes": ["patch", "digest"],
-      "automerge": true
+      "rangeStrategy": "in-range-only"
     }
   ],
   "customManagers": [
