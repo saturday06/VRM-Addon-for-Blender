@@ -31,7 +31,7 @@ jobs:
           - job_name_postfix: blender 4.5
             archive_url_path: Blender4.5/blender-4.5.1-windows-x64.zip
     steps:
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
       - name: Cache archive
@@ -91,7 +91,7 @@ jobs:
           - job_name_postfix: blender 4.5 x64
             archive_url_path: Blender4.5/blender-4.5.1-macos-x64.dmg
     steps:
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
       - name: Cache archive
@@ -142,7 +142,7 @@ jobs:
           - job_name_postfix: blender 4.5
             archive_url_path: Blender4.5/blender-4.5.1-linux-x64.tar.xz
     steps:
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
       - name: Cache archive

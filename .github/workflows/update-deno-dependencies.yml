@@ -19,13 +19,13 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: true # to push "$PR_BRANCH"
           ref: ${{ env.PR_BASE_BRANCH }}
       - name: Switch to working branch
         run: git checkout -b "$PR_BRANCH"
-      - uses: denoland/setup-deno@v2.0.3
+      - uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # v2.0.3
         with:
           deno-version: vx.x.x
       - name: Update .dvmrc
