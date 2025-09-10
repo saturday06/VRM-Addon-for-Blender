@@ -4,9 +4,9 @@
     "config:best-practices",
     "group:all",
     ":automergeMajor",
+    "schedule:weekends",
     ":disableDependencyDashboard"
   ],
-  "schedule": ["* 0 * * 5"],
   "minimumReleaseAge": "14 days",
   "lockFileMaintenance": {
     "enabled": true,
