@@ -9,8 +9,8 @@
   ],
   "minimumReleaseAge": "14 days",
   "lockFileMaintenance": {
-    "enabled": true,
-    "extends": ["group:all"]
+    "extends": ["group:all"],
+    "enabled": true
   },
   "packageRules": [
     {
