@@ -8,7 +8,6 @@
     ":disableDependencyDashboard"
   ],
   "lockFileMaintenance": {
-    "extends": ["group:all"],
     "enabled": true
   },
   "packageRules": [
