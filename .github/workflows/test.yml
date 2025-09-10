@@ -31,12 +31,12 @@ jobs:
           - job_name_postfix: blender 4.5
             archive_url_path: Blender4.5/blender-4.5.1-windows-x64.zip
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: Cache archive
         id: cache-archive
-        uses: actions/cache@v4
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
           path: |
             blender.zip
@@ -65,7 +65,7 @@ jobs:
           $env:BLENDER_VRM_TEST_BLENDER_PATH = (Get-ChildItem "$env:TEMP\blender\*\blender.exe")[0].FullName
           & $env:BLENDER_VRM_TEST_BLENDER_PATH --background -noaudio --python-exit-code 1 --python tools\unittest_discover.py
       - name: Archive failed io test result
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:
           name: VRMs (${{ github.job }} ${{ matrix.blender.job_name_postfix }})
@@ -91,12 +91,12 @@ jobs:
           - job_name_postfix: blender 4.5 x64
             archive_url_path: Blender4.5/blender-4.5.1-macos-x64.dmg
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: Cache archive
         id: cache-archive
-        uses: actions/cache@v4
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
           path: |
             blender.dmg
@@ -126,7 +126,7 @@ jobs:
           cp -fr /Volumes/Blender/Blender.app /Applications
           /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:
           name: VRMs (${{ github.job }} ${{ matrix.blender.job_name_postfix }})
@@ -142,12 +142,12 @@ jobs:
           - job_name_postfix: blender 4.5
             archive_url_path: Blender4.5/blender-4.5.1-linux-x64.tar.xz
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: Cache archive
         id: cache-archive
-        uses: actions/cache@v4
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         with:
           path: |
             blender.tar.xz
@@ -167,7 +167,7 @@ jobs:
           tar -x --strip-components=1 -f blender.tar.xz -C "${HOME}/.local/blender"
           "${HOME}/.local/blender/blender" --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:
           name: VRMs (${{ github.job }} ${{ matrix.blender.job_name_postfix }})
