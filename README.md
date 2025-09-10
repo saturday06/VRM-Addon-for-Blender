@@ -66,7 +66,7 @@ ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/$blende
 #### Windows PowerShell
 
 ```powershell
-$blenderVersion = 4.5
+$blenderVersion = "4.5"
 New-Item -ItemType Directory -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\extensions\user_default" -Force
 New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\extensions\user_default\vrm" -Value "$(Get-Location)\src\io_scene_vrm"
 ```
@@ -92,7 +92,7 @@ ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/$blende
 #### Windows PowerShell
 
 ```powershell
-$blenderVersion = 4.5
+$blenderVersion = "4.5"
 New-Item -ItemType Directory -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\scripts\addons" -Force
 New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\scripts\addons\io_scene_vrm" -Value "$(Get-Location)\src\io_scene_vrm"
 ```
@@ -161,7 +161,7 @@ ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/$blende
 #### Windows PowerShell
 
 ```powershell
-$blenderVersion = 4.5
+$blenderVersion = "4.5"
 New-Item -ItemType Directory -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\extensions\user_default" -Force
 New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\extensions\user_default\vrm" -Value "$(Get-Location)\src\io_scene_vrm"
 ```
@@ -187,7 +187,7 @@ ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/$blende
 #### Windows PowerShell
 
 ```powershell
-$blenderVersion = 4.5
+$blenderVersion = "4.5"
 New-Item -ItemType Directory -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\scripts\addons" -Force
 New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\scripts\addons\io_scene_vrm" -Value "$(Get-Location)\src\io_scene_vrm"
 ```
