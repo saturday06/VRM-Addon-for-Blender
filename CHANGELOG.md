@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.13.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.13.2...v3.13.3) (2025-09-14)
+
+
+### 🐛 Bug Fixes
+
+* fix a bug that invisible modifiers would become visible on VRM import ([52e583c](https://github.com/saturday06/VRM-Addon-for-Blender/commit/52e583caf465a95f688096ca895b001a35d88956))
+
 ## [3.13.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.13.1...v3.13.2) (2025-09-14)
 
 
