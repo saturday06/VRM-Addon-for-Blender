@@ -6,7 +6,7 @@ set -eux -o pipefail
 validate_file_name_characters() (
   set +x
 
-  git ls-files | while read -r f; do
+  git ls-files -z | while IFS= read -r -d '' f; do
     encoding=$(echo "$f" | uchardet)
     if [ "$encoding" != "ASCII" ]; then
       echo "$f is not ascii file name but $encoding."
@@ -14,7 +14,7 @@ validate_file_name_characters() (
     fi
   done
 
-  git ls-files "*.py" "*.pyi" | while read -r f; do
+  git ls-files -z "*.py" "*.pyi" | while IFS= read -r -d '' f; do
     if [ "$f" != "$(echo "$f" | LC_ALL=C tr "[:upper:]" "[:lower:]")" ]; then
       echo "$f contains uppercase character"
       exit 1
@@ -22,15 +22,47 @@ validate_file_name_characters() (
   done
 )
 
+validate_permissions() (
+  set +x
+
+  git ls-files -z ':!tools/*.sh' ':!tools/*.py' ':!tests/resources' ':!typings' | while IFS= read -r -d '' f; do
+    if [ -x "$f" ]; then
+      echo "$f has unnecessary executable permission."
+      exit 1
+    fi
+  done
+  git ls-files -z 'tools/*.sh' 'tools/*.py' | while IFS= read -r -d '' f; do
+    if [ ! -x "$f" ]; then
+      echo "$f has no executable permission."
+      exit 1
+    fi
+  done
+)
+
+validate_vrm_validator_works_correctly() (
+  set +x
+
+  for failure_vrm_path in failure.vrm tests/failure.vrm; do
+    touch "$failure_vrm_path"
+    if ./tools/lint.sh; then
+      echo "VRM Validator doesn't work correctly"
+      exit 1
+    fi
+    rm "$failure_vrm_path"
+  done
+)
+
 cd "$(dirname "$0")/.."
 
-uv run python -c "import io_scene_vrm; io_scene_vrm.register(); io_scene_vrm.unregister()"
 validate_file_name_characters
-git ls-files "*.sh" | xargs shellcheck
-git ls-files "*.py" "*.pyi" | xargs uv run ruff check
-git ls-files "*.py" "*.pyi" | xargs uv run codespell
-git ls-files "*.sh" | xargs shfmt -d
-git ls-files "*/Dockerfile" "*.dockerfile" | xargs hadolint
+validate_permissions
+uv run python -c "import io_scene_vrm; io_scene_vrm.register(); io_scene_vrm.unregister()"
+git ls-files -z "*.sh" | xargs -0 shellcheck
+git ls-files -z "*.py" "*.pyi" | xargs -0 uv run ruff check
+git ls-files -z "*.py" "*.pyi" | xargs -0 uv run codespell
+git ls-files -z "*.sh" | xargs -0 shfmt -d
+git ls-files -z "*/Dockerfile" "*.dockerfile" | xargs -0 hadolint
 deno lint
 deno task pyright
 deno task vrm-validator
+validate_vrm_validator_works_correctly

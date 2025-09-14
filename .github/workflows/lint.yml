@@ -21,22 +21,6 @@ jobs:
       - uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # v2.0.3
         with:
           deno-version-file: .dvmrc
-      - name: Check file permissions
-        run: |
-          git ls-files ':!tools/*.sh' ':!tools/*.py' ':!tests/resources' ':!typings' | while read -r f; do
-            echo "$f"
-            if [ -x "$f" ]; then
-              echo "$f has unnecessary executable permission."
-              exit 1
-            fi
-          done
-          git ls-files 'tools/*.sh' 'tools/*.py' | while read -r f; do
-            echo "$f"
-            if [ ! -x "$f" ]; then
-              echo "$f has no executable permission."
-              exit 1
-            fi
-          done
       - name: Install UV
         run: |
           curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
@@ -61,16 +45,6 @@ jobs:
         run: ./tools/install_hadolint.sh
       - name: Lint
         run: ./tools/lint.sh
-      - name: Check VRM Validator works correctly
-        run: |
-          for failure_vrm_path in failure.vrm tests/failure.vrm; do
-            touch "$failure_vrm_path"
-            if ./tools/lint.sh; then
-              echo "VRM Validator doesn't work correctly"
-              exit 1
-            fi
-            rm "$failure_vrm_path"
-          done
 
   super-linter:
     runs-on: ubuntu-24.04
