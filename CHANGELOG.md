@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.13.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.13.1...v3.13.2) (2025-09-14)
+
+
+### 🐛 Bug Fixes
+
+* fix resource leak on import VRM ([b6caea7](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b6caea7ae275b15c3a7f23e562f4a524e3716c6b))
+
 ## [3.13.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.13.0...v3.13.1) (2025-09-07)
 
 
