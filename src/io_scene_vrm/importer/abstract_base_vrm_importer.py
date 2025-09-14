@@ -1140,6 +1140,7 @@ class AbstractBaseVrmImporter(ABC):
                     if modifier.name in restore_modifiers_names:
                         modifier.show_viewport = True
                 evaluated_mesh_owner.to_mesh_clear()
+                evaluated_mesh = None
 
             # If not updated here, Custom Property may revive during export
             data.update()
