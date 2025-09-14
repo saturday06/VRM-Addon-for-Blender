@@ -268,17 +268,10 @@ def assign_dict(
     return True
 
 
-def force_apply_modifiers(
-    context: Context, obj: Object, *, preserve_shape_keys: bool
-) -> Optional[Mesh]:
-    if obj.type not in MESH_CONVERTIBLE_OBJECT_TYPES:
-        return None
+def generate_evaluated_mesh(context: Context, obj: Object) -> Optional[Mesh]:
     obj_data = obj.data
     if obj_data is None:
         return None
-
-    if isinstance(obj_data, Mesh):
-        obj_data.calc_loop_triangles()
 
     # https://docs.blender.org/api/2.80/Depsgraph.html
     # TODO: Shape keys may sometimes break
@@ -303,15 +296,29 @@ def force_apply_modifiers(
         evaluated_mesh = context.blend_data.meshes.new(name=obj_data.name)
 
     bm = bmesh.new()
-    try:
-        bm.from_mesh(evaluated_temporary_mesh)
-        bm.to_mesh(evaluated_mesh)
-    finally:
-        bm.free()
+    bm.from_mesh(evaluated_temporary_mesh)
+    bm.to_mesh(evaluated_mesh)
+    bm.free()
 
     evaluated_obj.to_mesh_clear()
+    return evaluated_mesh
+
+
+def force_apply_modifiers(
+    context: Context, obj: Object, *, preserve_shape_keys: bool
+) -> Optional[Mesh]:
+    if obj.type not in MESH_CONVERTIBLE_OBJECT_TYPES:
+        return None
+
+    evaluated_mesh = generate_evaluated_mesh(context, obj)
+    if evaluated_mesh is None:
+        return None
 
     if not preserve_shape_keys:
+        return evaluated_mesh
+
+    obj_data = obj.data
+    if obj_data is None:
         return evaluated_mesh
 
     if not isinstance(obj_data, Mesh):
@@ -348,8 +355,8 @@ def force_apply_modifiers(
             evaluated_mesh_shape_key_data = evaluated_mesh_shape_key.data
             baked_shape_key_mesh_vertices = baked_shape_key_mesh.vertices
 
-            # TODO: If the number of vertices is different, we should use advanced graph
-            # matching algorithm.
+            # TODO: If the number of vertices is different, we should use advanced
+            # graph matching algorithm.
             for i in range(
                 min(
                     len(evaluated_mesh_shape_key_data),
@@ -360,8 +367,8 @@ def force_apply_modifiers(
                     baked_shape_key_mesh_vertices[i].co
                 )
 
+            baked_shape_key_obj.to_mesh_clear()
         shape_key.value = 0.0
-        baked_shape_key_obj.to_mesh_clear()
 
     context.view_layer.update()
     return evaluated_mesh
