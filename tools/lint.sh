@@ -44,7 +44,7 @@ validate_vrm_validator_works_correctly() (
 
   for failure_vrm_path in failure.vrm tests/failure.vrm; do
     touch "$failure_vrm_path"
-    if ./tools/lint.sh; then
+    if deno task vrm-validator 2>/dev/null; then
       echo "VRM Validator doesn't work correctly"
       exit 1
     fi
