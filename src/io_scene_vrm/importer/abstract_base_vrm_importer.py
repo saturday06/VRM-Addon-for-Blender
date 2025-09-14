@@ -1109,16 +1109,15 @@ class AbstractBaseVrmImporter(ABC):
             data = obj.data
             if not isinstance(data, Mesh):
                 continue
-            custom_mesh_index = data.get(extras_mesh_index_key)
-            if isinstance(custom_mesh_index, int):
-                self.meshes[custom_mesh_index] = obj
-            else:
-                custom_mesh_index = obj.get(extras_mesh_index_key)
-                if isinstance(custom_mesh_index, int):
-                    self.meshes[custom_mesh_index] = obj
 
-            obj.pop(extras_mesh_index_key, None)
-            data.pop(extras_mesh_index_key, None)
+            data_custom_mesh_index = data.pop(extras_mesh_index_key, None)
+            obj_custom_mesh_index = obj.pop(extras_mesh_index_key, None)
+            if isinstance(data_custom_mesh_index, int):
+                self.meshes[data_custom_mesh_index] = obj
+            elif isinstance(obj_custom_mesh_index, int):
+                self.meshes[obj_custom_mesh_index] = obj
+            else:
+                continue
 
             # In Blender 3.6, custom properties of materials referenced from
             # evaluated meshes may remain as cache forever if not deleted
