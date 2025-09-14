@@ -1116,35 +1116,6 @@ class AbstractBaseVrmImporter(ABC):
                 self.meshes[data_custom_mesh_index] = obj
             elif isinstance(obj_custom_mesh_index, int):
                 self.meshes[obj_custom_mesh_index] = obj
-            else:
-                continue
-
-            # In Blender 3.6, custom properties of materials referenced from
-            # evaluated meshes may remain as cache forever if not deleted
-            restore_modifiers_names: list[str] = []
-            for modifier in obj.modifiers:
-                if modifier.show_viewport:
-                    modifier.show_viewport = False
-                    restore_modifiers_names.append(modifier.name)
-
-            depsgraph = self.context.evaluated_depsgraph_get()
-            evaluated_mesh_owner = obj.evaluated_get(depsgraph)
-            evaluated_mesh = evaluated_mesh_owner.to_mesh(
-                preserve_all_data_layers=True, depsgraph=depsgraph
-            )
-            if evaluated_mesh:
-                for evaluated_material in evaluated_mesh.materials:
-                    if evaluated_material:
-                        evaluated_material.pop(extras_material_index_key, None)
-                evaluated_mesh_owner.to_mesh_clear()
-                evaluated_mesh = None
-
-            for modifier in obj.modifiers:
-                if modifier.name in restore_modifiers_names:
-                    modifier.show_viewport = True
-
-            # If not updated here, Custom Property may revive during export
-            data.update()
 
         for image in list(self.context.blend_data.images):
             custom_image_index = image.get(self.import_id)
