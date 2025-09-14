@@ -203,16 +203,17 @@ def wm_append_without_library(
             if bpy.app.version >= (3, 2) and library.use_extra_user:
                 library.use_extra_user = False
             if library.users:
-                logger.warning(
-                    'Failed to remove "%s" with %d users'
-                    " while appending blend file:"
-                    ' filepath="%s" filename="%s" directory="%s"',
-                    library.name,
-                    library.users,
-                    append_filepath,
-                    append_filename,
-                    append_directory,
-                )
+                if bpy.app.version >= (3, 2):
+                    logger.warning(
+                        'Failed to remove "%s" with %d users'
+                        " while appending blend file:"
+                        ' filepath="%s" filename="%s" directory="%s"',
+                        library.name,
+                        library.users,
+                        append_filepath,
+                        append_filename,
+                        append_directory,
+                    )
             else:
                 context.blend_data.libraries.remove(library)
 
