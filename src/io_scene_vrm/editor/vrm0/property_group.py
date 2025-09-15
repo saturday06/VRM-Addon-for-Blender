@@ -261,11 +261,8 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
             for bone in sorted(armature_data.bones.values(), key=lambda b: b.name)
         )
 
-        if not force:
-            up_to_date = bone_names_str == humanoid.last_bone_names_str
-            if up_to_date:
-                return
-
+        if not force and humanoid.last_bone_names_str == bone_names_str:
+            return
         humanoid.last_bone_names_str = bone_names_str
 
         BonePropertyGroup.update_all_vrm0_node_candidates(armature_data)
