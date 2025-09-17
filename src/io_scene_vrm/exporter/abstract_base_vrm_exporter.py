@@ -8,7 +8,7 @@ from typing import Optional, Union
 
 import bmesh
 from bpy.types import Armature, Context, Mesh, NodesModifier, Object
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
 from ..common import shader
 from ..common.convert import Json
@@ -305,7 +305,11 @@ def generate_evaluated_mesh(context: Context, obj: Object) -> Optional[Mesh]:
 
 
 def force_apply_modifiers(
-    context: Context, obj: Object, *, preserve_shape_keys: bool
+    context: Context,
+    obj: Object,
+    *,
+    preserve_shape_keys: bool,
+    transform: Optional[Matrix] = None,
 ) -> Optional[Mesh]:
     if obj.type not in MESH_CONVERTIBLE_OBJECT_TYPES:
         return None
@@ -313,6 +317,9 @@ def force_apply_modifiers(
     evaluated_mesh = generate_evaluated_mesh(context, obj)
     if evaluated_mesh is None:
         return None
+
+    if transform:
+        evaluated_mesh.transform(transform)
 
     if not preserve_shape_keys:
         return evaluated_mesh
@@ -352,6 +359,9 @@ def force_apply_modifiers(
             preserve_all_data_layers=True, depsgraph=depsgraph
         )
         if baked_shape_key_mesh:
+            if transform:
+                baked_shape_key_mesh.transform(transform)
+
             evaluated_mesh_shape_key_data = evaluated_mesh_shape_key.data
             baked_shape_key_mesh_vertices = baked_shape_key_mesh.vertices
 

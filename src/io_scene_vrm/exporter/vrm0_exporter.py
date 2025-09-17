@@ -2784,8 +2784,20 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             original_shape_keys = original_mesh_convertible.shape_keys
 
         with save_workspace(self.context):
+            # TODO: Executing move for compatibility with old addon,
+            # but seems unnecessary
+            mesh_data_transform = Matrix.Identity(4)
+            if not have_skin:
+                mesh_data_transform @= Matrix.Translation(
+                    -obj.matrix_world.to_translation()
+                )
+            mesh_data_transform @= obj.matrix_world
+
             main_mesh_data = force_apply_modifiers(
-                self.context, obj, preserve_shape_keys=False
+                self.context,
+                obj,
+                preserve_shape_keys=False,
+                transform=mesh_data_transform,
             )
             if not main_mesh_data:
                 return scene_node_index
@@ -2808,7 +2820,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     shape_key.value = 1.0
                     self.context.view_layer.update()
                     shape_mesh = force_apply_modifiers(
-                        self.context, obj, preserve_shape_keys=False
+                        self.context,
+                        obj,
+                        preserve_shape_keys=False,
+                        transform=mesh_data_transform,
                     )
                     shape_key.value = 0.0
                     self.context.view_layer.update()
@@ -2817,18 +2832,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         continue
                     shape_key_name_to_mesh_data[shape_key.name] = shape_mesh
 
-        # TODO: Executing move for compatibility with old addon, but seems unnecessary
-        mesh_data_transform = Matrix.Identity(4)
-        if not have_skin:
-            mesh_data_transform @= Matrix.Translation(
-                -obj.matrix_world.to_translation()
-            )
-        mesh_data_transform @= obj.matrix_world
-
         for mesh_data in [main_mesh_data, *shape_key_name_to_mesh_data.values()]:
             if not mesh_data:
                 continue
-            mesh_data.transform(mesh_data_transform)
             if bpy.app.version < (4, 1):
                 mesh_data.calc_normals_split()
 
