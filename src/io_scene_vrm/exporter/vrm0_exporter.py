@@ -2817,9 +2817,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         continue
                     shape_key_name_to_mesh_data[shape_key.name] = shape_mesh
 
-        obj.hide_viewport = False
-        obj.hide_select = False
-
         # TODO: Executing move for compatibility with old addon, but seems unnecessary
         mesh_data_transform = Matrix.Identity(4)
         if not have_skin:
