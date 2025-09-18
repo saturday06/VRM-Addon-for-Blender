@@ -17,8 +17,8 @@ dependencies = [
   "bpy ==3.6.*; platform_machine == 'AMD64' and sys_platform == 'win32'",
 ]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
   "codespell ==2.4.1",
   "pygit2 ==1.18.2",
   "pyrefly ==0.32.0",
