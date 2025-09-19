@@ -5,6 +5,7 @@ from typing import Final, Optional
 
 import bpy
 from bpy.types import Armature, Context
+from idprop.types import IDPropertyGroup
 
 from ..common import ops
 from ..common.logger import get_logger
@@ -84,6 +85,15 @@ def migrate(context: Optional[Context], armature_object_name: str) -> bool:
     vrm0_migration.migrate(context, ext.vrm0, armature)
     vrm1_migration.migrate(context, ext.vrm1, armature)
     spring_bone1_migration.migrate(context, armature)
+
+    if (
+        ext.has_vrm_model_metadata(armature)
+        and tuple(ext.addon_version) < (3, 14, 0)
+        and (ext_id_prop := armature_data.get("vrm_addon_extension"))
+        and isinstance(ext_id_prop, IDPropertyGroup)
+        and not ext_id_prop.get("spec_version")
+    ):
+        ext.spec_version = ext.SPEC_VERSION_VRM0
 
     updated_addon_version = get_addon_version()
     logger.info(

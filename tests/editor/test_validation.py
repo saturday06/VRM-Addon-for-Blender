@@ -23,6 +23,7 @@ class TestValidation(AddonTestCase):
             raise TypeError
 
         ext = get_armature_extension(armature.data)
+        ext.spec_version = ext.SPEC_VERSION_VRM0
         humanoid = ext.vrm0.humanoid
         self.assertEqual(ops.vrm.model_validate(), {"FINISHED"})
 
@@ -62,7 +63,6 @@ class TestValidation(AddonTestCase):
             raise TypeError
 
         ext = get_armature_extension(armature.data)
-        ext.spec_version = ext.SPEC_VERSION_VRM1
         humanoid = ext.vrm1.humanoid
         self.assertEqual(ops.vrm.model_validate(), {"FINISHED"})
 

@@ -29,8 +29,8 @@ class TestMakeArmature(AddonTestCase):
             "vrm",
         )
         major_minor = f"{bpy.app.version[0]}.{bpy.app.version[1]}"
-        vrm = Path("basic_armature.vrm")
-        expected_path = vrm_dir / "in" / vrm
+        vrm = Path("basic_armature_vrm1.vrm")
+        expected_path = vrm_dir / major_minor / "out" / vrm
         temp_dir_path = vrm_dir / major_minor / "temp"
         temp_dir_path.mkdir(parents=True, exist_ok=True)
 

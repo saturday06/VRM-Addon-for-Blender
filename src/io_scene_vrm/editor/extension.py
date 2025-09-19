@@ -416,6 +416,7 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
         items=spec_version_items,
         name="Spec Version",
         update=update_spec_version,
+        default=SPEC_VERSION_VRM1,
     )
 
     def is_vrm0(self) -> bool:

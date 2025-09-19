@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+import math
 import re
 from sys import float_info
+
+from mathutils import Quaternion
 
 from ..common import deep, gltf
 from ..common.convert import Json
@@ -68,10 +71,43 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
                     ):
                         node_dict["skin"] = 0
 
-            if "matrix" in node_dict or "scale" in node_dict:
+            if "matrix" in node_dict:
                 continue
 
-            node_dict["scale"] = [1.0, 1.0, 1.0]
+            if "scale" not in node_dict:
+                node_dict["scale"] = [1.0, 1.0, 1.0]
+
+            rotation = node_dict.get("rotation")
+            if not isinstance(rotation, list) or len(rotation) != 4:
+                continue
+
+            rotation_x, rotation_y, rotation_z, rotation_w = rotation
+            if (
+                not isinstance(rotation_x, (float, int))
+                or not isinstance(rotation_y, (float, int))
+                or not isinstance(rotation_z, (float, int))
+                or not isinstance(rotation_w, (float, int))
+            ):
+                node_dict["rotation"] = [0.0, 0.0, 0.0, 1.0]
+                continue
+
+            axis, angle = Quaternion(
+                (rotation_w, rotation_x, rotation_y, rotation_z)
+            ).to_axis_angle()
+            if abs(angle - math.pi) > 0.000001:
+                continue
+
+            if abs(axis.x) > abs(axis.y) and abs(axis.x) > abs(axis.z):
+                if axis.x < 0:
+                    axis = -axis
+            elif abs(axis.y) > abs(axis.z):
+                if axis.y < 0:
+                    axis = -axis
+            elif axis.z < 0:
+                axis = -axis
+
+            q = Quaternion(axis, angle).normalized()
+            node_dict["rotation"] = [q.x, q.y, q.z, q.w]
 
         if is_vrm0:
             skin_dicts = json_dict.get("skins")
