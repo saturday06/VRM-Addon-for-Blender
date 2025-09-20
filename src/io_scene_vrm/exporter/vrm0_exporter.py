@@ -2849,8 +2849,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             exclusion_vertex_indices = self.get_exclusion_vertex_indices(
                 self.context, main_mesh_data
             )
-            reference_vertex_normal_vectors = self.calculate_reference_vertex_normal_vectors(
-                main_mesh_data, exclusion_vertex_indices
+            reference_vertex_normal_vectors = (
+                self.calculate_reference_vertex_normal_vectors(
+                    main_mesh_data, exclusion_vertex_indices
+                )
             )
 
         vertex_attributes_and_targets = Vrm0Exporter.VertexAttributeAndTargets(
@@ -3723,9 +3725,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
     ) -> list[Vector]:
         # Use split (loop) normals instead of vertex normals
         # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1129
-        vertex_normal_sum_vectors = [Vector([0.0, 0.0, 0.0])] * len(
-            mesh_data.vertices
-        )
+        vertex_normal_sum_vectors = [Vector([0.0, 0.0, 0.0])] * len(mesh_data.vertices)
         for loop_triangle in mesh_data.loop_triangles:
             for vertex_index, normal in zip(
                 loop_triangle.vertices, loop_triangle.split_normals
@@ -3771,7 +3771,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         if vertex_index >= len(reference_vertex_normal_vectors):
             return (0.0, 0.0, 0.0)
-        
+
         reference_vertex_normal = reference_vertex_normal_vectors[vertex_index]
 
         return (
