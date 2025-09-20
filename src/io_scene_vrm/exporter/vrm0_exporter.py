@@ -2608,10 +2608,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         targets_position: list[tuple[float, float, float]] = []
         targets_normal: list[tuple[float, float, float]] = []
-        for (
-            _shape_key_name,
-            shape_key_mesh_data,
-        ) in shape_key_name_to_mesh_data.items():
+        for shape_key_mesh_data in shape_key_name_to_mesh_data.values():
             shape_key_mesh_data_vertices = shape_key_mesh_data.vertices
             if vertex_index < len(shape_key_mesh_data_vertices):
                 (
