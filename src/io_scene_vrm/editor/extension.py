@@ -25,6 +25,7 @@ from mathutils import Matrix, Quaternion
 
 from ..common.logger import get_logger
 from ..common.preferences import VrmAddonPreferences
+from .khr_character.property_group import KhrCharacterPropertyGroup
 from .mtoon1.property_group import Mtoon1MaterialPropertyGroup
 from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup
 from .property_group import StringPropertyGroup, property_group_enum
@@ -375,11 +376,29 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
         type=NodeConstraint1NodeConstraintPropertyGroup
     )
 
+    khr_character: PointerProperty(  # type: ignore[valid-type]
+        type=KhrCharacterPropertyGroup
+    )
+
     SPEC_VERSION_VRM0 = "0.0"
     SPEC_VERSION_VRM1 = "1.0"
+    SPEC_VERSION_KHR_CHARACTER = "KHR_character"
     spec_version_items = (
         (SPEC_VERSION_VRM0, "VRM 0.0", "", "NONE", 0),
         (SPEC_VERSION_VRM1, "VRM 1.0", "", "NONE", 1),
+        *(
+            [
+                (
+                    SPEC_VERSION_KHR_CHARACTER,
+                    "KHR Character (Experimental)",
+                    "",
+                    "EXPERIMENTAL",
+                    2,
+                )
+            ]
+            if bpy.app.version >= (4, 5)
+            else []
+        ),
     )
 
     def update_spec_version(self, _context: Context) -> None:
@@ -424,6 +443,9 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
     def is_vrm1(self) -> bool:
         return str(self.spec_version) == self.SPEC_VERSION_VRM1
 
+    def is_khr_character(self) -> bool:
+        return str(self.spec_version) == self.SPEC_VERSION_KHR_CHARACTER
+
     @staticmethod
     def has_vrm_model_metadata(obj: Object) -> bool:
         if obj.type != "ARMATURE":
@@ -455,6 +477,7 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
         node_constraint1: (  # type: ignore[no-redef]
             NodeConstraint1NodeConstraintPropertyGroup
         )
+        khr_character: KhrCharacterPropertyGroup  # type: ignore[no-redef]
         spec_version: str  # type: ignore[no-redef]
 
 
