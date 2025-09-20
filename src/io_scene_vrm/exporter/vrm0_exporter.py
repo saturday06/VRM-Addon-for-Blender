@@ -2478,9 +2478,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         bone_name_to_node_index: Mapping[str, int],
         skin_joints: Sequence[int],
         shape_key_name_to_mesh_data: Mapping[str, Mesh],
-        shape_key_name_to_vertex_index_to_morph_normal_diffs: Optional[
-            Mapping[str, tuple[tuple[float, float, float], ...]]
-        ],
+        exclusion_vertex_indices: set[int],
+        reference_vertex_normal_vectors: list[Vector],
         vertex_attributes_and_targets: VertexAttributeAndTargets,
         *,
         have_skin: bool,
@@ -2610,7 +2609,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         targets_position: list[tuple[float, float, float]] = []
         targets_normal: list[tuple[float, float, float]] = []
         for (
-            shape_key_name,
+            _shape_key_name,
             shape_key_mesh_data,
         ) in shape_key_name_to_mesh_data.items():
             shape_key_mesh_data_vertices = shape_key_mesh_data.vertices
@@ -2636,30 +2635,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 targets_normal.append((0, 0, 0))
                 continue
 
-            if shape_key_name_to_vertex_index_to_morph_normal_diffs is None:
-                targets_normal.append((0, 0, 0))
-                logger.error(
-                    "BUG: shape key name to vertex index to morph normal diffs"
-                    " are not created"
-                )
-                continue
-
-            morph_normal_diffs = (
-                shape_key_name_to_vertex_index_to_morph_normal_diffs.get(shape_key_name)
+            morph_normal_diff = self.calculate_shape_key_normal_diff_for_vertex(
+                shape_key_mesh_data,
+                vertex_index,
+                reference_vertex_normal_vectors,
+                exclusion_vertex_indices,
             )
-            if morph_normal_diffs is None:
-                targets_normal.append((0, 0, 0))
-                continue
 
-            if vertex_index >= len(morph_normal_diffs):
-                targets_normal.append((0, 0, 0))
-                continue
-
-            morph_normal_diff = morph_normal_diffs[vertex_index]
-
-            # logger.error(
-            #     "MORPH_NORMAL_DIFF: %s %s", vertex_index, morph_normal_diff
-            # )
             targets_normal.append(convert.axis_blender_to_gltf(morph_normal_diff))
 
         return vertex_attributes_and_targets.add_vertex(
@@ -2864,15 +2846,14 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if legacy_shader_name == "MToon_unversioned":
                 no_morph_normal_export_material_indices.add(material_index)
 
-        shape_key_name_to_vertex_index_to_morph_normal_diffs = None
+        exclusion_vertex_indices: set[int] = set()
+        reference_vertex_normal_vectors: list[Vector] = []
         if original_shape_keys and shape_key_name_to_mesh_data:
-            shape_key_name_to_vertex_index_to_morph_normal_diffs = (
-                self.create_shape_key_name_to_vertex_index_to_morph_normal_diffs(
-                    self.context,
-                    main_mesh_data,
-                    shape_key_name_to_mesh_data,
-                    original_shape_keys.reference_key.name,
-                )
+            exclusion_vertex_indices = self.get_exclusion_vertex_indices(
+                self.context, main_mesh_data
+            )
+            reference_vertex_normal_vectors = self.calculate_reference_vertex_normal_vectors(
+                main_mesh_data, exclusion_vertex_indices
             )
 
         vertex_attributes_and_targets = Vrm0Exporter.VertexAttributeAndTargets(
@@ -2930,7 +2911,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     bone_name_to_node_index,
                     skin_joints,
                     shape_key_name_to_mesh_data,
-                    shape_key_name_to_vertex_index_to_morph_normal_diffs,
+                    exclusion_vertex_indices,
+                    reference_vertex_normal_vectors,
                     vertex_attributes_and_targets,
                     have_skin=have_skin,
                     no_morph_normal_export=no_morph_normal_export,
@@ -3709,15 +3691,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         return texture_info_dict
 
     @staticmethod
-    def create_shape_key_name_to_vertex_index_to_morph_normal_diffs(
+    def get_exclusion_vertex_indices(
         context: Context,
         mesh_data: Mesh,
-        shape_key_name_to_mesh_data: Mapping[str, Mesh],
-        reference_key_name: str,
-    ) -> Mapping[str, tuple[tuple[float, float, float], ...]]:
-        # logger.error("CREATE UNIQ:")
-        # Collect vertex indices where normal difference is forced to zero
-        # setting is enabled
+    ) -> set[int]:
         exclusion_vertex_indices: set[int] = set()
         for polygon in mesh_data.polygons:
             if not (0 <= polygon.material_index < len(mesh_data.materials)):
@@ -3740,103 +3717,71 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 continue
             if legacy_shader_name == "MToon_unversioned":
                 exclusion_vertex_indices.update(polygon.vertices)
+        return exclusion_vertex_indices
 
-        # logger.error("  exc=%s", exclusion_vertex_indices)
-
-        # logger.error("KEY DIFF:")
-
-        # Collect normal values for each shape key
-        shape_key_name_to_vertex_normal_vectors: dict[str, list[Vector]] = {}
-        for shape_key_name, shape_key_mesh_data in [
-            (reference_key_name, mesh_data),
-            *shape_key_name_to_mesh_data.items(),
-        ]:
-            # logger.error("  refkey=%s key=%s", reference_key_name, shape_key_name)
-            # Use split (loop) normals instead of vertex normals
-            # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1129
-            vertex_normal_sum_vectors = [Vector([0.0, 0.0, 0.0])] * len(
-                mesh_data.vertices
-            )
-            for loop_triangle in shape_key_mesh_data.loop_triangles:
-                # logger.error("    loop_triangle mat=%s", loop_triangle.material_index)
-                for vertex_index, normal in zip(
-                    loop_triangle.vertices, loop_triangle.split_normals
-                ):
-                    # logger.error(
-                    #     "      vindex=%s normal=%s",
-                    #     vertex_index,
-                    #     normal,
-                    # )
-                    if vertex_index in exclusion_vertex_indices:
-                        # logger.error("      EXCLUDE")
-                        continue
-                    if not (0 <= vertex_index < len(vertex_normal_sum_vectors)):
-                        # logger.error("      OUT OF RANGE")
-                        continue
-                    vertex_normal_sum_vectors[vertex_index] = (
-                        # Normally we would use the += operator, but for some
-                        # reason the result changes so we don't use it
-                        vertex_normal_sum_vectors[vertex_index] + Vector(normal)
-                    )
-                    # logger.error(
-                    #     "      => %s:%s",
-                    #     vertex_normal_sum_vectors[vertex_index],
-                    #     list(vertex_normal_sum_vectors[vertex_index]),
-                    # )
-            shape_key_name_to_vertex_normal_vectors[shape_key_name] = [
-                Vector((0, 0, 0))
-                if vector.length_squared < float_info.epsilon
-                else vector.normalized()
-                for vector in vertex_normal_sum_vectors
-            ]
-
-        reference_vertex_normal_vectors = shape_key_name_to_vertex_normal_vectors[
-            reference_key_name
+    @staticmethod
+    def calculate_reference_vertex_normal_vectors(
+        mesh_data: Mesh,
+        exclusion_vertex_indices: set[int],
+    ) -> list[Vector]:
+        # Use split (loop) normals instead of vertex normals
+        # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1129
+        vertex_normal_sum_vectors = [Vector([0.0, 0.0, 0.0])] * len(
+            mesh_data.vertices
+        )
+        for loop_triangle in mesh_data.loop_triangles:
+            for vertex_index, normal in zip(
+                loop_triangle.vertices, loop_triangle.split_normals
+            ):
+                if vertex_index in exclusion_vertex_indices:
+                    continue
+                if not (0 <= vertex_index < len(vertex_normal_sum_vectors)):
+                    continue
+                vertex_normal_sum_vectors[vertex_index] = (
+                    # Normally we would use the += operator, but for some
+                    # reason the result changes so we don't use it
+                    vertex_normal_sum_vectors[vertex_index] + Vector(normal)
+                )
+        return [
+            Vector((0, 0, 0))
+            if vector.length_squared < float_info.epsilon
+            else vector.normalized()
+            for vector in vertex_normal_sum_vectors
         ]
 
-        # Collect normal differences from reference key for each shape key
-        shape_key_name_to_vertex_index_to_morph_normal_diffs: dict[
-            str, tuple[tuple[float, float, float], ...]
-        ] = {}
+    @staticmethod
+    def calculate_shape_key_normal_diff_for_vertex(
+        shape_key_mesh_data: Mesh,
+        vertex_index: int,
+        reference_vertex_normal_vectors: list[Vector],
+        exclusion_vertex_indices: set[int],
+    ) -> tuple[float, float, float]:
+        vertex_normal_sum_vector = Vector([0.0, 0.0, 0.0])
+        for loop_triangle in shape_key_mesh_data.loop_triangles:
+            for loop_vertex_index, normal in zip(
+                loop_triangle.vertices, loop_triangle.split_normals
+            ):
+                if loop_vertex_index != vertex_index:
+                    continue
+                if vertex_index in exclusion_vertex_indices:
+                    continue
+                vertex_normal_sum_vector = vertex_normal_sum_vector + Vector(normal)
 
-        # logger.error("REFERENCE_KEY: %s", mesh_data.shape_keys.reference_key.name)
-        # for v in reference_vertex_normal_vectors:
-        #     logger.error("  %s", v)
+        if vertex_normal_sum_vector.length_squared < float_info.epsilon:
+            shape_key_vertex_normal = Vector((0, 0, 0))
+        else:
+            shape_key_vertex_normal = vertex_normal_sum_vector.normalized()
 
-        # for n, vv in shape_key_name_to_vertex_normal_vectors.items():
-        #     logger.error("KEY: %s", n)
-        #     for v in vv:
-        #         logger.error("  %s", v)
+        if vertex_index >= len(reference_vertex_normal_vectors):
+            return (0.0, 0.0, 0.0)
+        
+        reference_vertex_normal = reference_vertex_normal_vectors[vertex_index]
 
-        # logger.error("RESULT:")
-        for (
-            shape_key_name,
-            vertex_normal_vectors,
-        ) in shape_key_name_to_vertex_normal_vectors.items():
-            if shape_key_name == reference_key_name:
-                continue
-            vertex_index_to_morph_normal_diffs: tuple[
-                tuple[float, float, float], ...
-            ] = tuple(
-                (
-                    vertex_normal_vector.x - reference_vertex_normal_vector.x,
-                    vertex_normal_vector.y - reference_vertex_normal_vector.y,
-                    vertex_normal_vector.z - reference_vertex_normal_vector.z,
-                )
-                for vertex_normal_vector, reference_vertex_normal_vector in zip(
-                    vertex_normal_vectors,
-                    reference_vertex_normal_vectors,
-                )
-            )
-            # logger.error(
-            #     "  %s:%s",
-            #     shape_key_name,
-            #     vertex_index_to_morph_normal_diffs,
-            # )
-            shape_key_name_to_vertex_index_to_morph_normal_diffs[shape_key_name] = (
-                vertex_index_to_morph_normal_diffs
-            )
-        return shape_key_name_to_vertex_index_to_morph_normal_diffs
+        return (
+            shape_key_vertex_normal.x - reference_vertex_normal.x,
+            shape_key_vertex_normal.y - reference_vertex_normal.y,
+            shape_key_vertex_normal.z - reference_vertex_normal.z,
+        )
 
     def have_skin(self, mesh: Object) -> bool:
         # TODO: This method has false positives but is kept as-is for compatibility.
