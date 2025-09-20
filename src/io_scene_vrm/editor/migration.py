@@ -243,25 +243,9 @@ def show_blend_file_addon_compatibility_warning(
 
 
 def have_vrm_model(context: Context) -> bool:
-    for obj in context.blend_data.objects:
-        if obj.type != "ARMATURE":
-            continue
-        armature = obj.data
-        if not isinstance(armature, Armature):
-            continue
-
-        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_0_3/io_scene_vrm/editor/migration.py#L372-L373
-        ext = get_armature_extension(armature)
-        if tuple(ext.addon_version) > (2, 0, 1):
-            return True
-
-        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/0_79/importer/model_build.py#L731
-        humanoid_params_key = obj.get("humanoid_params")
-        if not isinstance(humanoid_params_key, str):
-            continue
-        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/0_79/importer/model_build.py#L723-L726
-        if not humanoid_params_key.startswith(".json"):
-            continue
-
-        return True
-    return False
+    return any(
+        map(
+            VrmAddonArmatureExtensionPropertyGroup.has_vrm_model_metadata,
+            context.blend_data.objects,
+        )
+    )

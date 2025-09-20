@@ -636,7 +636,7 @@ def migrate_pose(context: Context, armature: Object, armature_data: Armature) ->
         return
 
     if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION:
-        if "humanoid_params" in armature and "hips" in armature_data:
+        if ext.has_vrm_model_metadata(armature):
             humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
         return
 

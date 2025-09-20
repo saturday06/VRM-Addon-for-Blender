@@ -424,6 +424,27 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
     def is_vrm1(self) -> bool:
         return str(self.spec_version) == self.SPEC_VERSION_VRM1
 
+    @staticmethod
+    def has_vrm_model_metadata(obj: Object) -> bool:
+        if obj.type != "ARMATURE":
+            return False
+        armature = obj.data
+        if not isinstance(armature, Armature):
+            return False
+
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_0_3/io_scene_vrm/editor/migration.py#L372-L373
+        ext = get_armature_extension(armature)
+        if tuple(ext.addon_version) > (2, 0, 1):
+            return True
+
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/0_79/importer/model_build.py#L731
+        humanoid_params_key = obj.get("humanoid_params")
+        if not isinstance(humanoid_params_key, str):
+            return False
+
+        # https://github.com/saturday06/VRM-Addon-for-Blender/blob/0_79/importer/model_build.py#L706
+        return "hips" in armature
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
