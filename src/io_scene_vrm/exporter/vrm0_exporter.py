@@ -100,7 +100,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         normal: bytearray = field(default_factory=bytearray)
 
-    class VertexAttributeAndTargets:
+    class VertexAttributesCollector:
         POSITION_STRUCT: Final = struct.Struct("<fff")
         NORMAL_STRUCT: Final = struct.Struct("<fff")
         TEXCOORD_STRUCT: Final = struct.Struct("<ff")
@@ -111,12 +111,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             int, tuple[float, float, float], Optional[tuple[float, float]]
         ]
 
-        def __init__(self, target_names: Sequence[str]) -> None:
-            self.targets = [
-                Vrm0Exporter.PrimitiveTarget(name=target_name)
-                for target_name in target_names
-            ]
-
+        def __init__(self) -> None:
             self.count = 0
 
             self.position = bytearray()
@@ -173,8 +168,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             texcoord: Optional[tuple[float, float]],
             weights: Optional[tuple[float, float, float, float]],
             joints: Optional[tuple[int, int, int, int]],
-            targets_position: Sequence[tuple[float, float, float]],
-            targets_normal: Sequence[tuple[float, float, float]],
         ) -> int:
             index = self.count
             self.count += 1
@@ -203,25 +196,59 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if joints is not None:
                 self.joints.extend(self.JOINTS_STRUCT.pack(*joints))
 
-            for i, target in enumerate(self.targets):
-                target_position_x, target_position_y, target_position_z = (
-                    targets_position[i]
-                )
-                target.position.extend(
-                    self.POSITION_STRUCT.pack(
-                        target_position_x, target_position_y, target_position_z
-                    )
-                )
-                target.position_max_x = max(target.position_max_x, target_position_x)
-                target.position_min_x = min(target.position_min_x, target_position_x)
-                target.position_max_y = max(target.position_max_y, target_position_y)
-                target.position_min_y = min(target.position_min_y, target_position_y)
-                target.position_max_z = max(target.position_max_z, target_position_z)
-                target.position_min_z = min(target.position_min_z, target_position_z)
-
-                target.normal.extend(self.NORMAL_STRUCT.pack(*targets_normal[i]))
-
             return index
+
+    class VertexMorphTargetCollector:
+        def __init__(self, count: int) -> None:
+            self.count = count
+
+            self.POSITION_STRUCT = (
+                Vrm0Exporter.VertexAttributesCollector.POSITION_STRUCT
+            )
+            self.position = bytearray(self.POSITION_STRUCT.size * count)
+            self.position_max_x = FLOAT_NEGATIVE_MAX
+            self.position_min_x = FLOAT_POSITIVE_MAX
+            self.position_max_y = FLOAT_NEGATIVE_MAX
+            self.position_min_y = FLOAT_POSITIVE_MAX
+            self.position_max_z = FLOAT_NEGATIVE_MAX
+            self.position_min_z = FLOAT_POSITIVE_MAX
+
+            self.NORMAL_STRUCT = Vrm0Exporter.VertexAttributesCollector.NORMAL_STRUCT
+            self.normal = bytearray(self.NORMAL_STRUCT.size * count)
+
+        def add_vertex(
+            self,
+            *,
+            vertex_index: int,
+            target_position: tuple[float, float, float],
+            target_normal: tuple[float, float, float],
+        ) -> None:
+            if not (0 <= vertex_index < self.count):
+                logger.error(
+                    "invalid vertex_index: %d, count %d", vertex_index, self.count
+                )
+                return
+
+            target_position_x, target_position_y, target_position_z = target_position
+
+            position_start_index = vertex_index * self.POSITION_STRUCT.size
+            self.position[
+                position_start_index : position_start_index + self.POSITION_STRUCT.size
+            ] = self.POSITION_STRUCT.pack(
+                target_position_x, target_position_y, target_position_z
+            )
+
+            self.position_max_x = max(self.position_max_x, target_position_x)
+            self.position_min_x = min(self.position_min_x, target_position_x)
+            self.position_max_y = max(self.position_max_y, target_position_y)
+            self.position_min_y = min(self.position_min_y, target_position_y)
+            self.position_max_z = max(self.position_max_z, target_position_z)
+            self.position_min_z = min(self.position_min_z, target_position_z)
+
+            normal_start_index = vertex_index * self.NORMAL_STRUCT.size
+            self.normal[
+                normal_start_index : normal_start_index + self.NORMAL_STRUCT.size
+            ] = self.NORMAL_STRUCT.pack(*target_normal)
 
     def export_vrm(self) -> Optional[bytes]:
         init_extras_export()
@@ -2477,11 +2504,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         vertex_group_index_to_joint: Mapping[int, int],
         bone_name_to_node_index: Mapping[str, int],
         skin_joints: Sequence[int],
-        shape_key_name_to_mesh_data: Mapping[str, Mesh],
-        shape_key_name_to_vertex_index_to_morph_normal_diffs: Optional[
-            Mapping[str, tuple[tuple[float, float, float], ...]]
-        ],
-        vertex_attributes_and_targets: VertexAttributeAndTargets,
+        vertex_attributes_collector: VertexAttributesCollector,
         *,
         have_skin: bool,
     ) -> int:
@@ -2498,7 +2521,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         normal = main_mesh_data.loops[loop_index].normal
 
         already_added_vertex_index = (
-            vertex_attributes_and_targets.find_added_vertex_index(
+            vertex_attributes_collector.find_added_vertex_index(
                 blender_vertex_index=vertex_index,
                 normal=convert.axis_blender_to_gltf(normal),
                 texcoord=texcoord,
@@ -2606,58 +2629,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     weights[3] / total_weight,
                 )
 
-        targets_position: list[tuple[float, float, float]] = []
-        targets_normal: list[tuple[float, float, float]] = []
-        for (
-            shape_key_name,
-            shape_key_mesh_data,
-        ) in shape_key_name_to_mesh_data.items():
-            shape_key_mesh_data_vertices = shape_key_mesh_data.vertices
-            if vertex_index < len(shape_key_mesh_data_vertices):
-                (
-                    shape_key_position_x,
-                    shape_key_position_y,
-                    shape_key_position_z,
-                ) = shape_key_mesh_data_vertices[vertex_index].co
-                targets_position.append(
-                    convert.axis_blender_to_gltf(
-                        (
-                            shape_key_position_x - position_x,
-                            shape_key_position_y - position_y,
-                            shape_key_position_z - position_z,
-                        )
-                    )
-                )
-            else:
-                targets_position.append((0, 0, 0))
-
-            if shape_key_name_to_vertex_index_to_morph_normal_diffs is None:
-                targets_normal.append((0, 0, 0))
-                logger.error(
-                    "BUG: shape key name to vertex index to morph normal diffs"
-                    " are not created"
-                )
-                continue
-
-            morph_normal_diffs = (
-                shape_key_name_to_vertex_index_to_morph_normal_diffs.get(shape_key_name)
-            )
-            if morph_normal_diffs is None:
-                targets_normal.append((0, 0, 0))
-                continue
-
-            if vertex_index >= len(morph_normal_diffs):
-                targets_normal.append((0, 0, 0))
-                continue
-
-            morph_normal_diff = morph_normal_diffs[vertex_index]
-
-            # logger.error(
-            #     "MORPH_NORMAL_DIFF: %s %s", vertex_index, morph_normal_diff
-            # )
-            targets_normal.append(convert.axis_blender_to_gltf(morph_normal_diff))
-
-        return vertex_attributes_and_targets.add_vertex(
+        return vertex_attributes_collector.add_vertex(
             blender_vertex_index=vertex_index,
             position=convert.axis_blender_to_gltf(
                 (
@@ -2670,8 +2642,69 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             texcoord=texcoord,
             joints=joints,
             weights=weights,
-            targets_position=targets_position,
-            targets_normal=targets_normal,
+        )
+
+    def collect_morph_target(
+        self,
+        main_mesh_data: Mesh,
+        shape_key_mesh_data: Mesh,
+        vertex_index: int,
+        uv_layer: Optional[MeshUVLoopLayer],
+        loop_index: int,
+        vertex_attributes_collector: VertexAttributesCollector,
+        vertex_morph_target_collector: VertexMorphTargetCollector,
+        vertex_index_to_morph_normal_diffs: tuple[tuple[float, float, float], ...],
+    ) -> None:
+        texcoord = None
+        if uv_layer:
+            texcoord_u, texcoord_v = uv_layer.data[loop_index].uv
+            texcoord = (texcoord_u, 1 - texcoord_v)
+
+        gltf_vertex_index = vertex_attributes_collector.find_added_vertex_index(
+            blender_vertex_index=vertex_index,
+            normal=convert.axis_blender_to_gltf(
+                main_mesh_data.loops[loop_index].normal
+            ),
+            texcoord=texcoord,
+        )
+        if gltf_vertex_index is None:
+            return
+
+        main_mesh_data_vertices = main_mesh_data.vertices
+        shape_key_mesh_data_vertices = shape_key_mesh_data.vertices
+        if vertex_index < min(
+            len(main_mesh_data_vertices), len(shape_key_mesh_data_vertices)
+        ):
+            (
+                position_x,
+                position_y,
+                position_z,
+            ) = main_mesh_data_vertices[vertex_index].co
+            (
+                shape_key_position_x,
+                shape_key_position_y,
+                shape_key_position_z,
+            ) = shape_key_mesh_data_vertices[vertex_index].co
+            target_position = convert.axis_blender_to_gltf(
+                (
+                    shape_key_position_x - position_x,
+                    shape_key_position_y - position_y,
+                    shape_key_position_z - position_z,
+                )
+            )
+        else:
+            target_position = (0, 0, 0)
+
+        if vertex_index < len(vertex_index_to_morph_normal_diffs):
+            morph_normal_diff = vertex_index_to_morph_normal_diffs[vertex_index]
+            target_normal = convert.axis_blender_to_gltf(morph_normal_diff)
+        else:
+            target_normal = (0, 0, 0)
+
+        vertex_morph_target_collector.add_vertex(
+            vertex_index=gltf_vertex_index,
+            target_position=target_position,
+            target_normal=target_normal,
         )
 
     def write_mesh_node(
@@ -2773,6 +2806,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         mesh_index = len(mesh_dicts)
 
+        vertex_morph_target_collectors: dict[
+            str, Vrm0Exporter.VertexMorphTargetCollector
+        ] = {}
         original_shape_keys: Optional[Key] = None
         if isinstance(original_mesh_convertible, Mesh):
             original_mesh_convertible.calc_loop_triangles()
@@ -2794,12 +2830,87 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 preserve_shape_keys=False,
                 transform=mesh_data_transform,
             )
-            if not main_mesh_data:
+            if main_mesh_data is None:
                 return scene_node_index
 
-            shape_key_name_to_mesh_data: Optional[dict[str, Mesh]] = None
-            shape_key_name_to_mesh_data = {}
+            if bpy.app.version < (4, 1):
+                main_mesh_data.calc_normals_split()
+
+            material_slot_index_to_material_name: Mapping[int, str] = {
+                material_index: material_ref.name
+                for material_index, material_slot in enumerate(obj.material_slots)
+                if (material_ref := material_slot.material) and material_ref.name
+            }
+
+            material_index_to_vertex_indices: dict[int, bytearray] = {}
+            vertex_indices_struct = struct.Struct("<I")
+
+            vertex_group_index_to_joint: Mapping[int, int] = {
+                vertex_group_index: skin_joints.index(vertex_group_node_index)
+                for vertex_group_index, vertex_group in enumerate(obj.vertex_groups)
+                if (
+                    vertex_group_node_index := bone_name_to_node_index.get(
+                        vertex_group.name
+                    )
+                )
+                is not None
+                and vertex_group_node_index in skin_joints
+            }
+
+            vertex_attributes_collector = Vrm0Exporter.VertexAttributesCollector()
+            uv_layers = main_mesh_data.uv_layers
+            uv_layer = uv_layers.active
+            main_mesh_data.calc_loop_triangles()
+            for loop_triangle in main_mesh_data.loop_triangles:
+                material_slot_index = loop_triangle.material_index
+                material_name = material_slot_index_to_material_name.get(
+                    material_slot_index
+                )
+                material_index = None
+                if material_name:
+                    material_index = material_name_to_material_index.get(material_name)
+                if material_index is None:
+                    material_index = self.get_or_write_cluster_empty_material(
+                        material_dicts, extensions_vrm_material_property_dicts
+                    )
+
+                vertex_indices = material_index_to_vertex_indices.get(material_index)
+                if vertex_indices is None:
+                    vertex_indices = bytearray()
+                    material_index_to_vertex_indices[material_index] = vertex_indices
+
+                for loop_index in loop_triangle.loops:
+                    loop = main_mesh_data.loops[loop_index]
+                    original_vertex_index = loop.vertex_index
+                    vertex_index = self.collect_vertex(
+                        obj,
+                        main_mesh_data,
+                        original_vertex_index,
+                        uv_layer,
+                        loop_index,
+                        vertex_group_index_to_joint,
+                        bone_name_to_node_index,
+                        skin_joints,
+                        vertex_attributes_collector,
+                        have_skin=have_skin,
+                    )
+                    vertex_indices.extend(vertex_indices_struct.pack(vertex_index))
+
             if original_shape_keys:
+                no_morph_normal_export_vertex_indices: set[int] = (
+                    self.create_no_morph_normal_export_vertex_indices(
+                        self.context,
+                        main_mesh_data,
+                    )
+                )
+
+                reference_vertex_normal_vectors = (
+                    Vrm0Exporter.create_export_vertex_normal_vectors(
+                        no_morph_normal_export_vertex_indices,
+                        main_mesh_data,
+                    )
+                )
+
                 # Create mesh with modifiers applied for each shape key.
                 # This is because for VRM 0.x, glTF Node rotation and scale
                 # are normalized, but when rotation or scale is applied in
@@ -2814,7 +2925,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
                     shape_key.value = 1.0
                     self.context.view_layer.update()
-                    shape_mesh = force_apply_modifiers(
+                    shape_mesh_data = force_apply_modifiers(
                         self.context,
                         obj,
                         preserve_shape_keys=False,
@@ -2823,103 +2934,68 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     shape_key.value = 0.0
                     self.context.view_layer.update()
 
-                    if not shape_mesh:
+                    if not shape_mesh_data:
                         continue
-                    shape_key_name_to_mesh_data[shape_key.name] = shape_mesh
 
-        for mesh_data in [main_mesh_data, *shape_key_name_to_mesh_data.values()]:
-            if not mesh_data:
-                continue
-            if bpy.app.version < (4, 1):
-                mesh_data.calc_normals_split()
+                    if bpy.app.version < (4, 1):
+                        shape_mesh_data.calc_normals_split()
 
-        material_slot_index_to_material_name: Mapping[int, str] = {
-            material_index: material_ref.name
-            for material_index, material_slot in enumerate(obj.material_slots)
-            if (material_ref := material_slot.material) and material_ref.name
-        }
+                    vertex_morph_target_collector = vertex_morph_target_collectors.get(
+                        shape_key.name
+                    )
+                    if vertex_morph_target_collector is None:
+                        vertex_morph_target_collector = (
+                            Vrm0Exporter.VertexMorphTargetCollector(
+                                vertex_attributes_collector.count
+                            )
+                        )
+                        vertex_morph_target_collectors[shape_key.name] = (
+                            vertex_morph_target_collector
+                        )
 
-        shape_key_name_to_vertex_index_to_morph_normal_diffs = None
-        if original_shape_keys and shape_key_name_to_mesh_data:
-            shape_key_name_to_vertex_index_to_morph_normal_diffs = (
-                self.create_shape_key_name_to_vertex_index_to_morph_normal_diffs(
-                    self.context,
-                    main_mesh_data,
-                    shape_key_name_to_mesh_data,
-                    original_shape_keys.reference_key.name,
-                )
+                    shape_mesh_data.calc_loop_triangles()
+                    vertex_index_to_morph_normal_diffs = (
+                        Vrm0Exporter.create_vertex_index_to_morph_normal_diffs(
+                            no_morph_normal_export_vertex_indices,
+                            shape_mesh_data,
+                            reference_vertex_normal_vectors,
+                        )
+                    )
+
+                    for loop_triangle in main_mesh_data.loop_triangles:
+                        for loop_index in loop_triangle.loops:
+                            loop = main_mesh_data.loops[loop_index]
+                            original_vertex_index = loop.vertex_index
+                            self.collect_morph_target(
+                                main_mesh_data,
+                                shape_mesh_data,
+                                original_vertex_index,
+                                uv_layer,
+                                loop_index,
+                                vertex_attributes_collector,
+                                vertex_morph_target_collector,
+                                vertex_index_to_morph_normal_diffs,
+                            )
+
+                    if shape_mesh_data.users:
+                        logger.warning(
+                            'Failed to remove "%s" with %d users while exporting'
+                            " shape key meshes",
+                            shape_mesh_data.name,
+                            shape_mesh_data.users,
+                        )
+                    else:
+                        self.context.blend_data.meshes.remove(shape_mesh_data)
+
+        if main_mesh_data.users:
+            logger.warning(
+                'Failed to remove "%s" with %d users while exporting meshes',
+                main_mesh_data.name,
+                main_mesh_data.users,
             )
-
-        vertex_attributes_and_targets = Vrm0Exporter.VertexAttributeAndTargets(
-            list(shape_key_name_to_mesh_data.keys())
-        )
-        material_index_to_vertex_indices: dict[int, bytearray] = {}
-        vertex_indices_struct = struct.Struct("<I")
-
-        vertex_group_index_to_joint: Mapping[int, int] = {
-            vertex_group_index: skin_joints.index(vertex_group_node_index)
-            for vertex_group_index, vertex_group in enumerate(obj.vertex_groups)
-            if (
-                vertex_group_node_index := bone_name_to_node_index.get(
-                    vertex_group.name
-                )
-            )
-            is not None
-            and vertex_group_node_index in skin_joints
-        }
-
-        uv_layers = main_mesh_data.uv_layers
-        uv_layer = uv_layers.active
-        main_mesh_data.calc_loop_triangles()
-        for loop_triangle in main_mesh_data.loop_triangles:
-            material_slot_index = loop_triangle.material_index
-            material_name = material_slot_index_to_material_name.get(
-                material_slot_index
-            )
-            material_index = None
-            if material_name:
-                material_index = material_name_to_material_index.get(material_name)
-            if material_index is None:
-                material_index = self.get_or_write_cluster_empty_material(
-                    material_dicts, extensions_vrm_material_property_dicts
-                )
-
-            vertex_indices = material_index_to_vertex_indices.get(material_index)
-            if vertex_indices is None:
-                vertex_indices = bytearray()
-                material_index_to_vertex_indices[material_index] = vertex_indices
-
-            for loop_index in loop_triangle.loops:
-                loop = main_mesh_data.loops[loop_index]
-                original_vertex_index = loop.vertex_index
-                vertex_index = self.collect_vertex(
-                    obj,
-                    main_mesh_data,
-                    original_vertex_index,
-                    uv_layer,
-                    loop_index,
-                    vertex_group_index_to_joint,
-                    bone_name_to_node_index,
-                    skin_joints,
-                    shape_key_name_to_mesh_data,
-                    shape_key_name_to_vertex_index_to_morph_normal_diffs,
-                    vertex_attributes_and_targets,
-                    have_skin=have_skin,
-                )
-
-                vertex_indices.extend(vertex_indices_struct.pack(vertex_index))
-
-        for temporary_mesh in [main_mesh_data, *shape_key_name_to_mesh_data.values()]:
-            if temporary_mesh.users:
-                logger.warning(
-                    'Failed to remove "%s" with %d users while exporting meshes',
-                    temporary_mesh.name,
-                    temporary_mesh.users,
-                )
-                continue
-            self.context.blend_data.meshes.remove(temporary_mesh)
+        else:
+            self.context.blend_data.meshes.remove(main_mesh_data)
         main_mesh_data = None
-        shape_key_name_to_mesh_data = None
 
         if not material_index_to_vertex_indices:
             return scene_node_index
@@ -2972,13 +3048,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             primitive_dict["attributes"] = primitive_attribute_dict
 
         position_buffer_offset = len(buffer0)
-        buffer0.extend(vertex_attributes_and_targets.position)
+        buffer0.extend(vertex_attributes_collector.position)
         position_buffer_view_index = len(buffer_view_dicts)
         buffer_view_dicts.append(
             {
                 "buffer": 0,
                 "byteOffset": position_buffer_offset,
-                "byteLength": len(vertex_attributes_and_targets.position),
+                "byteLength": len(vertex_attributes_collector.position),
             }
         )
         position_accessor_index = len(accessor_dicts)
@@ -2989,29 +3065,29 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 "byteOffset": 0,
                 "type": "VEC3",
                 "componentType": GL_FLOAT,
-                "count": vertex_attributes_and_targets.count,
+                "count": vertex_attributes_collector.count,
                 "min": [
-                    vertex_attributes_and_targets.position_min_x,
-                    vertex_attributes_and_targets.position_min_y,
-                    vertex_attributes_and_targets.position_min_z,
+                    vertex_attributes_collector.position_min_x,
+                    vertex_attributes_collector.position_min_y,
+                    vertex_attributes_collector.position_min_z,
                 ],
                 "max": [
-                    vertex_attributes_and_targets.position_max_x,
-                    vertex_attributes_and_targets.position_max_y,
-                    vertex_attributes_and_targets.position_max_z,
+                    vertex_attributes_collector.position_max_x,
+                    vertex_attributes_collector.position_max_y,
+                    vertex_attributes_collector.position_max_z,
                 ],
             }
         )
         primitive_attribute_dict["POSITION"] = position_accessor_index
 
         normal_buffer_offset = len(buffer0)
-        buffer0.extend(vertex_attributes_and_targets.normal)
+        buffer0.extend(vertex_attributes_collector.normal)
         normal_buffer_view_index = len(buffer_view_dicts)
         buffer_view_dicts.append(
             {
                 "buffer": 0,
                 "byteOffset": normal_buffer_offset,
-                "byteLength": len(vertex_attributes_and_targets.normal),
+                "byteLength": len(vertex_attributes_collector.normal),
             }
         )
         normal_accessor_index = len(accessor_dicts)
@@ -3021,13 +3097,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 "byteOffset": 0,
                 "type": "VEC3",
                 "componentType": GL_FLOAT,
-                "count": vertex_attributes_and_targets.count,
+                "count": vertex_attributes_collector.count,
                 # "normalized": True, # TODO: Needs investigation
             }
         )
         primitive_attribute_dict["NORMAL"] = normal_accessor_index
 
-        primitive_texcoord = vertex_attributes_and_targets.texcoord
+        primitive_texcoord = vertex_attributes_collector.texcoord
         if primitive_texcoord:
             texcoord_buffer_offset = len(buffer0)
             buffer0.extend(primitive_texcoord)
@@ -3046,12 +3122,12 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     "byteOffset": 0,
                     "type": "VEC2",
                     "componentType": GL_FLOAT,
-                    "count": vertex_attributes_and_targets.count,
+                    "count": vertex_attributes_collector.count,
                 }
             )
             primitive_attribute_dict["TEXCOORD_0"] = texcoord_accessor_index
 
-        primitive_joints = vertex_attributes_and_targets.joints
+        primitive_joints = vertex_attributes_collector.joints
         if primitive_joints:
             joints_buffer_offset = len(buffer0)
             buffer0.extend(primitive_joints)
@@ -3070,12 +3146,12 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     "byteOffset": 0,
                     "type": "VEC4",
                     "componentType": GL_UNSIGNED_SHORT,
-                    "count": vertex_attributes_and_targets.count,
+                    "count": vertex_attributes_collector.count,
                 }
             )
             primitive_attribute_dict["JOINTS_0"] = joints_accessor_index
 
-        primitive_weights = vertex_attributes_and_targets.weights
+        primitive_weights = vertex_attributes_collector.weights
         if primitive_weights:
             while len(buffer0) % 4:
                 buffer0.append(0)
@@ -3097,20 +3173,19 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     "byteOffset": 0,
                     "type": "VEC4",
                     "componentType": GL_FLOAT,
-                    "count": vertex_attributes_and_targets.count,
+                    "count": vertex_attributes_collector.count,
                 }
             )
             primitive_attribute_dict["WEIGHTS_0"] = weights_accessor_index
 
         # Made targets shared by design
-        primitive_targets = vertex_attributes_and_targets.targets
-        morph_target_names = make_json(target.name for target in primitive_targets)
-        if primitive_targets:
+        morph_target_names = make_json(vertex_morph_target_collectors.keys())
+        if vertex_morph_target_collectors:
             while len(buffer0) % 4:
                 buffer0.append(0)
 
             primitive_target_dicts: list[dict[str, Json]] = []
-            for target in primitive_targets:
+            for target in vertex_morph_target_collectors.values():
                 target_position_buffer_offset = len(buffer0)
                 buffer0.extend(target.position)
                 target_position_buffer_view_index = len(buffer_view_dicts)
@@ -3129,7 +3204,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         "byteOffset": 0,
                         "type": "VEC3",
                         "componentType": GL_FLOAT,
-                        "count": vertex_attributes_and_targets.count,
+                        "count": vertex_attributes_collector.count,
                         "min": [
                             target.position_min_x,
                             target.position_min_y,
@@ -3160,7 +3235,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         "byteOffset": 0,
                         "type": "VEC3",
                         "componentType": GL_FLOAT,
-                        "count": vertex_attributes_and_targets.count,
+                        "count": vertex_attributes_collector.count,
                     }
                 )
 
@@ -3190,6 +3265,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 # https://github.com/KhronosGroup/glTF/blob/0251c5c0cce8daec69bd54f29f891e3d0cdb52c8/specification/2.0/Specification.adoc?plain=1#L1500-L1504
                 "targetNames": morph_target_names,
             }
+
         mesh_dicts.append(mesh_dict)
         mesh_object_name_to_mesh_index[obj.name] = mesh_index
         if skin_dict and have_skin:
@@ -3680,20 +3756,20 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         return texture_info_dict
 
     @staticmethod
-    def create_shape_key_name_to_vertex_index_to_morph_normal_diffs(
+    def create_no_morph_normal_export_vertex_indices(
         context: Context,
         mesh_data: Mesh,
-        shape_key_name_to_mesh_data: Mapping[str, Mesh],
-        reference_key_name: str,
-    ) -> Mapping[str, tuple[tuple[float, float, float], ...]]:
+    ) -> set[int]:
         # logger.error("CREATE UNIQ:")
         # Collect vertex indices where normal difference is forced to zero
         # setting is enabled
         exclusion_vertex_indices: set[int] = set()
+        material_refs = mesh_data.materials
         for polygon in mesh_data.polygons:
-            if not (0 <= polygon.material_index < len(mesh_data.materials)):
+            material_ref_index = polygon.material_index
+            if not (0 <= material_ref_index < len(material_refs)):
                 continue
-            material_ref = mesh_data.materials[polygon.material_index]
+            material_ref = material_refs[material_ref_index]
             if material_ref is None:
                 continue
             # Use non-evaluated material
@@ -3712,63 +3788,63 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if legacy_shader_name == "MToon_unversioned":
                 exclusion_vertex_indices.update(polygon.vertices)
 
-        # logger.error("  exc=%s", exclusion_vertex_indices)
+        return exclusion_vertex_indices
 
-        # logger.error("KEY DIFF:")
-
+    @staticmethod
+    def create_export_vertex_normal_vectors(
+        no_morph_normal_export_vertex_indices: set[int],
+        mesh_data: Mesh,
+    ) -> list[Vector]:
         # Collect normal values for each shape key
-        shape_key_name_to_vertex_normal_vectors: dict[str, list[Vector]] = {}
-        for shape_key_name, shape_key_mesh_data in [
-            (reference_key_name, mesh_data),
-            *shape_key_name_to_mesh_data.items(),
-        ]:
-            # logger.error("  refkey=%s key=%s", reference_key_name, shape_key_name)
-            # Use split (loop) normals instead of vertex normals
-            # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1129
-            vertex_normal_sum_vectors = [Vector([0.0, 0.0, 0.0])] * len(
-                mesh_data.vertices
-            )
-            for loop_triangle in shape_key_mesh_data.loop_triangles:
-                # logger.error("    loop_triangle mat=%s", loop_triangle.material_index)
-                for vertex_index, normal in zip(
-                    loop_triangle.vertices, loop_triangle.split_normals
-                ):
-                    # logger.error(
-                    #     "      vindex=%s normal=%s",
-                    #     vertex_index,
-                    #     normal,
-                    # )
-                    if vertex_index in exclusion_vertex_indices:
-                        # logger.error("      EXCLUDE")
-                        continue
-                    if not (0 <= vertex_index < len(vertex_normal_sum_vectors)):
-                        # logger.error("      OUT OF RANGE")
-                        continue
-                    vertex_normal_sum_vectors[vertex_index] = (
-                        # Normally we would use the += operator, but for some
-                        # reason the result changes so we don't use it
-                        vertex_normal_sum_vectors[vertex_index] + Vector(normal)
-                    )
-                    # logger.error(
-                    #     "      => %s:%s",
-                    #     vertex_normal_sum_vectors[vertex_index],
-                    #     list(vertex_normal_sum_vectors[vertex_index]),
-                    # )
-            shape_key_name_to_vertex_normal_vectors[shape_key_name] = [
-                Vector((0, 0, 0))
-                if vector.length_squared < float_info.epsilon
-                else vector.normalized()
-                for vector in vertex_normal_sum_vectors
-            ]
-
-        reference_vertex_normal_vectors = shape_key_name_to_vertex_normal_vectors[
-            reference_key_name
+        # logger.error("  refkey=%s key=%s", reference_key_name, shape_key_name)
+        # Use split (loop) normals instead of vertex normals
+        # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1129
+        vertex_normal_sum_vectors = [Vector([0.0, 0.0, 0.0])] * len(mesh_data.vertices)
+        for loop_triangle in mesh_data.loop_triangles:
+            # logger.error("    loop_triangle mat=%s", loop_triangle.material_index)
+            for vertex_index, normal in zip(
+                loop_triangle.vertices, loop_triangle.split_normals
+            ):
+                # logger.error(
+                #     "      vindex=%s normal=%s",
+                #     vertex_index,
+                #     normal,
+                # )
+                if vertex_index in no_morph_normal_export_vertex_indices:
+                    # logger.error("      EXCLUDE")
+                    continue
+                if not (0 <= vertex_index < len(vertex_normal_sum_vectors)):
+                    # logger.error("      OUT OF RANGE")
+                    continue
+                vertex_normal_sum_vectors[vertex_index] = (
+                    # Normally we would use the += operator, but for some
+                    # reason the result changes so we don't use it
+                    vertex_normal_sum_vectors[vertex_index] + Vector(normal)
+                )
+                # logger.error(
+                #     "      => %s:%s",
+                #     vertex_normal_sum_vectors[vertex_index],
+                #     list(vertex_normal_sum_vectors[vertex_index]),
+                # )
+        return [
+            Vector((0, 0, 0))
+            if vector.length_squared < float_info.epsilon
+            else vector.normalized()
+            for vector in vertex_normal_sum_vectors
         ]
 
+    @staticmethod
+    def create_vertex_index_to_morph_normal_diffs(
+        no_morph_normal_export_vertex_indices: set[int],
+        shape_key_mesh_data: Mesh,
+        reference_vertex_normal_vectors: list[Vector],
+    ) -> tuple[tuple[float, float, float], ...]:
+        vertex_normal_vectors = Vrm0Exporter.create_export_vertex_normal_vectors(
+            no_morph_normal_export_vertex_indices,
+            shape_key_mesh_data,
+        )
+
         # Collect normal differences from reference key for each shape key
-        shape_key_name_to_vertex_index_to_morph_normal_diffs: dict[
-            str, tuple[tuple[float, float, float], ...]
-        ] = {}
 
         # logger.error("REFERENCE_KEY: %s", mesh_data.shape_keys.reference_key.name)
         # for v in reference_vertex_normal_vectors:
@@ -3780,15 +3856,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         #         logger.error("  %s", v)
 
         # logger.error("RESULT:")
-        for (
-            shape_key_name,
-            vertex_normal_vectors,
-        ) in shape_key_name_to_vertex_normal_vectors.items():
-            if shape_key_name == reference_key_name:
-                continue
-            vertex_index_to_morph_normal_diffs: tuple[
-                tuple[float, float, float], ...
-            ] = tuple(
+        vertex_index_to_morph_normal_diffs: tuple[tuple[float, float, float], ...] = (
+            tuple(
                 (
                     vertex_normal_vector.x - reference_vertex_normal_vector.x,
                     vertex_normal_vector.y - reference_vertex_normal_vector.y,
@@ -3799,15 +3868,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     reference_vertex_normal_vectors,
                 )
             )
-            # logger.error(
-            #     "  %s:%s",
-            #     shape_key_name,
-            #     vertex_index_to_morph_normal_diffs,
-            # )
-            shape_key_name_to_vertex_index_to_morph_normal_diffs[shape_key_name] = (
-                vertex_index_to_morph_normal_diffs
-            )
-        return shape_key_name_to_vertex_index_to_morph_normal_diffs
+        )
+        # logger.error(
+        #     "  %s:%s",
+        #     shape_key_name,
+        #     vertex_index_to_morph_normal_diffs,
+        # )
+        return vertex_index_to_morph_normal_diffs
 
     def have_skin(self, mesh: Object) -> bool:
         # TODO: This method has false positives but is kept as-is for compatibility.
