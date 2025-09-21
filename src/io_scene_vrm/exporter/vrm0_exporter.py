@@ -2484,7 +2484,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         vertex_attributes_and_targets: VertexAttributeAndTargets,
         *,
         have_skin: bool,
-        no_morph_normal_export: bool,
     ) -> int:
         texcoord = None
         if uv_layer:
@@ -2631,10 +2630,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 )
             else:
                 targets_position.append((0, 0, 0))
-
-            if no_morph_normal_export:
-                targets_normal.append((0, 0, 0))
-                continue
 
             if shape_key_name_to_vertex_index_to_morph_normal_diffs is None:
                 targets_normal.append((0, 0, 0))
@@ -2844,26 +2839,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if (material_ref := material_slot.material) and material_ref.name
         }
 
-        no_morph_normal_export_material_indices: set[int] = set()
-        material_name: Optional[str] = None
-        material_index: Optional[int] = None
-        for material_name, material_index in material_name_to_material_index.items():
-            material = bpy.data.materials.get(material_name)
-            if not material:
-                continue
-
-            mtoon1 = get_material_extension(material).mtoon1
-            if mtoon1.export_shape_key_normals:
-                continue
-
-            if mtoon1.enabled:
-                no_morph_normal_export_material_indices.add(material_index)
-                continue
-
-            _, legacy_shader_name = search.legacy_shader_node(material)
-            if legacy_shader_name == "MToon_unversioned":
-                no_morph_normal_export_material_indices.add(material_index)
-
         shape_key_name_to_vertex_index_to_morph_normal_diffs = None
         if original_shape_keys and shape_key_name_to_mesh_data:
             shape_key_name_to_vertex_index_to_morph_normal_diffs = (
@@ -2909,9 +2884,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     material_dicts, extensions_vrm_material_property_dicts
                 )
 
-            no_morph_normal_export = (
-                material_index in no_morph_normal_export_material_indices
-            )
             vertex_indices = material_index_to_vertex_indices.get(material_index)
             if vertex_indices is None:
                 vertex_indices = bytearray()
@@ -2933,7 +2905,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     shape_key_name_to_vertex_index_to_morph_normal_diffs,
                     vertex_attributes_and_targets,
                     have_skin=have_skin,
-                    no_morph_normal_export=no_morph_normal_export,
                 )
 
                 vertex_indices.extend(vertex_indices_struct.pack(vertex_index))
