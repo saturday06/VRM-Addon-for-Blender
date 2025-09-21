@@ -10,8 +10,8 @@ bl_info = {
     "author": "saturday06, iCyP",
     "version": (
         3,  # x-release-please-major
-        13,  # x-release-please-minor
-        3,  # x-release-please-patch
+        14,  # x-release-please-minor
+        0,  # x-release-please-patch
     ),
     "location": "File > Import-Export",
     "description": "Import-Edit-Export VRM",
