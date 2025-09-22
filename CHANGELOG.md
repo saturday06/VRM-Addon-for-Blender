@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.14.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.13.3...v3.14.0) (2025-09-22)
+
+
+### 🚀 Features
+
+* make VRM 1.0 the default for the third anniversary ([dd490e9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/dd490e9c4d6d9ae91f2bfebf2dfd0009ab80fdf5))
+
 ## [3.13.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.13.2...v3.13.3) (2025-09-14)
 
 
