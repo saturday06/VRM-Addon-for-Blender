@@ -173,7 +173,7 @@ wheels = [
 
 [[package]]
 name = "io-scene-vrm"
-version = "3.13.3"
+version = "3.14.0"
 source = { editable = "." }
 dependencies = [
     { name = "bpy", marker = "(platform_machine == 'arm64' and sys_platform == 'darwin') or (platform_machine == 'x86_64' and sys_platform == 'darwin') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
@@ -384,7 +384,7 @@ wheels = [
 
 [[package]]
 name = "starry-bpy-typings"
-version = "3.13.3"
+version = "3.14.0"
 source = { directory = "typings" }
 
 [[package]]
