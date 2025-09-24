@@ -8,12 +8,46 @@
     "CHANGELOG.md"
   ],
   "tasks": {
-    "docs:build": "deno        run --allow-env --allow-ffi             --allow-read --allow-run --allow-sys --allow-write                         vitepress build docs",
-    "docs:dev": "deno          run --allow-env --allow-ffi --allow-net --allow-read --allow-run --allow-sys --allow-write                         vitepress dev docs",
-    "docs:preview": "deno      run --allow-env --allow-ffi --allow-net --allow-read --allow-run --allow-sys --allow-write                         vitepress preview docs",
-    "pyright": "uv run -- deno run --allow-env --allow-ffi             --allow-read --allow-run --allow-sys --allow-write --unstable-node-globals ./tools/pyright.cts --warnings",
-    "update-changelog": "deno  run --allow-env             --allow-net                                      --allow-write                         ./tools/update_changelog.ts saturday06/VRM-Addon-for-Blender",
-    "vrm-validator": "deno     run --allow-env                         --allow-read                                                               ./tools/vrm_validator.ts"
+    "docs:build": "deno run --permission-set=docs:build vitepress build docs",
+    "docs:dev": "deno run --permission-set=docs:dev vitepress dev docs",
+    "pyright": "uv run -- deno run --permission-set=pyright --unstable-node-globals ./tools/pyright.cts --warnings",
+    "update-changelog": "deno run --permission-set=update-changelog ./tools/update_changelog.ts saturday06/VRM-Addon-for-Blender",
+    "vrm-validator": "deno run --permission-set=vrm-validator ./tools/vrm_validator.ts"
+  },
+  "permissions": {
+    "docs:build": {
+      "env": true,
+      "ffi": true,
+      "read": true,
+      "run": true,
+      "sys": true,
+      "write": true
+    },
+    "docs:dev": {
+      "env": true,
+      "ffi": true,
+      "net": true,
+      "read": true,
+      "run": true,
+      "sys": true,
+      "write": true
+    },
+    "pyright": {
+      "env": true,
+      "ffi": true,
+      "read": true,
+      "run": true,
+      "sys": true,
+      "write": true
+    },
+    "update-changelog": {
+      "net": true,
+      "write": ["CHANGELOG.md"]
+    },
+    "vrm-validator": {
+      "env": ["BLENDER_VRM_TEST_RESOURCES_PATH"],
+      "read": ["."]
+    }
   },
   // Workaround for VitePress
   // https://github.com/denoland/deno/issues/20609#issuecomment-2762970307
