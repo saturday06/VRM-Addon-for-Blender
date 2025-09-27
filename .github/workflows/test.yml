@@ -73,7 +73,7 @@ jobs:
 
   test-macos:
     name: test-macos / ${{ matrix.blender.job_name_postfix }}
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       fail-fast: false
       matrix:
