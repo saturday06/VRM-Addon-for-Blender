@@ -638,7 +638,8 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
             if bind.index not in key_blocks:
                 continue
             if self.is_binary:
-                preview = 1.0 if self.preview > 0.0 else 0.0
+                # https://github.com/vrm-c/UniVRM/blob/38ccb92300c9ab41c72eb3d5b8dc8ce664a659d5/Assets/VRM/Runtime/BlendShape/BlendShapeMerger.cs#L89-L92
+                preview = 0.0 if self.preview < 0.5 else 1.0
             else:
                 preview = self.preview
             key_block_value = bind.weight * preview  # Lerp 0.0 * (1 - a) + weight * a

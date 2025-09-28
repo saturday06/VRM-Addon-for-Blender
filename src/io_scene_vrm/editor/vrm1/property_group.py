@@ -1155,7 +1155,8 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         shape_key_name_and_key_block_name_to_value: dict[tuple[str, str], float] = {}
         for name, expression in name_to_expression_dict.items():
             if expression.is_binary:
-                preview = 0.0 if expression.preview < float_info.epsilon else 1.0
+                # https://github.com/vrm-c/vrm-specification/blob/5b1071b9da1d60bb1bab0b70754615127fc43e9e/specification/VRMC_vrm-1.0/expressions.md?plain=1#L46
+                preview = 1.0 if expression.preview > 0.5 else 0.0
             else:
                 preview = expression.preview
 

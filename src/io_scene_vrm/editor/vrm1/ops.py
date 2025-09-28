@@ -2180,7 +2180,7 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
                     if axis == "X":  # Offset UV as expected
                         driver.expression = (
                             f"{property_name}_{axis.lower()} * (1.0 if is_binary and "
-                            " preview >= 0.5 else (0.0 if is_binary else preview))"
+                            " preview > 0.5 else (0.0 if is_binary else preview))"
                         )
                     else:
                         # Offset UV in the opposite direction
@@ -2192,7 +2192,7 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
                             "      else (1 - scale_y) "
                             "    ) "
                             " ) "
-                            " * (1.0 if is_binary and preview >= 0.5 "
+                            " * (1.0 if is_binary and preview > 0.5 "
                             "    else (0.0 if is_binary else preview) "
                             " ) "
                             " - (0 if scale_y == 1 else 1)"
@@ -2201,14 +2201,14 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
                     driver.expression = (
                         f"({property_name}_{axis.lower()} - 1) * "
                         "  ( "
-                        "    1.0 if is_binary and preview >= 0.5 "
+                        "    1.0 if is_binary and preview > 0.5 "
                         "    else (0.0 if is_binary else preview) "
                         "  )"
                     )
                 else:
                     driver.expression = (
                         f"-(2 - {property_name}_{axis.lower()} - 1) "
-                        " * (1.0 if is_binary and preview >= 0.5 "
+                        " * (1.0 if is_binary and preview > 0.5 "
                         "    else (0.0 if is_binary else preview) "
                         "   )"
                     )
