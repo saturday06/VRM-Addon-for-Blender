@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.14.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.14.0...v3.14.1) (2025-09-28)
+
+
+### 🐛 Bug Fixes
+
+* adjusted the change threshold for previews of expressions with isBinary enabled ([f2ffac3](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f2ffac37b538601a84ca24fb5455a0fa5cb5ed47))
+
 ## [3.14.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.13.3...v3.14.0) (2025-09-22)
 
 
