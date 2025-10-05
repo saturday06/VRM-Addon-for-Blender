@@ -32,9 +32,12 @@ dev = [
   "vncdotool ==1.2.0",
 ]
 
+[tool.uv.workspace]
+members = ["typings"]
+
 [tool.uv.sources]
 bpy = {index = "download.blender.org"}
-starry-bpy-typings = {path = "typings"}
+starry-bpy-typings = {workspace = true}
 
 [[tool.uv.index]]
 name = "download.blender.org"

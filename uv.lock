@@ -9,6 +9,12 @@ resolution-markers = [
     "(platform_machine != 'arm64' and platform_machine != 'x86_64' and sys_platform == 'darwin') or (platform_machine != 'x86_64' and sys_platform == 'linux') or (platform_machine != 'AMD64' and sys_platform == 'win32') or (sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
 ]
 
+[manifest]
+members = [
+    "io-scene-vrm",
+    "starry-bpy-typings",
+]
+
 [[package]]
 name = "attrs"
 version = "25.3.0"
@@ -209,7 +215,7 @@ dev = [
     { name = "pyrefly", specifier = "==0.33.1" },
     { name = "requests", specifier = "==2.32.5" },
     { name = "ruff", specifier = "==0.13.1" },
-    { name = "starry-bpy-typings", directory = "typings" },
+    { name = "starry-bpy-typings", editable = "typings" },
     { name = "tqdm", specifier = "==4.67.1" },
     { name = "ty", specifier = "==0.0.1a21" },
     { name = "types-pygit2", specifier = "==1.15.0.20250319" },
@@ -385,7 +391,7 @@ wheels = [
 [[package]]
 name = "starry-bpy-typings"
 version = "3.14.1"
-source = { directory = "typings" }
+source = { editable = "typings" }
 
 [[package]]
 name = "tomli"
