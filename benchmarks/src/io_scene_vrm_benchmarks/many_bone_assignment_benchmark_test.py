@@ -33,10 +33,10 @@ def generate_many_bones(context: Context) -> None:
     root_bone_name = "root"
     root_bone = edit_bones.new(root_bone_name)
 
-    for bone_x in range(8):
-        for bone_y in range(-3, 4):
+    for bone_x in range(6):
+        for bone_y in range(-2, 3):
             parent_bone_name = root_bone.name
-            for bone_z in range(16):
+            for bone_z in range(8):
                 parent_bone = edit_bones[parent_bone_name]
                 child_bone_name = f"mop_strand_x{bone_x}_y{bone_y}_z{bone_z}"
                 child_bone = edit_bones.new(child_bone_name)

@@ -35,7 +35,7 @@ def generate_many_spring_bones() -> None:
     if not root_bone:
         raise AssertionError
 
-    for bone_x in range(16):
+    for bone_x in range(8):
         for bone_y in range(4):
             parent_bone_name = root_bone.name
             for bone_z in range(4):

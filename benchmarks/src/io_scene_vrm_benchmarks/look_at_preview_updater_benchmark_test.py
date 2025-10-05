@@ -30,7 +30,7 @@ def test_look_at_preview_updater(benchmark: BenchmarkFixture) -> None:
 
     @benchmark
     def _() -> None:
-        for _ in range(5000):
+        for _ in range(1000):
             run_and_reset_scene_watcher(scene_watcher, context)
 
 

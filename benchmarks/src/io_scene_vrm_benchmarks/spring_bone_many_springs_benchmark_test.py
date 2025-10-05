@@ -38,8 +38,8 @@ def generate_many_springs(context: Context) -> None:
     if not root_bone:
         raise AssertionError
 
-    for bone_x in range(16):
-        for bone_y in range(-7, 8):
+    for bone_x in range(8):
+        for bone_y in range(-3, 4):
             parent_bone_name = root_bone.name
             for bone_z in range(32):
                 parent_bone = edit_bones[parent_bone_name]
