@@ -7,8 +7,7 @@ import bpy
 import requests
 from bpy.types import Context
 
-from io_scene_vrm.common import ops, version
-
+from io_scene_vrm.common import ops
 
 
 def benchmark_vrm0_import(context: Context) -> None:
