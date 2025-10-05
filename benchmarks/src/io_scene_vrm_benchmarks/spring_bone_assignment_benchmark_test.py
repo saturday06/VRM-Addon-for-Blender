@@ -92,7 +92,7 @@ def generate_many_spring_bones() -> None:
             mop_strand_bone = mop_strand_bone.children[0]
 
 
-def test_spring_bone(benchmark: BenchmarkFixture) -> None:
+def test_spring_bone_assignment(benchmark: BenchmarkFixture) -> None:
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     @benchmark
