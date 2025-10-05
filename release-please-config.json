@@ -45,6 +45,11 @@
         },
         {
           "type": "toml",
+          "path": "benchmarks/pyproject.toml",
+          "jsonpath": "$.project.version"
+        },
+        {
+          "type": "toml",
           "path": "typings/pyproject.toml",
           "jsonpath": "$.project.version"
         },
@@ -52,6 +57,11 @@
           "type": "toml",
           "path": "uv.lock",
           "jsonpath": "$.package[?(@.name.value == 'io-scene-vrm')].version"
+        },
+        {
+          "type": "toml",
+          "path": "uv.lock",
+          "jsonpath": "$.package[?(@.name.value == 'io-scene-vrm-benchmarks')].version"
         },
         {
           "type": "toml",

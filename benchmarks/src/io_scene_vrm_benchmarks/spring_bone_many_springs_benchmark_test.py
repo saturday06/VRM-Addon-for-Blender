@@ -1,41 +1,47 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-import cProfile
-from pstats import SortKey, Stats
+from pathlib import Path
 
 import bpy
-from bpy.types import Armature, Context, Object
+import pytest
+from bpy.types import Armature, Context
 from mathutils import Vector
+from pytest_codspeed.plugin import BenchmarkFixture
 
-from io_scene_vrm.common import ops, version
+from io_scene_vrm.common import ops
 from io_scene_vrm.editor.extension import (
-    VrmAddonArmatureExtensionPropertyGroup,
     get_armature_extension,
 )
-
-addon_version = version.get_addon_version()
-spec_version = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1
+from io_scene_vrm.editor.spring_bone1.handler import update_pose_bone_rotations
 
 
-def generate_many_spring_bones(armature_object: Object) -> None:
-    if not (armature := armature_object.data) or not isinstance(armature, Armature):
+def generate_many_springs(context: Context) -> None:
+    ops.icyp.make_basic_armature()
+
+    armature_object = context.object
+    if not armature_object:
+        raise AssertionError
+    armature_data = armature_object.data
+    if not isinstance(armature_data, Armature):
         raise TypeError
 
-    ext = get_armature_extension(armature)
+    context.view_layer.objects.active = armature_object
+
+    ext = get_armature_extension(armature_data)
     ext.spec_version = ext.SPEC_VERSION_VRM1
     spring_bone1 = ext.spring_bone1
 
     bpy.ops.object.mode_set(mode="EDIT")
 
-    edit_bones = armature.edit_bones
+    edit_bones = armature_data.edit_bones
     root_bone_name = "hand.R"
     root_bone = edit_bones.get(root_bone_name)
     if not root_bone:
         raise AssertionError
 
     for bone_x in range(16):
-        for bone_y in range(4):
+        for bone_y in range(-7, 8):
             parent_bone_name = root_bone.name
-            for bone_z in range(4):
+            for bone_z in range(32):
                 parent_bone = edit_bones[parent_bone_name]
                 child_bone_name = f"mop_strand_x{bone_x}_y{bone_y}_z{bone_z}"
                 child_bone = edit_bones.new(child_bone_name)
@@ -61,7 +67,7 @@ def generate_many_spring_bones(armature_object: Object) -> None:
     for root_mop_strand_bone in [
         b
         for b in armature_object.pose.bones
-        if (p := b.parent) and p.name == root_bone_name
+        if b.parent and b.parent.name == root_bone_name
     ]:
         spring_index = len(spring_bone1.springs)
 
@@ -89,24 +95,45 @@ def generate_many_spring_bones(armature_object: Object) -> None:
             mop_strand_bone = mop_strand_bone.children[0]
 
 
-def benchmark_spring_bone(context: Context) -> None:
+def test_spring_bone_many_springs(benchmark: BenchmarkFixture) -> None:
+    context = bpy.context
+
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
-    bpy.ops.wm.read_homefile(use_empty=True)
 
-    ops.icyp.make_basic_armature()
+    version_str = "_".join(map(str, tuple(bpy.app.version)))
+    path = (
+        Path(__file__).parent.parent.parent
+        / "temp"
+        / f"spring_bone_many_springs_{version_str}.blend"
+    )
+    if not path.exists():
+        bpy.ops.wm.read_homefile(use_empty=True)
+        generate_many_springs(context)
+        context.view_layer.update()
+        bpy.ops.wm.save_as_mainfile(filepath=str(path))
+        bpy.ops.wm.read_homefile(use_empty=True)
+    bpy.ops.wm.open_mainfile(filepath=str(path))
 
-    armature = context.object
-    if not armature:
+    armature = context.blend_data.objects.get("Armature")
+    if (
+        not armature
+        or not (armature_data := armature.data)
+        or not isinstance(armature_data, Armature)
+    ):
         raise AssertionError
 
-    bpy.context.view_layer.objects.active = armature
+    get_armature_extension(armature_data).spring_bone1.enable_animation = True
 
-    profiler = cProfile.Profile()
-    with profiler:
-        generate_many_spring_bones(armature)
+    context.view_layer.update()
+    update_pose_bone_rotations(context, delta_time=1.0 / 24.0)
+    armature.location = Vector((1, 0.25, 0.25))
+    context.view_layer.update()
 
-    Stats(profiler).sort_stats(SortKey.TIME).print_stats(50)
+    @benchmark
+    def _() -> None:
+        for _ in range(10):
+            update_pose_bone_rotations(context, delta_time=1.0 / 24.0)
 
 
 if __name__ == "__main__":
-    benchmark_spring_bone(bpy.context)
+    pytest.main()

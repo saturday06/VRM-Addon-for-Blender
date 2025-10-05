@@ -12,6 +12,7 @@
 /docs/.vitepress/cache/
 /docs/.vitepress/dist/
 /node_modules/
+/benchmarks/.codspeed/
 /benchmarks/temp/*
 /extension_output/
 /release_output/

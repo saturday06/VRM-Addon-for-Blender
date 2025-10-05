@@ -20,6 +20,7 @@ dependencies = [
 [dependency-groups]
 dev = [
   "codespell ==2.4.1",
+  "io-scene-vrm-benchmarks",
   "pygit2 ==1.18.2",
   "pyrefly ==0.33.1",
   "requests ==2.32.5",
@@ -33,10 +34,11 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["typings"]
+members = ["benchmarks", "typings"]
 
 [tool.uv.sources]
 bpy = {index = "download.blender.org"}
+io-scene-vrm-benchmarks = {workspace = true}
 starry-bpy-typings = {workspace = true}
 
 [[tool.uv.index]]

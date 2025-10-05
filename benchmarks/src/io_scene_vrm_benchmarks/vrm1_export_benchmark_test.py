@@ -1,25 +1,26 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-import cProfile
 from os import environ
 from pathlib import Path
-from pstats import SortKey, Stats
 
 import bpy
+import pytest
 import requests
-from bpy.types import Context
+from pytest_codspeed.plugin import BenchmarkFixture
 
 from io_scene_vrm.common import ops
 
 
-def benchmark_vrm0_export(context: Context) -> None:
+def test_vrm0_export(benchmark: BenchmarkFixture) -> None:
+    context = bpy.context
+
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     environ["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
-    blend_path = Path(__file__).parent / "temp" / "vrm1_export.blend"
+    blend_path = Path(__file__).parent.parent.parent / "temp" / "vrm1_export.blend"
     if not blend_path.exists():
         bpy.ops.wm.read_homefile(use_empty=True)
         url = "https://raw.githubusercontent.com/vrm-c/vrm-specification/c24d76d99a18738dd2c266be1c83f089064a7b5e/samples/Seed-san/vrm/Seed-san.vrm"
-        path = Path(__file__).parent / "temp" / "Seed-san.vrm"
+        path = blend_path.with_name("Seed-san.vrm")
         if not path.exists():
             with requests.get(url, timeout=5 * 60) as response:
                 assert response.ok
@@ -29,15 +30,13 @@ def benchmark_vrm0_export(context: Context) -> None:
         bpy.ops.wm.read_homefile(use_empty=True)
     bpy.ops.wm.open_mainfile(filepath=str(blend_path))
 
-    export_path = Path(__file__).parent / "temp" / "vrm1_export.vrm"
+    export_path = blend_path.with_name("vrm1_export.vrm")
 
-    profiler = cProfile.Profile()
-    with profiler:
+    @benchmark
+    def _() -> None:
         assert ops.export_scene.vrm(filepath=str(export_path)) == {"FINISHED"}
         context.view_layer.update()
 
-    Stats(profiler).sort_stats(SortKey.TIME).print_stats(50)
-
 
 if __name__ == "__main__":
-    benchmark_vrm0_export(bpy.context)
+    pytest.main()
