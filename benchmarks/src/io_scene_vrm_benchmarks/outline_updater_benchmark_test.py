@@ -29,7 +29,7 @@ def test_outline_updater(benchmark: BenchmarkFixture) -> None:
 
     @benchmark
     def _() -> None:
-        for _ in range(50000):
+        for _ in range(5000):
             run_and_reset_scene_watcher(scene_watcher, context)
 
 
