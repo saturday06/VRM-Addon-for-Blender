@@ -21,10 +21,7 @@ jobs:
       - uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # v2.0.3
         with:
           deno-version-file: .dvmrc
-      - name: Install UV
-        run: |
-          curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
-          echo "${HOME}/.cargo/bin" >> "$GITHUB_PATH"
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
       - name: Install UV dependencies
         run: |
           for _ in $(seq 5); do
