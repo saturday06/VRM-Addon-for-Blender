@@ -534,7 +534,10 @@ def load_mtoon1_shader(
 
 
 def copy_socket(from_socket: NodeSocket, to_socket: NodeSocket) -> None:
-    if to_socket.display_shape != from_socket.display_shape:
+    if (
+        bpy.app.version < (5, 0)
+        and to_socket.display_shape != from_socket.display_shape
+    ):
         to_socket.display_shape = from_socket.display_shape
     if to_socket.enabled != from_socket.enabled:
         to_socket.enabled = from_socket.enabled
