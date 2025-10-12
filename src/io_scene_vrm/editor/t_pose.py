@@ -541,7 +541,7 @@ class PoseBonePose:
                 rotation_euler=bone.rotation_euler.copy(),
                 scale=bone.scale.copy(),
                 location=bone.location.copy(),
-                bone_select=bone.bone.select,
+                bone_select=(bone.bone.select if bpy.app.version < (5, 0) else False),
             )
             for bone in pose.bones
         }
@@ -569,7 +569,8 @@ class PoseBonePose:
                 bone.rotation_euler = pose_bone_pose.rotation_euler.copy()
                 bone.scale = pose_bone_pose.scale.copy()
                 bone.location = pose_bone_pose.location.copy()
-                bone.bone.select = pose_bone_pose.bone_select
+                if bpy.app.version < (5, 0):
+                    bone.bone.select = pose_bone_pose.bone_select
             bones.extend(bone.children)
 
         context.view_layer.update()
@@ -655,8 +656,9 @@ def setup_humanoid_t_pose(
 
         saved_pose_bone_pose = PoseBonePose.save(armature.pose)
 
-        for bone in armature.pose.bones:
-            bone.bone.select = False
+        if bpy.app.version < (5, 0):
+            for bone in armature.pose.bones:
+                bone.bone.select = False
 
         ext = get_armature_extension(armature_data)
         saved_vrm1_look_at_preview = ext.vrm1.look_at.enable_preview
