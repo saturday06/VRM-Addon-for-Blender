@@ -76,7 +76,7 @@ New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blen
 #### Linux
 
 ```sh
-blender_version=4.5
+blender_version=3.6
 mkdir -p "$HOME/.config/blender/$blender_version/scripts/addons"
 ln -Ts "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/scripts/addons/io_scene_vrm"
 ```
@@ -84,7 +84,7 @@ ln -Ts "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/scripts/a
 #### macOS
 
 ```sh
-blender_version=4.5
+blender_version=3.6
 mkdir -p "$HOME/Library/Application Support/Blender/$blender_version/scripts/addons"
 ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/$blender_version/scripts/addons/io_scene_vrm"
 ```
@@ -92,7 +92,7 @@ ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/$blende
 #### Windows PowerShell
 
 ```powershell
-$blenderVersion = "4.5"
+$blenderVersion = "3.6"
 New-Item -ItemType Directory -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\scripts\addons" -Force
 New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\scripts\addons\io_scene_vrm" -Value "$(Get-Location)\src\io_scene_vrm"
 ```
@@ -171,7 +171,7 @@ New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blen
 #### Linux
 
 ```sh
-blender_version=4.5
+blender_version=3.6
 mkdir -p "$HOME/.config/blender/$blender_version/scripts/addons"
 ln -Ts "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/scripts/addons/io_scene_vrm"
 ```
@@ -179,7 +179,7 @@ ln -Ts "$PWD/src/io_scene_vrm" "$HOME/.config/blender/$blender_version/scripts/a
 #### macOS
 
 ```sh
-blender_version=4.5
+blender_version=3.6
 mkdir -p "$HOME/Library/Application Support/Blender/$blender_version/scripts/addons"
 ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/$blender_version/scripts/addons/io_scene_vrm"
 ```
@@ -187,7 +187,7 @@ ln -s "$PWD/src/io_scene_vrm" "$HOME/Library/Application Support/Blender/$blende
 #### Windows PowerShell
 
 ```powershell
-$blenderVersion = "4.5"
+$blenderVersion = "3.6"
 New-Item -ItemType Directory -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\scripts\addons" -Force
 New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blenderVersion\scripts\addons\io_scene_vrm" -Value "$(Get-Location)\src\io_scene_vrm"
 ```
