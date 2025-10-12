@@ -9,10 +9,10 @@ from bpy.types import (
     Image,
     Material,
     NodeReroute,
+    PropertyGroup,
     ShaderNodeGroup,
     ShaderNodeTexImage,
 )
-from idprop.types import IDPropertyGroup
 
 from ...common import convert, ops, shader, version
 from ...common.gl import GL_LINEAR, GL_NEAREST
@@ -104,25 +104,11 @@ def migrate_material(
     if not node_tree:
         return
 
-    vrm_addon_extension = material.get("vrm_addon_extension")
-    if not isinstance(vrm_addon_extension, IDPropertyGroup):
-        return
-
-    mtoon1 = vrm_addon_extension.get("mtoon1")
-    if not isinstance(mtoon1, IDPropertyGroup):
-        return
-
+    mtoon1 = get_material_extension(material).mtoon1
     if not mtoon1.get("enabled"):
         return
 
-    extensions = mtoon1.get("extensions")
-    if not isinstance(extensions, IDPropertyGroup):
-        return
-
-    vrmc_materials_mtoon = extensions.get("vrmc_materials_mtoon")
-    if not isinstance(vrmc_materials_mtoon, IDPropertyGroup):
-        return
-
+    vrmc_materials_mtoon = mtoon1.extensions.vrmc_materials_mtoon
     if vrmc_materials_mtoon.get("is_outline_material"):
         return
 
@@ -207,27 +193,21 @@ def migrate_material(
     uv_animation_scroll_y_speed_factor: Optional[float] = None
     uv_animation_rotation_speed_factor: Optional[float] = None
     if addon_version < (2, 20, 62):
-        pbr_metallic_roughness = mtoon1.get("pbr_metallic_roughness")
-        if isinstance(pbr_metallic_roughness, IDPropertyGroup):
-            base_color_factor = convert.float4_or_none(
-                pbr_metallic_roughness.get("base_color_factor")
-            )
-            base_color_texture_backup = backup_texture_info(
-                pbr_metallic_roughness.get("base_color_texture")
-            )
-        normal_texture = mtoon1.get("normal_texture")
-        normal_texture_backup = backup_texture_info(normal_texture)
-        if isinstance(normal_texture, IDPropertyGroup):
-            normal_texture_scale = convert.float_or_none(normal_texture.get("scale"))
-        emissive_factor = convert.float3_or_none(mtoon1.get("emissive_factor"))
-        emissive_texture_backup = backup_texture_info(mtoon1.get("emissive_texture"))
-        khr_materials_emissive_strength = extensions.get(
-            "khr_materials_emissive_strength"
+        pbr_metallic_roughness = mtoon1.pbr_metallic_roughness
+        base_color_factor = convert.float4_or_none(
+            pbr_metallic_roughness.get("base_color_factor")
         )
-        if isinstance(khr_materials_emissive_strength, IDPropertyGroup):
-            emissive_strength = convert.float_or_none(
-                khr_materials_emissive_strength.get("emissive_strength")
-            )
+        base_color_texture_backup = backup_texture_info(
+            pbr_metallic_roughness.base_color_texture
+        )
+        normal_texture = mtoon1.normal_texture
+        normal_texture_backup = backup_texture_info(normal_texture)
+        normal_texture_scale = convert.float_or_none(normal_texture.get("scale"))
+        emissive_factor = convert.float3_or_none(mtoon1.get("emissive_factor"))
+        emissive_texture_backup = backup_texture_info(mtoon1.emissive_texture)
+        emissive_strength = convert.float_or_none(
+            mtoon1.extensions.khr_materials_emissive_strength.get("emissive_strength")
+        )
 
         transparent_with_z_write_object = vrmc_materials_mtoon.get(
             "transparent_with_z_write"
@@ -242,18 +222,17 @@ def migrate_material(
             render_queue_offset_number = render_queue_offset_number_object
 
         shade_multiply_texture_backup = backup_texture_info(
-            vrmc_materials_mtoon.get("shade_multiply_texture")
+            vrmc_materials_mtoon.shade_multiply_texture
         )
         shade_color_factor = convert.float3_or_none(
             vrmc_materials_mtoon.get("shade_color_factor")
         )
 
-        shading_shift_texture = vrmc_materials_mtoon.get("shading_shift_texture")
+        shading_shift_texture = vrmc_materials_mtoon.shading_shift_texture
         shading_shift_texture_backup = backup_texture_info(shading_shift_texture)
-        if isinstance(shading_shift_texture, IDPropertyGroup):
-            shading_shift_texture_scale = convert.float_or_none(
-                shading_shift_texture.get("scale")
-            )
+        shading_shift_texture_scale = convert.float_or_none(
+            shading_shift_texture.get("scale")
+        )
 
         shading_shift_factor = convert.float_or_none(
             vrmc_materials_mtoon.get("shading_shift_factor")
@@ -264,9 +243,7 @@ def migrate_material(
         matcap_factor = convert.float3_or_none(
             vrmc_materials_mtoon.get("matcap_factor")
         )
-        matcap_texture_backup = backup_texture_info(
-            vrmc_materials_mtoon.get("matcap_texture")
-        )
+        matcap_texture_backup = backup_texture_info(vrmc_materials_mtoon.matcap_texture)
         gi_equalization_factor = convert.float_or_none(
             vrmc_materials_mtoon.get("gi_equalization_factor")
         )
@@ -274,7 +251,7 @@ def migrate_material(
             vrmc_materials_mtoon.get("parametric_rim_color_factor")
         )
         rim_multiply_texture_backup = backup_texture_info(
-            vrmc_materials_mtoon.get("rim_multiply_texture")
+            vrmc_materials_mtoon.rim_multiply_texture
         )
         rim_lighting_mix_factor = convert.float_or_none(
             vrmc_materials_mtoon.get("rim_lighting_mix_factor")
@@ -298,7 +275,7 @@ def migrate_material(
             vrmc_materials_mtoon.get("outline_width_factor")
         )
         outline_width_multiply_texture_backup = backup_texture_info(
-            vrmc_materials_mtoon.get("outline_width_multiply_texture")
+            vrmc_materials_mtoon.outline_width_multiply_texture
         )
         outline_color_factor = convert.float3_or_none(
             vrmc_materials_mtoon.get("outline_color_factor")
@@ -307,7 +284,7 @@ def migrate_material(
             vrmc_materials_mtoon.get("outline_lighting_mix_factor")
         )
         uv_animation_mask_texture_backup = backup_texture_info(
-            vrmc_materials_mtoon.get("uv_animation_mask_texture")
+            vrmc_materials_mtoon.uv_animation_mask_texture
         )
         uv_animation_scroll_x_speed_factor = convert.float_or_none(
             vrmc_materials_mtoon.get("uv_animation_scroll_x_speed_factor")
@@ -329,118 +306,103 @@ def migrate_material(
         )
 
     # From this point on, you can write code that assumes the shader node is up to date.
-    typed_mtoon1 = get_material_extension(material).mtoon1
-    typed_vrmc_materials_mtoon = typed_mtoon1.extensions.vrmc_materials_mtoon
+    vrmc_materials_mtoon = mtoon1.extensions.vrmc_materials_mtoon
     if alpha_mode is not None:
-        typed_mtoon1.alpha_mode = alpha_mode
+        mtoon1.alpha_mode = alpha_mode
     if alpha_cutoff is not None:
-        typed_mtoon1.alpha_cutoff = alpha_cutoff
+        mtoon1.alpha_cutoff = alpha_cutoff
     if base_color_factor is not None:
-        typed_mtoon1.pbr_metallic_roughness.base_color_factor = base_color_factor
+        mtoon1.pbr_metallic_roughness.base_color_factor = base_color_factor
     if base_color_texture_backup is not None:
-        typed_mtoon1.pbr_metallic_roughness.base_color_texture.restore(
+        mtoon1.pbr_metallic_roughness.base_color_texture.restore(
             base_color_texture_backup
         )
     if normal_texture_backup is not None:
-        typed_mtoon1.normal_texture.restore(normal_texture_backup)
+        mtoon1.normal_texture.restore(normal_texture_backup)
     if normal_texture_scale is not None:
-        typed_mtoon1.normal_texture.scale = normal_texture_scale
+        mtoon1.normal_texture.scale = normal_texture_scale
     if emissive_texture_backup is not None:
-        typed_mtoon1.emissive_texture.restore(emissive_texture_backup)
+        mtoon1.emissive_texture.restore(emissive_texture_backup)
     if emissive_factor is not None:
-        typed_mtoon1.emissive_factor = emissive_factor
+        mtoon1.emissive_factor = emissive_factor
     if emissive_strength is not None:
-        typed_mtoon1.extensions.khr_materials_emissive_strength.emissive_strength = (
+        mtoon1.extensions.khr_materials_emissive_strength.emissive_strength = (
             emissive_strength
         )
 
     if transparent_with_z_write is not None:
-        typed_vrmc_materials_mtoon.transparent_with_z_write = transparent_with_z_write
+        vrmc_materials_mtoon.transparent_with_z_write = transparent_with_z_write
     if render_queue_offset_number is not None:
-        typed_vrmc_materials_mtoon.render_queue_offset_number = (
-            render_queue_offset_number
-        )
+        vrmc_materials_mtoon.render_queue_offset_number = render_queue_offset_number
     if shade_multiply_texture_backup is not None:
-        typed_vrmc_materials_mtoon.shade_multiply_texture.restore(
+        vrmc_materials_mtoon.shade_multiply_texture.restore(
             shade_multiply_texture_backup
         )
     if shade_color_factor is not None:
-        typed_vrmc_materials_mtoon.shade_color_factor = shade_color_factor
+        vrmc_materials_mtoon.shade_color_factor = shade_color_factor
     if shading_shift_texture_backup is not None:
-        typed_vrmc_materials_mtoon.shading_shift_texture.restore(
-            shading_shift_texture_backup
-        )
+        vrmc_materials_mtoon.shading_shift_texture.restore(shading_shift_texture_backup)
     if shading_shift_factor is not None:
-        typed_vrmc_materials_mtoon.shading_shift_factor = shading_shift_factor
+        vrmc_materials_mtoon.shading_shift_factor = shading_shift_factor
     if shading_shift_texture_scale is not None:
-        typed_vrmc_materials_mtoon.shading_shift_texture.scale = (
-            shading_shift_texture_scale
-        )
+        vrmc_materials_mtoon.shading_shift_texture.scale = shading_shift_texture_scale
     if shading_toony_factor is not None:
-        typed_vrmc_materials_mtoon.shading_toony_factor = shading_toony_factor
+        vrmc_materials_mtoon.shading_toony_factor = shading_toony_factor
     if gi_equalization_factor is not None:
-        typed_vrmc_materials_mtoon.gi_equalization_factor = gi_equalization_factor
+        vrmc_materials_mtoon.gi_equalization_factor = gi_equalization_factor
     if matcap_factor is not None:
-        typed_vrmc_materials_mtoon.matcap_factor = matcap_factor
+        vrmc_materials_mtoon.matcap_factor = matcap_factor
     if matcap_texture_backup is not None:
-        typed_vrmc_materials_mtoon.matcap_texture.restore(matcap_texture_backup)
+        vrmc_materials_mtoon.matcap_texture.restore(matcap_texture_backup)
     if parametric_rim_color_factor is not None:
-        typed_vrmc_materials_mtoon.parametric_rim_color_factor = (
-            parametric_rim_color_factor
-        )
+        vrmc_materials_mtoon.parametric_rim_color_factor = parametric_rim_color_factor
     if rim_multiply_texture_backup is not None:
-        typed_vrmc_materials_mtoon.rim_multiply_texture.restore(
-            rim_multiply_texture_backup
-        )
+        vrmc_materials_mtoon.rim_multiply_texture.restore(rim_multiply_texture_backup)
     if rim_lighting_mix_factor is not None:
-        typed_vrmc_materials_mtoon.rim_lighting_mix_factor = rim_lighting_mix_factor
+        vrmc_materials_mtoon.rim_lighting_mix_factor = rim_lighting_mix_factor
     if parametric_rim_fresnel_power_factor is not None:
-        typed_vrmc_materials_mtoon.parametric_rim_fresnel_power_factor = (
+        vrmc_materials_mtoon.parametric_rim_fresnel_power_factor = (
             parametric_rim_fresnel_power_factor
         )
     if parametric_rim_lift_factor is not None:
-        typed_vrmc_materials_mtoon.parametric_rim_lift_factor = (
-            parametric_rim_lift_factor
-        )
+        vrmc_materials_mtoon.parametric_rim_lift_factor = parametric_rim_lift_factor
     if outline_width_mode is not None:
-        typed_vrmc_materials_mtoon.outline_width_mode = outline_width_mode
+        vrmc_materials_mtoon.outline_width_mode = outline_width_mode
     if outline_width_factor is not None:
-        typed_vrmc_materials_mtoon.outline_width_factor = outline_width_factor
+        vrmc_materials_mtoon.outline_width_factor = outline_width_factor
     if outline_width_multiply_texture_backup is not None:
-        typed_vrmc_materials_mtoon.outline_width_multiply_texture.restore(
+        vrmc_materials_mtoon.outline_width_multiply_texture.restore(
             outline_width_multiply_texture_backup
         )
     if outline_color_factor is not None:
-        typed_vrmc_materials_mtoon.outline_color_factor = outline_color_factor
+        vrmc_materials_mtoon.outline_color_factor = outline_color_factor
     if outline_lighting_mix_factor is not None:
-        typed_vrmc_materials_mtoon.outline_lighting_mix_factor = (
-            outline_lighting_mix_factor
-        )
+        vrmc_materials_mtoon.outline_lighting_mix_factor = outline_lighting_mix_factor
     if uv_animation_mask_texture_backup is not None:
-        typed_vrmc_materials_mtoon.uv_animation_mask_texture.restore(
+        vrmc_materials_mtoon.uv_animation_mask_texture.restore(
             uv_animation_mask_texture_backup
         )
     if uv_animation_scroll_x_speed_factor is not None:
-        typed_vrmc_materials_mtoon.uv_animation_scroll_x_speed_factor = (
+        vrmc_materials_mtoon.uv_animation_scroll_x_speed_factor = (
             uv_animation_scroll_x_speed_factor
         )
     if uv_animation_scroll_y_speed_factor is not None:
-        typed_vrmc_materials_mtoon.uv_animation_scroll_y_speed_factor = (
+        vrmc_materials_mtoon.uv_animation_scroll_y_speed_factor = (
             uv_animation_scroll_y_speed_factor
         )
     if uv_animation_rotation_speed_factor is not None:
-        typed_vrmc_materials_mtoon.uv_animation_rotation_speed_factor = (
+        vrmc_materials_mtoon.uv_animation_rotation_speed_factor = (
             uv_animation_rotation_speed_factor
         )
 
-    typed_mtoon1.setup_drivers()
+    mtoon1.setup_drivers()
     updated_addon_version = version.get_addon_version()
-    if tuple(typed_mtoon1.addon_version) != updated_addon_version:
-        typed_mtoon1.addon_version = updated_addon_version
+    if tuple(mtoon1.addon_version) != updated_addon_version:
+        mtoon1.addon_version = updated_addon_version
 
 
 def backup_texture_info(texture_info: object) -> Optional[TextureInfoBackup]:
-    if not isinstance(texture_info, IDPropertyGroup):
+    if not isinstance(texture_info, PropertyGroup):
         return None
 
     source: Optional[Image] = None
@@ -451,13 +413,13 @@ def backup_texture_info(texture_info: object) -> Optional[TextureInfoBackup]:
     scale_x = 1.0
     scale_y = 1.0
 
-    index = texture_info.get("index")
-    if isinstance(index, IDPropertyGroup):
+    index = getattr(texture_info, "index", None)
+    if isinstance(index, PropertyGroup):
         source_object = index.get("source")
         if isinstance(source_object, Image):
             source = source_object
-        sampler = index.get("sampler")
-        if isinstance(sampler, IDPropertyGroup):
+        sampler = getattr(index, "sampler", None)
+        if isinstance(sampler, PropertyGroup):
             wrap_s_number = sampler.get("wrap_s")
             if isinstance(wrap_s_number, int):
                 wrap_s = Mtoon1SamplerPropertyGroup.wrap_enum.value_to_identifier(
@@ -471,10 +433,10 @@ def backup_texture_info(texture_info: object) -> Optional[TextureInfoBackup]:
                     wrap_t,
                 )
 
-    extensions = texture_info.get("extensions")
-    if isinstance(extensions, IDPropertyGroup):
-        khr_texture_transform = extensions.get("khr_texture_transform")
-        if isinstance(khr_texture_transform, IDPropertyGroup):
+    extensions = getattr(texture_info, "extensions", None)
+    if isinstance(extensions, PropertyGroup):
+        khr_texture_transform = getattr(extensions, "khr_texture_transform", None)
+        if isinstance(khr_texture_transform, PropertyGroup):
             offset = convert.float2_or_none(khr_texture_transform.get("offset"))
             if offset is not None:
                 offset_x, offset_y = offset
@@ -498,13 +460,7 @@ def migrate_sampler_filter_node(material: Material) -> None:
     if not node_tree:
         return
 
-    vrm_addon_extension = material.get("vrm_addon_extension")
-    if not isinstance(vrm_addon_extension, IDPropertyGroup):
-        return
-
-    mtoon1 = vrm_addon_extension.get("mtoon1")
-    if not mtoon1:
-        return
+    mtoon1 = get_material_extension(material).mtoon1
 
     for node_name, attrs in [
         (
@@ -547,7 +503,7 @@ def migrate_sampler_filter_node(material: Material) -> None:
             (*attrs, "index", "sampler"),
             mtoon1,
         )
-        if not isinstance(sampler, IDPropertyGroup):
+        if not isinstance(sampler, PropertyGroup):
             continue
 
         mag_filter = sampler.get("mag_filter")
