@@ -20,11 +20,15 @@ def discover_and_run_test_suite(argv: list[str], stream: TextIO) -> int:
 
     parser = argparse.ArgumentParser(prog=Path(__file__).name)
     parser.add_argument("-f", "--failfast", action="store_true")
+    parser.add_argument("-p", "--pattern", default="test*.py")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
 
     test_loader = TestLoader()
-    test_suite = test_loader.discover(start_dir=str(Path(__file__).parent.parent))
+    test_suite = test_loader.discover(
+        start_dir=str(Path(__file__).parent.parent),
+        pattern=args.pattern,
+    )
     test_runner = TextTestRunner(
         stream=stream,
         failfast=args.failfast,
