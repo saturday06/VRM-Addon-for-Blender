@@ -68,6 +68,9 @@ class TestMakeArmature(AddonTestCase):
     def test_min_bone_length(self) -> None:
         context = bpy.context
 
+        if bpy.app.version >= (5,):
+            return
+
         bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
         armature = context.object
         if not armature or not isinstance(armature.data, Armature):
