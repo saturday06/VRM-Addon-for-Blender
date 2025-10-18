@@ -123,6 +123,9 @@ class __TestBlendExportBase(AddonTestCase):
             )
 
         if not expected_path.exists():
+            if update_failed_vrm:
+                expected_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy(src=actual_path, dst=expected_path)
             message = f"No expected result file: {expected_path}"
             raise FileNotFoundError(message)
 
