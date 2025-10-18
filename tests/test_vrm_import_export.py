@@ -92,7 +92,7 @@ class __TestVrmImportExportBase(AddonTestCase):
         if not expected_path.exists():
             update_failed_vrm = True
             expected_path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy(actual_path, expected_path)
+            shutil.copy(src=actual_path, dst=expected_path)
 
         diffs = vrm_diff(
             actual_bytes,
@@ -103,7 +103,7 @@ class __TestVrmImportExportBase(AddonTestCase):
             return
 
         if update_failed_vrm:
-            shutil.copy(actual_path, expected_path)
+            shutil.copy(src=actual_path, dst=expected_path)
 
         diffs_str = "\n".join(diffs)
         message = (

@@ -42,7 +42,7 @@ class TestMakeArmature(AddonTestCase):
             actual_path.unlink()
         ops.export_scene.vrm(filepath=str(actual_path))
         if not expected_path.exists():
-            shutil.copy(actual_path, expected_path)
+            shutil.copy(src=actual_path, dst=expected_path)
 
         float_tolerance = 0.000001
         diffs = vrm_diff(

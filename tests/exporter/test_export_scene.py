@@ -163,7 +163,7 @@ class __TestBlendExportBase(AddonTestCase):
             return
 
         if update_failed_vrm:
-            shutil.copy(actual_path, expected_path)
+            shutil.copy(src=actual_path, dst=expected_path)
 
         diffs_str = "\n".join(diffs)
         message = (
