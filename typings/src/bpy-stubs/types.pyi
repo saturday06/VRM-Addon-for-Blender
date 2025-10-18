@@ -1811,6 +1811,8 @@ class RenderSettings(bpy_struct):
 class World(ID):
     use_nodes: bool
     color: Color
+    @property
+    def node_tree(self) -> NodeTree | None: ...
 
 class CyclesRenderSettings(bpy_struct):
     # TODO: This class is sometimes not mentioned in the document

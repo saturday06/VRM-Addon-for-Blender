@@ -11,7 +11,7 @@ from typing import Final, Optional
 from unittest import SkipTest
 
 import bpy
-from bpy.types import Armature, Camera, Context
+from bpy.types import Armature, Camera, Context, ShaderNodeOutputWorld
 from mathutils import Color, Euler, Vector
 
 from io_scene_vrm.common import ops
@@ -71,10 +71,23 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
         if not world:
             world = context.blend_data.worlds.new(name="World")
             scene.world = world
-        world.use_nodes = False
-        world.color[0] = 0
-        world.color[1] = 0
-        world.color[2] = 0
+        if bpy.app.version >= (5,):
+            node_tree = world.node_tree
+            if node_tree:
+                while node := next(
+                    (
+                        node
+                        for node in node_tree.nodes
+                        if not isinstance(node, ShaderNodeOutputWorld)
+                    ),
+                    None,
+                ):
+                    node_tree.nodes.remove(node)
+        else:
+            world.use_nodes = False
+            world.color[0] = 0
+            world.color[1] = 0
+            world.color[2] = 0
 
         cls.add_camera(
             context,
