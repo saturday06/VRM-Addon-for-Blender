@@ -57,7 +57,7 @@ class __TestImportSceneBrokenVrmBase(AddonTestCase):
             # On Linux when built as a module, the draco library cannot be read
             # and causes an error
             success = False
-        elif bpy.app.version >= (4, 5) and vrm_path.name == "empty.vrm":
+        elif (4, 5) <= bpy.app.version < (5,) and vrm_path.name == "empty.vrm":
             success = False
 
         if success:
