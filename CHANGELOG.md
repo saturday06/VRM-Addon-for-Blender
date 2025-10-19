@@ -4,8 +4,9 @@
 
 
 ### 🚀 Features
-
-* trigger release workflow ([1e7293a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/1e7293a3f1f461635c4ad91f1875136162486b54))
+* streamlining the migration of old .blend files ([0065169](https://github.com/saturday06/VRM-Addon-for-Blender/commit/00651695ef55812d59cf5e9418cdf7c419746103))
+* preparations for future blender support ([b79ca1d](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b79ca1d231756d9646b9148c4407eabb846f12bf), [73872ea](https://github.com/saturday06/VRM-Addon-for-Blender/commit/73872ea6601fbb07710f28a29f11240244d82380), [16204c8](https://github.com/saturday06/VRM-Addon-for-Blender/commit/16204c89db4793831c0c4ac5e788dfe73be4ee6d))
+* setting up an automated benchmarking environment ([d348315](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d348315b09ce7a403be9dd1727f3e7b901090835))
 
 ## [3.14.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.14.0...v3.14.1) (2025-09-28)
 
