@@ -41,6 +41,7 @@
       "write": true
     },
     "update-changelog": {
+      "env": ["GITHUB_TOKEN"],
       "net": true,
       "write": ["CHANGELOG.md"]
     },
