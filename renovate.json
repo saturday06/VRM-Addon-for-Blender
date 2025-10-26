@@ -27,12 +27,10 @@
       "customType": "regex",
       "managerFilePatterns": ["/^(./)?tools/install_nvm.sh$/"],
       "matchStrings": [
-        "https://raw\\.githubusercontent\\.com/nvm-sh/nvm/v(?<currentValue>\\d+\\.\\d+\\.\\d+)/install\\.sh"
+        "https://raw\\.githubusercontent\\.com/nvm-sh/nvm/(?<currentValue>v\\d+\\.\\d+\\.\\d+)/install\\.sh"
       ],
       "datasourceTemplate": "github-releases",
-      "depNameTemplate": "nvm-sh/nvm",
-      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$",
-      "versioningTemplate": "semver"
+      "depNameTemplate": "nvm-sh/nvm"
     }
   ]
 }
