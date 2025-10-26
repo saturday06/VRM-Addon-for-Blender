@@ -27,7 +27,7 @@
       "customType": "regex",
       "managerFilePatterns": ["/^(./)?tools/install_nvm.sh$/"],
       "matchStrings": [
-        "https://raw\\.githubusercontent\\.com/nvm-sh/nvm/(?<currentValue>v\\d+\\.\\d+\\.\\d+)/install\\.sh"
+        "\"https://raw\\.githubusercontent\\.com/nvm-sh/nvm/(?<currentValue>v\\d+\\.\\d+\\.\\d+)/install\\.sh\""
       ],
       "datasourceTemplate": "github-releases",
       "depNameTemplate": "nvm-sh/nvm"
