@@ -3,7 +3,7 @@ name: benchmark
 on:
   push:
     branches:
-      - main
+      - docker-ci-benchmark
   pull_request:
   workflow_dispatch:
 
@@ -27,7 +27,7 @@ jobs:
       - uses: docker/build-push-action@v6.18.0
         with:
           context: .
-          file: ./Dockerfile
+          file: tools/benchmark.dockerfile
           push: true
           tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
           cache-from: type=gha
