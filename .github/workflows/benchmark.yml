@@ -29,12 +29,12 @@ jobs:
           context: .
           file: tools/benchmark.dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}:benchmark-latest
+          tags: ghcr.io/saturday06/vrm-addon-for-blender:benchmark-latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - uses: actions/delete-package-versions@v5.0.0
         with:
-          package-name: ${{ github.repository }}
+          package-name: saturday06/vrm-addon-for-blender
           package-type: 'container'
           num-old-versions-to-keep: 5
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: build-benchmark
     container:
-      image: ghcr.io/${{ github.repository }}:benchmark-latest
+      image: ghcr.io/saturday06/vrm-addon-for-blender:benchmark-latest
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
