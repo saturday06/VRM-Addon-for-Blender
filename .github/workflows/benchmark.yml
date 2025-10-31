@@ -29,7 +29,7 @@ jobs:
           context: .
           file: tools/benchmark.dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
+          tags: ghcr.io/${{ github.repository }}:benchmark-latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - uses: actions/delete-package-versions@v5.0.0
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: build-benchmark
     container:
-      image: ghcr.io/${{ github.repository }}:${{ github.sha }}
+      image: ghcr.io/${{ github.repository }}:benchmark-latest
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
