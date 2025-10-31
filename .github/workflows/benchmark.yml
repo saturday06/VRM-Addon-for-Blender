@@ -38,9 +38,9 @@ jobs:
           package-type: 'container'
           min-versions-to-keep: 10
           token: ${{ secrets.GITHUB_TOKEN }}
-       - run: echo ${{ steps.docker_build_push.outputs.imageid }}
-       - run: echo ${{ steps.docker_build_push.outputs.digest }}
-       - run: docker run ${{ steps.docker_build_push.outputs.imageid }} echo ok
+      - run: echo ${{ steps.docker_build_push.outputs.imageid }}
+      - run: echo ${{ steps.docker_build_push.outputs.digest }}
+      - run: docker run ${{ steps.docker_build_push.outputs.imageid }} echo ok
 
 #      - uses: CodSpeedHQ/action@6b43a0cd438f6ca5ad26f9ed03ed159ed2df7da9 # v4.1.1
 #        with:
