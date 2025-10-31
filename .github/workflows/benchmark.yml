@@ -14,7 +14,12 @@ jobs:
     permissions:
       packages: write
     runs-on: ubuntu-24.04
+    outputs:
+      docker_tag: ${{ steps.generate_docker_tag.outputs.docker_tag }}
     steps:
+      - id: generate_docker_tag
+        run: |
+          echo "docker_tag=saturday06/vrm-addon-for-blender:benchmark-latest" >> "$GITHUB_OUTPUT"
       - uses: docker/login-action@v3.6.0
         with:
           registry: ghcr.io
@@ -29,14 +34,14 @@ jobs:
           context: .
           file: tools/benchmark.dockerfile
           push: true
-          tags: ghcr.io/saturday06/vrm-addon-for-blender:benchmark-latest
+          tags: ghcr.io/${{ steps.generate_docker_tag.outputs.docker_tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - uses: actions/delete-package-versions@v5.0.0
         with:
-          package-name: saturday06/vrm-addon-for-blender
+          package-name: ${{ steps.generate_docker_tag.outputs.docker_tag }}
           package-type: 'container'
-          num-old-versions-to-keep: 5
+          min-versions-to-keep: 2
           token: ${{ secrets.GITHUB_TOKEN }}
 
   benchmark:
@@ -45,7 +50,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: build-benchmark
     container:
-      image: ghcr.io/saturday06/vrm-addon-for-blender:benchmark-latest
+      image: ghcr.io/${{ needs.build-benchmark.outputs.docker_tag }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
