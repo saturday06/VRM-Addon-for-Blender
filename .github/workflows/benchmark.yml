@@ -17,7 +17,8 @@ jobs:
     steps:
       - id: generate_docker_tag
         run: |
-          echo "docker_tag=saturday06/vrm-addon-for-blender-benchmarker" >> "$GITHUB_OUTPUT"
+          docker_tag=$(echo "${GITHUB_REPOSITORY}-benchmarker" | LC_ALL=C tr '[:upper:]' '[:lower:]')
+          echo "docker_tag=$docker_tag" >> "$GITHUB_OUTPUT"
       - uses: docker/login-action@v3.6.0
         with:
           registry: ghcr.io
