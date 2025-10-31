@@ -10,16 +10,11 @@ on:
 permissions: {}
 
 jobs:
-  build-benchmark:
+  benchmark:
     permissions:
       packages: write
     runs-on: ubuntu-24.04
-    outputs:
-      docker_tag: ${{ steps.generate_docker_tag.outputs.docker_tag }}
     steps:
-      - id: generate_docker_tag
-        run: |
-          echo "docker_tag=saturday06/vrm-addon-for-blender:benchmark-latest" >> "$GITHUB_OUTPUT"
       - uses: docker/login-action@v3.6.0
         with:
           registry: ghcr.io
@@ -30,37 +25,21 @@ jobs:
         with:
           persist-credentials: false
       - uses: docker/build-push-action@v6.18.0
+        id: docker_build_push
         with:
           context: .
           file: tools/benchmark.dockerfile
           push: true
-          tags: ghcr.io/${{ steps.generate_docker_tag.outputs.docker_tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - uses: actions/delete-package-versions@v5.0.0
         continue-on-error: true
         with:
-          package-name: ${{ steps.generate_docker_tag.outputs.docker_tag }}
           package-type: 'container'
-          min-versions-to-keep: 2
+          min-versions-to-keep: 10
           token: ${{ secrets.GITHUB_TOKEN }}
-
-  benchmark:
-    permissions:
-      packages: read
-    runs-on: ubuntu-24.04
-    needs: build-benchmark
-    container:
-      image: ghcr.io/${{ needs.build-benchmark.outputs.docker_tag }}
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@v5.0.0
-        with:
-          persist-credentials: false
-      - name: Run commands inside the container
-        run: echo OK
+       - run: echo ${{ steps.docker_build_push.outputs.imageid }}
+       - run: echo ${{ steps.docker_build_push.outputs.digest }}
 
 #      - uses: CodSpeedHQ/action@6b43a0cd438f6ca5ad26f9ed03ed159ed2df7da9 # v4.1.1
 #        with:
