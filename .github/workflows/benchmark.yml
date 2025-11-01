@@ -10,15 +10,18 @@ on:
 permissions: {}
 
 jobs:
-  benchmark:
+  build-benchmark:
     permissions:
       packages: write
     runs-on: ubuntu-24.04
+    outputs:
+      docker_image_name: ghcr.io/${{ steps.generate_docker_image_name.outputs.docker_image_name }}:${{ github.sha }}
+      docker_image_digest: ${{ steps.docker_build_push.outputs.digest }}
     steps:
-      - id: generate_docker_tag
+      - id: generate_docker_image_name
         run: |
-          docker_tag=$(echo "${GITHUB_REPOSITORY}-benchmarker" | LC_ALL=C tr '[:upper:]' '[:lower:]')
-          echo "docker_tag=$docker_tag" >> "$GITHUB_OUTPUT"
+          docker_image_name=$(echo "${GITHUB_REPOSITORY}-benchmarker" | LC_ALL=C tr '[:upper:]' '[:lower:]')
+          echo "docker_image_name=$docker_image_name" >> "$GITHUB_OUTPUT"
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           registry: ghcr.io
@@ -34,19 +37,34 @@ jobs:
           context: .
           file: tools/benchmark.dockerfile
           push: true
-          tags: ghcr.io/${{ steps.generate_docker_tag.outputs.docker_tag }}:${{ github.sha }}
+          tags: ghcr.io/${{ steps.generate_docker_image_name.outputs.docker_image_name }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
         continue-on-error: true
         with:
-          package-name: ${{ steps.generate_docker_tag.outputs.docker_tag }}
+          package-name: ${{ steps.generate_docker_image_name.outputs.docker_image_name }}
           package-type: 'container'
           min-versions-to-keep: 10
           token: ${{ secrets.GITHUB_TOKEN }}
-      - run: echo ${{ steps.docker_build_push.outputs.imageid }}
-      - run: echo ${{ steps.docker_build_push.outputs.digest }}
-      - run: echo ${{ steps.docker_build_push.outputs.metadata }}
+
+  benchmark:
+    permissions:
+      packages: read
+    runs-on: ubuntu-24.04
+    needs: build-benchmark
+    container:
+      image: ${{ needs.build-benchmark.outputs.docker_image_name }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Run commands inside the container
+        run: echo OK
+
 
 #      - uses: CodSpeedHQ/action@6b43a0cd438f6ca5ad26f9ed03ed159ed2df7da9 # v4.1.1
 #        with:
