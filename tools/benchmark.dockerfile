@@ -119,14 +119,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install \
   sudo \
   --no-install-recommends --yes
 
-RUN <<'SETUP_USER_DEVELOPER'
-  set -eu
-  useradd --create-home --user-group --shell /bin/bash developer
-  echo "developer ALL=(root) NOPASSWD:ALL" | tee /etc/sudoers.d/developer
-SETUP_USER_DEVELOPER
-
-WORKDIR /home/developer
-
 ENV PYTHONPATH=/usr/local/lib/python3.12/site-packages
 RUN python3 -m venv ~/benchmark-venv
 RUN . ~/benchmark-venv/bin/activate && pip3 install "pytest < 9" "pytest-codspeed < 5"
