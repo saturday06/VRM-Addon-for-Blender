@@ -8,67 +8,60 @@ FROM ubuntu:24.04 AS base
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
-  --mount=type=cache,target=/var/cache/apt,sharing=locked \
-  DEBIAN_FRONTEND=noninteractive apt-get update -q
-
-RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
-  --mount=type=cache,target=/var/cache/apt,sharing=locked \
-  DEBIAN_FRONTEND=noninteractive apt-get install \
-    ca-certificates \
-    python3 \
-    python3-numpy \
-    python3-requests \
-    python3-zstandard \
-    --no-install-recommends --yes
+RUN DEBIAN_FRONTEND=noninteractive apt-get update -q
+RUN DEBIAN_FRONTEND=noninteractive apt-get install \
+  ca-certificates \
+  python3 \
+  python3-numpy \
+  python3-requests \
+  python3-zstandard \
+  --no-install-recommends --yes
 
 FROM base AS builder
 
-RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
-  --mount=type=cache,target=/var/cache/apt,sharing=locked \
-  DEBIAN_FRONTEND=noninteractive apt-get install \
-    build-essential \
-    cmake \
-    cmake-curses-gui \
-    cmake-gui patch \
-    curl \
-    git \
-    git-lfs \
-    libboost-dev \
-    libdbus-1-dev \
-    libdecor-0-dev \
-    libegl-dev \
-    libembree-dev \
-    libepoxy-dev \
-    libfftw3-dev \
-    libfreetype-dev \
-    libgl-dev \
-    libgmp-dev \
-    libopenexr-dev \
-    libosd-dev \
-    libpng-dev \
-    libpugixml-dev \
-    libpython3-dev \
-    libshaderc-dev \
-    libtbb-dev \
-    libtiff-dev \
-    libvulkan-dev \
-    libwayland-dev \
-    libx11-dev \
-    libxcursor-dev \
-    libxi-dev \
-    libxinerama-dev \
-    libxkbcommon-dev \
-    libxrandr-dev \
-    libxxf86vm-dev \
-    libzstd-dev \
-    ninja-build \
-    pybind11-dev \
-    subversion \
-    sudo \
-    wayland-protocols \
-    xz-utils \
-    --no-install-recommends --yes
+RUN DEBIAN_FRONTEND=noninteractive apt-get install \
+  build-essential \
+  cmake \
+  cmake-curses-gui \
+  cmake-gui patch \
+  curl \
+  git \
+  git-lfs \
+  libboost-dev \
+  libdbus-1-dev \
+  libdecor-0-dev \
+  libegl-dev \
+  libembree-dev \
+  libepoxy-dev \
+  libfftw3-dev \
+  libfreetype-dev \
+  libgl-dev \
+  libgmp-dev \
+  libopenexr-dev \
+  libosd-dev \
+  libpng-dev \
+  libpugixml-dev \
+  libpython3-dev \
+  libshaderc-dev \
+  libtbb-dev \
+  libtiff-dev \
+  libvulkan-dev \
+  libwayland-dev \
+  libx11-dev \
+  libxcursor-dev \
+  libxi-dev \
+  libxinerama-dev \
+  libxkbcommon-dev \
+  libxrandr-dev \
+  libxxf86vm-dev \
+  libzstd-dev \
+  ninja-build \
+  pybind11-dev \
+  subversion \
+  sudo \
+  wayland-protocols \
+  xz-utils \
+  --no-install-recommends --yes
 
 WORKDIR /root/oneTBB/src
 RUN curl --fail --show-error --location --retry 5 --retry-all-errors --output ../oneTBB.tar.gz \
