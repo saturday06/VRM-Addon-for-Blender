@@ -18,11 +18,23 @@ jobs:
       docker_image_name: ghcr.io/${{ steps.generate_docker_image_name.outputs.docker_image_name }}:${{ github.sha }}
       docker_image_digest: ${{ steps.docker_build_push.outputs.digest }}
     steps:
-      - id: generate_docker_image_name
-        run: |
-          docker_image_name=$(echo "${GITHUB_REPOSITORY}-benchmarker" | LC_ALL=C tr '[:upper:]' '[:lower:]')
-          # docker_image_name=$(echo "${GITHUB_REPOSITORY}-temporary-benchmarker" | LC_ALL=C tr '[:upper:]' '[:lower:]')
-          echo "docker_image_name=$docker_image_name" >> "$GITHUB_OUTPUT"
+      - uses: actions/github-script@v7
+        id: generate_docker_image_name
+        with:
+          script: |
+            const core  = require('@actions/core');
+
+            const repository  = process.env.GITHUB_REPOSITORY || '';
+            const owner = process.env.GITHUB_REPOSITORY_OWNER || '';
+            let packagePart = repository;
+            if (repository.startsWith(owner + '/')) {
+              packagePart = repository.slice(owner.length + 1);
+            }
+            const dockerImagePackageName = packagePart.toLowerCase();
+            const dockerImageName = repository.toLowerCase();
+
+            core.setOutput('docker_image_package_name', dockerImagePackageName);
+            core.setOutput('docker_image_name', dockerImageName);
       - uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           registry: ghcr.io
@@ -44,7 +56,7 @@ jobs:
       - uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
         continue-on-error: true
         with:
-          package-name: ${{ steps.generate_docker_image_name.outputs.docker_image_name }}
+          package-name: ${{ steps.generate_docker_image_name.outputs.docker_image_package_name }}
           package-type: 'container'
           min-versions-to-keep: 10
           token: ${{ secrets.GITHUB_TOKEN }}
