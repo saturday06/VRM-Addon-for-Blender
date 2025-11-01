@@ -11,6 +11,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN DEBIAN_FRONTEND=noninteractive apt-get update -q
 RUN DEBIAN_FRONTEND=noninteractive apt-get install \
   ca-certificates \
+  curl \
   python3 \
   python3-numpy \
   python3-requests \
@@ -24,7 +25,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install \
   cmake \
   cmake-curses-gui \
   cmake-gui patch \
-  curl \
   git \
   git-lfs \
   libboost-dev \
@@ -95,32 +95,28 @@ RUN python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 3))'
 FROM base
 COPY --from=builder /usr/local /usr/local
 RUN ldconfig
-RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
-  --mount=type=cache,target=/var/cache/apt,sharing=locked \
-  DEBIAN_FRONTEND=noninteractive apt-get install \
-    libembree4-4 \
-    libepoxy0 \
-    libfftw3-double3 \
-    libfftw3-long3 \
-    libfftw3-quad3 \
-    libfftw3-single3 \
-    libfreetype6 \
-    libjpeg8 \
-    libopenexr-3-1-30 \
-    libosdgpu3.5.0t64 \
-    libpng16-16t64 \
-    libpugixml1v5 \
-    libtiff6 \
-    libwebp7 \
-    libwebpdemux2 \
-    libx11-6 \
-    libxfixes3 \
-    libxi6 \
-    libxkbcommon0 \
-    python3-venv \
-     \
-    curl \
-    --no-install-recommends --yes
+RUN DEBIAN_FRONTEND=noninteractive apt-get install \
+  libembree4-4 \
+  libepoxy0 \
+  libfftw3-double3 \
+  libfftw3-long3 \
+  libfftw3-quad3 \
+  libfftw3-single3 \
+  libfreetype6 \
+  libjpeg8 \
+  libopenexr-3-1-30 \
+  libosdgpu3.5.0t64 \
+  libpng16-16t64 \
+  libpugixml1v5 \
+  libtiff6 \
+  libwebp7 \
+  libwebpdemux2 \
+  libx11-6 \
+  libxfixes3 \
+  libxi6 \
+  libxkbcommon0 \
+  python3-venv \
+  --no-install-recommends --yes
 
 RUN useradd --create-home --user-group --shell /bin/bash developer
 USER developer
