@@ -132,6 +132,6 @@ USER developer
 WORKDIR /home/developer
 
 ENV PYTHONPATH=/usr/local/lib/python3.12/site-packages
-RUN python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 3))'
 RUN python3 -m venv ~/benchmark-venv
 RUN . ~/benchmark-venv/bin/activate && pip3 install "pytest < 9" "pytest-codspeed < 5"
+RUN . ~/benchmark-venv/bin/activate && python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 3))'
