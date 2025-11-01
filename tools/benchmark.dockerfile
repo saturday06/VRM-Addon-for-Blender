@@ -116,10 +116,17 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install \
   libxi6 \
   libxkbcommon0 \
   python3-venv \
+  sudo \
   --no-install-recommends --yes
 
-RUN useradd --create-home --user-group --shell /bin/bash developer
-USER developer
+RUN <<'SETUP_USER_DEVELOPER'
+  set -eu
+  useradd --create-home --user-group --shell /bin/bash developer
+  echo "developer ALL=(root) NOPASSWD:ALL" | tee /etc/sudoers.d/developer
+SETUP_USER_DEVELOPER
+
+#RUN useradd --create-home --user-group --shell /bin/bash developer
+#USER developer
 WORKDIR /home/developer
 
 ENV PYTHONPATH=/usr/local/lib/python3.12/site-packages
