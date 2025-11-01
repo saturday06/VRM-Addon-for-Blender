@@ -127,12 +127,7 @@ RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     python3-venv \
     --no-install-recommends --yes
 
-RUN <<'SETUP_USER_DEVELOPER'
-  set -eu
-  useradd --create-home --user-group --shell /bin/bash developer
-  echo "developer ALL=(root) NOPASSWD:ALL" | tee /etc/sudoers.d/developer
-SETUP_USER_DEVELOPER
-
+RUN useradd --create-home --user-group --shell /bin/bash developer
 USER developer
 WORKDIR /home/developer
 
