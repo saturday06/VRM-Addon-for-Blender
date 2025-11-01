@@ -2,9 +2,6 @@
 #
 # HEALTHCHECK is not required since it does not operate as a server
 # checkov:skip=CKV_DOCKER_2: "Ensure that HEALTHCHECK instructions have been added to container images"
-#
-# Do not create a new user as it runs with the super-linter user
-# checkov:skip=CKV_DOCKER_3: "Ensure that a user for the container has been created"
 
 FROM ubuntu:24.04 AS base
 
@@ -129,5 +126,18 @@ RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     libxkbcommon0 \
     python3-venv \
     --no-install-recommends --yes
+
+RUN <<'SETUP_USER_DEVELOPER'
+  set -eu
+  useradd --create-home --user-group --shell /bin/bash developer
+  echo "developer ALL=(root) NOPASSWD:ALL" | tee /etc/sudoers.d/developer
+SETUP_USER_DEVELOPER
+
+USER developer
+WORKDIR /home/developer
+
 ENV PYTHONPATH=/usr/local/lib/python3.12/site-packages
 RUN python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 3))'
+RUN python3 -m venv ~/benchmark-venv
+RUN . ~/benchmark-venv/bin/activate
+RUN pip3 install "pytest < 9" "pytest-codspeed < 5"
