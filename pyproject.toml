@@ -171,7 +171,6 @@ exclude = [
 
 reportMissingModuleSource = false
 reportCallInDefaultInitializer = true
-reportShadowedImports = true
 
 [tool.pyrefly]
 search-path = [
