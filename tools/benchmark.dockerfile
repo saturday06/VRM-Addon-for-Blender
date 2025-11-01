@@ -125,8 +125,6 @@ RUN <<'SETUP_USER_DEVELOPER'
   echo "developer ALL=(root) NOPASSWD:ALL" | tee /etc/sudoers.d/developer
 SETUP_USER_DEVELOPER
 
-#RUN useradd --create-home --user-group --shell /bin/bash developer
-#USER developer
 WORKDIR /home/developer
 
 ENV PYTHONPATH=/usr/local/lib/python3.12/site-packages
