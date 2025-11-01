@@ -22,8 +22,6 @@ jobs:
         id: generate_docker_image_name
         with:
           script: |
-            const core  = require('@actions/core');
-
             const repository  = process.env.GITHUB_REPOSITORY || '';
             const owner = process.env.GITHUB_REPOSITORY_OWNER || '';
             let packagePart = repository;
