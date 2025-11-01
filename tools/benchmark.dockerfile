@@ -125,6 +125,8 @@ RUN --mount=type=cache,target=/var/lib/apt,sharing=locked \
     libxi6 \
     libxkbcommon0 \
     python3-venv \
+     \
+    curl \
     --no-install-recommends --yes
 
 RUN useradd --create-home --user-group --shell /bin/bash developer
