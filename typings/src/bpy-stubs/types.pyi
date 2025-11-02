@@ -1722,6 +1722,8 @@ class Material(ID):
     diffuse_color: bpy_prop_array[float]
     roughness: float
 
+    def copy(self) -> Material: ...
+
 class IDMaterials(bpy_prop_collection[Material | None]):
     def append(
         self, value: Material
