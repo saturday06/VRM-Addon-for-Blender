@@ -27,9 +27,7 @@ jobs:
         run: git checkout -b "$PR_BRANCH"
       - uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # v2.0.3
         with:
-          deno-version: vx.x.x
-      - name: Update .dvmrc
-        run: deno eval 'console.log(Deno.version.deno)' | tee .dvmrc
+          deno-version-file: .dvmrc
       - name: Update deno.jsonc and deno.lock
         run: |
           deno install --allow-scripts --frozen=false || true

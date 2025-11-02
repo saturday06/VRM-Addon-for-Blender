@@ -31,6 +31,13 @@
       ],
       "datasourceTemplate": "github-releases",
       "depNameTemplate": "nvm-sh/nvm"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^.dvmrc$/"],
+      "matchStrings": ["(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "denoland/deno"
     }
   ]
 }
