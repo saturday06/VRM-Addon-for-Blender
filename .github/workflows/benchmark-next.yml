@@ -1,0 +1,41 @@
+name: benchmark-next
+
+permissions: {}
+
+on:
+  push:
+    branches:
+      - main
+      - ci-benchmark
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - run: echo /opt/vrm/lib | sudo tee /etc/ld.so.conf.d/vrm.conf
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        id: cache
+        with:
+          path: benchmark-dependencies.tar.gz
+          # key: benchmark-dependencies-${{ runner.os }}-${{ hashFiles('.github/workflows/benchmark.yml', 'tools/install_ci_codspeed_dependencies.sh') }}
+          key: benchmark-dependencies-debug-1
+      - if: steps.cache.outputs.cache-hit == 'true'
+        run: tar xzf benchmark-dependencies.tar.gz -C /opt
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: sudo --preserve-env=GITHUB_ENV ./tools/install_ci_codspeed_dependencies.sh
+      - run: sudo ldconfig
+      - run: |
+          python3 -m venv --system-site-packages .venv
+          . ./.venv/bin/activate
+          pip3 install "pytest < 9" "pytest-codspeed < 5"
+      - uses: CodSpeedHQ/action@6b43a0cd438f6ca5ad26f9ed03ed159ed2df7da9 # v4.1.1
+        with:
+          mode: instrumentation
+          # run: . ../.venv/bin/activate && pytest --codspeed
+          run: . ../.venv/bin/activate && pytest --codspeed src/io_scene_vrm_benchmarks/nop_test.py
+          working-directory: benchmarks
