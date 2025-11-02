@@ -73,7 +73,7 @@ jobs:
         with:
           path: benchmark-dependencies.tar.gz
           # key: benchmark-dependencies-${{ runner.os }}-${{ hashFiles('.github/workflows/benchmark.yml', 'tools/install_ci_codspeed_dependencies.sh') }}
-          key: benchmark-dependencies-debug-1
+          key: benchmark-dependencies-debug-2
       - if: steps.cache.outputs.cache-hit == 'true'
         run: tar xzf benchmark-dependencies.tar.gz -C /opt
       - if: steps.cache.outputs.cache-hit != 'true'
