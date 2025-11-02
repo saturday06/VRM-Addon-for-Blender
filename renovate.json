@@ -25,7 +25,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^(./)?tools/install_nvm.sh$/"],
+      "managerFilePatterns": ["/^tools/install_nvm.sh$/"],
       "matchStrings": [
         "\"https://raw\\.githubusercontent\\.com/nvm-sh/nvm/(?<currentValue>v\\d+\\.\\d+\\.\\d+)/install\\.sh\""
       ],
