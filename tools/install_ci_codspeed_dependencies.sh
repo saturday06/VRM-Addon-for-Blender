@@ -9,6 +9,9 @@ repository_root_path=$(
   cd "$(dirname "$0")/.."
   pwd
 )
+python_site_packages_path="${CMAKE_PREFIX_PATH}/lib/python3.12/site-packages"
+
+mkdir -p "$python_site_packages_path"
 
 apt-get update -q
 apt-get install \
@@ -65,7 +68,7 @@ cd /root/oneTBB/src
 curl --fail --show-error --location --retry 5 --retry-all-errors --output ../oneTBB.tar.gz \
   "https://github.com/uxlfoundation/oneTBB/archive/refs/tags/v2021.13.0.tar.gz"
 tar zxf ../oneTBB.tar.gz --strip-components=1
-cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/vrm -DTBB_TEST=OFF
+cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX_PATH" -DTBB_TEST=OFF
 cmake --build build --target install
 ldconfig
 
@@ -74,9 +77,8 @@ cd /root/OpenImageIO/src
 curl --fail --show-error --location --retry 5 --retry-all-errors --output ../OpenImageIO.tar.gz \
   "https://github.com/AcademySoftwareFoundation/OpenImageIO/releases/download/v3.0.6.1/OpenImageIO-3.0.6.1.tar.gz"
 tar zxf ../OpenImageIO.tar.gz --strip-components=1
-cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DOpenImageIO_BUILD_MISSING_DEPS=all -DOpenImageIO_BUILD_TESTS=OFF -DOpenImageIO_BUILD_TOOLS=OFF
+cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$CMAKE_PREFIX_PATH" -DOpenImageIO_BUILD_MISSING_DEPS=all -DOpenImageIO_BUILD_TESTS=OFF -DOpenImageIO_BUILD_TOOLS=OFF
 cmake --build build --target install
-cp -ru dist/* /opt/vrm/
 ldconfig
 
 mkdir -p /root/blender/blender
@@ -89,12 +91,8 @@ tar Jxf ../../blender.tar.xz --strip-components=1
 make NPROCS=1 "BUILD_CMAKE_ARGS=-DPYTHON_VERSION=3.12 -DWITH_VULKAN_BACKEND=OFF" bpy
 ldconfig
 
-site_packages_path=/opt/vrm/lib/python3.12/site-packages
-mkdir -p "$site_packages_path"
-cp -r ../build_linux_bpy/bin/* "$site_packages_path"
+cp -r ../build_linux_bpy/bin/* "$python_site_packages_path"
 
-export PYTHONPATH="${repository_root_path}/src:${site_packages_path}"
+export PYTHONPATH="${repository_root_path}/src:${python_site_packages_path}"
 python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 3))'
 tar czf "${repository_root_path}/benchmark-dependencies.tar.gz" -C /opt vrm
-
-echo "PYTHONPATH=${PYTHONPATH}" >>"$GITHUB_ENV"

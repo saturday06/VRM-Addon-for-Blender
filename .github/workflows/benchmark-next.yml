@@ -33,9 +33,13 @@ jobs:
           python3 -m venv --system-site-packages .venv
           . ./.venv/bin/activate
           pip3 install "pytest < 9" "pytest-codspeed < 5"
+          export PYTHONPATH="${PWD}/src:/opt/vrm/lib/python3.12/site-packages"
+          echo "PYTHONPATH=${PYTHONPATH}" >>"$GITHUB_ENV"
+          python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 3))'
       - uses: CodSpeedHQ/action@6b43a0cd438f6ca5ad26f9ed03ed159ed2df7da9 # v4.1.1
         with:
           mode: instrumentation
           # run: . ../.venv/bin/activate && pytest --codspeed
-          run: . ../.venv/bin/activate && pytest --codspeed src/io_scene_vrm_benchmarks/nop_test.py
+          # run: . ../.venv/bin/activate; pytest --codspeed src/io_scene_vrm_benchmarks/mtoon1_auto_setup_benchmark_test.py src/io_scene_vrm_benchmarks/nop_test.py
+          run: . ../.venv/bin/activate; pytest --codspeed src/io_scene_vrm_benchmarks/nop_test.py
           working-directory: benchmarks
