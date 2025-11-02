@@ -18,9 +18,8 @@ jobs:
         with:
           persist-credentials: false
       - run: |
-          export DEBIAN_FRONTEND=noninteractive
-          apt-get update -q
-          apt-get install \
+          sudo DEBIAN_FRONTEND=noninteractive apt-get update -q
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install \
             build-essential \
             ca-certificates \
             cmake \
