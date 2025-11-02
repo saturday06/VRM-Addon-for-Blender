@@ -2,7 +2,6 @@
 
 set -eux
 
-export DEBIAN_FRONTEND=noninteractive
 export CMAKE_PREFIX_PATH=/opt/vrm
 
 repository_root_path=$(
@@ -12,56 +11,6 @@ repository_root_path=$(
 python_site_packages_path="${CMAKE_PREFIX_PATH}/lib/python3.12/site-packages"
 
 mkdir -p "$python_site_packages_path"
-
-apt-get update -q
-apt-get install \
-  build-essential \
-  ca-certificates \
-  cmake \
-  cmake-curses-gui \
-  cmake-gui patch \
-  curl \
-  git \
-  git-lfs \
-  libboost-dev \
-  libdbus-1-dev \
-  libdecor-0-dev \
-  libegl-dev \
-  libembree-dev \
-  libepoxy-dev \
-  libfftw3-dev \
-  libfreetype-dev \
-  libgl-dev \
-  libgmp-dev \
-  libopenexr-dev \
-  libosd-dev \
-  libpng-dev \
-  libpugixml-dev \
-  libpython3-dev \
-  libshaderc-dev \
-  libtbb-dev \
-  libtiff-dev \
-  libvulkan-dev \
-  libwayland-dev \
-  libx11-dev \
-  libxcursor-dev \
-  libxi-dev \
-  libxinerama-dev \
-  libxkbcommon-dev \
-  libxrandr-dev \
-  libxxf86vm-dev \
-  libzstd-dev \
-  ninja-build \
-  pybind11-dev \
-  python3 \
-  python3-numpy \
-  python3-venv \
-  python3-requests \
-  python3-zstandard \
-  subversion \
-  wayland-protocols \
-  xz-utils \
-  --no-install-recommends --yes
 
 mkdir -p /root/oneTBB/src
 cd /root/oneTBB/src
