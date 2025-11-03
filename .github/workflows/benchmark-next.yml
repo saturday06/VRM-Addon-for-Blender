@@ -73,8 +73,7 @@ jobs:
         id: cache
         with:
           path: benchmark-dependencies.tar.gz
-          # key: benchmark-dependencies-${{ runner.os }}-${{ hashFiles('.github/workflows/benchmark.yml', 'tools/install_ci_codspeed_dependencies.sh') }}
-          key: benchmark-dependencies-debug-2
+          key: benchmark-dependencies-${{ runner.os }}-${{ hashFiles('.github/workflows/benchmark.yml', 'tools/install_ci_codspeed_dependencies.sh') }}
       - if: steps.cache.outputs.cache-hit == 'true'
         run: tar xzf benchmark-dependencies.tar.gz -C /opt
       - if: steps.cache.outputs.cache-hit != 'true'
@@ -90,8 +89,5 @@ jobs:
       - uses: CodSpeedHQ/action@c6574d0c2a990bca2842ce9af71549c5bfd7fbe0 # v4.2.1
         with:
           mode: instrumentation
-          # run: . ../.venv/bin/activate && pytest --codspeed
-          # run: . ../.venv/bin/activate; pytest --codspeed src/io_scene_vrm_benchmarks/mtoon1_auto_setup_benchmark_test.py src/io_scene_vrm_benchmarks/nop_test.py
-          # run: . ../.venv/bin/activate; pytest --codspeed src/io_scene_vrm_benchmarks/nop_test.py
           run: . ../.venv/bin/activate; pytest --codspeed || true
           working-directory: benchmarks
