@@ -74,7 +74,6 @@ jobs:
         with:
           path: benchmark-dependencies.tar.gz
           key: benchmark-dependencies-${{ runner.os }}-${{ hashFiles('tools/install_ci_codspeed_dependencies.sh') }}
-          lookup-only: ${{ github.ref_name != github.event.repository.default_branch }}
       - if: steps.cache.outputs.cache-hit == 'true'
         run: tar xzf benchmark-dependencies.tar.gz -C /opt
       - if: steps.cache.outputs.cache-hit != 'true'
