@@ -14,6 +14,7 @@ mkdir -p "$python_site_packages_path"
 
 mkdir -p /root/oneTBB/src
 cd /root/oneTBB/src
+# https://projects.blender.org/blender/lib-linux_x64/src/tag/v4.5.4/tbb/include/oneapi/tbb/version.h#L29-L36
 curl --fail --show-error --location --retry 5 --retry-all-errors --output ../oneTBB.tar.gz \
   "https://github.com/uxlfoundation/oneTBB/archive/refs/tags/v2021.13.0.tar.gz"
 tar zxf ../oneTBB.tar.gz --strip-components=1
@@ -23,6 +24,7 @@ ldconfig
 
 mkdir -p /root/OpenImageIO/src
 cd /root/OpenImageIO/src
+# https://projects.blender.org/blender/lib-linux_x64/src/tag/v4.5.4/openimageio/include/OpenImageIO/oiioversion.h#L45-L49
 curl --fail --show-error --location --retry 5 --retry-all-errors --output ../OpenImageIO.tar.gz \
   "https://github.com/AcademySoftwareFoundation/OpenImageIO/releases/download/v3.0.6.1/OpenImageIO-3.0.6.1.tar.gz"
 tar zxf ../OpenImageIO.tar.gz --strip-components=1
