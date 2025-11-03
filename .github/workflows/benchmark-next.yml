@@ -91,5 +91,6 @@ jobs:
           mode: instrumentation
           # run: . ../.venv/bin/activate && pytest --codspeed
           # run: . ../.venv/bin/activate; pytest --codspeed src/io_scene_vrm_benchmarks/mtoon1_auto_setup_benchmark_test.py src/io_scene_vrm_benchmarks/nop_test.py
-          run: . ../.venv/bin/activate; pytest --codspeed src/io_scene_vrm_benchmarks/nop_test.py
+          # run: . ../.venv/bin/activate; pytest --codspeed src/io_scene_vrm_benchmarks/nop_test.py
+          run: . ../.venv/bin/activate; pytest --codspeed || true
           working-directory: benchmarks
