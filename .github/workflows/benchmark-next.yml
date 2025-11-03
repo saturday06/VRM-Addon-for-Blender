@@ -77,7 +77,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit == 'true'
         run: tar xzf benchmark-dependencies.tar.gz -C /opt
       - if: steps.cache.outputs.cache-hit != 'true'
-        run: sudo --preserve-env=GITHUB_ENV ./tools/install_ci_codspeed_dependencies.sh
+        run: sudo ./tools/install_ci_codspeed_dependencies.sh
       - run: sudo ldconfig
       - run: |
           python3 -m venv --system-site-packages .venv
