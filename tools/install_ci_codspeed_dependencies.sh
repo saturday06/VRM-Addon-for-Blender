@@ -45,5 +45,5 @@ ldconfig
 cp -r ../build_linux_bpy/bin/* "$python_site_packages_path"
 
 export PYTHONPATH="${repository_root_path}/src:${python_site_packages_path}"
-python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 3))'
+python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 4))'
 tar czf "${repository_root_path}/benchmark-dependencies.tar.gz" -C /opt vrm

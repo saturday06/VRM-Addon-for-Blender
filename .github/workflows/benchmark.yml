@@ -85,7 +85,7 @@ jobs:
           pip3 install "pytest < 9" "pytest-codspeed < 5"
           export PYTHONPATH="${PWD}/src:/opt/vrm/lib/python3.12/site-packages"
           echo "PYTHONPATH=${PYTHONPATH}" >>"$GITHUB_ENV"
-          python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 3))'
+          python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 4))'
       - uses: CodSpeedHQ/action@c6574d0c2a990bca2842ce9af71549c5bfd7fbe0 # v4.2.1
         with:
           mode: instrumentation
