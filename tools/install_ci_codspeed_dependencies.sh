@@ -35,8 +35,8 @@ ldconfig
 mkdir -p /root/blender/blender
 cd /root/blender/blender
 curl --fail --show-error --location --output ../../blender.tar.xz \
-  "https://download.blender.org/source/blender-4.5.3.tar.xz"
-test "$(md5sum ../../blender.tar.xz)" = "66b39c54701706b74a53941edfe159f9  ../../blender.tar.xz"
+  "https://download.blender.org/source/blender-4.5.4.tar.xz"
+test "$(md5sum ../../blender.tar.xz)" = "885c50f870e606a2ede06c43be7e4a6a  ../../blender.tar.xz"
 tar Jxf ../../blender.tar.xz --strip-components=1
 ./build_files/build_environment/install_linux_packages.py
 make NPROCS=1 "BUILD_CMAKE_ARGS=-DPYTHON_VERSION=3.12 -DWITH_VULKAN_BACKEND=OFF" bpy
