@@ -4,7 +4,8 @@
     "config:best-practices",
     "schedule:weekends",
     ":automergeAll",
-    ":disableDependencyDashboard"
+    ":disableDependencyDashboard",
+    ":semanticCommitTypeAll(chore)"
   ],
   "minimumReleaseAge": "14 days",
   "lockFileMaintenance": {
