@@ -31,11 +31,11 @@ call deno lint
 if %errorlevel% neq 0 goto :error
 
 echo ### pyright ###
-call deno run pyright
+call deno task pyright
 if %errorlevel% neq 0 goto :error
 
 echo ### vrm validator ###
-call deno run vrm-validator
+call deno task vrm-validator
 if %errorlevel% neq 0 goto :error
 
 popd
