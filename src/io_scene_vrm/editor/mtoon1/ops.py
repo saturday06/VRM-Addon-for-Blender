@@ -768,6 +768,10 @@ def get_nodes_modifier_input_key(
     )
 
 
+def generate_mtoon1_outline_material_name(material: Material) -> str:
+    return f"MToon Outline ({material.name})"
+
+
 class VRM_OT_refresh_mtoon1_outline(Operator):
     bl_idname = "vrm.refresh_mtoon1_outline"
     bl_label = "Refresh MToon 1.0 Outline Width Mode"
@@ -841,7 +845,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
             mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_NONE.identifier
             return
 
-        outline_material_name = f"MToon Outline ({material.name})"
+        outline_material_name = generate_mtoon1_outline_material_name(material)
         modifier_name = f"MToon Outline ({material.name})"
 
         outline_material = get_material_extension(material).mtoon1.outline_material
