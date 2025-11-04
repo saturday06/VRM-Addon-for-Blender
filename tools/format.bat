@@ -4,6 +4,7 @@
 setlocal enabledelayedexpansion
 pushd "%~dp0.."
 set PYTHONUTF8=1
+set UV_LINK_MODE=copy
 
 set no_pause=0
 if "%1"=="/NoPause" set no_pause=1
