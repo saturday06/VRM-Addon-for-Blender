@@ -51,7 +51,7 @@ class __TestImportSceneBrokenVrmBase(AddonTestCase):
         success = True
         if (
             vrm_path.name == "draco.vrm"
-            and sys.platform == "linux"
+            and (sys.platform in ("linux", "win32"))
             and not bpy.app.binary_path
         ):
             # On Linux when built as a module, the draco library cannot be read
