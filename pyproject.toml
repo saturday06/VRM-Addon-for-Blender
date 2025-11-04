@@ -142,6 +142,9 @@ ignore_errors = true # Please use pyright instead.
 [tool.black]
 extend-exclude = ".*" # Please use Ruff instead.
 
+[tool.codespell]
+skip = '*.lock,*.asset,node_modules'
+
 [tool.isort]
 extend_skip_glob = ["*"] # Please use Ruff instead.
 

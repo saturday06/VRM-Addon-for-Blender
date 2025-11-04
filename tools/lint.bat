@@ -16,7 +16,7 @@ call uv run ruff check
 if %errorlevel% neq 0 goto :error
 
 echo ### codespell ###
-call uv run codespell %py_files%
+call uv run codespell
 if %errorlevel% neq 0 goto :error
 
 echo ### deno ###
