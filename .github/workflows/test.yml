@@ -65,7 +65,7 @@ jobs:
           $env:BLENDER_VRM_TEST_BLENDER_PATH = (Get-ChildItem "$env:TEMP\blender\*\blender.exe")[0].FullName
           & $env:BLENDER_VRM_TEST_BLENDER_PATH --background -noaudio --python-exit-code 1 --python tools\unittest_discover.py
       - name: Archive failed io test result
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: failure()
         with:
           name: VRMs (${{ github.job }} ${{ matrix.blender.job_name_postfix }})
@@ -126,7 +126,7 @@ jobs:
           cp -fr /Volumes/Blender/Blender.app /Applications
           /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: failure()
         with:
           name: VRMs (${{ github.job }} ${{ matrix.blender.job_name_postfix }})
@@ -167,7 +167,7 @@ jobs:
           tar -x --strip-components=1 -f blender.tar.xz -C "${HOME}/.local/blender"
           "${HOME}/.local/blender/blender" --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: failure()
         with:
           name: VRMs (${{ github.job }} ${{ matrix.blender.job_name_postfix }})
