@@ -10,8 +10,6 @@
 
 ### 🐛 Bug Fixes
 
-* **deps:** lock file maintenance regular dependency updates ([#1093](https://github.com/saturday06/VRM-Addon-for-Blender/issues/1093)) ([cd1a83a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/cd1a83ac5e1f37778ea665cfb17692e28a2f8546))
-* **deps:** lock file maintenance regular dependency updates ([#1095](https://github.com/saturday06/VRM-Addon-for-Blender/issues/1095)) ([cbe92d1](https://github.com/saturday06/VRM-Addon-for-Blender/commit/cbe92d165b0d35981e33c3cb647e134eb84b9c7e))
 * fixed a bug where a single outline material could be shared across multiple base materials ([fc6752f](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fc6752f0260ac5e7f300f3bf32ceecd135a454f8))
 
 ## [3.15.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.14.1...v3.15.0) (2025-10-19)
