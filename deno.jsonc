@@ -11,7 +11,7 @@
     "docs:build": "deno run --permission-set=docs:build vitepress build docs",
     "docs:dev": "deno run --permission-set=docs:dev vitepress dev docs",
     "pyright": "uv run -- deno run --permission-set=pyright --unstable-node-globals ./tools/pyright.cts --warnings",
-    "update-changelog": "deno run --permission-set=update-changelog ./tools/update_changelog.ts saturday06/VRM-Addon-for-Blender",
+    "update-changelog": "deno run --permission-set=update-changelog ./tools/update_changelog.ts",
     "vrm-validator": "deno run --permission-set=vrm-validator ./tools/vrm_validator.ts"
   },
   "permissions": {
@@ -41,8 +41,9 @@
       "write": true
     },
     "update-changelog": {
-      "env": ["GITHUB_TOKEN"],
+      "env": ["GITHUB_TOKEN", "GH_TOKEN", "IGNORE_TEST_WIN32"],
       "net": true,
+      "read": [".git/config"],
       "write": ["CHANGELOG.md"]
     },
     "vrm-validator": {
@@ -57,6 +58,7 @@
     "@octokit/rest": "npm:@octokit/rest@22.0.0",
     "@octokit/types": "npm:@octokit/types@15.0.1",
     "gltf-validator": "npm:gltf-validator@2.0.0-dev.3.10",
+    "isomorphic-git": "npm:isomorphic-git@1.34.2",
     "pyright": "npm:pyright@1.1.407",
     "vitepress": "npm:vitepress@1.6.4",
     "vue": "npm:vue@3.5.22"

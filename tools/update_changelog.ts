@@ -4,6 +4,8 @@
  */
 import { Octokit } from "@octokit/rest";
 import type { Endpoints } from "@octokit/types";
+import git from "isomorphic-git";
+import fs from "node:fs";
 
 interface Release {
   tag_name: string;
@@ -48,16 +50,36 @@ async function updateChangelog(
   await Deno.writeTextFile(changelogPath, newContent.trimEnd() + "\n");
 }
 
-if (import.meta.main) {
-  const [repo, tokenArg] = Deno.args;
-  if (!repo) {
-    console.error(
-      "Usage: update_changelog_from_github.ts <owner/repo> [github_token]",
-    );
-    Deno.exit(1);
+async function getRepoFromGit(): Promise<string> {
+  const remotes = await git.listRemotes({ fs, dir: "." });
+  const origin = remotes.find((remote) => remote.remote === "origin");
+  if (!origin) {
+    throw new Error("origin remote not found in git repository.");
   }
-  const token = tokenArg || Deno.env.get("GITHUB_TOKEN");
+
+  const urlString = origin.url;
+  let url: URL;
   try {
+    url = new URL(urlString);
+  } catch {
+    // Handle SSH format: git@github.com:owner/repo.git
+    const match = urlString.match(/^git@github\.com:([^/]+\/[^/]+?)(\.git)?$/);
+    if (!match || !match[1]) {
+      throw new Error(
+        `Could not parse owner/repo from origin URL: ${urlString}`,
+      );
+    }
+    return match[1];
+  }
+
+  // Handle HTTPS format: https://github.com/owner/repo.git
+  return url.pathname.slice(1).replace(/\.git$/, "");
+}
+
+if (import.meta.main) {
+  const token = Deno.env.get("GITHUB_TOKEN") || Deno.env.get("GH_TOKEN");
+  try {
+    const repo = await getRepoFromGit();
     const releases = await fetchGithubReleases(repo, token);
     await updateChangelog(releases);
     console.log("CHANGELOG.md updated.");
