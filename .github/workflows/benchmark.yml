@@ -82,7 +82,7 @@ jobs:
       - run: |
           python3 -m venv --system-site-packages .venv
           . ./.venv/bin/activate
-          pip3 install "pytest < 9" "pytest-codspeed < 5"
+          pip3 install "pytest < 10" "pytest-codspeed < 5"
           export PYTHONPATH="${PWD}/src:/opt/vrm/lib/python3.12/site-packages"
           echo "PYTHONPATH=${PYTHONPATH}" >>"$GITHUB_ENV"
           python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 4))'
