@@ -13,7 +13,7 @@ def stop_hung_main_process() -> None:
         [
             "/bin/sh",
             "-c",
-            f"sleep 120; kill {pid:d}",
+            f"sleep 120; kill -INT {pid:d}",
         ],
         start_new_session=True,
     )
