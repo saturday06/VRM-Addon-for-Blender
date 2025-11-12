@@ -9,7 +9,14 @@ def stop_hung_main_process() -> None:
         return
 
     pid = os.getpid()
-    subprocess.Popen(["/bin/sh", "-c", f"sleep 30; kill {int(pid)}"])
+    subprocess.Popen(
+        [
+            "/bin/sh",
+            "-c",
+            f"sleep 30; kill {int(pid)}",
+        ],
+        start_new_session=True,
+    )
 
 
 atexit.register(stop_hung_main_process)
