@@ -68,19 +68,21 @@ class OutlineUpdater(SceneWatcher):
 
         create_modifier = False
 
-        if not blend_data.objects:
+        objects = blend_data.objects
+        if not objects:
             return RunState.FINISH
 
         # If the number of objects is less than the previous state and the index
         # range is exceeded, start over from the beginning
-        objects_len = len(blend_data.objects)
+        objects_len = len(objects)
         if self.object_index >= objects_len:
             self.object_index = 0
 
         # Scan objects and check for differences with the comparison object
-        for object_index in range(self.object_index, objects_len):
-            self.object_index = object_index
-            obj = blend_data.objects[object_index]
+        next_object_index = self.object_index
+        for obj in objects[self.object_index : objects_len]:
+            self.object_index = next_object_index
+            next_object_index += 1
 
             preempt_countdown -= 1
             if preempt_countdown <= 0:
@@ -112,7 +114,8 @@ class OutlineUpdater(SceneWatcher):
 
             # If the number of MaterialSlots is less than the previous state and
             # the index range is exceeded, start over from the beginning
-            material_slots_len = len(obj.material_slots)
+            material_slots = obj.material_slots
+            material_slots_len = len(material_slots)
             if self.material_slot_index >= material_slots_len:
                 self.material_slot_index = 0
 
@@ -123,11 +126,14 @@ class OutlineUpdater(SceneWatcher):
                 comparison_object.comparison_materials.pop()
 
             # Scan MaterialSlots and check for differences with the comparison Material
-            for material_slot_index in range(
-                self.material_slot_index, material_slots_len
-            ):
-                self.material_slot_index = material_slot_index
-                material_slot = obj.material_slots[material_slot_index]
+            next_material_slot_index = self.material_slot_index
+            for material_slot in material_slots[
+                self.material_slot_index : material_slots_len
+            ]:
+                material_slot_index = self.material_slot_index = (
+                    next_material_slot_index
+                )
+                next_material_slot_index += 1
 
                 preempt_countdown -= 1
                 if preempt_countdown <= 0:
@@ -284,14 +290,15 @@ class MToon1AutoSetup(SceneWatcher):
             start_material_index = 0
 
         # Traverse the materials and enable MToon if necessary.
-        for material_index in range(start_material_index, end_material_index):
-            self.last_material_index = material_index
+        next_material_index = start_material_index
+        for material in materials[start_material_index:end_material_index]:
+            self.last_material_index = next_material_index
+            next_material_index += 1
 
             search_preempt_countdown -= 1
             if search_preempt_countdown <= 0:
                 return RunState.PREEMPT
 
-            material = materials[material_index]
             if not material.use_nodes:
                 continue
             node_tree = material.node_tree
@@ -308,14 +315,15 @@ class MToon1AutoSetup(SceneWatcher):
 
             # Traverse the nodes and convert the material to MToon if the MToon
             # placeholder node is connected to ShaderNodeOutputMaterial.
-            for node_index in range(start_node_index, end_node_index):
-                self.last_node_index = node_index
+            next_node_index = start_node_index
+            for node in nodes[start_node_index:end_node_index]:
+                self.last_node_index = next_node_index
+                next_node_index += 1
 
                 search_preempt_countdown -= 1
                 if search_preempt_countdown <= 0:
                     return RunState.PREEMPT
 
-                node = nodes[node_index]
                 if not isinstance(node, ShaderNodeGroup):
                     continue
 
