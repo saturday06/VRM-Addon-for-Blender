@@ -21,6 +21,12 @@
       "matchCategories": ["python"],
       "matchPackageNames": ["python", "bpy"],
       "rangeStrategy": "in-range-only"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchDatasources": ["python-version"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
     }
   ],
   "customManagers": [

@@ -67,7 +67,7 @@ jobs:
         with:
           # For reasons unknown, flamegraphs cannot be generated with Codspeed unless Python is
           # installed via actions/setup-python.
-          python-version: "3.12"
+          python-version: "3.12.12"
       - run: pip3 install "numpy < 3" "requests < 3" "zstandard < 1" "pytest < 10" "pytest-codspeed < 5"
       - run: echo /opt/vrm/lib | sudo tee /etc/ld.so.conf.d/vrm.conf
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
