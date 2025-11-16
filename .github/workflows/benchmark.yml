@@ -77,10 +77,10 @@ jobs:
         with:
           path: benchmark-dependencies.tar.gz
           key: benchmark-dependencies-${{ runner.os }}-${{ hashFiles('tools/install_ci_codspeed_dependencies.sh') }}
-      - if: steps.cache.outputs.cache-hit == 'true'
-        run: tar xzf benchmark-dependencies.tar.gz -C /opt
       - if: steps.cache.outputs.cache-hit != 'true'
         run: ./tools/install_ci_codspeed_dependencies.sh
+      - run: sudo rm -fr /opt/vrm
+      - run: sudo tar xzf benchmark-dependencies.tar.gz -C /opt
       - run: sudo ldconfig
       - run: |
           export PYTHONPATH="${PWD}/src:/opt/vrm/lib/python3.12/site-packages"
