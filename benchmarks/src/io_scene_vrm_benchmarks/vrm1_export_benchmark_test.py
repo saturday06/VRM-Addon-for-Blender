@@ -10,7 +10,7 @@ from pytest_codspeed.plugin import BenchmarkFixture
 from io_scene_vrm.common import ops
 
 
-def test_vrm0_export(benchmark: BenchmarkFixture) -> None:
+def test_vrm1_export(benchmark: BenchmarkFixture) -> None:
     context = bpy.context
 
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
