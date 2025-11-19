@@ -10,7 +10,7 @@ next: false
 ![](top.png){.logo}
 
 VRM Add-on for Blender adds VRM import, export, and editing capabilities to
-Blender. It supports Blender versions 2.93 to 4.5.
+Blender. It supports Blender versions 2.93 to 5.0.
 
 ## Download {#download}
 
