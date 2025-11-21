@@ -32,10 +32,6 @@ if sys.platform == "win32":
     raise NotImplementedError
 
 
-def print_path_walk_error(warning_messages: list[str], os_error: OSError) -> None:
-    warning_messages.append(f"Failed to walk directories: {os_error}")
-
-
 def fixup_directory_owner_and_permission(
     directory: Path, warning_messages: list[str], *, uid: int, gid: int, umask: int
 ) -> None:
@@ -89,7 +85,9 @@ def fixup_files(
     all_file_paths: list[Path] = [workspace_path]
     for root, directory_names, file_names in os.walk(
         workspace_path,
-        onerror=functools.partial(print_path_walk_error, warning_messages),
+        onerror=lambda error: warning_messages.append(
+            f"Failed to walk directories: {error}"
+        ),
     ):
         root_path = Path(root)
         progress.update()
