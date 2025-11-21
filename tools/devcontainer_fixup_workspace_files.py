@@ -6,7 +6,7 @@ This script should be run as root. Since root privileges are too powerful,
 it is executed using only OS packages without going through uv.
 """
 
-import functools
+import argparse
 import grp
 import logging
 import os
@@ -63,16 +63,25 @@ def fixup_directory_owner_and_permission(
             warning_messages.append(f"Failed to change permission: {directory}")
 
 
-def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
-    uid = pwd.getpwnam("developer").pw_uid
-    gid = grp.getgrnam("developer").gr_gid
-    umask = 0o022
+def fixup_files(
+    warning_messages: list[str],
+    progress: tqdm,
+    *,
+    workspace_path: Path,
+    uid: int,
+    gid: int,
+    umask: int,
+) -> None:
     total_progress_count = 0
+
+    dot_git_path = workspace_path / ".git"
+    if not dot_git_path.is_dir():
+        warning_messages.append(f"No .git folder: {dot_git_path}")
+        return
 
     # Conditions are unknown, but rarely all file owners become root:root
     # A warning about "operating on unsafe permission repository" appears, so
     # set ownership to yourself. Also reset permissions for recursive processing
-    workspace_path = Path(__file__).parent.parent
     fixup_directory_owner_and_permission(
         workspace_path, warning_messages, uid=uid, gid=gid, umask=umask
     )
@@ -131,7 +140,6 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
                 os.lchown(file_path, uid, gid)
             except OSError:
                 # On macOS, changing ownership of files under .git folder may fail
-                dot_git_path = Path(__file__).parent.parent / ".git"
                 if not file_path.is_relative_to(dot_git_path):
                     warning_messages.append(f"Failed to change owner: {file_path}")
                 continue
@@ -144,33 +152,14 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
         if git_mode is None:
             continue
 
+        git_mode &= 0o0777
+        if git_mode == (st.st_mode & 0o0777):
+            continue
+
         progress.update()
 
-        if git_mode == 0o100644:
-            valid_single_permission = 0o6
-        elif git_mode == 0o10755:
-            valid_single_permission = 0o7
-        else:
-            continue
-
-        # Mask group and other permissions
-        # Fix own permissions and create adjusted permissions
-        max_group_other_permission = (
-            (valid_single_permission << 3) | valid_single_permission
-        ) & ~umask
-        current_group_other_permission = st.st_mode & 0o077
-        valid_group_other_permission = (
-            current_group_other_permission & max_group_other_permission
-        )
-        valid_permission = (
-            (valid_single_permission << 6) | valid_group_other_permission
-        ) & ~umask
-        if (st.st_mode & 0o777) == valid_permission:
-            continue
-
-        valid_full_permission = (st.st_mode & ~0o777) | valid_permission
         try:
-            file_path.chmod(valid_full_permission)
+            file_path.chmod(git_mode)
         except OSError:
             warning_messages.append(f"Failed to change permission: {file_path}")
             continue
@@ -179,9 +168,40 @@ def fixup_files(warning_messages: list[str], progress: tqdm) -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Restore the owner and permissions of the devcontainer workspace folder."
+        )
+    )
+    parser.add_argument(
+        "--user",
+        type=str,
+        default="vscode",
+        help="User name to set ownership to.",
+    )
+    parser.add_argument(
+        "--group",
+        type=str,
+        default="vscode",
+        help="Group name to set ownership to.",
+    )
+    args = parser.parse_args()
+
+    uid = pwd.getpwnam(args.user).pw_uid
+    gid = grp.getgrnam(args.group).gr_gid
+    umask = 0o022
+    workspace_path = Path.cwd()
+
     warning_messages: list[str] = []
     with tqdm(unit="files", ascii=" =", dynamic_ncols=True) as progress:
-        fixup_files(warning_messages, progress)
+        fixup_files(
+            warning_messages,
+            progress,
+            workspace_path=workspace_path,
+            uid=uid,
+            gid=gid,
+            umask=umask,
+        )
     for index, warning_message in enumerate(warning_messages):
         if index > 5:
             logger.warning("...")
