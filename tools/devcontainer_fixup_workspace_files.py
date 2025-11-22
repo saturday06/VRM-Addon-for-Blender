@@ -4,6 +4,9 @@
 
 This script should be run as root. Since root privileges are too powerful,
 it is executed using only OS packages without going through uv.
+
+The latest version of this file can be downloaded from
+https://github.com/saturday06/devcontainer-fixup-workspace-permissions/blob/main/devcontainer_fixup_workspace_permissions.py
 """
 
 import argparse
@@ -26,10 +29,6 @@ else:
     tqdm: TypeAlias = type_checking_tqdm.tqdm  # noqa: PYI042
 
 logger = logging.getLogger(__name__)
-
-
-if sys.platform == "win32":
-    raise NotImplementedError
 
 
 def fixup_directory_owner_and_permission(
@@ -208,4 +207,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    if sys.platform == "win32":
+        raise NotImplementedError
     main()
