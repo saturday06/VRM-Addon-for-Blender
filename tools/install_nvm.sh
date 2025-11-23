@@ -3,6 +3,15 @@
 
 set -eu -o pipefail
 
+# https://github.com/nvm-sh/nvm/blob/v0.40.3/README.md?plain=1#L117-L118
+if ! command -v nvm; then
+  cat <<'NVM_SHELL_CONFIG' | tee -a ~/.bash_profile ~/.bashrc ~/.zshrc ~/.profile
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+NVM_SHELL_CONFIG
+fi
+
+# https://github.com/nvm-sh/nvm/blob/v0.40.3/README.md?plain=1#L107
 nvm_installer_url="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
 if command -v curl; then
   curl \
