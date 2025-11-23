@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
 set -eux
 
@@ -24,10 +25,11 @@ super_linter_tag_name="super-linter-local-${pwd_and_system_hash}"
 # download are massive and download failures frequently occur under poor network
 # conditions, store the final image in the CI cache for reuse.
 ci_super_linter_local_image_path=ci-super-linter-local-image.tar.gz
+image_id=
 if [ "${CI:-}" = "true" ] && [ -s "$ci_super_linter_local_image_path" ]; then
   docker load --input "$ci_super_linter_local_image_path"
+  image_id=$(docker inspect --format='{{.Id}}' "$super_linter_tag_name" || true)
 fi
-image_id=$(docker inspect --format='{{.Id}}' "$super_linter_tag_name" 2>/dev/null)
 docker \
   build \
   --platform=linux/amd64 \
@@ -37,7 +39,7 @@ docker \
   --file \
   tools/super-linter.dockerfile \
   .
-new_image_id=$(docker inspect --format='{{.Id}}' "$super_linter_tag_name" || echo "failed")
+new_image_id=$(docker inspect --format='{{.Id}}' "$super_linter_tag_name")
 if [ "$image_id" != "$new_image_id" ]; then
   docker save "$super_linter_tag_name" | gzip >"$ci_super_linter_local_image_path"
 fi
