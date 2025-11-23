@@ -5,21 +5,25 @@ set -eux
 
 cd "$(dirname "$0")/.."
 
-# To avoid duplication with docker images working in other folders or systems
-# Build using the combined hash value as the docker tag name
-pwd_and_system="$(pwd):$(uname -a)"
-case "$(uname -s)" in
-"Linux")
-  pwd_and_system_hash=$(echo "$pwd_and_system" | md5sum | cut -d" " -f 1)
-  ;;
-"Darwin")
-  pwd_and_system_hash=$(echo "$pwd_and_system" | md5)
-  ;;
-*)
-  exit 0
-  ;;
-esac
-super_linter_tag_name="super-linter-local-${pwd_and_system_hash}"
+if [ "${CI:-}" = "true" ]; then
+  super_linter_tag_name="super-linter-local"
+else
+  # To avoid duplication with docker images working in other folders or systems
+  # Build using the combined hash value as the docker tag name
+  pwd_and_system="$(pwd):$(uname -a)"
+  case "$(uname -s)" in
+  "Linux")
+    pwd_and_system_hash=$(echo "$pwd_and_system" | md5sum | cut -d" " -f 1)
+    ;;
+  "Darwin")
+    pwd_and_system_hash=$(echo "$pwd_and_system" | md5)
+    ;;
+  *)
+    exit 0
+    ;;
+  esac
+  super_linter_tag_name="super-linter-local-${pwd_and_system_hash}"
+fi
 
 # Build the super-linter image for execution. Since the dependencies requiring
 # download are massive and download failures frequently occur under poor network
@@ -40,7 +44,7 @@ docker \
   tools/super-linter.dockerfile \
   .
 new_image_id=$(docker image inspect --format='{{.Id}}' "$super_linter_tag_name")
-if [ "$image_id" != "$new_image_id" ]; then
+if [ "${CI:-}" = "true" ] && [ "$image_id" != "$new_image_id" ]; then
   docker save "$super_linter_tag_name" | gzip >"$ci_super_linter_local_image_path"
 fi
 
