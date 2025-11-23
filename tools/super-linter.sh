@@ -28,7 +28,7 @@ ci_super_linter_local_image_path=ci-super-linter-local-image.tar.gz
 image_id=
 if [ "${CI:-}" = "true" ] && [ -s "$ci_super_linter_local_image_path" ]; then
   docker load --input "$ci_super_linter_local_image_path"
-  image_id=$(docker inspect --format='{{.Id}}' "$super_linter_tag_name" || true)
+  image_id=$(docker image inspect --format='{{.Id}}' "$super_linter_tag_name" || true)
 fi
 docker \
   build \
@@ -39,7 +39,7 @@ docker \
   --file \
   tools/super-linter.dockerfile \
   .
-new_image_id=$(docker inspect --format='{{.Id}}' "$super_linter_tag_name")
+new_image_id=$(docker image inspect --format='{{.Id}}' "$super_linter_tag_name")
 if [ "$image_id" != "$new_image_id" ]; then
   docker save "$super_linter_tag_name" | gzip >"$ci_super_linter_local_image_path"
 fi
