@@ -20,5 +20,13 @@ case "$(uname -s)" in
 esac
 super_linter_tag_name="super-linter-local-${pwd_and_system_hash}"
 
-docker build --platform=linux/amd64 --tag "$super_linter_tag_name" --file tools/super-linter.dockerfile .
+docker \
+  build \
+  --platform=linux/amd64 \
+  --progress=plain \
+  --tag \
+  "$super_linter_tag_name" \
+  --file \
+  tools/super-linter.dockerfile \
+  .
 exec docker run --rm -v "${PWD}:/tmp/lint" "$super_linter_tag_name"
