@@ -32,3 +32,5 @@ else
 fi
 bash install_nvm.tmp.sh
 rm install_nvm.tmp.sh
+
+bash -lc "nvm install"
