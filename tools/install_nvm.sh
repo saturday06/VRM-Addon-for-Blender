@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
-set -eu -o pipefail
+set -eu
 
 # https://github.com/nvm-sh/nvm/blob/v0.40.3/README.md?plain=1#L117-L118
 if ! command -v nvm; then
