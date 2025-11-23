@@ -1,6 +1,7 @@
 *~
 *.blend1
 *.orig
+ci-super-linter-local-image.tar.gz
 .DS_Store
 .env
 .mypy_cache/

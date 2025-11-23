@@ -20,6 +20,14 @@ case "$(uname -s)" in
 esac
 super_linter_tag_name="super-linter-local-${pwd_and_system_hash}"
 
+# Build the super-linter image for execution. Since the dependencies requiring
+# download are massive and download failures frequently occur under poor network
+# conditions, store the final image in the CI cache for reuse.
+ci_super_linter_local_image_path=ci-super-linter-local-image.tar.gz
+if [ "${CI:-}" = "true" ] && [ -s "$ci_super_linter_local_image_path" ]; then
+  docker load --input "$ci_super_linter_local_image_path"
+fi
+image_id=$(docker inspect --format='{{.Id}}' "$super_linter_tag_name" 2>/dev/null)
 docker \
   build \
   --platform=linux/amd64 \
@@ -29,4 +37,10 @@ docker \
   --file \
   tools/super-linter.dockerfile \
   .
+new_image_id=$(docker inspect --format='{{.Id}}' "$super_linter_tag_name" || echo "failed")
+if [ "$image_id" != "$new_image_id" ]; then
+  docker save "$super_linter_tag_name" | gzip >"$ci_super_linter_local_image_path"
+fi
+
+# Run the built super-linter.
 exec docker run --rm -v "${PWD}:/tmp/lint" "$super_linter_tag_name"
