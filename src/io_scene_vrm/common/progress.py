@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from typing import Final, Optional
 from uuid import uuid4
 
+import bpy
 from bpy.types import Context
 
 from .logger import get_logger
@@ -55,13 +56,18 @@ class Progress:
         if not self.show_progress:
             return
 
-        # The mouse cursor becomes a four-digit number, and there is an area
-        # where values from 0 to 9999 can be displayed. However, if the
-        # progress rate is directly converted to a number from 0 to 9999, the
-        # last two digits will frequently round-trip, making the progress
-        # difficult to understand. Therefore, only the last two digits display
-        # area is used to show the progress rate as a number from 0 to 99.
-        self.context.window_manager.progress_update(math.floor(ratio * 99))
+        if bpy.app.version >= (5, 0):
+            progress_value = ratio * 9999
+        else:
+            # The mouse cursor becomes a four-digit number, and there is an area
+            # where values from 0 to 9999 can be displayed. However, if the
+            # progress rate is directly converted to a number from 0 to 9999, the
+            # last two digits will frequently round-trip, making the progress
+            # difficult to understand. Therefore, only the last two digits display
+            # area is used to show the progress rate as a number from 0 to 99.
+            progress_value = math.floor(ratio * 99)
+
+        self.context.window_manager.progress_update(progress_value)
 
 
 @contextmanager
