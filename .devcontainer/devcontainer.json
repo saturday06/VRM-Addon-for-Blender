@@ -48,6 +48,9 @@
         "python.terminal.activateEnvironment": false,
         "python.testing.pytestEnabled": false,
         "python.testing.unittestEnabled": true,
+        "python.analysis.diagnosticSeverityOverrides": {
+          "reportMissingModuleSource": "none" // Suppressed here because pylance doesn't support the setting in pyproject.toml
+        },
         "terminal.integrated.scrollback": 50000,
         "[typescript]": {
           "editor.defaultFormatter": "denoland.vscode-deno"
