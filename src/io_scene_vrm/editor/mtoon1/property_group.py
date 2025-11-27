@@ -31,6 +31,7 @@ from bpy.types import (
     ShaderNodeGroup,
     ShaderNodeMath,
     ShaderNodeNormalMap,
+    ShaderNodeOutputMaterial,
     ShaderNodeTexImage,
 )
 from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
@@ -3714,3 +3715,64 @@ def setup_drivers(context: Context) -> None:
     for material in context.blend_data.materials:
         get_material_mtoon1_extension(material).setup_drivers()
     shader.setup_frame_count_driver(context)
+
+
+def link_or_unlink_gltf_material_nodes(
+    context: Context, material: Material, *, link: bool
+) -> None:
+    TextureTraceablePropertyGroup.link_or_unlink_nodes(
+        material,
+        "Mtoon1Material.CompatibleShader",
+        ShaderNodeBsdfPrincipled,
+        "BSDF",
+        StaticNodeSocketTarget(
+            in_node_name="Mtoon1Material.CompatibleMaterialOutput",
+            in_node_type=ShaderNodeOutputMaterial,
+            in_socket_name="Surface",
+        ),
+        link=link,
+    )
+
+    output_group = context.blend_data.node_groups.get(shader.OUTPUT_GROUP_NAME)
+    if output_group is None:
+        return
+
+    for from_node_name, to_node_name in [
+        (
+            "EeveeMaterialOutputSwitch",
+            "EeveeMaterialOutput",
+        ),
+        (
+            "CyclesMaterialOutputSwitch",
+            "CyclesMaterialOutput",
+        ),
+    ]:
+        from_node = output_group.nodes.get(from_node_name)
+        if not from_node or not isinstance(from_node, NodeReroute):
+            continue
+        from_socket = from_node.outputs[0]
+
+        to_node = output_group.nodes.get(to_node_name)
+        if not to_node or not isinstance(to_node, ShaderNodeOutputMaterial):
+            continue
+        to_socket = to_node.inputs["Surface"]
+
+        existing_link = next(
+            (
+                link
+                for link in output_group.links
+                if link.from_node == from_node
+                and link.from_socket == from_socket
+                and link.to_node == to_node
+                and link.to_socket == to_socket
+            ),
+            None,
+        )
+        if existing_link:
+            if not link:
+                output_group.links.remove(existing_link)
+        elif link:
+            output_group.links.new(
+                from_socket,
+                to_socket,
+            )

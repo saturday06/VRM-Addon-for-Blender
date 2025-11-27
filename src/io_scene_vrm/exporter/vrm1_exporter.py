@@ -51,6 +51,7 @@ from ..editor.extension import get_armature_extension, get_material_extension
 from ..editor.mtoon1.property_group import (
     Mtoon1SamplerPropertyGroup,
     Mtoon1TextureInfoPropertyGroup,
+    link_or_unlink_gltf_material_nodes,
 )
 from ..editor.spring_bone1.handler import sort_spring_bone_joints
 from ..editor.spring_bone1.property_group import (
@@ -2054,7 +2055,12 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         for material in context.blend_data.materials:
             if not material:
                 continue
-            if get_material_extension(material).mtoon1.enabled and material.use_nodes:
+            if not get_material_extension(material).mtoon1.enabled:
+                continue
+            if bpy.app.version >= (5, 0):
+                link_or_unlink_gltf_material_nodes(context, material, link=False)
+                disabled_material_names.append(material.name)
+            elif material.use_nodes:
                 material.use_nodes = False
                 disabled_material_names.append(material.name)
         return disabled_material_names
@@ -2067,7 +2073,11 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             disabled_material = context.blend_data.materials.get(disabled_material_name)
             if not disabled_material:
                 continue
-            if not disabled_material.use_nodes:
+            if bpy.app.version >= (5, 0):
+                link_or_unlink_gltf_material_nodes(
+                    context, disabled_material, link=True
+                )
+            elif not disabled_material.use_nodes:
                 disabled_material.use_nodes = True
 
     @classmethod
