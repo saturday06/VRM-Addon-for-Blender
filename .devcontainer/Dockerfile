@@ -34,7 +34,7 @@ WORKDIR /home/developer
 RUN <<'SETUP_USER_DEVELOPER_LOCAL_ENVIRONMENT'
   set -eu
 
-  cat <<'SHELL_PROFILE_SCRIPT' >>~/.profile
+  cat <<'SHELL_PROFILE_SCRIPT' | tee -a ~/.profile ~/.bash_profile ~/.bashrc ~/.zshrc
 export BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 export DISPLAY=:0
 export UV_LINK_MODE=copy
@@ -59,5 +59,5 @@ VNC_XSTARTUP_SCRIPT
   # https://github.com/denoland/deno/issues/25931#issuecomment-2406073767
   curl --fail --show-error --location https://deno.land/install.sh | sh -s -- --yes
   # Deno doesnot add newlines to the final line of shell config, so add them manually.
-  echo | tee -a ~/.profile ~/.bashrc ~/.zshrc
+  echo | tee -a ~/.profile ~/.bash_profile ~/.bashrc ~/.zshrc
 SETUP_USER_DEVELOPER_LOCAL_ENVIRONMENT
