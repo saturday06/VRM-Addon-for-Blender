@@ -2057,12 +2057,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 continue
             if not get_material_extension(material).mtoon1.enabled:
                 continue
-            if bpy.app.version >= (5, 0):
-                link_or_unlink_gltf_material_nodes(context, material, link=False)
-                disabled_material_names.append(material.name)
-            elif material.use_nodes:
-                material.use_nodes = False
-                disabled_material_names.append(material.name)
+            link_or_unlink_gltf_material_nodes(context, material, link=False)
+            disabled_material_names.append(material.name)
         return disabled_material_names
 
     @staticmethod
@@ -2073,12 +2069,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             disabled_material = context.blend_data.materials.get(disabled_material_name)
             if not disabled_material:
                 continue
-            if bpy.app.version >= (5, 0):
-                link_or_unlink_gltf_material_nodes(
-                    context, disabled_material, link=True
-                )
-            elif not disabled_material.use_nodes:
-                disabled_material.use_nodes = True
+            link_or_unlink_gltf_material_nodes(context, disabled_material, link=True)
 
     @classmethod
     @contextmanager
