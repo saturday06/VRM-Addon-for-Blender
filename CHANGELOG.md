@@ -6,33 +6,10 @@
 ### 🚀 Features
 
 * adjust progress value calculation based on Blender version ([6f86818](https://github.com/saturday06/VRM-Addon-for-Blender/commit/6f86818ebf7e1c05455eec4e893945c843b05ca2))
-* make VRM 1.0 the default for the third anniversary ([dd490e9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/dd490e9c4d6d9ae91f2bfebf2dfd0009ab80fdf5))
-* support blender 5.0 ([0ef59cd](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0ef59cd2d6e51195b303c16e0ef5dceea0241c01))
-* support vrm0 legacy unlit shaders ([ae0ce39](https://github.com/saturday06/VRM-Addon-for-Blender/commit/ae0ce39547ca94e47822203a069ee9680804a704))
-* trigger release workflow ([1e7293a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/1e7293a3f1f461635c4ad91f1875136162486b54))
-
 
 ### 🐛 Bug Fixes
 
-* adjusted the change threshold for previews of expressions with isBinary enabled ([f2ffac3](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f2ffac37b538601a84ca24fb5455a0fa5cb5ed47))
-* **deps:** lock file maintenance regular dependency updates ([#1093](https://github.com/saturday06/VRM-Addon-for-Blender/issues/1093)) ([cd1a83a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/cd1a83ac5e1f37778ea665cfb17692e28a2f8546))
-* **deps:** lock file maintenance regular dependency updates ([#1095](https://github.com/saturday06/VRM-Addon-for-Blender/issues/1095)) ([cbe92d1](https://github.com/saturday06/VRM-Addon-for-Blender/commit/cbe92d165b0d35981e33c3cb647e134eb84b9c7e))
 * fix a bug in Blender 5.0 where textures duplicated during VRM1 export ([514e7e7](https://github.com/saturday06/VRM-Addon-for-Blender/commit/514e7e79f49a73f43703668478503ff34be2af17))
-* fix a bug that _ALPHABLEND_ON is incorrectly enabled in Blender 4.2 and later ([a9d21b4](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a9d21b41f92eda5fc40b8168bde5dbe591c56389))
-* fix a bug that invisible modifiers would become visible on VRM import ([52e583c](https://github.com/saturday06/VRM-Addon-for-Blender/commit/52e583caf465a95f688096ca895b001a35d88956))
-* fix an issue where VRM0 morph target names were not displayed in some applications ([9c956b8](https://github.com/saturday06/VRM-Addon-for-Blender/commit/9c956b89235427a78c3e8d5353943ba26c24c4b0))
-* fix export error on Blender 2.93 ([10d3a57](https://github.com/saturday06/VRM-Addon-for-Blender/commit/10d3a57bf86aaade94ae01d2f66901225350a4f6))
-* fix export error when vertex weights are in certain situations ([53775d7](https://github.com/saturday06/VRM-Addon-for-Blender/commit/53775d78c1798fc6dfedd0fb05057e18f4e8e738))
-* fix resource leak on import VRM ([b6caea7](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b6caea7ae275b15c3a7f23e562f4a524e3716c6b))
-* fixed a bug where a single outline material could be shared across multiple base materials ([fc6752f](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fc6752f0260ac5e7f300f3bf32ceecd135a454f8))
-* fixed a bug where referenced Non-Deform bones were not exported ([e725b50](https://github.com/saturday06/VRM-Addon-for-Blender/commit/e725b502e1f0df78bdd4a4b5ceddfdb2539cb90a))
-* fixed an issue where temporary armature might remain after VRM export ([fe9fc0e](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fe9fc0e950d6204c7277bedc237ab662d42e869b))
-* slightly reduces performance issues with the list view in Blender 4.5. ([cb70239](https://github.com/saturday06/VRM-Addon-for-Blender/commit/cb7023981c0268ef5b56254d9732d82424866f6e))
-* trigger release pipeline ([2ec0e8e](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2ec0e8eff6098c29eaecb1eb969ac767543a79eb))
-* trigger release pipeline ([05a6733](https://github.com/saturday06/VRM-Addon-for-Blender/commit/05a6733ecfe76500ba005a9f7451c6e3f2d6d691))
-* trigger release process ([2e8a4fc](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2e8a4fc7af826e308d4dca68db313fd4fb317622))
-* trigger release workflow ([82c2c68](https://github.com/saturday06/VRM-Addon-for-Blender/commit/82c2c68207a01ab4a9d9ae37d6aa2632031b111e))
-* trigger release workflow ([5aa88dc](https://github.com/saturday06/VRM-Addon-for-Blender/commit/5aa88dc095fefab5d1541bb3cb8772d819bdf0ec))
 
 ## [3.16.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.15.0...v3.16.0) (2025-11-08)
 
