@@ -201,6 +201,79 @@ export default defineConfig({
                   },
                 ],
               },
+              {
+                text: "オペレーター",
+                items: [
+                  {
+                    text: "オペレーター",
+                    link: "/ja-jp/ui/vrm_pt_vrm_operator/",
+                  },
+                ],
+              },
+              {
+                text: "マテリアル",
+                items: [
+                  {
+                    text: "MToon マテリアル",
+                    link: "/ja-jp/ui/vrm_pt_vrm_material_property/",
+                  },
+                ],
+              },
+              {
+                text: "VRM 1.0",
+                items: [
+                  { text: "Meta", link: "/ja-jp/ui/vrm_pt_vrm1_meta_ui/" },
+                  {
+                    text: "Humanoid",
+                    link: "/ja-jp/ui/vrm_pt_vrm1_humanoid_ui/",
+                  },
+                  {
+                    text: "First Person",
+                    link: "/ja-jp/ui/vrm_pt_vrm1_first_person_ui/",
+                  },
+                  {
+                    text: "Look At",
+                    link: "/ja-jp/ui/vrm_pt_vrm1_look_at_ui/",
+                  },
+                  {
+                    text: "Expressions",
+                    link: "/ja-jp/ui/vrm_pt_vrm1_expressions_ui/",
+                  },
+                  {
+                    text: "Node Constraint",
+                    link: "/ja-jp/ui/vrm_pt_node_constraint1_ui/",
+                  },
+                  {
+                    text: "Spring Bone",
+                    link: "/ja-jp/ui/vrm_pt_vrm1_spring_bone_ui/",
+                  },
+                ],
+              },
+              {
+                text: "VRM 0.0",
+                items: [
+                  {
+                    text: "VRM 0.x Meta",
+                    link: "/ja-jp/ui/vrm_pt_vrm0_meta_ui/",
+                  },
+                  {
+                    text: "VRM 0.x Humanoid",
+                    link: "/ja-jp/ui/vrm_pt_vrm0_humanoid_ui/",
+                  },
+                  {
+                    text: "VRM 0.x Blend Shape Proxy",
+                    link: "/ja-jp/ui/vrm_pt_vrm0_blend_shape_master_ui/",
+                  },
+                  {
+                    text: "VRM 0.x First Person",
+                    link: "/ja-jp/ui/vrm_pt_vrm0_first_person_ui/",
+                  },
+                  {
+                    text: "VRM 0.x Spring Bone",
+                    link: "/ja-jp/ui/vrm_pt_vrm0_secondary_animation_ui/",
+                  },
+                ],
+              },
             ],
           },
         ],
