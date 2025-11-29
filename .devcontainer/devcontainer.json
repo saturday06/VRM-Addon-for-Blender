@@ -44,7 +44,7 @@
       "settings": {
         "chat.sendElementsToChat.enabled": false, // https://github.com/microsoft/vscode-livepreview/issues/745#issuecomment-3019205373
         "python.testing.unittestArgs": ["-v", "-s", ".", "-p", "test_*.py"],
-        "python.defaultInterpreterPath": "./.venv/bin/python",
+        "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
         "python.terminal.activateEnvironment": false,
         "python.testing.pytestEnabled": false,
         "python.testing.unittestEnabled": true,
