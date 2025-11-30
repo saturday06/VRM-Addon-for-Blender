@@ -33,7 +33,7 @@ namespace VrmaRecorder
         }
 
 #if UNITY_EDITOR
-        private List<(
+        private static List<(
             string inputVrmPath,
             string inputVrmaPath,
             string outputFolderPath
