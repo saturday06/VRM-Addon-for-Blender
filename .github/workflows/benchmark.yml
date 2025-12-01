@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 720
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           persist-credentials: false
       - run: |
@@ -86,7 +86,7 @@ jobs:
           export PYTHONPATH="${PWD}/src:/opt/vrm/lib/python3.12/site-packages"
           echo "PYTHONPATH=${PYTHONPATH}" >>"$GITHUB_ENV"
           python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 4))'
-      - uses: CodSpeedHQ/action@bb005fe1c1eea036d3894f02c049cb6b154a1c27 # v4.3.3
+      - uses: CodSpeedHQ/action@6a8e2b874c338bf81cc5e8be715ada75908d3871 # v4.3.4
         with:
           mode: instrumentation
           run: pytest --codspeed || true
