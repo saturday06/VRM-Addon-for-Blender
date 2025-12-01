@@ -100,6 +100,7 @@ export default defineConfig({
           },
           {
             text: "チュートリアル",
+            collapsed: false,
             items: [
               {
                 items: [
@@ -129,6 +130,21 @@ export default defineConfig({
                     link: "/ja-jp/scripting-api/",
                   },
                   { text: "改造するには", link: "/ja-jp/development/" },
+                ],
+              },
+            ],
+          },
+          {
+            text: "ユーザーインターフェース",
+            collapsed: false,
+            items: [
+              {
+                text: "インポート",
+                items: [
+                  {
+                    text: "VRMのインポート",
+                    link: "/ja-jp/ui/import_scene.vrm/",
+                  },
                 ],
               },
             ],
