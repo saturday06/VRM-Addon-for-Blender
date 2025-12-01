@@ -15,7 +15,7 @@ from bpy.types import Armature, Camera, Context, ShaderNodeOutputWorld
 from mathutils import Color, Euler, Vector
 
 from io_scene_vrm.common import ops
-from io_scene_vrm.common.test_helper import AddonTestCase
+from io_scene_vrm.common.test_helper import AddonTestCase, make_test_method_name
 from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.search import current_armature
 from io_scene_vrm.editor.vrm1.property_group import Vrm1LookAtPropertyGroup
@@ -387,7 +387,7 @@ TestVrmAnimationImport = type(
     "TestVrmAnimationImport",
     (__TestVrmAnimationRenderingBase,),
     {
-        "test_" + path.stem: functools.partialmethod(
+        make_test_method_name(path.stem): functools.partialmethod(
             __TestVrmAnimationRenderingBase.assert_import, path
         )
         for path in sorted(
@@ -400,7 +400,7 @@ TestVrmAnimationLosslessExport = type(
     "TestVrmAnimationLosslessExport",
     (__TestVrmAnimationRenderingBase,),
     {
-        "test_" + path.stem: functools.partialmethod(
+        make_test_method_name(path.stem): functools.partialmethod(
             __TestVrmAnimationRenderingBase.assert_lossless_export, path
         )
         for path in sorted(
@@ -415,7 +415,7 @@ TestVrmAnimationLossyExport = type(
     "TestVrmAnimationLossyExport",
     (__TestVrmAnimationRenderingBase,),
     {
-        "test_" + path.stem: functools.partialmethod(
+        make_test_method_name(path.stem): functools.partialmethod(
             __TestVrmAnimationRenderingBase.assert_lossy_export, path
         )
         for path in sorted(

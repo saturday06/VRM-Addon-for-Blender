@@ -10,7 +10,7 @@ import bpy
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.logger import get_logger
-from io_scene_vrm.common.test_helper import AddonTestCase
+from io_scene_vrm.common.test_helper import AddonTestCase, make_test_method_name
 
 logger = get_logger(__name__)
 
@@ -74,7 +74,7 @@ TestImportSceneBrokenVrm = type(
     "TestImportSceneBrokenVrm",
     (__TestImportSceneBrokenVrmBase,),
     {
-        "test_" + path.stem: functools.partialmethod(
+        make_test_method_name(path.stem): functools.partialmethod(
             __TestImportSceneBrokenVrmBase.assert_broken_vrm, path
         )
         for path in sorted((resources_dir / "vrm" / "broken").glob("*.vrm"))

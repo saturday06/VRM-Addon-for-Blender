@@ -10,7 +10,7 @@ import bpy
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.logger import get_logger
-from io_scene_vrm.common.test_helper import AddonTestCase
+from io_scene_vrm.common.test_helper import AddonTestCase, make_test_method_name
 from io_scene_vrm.importer.vrm_diff import vrm_diff
 
 logger = get_logger(__name__)
@@ -123,7 +123,7 @@ TestVrmImportExport = type(
     "TestVrmImportExport",
     (__TestVrmImportExportBase,),
     {
-        "test_" + path.stem: functools.partialmethod(
+        make_test_method_name(path.stem): functools.partialmethod(
             __TestVrmImportExportBase.assert_vrm_import_export,
             path,
             extract_textures=extract_textures,

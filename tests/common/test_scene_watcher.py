@@ -13,7 +13,7 @@ from io_scene_vrm.common.scene_watcher import (
     SceneWatcherScheduler,
     create_fast_path_performance_test_scene,
 )
-from io_scene_vrm.common.test_helper import AddonTestCase
+from io_scene_vrm.common.test_helper import AddonTestCase, make_test_method_name
 
 
 class __TestSceneWatcherBase(AddonTestCase):
@@ -58,7 +58,7 @@ TestSceneWatcher = type(
     "TestSceneWatcher",
     (__TestSceneWatcherBase,),
     {
-        "test_" + scene_watcher_type.__name__: functools.partialmethod(
+        make_test_method_name(scene_watcher_type.__name__): functools.partialmethod(
             __TestSceneWatcherBase.assert_performance, scene_watcher_type
         )
         for scene_watcher_type in SceneWatcherScheduler.get_all_scene_watcher_types()

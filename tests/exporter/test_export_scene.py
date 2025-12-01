@@ -12,7 +12,7 @@ import bpy
 from io_scene_vrm.common import deep, ops
 from io_scene_vrm.common.logger import get_logger
 from io_scene_vrm.common.preferences import get_preferences
-from io_scene_vrm.common.test_helper import AddonTestCase
+from io_scene_vrm.common.test_helper import AddonTestCase, make_test_method_name
 from io_scene_vrm.importer.vrm_diff import vrm_diff
 
 logger = get_logger(__name__)
@@ -187,7 +187,7 @@ TestBlendExport = type(
     "TestBlendExport",
     (__TestBlendExportBase,),
     {
-        "test_" + path.stem: functools.partialmethod(
+        make_test_method_name(path.stem): functools.partialmethod(
             __TestBlendExportBase.assert_blend_export, path
         )
         for path in sorted(

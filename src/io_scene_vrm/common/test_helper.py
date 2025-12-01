@@ -10,6 +10,20 @@ DEVELOPMENT_MODULE = ".".join(__name__.split(".")[:-2])
 MANIFEST_ID = BlenderManifest.read().id
 
 
+def make_test_method_name(text: str) -> str:
+    replaced_chars: list[str] = []
+    for char in text:
+        if char == "«":
+            replaced_chars.append("««")
+        elif char == "»":
+            replaced_chars.append("»»")
+        elif ("_" + char).isidentifier():
+            replaced_chars.append(char)
+        else:
+            replaced_chars.append(f"«{ord(char):x}»")
+    return "test_" + ("".join(replaced_chars))
+
+
 class AddonTestCase(TestCase):
     disabled_installed_module: Optional[str]
 
