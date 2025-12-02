@@ -147,6 +147,15 @@ export default defineConfig({
                   },
                 ],
               },
+              {
+                text: "エクスポート",
+                items: [
+                  {
+                    text: "VRMのエクスポート",
+                    link: "/ja-jp/ui/export_scene.vrm/",
+                  },
+                ],
+              },
             ],
           },
         ],
