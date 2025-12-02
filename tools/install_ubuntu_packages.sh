@@ -31,6 +31,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   python3-tqdm \
   python3-typing-extensions \
   ruby \
+  ruby-rmagick \
   shellcheck \
   shfmt \
   sudo \
