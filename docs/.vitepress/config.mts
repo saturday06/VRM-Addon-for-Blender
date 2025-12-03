@@ -38,6 +38,7 @@ export default defineConfig({
           },
           {
             text: "Tutorials",
+            collapsed: false,
             items: [
               {
                 items: [
@@ -64,6 +65,30 @@ export default defineConfig({
                     link: "/en-us/scripting-api/",
                   },
                   { text: "Development How-To", link: "/en-us/development/" },
+                ],
+              },
+            ],
+          },
+          {
+            text: "User Interface",
+            collapsed: false,
+            items: [
+              {
+                text: "Import",
+                items: [
+                  {
+                    text: "Import VRM",
+                    link: "/en-us/ui/import_scene.vrm/",
+                  },
+                ],
+              },
+              {
+                text: "Export",
+                items: [
+                  {
+                    text: "Export VRM",
+                    link: "/en-us/ui/export_scene.vrm/",
+                  },
                 ],
               },
             ],

@@ -39,8 +39,8 @@
 
 #### ✅ 【高度なオプション】【VRM 1.0のみ】glTFアニメーションをエクスポートする
 
-glTFアニメーションをエクスポート結果に含めます。
+glTFアニメーションをエクスポートします。デフォルトではglTFアニメーションはエクスポートしません。
 VRMファイルはモーションのリターゲッティングをすることが前提のフォーマットのため、
-そのままglTFのアニメーションがそのまま適用できないことが多いため、デフォルトではエクスポートしません。
-代わりに [VRM Animation](https://vrm-addon-for-blender.info/ja-jp/animation/)
+そのままglTFのアニメーションがそのまま適用できないことが多いです。 代わりに
+[VRM Animation](https://vrm-addon-for-blender.info/ja-jp/animation/)
 の利用を検討してください。
