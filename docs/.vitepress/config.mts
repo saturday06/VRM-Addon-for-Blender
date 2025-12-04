@@ -170,6 +170,10 @@ export default defineConfig({
                     text: "VRMのインポート",
                     link: "/ja-jp/ui/import_scene.vrm/",
                   },
+                  {
+                    text: "VRM Animationのインポート",
+                    link: "/ja-jp/ui/import_scene.vrma/",
+                  },
                 ],
               },
               {
@@ -178,6 +182,10 @@ export default defineConfig({
                   {
                     text: "VRMのエクスポート",
                     link: "/ja-jp/ui/export_scene.vrm/",
+                  },
+                  {
+                    text: "VRM Animationのエクスポート",
+                    link: "/ja-jp/ui/export_scene.vrma/",
                   },
                 ],
               },
