@@ -1,4 +1,4 @@
-Select `File` → `Import` → `VRM(.vrm)` from the menu to display the VRM import
+Select `File` → `Import` → `VRM (.vrm)` from the menu to display the VRM import
 dialog. Select a VRM file and click the `Open` button to load the VRM file into
 the scene.
 

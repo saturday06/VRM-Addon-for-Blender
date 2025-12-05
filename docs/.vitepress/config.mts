@@ -80,6 +80,10 @@ export default defineConfig({
                     text: "Import VRM",
                     link: "/en-us/ui/import_scene.vrm/",
                   },
+                  {
+                    text: "Import VRM Animation",
+                    link: "/en-us/ui/import_scene.vrma/",
+                  },
                 ],
               },
               {
@@ -88,6 +92,10 @@ export default defineConfig({
                   {
                     text: "Export VRM",
                     link: "/en-us/ui/export_scene.vrm/",
+                  },
+                  {
+                    text: "Export VRM Animation",
+                    link: "/en-us/ui/export_scene.vrma/",
                   },
                 ],
               },

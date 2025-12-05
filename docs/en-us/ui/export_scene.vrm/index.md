@@ -1,4 +1,4 @@
-Select `File` → `Export` → `VRM(.vrm)` from the menu to display the VRM export
+Select `File` → `Export` → `VRM (.vrm)` from the menu to display the VRM export
 dialog. Press the `Save` button to export the currently edited armature as a VRM
 file.
 
