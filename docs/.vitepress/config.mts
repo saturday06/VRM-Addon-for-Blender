@@ -197,6 +197,15 @@ export default defineConfig({
                   },
                 ],
               },
+              {
+                text: "オペレーター",
+                items: [
+                  {
+                    text: "オペレーター",
+                    link: "/ja-jp/ui/icyp_pt_ui_controller/",
+                  },
+                ],
+              },
             ],
           },
         ],
