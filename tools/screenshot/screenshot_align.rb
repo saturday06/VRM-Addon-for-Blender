@@ -43,7 +43,7 @@ rows = image.rows
 while rows % 12 != 0 do
   rows += 1
 end
-crop_pad_image = Magick::Image.new(image.columns, rows).matte_floodfill(1, 1)
+crop_pad_image = Magick::Image.new(image.columns, rows).color_floodfill(1, 1, Magick::Pixel.from_color("#181818"))
 crop_pad_image.composite!(image, Magick::NorthGravity, Magick::OverCompositeOp)
 
 # avif
