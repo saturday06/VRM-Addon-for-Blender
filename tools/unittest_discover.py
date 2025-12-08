@@ -42,7 +42,7 @@ def discover_and_run_test_suite(argv: list[str], stream: TextIO) -> int:
 
 def main(argv: list[str]) -> int:
     # if os.environ.get("BLENDER_VRM_TEST_DEP_WARNINGS") == "true":
-    warnings.simplefilter("always", DeprecationWarning)
+    warnings.simplefilter("default", DeprecationWarning)
 
     if sys.platform == "win32":
         with open(  # noqa: PTH123
