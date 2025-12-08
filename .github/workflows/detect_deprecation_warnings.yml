@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+name: Detect Deprecation Warnings
+
+permissions: {}
+
+on:
+  push:
+    branches:
+      - compat
+  workflow_dispatch:
+
+env:
+  BLENDER_ARCHIVE_BASE_URL: https://download.blender.org/release
+
+jobs:
+  detect-deprecation-warnings:
+    name: Detect Deprecation Warnings / ${{ matrix.blender.job_name_postfix }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        blender:
+          - job_name_postfix: blender 5.0
+            archive_url_path: Blender5.0/blender-5.0.0-linux-x64.tar.xz
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+      - name: Cache archive
+        id: cache-archive
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: |
+            blender.tar.xz
+            tests/temp
+          key: ${{ matrix.blender.archive_url_path }}-archive-9
+      - name: Download archive
+        if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
+        env:
+          BLENDER_ARCHIVE_URL: ${{ env.BLENDER_ARCHIVE_BASE_URL }}/${{ matrix.blender.archive_url_path }}
+        run: |
+          curl --fail --show-error --location --retry 5 --retry-all-errors --output blender.tar.xz "$BLENDER_ARCHIVE_URL"
+      - name: Install dependencies
+        run: sudo ./tools/install_ubuntu_packages.sh
+      - name: Test
+#        env:
+#          BLENDER_VRM_TEST_DEP_WARNINGS: "true"
+        run: |
+          mkdir -p "${HOME}/.local/blender"
+          tar -x --strip-components=1 -f blender.tar.xz -C "${HOME}/.local/blender"
+          "${HOME}/.local/blender/blender" --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
+      - name: Archive failed io test result
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        if: failure()
+        with:
+          name: VRMs (${{ github.job }} ${{ matrix.blender.job_name_postfix }})
+          path: tests/resources/vrm/*/temp
