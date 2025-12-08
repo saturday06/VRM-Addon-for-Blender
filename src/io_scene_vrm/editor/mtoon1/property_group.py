@@ -3337,8 +3337,6 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             return False
 
         material = self.find_material()
-        if not material.node_tree:
-            return False
 
         node_tree = material.node_tree
         if not node_tree:
@@ -3366,7 +3364,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             self["enabled"] = False
             return
 
-        if not material.node_tree:
+        if bpy.app.version < (5, 0, 0) and not material.use_nodes:
             material.use_nodes = True
         if self.enabled:
             return
