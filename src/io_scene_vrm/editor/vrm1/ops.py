@@ -2002,7 +2002,7 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         material: Material,
         all_expressions: list[tuple[Vrm1ExpressionPropertyGroup, str, str]],
     ) -> None:
-        if not material.use_nodes:
+        if bpy.app.version < (5, 0, 0) and not material.use_nodes:
             material.use_nodes = True
 
         node_tree = material.node_tree
