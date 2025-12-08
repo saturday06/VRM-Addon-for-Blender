@@ -79,9 +79,6 @@ LEGACY_SHADER_NAMES: Final = (
 def legacy_shader_node(
     material: Material,
 ) -> tuple[Optional[ShaderNodeGroup], Optional[str]]:
-    if not material.use_nodes:
-        return (None, None)
-
     node_tree = material.node_tree
     if not node_tree:
         return (None, None)

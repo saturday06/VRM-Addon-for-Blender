@@ -420,7 +420,7 @@ def load_mtoon1_shader(
 ) -> None:
     from ..editor.extension import get_material_extension
 
-    if not material.use_nodes:
+    if not material.node_tree:
         material.use_nodes = True
 
     load_mtoon1_outline_geometry_node_group(
