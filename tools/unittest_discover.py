@@ -2,9 +2,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
 import argparse
-import os
 import sys
-import warnings
 from pathlib import Path
 from typing import TextIO
 from unittest import TestLoader
@@ -41,9 +39,6 @@ def discover_and_run_test_suite(argv: list[str], stream: TextIO) -> int:
 
 
 def main(argv: list[str]) -> int:
-    # if os.environ.get("BLENDER_VRM_TEST_DEP_WARNINGS") == "true":
-    warnings.simplefilter("default", DeprecationWarning)
-
     if sys.platform == "win32":
         with open(  # noqa: PTH123
             sys.stderr.fileno(), mode="w", encoding="ansi", buffering=1
