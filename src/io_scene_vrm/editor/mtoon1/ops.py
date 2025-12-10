@@ -517,7 +517,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(Operator):
         return {"FINISHED"}
 
     def convert_mtoon1_to_bsdf_principled(self, material: Material) -> None:
-        if not material.use_nodes:
+        if bpy.app.version < (5, 0, 0) and not material.use_nodes:
             material.use_nodes = True
         shader.clear_node_tree(material.node_tree, clear_inputs_outputs=True)
         if not material.node_tree:
@@ -855,7 +855,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
             outline_material = context.blend_data.materials.new(
                 name=outline_material_name
             )
-            if not outline_material.use_nodes:
+            if bpy.app.version < (5, 0, 0) and not outline_material.use_nodes:
                 outline_material.use_nodes = True
             if outline_material.diffuse_color[3] != 0.25:
                 outline_material.diffuse_color[3] = 0.25
@@ -868,7 +868,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
             get_material_extension(material).mtoon1.outline_material = outline_material
         if outline_material.name != outline_material_name:
             outline_material.name = outline_material_name
-        if not outline_material.use_nodes:
+        if bpy.app.version < (5, 0, 0) and not outline_material.use_nodes:
             outline_material.use_nodes = True
         if not get_material_extension(outline_material).mtoon1.is_outline_material:
             get_material_extension(outline_material).mtoon1.is_outline_material = True

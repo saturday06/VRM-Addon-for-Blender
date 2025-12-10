@@ -730,7 +730,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
     def get_connected_node_image(self) -> Optional[Image]:
         material = self.find_material()
-        if not material.use_nodes:
+        if bpy.app.version < (5, 0, 0) and not material.use_nodes:
             return None
 
         node_tree = material.node_tree
@@ -3340,7 +3340,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             return False
 
         material = self.find_material()
-        if not material.use_nodes:
+        if bpy.app.version < (5, 0, 0) and not material.use_nodes:
             return False
 
         node_tree = material.node_tree
@@ -3364,12 +3364,14 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         material = self.find_material()
 
         if not value:
-            if self.get("enabled") and material.use_nodes:
+            if self.get("enabled") and (
+                bpy.app.version >= (5, 0, 0) or material.use_nodes
+            ):
                 ops.vrm.convert_mtoon1_to_bsdf_principled(material_name=material.name)
             self["enabled"] = False
             return
 
-        if not material.use_nodes:
+        if bpy.app.version < (5, 0, 0) and not material.use_nodes:
             material.use_nodes = True
         if self.enabled:
             return

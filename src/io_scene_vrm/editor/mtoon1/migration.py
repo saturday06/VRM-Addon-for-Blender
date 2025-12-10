@@ -98,7 +98,7 @@ def migrate_material(
         blender_4_2_migrated_material_names.append(material.name)
         return
 
-    if not material.use_nodes:
+    if bpy.app.version < (5, 0, 0) and not material.use_nodes:
         return
     node_tree = material.node_tree
     if not node_tree:

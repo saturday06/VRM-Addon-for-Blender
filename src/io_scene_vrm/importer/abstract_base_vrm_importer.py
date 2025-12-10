@@ -265,7 +265,7 @@ class AbstractBaseVrmImporter(ABC):
 
     @staticmethod
     def reset_material(material: Material) -> None:
-        if not material.use_nodes:
+        if bpy.app.version < (5, 0, 0) and not material.use_nodes:
             material.use_nodes = True
         shader.clear_node_tree(material.node_tree)
         if material.alpha_threshold != 0.5:
