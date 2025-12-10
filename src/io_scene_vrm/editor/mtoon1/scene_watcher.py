@@ -299,6 +299,8 @@ class MToon1AutoSetup(SceneWatcher):
             if search_preempt_countdown <= 0:
                 return RunState.PREEMPT
 
+            if bpy.app.version < (5, 0, 0) and not material.use_nodes:
+                continue
             node_tree = material.node_tree
             if node_tree is None:
                 continue

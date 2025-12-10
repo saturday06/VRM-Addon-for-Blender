@@ -3,6 +3,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Final, Optional, Union
 
+import bpy
 from bpy.app.translations import pgettext
 from bpy.types import (
     Armature,
@@ -80,6 +81,9 @@ def legacy_shader_node(
     material: Material,
 ) -> tuple[Optional[ShaderNodeGroup], Optional[str]]:
     node_tree = material.node_tree
+    if bpy.app.version < (5, 0, 0) and not material.use_nodes:
+        return (None, None)
+
     if not node_tree:
         return (None, None)
 
