@@ -3366,8 +3366,8 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         if not value:
             if (
                 self.get("enabled")
-                and bpy.app.version < (5, 0, 0)
-                and material.use_nodes
+                and (bpy.app.version >= (5, 0, 0)
+                     or material.use_nodes)
             ):
                 ops.vrm.convert_mtoon1_to_bsdf_principled(material_name=material.name)
             self["enabled"] = False
