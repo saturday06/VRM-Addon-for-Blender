@@ -5,9 +5,9 @@
 
 ### 🐛 Bug Fixes
 
-* trigger release pipeline ([1d442b7](https://github.com/saturday06/VRM-Addon-for-Blender/commit/1d442b7e2968aca671ae6035fc06efd1c0768cb7))
+* fix DeprecationWarning in Blender 5.0 ([#1121](https://github.com/saturday06/VRM-Addon-for-Blender/pull/1121)) [@unclepomedev](https://github.com/unclepomedev)
 
-## [3.17.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.16.1...v3.17.0) (2025-11-28)
+## [3.17.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.16.0...v3.17.0) (2025-11-28)
 
 
 ### 🚀 Features
