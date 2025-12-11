@@ -13,14 +13,12 @@ MANIFEST_ID = BlenderManifest.read().id
 def make_test_method_name(text: str) -> str:
     replaced_chars: list[str] = []
     for char in text:
-        if char == "«":
-            replaced_chars.append("««")
-        elif char == "»":
-            replaced_chars.append("»»")
+        if char in ["⟨", "⟩"]:
+            replaced_chars.append(char * 2)
         elif ("_" + char).isidentifier():
             replaced_chars.append(char)
         else:
-            replaced_chars.append(f"«{ord(char):x}»")
+            replaced_chars.append(f"⟨{ord(char):x}⟩")
     return "test_" + ("".join(replaced_chars))
 
 
