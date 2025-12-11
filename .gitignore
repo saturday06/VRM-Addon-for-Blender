@@ -22,6 +22,7 @@ ci-super-linter-local-image.tar.gz
 /super-linter-output/
 /tests/temp/*
 /tests/resources/unity/*/*.csproj
+/tests/resources/unity/*/*.DotSettings.user
 /tests/resources/unity/*/*.sln
 /tests/resources/unity/*/.idea/
 /tests/resources/unity/*/.vs/
