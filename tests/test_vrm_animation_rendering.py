@@ -249,7 +249,8 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
                     image_path.stem.removesuffix(blender_suffix) + "_unity"
                 )
                 if not unity_image_path.exists():
-                    continue
+                    message = f"No unity render result file: {unity_image_path}"
+                    raise SkipTest(message)
                 diff_image_path = image_path.with_stem(
                     image_path.stem.removesuffix(blender_suffix) + f"{suffix}_diff"
                 )
@@ -260,9 +261,14 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
 
             render_results.append(last_render_result)
 
-        for diff, image_path, unity_image_path, diff_image_path in sum(
+        flat_render_results = sum(
             render_results, list[tuple[float, Path, Path, Path]]()
-        ):
+        )
+        if not flat_render_results:
+            message = "No render results"
+            raise SkipTest(message)
+
+        for diff, image_path, unity_image_path, diff_image_path in flat_render_results:
             self.assertGreater(
                 diff,
                 1.8,
