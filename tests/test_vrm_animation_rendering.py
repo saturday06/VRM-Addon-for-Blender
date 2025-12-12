@@ -435,7 +435,7 @@ TestVrmAnimationLossyExport = type(
 
 def compare_image(image1_path: Path, image2_path: Path, diff_image_path: Path) -> float:
     try:
-        subprocess.run(["ffmpeg", "-version"], check=True)
+        subprocess.run(["ffmpeg", "-version"], check=True, capture_output=True)
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
         message = "ffmpeg is required but could not be found"
         if sys.platform == "win32":
@@ -444,13 +444,13 @@ def compare_image(image1_path: Path, image2_path: Path, diff_image_path: Path) -
 
     compare_command: Optional[list[str]] = None
     try:
-        subprocess.run(["magick", "-version"], check=True)
+        subprocess.run(["magick", "-version"], check=True, capture_output=True)
         compare_command = ["magick", "compare"]
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass
     if compare_command is None:
         try:
-            subprocess.run(["compare", "-version"], check=True)
+            subprocess.run(["compare", "-version"], check=True, capture_output=True)
             compare_command = ["compare"]
         except (subprocess.CalledProcessError, FileNotFoundError):
             pass
@@ -474,6 +474,8 @@ def compare_image(image1_path: Path, image2_path: Path, diff_image_path: Path) -
     compare_result = subprocess.run(
         [
             "ffmpeg",
+            "-hide_banner",
+            "-nostats",
             "-i",
             str(image1_path),
             "-i",
