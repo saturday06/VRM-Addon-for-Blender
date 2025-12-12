@@ -40,14 +40,20 @@ def generate_constraint_vrm(
     context: Context,
     armature_obj: Object,
     base_bone_name: str,
+    *,
     roll_degree: float,
     x: float,
     z: float,
     parent_roll_degree: float,
     parent_x: float,
     parent_z: float,
+    target_roll_degree: float,
+    target_parent_roll_degree: float,
     test_constraint: TestConstraint,
 ) -> None:
+    target_bone_name = "spine:constraint_target"
+    target_parent_bone_name = "hips:constraint_target_parent"
+
     source_parent_bone_name = f"{base_bone_name}1:constraint_source_parent"
     source_bone_name = f"{base_bone_name}2:constraint_source"
     source_axis_obj = context.blend_data.objects.get("ConstraintSource")
@@ -59,6 +65,14 @@ def generate_constraint_vrm(
         if not isinstance(armature_data, Armature):
             raise TypeError
 
+        target_parent_bone = armature_data.edit_bones.get(target_parent_bone_name)
+        if not target_parent_bone:
+            raise AssertionError
+
+        target_bone = armature_data.edit_bones.get(target_bone_name)
+        if not target_bone:
+            raise AssertionError
+
         source_parent_bone = armature_data.edit_bones.get(source_parent_bone_name)
         if not source_parent_bone:
             raise AssertionError
@@ -66,6 +80,9 @@ def generate_constraint_vrm(
         source_bone = armature_data.edit_bones.get(source_bone_name)
         if not source_bone:
             raise AssertionError
+
+        target_bone.roll += math.radians(target_roll_degree)
+        target_parent_bone.roll += math.radians(target_parent_roll_degree)
 
         source_bone.roll += math.radians(roll_degree)
         source_bone.tail = (
@@ -81,11 +98,18 @@ def generate_constraint_vrm(
             source_parent_bone.tail.z + parent_z,
         )
 
+        target_bone, target_parent_bone, source_bone, source_parent_bone = (
+            None,
+            None,
+            None,
+            None,
+        )
+
     source_bone = armature_obj.pose.bones.get(source_bone_name)
     if not source_bone:
         raise AssertionError
 
-    target_bone = armature_obj.pose.bones.get("spine:constraint_target")
+    target_bone = armature_obj.pose.bones.get(target_bone_name)
     if not target_bone:
         raise AssertionError
 
@@ -166,6 +190,8 @@ def generate_constraint_vrm(
         / (
             "temp_"
             + f"{str(test_constraint.name).replace('.', '_').lower()}_{base_bone_name}_"
+            + f"troll{target_roll_degree}_"
+            + f"tproll{target_parent_roll_degree}_"
             + f"roll{roll_degree}_x{x}_z{z}_"
             + f"proll{parent_roll_degree}_px{parent_x}_pz{parent_z}"
             + ".vrm"
@@ -208,6 +234,8 @@ def main() -> int:
         parent_roll,
         parent_x,
         parent_z,
+        target_roll,
+        target_parent_roll,
         test_constraint,
     ) in (
         (
@@ -218,6 +246,8 @@ def main() -> int:
             parent_roll,
             parent_x,
             parent_z,
+            target_roll,
+            target_parent_roll,
             test_constraint,
         )
         for base_bone_name in [
@@ -225,12 +255,24 @@ def main() -> int:
             "child",
             "sibling",
         ]
-        for roll in [0, 45]
-        for x in [0, 0.25]
-        for z in [0, 0.25]
-        for parent_roll in [0, 45]
-        for parent_x in [0, 0.25]
-        for parent_z in [0, 0.25]
+        for roll, x, z in [
+            (0, 0, 0),
+            (0, 0.25, 0),
+            (45, 0, 0.25),
+            (45, 0.25, 0.25),
+        ]
+        for parent_roll, parent_x, parent_z in [
+            (0, 0, 0),
+            (0, 0.25, 0),
+            (45, 0, 0.25),
+            (45, 0.25, 0.25),
+        ]
+        for target_roll, target_parent_roll in [
+            (0, 0),
+            (45, 0),
+            (0, 60),
+            (30, 45),
+        ]
         for test_constraint in TestConstraint
     ):
         bpy.ops.wm.read_homefile(use_empty=True)
@@ -256,13 +298,15 @@ def main() -> int:
                 context,
                 armature_obj,
                 base_bone_name,
-                roll,
-                x,
-                z,
-                parent_roll,
-                parent_x,
-                parent_z,
-                test_constraint,
+                roll_degree=roll,
+                x=x,
+                z=z,
+                parent_roll_degree=parent_roll,
+                parent_x=parent_x,
+                parent_z=parent_z,
+                target_roll_degree=target_roll,
+                target_parent_roll_degree=target_parent_roll,
+                test_constraint=test_constraint,
             )
 
     return 0
