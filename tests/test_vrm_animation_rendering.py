@@ -20,6 +20,8 @@ from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.search import current_armature
 from io_scene_vrm.editor.vrm1.property_group import Vrm1LookAtPropertyGroup
 
+RENDER_SUFFIX: str = ".render"
+
 
 class __TestVrmAnimationRenderingBase(AddonTestCase):
     OBJECT_SUFFIX: Final[str] = "-TestVrmAnimationRenderingObject"
@@ -164,7 +166,7 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
         self, context: Context, *, render_folder_path: Path, suffix: str = ""
     ) -> None:
         render_blend_path = render_folder_path.with_name(
-            render_folder_path.stem + f".render{suffix}.blend"
+            render_folder_path.stem + f"{RENDER_SUFFIX}{suffix}.blend"
         )
         bpy.ops.wm.save_as_mainfile(filepath=str(render_blend_path))
         scene = context.scene
@@ -369,11 +371,6 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
     def assert_lossless_export(self, input_blend_path: Path) -> None:
         context = bpy.context
 
-        if input_blend_path.name.endswith(
-            ".render.blend"
-        ) or input_blend_path.name.endswith(".render_roundtrip.blend"):
-            return
-
         self.assert_blend_rendering(
             context,
             input_blend_path,
@@ -382,11 +379,6 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
 
     def assert_lossy_export(self, input_blend_path: Path) -> None:
         context = bpy.context
-
-        if input_blend_path.name.endswith(
-            ".render.blend"
-        ) or input_blend_path.name.endswith(".render_roundtrip.blend"):
-            return
 
         self.assert_blend_rendering(
             context,
@@ -420,6 +412,7 @@ TestVrmAnimationLosslessExport = type(
                 "*.blend"
             )
         )
+        if RENDER_SUFFIX in path.stem
     },
 )
 
@@ -435,6 +428,7 @@ TestVrmAnimationLossyExport = type(
                 "*.blend"
             )
         )
+        if RENDER_SUFFIX in path.stem
     },
 )
 
