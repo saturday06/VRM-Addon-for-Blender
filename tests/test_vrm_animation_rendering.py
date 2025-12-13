@@ -178,31 +178,25 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
             if not isinstance(obj_data, Armature):
                 continue
 
-            if (animation_data := obj.animation_data) and (
-                action := animation_data.action
-            ):
-                _, end_frame = action.frame_range
-                max_end_frame = max(max_end_frame, math.ceil(end_frame))
-
-            if (animation_data := obj_data.animation_data) and (
-                action := animation_data.action
-            ):
-                _, end_frame = action.frame_range
-                max_end_frame = max(max_end_frame, math.ceil(end_frame))
-
             ext = get_armature_extension(obj_data)
             ext.spring_bone1.enable_animation = True
             ext.vrm1.look_at.enable_preview = True
             look_at_target_obj = ext.vrm1.look_at.preview_target_bpy_object
-            if (
-                look_at_target_obj
-                and (animation_data := look_at_target_obj.animation_data)
-                and (action := animation_data.action)
-            ):
+            for animation_data in [
+                obj.animation_data,
+                obj_data.animation_data,
+                look_at_target_obj.animation_data if look_at_target_obj else None,
+            ]:
+                if not animation_data:
+                    continue
+                action = animation_data.action
+                if not action:
+                    continue
                 _, end_frame = action.frame_range
                 max_end_frame = max(max_end_frame, math.ceil(end_frame))
+
         max_end_frame = min(
-            max_end_frame,
+            max(max_end_frame, 2),
             math.ceil(60 * scene.render.fps / scene.render.fps_base),
         )
 
