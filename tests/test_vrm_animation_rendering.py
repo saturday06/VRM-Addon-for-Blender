@@ -278,7 +278,7 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
         for diff, image_path, unity_image_path, diff_image_path in flat_render_results:
             self.assertGreater(
                 diff,
-                1.8,
+                2.2,
                 "SSIM value exceeds acceptable range:\n"
                 + f"  blender={image_path}\n"
                 + f"  unity={unity_image_path}\n"
