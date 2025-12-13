@@ -243,6 +243,11 @@ class TimelineMarker(bpy_struct):
 
 class ActionPoseMarkers(bpy_prop_collection[TimelineMarker]): ...
 
+class Keyframe(bpy_struct):
+    co: Vector
+
+class FCurveKeyframePoints(bpy_prop_collection[Keyframe]): ...
+
 class FCurve(bpy_struct):
     array_index: int
     auto_smoothing: str
@@ -253,6 +258,8 @@ class FCurve(bpy_struct):
     def driver(self) -> Driver | None: ...  # TODO: Is it really Optional?
     extrapolation: str
     is_valid: bool
+    @property
+    def keyframe_points(self) -> FCurveKeyframePoints: ...
     mute: bool
 
     def evaluate(self, frame: int) -> float: ...
