@@ -3,6 +3,7 @@ import base64
 import functools
 import hashlib
 import math
+import os
 import re
 import subprocess
 import sys
@@ -252,6 +253,8 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
                 )
                 if not unity_image_path.exists():
                     message = f"No unity render result file: {unity_image_path}"
+                    if os.getenv("CI") == "true":
+                        raise AssertionError(message)
                     raise SkipTest(message)
                 diff_image_path = image_path.with_stem(
                     image_path.stem.removesuffix(blender_suffix) + f"{suffix}_diff"
@@ -268,6 +271,8 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
         )
         if not flat_render_results:
             message = "No render results"
+            if os.getenv("CI") == "true":
+                raise AssertionError(message)
             raise SkipTest(message)
 
         for diff, image_path, unity_image_path, diff_image_path in flat_render_results:
