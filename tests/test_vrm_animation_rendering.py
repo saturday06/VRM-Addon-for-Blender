@@ -16,12 +16,16 @@ from bpy.types import Armature, Camera, Context, ShaderNodeOutputWorld
 from mathutils import Color, Euler, Vector
 
 from io_scene_vrm.common import ops
+from io_scene_vrm.common.logger import get_logger
 from io_scene_vrm.common.test_helper import AddonTestCase, make_test_method_name
 from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.search import current_armature
 from io_scene_vrm.editor.vrm1.property_group import Vrm1LookAtPropertyGroup
 
 RENDER_SUFFIX: str = ".render"
+
+
+logger = get_logger(__name__)
 
 
 class __TestVrmAnimationRenderingBase(AddonTestCase):
@@ -249,7 +253,9 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
                     message = f"No unity render result file: {unity_image_path}"
                     if os.getenv("CI") == "true":
                         raise AssertionError(message)
-                    raise SkipTest(message)
+                    logger.warning(message)
+                    continue
+
                 diff_image_path = image_path.with_stem(
                     image_path.stem.removesuffix(blender_suffix) + f"{suffix}_diff"
                 )
