@@ -232,6 +232,16 @@ namespace VrmaRecorder
             Camera rightCamera
         )
         {
+            Debug.LogFormat("StartRecording: {0} {1}",
+#if UNITY_EDITOR
+                Path.GetRelativePath(Application.dataPath, inputVrmPath),
+                Path.GetRelativePath(Application.dataPath, inputVrmaPath)
+#else
+                inputVrmPath,
+                inputVrmaPath
+#endif
+            );
+
             // SpringBoneはデフォルトではTime.deltaTimeを使って動く。
             // VRMのロードはとても重く1フレームの周期に収まらないこともあるため
             // そのままだとSpringBoneの最初のフレームの動きが非決定的になる。
