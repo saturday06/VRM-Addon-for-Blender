@@ -186,7 +186,8 @@ def generate_constraint_vrm(
         Path(__file__).parent.parent
         / "tests"
         / "resources"
-        / "vrma"
+        / "blend"
+        / "lossless_animation"
         / (
             "temp_"
             + f"{str(test_constraint.name).replace('.', '_').lower()}_{base_bone_name}_"
