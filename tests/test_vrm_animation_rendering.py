@@ -411,7 +411,7 @@ TestVrmAnimationLosslessExport = type(
                 "*.blend"
             )
         )
-        if RENDER_SUFFIX in path.stem
+        if RENDER_SUFFIX not in path.stem
     },
 )
 
@@ -427,7 +427,7 @@ TestVrmAnimationLossyExport = type(
                 "*.blend"
             )
         )
-        if RENDER_SUFFIX in path.stem
+        if RENDER_SUFFIX not in path.stem
     },
 )
 
