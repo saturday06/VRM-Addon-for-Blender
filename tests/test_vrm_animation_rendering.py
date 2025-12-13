@@ -161,7 +161,7 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
         context.scene.collection.objects.link(camera_object)
 
     def assert_rendering(
-        self, context: Context, render_folder_path: Path, *, suffix: str = ""
+        self, context: Context, *, render_folder_path: Path, suffix: str = ""
     ) -> None:
         render_blend_path = render_folder_path.with_name(
             render_folder_path.stem + f".render{suffix}.blend"
@@ -278,7 +278,7 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
                 + f"  diff={diff_image_path}",
             )
 
-    def assert_vrma_rendering(
+    def assert_vrm_and_vrma_rendering(
         self,
         context: Context,
         input_vrm_path: Path,
@@ -310,7 +310,9 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
         )
         debug_blend_path.unlink(missing_ok=True)
         bpy.ops.wm.save_as_mainfile(filepath=str(debug_blend_path))
-        self.assert_rendering(context, input_vrma_path.with_suffix(""), suffix=suffix)
+        self.assert_rendering(
+            context, render_folder_path=input_vrma_path.with_suffix(""), suffix=suffix
+        )
 
     def assert_import(self, input_vrma_path: Path) -> None:
         context = bpy.context
@@ -326,7 +328,7 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
         input_vrm_path = input_vrma_path.with_suffix(".vrm")
         if not input_vrm_path.exists():
             input_vrm_path = default_input_vrm_path
-        self.assert_vrma_rendering(context, input_vrm_path, input_vrma_path)
+        self.assert_vrm_and_vrma_rendering(context, input_vrm_path, input_vrma_path)
 
     def assert_blend_rendering(
         self, context: Context, input_blend_path: Path, *, lossless: bool
@@ -356,9 +358,13 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
         )
 
         if lossless:
-            self.assert_rendering(context, input_blend_path.with_suffix(""))
+            self.assert_rendering(
+                context, render_folder_path=input_blend_path.with_suffix("")
+            )
 
-        self.assert_vrma_rendering(context, vrm_path, vrma_path, suffix="_roundtrip")
+        self.assert_vrm_and_vrma_rendering(
+            context, vrm_path, vrma_path, suffix="_roundtrip"
+        )
 
     def assert_lossless_export(self, input_blend_path: Path) -> None:
         context = bpy.context
