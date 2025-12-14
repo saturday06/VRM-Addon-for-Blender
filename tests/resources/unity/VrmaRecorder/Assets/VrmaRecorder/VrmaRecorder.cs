@@ -255,12 +255,16 @@ namespace VrmaRecorder
                 throw new Exception($"Mathf.Abs(Time.deltaTime={Time.deltaTime} > 0)");
             }
 
+            var lookAtTarget = new GameObject("LookAtTarget");
+
             // VRMとVRMAのロード
             var vrmInstance = await Vrm10.LoadPathAsync(
                 inputVrmPath,
                 canLoadVrm0X: true,
                 showMeshes: true
             );
+            vrmInstance.LookAtTarget = lookAtTarget.transform;
+            vrmInstance.LookAtTargetType = VRM10ObjectLookAt.LookAtTargetTypes.SpecifiedTransform;
 
             RuntimeGltfInstance vrmaGltfInstance;
             using (var gltf = new AutoGltfFileParser(inputVrmaPath).Parse())
@@ -340,6 +344,7 @@ namespace VrmaRecorder
             // これらだけだとリソースリークする。そのうち修正。
             Destroy(vrmInstance.gameObject);
             Destroy(vrmaGltfInstance.gameObject);
+            Destroy(lookAtTarget);
 
             await Awaitable.NextFrameAsync(); // Destroy処理待ち
             await Resources.UnloadUnusedAssets();
