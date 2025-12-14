@@ -263,8 +263,8 @@ namespace VrmaRecorder
                 canLoadVrm0X: true,
                 showMeshes: true
             );
-            vrmInstance.LookAtTarget = lookAtTarget.transform;
-            vrmInstance.LookAtTargetType = VRM10ObjectLookAt.LookAtTargetTypes.SpecifiedTransform;
+            // vrmInstance.LookAtTarget = lookAtTarget.transform;
+            // vrmInstance.LookAtTargetType = VRM10ObjectLookAt.LookAtTargetTypes.SpecifiedTransform;
 
             RuntimeGltfInstance vrmaGltfInstance;
             using (var gltf = new AutoGltfFileParser(inputVrmaPath).Parse())
