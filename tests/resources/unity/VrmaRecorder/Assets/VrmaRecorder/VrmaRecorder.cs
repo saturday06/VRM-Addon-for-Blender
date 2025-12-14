@@ -337,6 +337,7 @@ namespace VrmaRecorder
             Destroy(vrmaGltfInstance.gameObject);
 
             await Awaitable.NextFrameAsync(); // Destroy処理待ち
+            await Resources.UnloadUnusedAssets();
         }
 
         private byte[] CreatePngImage(Camera renderCamera)
