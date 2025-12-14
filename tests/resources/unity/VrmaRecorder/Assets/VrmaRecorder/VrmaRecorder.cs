@@ -316,6 +316,11 @@ namespace VrmaRecorder
                 await Awaitable.NextFrameAsync();
             }
 
+            foreach (var path in Directory.GetFiles(outputFolderPath, "*_unity.png"))
+            {
+                File.Delete(path);
+            }
+
             foreach (var (image, i) in images.Select((image, i) => (image, i)))
             {
                 await File.WriteAllBytesAsync(
