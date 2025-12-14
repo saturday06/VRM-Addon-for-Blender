@@ -285,6 +285,14 @@ namespace VrmaRecorder
             vrmaAnimation.Play(clip.name);
             Directory.CreateDirectory(outputFolderPath);
 
+            var workingTexture = new Texture2D(Resolution, Resolution, TextureFormat.RGB24, false);
+            var workingRenderTexture = RenderTexture.GetTemporary(
+                Resolution,
+                Resolution,
+                24,
+                RenderTextureFormat.ARGB32
+            );
+
             await Awaitable.NextFrameAsync();
             // ここから先の処理は、1フレームの周期に収まるようにする
 
@@ -295,10 +303,10 @@ namespace VrmaRecorder
             }
 
             // 次のフレームから時間が進み、Time.deltaTimeが設定されるようになる。
-            Time.timeScale = 1;
+            Time.timeScale = 4;
             var startTime = Time.time;
 
-            List<(byte[] forwardImage, byte[] topImage, byte[] rightImage)> images = new();
+            List<(Color32[] forwardImage, Color32[] topImage, Color32[] rightImage)> images = new();
             while (true)
             {
                 var duration = Time.time - startTime;
@@ -307,9 +315,9 @@ namespace VrmaRecorder
                 {
                     images.Add(
                         (
-                            CreatePngImage(forwardCamera),
-                            CreatePngImage(topCamera),
-                            CreatePngImage(rightCamera)
+                            CreateImage(forwardCamera, workingRenderTexture, workingTexture),
+                            CreateImage(topCamera, workingRenderTexture, workingTexture),
+                            CreateImage(rightCamera, workingRenderTexture, workingTexture)
                         )
                     );
                 }
@@ -327,19 +335,25 @@ namespace VrmaRecorder
 
             foreach (var (image, i) in images.Select((image, i) => (image, i)))
             {
+                workingTexture.SetPixels32(image.forwardImage);
                 await File.WriteAllBytesAsync(
                     Path.Combine(outputFolderPath, $"{i:D2}_forward_unity.png"),
-                    image.forwardImage
+                    workingTexture.EncodeToPNG()
                 );
+                workingTexture.SetPixels32(image.topImage);
                 await File.WriteAllBytesAsync(
                     Path.Combine(outputFolderPath, $"{i:D2}_top_unity.png"),
-                    image.topImage
+                    workingTexture.EncodeToPNG()
                 );
+                workingTexture.SetPixels32(image.rightImage);
                 await File.WriteAllBytesAsync(
                     Path.Combine(outputFolderPath, $"{i:D2}_right_unity.png"),
-                    image.rightImage
+                    workingTexture.EncodeToPNG()
                 );
             }
+
+            RenderTexture.ReleaseTemporary(workingRenderTexture);
+            Destroy(workingTexture);
 
             // これらだけだとリソースリークする。そのうち修正。
             Destroy(vrmInstance.gameObject);
@@ -348,20 +362,15 @@ namespace VrmaRecorder
 
             await Awaitable.NextFrameAsync(); // Destroy処理待ち
             await Resources.UnloadUnusedAssets();
+            GC.Collect();
         }
 
-        private byte[] CreatePngImage(Camera renderCamera)
+        private Color32[] CreateImage(Camera renderCamera, RenderTexture workingRenderTexture, Texture2D workingTexture)
         {
             var cameraTargetTexture = renderCamera.targetTexture;
-            var renderTexture = RenderTexture.GetTemporary(
-                Resolution,
-                Resolution,
-                24,
-                RenderTextureFormat.ARGB32
-            );
             try
             {
-                renderCamera.targetTexture = renderTexture;
+                renderCamera.targetTexture = workingRenderTexture;
                 renderCamera.Render();
             }
             finally
@@ -369,37 +378,19 @@ namespace VrmaRecorder
                 renderCamera.targetTexture = cameraTargetTexture;
             }
 
-            Texture2D? texture = null;
             var activeRenderTexture = RenderTexture.active;
             try
             {
-                RenderTexture.active = renderTexture;
-                texture = new Texture2D(Resolution, Resolution, TextureFormat.RGB24, false);
-                texture.ReadPixels(new Rect(0, 0, Resolution, Resolution), 0, 0);
-                texture.Apply();
-            }
-            catch (Exception)
-            {
-                if (texture != null)
-                {
-                    Destroy(texture);
-                }
-                throw;
+                RenderTexture.active = workingRenderTexture;
+                workingTexture.ReadPixels(new Rect(0, 0, Resolution, Resolution), 0, 0);
+                workingTexture.Apply();
             }
             finally
             {
                 RenderTexture.active = activeRenderTexture;
-                RenderTexture.ReleaseTemporary(renderTexture);
             }
 
-            try
-            {
-                return texture.EncodeToPNG();
-            }
-            finally
-            {
-                Destroy(texture);
-            }
+            return workingTexture.GetPixels32();
         }
     }
 }
