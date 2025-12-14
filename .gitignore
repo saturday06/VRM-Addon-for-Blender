@@ -28,7 +28,12 @@ ci-super-linter-local-image.tar.gz
 /tests/resources/unity/*/.vs/
 /tests/resources/unity/*/.vscode/
 /tests/resources/unity/*/.vsconfig
+/tests/resources/unity/*/Assets/Resources/PerformanceTestRunInfo.json
+/tests/resources/unity/*/Assets/Resources/PerformanceTestRunInfo.json.meta
+/tests/resources/unity/*/Assets/Resources/PerformanceTestRunSettings.json
+/tests/resources/unity/*/Assets/Resources/PerformanceTestRunSettings.json.meta
 /tests/resources/unity/*/Assets/StreamingAssets/External/**
+/tests/resources/unity/*/Build/
 /tests/resources/unity/*/Library/
 /tests/resources/unity/*/Logs/
 /tests/resources/unity/*/Temp/

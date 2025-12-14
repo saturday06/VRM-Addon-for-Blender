@@ -104,7 +104,7 @@ namespace VrmaRecorder
                 LogType.Log,
                 LogOption.NoStacktrace,
                 null,
-                "Usage: ./VrmaRecorder"
+                "Usage: xvfb-run -a ./VrmaRecorder -batchmode -logfile -"
                     + $" {inputVrmPathCommandLinePrefix}<{nameof(inputVrmPath)}>"
                     + $" {inputVrmaPathCommandLinePrefix}<{nameof(inputVrmaPath)}>"
                     + $" {outputFolderPathCommandLinePrefix}<{nameof(outputFolderPath)}>"
