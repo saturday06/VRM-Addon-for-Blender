@@ -22,6 +22,10 @@ def test_vrm0_import(benchmark: BenchmarkFixture) -> None:
             assert response.ok
             path.write_bytes(response.content)
 
+    assert ops.import_scene.vrm(filepath=str(path)) == {"FINISHED"}
+    context.view_layer.update()
+    bpy.ops.wm.read_homefile(use_empty=True)
+
     @benchmark
     def _() -> None:
         assert ops.import_scene.vrm(filepath=str(path)) == {"FINISHED"}

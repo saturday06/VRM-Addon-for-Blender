@@ -38,6 +38,10 @@ def test_vrm0_export(benchmark: BenchmarkFixture) -> None:
 
     export_path = blend_path.with_name("vrm0_export.vrm")
 
+    assert ops.export_scene.vrm(filepath=str(export_path)) == {"FINISHED"}
+    context.view_layer.update()
+    bpy.ops.wm.open_mainfile(filepath=str(blend_path))
+
     @benchmark
     def _() -> None:
         assert ops.export_scene.vrm(filepath=str(export_path)) == {"FINISHED"}
