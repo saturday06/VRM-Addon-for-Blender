@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import logging
 import math
-import shutil
 import sys
 from enum import Enum
 from pathlib import Path
@@ -198,14 +197,6 @@ def generate_constraint_vrm(
             + ".vrm"
         )
     )
-    vrm_path.parent.mkdir(parents=True, exist_ok=True)
-    result = ops.export_scene.vrm(
-        filepath=str(vrm_path), armature_object_name=armature_obj.name
-    )
-    if result != {"FINISHED"}:
-        message = f"Export error {vrm_path} {result}"
-        raise AssertionError(message)
-    vrma_path = vrm_path.with_suffix(".vrma")
     default_vrma_path = (
         Path(__file__).parent.parent
         / "tests"
@@ -213,17 +204,16 @@ def generate_constraint_vrm(
         / "node_constraint"
         / "hips_spine_twisting.vrma"
     )
-    shutil.copy(src=default_vrma_path, dst=vrma_path)
 
     for id_obj in list(context.blend_data.objects) + list(context.blend_data.armatures):
         if id_obj.animation_data:
             id_obj.animation_data_clear()
 
     result = ops.import_scene.vrma(
-        filepath=str(vrma_path), armature_object_name=armature_obj.name
+        filepath=str(default_vrma_path), armature_object_name=armature_obj.name
     )
     if result != {"FINISHED"}:
-        message = f"Import error {vrma_path} {result}"
+        message = f"Import error {default_vrma_path} {result}"
         raise AssertionError(message)
 
     blend_path = vrm_path.with_suffix(".blend")
