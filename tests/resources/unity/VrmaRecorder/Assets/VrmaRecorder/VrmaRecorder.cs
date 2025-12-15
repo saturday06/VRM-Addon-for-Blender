@@ -23,21 +23,28 @@ namespace VrmaRecorder
         private Camera? _rightCamera;
 
         [SerializeField]
-        private Shader? _vrm10Mtoon10;
+        private Shader? _vrm10Mtoon10Shader;
 
         [SerializeField]
-        private Shader? _vrm10UniversalRenderPipelineMtoon10;
+        private Shader? _vrm10UniversalRenderPipelineMtoon10Shader;
 
         [SerializeField]
-        private Shader? _vrmMtoon;
+        private Shader? _vrmMtoonShader;
 
         [SerializeField]
-        private Shader? _uniGltfUniUnlit;
+        private Shader? _uniGltfUniUnlitShader;
 
         // https://github.com/vrm-c/UniVRM/blob/v0.131.0/Packages/UniGLTF/Runtime/UniGLTF/IO/MaterialIO/URP/Import/Materials/UrpGltfDefaultMaterialImporter.cs#L22
         // https://github.com/vrm-c/UniVRM/blob/v0.131.0/Packages/UniGLTF/Runtime/UniGLTF/IO/MaterialIO/URP/Import/Materials/UrpGltfPbrMaterialImporter.cs#L23
         [SerializeField]
-        private Shader? _universalRenderPipelineLit;
+        private Shader? _universalRenderPipelineLitShader;
+
+        // UniVRM 0.131.0とUnity6.3の組み合わせでBRPとの誤認が発生する
+        // https://github.com/vrm-c/UniVRM/blob/v0.131.0/Packages/UniGLTF/Runtime/UniGLTF/IO/MaterialIO/Import/MaterialDescriptorGeneratorUtility.cs#L14-L16
+        // https://github.com/vrm-c/UniVRM/blob/v0.131.0/Packages/UniGLTF/Runtime/UniGLTF/IO/MaterialIO/RenderPipelineUtility.cs#L21-L26
+        // https://github.com/vrm-c/UniVRM/blob/v0.131.0/Packages/UniGLTF/Runtime/UniGLTF/IO/MaterialIO/BuiltInRP/Import/Materials/BuiltInGltfDefaultMaterialImporter.cs#L21
+        [SerializeField]
+        private Shader? _standardShader;
 
 #if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]

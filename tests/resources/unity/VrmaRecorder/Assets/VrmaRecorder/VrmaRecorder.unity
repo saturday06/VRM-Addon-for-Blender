@@ -166,11 +166,12 @@ MonoBehaviour:
   _forwardCamera: {fileID: 773182343}
   _topCamera: {fileID: 587377904}
   _rightCamera: {fileID: 775401963}
-  _vrm10Mtoon10: {fileID: 4800000, guid: e0edbf68d81d1f340ae8b110086b7063, type: 3}
-  _vrm10UniversalRenderPipelineMtoon10: {fileID: 4800000, guid: 0781c64b7f2a1604ea6aa7e252080372, type: 3}
-  _vrmMtoon: {fileID: 4800000, guid: 1a97144e4ad27a04aafd70f7b915cedb, type: 3}
-  _uniGltfUniUnlit: {fileID: 4800000, guid: 8c17b56f4bf084c47872edcb95237e4a, type: 3}
-  _universalRenderPipelineLit: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
+  _vrm10Mtoon10Shader: {fileID: 4800000, guid: e0edbf68d81d1f340ae8b110086b7063, type: 3}
+  _vrm10UniversalRenderPipelineMtoon10Shader: {fileID: 4800000, guid: 0781c64b7f2a1604ea6aa7e252080372, type: 3}
+  _vrmMtoonShader: {fileID: 4800000, guid: 1a97144e4ad27a04aafd70f7b915cedb, type: 3}
+  _uniGltfUniUnlitShader: {fileID: 4800000, guid: 8c17b56f4bf084c47872edcb95237e4a, type: 3}
+  _universalRenderPipelineLitShader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
+  _standardShader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!1 &292707670
 GameObject:
   m_ObjectHideFlags: 0
