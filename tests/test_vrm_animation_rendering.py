@@ -177,7 +177,8 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
         vrma_path: Path,
         suffix: str = "",
     ) -> None:
-        self.generate_unity_screenshots(render_folder_path, vrm_path, vrma_path)
+        if not suffix:
+            self.generate_unity_screenshots(render_folder_path, vrm_path, vrma_path)
 
         render_blend_path = render_folder_path.with_name(
             render_folder_path.stem + f"{RENDER_SUFFIX}{suffix}.blend"
