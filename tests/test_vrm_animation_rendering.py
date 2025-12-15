@@ -362,23 +362,20 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
             message = "No armature object found"
             raise AssertionError(message)
         armature_object_name = current_armature_object.name
-
-        if not vrm_path.exists():
-            self.assertEqual(
-                ops.export_scene.vrm(
-                    filepath=str(vrm_path), armature_object_name=armature_object_name
-                ),
-                {"FINISHED"},
-            )
+        self.assertEqual(
+            ops.export_scene.vrm(
+                filepath=str(vrm_path), armature_object_name=armature_object_name
+            ),
+            {"FINISHED"},
+        )
 
         vrma_path = input_blend_path.with_suffix(".vrma")
-        if not vrma_path.exists():
-            self.assertEqual(
-                ops.export_scene.vrma(
-                    filepath=str(vrma_path), armature_object_name=armature_object_name
-                ),
-                {"FINISHED"},
-            )
+        self.assertEqual(
+            ops.export_scene.vrma(
+                filepath=str(vrma_path), armature_object_name=armature_object_name
+            ),
+            {"FINISHED"},
+        )
 
         if lossless:
             self.assert_rendering(
