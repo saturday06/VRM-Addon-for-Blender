@@ -209,6 +209,12 @@ def generate_constraint_vrm(
         if id_obj.animation_data:
             id_obj.animation_data_clear()
 
+    fps = 30
+    context.scene.render.fps = fps
+    context.scene.render.fps_base = 1.0
+    context.scene.frame_start = 1
+    context.scene.frame_end = fps * 60
+
     result = ops.import_scene.vrma(
         filepath=str(default_vrma_path), armature_object_name=armature_obj.name
     )
