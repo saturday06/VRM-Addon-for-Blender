@@ -333,7 +333,7 @@ namespace VrmaRecorder
             }
 
             // 次のフレームから時間が進み、Time.deltaTimeが設定されるようになる。
-            Time.timeScale = 4;
+            Time.timeScale = 1;
             var startTime = Time.time;
 
             List<(Color32[] forwardImage, Color32[] topImage, Color32[] rightImage)> images = new();
