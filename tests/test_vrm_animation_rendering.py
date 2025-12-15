@@ -4,6 +4,7 @@ import functools
 import hashlib
 import math
 import os
+import platform
 import re
 import subprocess
 import sys
@@ -168,8 +169,16 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
         context.scene.collection.objects.link(camera_object)
 
     def assert_rendering(
-        self, context: Context, *, render_folder_path: Path, suffix: str = ""
+        self,
+        context: Context,
+        *,
+        render_folder_path: Path,
+        vrm_path: Path,
+        vrma_path: Path,
+        suffix: str = "",
     ) -> None:
+        self.generate_unity_screenshots(render_folder_path, vrm_path, vrma_path)
+
         render_blend_path = render_folder_path.with_name(
             render_folder_path.stem + f"{RENDER_SUFFIX}{suffix}.blend"
         )
@@ -318,7 +327,11 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
         debug_blend_path.unlink(missing_ok=True)
         bpy.ops.wm.save_as_mainfile(filepath=str(debug_blend_path))
         self.assert_rendering(
-            context, render_folder_path=input_vrma_path.with_suffix(""), suffix=suffix
+            context,
+            render_folder_path=input_vrma_path.with_suffix(""),
+            vrm_path=input_vrm_path,
+            vrma_path=input_vrma_path,
+            suffix=suffix,
         )
 
     def assert_import(self, input_vrma_path: Path) -> None:
@@ -369,11 +382,54 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
 
         if lossless:
             self.assert_rendering(
-                context, render_folder_path=input_blend_path.with_suffix("")
+                context,
+                render_folder_path=input_blend_path.with_suffix(""),
+                vrm_path=vrm_path,
+                vrma_path=vrma_path,
             )
 
         self.assert_vrm_and_vrma_rendering(
             context, vrm_path, vrma_path, suffix="_roundtrip"
+        )
+
+    def generate_unity_screenshots(
+        self,
+        render_folder_path: Path,
+        vrm_path: Path,
+        vrma_path: Path,
+    ) -> None:
+        if (
+            platform.system() != "Linux"
+            or platform.machine() != "x86_64"
+            or os.getenv("CI") == "true"
+        ):
+            return
+
+        vrma_recorder_path = (
+            Path(__file__).parent
+            / "resources"
+            / "unity"
+            / "VrmaRecorder"
+            / "Build"
+            / "StandaloneLinux64"
+            / "VrmaRecorder"
+        )
+        if not vrma_recorder_path.exists():
+            return
+
+        subprocess.run(
+            [
+                "xvfb-run",
+                "--auto-servernum",
+                vrma_recorder_path,
+                "-batchmode",
+                "-logfile",
+                "-",
+                f"--vrma-recorder-output-folder={render_folder_path}",
+                f"--vrma-recorder-input-vrm={vrm_path}",
+                f"--vrma-recorder-input-vrma={vrma_path}",
+            ],
+            check=True,
         )
 
     def assert_lossless_export(self, input_blend_path: Path) -> None:

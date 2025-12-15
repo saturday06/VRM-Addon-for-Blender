@@ -22,6 +22,23 @@ namespace VrmaRecorder
         [SerializeField]
         private Camera? _rightCamera;
 
+        [SerializeField]
+        private Shader? _vrm10Mtoon10;
+
+        [SerializeField]
+        private Shader? _vrm10UniversalRenderPipelineMtoon10;
+
+        [SerializeField]
+        private Shader? _vrmMtoon;
+
+        [SerializeField]
+        private Shader? _uniGltfUniUnlit;
+
+        // https://github.com/vrm-c/UniVRM/blob/v0.131.0/Packages/UniGLTF/Runtime/UniGLTF/IO/MaterialIO/URP/Import/Materials/UrpGltfDefaultMaterialImporter.cs#L22
+        // https://github.com/vrm-c/UniVRM/blob/v0.131.0/Packages/UniGLTF/Runtime/UniGLTF/IO/MaterialIO/URP/Import/Materials/UrpGltfPbrMaterialImporter.cs#L23
+        [SerializeField]
+        private Shader? _universalRenderPipelineLit;
+
 #if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]
 #endif
@@ -61,6 +78,7 @@ namespace VrmaRecorder
                     {
                         inputVrmPath = defaultInputVrmPath;
                     }
+
                     result.Add(
                         (
                             inputVrmPath,
@@ -73,6 +91,7 @@ namespace VrmaRecorder
                     );
                 }
             }
+
             result.Sort();
             return result;
         }
@@ -92,8 +111,8 @@ namespace VrmaRecorder
                 Application.version
             );
 
-            const string inputVrmPathCommandLinePrefix = "--vrm-recorder-input-vrm=";
-            const string inputVrmaPathCommandLinePrefix = "--vrma-recorder-input-vrm=";
+            const string inputVrmPathCommandLinePrefix = "--vrma-recorder-input-vrm=";
+            const string inputVrmaPathCommandLinePrefix = "--vrma-recorder-input-vrma=";
             const string outputFolderPathCommandLinePrefix = "--vrma-recorder-output-folder=";
 
             string? inputVrmPath = null;
@@ -116,10 +135,12 @@ namespace VrmaRecorder
                 {
                     inputVrmPath = commandLineArg.Substring(inputVrmPathCommandLinePrefix.Length);
                 }
+
                 if (commandLineArg.StartsWith(inputVrmaPathCommandLinePrefix))
                 {
                     inputVrmaPath = commandLineArg.Substring(inputVrmaPathCommandLinePrefix.Length);
                 }
+
                 if (commandLineArg.StartsWith(outputFolderPathCommandLinePrefix))
                 {
                     outputFolderPath = commandLineArg.Substring(
@@ -208,6 +229,7 @@ namespace VrmaRecorder
                         _rightCamera ?? throw new NullReferenceException(nameof(_rightCamera))
                     );
                 }
+
                 Application.Quit(0);
             }
             catch (Exception e)
@@ -237,8 +259,7 @@ namespace VrmaRecorder
                 Path.GetRelativePath(Application.dataPath, inputVrmPath),
                 Path.GetRelativePath(Application.dataPath, inputVrmaPath)
 #else
-                inputVrmPath,
-                inputVrmaPath
+                inputVrmPath, inputVrmaPath
 #endif
             );
 
@@ -273,10 +294,12 @@ namespace VrmaRecorder
                 using var vrmaImporter = new VrmAnimationImporter(vrmaData);
                 vrmaGltfInstance = await vrmaImporter.LoadAsync(new ImmediateCaller());
             }
+
             foreach (var visibleRenderer in vrmaGltfInstance.VisibleRenderers)
             {
                 visibleRenderer.enabled = false;
             }
+
             vrmInstance.Runtime.VrmAnimation =
                 vrmaGltfInstance.GetComponent<Vrm10AnimationInstance>();
             var vrmaAnimation = vrmaGltfInstance.GetComponent<Animation>();
@@ -321,10 +344,12 @@ namespace VrmaRecorder
                         )
                     );
                 }
+
                 if (done)
                 {
                     break;
                 }
+
                 await Awaitable.NextFrameAsync();
             }
 
@@ -365,7 +390,11 @@ namespace VrmaRecorder
             GC.Collect();
         }
 
-        private Color32[] CreateImage(Camera renderCamera, RenderTexture workingRenderTexture, Texture2D workingTexture)
+        private Color32[] CreateImage(
+            Camera renderCamera,
+            RenderTexture workingRenderTexture,
+            Texture2D workingTexture
+        )
         {
             var cameraTargetTexture = renderCamera.targetTexture;
             try

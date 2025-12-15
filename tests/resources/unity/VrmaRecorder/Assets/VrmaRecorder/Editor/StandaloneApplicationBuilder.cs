@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -19,22 +19,23 @@ namespace VrmaRecorder.Editor
 
         private static void BuildProject(BuildTarget target, string extension)
         {
-            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
-            {
-                scenes = EditorBuildSettings
-                    .scenes
-                    .Where(scene => scene.enabled)
-                    .Select(scene => scene.path)
-                    .ToArray(),
-                locationPathName = Path.Combine(
-                    Application.dataPath,
-                    "..",
-                    "Build",
-                    target.ToString(),
-                    Application.productName + extension
-                ),
-                target = target,
-            });
+            var report = BuildPipeline.BuildPlayer(
+                new BuildPlayerOptions
+                {
+                    scenes = EditorBuildSettings
+                        .scenes.Where(scene => scene.enabled)
+                        .Select(scene => scene.path)
+                        .ToArray(),
+                    locationPathName = Path.Combine(
+                        Application.dataPath,
+                        "..",
+                        "Build",
+                        target.ToString(),
+                        Application.productName + extension
+                    ),
+                    target = target,
+                }
+            );
 
             if (report.summary.result != BuildResult.Succeeded)
             {
