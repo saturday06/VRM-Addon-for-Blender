@@ -41,6 +41,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   unzip \
   websockify \
   xterm \
+  xvfb \
   xxd \
   xz-utils \
   zopfli \
