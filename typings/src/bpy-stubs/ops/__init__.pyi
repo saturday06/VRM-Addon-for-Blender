@@ -5,6 +5,7 @@ from bpy.ops import import_scene as import_scene
 from bpy.ops import mesh as mesh
 from bpy.ops import object as object
 from bpy.ops import outliner as outliner
+from bpy.ops import pose as pose
 from bpy.ops import preferences as preferences
 from bpy.ops import render as render
 from bpy.ops import scene as scene
