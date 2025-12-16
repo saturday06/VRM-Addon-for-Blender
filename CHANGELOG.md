@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.17.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.1...v3.17.2) (2025-12-16)
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug that rarely prevented bone rotation animations from exporting to VRMA ([80bdcbd](https://github.com/saturday06/VRM-Addon-for-Blender/commit/80bdcbdee6f58e4946f9c6662947dfe6ce55f633))
+
 ## [3.17.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.0...v3.17.1) (2025-12-10)
 
 
