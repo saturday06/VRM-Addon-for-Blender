@@ -4,6 +4,7 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 
+import bpy
 from bpy.types import Armature, Context, Object
 from mathutils import Matrix, Quaternion, Vector
 
@@ -51,6 +52,7 @@ class UniVrmVrmAnimationImporter:
             setup_humanoid_t_pose(context, armature),
             save_workspace(context, armature, mode="POSE"),
         ):
+            bpy.ops.pose.select_all(action="DESELECT")
             result = import_vrm_animation(context, path, armature)
             look_at_preview_enabled = ext.vrm1.look_at.enable_preview
 

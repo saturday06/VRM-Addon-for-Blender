@@ -162,6 +162,8 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
         message = "Armature data is not an Armature"
         raise TypeError(message)
 
+    bpy.ops.pose.select_all(action="DESELECT")
+
     vrm1 = get_armature_extension(armature_data).vrm1
     human_bones = vrm1.humanoid.human_bones
 
