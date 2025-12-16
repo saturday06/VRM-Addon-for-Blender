@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
@@ -17,8 +18,16 @@ namespace VrmaRecorder.Editor
             BuildProject(BuildTarget.StandaloneLinux64, "");
         }
 
-        private static void BuildProject(BuildTarget target, string extension)
+        private static void BuildProject(BuildTarget buildTarget, string extension)
         {
+            var buildTargetGroup = BuildPipeline.GetBuildTargetGroup(buildTarget);
+            if (!BuildPipeline.IsBuildTargetSupported(buildTargetGroup, buildTarget))
+            {
+                Debug.LogFormat("*** [{0}] Build Skipped ***", buildTarget);
+                return;
+            }
+
+            Debug.LogFormat("*** [{0}] Build Started ***", buildTarget);
             var report = BuildPipeline.BuildPlayer(
                 new BuildPlayerOptions
                 {
@@ -30,17 +39,25 @@ namespace VrmaRecorder.Editor
                         Application.dataPath,
                         "..",
                         "Build",
-                        target.ToString(),
+                        buildTarget.ToString(),
                         Application.productName + extension
                     ),
-                    target = target,
+                    target = buildTarget,
                 }
             );
 
             if (report.summary.result != BuildResult.Succeeded)
             {
-                throw new Exception($"{target}:{report}");
+                Debug.LogErrorFormat(
+                    "*** [{0}] Build Failed ({1}) {2} ***",
+                    buildTarget,
+                    report.summary.result,
+                    report.SummarizeErrors()
+                );
+                return;
             }
+
+            Debug.LogFormat("*** [{0}] Build Completed ***", buildTarget);
         }
     }
 }

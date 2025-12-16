@@ -114,7 +114,7 @@ namespace VrmaRecorder
                 LogType.Log,
                 LogOption.NoStacktrace,
                 null,
-                "***** VRM Animation Recorder {0} *****",
+                "********** VRM Animation Recorder {0} **********",
                 Application.version
             );
 
@@ -125,16 +125,6 @@ namespace VrmaRecorder
             string? inputVrmPath = null;
             string? inputVrmaPath = null;
             string? outputFolderPath = null;
-
-            Debug.LogFormat(
-                LogType.Log,
-                LogOption.NoStacktrace,
-                null,
-                "Usage: xvfb-run -a ./VrmaRecorder -batchmode -logfile -"
-                    + $" {inputVrmPathCommandLinePrefix}<{nameof(inputVrmPath)}>"
-                    + $" {inputVrmaPathCommandLinePrefix}<{nameof(inputVrmaPath)}>"
-                    + $" {outputFolderPathCommandLinePrefix}<{nameof(outputFolderPath)}>"
-            );
 
             foreach (var commandLineArg in Environment.GetCommandLineArgs())
             {
@@ -156,23 +146,50 @@ namespace VrmaRecorder
                 }
             }
 
+            var baseCommand = Application.platform switch
+            {
+                RuntimePlatform.LinuxPlayer => "xvfb-run -a ./VrmaRecorder -batchmode -logfile -",
+                RuntimePlatform.WindowsPlayer | RuntimePlatform.WindowsServer =>
+                    ".\\VrmaRecorder.exe -batchmode -logfile Player.log",
+                _ => "./VrmaRecorder -batchmode -logfile -",
+            };
+
             Debug.LogFormat(
                 LogType.Log,
                 LogOption.NoStacktrace,
                 null,
-                "Current Options:"
-                    + $" {nameof(inputVrmPath)}={inputVrmPath}"
-                    + $" {nameof(inputVrmaPath)}={inputVrmaPath}"
-                    + $" {nameof(outputFolderPath)}={outputFolderPath}"
+                "Usage: {0} \"{1}<{2}>\" \"{3}<{4}>\" \"{5}<{6}>\"",
+                baseCommand,
+                inputVrmPathCommandLinePrefix,
+                nameof(inputVrmPath),
+                inputVrmaPathCommandLinePrefix,
+                nameof(inputVrmaPath),
+                outputFolderPathCommandLinePrefix,
+                nameof(outputFolderPath)
+            );
+            Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, "---");
+            Debug.LogFormat(
+                LogType.Log,
+                LogOption.NoStacktrace,
+                null,
+                "Command: {0} \"{1}{2}\" \"{3}{4}\" \"{5}{6}\"",
+                baseCommand,
+                inputVrmPathCommandLinePrefix,
+                inputVrmPath ?? string.Empty,
+                inputVrmaPathCommandLinePrefix,
+                inputVrmaPath ?? string.Empty,
+                outputFolderPathCommandLinePrefix,
+                outputFolderPath ?? string.Empty
             );
 
             if (inputVrmPath == null)
             {
                 Debug.LogFormat(
-                    LogType.Log,
+                    LogType.Error,
                     LogOption.NoStacktrace,
                     null,
-                    $"{nameof(inputVrmPath)} is null"
+                    "Error: {0} is null",
+                    nameof(inputVrmPath)
                 );
                 Application.Quit();
                 return null;
@@ -181,10 +198,11 @@ namespace VrmaRecorder
             if (inputVrmaPath == null)
             {
                 Debug.LogFormat(
-                    LogType.Log,
+                    LogType.Error,
                     LogOption.NoStacktrace,
                     null,
-                    $"{nameof(inputVrmaPath)} is null"
+                    "Error: {0} is null",
+                    nameof(inputVrmaPath)
                 );
                 Application.Quit();
                 return null;
@@ -193,14 +211,17 @@ namespace VrmaRecorder
             if (outputFolderPath == null)
             {
                 Debug.LogFormat(
-                    LogType.Log,
+                    LogType.Error,
                     LogOption.NoStacktrace,
                     null,
-                    $"{nameof(outputFolderPath)} is null"
+                    "Error: {0} is null",
+                    nameof(outputFolderPath)
                 );
                 Application.Quit();
                 return null;
             }
+
+            Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, "---");
 
             return new List<(string inputVrmPath, string inputVrmaPath, string outputFolderPath)>
             {
