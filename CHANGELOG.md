@@ -5,7 +5,7 @@
 
 ### 🐛 Bug Fixes
 
-* fixed a bug that rarely prevented bone rotation animations from exporting to VRMA ([80bdcbd](https://github.com/saturday06/VRM-Addon-for-Blender/commit/80bdcbdee6f58e4946f9c6662947dfe6ce55f633))
+* fixed a bug that rarely prevented bone rotation animations from exporting to VRMA ([69d7eb3](https://github.com/saturday06/VRM-Addon-for-Blender/commit/69d7eb3a239ce43b891d55c3871ca83710344170))
 
 ## [3.17.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.0...v3.17.1) (2025-12-10)
 
