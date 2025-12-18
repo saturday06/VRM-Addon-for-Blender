@@ -886,7 +886,6 @@ def draw_vrm1_expressions_layout(
     if not expression.show_expanded_morph_target_binds:
         column.separator(factor=0.2)
     else:
-
         (
             morph_target_bind_collection_ops,
             morph_target_bind_collection_item_ops,
@@ -939,7 +938,6 @@ def draw_vrm1_expressions_layout(
     if not expression.show_expanded_material_color_binds:
         column.separator(factor=0.2)
     else:
-
         (
             material_color_bind_collection_ops,
             material_color_bind_collection_item_ops,
