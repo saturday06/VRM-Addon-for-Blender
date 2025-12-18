@@ -185,13 +185,13 @@ class VRM_UL_vrm1_expression(UIList):
         if expressions.optimize_performance:
             active_index = expressions.active_expression_ui_list_element_index
             if index == active_index:
-                split.use_property_decorate = False
+                setattr(split, "use_property_decorate", False)
                 split.prop(expression, "preview", text="Preview")
             else:
                 split.label(text=f"{expression.preview:.3f}", translate=False)
             return
 
-        split.use_property_decorate = False
+        setattr(split, "use_property_decorate", False)
         split.prop(expression, "preview", text="Preview")
 
 
