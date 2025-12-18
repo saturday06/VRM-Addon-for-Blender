@@ -181,6 +181,17 @@ class VRM_UL_vrm1_expression(UIList):
 
         split = layout.split(align=True, factor=0.55)
         split.label(text=name, translate=False, icon=icon)
+
+        if expressions.optimize_performance:
+            active_index = expressions.active_expression_ui_list_element_index
+            if index == active_index:
+                split.use_property_decorate = False
+                split.prop(expression, "preview", text="Preview")
+            else:
+                split.label(text=f"{expression.preview:.3f}", translate=False)
+            return
+
+        split.use_property_decorate = False
         split.prop(expression, "preview", text="Preview")
 
 

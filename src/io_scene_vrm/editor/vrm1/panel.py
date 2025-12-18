@@ -832,7 +832,10 @@ def draw_vrm1_expressions_layout(
         if not preset_icon:
             logger.error("Unknown preset expression: %s", expression.name)
             preset_icon = "SHAPEKEY_DATA"
+
+        layout.prop(expressions, "optimize_performance")
         layout.label(text=expression.name, translate=False, icon=preset_icon)
+
     elif 0 <= custom_index < len(expressions.custom):
         expression = expressions.custom[custom_index]
 
@@ -841,6 +844,8 @@ def draw_vrm1_expressions_layout(
                 expression.custom_name
             )
 
+        layout.prop(expressions, "optimize_performance")
+
         layout.prop(expression, "custom_name")
     else:
         return
@@ -848,88 +853,145 @@ def draw_vrm1_expressions_layout(
     column = layout.column()
     column.prop(expression, "preview", icon="PLAY", text="Preview")
     column.prop(expression, "is_binary", icon="IPO_CONSTANT")
-    column.prop(expression, "override_blink")
-    column.prop(expression, "override_look_at")
-    column.prop(expression, "override_mouth")
+
+    overrides_box = column.box()
+    overrides_row = overrides_box.row()
+    overrides_row.alignment = "LEFT"
+    overrides_row.prop(
+        expressions,
+        "show_expression_overrides_ui",
+        icon=(
+            "TRIA_DOWN" if expressions.show_expression_overrides_ui else "TRIA_RIGHT"
+        ),
+        emboss=False,
+    )
+    if expressions.show_expression_overrides_ui:
+        overrides_column = overrides_box.column()
+        overrides_column.prop(expression, "override_blink")
+        overrides_column.prop(expression, "override_look_at")
+        overrides_column.prop(expression, "override_mouth")
     column.separator(factor=0.5)
 
     morph_target_binds_box = column.box()
-    morph_target_binds_box.label(text="Morph Target Binds", icon="MESH_DATA")
-
-    (
-        morph_target_bind_collection_ops,
-        morph_target_bind_collection_item_ops,
-        morph_target_bind_index,
-        morph_target_bind,
-        _,
-    ) = draw_template_list(
-        morph_target_binds_box,
-        VRM_UL_vrm1_morph_target_bind,
+    morph_target_binds_row = morph_target_binds_box.row()
+    morph_target_binds_row.alignment = "LEFT"
+    morph_target_binds_row.prop(
         expression,
-        "morph_target_binds",
-        "active_morph_target_bind_index",
-        vrm1_ops.VRM_OT_add_vrm1_expression_morph_target_bind,
-        vrm1_ops.VRM_OT_remove_vrm1_expression_morph_target_bind,
-        vrm1_ops.VRM_OT_move_up_vrm1_expression_morph_target_bind,
-        vrm1_ops.VRM_OT_move_down_vrm1_expression_morph_target_bind,
+        "show_expanded_morph_target_binds",
+        icon=(
+            "TRIA_DOWN" if expression.show_expanded_morph_target_binds else "TRIA_RIGHT"
+        ),
+        emboss=False,
     )
+    if not expression.show_expanded_morph_target_binds:
+        column.separator(factor=0.2)
+    else:
 
-    for morph_target_bind_collection_op in morph_target_bind_collection_ops:
-        morph_target_bind_collection_op.armature_object_name = armature.name
-        morph_target_bind_collection_op.expression_name = expression.name
-
-    for morph_target_bind_collection_item_op in morph_target_bind_collection_item_ops:
-        morph_target_bind_collection_item_op.bind_index = morph_target_bind_index
-
-    if isinstance(morph_target_bind, Vrm1MorphTargetBindPropertyGroup):
-        draw_vrm1_expressions_morph_target_bind_layout(
-            context,
-            morph_target_binds_box,
+        (
+            morph_target_bind_collection_ops,
+            morph_target_bind_collection_item_ops,
+            morph_target_bind_index,
             morph_target_bind,
+            _,
+        ) = draw_template_list(
+            morph_target_binds_box,
+            VRM_UL_vrm1_morph_target_bind,
+            expression,
+            "morph_target_binds",
+            "active_morph_target_bind_index",
+            vrm1_ops.VRM_OT_add_vrm1_expression_morph_target_bind,
+            vrm1_ops.VRM_OT_remove_vrm1_expression_morph_target_bind,
+            vrm1_ops.VRM_OT_move_up_vrm1_expression_morph_target_bind,
+            vrm1_ops.VRM_OT_move_down_vrm1_expression_morph_target_bind,
         )
 
-    column.separator(factor=0.2)
+        for morph_target_bind_collection_op in morph_target_bind_collection_ops:
+            morph_target_bind_collection_op.armature_object_name = armature.name
+            morph_target_bind_collection_op.expression_name = expression.name
+
+        for (
+            morph_target_bind_collection_item_op
+        ) in morph_target_bind_collection_item_ops:
+            morph_target_bind_collection_item_op.bind_index = morph_target_bind_index
+
+        if isinstance(morph_target_bind, Vrm1MorphTargetBindPropertyGroup):
+            draw_vrm1_expressions_morph_target_bind_layout(
+                context,
+                morph_target_binds_box,
+                morph_target_bind,
+            )
+
+        column.separator(factor=0.2)
 
     material_color_binds_box = column.box()
-    material_color_binds_box.label(text="Material Color Binds", icon="MATERIAL")
-
-    (
-        material_color_bind_collection_ops,
-        material_color_bind_collection_item_ops,
-        material_color_bind_index,
-        material_color_bind,
-        _,
-    ) = draw_template_list(
-        material_color_binds_box,
-        VRM_UL_vrm1_material_color_bind,
+    material_color_binds_row = material_color_binds_box.row()
+    material_color_binds_row.alignment = "LEFT"
+    material_color_binds_row.prop(
         expression,
-        "material_color_binds",
-        "active_material_color_bind_index",
-        vrm1_ops.VRM_OT_add_vrm1_expression_material_color_bind,
-        vrm1_ops.VRM_OT_remove_vrm1_expression_material_color_bind,
-        vrm1_ops.VRM_OT_move_up_vrm1_expression_material_color_bind,
-        vrm1_ops.VRM_OT_move_down_vrm1_expression_material_color_bind,
+        "show_expanded_material_color_binds",
+        icon=(
+            "TRIA_DOWN"
+            if expression.show_expanded_material_color_binds
+            else "TRIA_RIGHT"
+        ),
+        emboss=False,
     )
+    if not expression.show_expanded_material_color_binds:
+        column.separator(factor=0.2)
+    else:
 
-    for material_color_bind_collection_op in material_color_bind_collection_ops:
-        material_color_bind_collection_op.armature_object_name = armature.name
-        material_color_bind_collection_op.expression_name = expression.name
-
-    for (
-        material_color_bind_collection_item_op
-    ) in material_color_bind_collection_item_ops:
-        material_color_bind_collection_item_op.bind_index = material_color_bind_index
-
-    if isinstance(material_color_bind, Vrm1MaterialColorBindPropertyGroup):
-        draw_vrm1_expressions_material_color_bind_layout(
-            context,
-            material_color_binds_box,
+        (
+            material_color_bind_collection_ops,
+            material_color_bind_collection_item_ops,
+            material_color_bind_index,
             material_color_bind,
+            _,
+        ) = draw_template_list(
+            material_color_binds_box,
+            VRM_UL_vrm1_material_color_bind,
+            expression,
+            "material_color_binds",
+            "active_material_color_bind_index",
+            vrm1_ops.VRM_OT_add_vrm1_expression_material_color_bind,
+            vrm1_ops.VRM_OT_remove_vrm1_expression_material_color_bind,
+            vrm1_ops.VRM_OT_move_up_vrm1_expression_material_color_bind,
+            vrm1_ops.VRM_OT_move_down_vrm1_expression_material_color_bind,
         )
-    column.separator(factor=0.2)
+
+        for material_color_bind_collection_op in material_color_bind_collection_ops:
+            material_color_bind_collection_op.armature_object_name = armature.name
+            material_color_bind_collection_op.expression_name = expression.name
+
+        for (
+            material_color_bind_collection_item_op
+        ) in material_color_bind_collection_item_ops:
+            material_color_bind_collection_item_op.bind_index = (
+                material_color_bind_index
+            )
+
+        if isinstance(material_color_bind, Vrm1MaterialColorBindPropertyGroup):
+            draw_vrm1_expressions_material_color_bind_layout(
+                context,
+                material_color_binds_box,
+                material_color_bind,
+            )
+        column.separator(factor=0.2)
 
     texture_transform_binds_box = column.box()
-    texture_transform_binds_box.label(text="Texture Transform Binds", icon="MATERIAL")
+    texture_transform_binds_row = texture_transform_binds_box.row()
+    texture_transform_binds_row.alignment = "LEFT"
+    texture_transform_binds_row.prop(
+        expression,
+        "show_expanded_texture_transform_binds",
+        icon=(
+            "TRIA_DOWN"
+            if expression.show_expanded_texture_transform_binds
+            else "TRIA_RIGHT"
+        ),
+        emboss=False,
+    )
+    if not expression.show_expanded_texture_transform_binds:
+        return
 
     (
         texture_transform_bind_collection_ops,
