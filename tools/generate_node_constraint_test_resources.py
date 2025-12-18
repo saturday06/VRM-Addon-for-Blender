@@ -162,6 +162,9 @@ def generate_constraint_vrm(
         constraint.use_x = False
         constraint.use_y = False
         constraint.use_z = False
+        constraint.invert_x = False
+        constraint.invert_y = False
+        constraint.invert_z = False
 
         if test_constraint == TestConstraint.ROTATION_CONSTRAINT:
             constraint.use_x = True
@@ -169,10 +172,11 @@ def generate_constraint_vrm(
             constraint.use_z = True
         elif test_constraint == TestConstraint.ROLL_CONSTRAINT_X:
             constraint.use_x = True
+            constraint.invert_x = True
         elif test_constraint == TestConstraint.ROLL_CONSTRAINT_Y:
-            constraint.use_y = True
-        elif test_constraint == TestConstraint.ROLL_CONSTRAINT_Z:
             constraint.use_z = True
+        elif test_constraint == TestConstraint.ROLL_CONSTRAINT_Z:
+            constraint.use_y = True
         else:
             raise AssertionError
     else:

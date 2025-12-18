@@ -402,9 +402,14 @@ def roll_constraint_or_none(
         or not (constraint_target := constraint.target)
         or constraint_target not in objs
         or constraint.mix_mode != "ADD"
-        or (int(constraint.use_x) + int(constraint.use_y) + int(constraint.use_z)) != 1
-        or constraint.owner_space != "LOCAL"
-        or constraint.target_space != "LOCAL"
+        or (
+            int(constraint.use_x and constraint.invert_x)
+            + int(constraint.use_y and not constraint.invert_y)
+            + int(constraint.use_z and not constraint.invert_z)
+        )
+        != 1
+        # or constraint.owner_space != "LOCAL"
+        # or constraint.target_space != "LOCAL"
     ):
         return None
 

@@ -956,12 +956,12 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 bone_name_to_index_dict,
             )
             if isinstance(source_index, int):
-                if roll_constraint.use_x:
+                if roll_constraint.use_x and roll_constraint.invert_x:
                     roll_axis = "X"
-                elif roll_constraint.use_y:
-                    roll_axis = "Y"
-                elif roll_constraint.use_z:
+                elif roll_constraint.use_y and not roll_constraint.invert_y:
                     roll_axis = "Z"
+                elif roll_constraint.use_z and not roll_constraint.invert_z:
+                    roll_axis = "Y"
                 else:
                     message = "Unsupported roll axis"
                     raise ValueError(message)

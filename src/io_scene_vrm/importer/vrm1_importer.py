@@ -1819,12 +1819,16 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 constraint.use_x = False
                 constraint.use_y = False
                 constraint.use_z = False
+                constraint.invert_x = False
+                constraint.invert_y = False
+                constraint.invert_z = False
                 if roll_axis == "X":
                     constraint.use_x = True
+                    constraint.invert_x = True
                 elif roll_axis == "Y":
-                    constraint.use_y = True
-                elif roll_axis == "Z":
                     constraint.use_z = True
+                elif roll_axis == "Z":
+                    constraint.use_y = True
                 weight = convert.float_or_none(roll_dict.get("weight"))
                 if weight is not None:
                     constraint.influence = weight
