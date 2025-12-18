@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.17.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.3...v3.17.4) (2025-12-18)
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug where WebP textures did not display correctly in some apps ([34b98ea](https://github.com/saturday06/VRM-Addon-for-Blender/commit/34b98eaa465209037f3e461a536511cc53c2675e))
+
 ## [3.17.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.2...v3.17.3) (2025-12-17)
 
 
