@@ -139,46 +139,6 @@ class VRM_UL_vrm1_first_person_mesh_annotation(UIList):
 class VRM_UL_vrm1_expression(UIList):
     bl_idname = "VRM_UL_vrm1_expression"
 
-    def filter_items(
-        self,
-        _context: Context,
-        expressions: object,
-        _propname: str,
-    ) -> tuple[list[int], list[int]]:
-        if not isinstance(expressions, Vrm1ExpressionsPropertyGroup):
-            return ([], [])
-
-        expression_ui_list_elements = expressions.expression_ui_list_elements
-        flt_flags = [self.bitflag_filter_item] * len(expression_ui_list_elements)
-        flt_neworder: list[int] = []
-
-        filter_name = self.filter_name
-        if not filter_name:
-            return (flt_flags, flt_neworder)
-
-        filter_name = filter_name.casefold()
-
-        preset_expression_items = list(
-            expressions.preset.name_to_expression_dict().items()
-        )
-        preset_len = len(preset_expression_items)
-        custom_expressions = expressions.custom
-
-        for index in range(len(expression_ui_list_elements)):
-            if index < preset_len:
-                name, _ = preset_expression_items[index]
-            else:
-                custom_index = index - preset_len
-                if custom_index >= len(custom_expressions):
-                    flt_flags[index] = 0
-                    continue
-                name = custom_expressions[custom_index].custom_name
-
-            if filter_name not in name.casefold():
-                flt_flags[index] = 0
-
-        return (flt_flags, flt_neworder)
-
     def draw_item(
         self,
         _context: Context,
