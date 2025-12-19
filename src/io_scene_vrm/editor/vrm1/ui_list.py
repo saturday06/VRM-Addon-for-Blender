@@ -139,6 +139,10 @@ class VRM_UL_vrm1_first_person_mesh_annotation(UIList):
 class VRM_UL_vrm1_expression(UIList):
     bl_idname = "VRM_UL_vrm1_expression"
 
+    # UIList provides these at runtime, but the stubs don't declare them.
+    bitflag_filter_item: int
+    filter_name: str
+
     def filter_items(
         self,
         _context: Context,
@@ -149,10 +153,12 @@ class VRM_UL_vrm1_expression(UIList):
             return ([], [])
 
         expression_ui_list_elements = expressions.expression_ui_list_elements
-        flt_flags = [self.bitflag_filter_item] * len(expression_ui_list_elements)
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(
+            expression_ui_list_elements
+        )
         flt_neworder: list[int] = []
 
-        filter_name = self.filter_name
+        filter_name: str = self.filter_name
         if not filter_name:
             return (flt_flags, flt_neworder)
 
