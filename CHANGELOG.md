@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.17.5](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.4...v3.17.5) (2025-12-20)
+
+
+### 🐛 Bug Fixes
+
+* disable chat image and CSS attachments in VS Code settings ([8d54219](https://github.com/saturday06/VRM-Addon-for-Blender/commit/8d54219ad845ad987fa4cf09daf0bcd13d996a42))
+* fixed a bug preventing filtering of the VRM 1.0 Expressions list ([422d77b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/422d77ba6f110b01f655823d12f71997f855bb63))
+
 ## [3.17.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.3...v3.17.4) (2025-12-18)
 
 
