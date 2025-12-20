@@ -1517,7 +1517,10 @@ class Preferences(bpy_struct):
     addons: Addons
 
 class UIList(bpy_struct):
+    @property
+    def bitflag_filter_item(self) -> int: ...
     bl_idname: str
+    filter_name: str
     layout_type: str
 
 class NodeLink(bpy_struct):
