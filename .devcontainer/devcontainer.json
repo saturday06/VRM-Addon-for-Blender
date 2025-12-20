@@ -43,6 +43,8 @@
     "vscode": {
       "settings": {
         "chat.sendElementsToChat.enabled": false, // https://github.com/microsoft/vscode-livepreview/issues/745#issuecomment-3019205373
+        "chat.sendElementsToChat.attachImages": false,
+        "chat.sendElementsToChat.attachCSS": false,
         "python.testing.unittestArgs": ["-v", "-s", ".", "-p", "test_*.py"],
         "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
         "python.terminal.activateEnvironment": false,
