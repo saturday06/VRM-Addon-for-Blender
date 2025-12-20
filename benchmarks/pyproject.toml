@@ -6,8 +6,8 @@ requires-python = "==3.10.*" # I actually want to use 3.9, but bpy 3.6.* doesn't
 dependencies = [
   "io-scene-vrm",
   "pytest",
+  "pytest-benchmark",
   "pytest-codspeed",
-  "pytest-profiling",
 ]
 
 [tool.uv.sources]
