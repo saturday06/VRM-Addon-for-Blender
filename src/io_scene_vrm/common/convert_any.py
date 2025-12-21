@@ -6,7 +6,7 @@ in type checkers in strict mode. Any is allowed only in the module here.
 """
 
 import sys
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from typing import (
     Any,  # Any is allowed only in the module here.
     Optional,
@@ -34,3 +34,15 @@ def iterator_to_object_iterator(  # type: ignore[explicit-any]
     if not isinstance(any_iterator, Iterator):
         return None
     return map(to_object, any_iterator_without_partial_type_narrowing)
+
+
+def mapping_to_object_mapping(  # type: ignore[explicit-any]
+    any_mapping: Any,  # noqa: ANN401  # Any is allowed only in the module here.
+) -> Optional[Mapping[object, object]]:
+    any_mapping_without_partial_type_narrowing = any_mapping
+    if not isinstance(any_mapping, Mapping):
+        return None
+    return {
+        to_object(k): to_object(v)
+        for k, v in any_mapping_without_partial_type_narrowing.items()
+    }

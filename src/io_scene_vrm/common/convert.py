@@ -45,13 +45,7 @@ def sequence_or_none(
 def mapping_or_none(
     mapping_object: object,
 ) -> Optional[Mapping[object, object]]:
-    mapping = mapping_object
-    if not isinstance(mapping, Mapping):
-        return None
-    key_iterator = iterator_or_none(mapping_object)
-    if key_iterator is None:
-        return None
-    return {key: convert_any.to_object(mapping[key]) for key in key_iterator}
+    return convert_any.mapping_to_object_mapping(mapping_object)
 
 
 def vrm_json_vector3_to_tuple(
