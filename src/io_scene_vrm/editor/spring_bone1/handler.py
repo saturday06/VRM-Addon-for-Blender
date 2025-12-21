@@ -82,7 +82,7 @@ class CapsuleWorldCollider:
         # The line segment from offset to tail has start point 0 and end point 1,
         # so clamp outside ranges
         offset_to_tail_ratio_for_nearest = max(
-            0, min(1, offset_to_tail_ratio_for_nearest)
+            0.0, min(1.0, offset_to_tail_ratio_for_nearest)
         )
 
         # Calculate the shortest point to the target
@@ -137,7 +137,7 @@ class CapsuleInsideWorldCollider:
         # The line segment from offset to tail has start point 0 and end point 1,
         # so clamp outside ranges
         offset_to_tail_ratio_for_nearest = max(
-            0, min(1, offset_to_tail_ratio_for_nearest)
+            0.0, min(1.0, offset_to_tail_ratio_for_nearest)
         )
 
         # Calculate the shortest point to the target

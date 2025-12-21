@@ -55,7 +55,6 @@ validate_vrm_validator_works_correctly() (
 cd "$(dirname "$0")/.."
 
 validate_file_name_characters
-validate_permissions
 uv run python -c "import io_scene_vrm; io_scene_vrm.register(); io_scene_vrm.unregister()"
 git ls-files -z "*.sh" | xargs -0 shellcheck
 git ls-files -z "*.py" "*.pyi" | xargs -0 uv run ruff check
@@ -66,3 +65,4 @@ deno lint
 deno task pyright
 deno task vrm-validator
 validate_vrm_validator_works_correctly
+validate_permissions

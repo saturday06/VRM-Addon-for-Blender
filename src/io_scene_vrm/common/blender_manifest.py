@@ -20,7 +20,7 @@ class BlenderManifest:
     def read_str(cls, blender_manifest: str, key: str) -> Optional[str]:
         # When the version of Python used by the minimum supported version of Blender
         # exceeds 3.11, it is rewritten in the tomli library.
-        lines = list(map(str.strip, blender_manifest.splitlines()))
+        lines = [line.strip() for line in blender_manifest.splitlines()]
 
         pattern = key + r' = "([^"]+)"'
         for line in lines:
@@ -37,7 +37,7 @@ class BlenderManifest:
     ) -> Optional[tuple[int, int, int]]:
         # When the version of Python used by the minimum supported version of Blender
         # exceeds 3.11, it is rewritten in the tomli library.
-        lines = list(map(str.strip, blender_manifest.splitlines()))
+        lines = [line.strip() for line in blender_manifest.splitlines()]
 
         pattern = key + r' = "(\d+)\.(\d+)\.(\d+)"'
         for line in lines:

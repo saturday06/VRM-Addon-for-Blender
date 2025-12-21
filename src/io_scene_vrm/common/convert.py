@@ -57,7 +57,7 @@ def mapping_or_none(
 def vrm_json_vector3_to_tuple(
     value: Json,
 ) -> Optional[tuple[float, float, float]]:
-    if not isinstance(value, Mapping):
+    if not isinstance(value, dict):
         return None
     x = float_or(value.get("x"), 0.0)
     y = float_or(value.get("y"), 0.0)
@@ -121,7 +121,7 @@ def mtoon_shading_shift_1_to_0(shading_toony: float, shading_shift: float) -> fl
 
 
 def mtoon_gi_equalization_to_intensity(gi_equalization: float) -> float:
-    return max(0, min(1, 1 - gi_equalization))
+    return max(0, min(1.0, 1.0 - gi_equalization))
 
 
 # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L10-L19
@@ -129,7 +129,7 @@ def mtoon_shading_toony_0_to_1(
     shading_toony_0x: float, shading_shift_0x: float
 ) -> float:
     (range_min, range_max) = get_shading_range_0x(shading_toony_0x, shading_shift_0x)
-    return max(0, min(1, (2 - (range_max - range_min)) * 0.5))
+    return max(0, min(1.0, (2.0 - (range_max - range_min)) * 0.5))
 
 
 # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L21-L30
@@ -137,12 +137,12 @@ def mtoon_shading_shift_0_to_1(
     shading_toony_0x: float, shading_shift_0x: float
 ) -> float:
     (range_min, range_max) = get_shading_range_0x(shading_toony_0x, shading_shift_0x)
-    return max(-1, min(1, ((range_max + range_min) * 0.5 * -1)))
+    return max(-1, min(1.0, ((range_max + range_min) * 0.5 * -1)))
 
 
 # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L32-L38
 def mtoon_intensity_to_gi_equalization(gi_intensity_0x: float) -> float:
-    return max(0, min(1, 1 - gi_intensity_0x))
+    return max(0, min(1.0, 1.0 - gi_intensity_0x))
 
 
 # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L40-L46

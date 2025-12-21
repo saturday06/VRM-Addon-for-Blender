@@ -221,7 +221,7 @@ class HumanBoneSpecification:
     ) -> "HumanBoneSpecification":
         # https://stackoverflow.com/a/1176023
         words = re.sub(r"(?<!^)(?=[A-Z])", "#", human_bone_name.value).split("#")
-        title = " ".join(map(str.capitalize, words))
+        title = " ".join(word.capitalize() for word in words)
         label = title + ":"
         label_no_left_right = re.sub(r"Right ", "", re.sub(r"^Left ", "", label))
 

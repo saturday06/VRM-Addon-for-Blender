@@ -511,7 +511,7 @@ class WM_OT_vrm_validator(Operator):
                 joint_chain_bone_names: list[str] = []
                 for bone_name in joint_bone_names:
                     search_joint_chain_bone_names: list[str] = []
-                    bone = armature_data.bones.get(bone_name)
+                    bone: Optional[Bone] = armature_data.bones.get(bone_name)
                     terminated = False
                     while bone:
                         if bone.name != bone_name and bone.name in joint_bone_names:

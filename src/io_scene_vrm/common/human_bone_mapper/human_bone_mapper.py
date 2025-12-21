@@ -3,7 +3,7 @@ import re
 from collections.abc import Mapping
 from typing import Optional
 
-from bpy.types import Armature, Object
+from bpy.types import Armature, Bone, Object
 
 from ..char import FULLWIDTH_ASCII_TO_ASCII_MAP
 from ..logger import get_logger
@@ -75,7 +75,7 @@ def match_count(
             search_parent_specification = search_parent_specification.parent()
 
         found = False
-        bone = bone.parent
+        bone: Optional[Bone] = bone.parent
         while bone:
             search_specification = next(
                 (

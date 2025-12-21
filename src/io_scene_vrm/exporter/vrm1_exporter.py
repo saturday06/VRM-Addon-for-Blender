@@ -1488,7 +1488,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         if material.blend_method == "OPAQUE":
             material_dict["alphaMode"] = "OPAQUE"
         elif material.blend_method == "CLIP":
-            material_dict["alphaCutoff"] = max(0, min(1, material.alpha_threshold))
+            material_dict["alphaCutoff"] = max(0.0, min(1.0, material.alpha_threshold))
             material_dict["alphaMode"] = "MASK"
         else:
             material_dict["alphaMode"] = "BLEND"

@@ -1315,27 +1315,27 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             return default
 
         location_input = uv_offset_scaling_node.inputs.get("Location")
-        offset = (0.0, 0.0)
         if isinstance(location_input, shader.VECTOR_SOCKET_CLASSES):
-            offset = (
-                location_input.default_value[0],
-                location_input.default_value[1],
-            )
+            offset_u = location_input.default_value[0]
+            offset_v = location_input.default_value[1]
+        else:
+            offset_u = 0.0
+            offset_v = 0.0
 
         scale_input = uv_offset_scaling_node.inputs.get("Scale")
-        scale = (1.0, 1.0)
         if isinstance(scale_input, shader.VECTOR_SOCKET_CLASSES):
-            scale = (
-                scale_input.default_value[0],
-                scale_input.default_value[1],
-            )
+            scale_u = scale_input.default_value[0]
+            scale_v = scale_input.default_value[1]
+        else:
+            scale_u = 1.0
+            scale_v = 1.0
 
         return (
             {
-                "offset": list(offset),
-                "scale": list(scale),
+                "offset": [offset_u, offset_v],
+                "scale": [scale_u, scale_v],
             },
-            (*offset, *scale),
+            (offset_u, offset_v, scale_u, scale_v),
         )
 
     def create_mtoon0_texture_info_dict(

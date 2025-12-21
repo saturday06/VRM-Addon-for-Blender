@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+import math
 import random
 import string
 import time
@@ -1421,11 +1422,15 @@ def copy_node_tree_interface_socket(
     elif isinstance(from_socket, float_classes) and isinstance(to_socket, int_classes):
         max_int = 1_000_000_000
         min_int = -1_000_000_000
-        to_socket.default_value = int(
-            min(max(min_int, from_socket.default_value), max_int)
+        to_socket.default_value = min(
+            max(min_int, math.floor(from_socket.default_value)), max_int
         )
-        to_socket.min_value = int(min(max(min_int, from_socket.min_value), max_int))
-        to_socket.max_value = int(min(max(min_int, from_socket.max_value), max_int))
+        to_socket.min_value = min(
+            max(min_int, math.floor(from_socket.min_value)), max_int
+        )
+        to_socket.max_value = min(
+            max(min_int, math.floor(from_socket.max_value)), max_int
+        )
     elif isinstance(from_socket, color_classes) and isinstance(
         to_socket, color_classes
     ):

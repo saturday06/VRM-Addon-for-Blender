@@ -164,10 +164,10 @@ def update_property_typing(
     lines = path.read_text(encoding="UTF-8").splitlines()
     # Skip to the definition of the corresponding class
 
-    class_def_index = None
-    class_def_colon_index = None
-    class_type_checking_index = None
-    another_def_start_index = None
+    class_def_index: Optional[int] = None
+    class_def_colon_index: Optional[int] = None
+    class_type_checking_index: Optional[int] = None
+    another_def_start_index: Optional[int] = None
     for line_index, line in enumerate(lines):
         if class_def_index is None:
             # Find class definition
