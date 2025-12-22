@@ -118,7 +118,7 @@ jobs:
             if brew update && brew install ffmpeg imagemagick; then
               break
             fi
-            sleep 60
+            sleep 300
           done
       - name: Test
         run: |
