@@ -115,7 +115,7 @@ jobs:
               >&2 echo "Failed to install dependencies"
               exit 1
             fi
-            if brew update && brew install ffmpeg imagemagick; then
+            if brew update && perl -e 'alarm 300; exec @ARGV' -- brew install ffmpeg imagemagick; then
               break
             fi
             sleep 300
