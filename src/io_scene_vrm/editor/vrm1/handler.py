@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
+from sys import float_info
+
 import bpy
 from bpy.app.handlers import persistent
 
@@ -33,7 +35,8 @@ def frame_change_post(_unused: object) -> None:
         key_block = key_blocks.get(key_block_name)
         if not key_block:
             continue
-        key_block.value = value
+        if abs(key_block.value - value) >= float_info.epsilon:
+            key_block.value = value
     Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.clear()
 
     # Update materials

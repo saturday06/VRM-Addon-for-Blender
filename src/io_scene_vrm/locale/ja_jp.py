@@ -777,5 +777,15 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "https://github.com/vrm-c/vrm-specification/blob/c24d76d99a18738dd2c266be1c83f089064a7b5e/specification/VRMC_vrm-1.0/humanoid.md#humanoid-bone-parent-child-relationship",
     ): "https://github.com/vrm-c/vrm-specification/blob/c24d76d99a18738dd2c266be1c83f089064a7b5e/specification/VRMC_vrm-1.0/humanoid.ja.md#ヒューマノイドボーンの親子関係",
+    ("*", "Optimize Performance"): "パフォーマンスを最適化",
+    (
+        "*",
+        "Improve UI responsiveness in files with many expressions. "
+        "Shows the preview slider only on the active row and keeps heavier "
+        "sections collapsed by default.",
+    ): "表情が多いファイルでUIの応答性を改善します。"
+    + "プレビューのスライダーはアクティブ行のみ表示され、"
+    + "負荷の大きいセクションは既定で折りたたまれます。",
+    ("*", "Override Options"): "上書きオプション",
     ("Operator", "Restore Shape Key Assignments"): "シェイプキーの割り当てを復元する",
 }

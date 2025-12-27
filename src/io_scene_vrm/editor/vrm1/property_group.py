@@ -1167,15 +1167,8 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             elif expressions.preset.is_look_at_expression(name):
                 preview *= look_at_blend_factor
 
-            for texture_transform_bind in expression.texture_transform_binds:
-                material = texture_transform_bind.material
-                if not material:
-                    continue
-
-            for material_color_bind in expression.material_color_binds:
-                material = material_color_bind.material
-                if not material:
-                    continue
+            if preview < float_info.epsilon:
+                continue
 
             for morph_target_bind in expression.morph_target_binds:
                 mesh_object = context.blend_data.objects.get(
@@ -1210,10 +1203,22 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
                     + value
                 )
 
+        last = (
+            Vrm1ExpressionPropertyGroup.last_shape_key_name_and_key_block_name_to_value
+        )
+        updated_shape_key_name_and_key_block_name_to_value: dict[
+            tuple[str, str], float
+        ] = {}
+        for key in last.keys() | shape_key_name_and_key_block_name_to_value.keys():
+            new_value = shape_key_name_and_key_block_name_to_value.get(key, 0.0)
+            old_value = last.get(key, 0.0)
+            if abs(new_value - old_value) >= 1e-6:
+                updated_shape_key_name_and_key_block_name_to_value[key] = new_value
+
         for (
             shape_key_name,
             key_block_name,
-        ), value in shape_key_name_and_key_block_name_to_value.items():
+        ), value in updated_shape_key_name_and_key_block_name_to_value.items():
             shape_key = context.blend_data.shape_keys.get(shape_key_name)
             if not shape_key:
                 continue
@@ -1223,10 +1228,16 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             key_block = key_blocks.get(key_block_name)
             if not key_block:
                 continue
-            key_block.value = value
+            if abs(key_block.value - value) >= 1e-6:
+                key_block.value = value
+
+            if abs(value) < 1e-6:
+                last.pop((shape_key_name, key_block_name), None)
+            else:
+                last[(shape_key_name, key_block_name)] = value
 
         Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.update(
-            shape_key_name_and_key_block_name_to_value
+            updated_shape_key_name_and_key_block_name_to_value
         )
 
     override_blink: EnumProperty(  # type: ignore[valid-type]
@@ -1248,19 +1259,26 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
     # for UI
     show_expanded: BoolProperty()  # type: ignore[valid-type]
     show_expanded_morph_target_binds: BoolProperty(  # type: ignore[valid-type]
-        name="Morph Target Binds"
+        name="Morph Target Binds",
+        default=False,
     )
     show_expanded_material_color_binds: BoolProperty(  # type: ignore[valid-type]
-        name="Material Color Binds"
+        name="Material Color Binds",
+        default=False,
     )
     show_expanded_texture_transform_binds: BoolProperty(  # type: ignore[valid-type]
-        name="Texture Transform Binds"
+        name="Texture Transform Binds",
+        default=False,
     )
 
     # Since the value of the shape key can only be changed in
     # frame_change_pre/frame_change_post during animation playback, the
     # changed value is saved here.
     frame_change_post_shape_key_updates: ClassVar[dict[tuple[str, str], float]] = {}
+    last_shape_key_name_and_key_block_name_to_value: ClassVar[
+        dict[tuple[str, str], float]
+    ] = {}
+    materials_update_pending: ClassVar[bool] = False
 
     def get_preview(self) -> float:
         value = self.get("preview")
@@ -1296,6 +1314,9 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
 
     @classmethod
     def update_materials(cls, context: Context) -> None:
+        if not cls.materials_update_pending:
+            return
+
         for armature in context.blend_data.armatures:
             ext = get_armature_vrm1_extension(armature)
             expressions = ext.expressions
@@ -1316,6 +1337,8 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
                     # https://docs.blender.org/api/4.2/bpy.types.NodeTree.html#bpy.types.NodeTree.update
                     # node_tree.update()
                 materials_to_update.clear()
+
+        cls.materials_update_pending = False
 
     active_morph_target_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
     active_material_color_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
@@ -1625,6 +1648,21 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
     )
     active_expression_ui_list_element_index: IntProperty(min=0)  # type: ignore[valid-type]
 
+    optimize_performance: BoolProperty(  # type: ignore[valid-type]
+        name="Optimize Performance",
+        description=(
+            "Improve UI responsiveness in files with many expressions. "
+            "Shows the preview slider only on the active row and keeps heavier "
+            "sections collapsed by default."
+        ),
+        default=False,
+    )
+
+    show_expression_overrides_ui: BoolProperty(  # type: ignore[valid-type]
+        name="Override Options",
+        default=False,
+    )
+
     def restore_expression_morph_target_bind_object_assignments(
         self, context: Context
     ) -> None:
@@ -1643,6 +1681,8 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
             StringPropertyGroup
         ]
         active_expression_ui_list_element_index: int  # type: ignore[no-redef]
+        optimize_performance: bool  # type: ignore[no-redef]
+        show_expression_overrides_ui: bool  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.meta.schema.json

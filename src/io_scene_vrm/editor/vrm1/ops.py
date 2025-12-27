@@ -1971,6 +1971,9 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
             new_item.material = material
             material.update_tag()
 
+        if materials_to_update:
+            Vrm1ExpressionPropertyGroup.materials_update_pending = True
+
         return {"FINISHED"}
 
     def get_all_expressions(self) -> list[tuple[Vrm1ExpressionPropertyGroup, str, str]]:

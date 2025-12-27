@@ -908,6 +908,15 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "Look At Vertical Down",
     ): "注视垂直向下",
+    ("*", "Optimize Performance"): "优化性能",
+    (
+        "*",
+        "Improve UI responsiveness in files with many expressions. "
+        "Shows the preview slider only on the active row and keeps heavier "
+        "sections collapsed by default.",
+    ): "在包含大量表情的文件中提高界面响应速度。"
+    + "仅在活动行显示预览滑块，并默认折叠较重的部分。",
+    ("*", "Override Options"): "覆盖选项",
     # Spring Bone
     (
         "*",
