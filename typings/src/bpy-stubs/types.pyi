@@ -1881,6 +1881,8 @@ class Area(bpy_struct):
 class Screen(ID):
     @property
     def areas(self) -> bpy_prop_collection[Area]: ...
+    @property
+    def is_animation_playing(self) -> bool: ...
 
 class Window(bpy_struct):
     screen: Screen
