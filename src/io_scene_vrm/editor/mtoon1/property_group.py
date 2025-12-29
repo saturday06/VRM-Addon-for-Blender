@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+import math
 import re
 import sys
 from collections.abc import Mapping, Sequence
@@ -256,7 +257,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
             node_group_name, group_label, default_value=int(default_value)
         )
         if isinstance(value, float):
-            return abs(value) > 0.000001
+            return math.fabs(value) > 0.000001
         return bool(value)
 
     def get_float(
@@ -1477,7 +1478,8 @@ class Mtoon1TexturePropertyGroup(TextureTraceablePropertyGroup):
     panel_label = label
     colorspace = "sRGB"
 
-    def update_source(self, _context: Context) -> None:
+    def update_source(self, context: Context) -> None:
+        _ = context
         self.update_image(self.source)
 
     source: PointerProperty(  # type: ignore[valid-type]
@@ -2261,7 +2263,7 @@ class Mtoon0ShadingGradeTexturePropertyGroup(Mtoon0TexturePropertyGroup):
 # https://github.com/KhronosGroup/glTF/blob/1ab49ec412e638f2e5af0289e9fbb60c7271e457/specification/2.0/schema/material.pbrMetallicRoughness.schema.json#L9-L26
 class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
     def get_base_color_factor(self) -> tuple[float, float, float, float]:
-        rgb = self.get_rgb(
+        r, g, b = self.get_rgb(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_COLOR_LABEL,
             default_value=shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_COLOR_DEFAULT,
@@ -2271,7 +2273,7 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
             shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_ALPHA_LABEL,
             default_value=shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_ALPHA_DEFAULT,
         )
-        return (*rgb, a)
+        return (r, g, b, a)
 
     def set_base_color_factor(self, value: object) -> None:
         color = convert.float4_or_none(value)
@@ -3229,11 +3231,11 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     def set_alpha_cutoff(self, value: float) -> None:
         material = self.find_material()
         if bpy.app.version < (4, 2):
-            material.alpha_threshold = max(0, min(1, value - 0.00001))  # TODO: ...
+            material.alpha_threshold = max(0, min(1.0, value - 0.00001))  # TODO: ...
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_ALPHA_CUTOFF_LABEL,
-            max(0, value),
+            max(0.0, value),
         )
 
         self.update_alpha_nodes(material, self.get_alpha_mode())

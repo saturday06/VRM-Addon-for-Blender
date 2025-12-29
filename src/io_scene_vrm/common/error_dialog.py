@@ -39,7 +39,7 @@ def show_error_dialog(
     append_environment: bool = True,
 ) -> set[str]:
     if isinstance(lines, str):
-        lines = list(map(str.rstrip, lines.splitlines()))
+        lines = [line.rstrip() for line in lines.splitlines()]
         while lines and not lines[0].strip():
             del lines[0]
         while lines and not lines[-1].strip():

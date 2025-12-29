@@ -259,30 +259,32 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
             continue
 
         if animation_path == "translation":
-            timestamps = read_accessor_as_animation_sampler_input(
+            translation_timestamps = read_accessor_as_animation_sampler_input(
                 input_accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
             )
-            if timestamps is None:
+            if translation_timestamps is None:
                 continue
             translations = read_accessor_as_animation_sampler_translation_output(
                 output_accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
             )
             if translations is None:
                 continue
-            translation_keyframes = tuple(sorted(zip(timestamps, translations)))
+            translation_keyframes = tuple(
+                sorted(zip(translation_timestamps, translations))
+            )
             node_index_to_translation_keyframes[node_index] = translation_keyframes
         elif animation_path == "rotation":
-            timestamps = read_accessor_as_animation_sampler_input(
+            rotation_timestamps = read_accessor_as_animation_sampler_input(
                 input_accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
             )
-            if timestamps is None:
+            if rotation_timestamps is None:
                 continue
             rotations = read_accessor_as_animation_sampler_rotation_output(
                 output_accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
             )
             if rotations is None:
                 continue
-            rotation_keyframes = tuple(sorted(zip(timestamps, rotations)))
+            rotation_keyframes = tuple(sorted(zip(rotation_timestamps, rotations)))
             node_index_to_rotation_keyframes[node_index] = rotation_keyframes
 
     expression_name_to_default_preview_value: dict[str, float] = {}
@@ -316,15 +318,20 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
             expression_translation_keyframes
         )
 
-    timestamps = [
-        timestamp
-        for keyframes in itertools.chain(
-            node_index_to_translation_keyframes.values(),
-            node_index_to_rotation_keyframes.values(),
+    timestamps: list[float] = sorted(
+        itertools.chain(
+            (
+                timestamp
+                for keyframes in node_index_to_translation_keyframes.values()
+                for (timestamp, _) in keyframes
+            ),
+            (
+                timestamp
+                for keyframes in node_index_to_rotation_keyframes.values()
+                for (timestamp, _) in keyframes
+            ),
         )
-        for (timestamp, _) in keyframes
-    ]
-    timestamps.sort()
+    )
     if not timestamps:
         return {"CANCELLED"}
 

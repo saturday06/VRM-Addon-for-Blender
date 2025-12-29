@@ -1148,9 +1148,9 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             if expression.override_look_at == "block":
                 look_at_block_rate = 1.0
 
-        mouth_blend_factor = max(0, min(1 - mouth_block_rate, 1))
-        blink_blend_factor = max(0, min(1 - blink_block_rate, 1))
-        look_at_blend_factor = max(0, min(1 - look_at_block_rate, 1))
+        mouth_blend_factor = max(0.0, min(1 - mouth_block_rate, 1.0))
+        blink_blend_factor = max(0.0, min(1 - blink_block_rate, 1.0))
+        look_at_blend_factor = max(0.0, min(1 - look_at_block_rate, 1.0))
 
         shape_key_name_and_key_block_name_to_value: dict[tuple[str, str], float] = {}
         for name, expression in name_to_expression_dict.items():

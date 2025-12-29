@@ -1,6 +1,6 @@
 [project]
 name = "io-scene-vrm"
-version = "3.17.4"
+version = "3.17.5"
 authors = [
   {name = "Isamu Mogi"},
   {name = "iCyP"},
@@ -143,7 +143,7 @@ ignore_errors = true # Please use pyright instead.
 extend-exclude = ".*" # Please use Ruff instead.
 
 [tool.codespell]
-skip = '*.lock,*.asset,node_modules'
+skip = '*.lock,*.asset,node_modules,./tests/resources/unity/*/Library/*,./tests/resources/unity/*/Build/*'
 
 [tool.isort]
 extend_skip_glob = ["*"] # Please use Ruff instead.
