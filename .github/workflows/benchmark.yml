@@ -72,7 +72,7 @@ jobs:
           python-version: ${{ env.BENCHMARK_PYTHON_VERSION }}
       - run: pip3 install "numpy < 3" "requests < 3" "zstandard < 1" "pytest < 10" "pytest-codspeed < 5"
       - run: echo /opt/vrm/lib | sudo tee /etc/ld.so.conf.d/vrm.conf
-      - uses: actions/cache@a7833574556fa59680c1b7cb190c1735db73ebf0 # v5.0.0
+      - uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         id: cache
         with:
           path: benchmark-dependencies.tar.gz
