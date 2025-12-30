@@ -88,6 +88,6 @@ jobs:
           python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 4))'
       - uses: CodSpeedHQ/action@346a2d8a8d9d38909abd0bc3d23f773110f076ad # v4.4.1
         with:
-          mode: instrumentation
-          run: pytest --codspeed || true
+          mode: simulation
+          run: pytest src/ --codspeed || true
           working-directory: benchmarks
