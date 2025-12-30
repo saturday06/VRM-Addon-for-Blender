@@ -3,8 +3,12 @@
 
 set -eux
 
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")"
 
+repository_root_path=$(
+  cd ..
+  pwd
+)
 cached_image_path=
 cached_image_id=
 if [ "${CI:-}" = "true" ]; then
@@ -31,8 +35,8 @@ docker \
   --tag \
   "$super_linter_tag_name" \
   --file \
-  tools/super-linter.dockerfile \
-  .
+  super-linter.dockerfile \
+  "$repository_root_path"
 
 new_image_id=$(docker image inspect --format='{{.Id}}' "$super_linter_tag_name")
 if [ -n "$cached_image_path" ] && [ "$cached_image_id" != "$new_image_id" ]; then
@@ -43,4 +47,4 @@ if [ -n "$cached_image_path" ] && [ "$cached_image_id" != "$new_image_id" ]; the
 fi
 
 # Run the built super-linter.
-exec docker run --rm -v "${PWD}:/tmp/lint" "$super_linter_tag_name"
+exec docker run --rm -v "${repository_root_path}:/tmp/lint" "$super_linter_tag_name"

@@ -3,15 +3,16 @@
 @echo off
 setlocal
 
-cd /d "%~dp0.."
+cd /d "%~dp0"
+set "repository_root_path=.."
 
 for /f "usebackq" %%i in (
   `powershell -Command "[System.BitConverter]::ToString((New-Object System.Security.Cryptography.SHA256Managed).ComputeHash([System.Text.Encoding]::UTF8.GetBytes($PWD))).ToLower().Replace('-', '')"`
-) do set pwd_hash=%%i
-set super_linter_tag_name="super-linter-local-windows-%pwd_hash%"
+) do set "pwd_hash=%%i"
+set "super_linter_tag_name=super-linter-local-windows-%pwd_hash%"
 
-docker build --platform=linux/amd64 --tag "%super_linter_tag_name%" --file tools/super-linter.dockerfile .
-docker run --rm -v "%cd%:/tmp/lint" "%super_linter_tag_name%"
+docker build --platform=linux/amd64 --tag "%super_linter_tag_name%" --file super-linter.dockerfile "%repository_root_path%"
+docker run --rm -v "%repository_root_path%:/tmp/lint" "%super_linter_tag_name%"
 
 endlocal
 exit /b
