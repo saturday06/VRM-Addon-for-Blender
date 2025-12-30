@@ -9,7 +9,12 @@
     "options": ["--platform=linux/amd64"]
   },
   "remoteUser": "developer",
-  "updateContentCommand": "./tools/devcontainer_update_content_command.sh",
+  "updateContentCommand": [
+    "/bin/bash",
+    // In devcontainer, permission settings may be lost, so explicitly specify the shell to execute.
+    // This script restores permissions, so subsequent scripts don't need to specify the shell.
+    "./tools/devcontainer_update_content_command.sh"
+  ],
   "postStartCommand": "./tools/devcontainer_post_start_command.sh",
   "postAttachCommand": "./tools/devcontainer_post_attach_command.sh",
   "features": {

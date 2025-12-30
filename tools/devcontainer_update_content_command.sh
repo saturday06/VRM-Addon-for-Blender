@@ -5,10 +5,11 @@ set -eu -o pipefail
 
 cd "$(dirname "$0")/.."
 
+# In devcontainer, permission settings may be lost, so restore them.
+/bin/bash ./tools/devcontainer_fixup_workspace.sh
+
 # Docker images are aggressively cached and packages often remain outdated, so we update here
 sudo ./tools/install_ubuntu_packages.sh
-
-./tools/devcontainer_fixup_workspace.sh
 
 ./tools/install_hadolint.sh
 ./tools/install_editorconfig-checker.sh
