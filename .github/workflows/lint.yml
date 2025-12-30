@@ -53,10 +53,6 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-      - uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-        with:
-          path: ci-super-linter-local-image.tar.gz
-          key: ci-super-linter-local-image-archive-1
       - name: Super-Linter
         run: ./tools/super-linter.sh
 
