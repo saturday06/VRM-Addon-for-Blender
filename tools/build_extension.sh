@@ -42,7 +42,7 @@ git clean -xdff src
 
 rm -fr extension_output
 mkdir extension_output
-output_filepath="extension_output/vrm_$(LC_ALL=C date -u +%Y%m%d%H%M%S)_$(git rev-parse HEAD).zip"
+output_filepath="extension_output/extension_$(LC_ALL=C date -u +%Y%m%d%H%M%S)_$(git rev-parse HEAD).zip"
 
 "$blender_path" --command extension build \
   --source-dir src/io_scene_vrm \

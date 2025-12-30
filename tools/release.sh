@@ -68,7 +68,7 @@ cp -r LICENSE* "${compression_dir}/${archive_root_name}/"
 zip -T "$website_release_path"
 
 ./tools/build_extension.sh
-original_extension_path=$(find extension_output -name "vrm_*_*.zip" | sort | head -n 1)
+original_extension_path=$(find extension_output -name "extension_*_*.zip" | sort | head -n 1)
 if [ ! -f "$original_extension_path" ]; then
   echo "No extension output"
   exit 1
