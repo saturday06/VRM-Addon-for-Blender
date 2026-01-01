@@ -1110,21 +1110,14 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
     )
 
     def update_preview(self, context: Context) -> None:
-        self.update_previews(self, context)
-
-    @staticmethod
-    def update_previews(
-        triggered_expression: "Vrm1ExpressionPropertyGroup",
-        context: Context,
-    ) -> None:
-        if not triggered_expression.name:
-            logger.debug("Unnamed expression: %s", type(triggered_expression))
+        if not self.name:
+            logger.debug("Unnamed expression: %s", type(self))
             return
 
-        armature = triggered_expression.id_data
+        armature = self.id_data
         if not isinstance(armature, Armature):
             # This is getting triggered after importing VRMA files
-            logger.error("No armature for %s", triggered_expression.name)
+            logger.error("No armature for %s", self.name)
             return
 
         expressions = get_armature_vrm1_extension(armature).expressions
@@ -1286,7 +1279,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             return
 
         self["preview"] = value
-        Vrm1ExpressionPropertyGroup.update_preview(self, context)
+        self.update_preview(context)
 
     preview: FloatProperty(  # type: ignore[valid-type]
         name="Expression",
