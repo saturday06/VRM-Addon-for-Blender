@@ -515,6 +515,7 @@ class ArmatureBones(bpy_prop_collection[Bone]):
 class OperatorProperties(bpy_struct): ...
 
 class UILayout(bpy_struct):
+    use_property_decorate: bool
     def box(self) -> UILayout: ...
     def column(
         self,
