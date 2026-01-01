@@ -723,6 +723,7 @@ def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None
         force=True,
     )
 
+    vrm0.humanoid.pop("last_bone_names", None)
     if vrm0.humanoid.initial_automatic_bone_assignment:
         vrm0.humanoid.initial_automatic_bone_assignment = False
         if all(not b.node.bone_name for b in vrm0.humanoid.human_bones):
