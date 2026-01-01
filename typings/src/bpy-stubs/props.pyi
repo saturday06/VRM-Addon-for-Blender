@@ -35,8 +35,16 @@ def CollectionProperty(
 ) -> __CollectionPropertyElement: ...
 def EnumProperty(
     *,
-    items: Sequence[tuple[str, str, str, int]]
-    | Sequence[tuple[str, str, str, str, int]],
+    items: Sequence[tuple[str, str, str]]
+    | Sequence[tuple[str, str, str, int]]
+    | Sequence[tuple[str, str, str, int | str, int]]
+    # Be careful not to let string objects returned from callbacks be garbage collected
+    # https://docs.blender.org/api/2.93/bpy.props.html#bpy.props.EnumProperty
+    | Callable[[__CallbackSelf, Context | None], Sequence[tuple[str, str, str]]]
+    | Callable[[__CallbackSelf, Context | None], Sequence[tuple[str, str, str, int]]]
+    | Callable[
+        [__CallbackSelf, Context | None], Sequence[tuple[str, str, str, int | str, int]]
+    ],
     name: str = "",
     description: str = "",
     default: str
