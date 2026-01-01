@@ -444,22 +444,19 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         if not isinstance(armature_data, Armature):
             return
 
-        if not force:
-            bone_names_str = "\n".join(
-                sorted(
-                    bone.name + "\n" + (parent.name if (parent := bone.parent) else "")
-                    for bone in armature_data.bones.values()
-                )
+        bone_names_str = "\n".join(
+            sorted(
+                bone.name + "\n" + (parent.name if (parent := bone.parent) else "")
+                for bone in armature_data.bones.values()
             )
-            human_bones = get_armature_vrm1_extension(
-                armature_data
-            ).humanoid.human_bones
-            pointer_key = human_bones.as_pointer()
-            pointer_to_last_bone_names_str = human_bones.pointer_to_last_bone_names_str
-            last_bone_names_str = pointer_to_last_bone_names_str.get(pointer_key)
-            if last_bone_names_str == bone_names_str:
-                return
-            pointer_to_last_bone_names_str[pointer_key] = bone_names_str
+        )
+        human_bones = get_armature_vrm1_extension(armature_data).humanoid.human_bones
+        pointer_key = human_bones.as_pointer()
+        pointer_to_last_bone_names_str = human_bones.pointer_to_last_bone_names_str
+        last_bone_names_str = pointer_to_last_bone_names_str.get(pointer_key)
+        if not force and last_bone_names_str == bone_names_str:
+            return
+        pointer_to_last_bone_names_str[pointer_key] = bone_names_str
 
         BonePropertyGroup.update_all_vrm1_node_candidates(armature_data)
 
