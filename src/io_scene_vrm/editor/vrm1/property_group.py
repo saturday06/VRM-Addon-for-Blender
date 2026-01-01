@@ -270,7 +270,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
     )
 
     # for UI
-    last_bone_names_str: StringProperty()  # type: ignore[valid-type]
+    pointer_to_last_bone_names_str: ClassVar[dict[int, str]] = {}
     initial_automatic_bone_assignment: BoolProperty(  # type: ignore[valid-type]
         default=True
     )
@@ -443,16 +443,23 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         armature_data = context.blend_data.armatures.get(armature_data_name)
         if not isinstance(armature_data, Armature):
             return
-        human_bones = get_armature_vrm1_extension(armature_data).humanoid.human_bones
 
-        bone_names_str = "\n".join(
-            bone.name + "\n" + (parent.name if (parent := bone.parent) else "")
-            for bone in sorted(armature_data.bones.values(), key=lambda b: b.name)
-        )
-
-        if not force and human_bones.last_bone_names_str == bone_names_str:
-            return
-        human_bones.last_bone_names_str = bone_names_str
+        if not force:
+            bone_names_str = "\n".join(
+                sorted(
+                    bone.name + "\n" + (parent.name if (parent := bone.parent) else "")
+                    for bone in armature_data.bones.values()
+                )
+            )
+            human_bones = get_armature_vrm1_extension(
+                armature_data
+            ).humanoid.human_bones
+            pointer_key = human_bones.as_pointer()
+            pointer_to_last_bone_names_str = human_bones.pointer_to_last_bone_names_str
+            last_bone_names_str = pointer_to_last_bone_names_str.get(pointer_key)
+            if last_bone_names_str == bone_names_str:
+                return
+            pointer_to_last_bone_names_str[pointer_key] = bone_names_str
 
         BonePropertyGroup.update_all_vrm1_node_candidates(armature_data)
 
@@ -514,7 +521,6 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         right_little_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         right_little_intermediate: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         right_little_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
-        last_bone_names_str: str  # type: ignore[no-redef]
         initial_automatic_bone_assignment: bool  # type: ignore[no-redef]
         allow_non_humanoid_rig: bool  # type: ignore[no-redef]
 

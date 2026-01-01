@@ -200,7 +200,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
     pose_marker_name: StringProperty()  # type: ignore[valid-type]
 
     # for UI
-    last_bone_names_str: StringProperty()  # type: ignore[valid-type]
+    pointer_to_last_bone_names_str: ClassVar[dict[int, str]] = {}
     initial_automatic_bone_assignment: BoolProperty(  # type: ignore[valid-type]
         default=True
     )
@@ -254,16 +254,20 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         if not armature_data:
             return
 
-        humanoid = get_armature_extension(armature_data).vrm0.humanoid
-
-        bone_names_str = "\n".join(
-            bone.name + "\n" + (parent.name if (parent := bone.parent) else "")
-            for bone in sorted(armature_data.bones.values(), key=lambda b: b.name)
-        )
-
-        if not force and humanoid.last_bone_names_str == bone_names_str:
-            return
-        humanoid.last_bone_names_str = bone_names_str
+        if not force:
+            bone_names_str = "\n".join(
+                sorted(
+                    bone.name + "\n" + (parent.name if (parent := bone.parent) else "")
+                    for bone in armature_data.bones.values()
+                )
+            )
+            humanoid = get_armature_extension(armature_data).vrm0.humanoid
+            pointer_key = humanoid.as_pointer()
+            pointer_to_last_bone_names_str = humanoid.pointer_to_last_bone_names_str
+            last_bone_names_str = pointer_to_last_bone_names_str.get(pointer_key)
+            if last_bone_names_str == bone_names_str:
+                return
+            pointer_to_last_bone_names_str[pointer_key] = bone_names_str
 
         BonePropertyGroup.update_all_vrm0_node_candidates(armature_data)
 
@@ -350,7 +354,6 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         pose: str  # type: ignore[no-redef]
         pose_library: Optional[Action]  # type: ignore[no-redef]
         pose_marker_name: str  # type: ignore[no-redef]
-        last_bone_names_str: str  # type: ignore[no-redef]
         initial_automatic_bone_assignment: bool  # type: ignore[no-redef]
 
 
