@@ -135,7 +135,6 @@ class VRM_UL_vrm0_secondary_animation_group_bone(UIList):
             return
         if not isinstance(bone, BonePropertyGroup):
             return
-        armature = bone.find_armature()
 
         icon = "BONE_DATA"
 
@@ -148,11 +147,9 @@ class VRM_UL_vrm0_secondary_animation_group_bone(UIList):
             return
 
         if index == bone_group.active_bone_index:
-            layout.prop_search(
+            layout.prop(
                 bone,
-                "bone_name",
-                armature,
-                "bones",
+                "bone_name_enum",
                 text="",
                 translate=False,
                 icon=icon,

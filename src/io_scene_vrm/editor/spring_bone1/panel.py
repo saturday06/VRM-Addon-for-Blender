@@ -29,10 +29,9 @@ from .ui_list import (
 
 def draw_spring_bone1_collider_sphere_layout(
     layout: UILayout,
-    armature_data: Armature,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
-    layout.prop_search(collider.node, "bone_name", armature_data, "bones")
+    layout.prop(collider.node, "bone_name_enum")
     layout.prop(collider, "ui_collider_type")
     bpy_object = collider.bpy_object
     if bpy_object:
@@ -45,10 +44,9 @@ def draw_spring_bone1_collider_sphere_layout(
 
 def draw_spring_bone1_collider_capsule_layout(
     layout: UILayout,
-    armature_data: Armature,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
-    layout.prop_search(collider.node, "bone_name", armature_data, "bones")
+    layout.prop(collider.node, "bone_name_enum")
     layout.prop(collider, "ui_collider_type")
     bpy_object = collider.bpy_object
     if bpy_object:
@@ -70,7 +68,6 @@ def draw_spring_bone1_collider_capsule_layout(
 
 def draw_spring_bone1_collider_extended_fallback_layout(
     layout: UILayout,
-    _armature_data: Armature,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
     extended = collider.extensions.vrmc_spring_bone_extended_collider
@@ -92,11 +89,10 @@ def draw_spring_bone1_collider_extended_fallback_layout(
 
 def draw_spring_bone1_collider_extended_sphere_layout(
     layout: UILayout,
-    armature_data: Armature,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
     extended = collider.extensions.vrmc_spring_bone_extended_collider
-    layout.prop_search(collider.node, "bone_name", armature_data, "bones")
+    layout.prop(collider.node, "bone_name_enum")
     layout.prop(collider, "ui_collider_type")
     bpy_object = collider.bpy_object
     if bpy_object:
@@ -108,18 +104,16 @@ def draw_spring_bone1_collider_extended_sphere_layout(
         layout.prop(extended, "enabled")
     draw_spring_bone1_collider_extended_fallback_layout(
         layout,
-        armature_data,
         collider,
     )
 
 
 def draw_spring_bone1_collider_extended_capsule_layout(
     layout: UILayout,
-    armature_data: Armature,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
     extended = collider.extensions.vrmc_spring_bone_extended_collider
-    layout.prop_search(collider.node, "bone_name", armature_data, "bones")
+    layout.prop(collider.node, "bone_name_enum")
     layout.prop(collider, "ui_collider_type")
     bpy_object = collider.bpy_object
     if bpy_object:
@@ -140,18 +134,16 @@ def draw_spring_bone1_collider_extended_capsule_layout(
         layout.prop(extended, "enabled")
     draw_spring_bone1_collider_extended_fallback_layout(
         layout,
-        armature_data,
         collider,
     )
 
 
 def draw_spring_bone1_collider_extended_plane_layout(
     layout: UILayout,
-    armature_data: Armature,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
     extended = collider.extensions.vrmc_spring_bone_extended_collider
-    layout.prop_search(collider.node, "bone_name", armature_data, "bones")
+    layout.prop(collider.node, "bone_name_enum")
     layout.prop(collider, "ui_collider_type")
     bpy_object = collider.bpy_object
     if bpy_object:
@@ -162,37 +154,26 @@ def draw_spring_bone1_collider_extended_plane_layout(
 
     draw_spring_bone1_collider_extended_fallback_layout(
         layout,
-        armature_data,
         collider,
     )
 
 
 def draw_spring_bone1_collider_layout(
-    armature: Object,
     layout: UILayout,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
-    armature_data = armature.data
-    if not isinstance(armature_data, Armature):
-        return
     extended = collider.extensions.vrmc_spring_bone_extended_collider
     if extended.enabled:
         if extended.shape_type == extended.SHAPE_TYPE_EXTENDED_PLANE.identifier:
-            draw_spring_bone1_collider_extended_plane_layout(
-                layout, armature_data, collider
-            )
+            draw_spring_bone1_collider_extended_plane_layout(layout, collider)
         elif extended.shape_type == extended.SHAPE_TYPE_EXTENDED_SPHERE.identifier:
-            draw_spring_bone1_collider_extended_sphere_layout(
-                layout, armature_data, collider
-            )
+            draw_spring_bone1_collider_extended_sphere_layout(layout, collider)
         elif extended.shape_type == extended.SHAPE_TYPE_EXTENDED_CAPSULE.identifier:
-            draw_spring_bone1_collider_extended_capsule_layout(
-                layout, armature_data, collider
-            )
+            draw_spring_bone1_collider_extended_capsule_layout(layout, collider)
     elif collider.shape_type == collider.SHAPE_TYPE_SPHERE.identifier:
-        draw_spring_bone1_collider_sphere_layout(layout, armature_data, collider)
+        draw_spring_bone1_collider_sphere_layout(layout, collider)
     elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE.identifier:
-        draw_spring_bone1_collider_capsule_layout(layout, armature_data, collider)
+        draw_spring_bone1_collider_capsule_layout(layout, collider)
     layout.separator(factor=0.5)
 
 
@@ -256,7 +237,7 @@ def draw_spring_bone1_colliders_layout(
     if not isinstance(collider, SpringBone1ColliderPropertyGroup):
         return
 
-    draw_spring_bone1_collider_layout(armature, colliders_box.column(), collider)
+    draw_spring_bone1_collider_layout(colliders_box.column(), collider)
 
 
 def draw_spring_bone1_collider_groups_layout(
@@ -394,11 +375,9 @@ def draw_spring_bone1_springs_layout(
         spring,
         "vrm_name",
     )
-    spring_column.prop_search(
+    spring_column.prop(
         spring.center,
-        "bone_name",
-        armature_data,
-        "bones",
+        "bone_name_enum",
         text="Center",
     )
 
@@ -434,7 +413,7 @@ def draw_spring_bone1_springs_layout(
     add_joint_op.guess_properties = True
 
     if isinstance(joint, SpringBone1JointPropertyGroup):
-        joints_column.prop_search(joint.node, "bone_name", armature_data, "bones")
+        joints_column.prop(joint.node, "bone_name_enum")
         joints_column.prop(joint, "stiffness", slider=True)
         joints_column.prop(joint, "gravity_power", slider=True)
         joints_column.prop(joint, "gravity_dir")
@@ -593,7 +572,7 @@ class VRM_PT_spring_bone1_collider_property(Panel):
         if not isinstance(armature_data, Armature):
             return
         if get_armature_extension(armature_data).is_vrm1():
-            draw_spring_bone1_collider_layout(armature, self.layout.column(), collider)
+            draw_spring_bone1_collider_layout(self.layout.column(), collider)
             return
 
         self.layout.label(text="This is a VRM 1.0 Spring Bone Collider", icon="INFO")

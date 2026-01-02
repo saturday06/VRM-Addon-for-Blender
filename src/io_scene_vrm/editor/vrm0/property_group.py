@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-import functools
 from collections.abc import Sequence
 from sys import float_info
 from typing import TYPE_CHECKING, ClassVar, Optional
@@ -37,6 +36,7 @@ from ...common.vrm0.human_bone import (
 from ..property_group import (
     BonePropertyGroup,
     FloatPropertyGroup,
+    HumanoidStructureBonePropertyGroup,
     MeshObjectPropertyGroup,
     StringPropertyGroup,
     property_group_enum,
@@ -50,6 +50,36 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 
+class Vrm0HumanoidBoneNodePropertyGroup(HumanoidStructureBonePropertyGroup):
+    def update_node_candidates(
+        self,
+        armature_data: Armature,
+        target: HumanBoneSpecification,
+        bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
+        error_bpy_bone_names: Sequence[str],
+    ) -> bool:
+        new_candidates = HumanoidStructureBonePropertyGroup.find_bone_candidates(
+            armature_data,
+            target,
+            bpy_bone_name_to_human_bone_specification,
+            error_bpy_bone_names,
+        )
+
+        bone_name_candidates = self.bone_name_candidates
+        if set(bone_name_candidates) == new_candidates:
+            return False
+
+        bone_name_candidates.clear()
+
+        # Preserving list order
+        for bone_name in armature_data.bones.keys():
+            if bone_name not in new_candidates:
+                continue
+            bone_name_candidates.append(bone_name)
+
+        return True
+
+
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L70-L164
 class Vrm0HumanoidBonePropertyGroup(PropertyGroup):
     bone: StringProperty(  # type: ignore[valid-type]
@@ -57,7 +87,7 @@ class Vrm0HumanoidBonePropertyGroup(PropertyGroup):
     )
     node: PointerProperty(  # type: ignore[valid-type]
         name="Bone Name",
-        type=BonePropertyGroup,
+        type=Vrm0HumanoidBoneNodePropertyGroup,
     )
     use_default_values: BoolProperty(  # type: ignore[valid-type]
         name="Unity's HumanLimit.useDefaultValues",
@@ -79,41 +109,6 @@ class Vrm0HumanoidBonePropertyGroup(PropertyGroup):
         name="Unity's HumanLimit.axisLength"
     )
 
-    # for UI
-    node_candidates: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
-    )
-
-    def update_node_candidates(
-        self,
-        armature_data: Armature,
-        bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
-        error_bpy_bone_names: Sequence[str],
-    ) -> bool:
-        human_bone_name = HumanBoneName.from_str(self.bone)
-        if human_bone_name is None:
-            logger.warning("Bone name '%s' is invalid", self.bone)
-            return False
-        target = HumanBoneSpecifications.get(human_bone_name)
-        new_candidates = BonePropertyGroup.find_bone_candidates(
-            armature_data,
-            target,
-            bpy_bone_name_to_human_bone_specification,
-            error_bpy_bone_names,
-        )
-        if {n.value for n in self.node_candidates} == new_candidates:
-            return False
-
-        self.node_candidates.clear()
-        # Preserving list order
-        for bone_name in armature_data.bones.keys():
-            if bone_name not in new_candidates:
-                continue
-            candidate = self.node_candidates.add()
-            candidate.value = bone_name
-
-        return True
-
     def specification(self) -> HumanBoneSpecification:
         name = HumanBoneName.from_str(self.bone)
         if name is None:
@@ -125,15 +120,12 @@ class Vrm0HumanoidBonePropertyGroup(PropertyGroup):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         bone: str  # type: ignore[no-redef]
-        node: BonePropertyGroup  # type: ignore[no-redef]
+        node: Vrm0HumanoidBoneNodePropertyGroup  # type: ignore[no-redef]
         use_default_values: bool  # type: ignore[no-redef]
         min: Sequence[float]  # type: ignore[no-redef]
         max: Sequence[float]  # type: ignore[no-redef]
         center: Sequence[float]  # type: ignore[no-redef]
         axis_length: float  # type: ignore[no-redef]
-        node_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            StringPropertyGroup
-        ]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_Humanoid.cs#L166-L195
@@ -210,45 +202,21 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
             for human_bone in self.human_bones:
                 if human_bone.bone != name:
                     continue
-                if human_bone.node.bone_name not in human_bone.node_candidates:
+                if (
+                    human_bone.node.bone_name
+                    not in human_bone.node.bone_name_candidates
+                ):
                     return False
         return True
 
     @staticmethod
-    def defer_update_all_node_candidates(
-        armature_data_name: str,
-        *,
-        force: bool = False,
-    ) -> None:
-        bpy.app.timers.register(
-            functools.partial(
-                Vrm0HumanoidPropertyGroup.update_all_node_candidates_timer_callback,
-                armature_data_name,
-                force=force,
-            )
-        )
-
-    @staticmethod
-    def update_all_node_candidates_timer_callback(
-        armature_object_name: str, *, force: bool = False
-    ) -> None:
-        """Wrap update_all_node_candidates() to match bpy.app.timers.register."""
-        context = bpy.context  # Context cannot cross frames so we need to get a new one
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(
-            context, armature_object_name, force=force
-        )
-
-    @staticmethod
     def update_all_node_candidates(
-        context: Optional[Context],
+        context: Context,
         armature_data_name: str,
         *,
         force: bool = False,
     ) -> None:
         from ..extension import get_armature_extension
-
-        if context is None:
-            context = bpy.context
 
         armature_data = context.blend_data.armatures.get(armature_data_name)
         if not armature_data:
@@ -268,7 +236,9 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
             return
         pointer_to_last_bone_names_str[pointer_key] = bone_names_str
 
-        BonePropertyGroup.update_all_vrm0_node_candidates(armature_data)
+        HumanoidStructureBonePropertyGroup.update_all_vrm0_node_candidates(
+            armature_data
+        )
 
     @staticmethod
     def fixup_human_bones(obj: Object) -> None:

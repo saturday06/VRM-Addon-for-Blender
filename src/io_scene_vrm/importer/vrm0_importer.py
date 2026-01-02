@@ -1311,7 +1311,7 @@ def setup_bones(context: Context, armature: Object) -> None:
     for human_bone in human_bones:
         if (
             human_bone.node.bone_name
-            and human_bone.node.bone_name not in human_bone.node_candidates
+            and human_bone.node.bone_name not in human_bone.node.bone_name_candidates
         ):
             # has error
             return

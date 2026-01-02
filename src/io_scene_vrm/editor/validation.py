@@ -64,7 +64,6 @@ class WM_OT_vrm_validator(Operator):
             self.errors,
             self.armature_object_name,
             execute_migration=True,
-            readonly=False,
         )
 
         fatal_error_count = 0
@@ -97,7 +96,6 @@ class WM_OT_vrm_validator(Operator):
             self.errors,
             self.armature_object_name,
             execute_migration=True,
-            readonly=False,
         )
         if (
             not any(error.severity == 0 for error in self.errors)
@@ -118,22 +116,17 @@ class WM_OT_vrm_validator(Operator):
         context: Context,
         messages: list[str],
         armature: Object,
-        *,
-        readonly: bool,
     ) -> None:
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         humanoid = get_armature_extension(armature_data).vrm0.humanoid
-        if readonly:
-            humanoid.defer_update_all_node_candidates(armature_data.name)
-        else:
-            humanoid.update_all_node_candidates(context, armature_data.name)
+        humanoid.update_all_node_candidates(context, armature_data.name)
         for human_bone in humanoid.human_bones:
             if (
                 not human_bone.node.bone_name
-                or human_bone.node.bone_name in human_bone.node_candidates
+                or human_bone.node.bone_name in human_bone.node.bone_name_candidates
             ):
                 continue
             messages.append(
@@ -155,25 +148,20 @@ class WM_OT_vrm_validator(Operator):
         context: Context,
         messages: list[str],
         armature: Object,
-        *,
-        readonly: bool,
     ) -> None:
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
-        if readonly:
-            human_bones.defer_update_all_node_candidates(armature_data.name)
-        else:
-            human_bones.update_all_node_candidates(context, armature_data.name)
+        human_bones.update_all_node_candidates(context, armature_data.name)
         for (
             human_bone_name,
             human_bone,
         ) in human_bones.human_bone_name_to_human_bone().items():
             if (
                 not human_bone.node.bone_name
-                or human_bone.node.bone_name in human_bone.node_candidates
+                or human_bone.node.bone_name in human_bone.node.bone_name_candidates
             ):
                 continue
 
@@ -197,21 +185,15 @@ class WM_OT_vrm_validator(Operator):
         context: Context,
         messages: list[str],
         armature: Object,
-        *,
-        readonly: bool,
     ) -> None:
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         if get_armature_extension(armature_data).is_vrm0():
-            WM_OT_vrm_validator.validate_bone_order_vrm0(
-                context, messages, armature, readonly=readonly
-            )
+            WM_OT_vrm_validator.validate_bone_order_vrm0(context, messages, armature)
         else:
-            WM_OT_vrm_validator.validate_bone_order_vrm1(
-                context, messages, armature, readonly=readonly
-            )
+            WM_OT_vrm_validator.validate_bone_order_vrm1(context, messages, armature)
 
     @staticmethod
     def detect_errors(
@@ -220,7 +202,6 @@ class WM_OT_vrm_validator(Operator):
         armature_object_name: str,
         *,
         execute_migration: bool = False,
-        readonly: bool = True,
     ) -> None:
         error_messages: list[str] = []
         warning_messages: list[str] = []
@@ -477,7 +458,7 @@ class WM_OT_vrm_validator(Operator):
                         )
                 if all_required_bones_exist:
                     WM_OT_vrm_validator.validate_bone_order(
-                        context, error_messages, armature, readonly=readonly
+                        context, error_messages, armature
                     )
 
             if obj.type == "MESH":

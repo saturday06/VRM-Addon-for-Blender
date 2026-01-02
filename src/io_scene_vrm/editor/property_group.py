@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+import sys
 import uuid
 import warnings
 from collections.abc import Iterator, Mapping, Sequence, ValuesView
@@ -17,7 +18,7 @@ from typing import (
 
 import bpy
 from bpy.app.translations import pgettext
-from bpy.props import FloatProperty, PointerProperty, StringProperty
+from bpy.props import EnumProperty, FloatProperty, PointerProperty, StringProperty
 from bpy.types import Armature, Bone, Context, Material, Object, PropertyGroup, UILayout
 
 from ..common.logger import get_logger
@@ -321,6 +322,330 @@ class BonePropertyGroup(PropertyGroup):
             for joint in spring.joints:
                 yield joint.node, BonePropertyGroupType.SPRING_BONE1_SPRING_JOINT
 
+    armature_data_name_and_bone_uuid_to_bone_name_cache: ClassVar[
+        dict[tuple[str, str], str]
+    ] = {}
+
+    def get_bone_name(self) -> str:
+        from .extension import get_bone_extension
+
+        if not self.bone_uuid:
+            return ""
+
+        armature_data = self.find_armature()
+
+        # Use cache to speed up this function since profiling showed it was slow
+        cache_key = (armature_data.name, self.bone_uuid)
+        cached_bone_name = self.armature_data_name_and_bone_uuid_to_bone_name_cache.get(
+            cache_key
+        )
+        if cached_bone_name is not None:
+            if (
+                cached_bone := armature_data.bones.get(cached_bone_name)
+            ) and get_bone_extension(cached_bone).uuid == self.bone_uuid:
+                return cached_bone_name
+            # If there's even one old value in the cache, clear everything for safety
+            self.armature_data_name_and_bone_uuid_to_bone_name_cache.clear()
+
+        for bone in armature_data.bones:
+            if get_bone_extension(bone).uuid == self.bone_uuid:
+                self.armature_data_name_and_bone_uuid_to_bone_name_cache[cache_key] = (
+                    bone.name
+                )
+                return bone.name
+
+        return ""
+
+    def find_armature(self) -> Armature:
+        id_data = self.id_data
+        if isinstance(id_data, Armature):
+            return id_data
+
+        message = (
+            f"{type(self)}/{self}.id_data is not a {Armature}"
+            + f" but {type(id_data)}/{id_data}"
+        )
+        raise AssertionError(message)
+
+    def get_bone_property_group_type(self) -> BonePropertyGroupType:
+        armature_data = self.find_armature()
+        for (
+            bone_property_group,
+            bone_property_group_type,
+        ) in self.get_all_bone_property_groups(armature_data):
+            if bone_property_group == self:
+                return bone_property_group_type
+
+        message = (
+            f"{type(self)}/{self} is not associated with "
+            + "BonePropertyGroupType.get_all_bone_property_groups"
+        )
+        raise AssertionError(message)
+
+    def set_bone_name(self, value: str) -> None:
+        from .extension import get_armature_extension, get_bone_extension
+
+        context = bpy.context
+
+        armature_data = self.find_armature()
+        armature_objects = [
+            obj for obj in context.blend_data.objects if obj.data == armature_data
+        ]
+        bone_property_group_type = self.get_bone_property_group_type()
+
+        # Assign UUIDs and regenerate it if duplication exist
+        found_uuids: set[str] = set()
+        for bone in armature_data.bones:
+            bone_extension = get_bone_extension(bone)
+            found_uuid = bone_extension.uuid
+            if not found_uuid or found_uuid in found_uuids:
+                bone_extension.uuid = uuid.uuid4().hex
+                self.armature_data_name_and_bone_uuid_to_bone_name_cache.clear()
+            found_uuids.add(bone_extension.uuid)
+
+        if not value or not (bone := armature_data.bones.get(value)):
+            if not self.bone_uuid:
+                # Not changed
+                return
+            self.bone_uuid = ""
+        elif self.bone_uuid and self.bone_uuid == get_bone_extension(bone).uuid:
+            # Not changed
+            return
+        else:
+            self.bone_uuid = get_bone_extension(bone).uuid
+
+        ext = get_armature_extension(armature_data)
+
+        if bone_property_group_type in [
+            BonePropertyGroupType.VRM0_COLLIDER_GROUP,
+            BonePropertyGroupType.VRM0_BONE_GROUP,
+        ]:
+            for collider_group in ext.vrm0.secondary_animation.collider_groups:
+                for armature_object in armature_objects:
+                    collider_group.refresh(armature_object)
+
+        if bone_property_group_type == BonePropertyGroupType.SPRING_BONE1_COLLIDER:
+            for collider in ext.spring_bone1.colliders:
+                for armature_object in armature_objects:
+                    collider.reset_bpy_object(context, armature_object)
+
+        if bone_property_group_type == BonePropertyGroupType.VRM0_HUMAN:
+            HumanoidStructureBonePropertyGroup.update_all_vrm0_node_candidates(
+                armature_data
+            )
+        if bone_property_group_type == BonePropertyGroupType.VRM1_HUMAN:
+            HumanoidStructureBonePropertyGroup.update_all_vrm1_node_candidates(
+                armature_data
+            )
+
+    def update_bone_name(self, context: Context) -> None:
+        bone_name = self.bone_name
+        if not bone_name:
+            if self.bone_name_enum != self.UNASSIGNED_BONE_NAME_ENUM_IDENTIFIER:
+                self.bone_name_enum = self.UNASSIGNED_BONE_NAME_ENUM_IDENTIFIER
+            return
+
+        bone_name_enum = self.ASSIGNED_BONE_NAME_ENUM_IDENTIFIER_PREFIX + bone_name
+        if self.bone_name_enum == bone_name_enum:
+            return
+
+        error_bone_name_enum = self.ERROR_BONE_NAME_ENUM_IDENTIFIER_PREFIX + bone_name
+        if self.bone_name_enum == error_bone_name_enum:
+            return
+
+        identifiers = [
+            identifier for identifier, _, _ in self.get_bone_name_enum_items(context)
+        ]
+        if bone_name_enum in identifiers:
+            self.bone_name_enum = bone_name_enum
+            return
+        if error_bone_name_enum in identifiers:
+            self.bone_name_enum = error_bone_name_enum
+            return
+
+        logger.error(
+            "update_bone_name: Invalid bone_name value: %s (not in [%s])",
+            bone_name,
+            ",".join(identifiers),
+        )
+        self.bone_name_enum = self.UNASSIGNED_BONE_NAME_ENUM_IDENTIFIER
+
+    bone_name: StringProperty(  # type: ignore[valid-type]
+        name="Bone",
+        get=get_bone_name,
+        set=set_bone_name,
+        update=update_bone_name,
+    )
+
+    def get_value(self) -> str:
+        message = (
+            "`BonePropertyGroup.value` is deprecated and will be removed in the"
+            " next major release. Please use `BonePropertyGroup.bone_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+        return str(self.bone_name)
+
+    def set_value(self, value: str) -> None:
+        message = (
+            "`BonePropertyGroup.value` is deprecated and will be removed in the"
+            " next major release. Please use `BonePropertyGroup.bone_name` instead."
+        )
+        logger.warning(message)
+        warnings.warn(message, DeprecationWarning, stacklevel=5)
+        self.bone_name = value
+
+    value: StringProperty(  # type: ignore[valid-type]
+        name="Bone",
+        get=get_value,
+        set=set_value,
+    )
+    """`value` is deprecated and will be removed in the next major
+    release. Please use `bone_name` instead."
+    """
+
+    UNASSIGNED_BONE_NAME_ENUM_IDENTIFIER: Final = "Unassigned"
+    ASSIGNED_BONE_NAME_ENUM_IDENTIFIER_PREFIX: Final = "Assigned:"
+    ERROR_BONE_NAME_ENUM_IDENTIFIER_PREFIX: Final = "Error:"
+
+    def get_valid_bone_name_enum_items(
+        self, _context: Optional[Context]
+    ) -> list[tuple[str, str, str]]:
+        armature_data = self.find_armature()
+        return [
+            (
+                self.ASSIGNED_BONE_NAME_ENUM_IDENTIFIER_PREFIX + bone.name,
+                bone.name,
+                "",
+            )
+            for bone in armature_data.bones
+        ]
+
+    def get_bone_name_enum_items(
+        self, context: Optional[Context]
+    ) -> list[tuple[str, str, str]]:
+        items = [
+            (
+                self.UNASSIGNED_BONE_NAME_ENUM_IDENTIFIER,
+                pgettext("(Unassign)") if self.bone_name else "",
+                pgettext("Remove the bone assignment"),
+            )
+        ]
+        # Use sys.intern for the strings returned here to prevent them from being
+        # garbage collected. This is because EnumProperty item strings must be retained
+        # until Blender exits.
+        # https://docs.blender.org/api/2.93/bpy.props.html#bpy.props.EnumProperty
+        assignment_items = [
+            (
+                sys.intern(identifier),
+                sys.intern(name),
+                sys.intern(description),
+            )
+            for identifier, name, description in self.get_valid_bone_name_enum_items(
+                context
+            )
+        ]
+        if self.bone_name:
+            bone_name_identidier = (
+                self.ASSIGNED_BONE_NAME_ENUM_IDENTIFIER_PREFIX + self.bone_name
+            )
+            if bone_name_identidier not in (
+                identifier for identifier, _, _ in assignment_items
+            ):
+                items.append(
+                    (
+                        sys.intern(
+                            self.ERROR_BONE_NAME_ENUM_IDENTIFIER_PREFIX + self.bone_name
+                        ),
+                        sys.intern(self.bone_name),
+                        sys.intern(""),
+                    )
+                )
+        items.extend(assignment_items)
+        return items
+
+    def update_bone_name_enum(self, _context: Context) -> None:
+        bone_name_enum = self.bone_name_enum
+        if bone_name_enum == self.UNASSIGNED_BONE_NAME_ENUM_IDENTIFIER:
+            if self.bone_name:
+                self.bone_name = ""
+            return
+
+        if bone_name_enum.startswith(self.ASSIGNED_BONE_NAME_ENUM_IDENTIFIER_PREFIX):
+            bone_name = bone_name_enum[
+                len(self.ASSIGNED_BONE_NAME_ENUM_IDENTIFIER_PREFIX) :
+            ]
+            if self.bone_name != bone_name:
+                self.bone_name = bone_name
+            return
+
+        if bone_name_enum.startswith(self.ERROR_BONE_NAME_ENUM_IDENTIFIER_PREFIX):
+            bone_name = bone_name_enum[
+                len(self.ERROR_BONE_NAME_ENUM_IDENTIFIER_PREFIX) :
+            ]
+            if self.bone_name != bone_name:
+                self.bone_name = bone_name
+            return
+
+        logger.error(
+            "BonePropertyGroup.update_bone_name_enum: Invalid bone_name_enum value: %s",
+            bone_name_enum,
+        )
+
+    bone_name_enum: EnumProperty(  # type: ignore[valid-type]
+        name="Bone",
+        items=get_bone_name_enum_items,
+        update=update_bone_name_enum,
+    )
+
+    bone_uuid: StringProperty()  # type: ignore[valid-type]
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        bone_name: str  # type: ignore[no-redef]
+        value: str  # type: ignore[no-redef]
+        bone_name_enum: str  # type: ignore[no-redef]
+        bone_uuid: str  # type: ignore[no-redef]
+
+
+class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
+    pointer_to_bone_name_candidates: ClassVar[dict[int, list[str]]] = {}
+
+    @property
+    def bone_name_candidates(self) -> list[str]:
+        pointer_key = self.as_pointer()
+        bone_name_candidates = self.pointer_to_bone_name_candidates.get(pointer_key)
+        if bone_name_candidates is None:
+            bone_name_candidates = []
+            self.pointer_to_bone_name_candidates[pointer_key] = bone_name_candidates
+            armature_data = self.find_armature()
+            bone_property_group_type = self.get_bone_property_group_type()
+            if bone_property_group_type == BonePropertyGroupType.VRM0_HUMAN:
+                HumanoidStructureBonePropertyGroup.update_all_vrm0_node_candidates(
+                    armature_data
+                )
+            elif bone_property_group_type == BonePropertyGroupType.VRM1_HUMAN:
+                HumanoidStructureBonePropertyGroup.update_all_vrm1_node_candidates(
+                    armature_data
+                )
+        return bone_name_candidates
+
+    def get_valid_bone_name_enum_items(
+        self, _context: Optional[Context]
+    ) -> list[tuple[str, str, str]]:
+        bone_name_candidates = self.bone_name_candidates
+        armature_data = self.find_armature()
+        return [
+            (
+                self.ASSIGNED_BONE_NAME_ENUM_IDENTIFIER_PREFIX + bone_name,
+                bone_name,
+                "",
+            )
+            for bone_name in bone_name_candidates
+            if bone_name in armature_data.bones
+        ]
+
     @staticmethod
     def find_bone_candidates(
         armature_data: Armature,
@@ -547,124 +872,6 @@ class BonePropertyGroup(PropertyGroup):
 
         return {bone_cancidate.name for bone_cancidate in bone_candidates}
 
-    armature_data_name_and_bone_uuid_to_bone_name_cache: ClassVar[
-        dict[tuple[str, str], str]
-    ] = {}
-
-    def get_bone_name(self) -> str:
-        from .extension import get_bone_extension
-
-        if not self.bone_uuid:
-            return ""
-
-        armature_data = self.find_armature()
-
-        # Use cache to speed up this function since profiling showed it was slow
-        cache_key = (armature_data.name, self.bone_uuid)
-        cached_bone_name = self.armature_data_name_and_bone_uuid_to_bone_name_cache.get(
-            cache_key
-        )
-        if cached_bone_name is not None:
-            if (
-                cached_bone := armature_data.bones.get(cached_bone_name)
-            ) and get_bone_extension(cached_bone).uuid == self.bone_uuid:
-                return cached_bone_name
-            # If there's even one old value in the cache, clear everything for safety
-            self.armature_data_name_and_bone_uuid_to_bone_name_cache.clear()
-
-        for bone in armature_data.bones:
-            if get_bone_extension(bone).uuid == self.bone_uuid:
-                self.armature_data_name_and_bone_uuid_to_bone_name_cache[cache_key] = (
-                    bone.name
-                )
-                return bone.name
-
-        return ""
-
-    def find_armature(self) -> Armature:
-        id_data = self.id_data
-        if isinstance(id_data, Armature):
-            return id_data
-
-        message = (
-            f"{type(self)}/{self}.id_data is not a {Armature}"
-            + f" but {type(id_data)}/{id_data}"
-        )
-        raise AssertionError(message)
-
-    def get_bone_property_group_type(self) -> BonePropertyGroupType:
-        armature_data = self.find_armature()
-        for (
-            bone_property_group,
-            bone_property_group_type,
-        ) in self.get_all_bone_property_groups(armature_data):
-            if bone_property_group == self:
-                return bone_property_group_type
-
-        message = (
-            f"{type(self)}/{self} is not associated with "
-            + "BonePropertyGroupType.get_all_bone_property_groups"
-        )
-        raise AssertionError(message)
-
-    def set_bone_name(self, value: str) -> None:
-        from .extension import get_armature_extension, get_bone_extension
-
-        context = bpy.context
-
-        armature_data = self.find_armature()
-        armature_objects = [
-            obj for obj in context.blend_data.objects if obj.data == armature_data
-        ]
-        bone_property_group_type = self.get_bone_property_group_type()
-
-        # Assign UUIDs and regenerate it if duplication exist
-        found_uuids: set[str] = set()
-        for bone in armature_data.bones:
-            bone_extension = get_bone_extension(bone)
-            found_uuid = bone_extension.uuid
-            if not found_uuid or found_uuid in found_uuids:
-                bone_extension.uuid = uuid.uuid4().hex
-                self.armature_data_name_and_bone_uuid_to_bone_name_cache.clear()
-            found_uuids.add(bone_extension.uuid)
-
-        if not value or not (bone := armature_data.bones.get(value)):
-            if not self.bone_uuid:
-                # Not changed
-                return
-            self.bone_uuid = ""
-        elif self.bone_uuid and self.bone_uuid == get_bone_extension(bone).uuid:
-            # Not changed
-            return
-        else:
-            self.bone_uuid = get_bone_extension(bone).uuid
-
-        ext = get_armature_extension(armature_data)
-
-        if bone_property_group_type in [
-            BonePropertyGroupType.VRM0_COLLIDER_GROUP,
-            BonePropertyGroupType.VRM0_BONE_GROUP,
-        ]:
-            for collider_group in ext.vrm0.secondary_animation.collider_groups:
-                for armature_object in armature_objects:
-                    collider_group.refresh(armature_object)
-
-        if bone_property_group_type == BonePropertyGroupType.SPRING_BONE1_COLLIDER:
-            for collider in ext.spring_bone1.colliders:
-                for armature_object in armature_objects:
-                    collider.reset_bpy_object(context, armature_object)
-
-        if (
-            ext.is_vrm0()
-            and bone_property_group_type == BonePropertyGroupType.VRM0_HUMAN
-        ):
-            self.update_all_vrm0_node_candidates(armature_data)
-        if (
-            ext.is_vrm1()
-            and bone_property_group_type == BonePropertyGroupType.VRM1_HUMAN
-        ):
-            self.update_all_vrm1_node_candidates(armature_data)
-
     @staticmethod
     def update_all_vrm0_node_candidates(armature_data: Armature) -> None:
         from .extension import get_armature_extension
@@ -702,21 +909,27 @@ class BonePropertyGroup(PropertyGroup):
                     for error_human_bone in ext.vrm0.humanoid.human_bones
                     if error_human_bone.node.bone_name
                     and error_human_bone.node.bone_name
-                    not in error_human_bone.node_candidates
+                    not in error_human_bone.node.bone_name_candidates
                 ]
 
-            human_bone = next(
+            human_bone, human_bone_name = next(
                 (
-                    human_bone
+                    (human_bone, human_bone_name)
                     for human_bone in ext.vrm0.humanoid.human_bones
-                    if vrm0_human_bone.HumanBoneName.from_str(human_bone.bone)
+                    if (
+                        human_bone_name := vrm0_human_bone.HumanBoneName.from_str(
+                            human_bone.bone
+                        )
+                    )
+                    == human_bone_name
                     == traversing_human_bone_specification.name
                 ),
-                None,
+                (None, None),
             )
-            if human_bone:
-                node_candidates_updated = human_bone.update_node_candidates(
+            if human_bone and human_bone_name:
+                node_candidates_updated = human_bone.node.update_node_candidates(
                     armature_data,
+                    vrm0_human_bone.HumanBoneSpecifications.get(human_bone_name),
                     bpy_bone_name_to_human_bone_specification,
                     error_bpy_bone_names,
                 )
@@ -762,13 +975,13 @@ class BonePropertyGroup(PropertyGroup):
                     for error_human_bone in human_bone_name_to_human_bone.values()
                     if error_human_bone.node.bone_name
                     and error_human_bone.node.bone_name
-                    not in error_human_bone.node_candidates
+                    not in error_human_bone.node.bone_name_candidates
                 ]
 
             human_bone = human_bone_name_to_human_bone[
                 traversing_human_bone_specification.name
             ]
-            node_candidates_updated = human_bone.update_node_candidates(
+            node_candidates_updated = human_bone.node.update_node_candidates(
                 armature_data,
                 traversing_human_bone_specification,
                 bpy_bone_name_to_human_bone_specification,
@@ -778,47 +991,6 @@ class BonePropertyGroup(PropertyGroup):
             traversing_human_bone_specifications.extend(
                 traversing_human_bone_specification.children()
             )
-
-    bone_name: StringProperty(  # type: ignore[valid-type]
-        name="Bone",
-        get=get_bone_name,
-        set=set_bone_name,
-    )
-
-    def get_value(self) -> str:
-        message = (
-            "`BonePropertyGroup.value` is deprecated and will be removed in the"
-            " next major release. Please use `BonePropertyGroup.bone_name` instead."
-        )
-        logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-        return str(self.bone_name)
-
-    def set_value(self, value: str) -> None:
-        message = (
-            "`BonePropertyGroup.value` is deprecated and will be removed in the"
-            " next major release. Please use `BonePropertyGroup.bone_name` instead."
-        )
-        logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-        self.bone_name = value
-
-    value: StringProperty(  # type: ignore[valid-type]
-        name="Bone",
-        get=get_value,
-        set=set_value,
-    )
-    """`value` is deprecated and will be removed in the next major
-    release. Please use `bone_name` instead."
-    """
-
-    bone_uuid: StringProperty()  # type: ignore[valid-type]
-    if TYPE_CHECKING:
-        # This code is auto generated.
-        # To regenerate, run the `uv run tools/property_typing.py` command.
-        bone_name: str  # type: ignore[no-redef]
-        value: str  # type: ignore[no-redef]
-        bone_uuid: str  # type: ignore[no-redef]
 
 
 T_co = TypeVar("T_co", covariant=True)

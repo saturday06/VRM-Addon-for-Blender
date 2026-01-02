@@ -519,7 +519,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         for name, human_bone in human_bones.human_bone_name_to_human_bone().items():
             if (
                 human_bone.node.bone_name
-                and human_bone.node.bone_name not in human_bone.node_candidates
+                and human_bone.node.bone_name
+                not in human_bone.node.bone_name_candidates
             ):
                 # Invalid bone structure
                 return

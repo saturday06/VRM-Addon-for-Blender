@@ -17,7 +17,7 @@ from ...common.vrm0.human_bone import (
 )
 from ..extension import get_armature_extension
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
-from ..property_group import BonePropertyGroup
+from ..property_group import HumanoidStructureBonePropertyGroup
 from .property_group import Vrm0HumanoidPropertyGroup
 
 logger = get_logger(__name__)
@@ -2544,8 +2544,8 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
             for human_bone in humanoid.human_bones:
                 if (
                     human_bone.bone != human_bone_name.value
-                    or human_bone.node.bone_name in human_bone.node_candidates
-                    or bone_name not in human_bone.node_candidates
+                    or human_bone.node.bone_name in human_bone.node.bone_name_candidates
+                    or bone_name not in human_bone.node.bone_name_candidates
                 ):
                     continue
                 human_bone.node.bone_name = bone_name
@@ -2585,11 +2585,9 @@ def draw_bone_prop_search(
         return
 
     row = layout.row(align=True)
-    row.prop_search(
+    row.prop(
         props.node,
-        "bone_name",
-        props,
-        "node_candidates",
+        "bone_name_enum",
         text="",
         translate=False,
         icon=human_bone_specification.icon,
@@ -2598,7 +2596,10 @@ def draw_bone_prop_search(
     if not show_diagnostics:
         return
 
-    if props.node.bone_name and props.node.bone_name not in props.node_candidates:
+    if (
+        props.node.bone_name
+        and props.node.bone_name not in props.node.bone_name_candidates
+    ):
         icon = "ERROR"
         row.alert = True
     else:
@@ -2692,7 +2693,7 @@ class VRM_OT_show_vrm0_bone_assignment_diagnostics(Operator):
         if not human_bone:
             return
         bone_name = human_bone.node.bone_name
-        if bone_name in human_bone.node_candidates:
+        if bone_name in human_bone.node.bone_name_candidates:
             layout.label(
                 text=pgettext(
                     'The bone "{bone_name}" of the armature "{armature_object_name}"'
@@ -2718,7 +2719,7 @@ class VRM_OT_show_vrm0_bone_assignment_diagnostics(Operator):
                 translate=False,
                 icon="ERROR",
             )
-        elif not human_bone.node_candidates:
+        elif not human_bone.node.bone_name_candidates:
             layout.label(
                 text=pgettext(
                     'The armature "{armature_object_name}" does not have any bones'
@@ -2743,7 +2744,7 @@ class VRM_OT_show_vrm0_bone_assignment_diagnostics(Operator):
             bpy_bone_name = human_bone.node.bone_name
             if not bpy_bone_name:
                 continue
-            if bpy_bone_name not in human_bone.node_candidates:
+            if bpy_bone_name not in human_bone.node.bone_name_candidates:
                 error_bpy_bone_names.append(bpy_bone_name)
             bpy_bone_name_to_human_bone_specification[bpy_bone_name] = (
                 HumanBoneSpecifications.get(human_bone_name)
@@ -2752,7 +2753,7 @@ class VRM_OT_show_vrm0_bone_assignment_diagnostics(Operator):
         Vrm0HumanoidPropertyGroup.update_all_node_candidates(
             context, armature_data.name
         )
-        BonePropertyGroup.find_bone_candidates(
+        HumanoidStructureBonePropertyGroup.find_bone_candidates(
             armature_data,
             human_bone_specification,
             bpy_bone_name_to_human_bone_specification,

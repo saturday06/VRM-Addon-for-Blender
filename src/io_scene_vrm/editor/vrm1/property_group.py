@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-import functools
 import math
 import sys
 from collections.abc import Mapping, Sequence
@@ -41,7 +40,7 @@ from ...common.vrm1.human_bone import (
     HumanBoneSpecifications,
 )
 from ..property_group import (
-    BonePropertyGroup,
+    HumanoidStructureBonePropertyGroup,
     MaterialPropertyGroup,
     MeshObjectPropertyGroup,
     StringPropertyGroup,
@@ -55,17 +54,7 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 
-# https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.humanBone.schema.json
-class Vrm1HumanBonePropertyGroup(PropertyGroup):
-    node: PointerProperty(  # type: ignore[valid-type]
-        type=BonePropertyGroup
-    )
-
-    # for UI
-    node_candidates: CollectionProperty(  # type: ignore[valid-type]
-        type=StringPropertyGroup
-    )
-
+class Vrm1HumanBoneNodePropertyGroup(HumanoidStructureBonePropertyGroup):
     def update_node_candidates(
         self,
         armature_data: Armature,
@@ -73,32 +62,38 @@ class Vrm1HumanBonePropertyGroup(PropertyGroup):
         bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
         error_bpy_bone_names: Sequence[str],
     ) -> bool:
-        new_candidates = BonePropertyGroup.find_bone_candidates(
+        new_candidates = HumanoidStructureBonePropertyGroup.find_bone_candidates(
             armature_data,
             target,
             bpy_bone_name_to_human_bone_specification,
             error_bpy_bone_names,
         )
-        if {n.value for n in self.node_candidates} == new_candidates:
+
+        bone_name_candidates = self.bone_name_candidates
+        if set(bone_name_candidates) == new_candidates:
             return False
 
-        self.node_candidates.clear()
+        bone_name_candidates.clear()
+
         # Preserving list order
         for bone_name in armature_data.bones.keys():
             if bone_name not in new_candidates:
                 continue
-            candidate = self.node_candidates.add()
-            candidate.value = bone_name
+            bone_name_candidates.append(bone_name)
 
         return True
+
+
+# https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.humanBone.schema.json
+class Vrm1HumanBonePropertyGroup(PropertyGroup):
+    node: PointerProperty(  # type: ignore[valid-type]
+        type=Vrm1HumanBoneNodePropertyGroup
+    )
 
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
-        node: BonePropertyGroup  # type: ignore[no-redef]
-        node_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            StringPropertyGroup
-        ]
+        node: Vrm1HumanBoneNodePropertyGroup  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.humanoid.humanBones.schema.json
@@ -407,39 +402,12 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
                 break
 
     @staticmethod
-    def defer_update_all_node_candidates(
-        armature_data_name: str,
-        *,
-        force: bool = False,
-    ) -> None:
-        bpy.app.timers.register(
-            functools.partial(
-                Vrm1HumanBonesPropertyGroup.update_all_node_candidates_timer_callback,
-                armature_data_name,
-                force=force,
-            )
-        )
-
-    @staticmethod
-    def update_all_node_candidates_timer_callback(
-        armature_object_name: str, *, force: bool = False
-    ) -> None:
-        """Wrap to match the type of update_all_node_candidates() to timers.register."""
-        # Context cannot be passed across frames, so get a new one
-        context = bpy.context
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
-            context, armature_object_name, force=force
-        )
-
-    @staticmethod
     def update_all_node_candidates(
-        context: Optional[Context],
+        context: Context,
         armature_data_name: str,
         *,
         force: bool = False,
     ) -> None:
-        if context is None:
-            context = bpy.context
         armature_data = context.blend_data.armatures.get(armature_data_name)
         if not isinstance(armature_data, Armature):
             return
@@ -458,7 +426,9 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
             return
         pointer_to_last_bone_names_str[pointer_key] = bone_names_str
 
-        BonePropertyGroup.update_all_vrm1_node_candidates(armature_data)
+        HumanoidStructureBonePropertyGroup.update_all_vrm1_node_candidates(
+            armature_data
+        )
 
     if TYPE_CHECKING:
         # This code is auto generated.

@@ -144,6 +144,20 @@ def migrate_all_objects(
         preferences.export_gltf_animations = True
 
     preferences.addon_version = updated_addon_version
+    sync_human_bone_candidates(context)
+
+
+def sync_human_bone_candidates(context: Context) -> None:
+    for obj in context.blend_data.objects:
+        if not isinstance(armature_data := obj.data, Armature):
+            continue
+        ext = get_armature_extension(armature_data)
+        for human_bone in ext.vrm0.humanoid.human_bones:
+            human_bone.node.update_bone_name(context)
+        for (
+            human_bone
+        ) in ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone().values():
+            human_bone.node.update_bone_name(context)
 
 
 def validate_blend_file_compatibility(context: Context) -> None:

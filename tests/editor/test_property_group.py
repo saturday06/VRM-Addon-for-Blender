@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+import re
 from collections.abc import Mapping
 from typing import Optional
 from unittest import main
@@ -13,7 +14,10 @@ from io_scene_vrm.common.vrm0.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
-from io_scene_vrm.editor.property_group import BonePropertyGroup
+from io_scene_vrm.editor.property_group import (
+    BonePropertyGroup,
+    HumanoidStructureBonePropertyGroup,
+)
 
 Tree = Mapping[str, "Tree"]
 
@@ -47,7 +51,7 @@ class TestBonePropertyGroup(AddonTestCase):
 
         bpy.ops.object.mode_set(mode="OBJECT")
 
-        got = BonePropertyGroup.find_bone_candidates(
+        got = HumanoidStructureBonePropertyGroup.find_bone_candidates(
             armature.data,
             target,
             mapping,
@@ -70,10 +74,22 @@ class TestBonePropertyGroup(AddonTestCase):
         for props, _props_type in BonePropertyGroup.get_all_bone_property_groups(
             armature
         ):
-            self.assertTrue(
-                (props.__class__.__module__ + "." + props.__class__.__name__).endswith(
-                    ".editor.property_group.BonePropertyGroup"
+            class_name = props.__class__.__module__ + "." + props.__class__.__name__
+            self.assertRegex(
+                class_name,
+                ".*("
+                + re.escape(".editor.property_group.BonePropertyGroup")
+                + "|"
+                + re.escape(".editor.property_group.HumanoidStructureBonePropertyGroup")
+                + "|"
+                + re.escape(
+                    ".editor.vrm0.property_group.Vrm0HumanoidBoneNodePropertyGroup"
                 )
+                + "|"
+                + re.escape(
+                    ".editor.vrm1.property_group.Vrm1HumanBoneNodePropertyGroup"
+                )
+                + ")$",
             )
 
         self.assert_bone_candidates(

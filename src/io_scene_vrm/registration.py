@@ -87,9 +87,12 @@ def setup(*, load_post: bool) -> None:
 
 
 def clear_global_variables(context: Context) -> None:
+    vrm0_property_group.Vrm0HumanoidPropertyGroup.pointer_to_last_bone_names_str.clear()
     vrm0_property_group.Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.clear()
+    vrm1_property_group.Vrm1HumanBonesPropertyGroup.pointer_to_last_bone_names_str.clear()
     vrm1_property_group.Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.clear()
     property_group.BonePropertyGroup.armature_data_name_and_bone_uuid_to_bone_name_cache.clear()
+    property_group.HumanoidStructureBonePropertyGroup.pointer_to_bone_name_candidates.clear()
     spring_bone1_handler.reset_state(context)
 
 
@@ -159,9 +162,12 @@ classes: list[
     io_scene_gltf2_support.WM_OT_vrm_io_scene_gltf2_disabled_warning,
     property_group.StringPropertyGroup,
     property_group.FloatPropertyGroup,
-    property_group.BonePropertyGroup,
     property_group.MeshObjectPropertyGroup,
     property_group.MaterialPropertyGroup,
+    vrm0_property_group.Vrm0HumanoidBoneNodePropertyGroup,
+    vrm1_property_group.Vrm1HumanBoneNodePropertyGroup,
+    property_group.HumanoidStructureBonePropertyGroup,
+    property_group.BonePropertyGroup,
     vrm0_property_group.Vrm0MaterialValueBindPropertyGroup,
     vrm0_property_group.Vrm0BlendShapeBindPropertyGroup,
     vrm0_property_group.Vrm0BlendShapeGroupPropertyGroup,

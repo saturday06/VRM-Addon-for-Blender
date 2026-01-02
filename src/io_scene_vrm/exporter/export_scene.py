@@ -174,7 +174,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                 )
                 humanoid = get_armature_extension(armature_data).vrm0.humanoid
                 if all(
-                    b.node.bone_name not in b.node_candidates
+                    b.node.bone_name not in b.node.bone_name_candidates
                     for b in humanoid.human_bones
                 ):
                     ops.vrm.assign_vrm0_humanoid_human_bones_automatically(
@@ -194,7 +194,8 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                     armature_data
                 ).vrm1.humanoid.human_bones
                 if all(
-                    human_bone.node.bone_name not in human_bone.node_candidates
+                    human_bone.node.bone_name
+                    not in human_bone.node.bone_name_candidates
                     for human_bone in (
                         human_bones.human_bone_name_to_human_bone().values()
                     )

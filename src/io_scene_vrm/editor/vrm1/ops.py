@@ -40,7 +40,7 @@ from ...common.vrm1.human_bone import (
 )
 from ..extension import get_armature_extension
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
-from ..property_group import BonePropertyGroup
+from ..property_group import HumanoidStructureBonePropertyGroup
 from ..vrm0.property_group import Vrm0HumanoidPropertyGroup
 from .property_group import (
     Vrm1ExpressionPropertyGroup,
@@ -1815,7 +1815,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
             for vrm0_human_bone in vrm0_humanoid.human_bones:
                 if (
                     vrm0_human_bone.node.bone_name
-                    not in vrm0_human_bone.node_candidates
+                    not in vrm0_human_bone.node.bone_name_candidates
                 ):
                     continue
                 vrm0_name = Vrm0HumanBoneName.from_str(vrm0_human_bone.bone)
@@ -1829,7 +1829,10 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
                 human_bone = human_bone_name_to_human_bone.get(vrm1_name)
                 if not human_bone:
                     continue
-                if vrm0_human_bone.node.bone_name not in human_bone.node_candidates:
+                if (
+                    vrm0_human_bone.node.bone_name
+                    not in human_bone.node.bone_name_candidates
+                ):
                     continue
                 human_bone.node.bone_name = vrm0_human_bone.node.bone_name
 
@@ -1844,8 +1847,8 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
             for search_name, human_bone in human_bone_name_to_human_bone.items():
                 if (
                     specification.name != search_name
-                    or human_bone.node.bone_name in human_bone.node_candidates
-                    or bone_name not in human_bone.node_candidates
+                    or human_bone.node.bone_name in human_bone.node.bone_name_candidates
+                    or bone_name not in human_bone.node.bone_name_candidates
                 ):
                     continue
                 human_bone.node.bone_name = bone_name
@@ -2555,11 +2558,9 @@ def draw_bone_prop_search(
         return
 
     row = layout.row(align=True)
-    row.prop_search(
+    row.prop(
         human_bone.node,
-        "bone_name",
-        human_bone,
-        "node_candidates",
+        "bone_name_enum",
         text="",
         translate=False,
         icon=human_bone_specification.icon,
@@ -2569,7 +2570,7 @@ def draw_bone_prop_search(
 
     if (
         human_bone.node.bone_name
-        and human_bone.node.bone_name not in human_bone.node_candidates
+        and human_bone.node.bone_name not in human_bone.node.bone_name_candidates
     ):
         icon = "ERROR"
         row.alert = True
@@ -2661,7 +2662,7 @@ class VRM_OT_show_vrm1_bone_assignment_diagnostics(Operator):
             return
 
         bone_name = human_bone.node.bone_name
-        if bone_name in human_bone.node_candidates:
+        if bone_name in human_bone.node.bone_name_candidates:
             layout.label(
                 text=pgettext(
                     'The bone "{bone_name}" of the armature "{armature_object_name}"'
@@ -2687,7 +2688,7 @@ class VRM_OT_show_vrm1_bone_assignment_diagnostics(Operator):
                 translate=False,
                 icon="ERROR",
             )
-        elif not human_bone.node_candidates:
+        elif not human_bone.node.bone_name_candidates:
             layout.label(
                 text=pgettext(
                     'The armature "{armature_object_name}" does not have any bones'
@@ -2709,13 +2710,13 @@ class VRM_OT_show_vrm1_bone_assignment_diagnostics(Operator):
             bpy_bone_name
             for human_bone in human_bone_name_to_human_bone.values()
             if (bpy_bone_name := human_bone.node.bone_name)
-            and bpy_bone_name not in human_bone.node_candidates
+            and bpy_bone_name not in human_bone.node.bone_name_candidates
         ]
 
         Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
             context, armature_data.name
         )
-        BonePropertyGroup.find_bone_candidates(
+        HumanoidStructureBonePropertyGroup.find_bone_candidates(
             armature_data,
             human_bone_specification,
             bpy_bone_name_to_human_bone_specification,

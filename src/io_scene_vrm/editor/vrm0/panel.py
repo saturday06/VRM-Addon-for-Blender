@@ -344,7 +344,9 @@ def draw_vrm0_humanoid_layout(
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        Vrm0HumanoidPropertyGroup.defer_update_all_node_candidates(armature_data.name)
+        Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+            context, armature_data.name
+        )
 
     data = armature.data
     if not isinstance(data, Armature):
@@ -480,9 +482,7 @@ def draw_vrm0_first_person_layout(
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
-    layout.prop_search(
-        first_person.first_person_bone, "bone_name", armature_data, "bones"
-    )
+    layout.prop(first_person.first_person_bone, "bone_name_enum")
     layout.prop(first_person, "first_person_bone_offset", icon="BONE_DATA")
     layout.prop(first_person, "look_at_type_name")
     layout.label(text="Mesh Annotations", icon="RESTRICT_RENDER_OFF")
@@ -944,11 +944,9 @@ def draw_vrm0_secondary_animation_bone_groups_layout(
     column.prop(bone_group, "gravity_power", icon="OUTLINER_OB_FORCE_FIELD")
     column.prop(bone_group, "gravity_dir", icon="OUTLINER_OB_FORCE_FIELD")
     column.separator()
-    column.prop_search(
+    column.prop(
         bone_group.center,
-        "bone_name",
-        data,
-        "bones",
+        "bone_name_enum",
         icon="PIVOT_MEDIAN",
         text="Center Bone",
     )
@@ -1068,7 +1066,7 @@ def draw_vrm0_secondary_animation_collider_groups_layout(
 
     column = box.column()
     column.label(text=collider_group.name)
-    column.prop_search(collider_group.node, "bone_name", data, "bones")
+    column.prop(collider_group.node, "bone_name_enum")
     column.label(text="Colliders:")
 
     (
