@@ -130,11 +130,12 @@ def migrate_all_objects(
     preferences = get_preferences(context)
 
     updated_addon_version = get_addon_version()
-    logger.debug(
-        "Upgrade preferences %s to %s",
-        tuple(preferences.addon_version),
-        updated_addon_version,
-    )
+    if tuple(preferences.addon_version) != updated_addon_version:
+        logger.debug(
+            "Upgrade preferences %s to %s",
+            tuple(preferences.addon_version),
+            updated_addon_version,
+        )
 
     if tuple(preferences.addon_version) != preferences.INITIAL_ADDON_VERSION and tuple(
         preferences.addon_version
