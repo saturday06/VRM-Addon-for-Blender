@@ -66,16 +66,29 @@ class WM_OT_vrm_validator(Operator):
             execute_migration=True,
             readonly=False,
         )
+
         fatal_error_count = 0
         for error in self.errors:
+            if error.severity > 0:
+                continue
+
             if fatal_error_count > 10:
-                logger.warning("Validation error: truncated ...")
+                logger.warning("  (truncated)")
                 break
-            if error.severity == 0:
-                logger.warning("Validation error: %s", error.message)
-                fatal_error_count += 1
+
+            if not fatal_error_count:
+                logger.warning(
+                    "Validating filepath=%s, changed=%s",
+                    context.blend_data.filepath,
+                    context.blend_data.is_dirty,
+                )
+
+            logger.warning("  - %s", error.message)
+            fatal_error_count += 1
+
         if fatal_error_count > 0:
             return {"CANCELLED"}
+
         return {"FINISHED"}
 
     def invoke(self, context: Context, _event: Event) -> set[str]:
