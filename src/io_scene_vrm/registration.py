@@ -11,6 +11,7 @@ from bpy.types import (
     AddonPreferences,
     Armature,
     Bone,
+    Context,
     Header,
     KeyingSetInfo,
     Material,
@@ -76,12 +77,20 @@ logger = get_logger(__name__)
 
 def setup(*, load_post: bool) -> None:
     context = bpy.context
+    clear_global_variables(context)
     if preferences.get_preferences(context).add_mtoon_shader_node_group:
         shader.add_mtoon1_auto_setup_shader_node_group(context)
     migration.migrate_all_objects(context, show_progress=True)
     mtoon1_property_group.setup_drivers(context)
     subscription.setup_subscription(load_post=load_post)
     scene_watcher.setup()
+
+
+def clear_global_variables(context: Context) -> None:
+    vrm0_property_group.Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.clear()
+    vrm1_property_group.Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.clear()
+    property_group.BonePropertyGroup.armature_data_name_and_bone_uuid_to_bone_name_cache.clear()
+    spring_bone1_handler.reset_state(context)
 
 
 @persistent

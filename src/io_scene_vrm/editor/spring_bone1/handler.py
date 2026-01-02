@@ -3,7 +3,7 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from sys import float_info
-from typing import Optional, Union
+from typing import Final, Optional, Union
 
 import bpy
 from bpy.app.handlers import persistent
@@ -36,7 +36,7 @@ class State:
         self.last_fps = Decimal(context.scene.render.fps)
 
 
-state = State()
+state: Final = State()
 
 
 def reset_state(context: Context) -> None:
