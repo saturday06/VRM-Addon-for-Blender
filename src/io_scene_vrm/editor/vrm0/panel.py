@@ -19,6 +19,7 @@ from ..extension import (
     get_material_extension,
     get_scene_extension,
 )
+from ..menu import VRM_MT_bone_assignment
 from ..migration import defer_migrate
 from ..ops import layout_operator
 from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
@@ -482,7 +483,7 @@ def draw_vrm0_first_person_layout(
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
-    layout.prop(first_person.first_person_bone, "bone_name_enum")
+    VRM_MT_bone_assignment.draw_input_layout(layout, first_person.first_person_bone)
     layout.prop(first_person, "first_person_bone_offset", icon="BONE_DATA")
     layout.prop(first_person, "look_at_type_name")
     layout.label(text="Mesh Annotations", icon="RESTRICT_RENDER_OFF")
@@ -621,9 +622,9 @@ def draw_vrm0_blend_shape_master_layout(
         vrm0_ops.VRM_OT_remove_vrm0_blend_shape_group,
         vrm0_ops.VRM_OT_move_up_vrm0_blend_shape_group,
         vrm0_ops.VRM_OT_move_down_vrm0_blend_shape_group,
-        menu_and_setup_menu_callback=(
+        menu_and_context_pointer_set_callback=(
             VRM_MT_vrm0_blend_shape_master,
-            VRM_MT_vrm0_blend_shape_master.setup_menu(armature),
+            VRM_MT_vrm0_blend_shape_master.layout_context_pointer_set(armature),
         ),
     )
 
@@ -947,11 +948,8 @@ def draw_vrm0_secondary_animation_bone_groups_layout(
     column.prop(bone_group, "gravity_power", icon="OUTLINER_OB_FORCE_FIELD")
     column.prop(bone_group, "gravity_dir", icon="OUTLINER_OB_FORCE_FIELD")
     column.separator()
-    column.prop(
-        bone_group.center,
-        "bone_name_enum",
-        icon="PIVOT_MEDIAN",
-        text="Center Bone",
+    VRM_MT_bone_assignment.draw_input_layout(
+        column, bone_group.center, icon="PIVOT_MEDIAN", text="Center Bone"
     )
     column.prop(
         bone_group,
@@ -1069,7 +1067,7 @@ def draw_vrm0_secondary_animation_collider_groups_layout(
 
     column = box.column()
     column.label(text=collider_group.name)
-    column.prop(collider_group.node, "bone_name_enum")
+    VRM_MT_bone_assignment.draw_input_layout(column, collider_group.node)
     column.label(text="Colliders:")
 
     (

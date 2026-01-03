@@ -1852,6 +1852,40 @@ def make_estimated_humanoid_t_pose(
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
+def assign_bone_to_bone_property_group(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_data_name: str = "",
+    bone_property_group_path: str = "",
+    bone_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.assign_bone_to_bone_property_group(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_data_name=armature_data_name,
+        bone_property_group_path=bone_property_group_path,
+        bone_name=bone_name,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def unassign_bone_to_bone_property_group(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_data_name: str = "",
+    bone_property_group_path: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.unassign_bone_to_bone_property_group(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_data_name=armature_data_name,
+        bone_property_group_path=bone_property_group_path,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def model_validate(
     execution_context: str = "EXEC_DEFAULT",
     /,

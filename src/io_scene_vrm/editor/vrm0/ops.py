@@ -16,6 +16,7 @@ from ...common.vrm0.human_bone import (
     HumanBoneSpecifications,
 )
 from ..extension import get_armature_extension
+from ..menu import VRM_MT_bone_assignment
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..property_group import HumanoidStructureBonePropertyGroup
 from .property_group import Vrm0HumanoidPropertyGroup
@@ -2584,22 +2585,15 @@ def draw_bone_prop_search(
     if not props:
         return
 
-    row = layout.row(align=True)
-    row.prop(
-        props.node,
-        "bone_name_enum",
-        text="",
-        translate=False,
-        icon=human_bone_specification.icon,
+    row = VRM_MT_bone_assignment.draw_input_layout(
+        layout, props.node, text="", icon=human_bone_specification.icon
     )
 
     if not show_diagnostics:
         return
 
-    if (
-        props.node.bone_name
-        and props.node.bone_name not in props.node.bone_name_candidates
-    ):
+    bone_name = props.node.bone_name
+    if bone_name and bone_name not in props.node.bone_name_candidates:
         icon = "ERROR"
         row.alert = True
     else:

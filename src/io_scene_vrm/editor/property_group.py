@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-import sys
 import uuid
 import warnings
-from collections.abc import Iterator, Mapping, Sequence, ValuesView
+from collections.abc import Iterable, Iterator, Mapping, Sequence, ValuesView
 from dataclasses import dataclass
 from enum import Enum
 from typing import (
@@ -18,7 +17,7 @@ from typing import (
 
 import bpy
 from bpy.app.translations import pgettext
-from bpy.props import EnumProperty, FloatProperty, PointerProperty, StringProperty
+from bpy.props import FloatProperty, PointerProperty, StringProperty
 from bpy.types import Armature, Bone, Context, Material, Object, PropertyGroup, UILayout
 
 from ..common.logger import get_logger
@@ -438,43 +437,10 @@ class BonePropertyGroup(PropertyGroup):
                 armature_data
             )
 
-    def update_bone_name(self, context: Context) -> None:
-        bone_name = self.bone_name
-        if not bone_name:
-            if self.bone_name_enum != self.UNASSIGNED_BONE_NAME_ENUM_IDENTIFIER:
-                self.bone_name_enum = self.UNASSIGNED_BONE_NAME_ENUM_IDENTIFIER
-            return
-
-        bone_name_enum = self.ASSIGNED_BONE_NAME_ENUM_IDENTIFIER_PREFIX + bone_name
-        if self.bone_name_enum == bone_name_enum:
-            return
-
-        error_bone_name_enum = self.ERROR_BONE_NAME_ENUM_IDENTIFIER_PREFIX + bone_name
-        if self.bone_name_enum == error_bone_name_enum:
-            return
-
-        identifiers = [
-            identifier for identifier, _, _ in self.get_bone_name_enum_items(context)
-        ]
-        if bone_name_enum in identifiers:
-            self.bone_name_enum = bone_name_enum
-            return
-        if error_bone_name_enum in identifiers:
-            self.bone_name_enum = error_bone_name_enum
-            return
-
-        logger.error(
-            "update_bone_name: Invalid bone_name value: %s (not in [%s])",
-            bone_name,
-            ",".join(identifiers),
-        )
-        self.bone_name_enum = self.UNASSIGNED_BONE_NAME_ENUM_IDENTIFIER
-
     bone_name: StringProperty(  # type: ignore[valid-type]
         name="Bone",
         get=get_bone_name,
         set=set_bone_name,
-        update=update_bone_name,
     )
 
     def get_value(self) -> str:
@@ -504,99 +470,8 @@ class BonePropertyGroup(PropertyGroup):
     release. Please use `bone_name` instead."
     """
 
-    UNASSIGNED_BONE_NAME_ENUM_IDENTIFIER: Final = "Unassigned"
-    ASSIGNED_BONE_NAME_ENUM_IDENTIFIER_PREFIX: Final = "Assigned:"
-    ERROR_BONE_NAME_ENUM_IDENTIFIER_PREFIX: Final = "Error:"
-
-    def get_valid_bone_name_enum_items(
-        self, _context: Optional[Context]
-    ) -> list[tuple[str, str, str]]:
-        armature_data = self.find_armature()
-        return [
-            (
-                self.ASSIGNED_BONE_NAME_ENUM_IDENTIFIER_PREFIX + bone.name,
-                bone.name,
-                "",
-            )
-            for bone in armature_data.bones
-        ]
-
-    def get_bone_name_enum_items(
-        self, context: Optional[Context]
-    ) -> list[tuple[str, str, str]]:
-        items = [
-            (
-                self.UNASSIGNED_BONE_NAME_ENUM_IDENTIFIER,
-                pgettext("(Unassign)") if self.bone_name else "",
-                pgettext("Remove the bone assignment"),
-            )
-        ]
-        # Use sys.intern for the strings returned here to prevent them from being
-        # garbage collected. This is because EnumProperty item strings must be retained
-        # until Blender exits.
-        # https://docs.blender.org/api/2.93/bpy.props.html#bpy.props.EnumProperty
-        assignment_items = [
-            (
-                sys.intern(identifier),
-                sys.intern(name),
-                sys.intern(description),
-            )
-            for identifier, name, description in self.get_valid_bone_name_enum_items(
-                context
-            )
-        ]
-        if self.bone_name:
-            bone_name_identidier = (
-                self.ASSIGNED_BONE_NAME_ENUM_IDENTIFIER_PREFIX + self.bone_name
-            )
-            if bone_name_identidier not in (
-                identifier for identifier, _, _ in assignment_items
-            ):
-                items.append(
-                    (
-                        sys.intern(
-                            self.ERROR_BONE_NAME_ENUM_IDENTIFIER_PREFIX + self.bone_name
-                        ),
-                        sys.intern(self.bone_name),
-                        sys.intern(""),
-                    )
-                )
-        items.extend(assignment_items)
-        return items
-
-    def update_bone_name_enum(self, _context: Context) -> None:
-        bone_name_enum = self.bone_name_enum
-        if bone_name_enum == self.UNASSIGNED_BONE_NAME_ENUM_IDENTIFIER:
-            if self.bone_name:
-                self.bone_name = ""
-            return
-
-        if bone_name_enum.startswith(self.ASSIGNED_BONE_NAME_ENUM_IDENTIFIER_PREFIX):
-            bone_name = bone_name_enum[
-                len(self.ASSIGNED_BONE_NAME_ENUM_IDENTIFIER_PREFIX) :
-            ]
-            if self.bone_name != bone_name:
-                self.bone_name = bone_name
-            return
-
-        if bone_name_enum.startswith(self.ERROR_BONE_NAME_ENUM_IDENTIFIER_PREFIX):
-            bone_name = bone_name_enum[
-                len(self.ERROR_BONE_NAME_ENUM_IDENTIFIER_PREFIX) :
-            ]
-            if self.bone_name != bone_name:
-                self.bone_name = bone_name
-            return
-
-        logger.error(
-            "BonePropertyGroup.update_bone_name_enum: Invalid bone_name_enum value: %s",
-            bone_name_enum,
-        )
-
-    bone_name_enum: EnumProperty(  # type: ignore[valid-type]
-        name="Bone",
-        items=get_bone_name_enum_items,
-        update=update_bone_name_enum,
-    )
+    def filter_bone_names(self, bone_names: Iterable[str]) -> Sequence[str]:
+        return list(bone_names)
 
     bone_uuid: StringProperty()  # type: ignore[valid-type]
 
@@ -605,19 +480,18 @@ class BonePropertyGroup(PropertyGroup):
         # To regenerate, run the `uv run tools/property_typing.py` command.
         bone_name: str  # type: ignore[no-redef]
         value: str  # type: ignore[no-redef]
-        bone_name_enum: str  # type: ignore[no-redef]
         bone_uuid: str  # type: ignore[no-redef]
 
 
 class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
-    pointer_to_bone_name_candidates: ClassVar[dict[int, list[str]]] = {}
+    pointer_to_bone_name_candidates: ClassVar[dict[int, set[str]]] = {}
 
     @property
-    def bone_name_candidates(self) -> list[str]:
+    def bone_name_candidates(self) -> set[str]:
         pointer_key = self.as_pointer()
         bone_name_candidates = self.pointer_to_bone_name_candidates.get(pointer_key)
         if bone_name_candidates is None:
-            bone_name_candidates = []
+            bone_name_candidates = set[str]()
             self.pointer_to_bone_name_candidates[pointer_key] = bone_name_candidates
             armature_data = self.find_armature()
             bone_property_group_type = self.get_bone_property_group_type()
@@ -631,19 +505,10 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
                 )
         return bone_name_candidates
 
-    def get_valid_bone_name_enum_items(
-        self, _context: Optional[Context]
-    ) -> list[tuple[str, str, str]]:
+    def filter_bone_names(self, bone_names: Iterable[str]) -> Sequence[str]:
         bone_name_candidates = self.bone_name_candidates
-        armature_data = self.find_armature()
         return [
-            (
-                self.ASSIGNED_BONE_NAME_ENUM_IDENTIFIER_PREFIX + bone_name,
-                bone_name,
-                "",
-            )
-            for bone_name in bone_name_candidates
-            if bone_name in armature_data.bones
+            bone_name for bone_name in bone_names if bone_name in bone_name_candidates
         ]
 
     @staticmethod

@@ -66,17 +66,11 @@ class Vrm0HumanoidBoneNodePropertyGroup(HumanoidStructureBonePropertyGroup):
         )
 
         bone_name_candidates = self.bone_name_candidates
-        if set(bone_name_candidates) == new_candidates:
+        if bone_name_candidates == new_candidates:
             return False
 
         bone_name_candidates.clear()
-
-        # Preserving list order
-        for bone_name in armature_data.bones.keys():
-            if bone_name not in new_candidates:
-                continue
-            bone_name_candidates.append(bone_name)
-
+        bone_name_candidates.update(new_candidates)
         return True
 
 

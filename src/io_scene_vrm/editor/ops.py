@@ -30,6 +30,7 @@ from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..common.workspace import save_workspace
 from . import search
 from .extension import get_armature_extension
+from .property_group import BonePropertyGroup
 from .t_pose import set_estimated_humanoid_t_pose
 
 logger = get_logger(__name__)
@@ -403,3 +404,75 @@ class VRM_OT_make_estimated_humanoid_t_pose(Operator):
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
+
+
+class VRM_OT_assign_bone_to_bone_property_group(Operator):
+    bl_idname = "vrm.assign_bone_to_bone_property_group"
+    bl_label = "Assign Bone to Bone Property Group"
+    bl_description = "Assign selected bone to the bone property group."
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_data_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+    bone_property_group_path: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+    bone_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        armature_data = context.blend_data.armatures.get(self.armature_data_name)
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+
+        bone_property_group = armature_data.path_resolve(
+            self.bone_property_group_path, False
+        )
+        if not isinstance(bone_property_group, BonePropertyGroup):
+            return {"CANCELLED"}
+
+        bone_property_group.bone_name = self.bone_name
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_data_name: str  # type: ignore[no-redef]
+        bone_property_group_path: str  # type: ignore[no-redef]
+        bone_name: str  # type: ignore[no-redef]
+
+
+class VRM_OT_unassign_bone_to_bone_property_group(Operator):
+    bl_idname = "vrm.unassign_bone_to_bone_property_group"
+    bl_label = "Unassign Bone"
+    bl_description = "Unassign selected bone."
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_data_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+    bone_property_group_path: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        armature_data = context.blend_data.armatures.get(self.armature_data_name)
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+
+        bone_property_group = armature_data.path_resolve(
+            self.bone_property_group_path, False
+        )
+        if not isinstance(bone_property_group, BonePropertyGroup):
+            return {"CANCELLED"}
+
+        bone_property_group.bone_name = ""
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_data_name: str  # type: ignore[no-redef]
+        bone_property_group_path: str  # type: ignore[no-redef]

@@ -260,7 +260,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "VRM必須ボーン「{humanoid_name}」が未割り当てです。"
     + "「VRM」パネルの「VRM 0.x Humanoid」→「VRM必須ボーン」で"
     + "「{humanoid_name}」ボーンの設定をしてください。",
-    ("*", "(Unassign)"): "(割り当てを解除)",
+    ("Operator", "<Unassign>"): "<割り当てを解除>",
     ("*", "Remove the bone assignment"): "ボーンの割り当てを解除します。",
     (
         "*",

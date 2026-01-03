@@ -3,6 +3,7 @@ from bpy.types import Armature, Context, Mesh, UILayout, UIList
 
 from ...common.logger import get_logger
 from ..extension import get_armature_extension
+from ..menu import VRM_MT_bone_assignment
 from ..property_group import BonePropertyGroup, StringPropertyGroup
 from .property_group import (
     Vrm0BlendShapeBindPropertyGroup,
@@ -147,13 +148,7 @@ class VRM_UL_vrm0_secondary_animation_group_bone(UIList):
             return
 
         if index == bone_group.active_bone_index:
-            layout.prop(
-                bone,
-                "bone_name_enum",
-                text="",
-                translate=False,
-                icon=icon,
-            )
+            VRM_MT_bone_assignment.draw_input_layout(layout, bone, icon=icon)
         else:
             layout.label(text=bone.bone_name, translate=False, icon=icon)
 

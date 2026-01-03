@@ -18,7 +18,7 @@ class VRM_MT_vrm0_blend_shape_master(Menu):
     CONTEXT_POINTER_ARMATURE: Final = bl_idname + "_armature"
 
     @classmethod
-    def setup_menu(cls, armature: Object) -> Callable[[UILayout], None]:
+    def layout_context_pointer_set(cls, armature: Object) -> Callable[[UILayout], None]:
         return lambda layout: layout.context_pointer_set(
             cls.CONTEXT_POINTER_ARMATURE, armature
         )
