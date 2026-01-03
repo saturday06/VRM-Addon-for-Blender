@@ -542,7 +542,7 @@ def create_expression_animation(
         ]:
             continue
         data_path_to_expression_name[expression.path_from_id("preview")] = (
-            expression.name
+            expression_name
         )
 
     expression_name_to_expression_values: dict[

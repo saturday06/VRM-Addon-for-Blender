@@ -17,7 +17,6 @@ from . import ops as vrm1_ops
 from .menu import VRM_MT_vrm1_expression
 from .ops import draw_bone_prop_search
 from .property_group import (
-    Vrm1CustomExpressionPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
     Vrm1FirstPersonPropertyGroup,
     Vrm1HumanBonesPropertyGroup,
@@ -743,19 +742,15 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
         vrm1 = extension.vrm1
         expressions = vrm1.expressions
 
-        all_expressions = list(expressions.all_name_to_expression_dict().values())
+        all_expression_names = list(expressions.all_name_to_expression_dict().keys())
         if (
             0
             <= expressions.active_expression_ui_list_element_index
-            < len(all_expressions)
+            < len(all_expression_names)
         ):
-            active_expression = all_expressions[
+            expression_name = all_expression_names[
                 expressions.active_expression_ui_list_element_index
             ]
-            if isinstance(active_expression, Vrm1CustomExpressionPropertyGroup):
-                expression_name = active_expression.custom_name
-            else:
-                expression_name = active_expression.name
         else:
             expression_name = ""
     except TypeError:
