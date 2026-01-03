@@ -11,7 +11,6 @@ from bpy.types import (
     AddonPreferences,
     Armature,
     Bone,
-    Context,
     Header,
     KeyingSetInfo,
     Material,
@@ -78,23 +77,27 @@ logger = get_logger(__name__)
 
 def setup(*, load_post: bool) -> None:
     context = bpy.context
-    clear_global_variables(context)
     if preferences.get_preferences(context).add_mtoon_shader_node_group:
         shader.add_mtoon1_auto_setup_shader_node_group(context)
     migration.migrate_all_objects(context, show_progress=True)
     mtoon1_property_group.setup_drivers(context)
     subscription.setup_subscription(load_post=load_post)
     scene_watcher.setup()
+    spring_bone1_handler.reset_state(context)
 
 
-def clear_global_variables(context: Context) -> None:
+def clear_global_variables() -> None:
     vrm0_property_group.Vrm0HumanoidPropertyGroup.pointer_to_last_bone_names_str.clear()
     vrm0_property_group.Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.clear()
     vrm1_property_group.Vrm1HumanBonesPropertyGroup.pointer_to_last_bone_names_str.clear()
     vrm1_property_group.Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.clear()
     property_group.BonePropertyGroup.armature_data_name_and_bone_uuid_to_bone_name_cache.clear()
     property_group.HumanoidStructureBonePropertyGroup.pointer_to_bone_name_candidates.clear()
-    spring_bone1_handler.reset_state(context)
+
+
+@persistent
+def load_pre(_unused: object) -> None:
+    clear_global_variables()
 
 
 @persistent
@@ -495,6 +498,8 @@ def register() -> None:
     name = ".".join(__name__.split(".")[:-1])
     logger.debug("Registering: %s", name)
 
+    clear_global_variables()
+
     bpy.app.translations.register(
         preferences.addon_package_name,
         translation_dictionary,
@@ -532,6 +537,7 @@ def register() -> None:
     VIEW3D_MT_armature_add.append(panel.add_armature)
     # VIEW3D_MT_mesh_add.append(panel.make_mesh)
 
+    bpy.app.handlers.load_pre.append(load_pre)
     bpy.app.handlers.load_post.append(handler.load_post)
     bpy.app.handlers.load_post.append(mtoon1_handler.load_post)
     bpy.app.handlers.load_post.append(load_post)
@@ -583,6 +589,7 @@ def unregister() -> None:
     bpy.app.handlers.load_post.remove(load_post)
     bpy.app.handlers.load_post.remove(mtoon1_handler.load_post)
     bpy.app.handlers.load_post.remove(handler.load_post)
+    bpy.app.handlers.load_pre.remove(load_pre)
 
     # VIEW3D_MT_mesh_add.remove(panel.make_mesh)
     VIEW3D_MT_armature_add.remove(panel.add_armature)
@@ -614,6 +621,8 @@ def unregister() -> None:
             logger.exception("Failed to unregister %s", cls)
 
     bpy.app.translations.unregister(preferences.addon_package_name)
+
+    clear_global_variables()
 
     # https://github.com/saturday06/VRM-Addon-for-Blender/issues/506#issuecomment-2183766778
     if os.getenv("BLENDER_VRM_DEVELOPMENT_MODE") == "yes":
