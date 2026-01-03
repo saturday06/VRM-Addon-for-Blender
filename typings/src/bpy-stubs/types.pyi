@@ -523,7 +523,30 @@ class ArmatureBones(bpy_prop_collection[Bone]):
 class OperatorProperties(bpy_struct): ...
 
 class UILayout(bpy_struct):
-    def box(self) -> UILayout: ...
+    activate_init: bool = False
+    active: bool = False
+    active_default: bool = False
+    alert: bool
+    alignment: str
+    direction: str
+    emboss: str
+    enabled: bool
+    operator_context: str
+    scale_x: float
+    scale_y: float
+    ui_units_x: float
+    ui_units_y: float
+    use_property_decorate: bool = False
+    use_property_split: bool = False
+    def row(
+        self,
+        /,
+        *,
+        align: bool = False,
+        heading: str = "",
+        heading_ctxt: str = "",
+        translate: bool = True,
+    ) -> UILayout: ...
     def column(
         self,
         /,
@@ -533,14 +556,13 @@ class UILayout(bpy_struct):
         heading_ctxt: str = "",
         translate: bool = True,
     ) -> UILayout: ...
-    def row(
+    def box(self) -> UILayout: ...
+    def split(
         self,
         /,
         *,
+        factor: float = 0.0,
         align: bool = False,
-        heading: str = "",
-        heading_ctxt: str = "",
-        translate: bool = True,
     ) -> UILayout: ...
     def prop(
         self,
@@ -564,42 +586,6 @@ class UILayout(bpy_struct):
         icon_value: int = 0,
         invert_checkbox: bool = False,
     ) -> UILayout: ...
-    def label(
-        self,
-        /,
-        *,
-        text: str = "",
-        text_ctxt: str = "",
-        translate: bool = True,
-        icon: str = "NONE",
-        icon_value: int = 0,
-    ) -> None: ...
-    def split(
-        self,
-        /,
-        *,
-        factor: float = 0.0,
-        align: bool = False,
-    ) -> UILayout: ...
-    def operator(
-        self,
-        operator: str,
-        /,
-        *,
-        text: str = "",
-        text_ctxt: str = "",
-        translate: bool = True,
-        icon: str = "NONE",
-        emboss: bool = True,
-        depress: bool = False,
-        icon_value: int = 0,
-    ) -> OperatorProperties: ...
-    def separator(
-        self,
-        /,
-        *,
-        factor: float = 1.0,
-    ) -> None: ...
     def prop_search(
         self,
         data: AnyType,
@@ -614,6 +600,45 @@ class UILayout(bpy_struct):
         icon: str = "NONE",
         results_are_suggestions: bool = False,
     ) -> UILayout: ...
+    def operator(
+        self,
+        operator: str,
+        /,
+        *,
+        text: str = "",
+        text_ctxt: str = "",
+        translate: bool = True,
+        icon: str = "NONE",
+        emboss: bool = True,
+        depress: bool = False,
+        icon_value: int = 0,
+    ) -> OperatorProperties: ...
+    def label(
+        self,
+        /,
+        *,
+        text: str = "",
+        text_ctxt: str = "",
+        translate: bool = True,
+        icon: str = "NONE",
+        icon_value: int = 0,
+    ) -> None: ...
+    def menu(
+        self,
+        menu: str,
+        text: str = "",
+        text_ctxt: str = "",
+        translate: bool = True,
+        icon: str = "NONE",
+        icon_value: int = 0,
+    ) -> None: ...
+    def separator(
+        self,
+        /,
+        *,
+        factor: float = 1.0,
+    ) -> None: ...
+    def context_pointer_set(self, name: str, data: AnyType) -> None: ...
     def template_ID_preview(
         self,
         data: AnyType,
@@ -642,21 +667,6 @@ class UILayout(bpy_struct):
         sort_reverse: bool = False,
         sort_lock: bool = False,
     ) -> None: ...
-    def menu(
-        self,
-        menu: str,
-        text: str = "",
-        text_ctxt: str = "",
-        translate: bool = True,
-        icon: str = "NONE",
-        icon_value: int = 0,
-    ) -> None: ...
-
-    alignment: str
-    scale_x: float
-    emboss: str
-    enabled: bool
-    alert: bool
 
 class AddonPreferences(bpy_struct):
     layout: UILayout  # TODO: No documentation
