@@ -817,7 +817,10 @@ def draw_vrm1_expressions_layout(
             len(expressions.custom) >= 2
             and active_collection_index >= len(preset_expressions)
         ),
-        menu=VRM_MT_vrm1_expression,
+        menu_and_setup_menu_callback=(
+            VRM_MT_vrm1_expression,
+            VRM_MT_vrm1_expression.setup_menu(armature),
+        ),
     )
 
     for expression_collection_op in expression_collection_ops:

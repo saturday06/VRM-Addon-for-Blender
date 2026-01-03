@@ -621,7 +621,10 @@ def draw_vrm0_blend_shape_master_layout(
         vrm0_ops.VRM_OT_remove_vrm0_blend_shape_group,
         vrm0_ops.VRM_OT_move_up_vrm0_blend_shape_group,
         vrm0_ops.VRM_OT_move_down_vrm0_blend_shape_group,
-        menu=VRM_MT_vrm0_blend_shape_master,
+        menu_and_setup_menu_callback=(
+            VRM_MT_vrm0_blend_shape_master,
+            VRM_MT_vrm0_blend_shape_master.setup_menu(armature),
+        ),
     )
 
     for blend_shape_group_collection_op in blend_shape_group_collection_ops:

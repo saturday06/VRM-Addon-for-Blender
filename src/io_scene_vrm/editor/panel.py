@@ -46,7 +46,9 @@ def draw_template_list(
     can_remove: Callable[[int], bool] = lambda _: True,
     can_move: Callable[[int], bool] = lambda _: True,
     compact: bool = False,
-    menu: Optional[type[Menu]] = None,
+    menu_and_setup_menu_callback: Optional[
+        tuple[type[Menu], Callable[[UILayout], None]]
+    ] = None,
 ) -> tuple[
     list[Union[__AddOperator, __RemoveOperator, __MoveUpOperator, __MoveDownOperator]],
     list[Union[__RemoveOperator, __MoveUpOperator, __MoveDownOperator]],
@@ -109,7 +111,9 @@ def draw_template_list(
         translate=False,
     )
 
-    if menu is not None:
+    if menu_and_setup_menu_callback is not None:
+        menu, setup_menu = menu_and_setup_menu_callback
+        setup_menu(list_side_column)
         list_side_column.separator()
         list_side_column.menu(menu=menu.bl_idname, text="", icon="DOWNARROW_HLT")
 
