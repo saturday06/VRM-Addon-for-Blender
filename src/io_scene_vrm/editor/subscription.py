@@ -8,7 +8,7 @@ from ..common.logger import get_logger
 from .extension import VrmAddonArmatureExtensionPropertyGroup, get_armature_extension
 from .migration import migrate_all_objects
 from .mtoon1 import ops as mtoon1_ops
-from .vrm0.property_group import Vrm0HumanoidPropertyGroup
+from .vrm0 import property_group as vrm0_property_group
 from .vrm1 import property_group as vrm1_property_group
 
 logger = get_logger(__name__)
@@ -138,7 +138,12 @@ def on_change_bpy_bone_name() -> None:
         ):
             continue
 
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(context, armature.name)
+        vrm0_property_group.Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+            context, armature.name
+        )
+        vrm1_property_group.Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+            context, armature.name
+        )
 
 
 def on_change_bpy_armature_name() -> None:
