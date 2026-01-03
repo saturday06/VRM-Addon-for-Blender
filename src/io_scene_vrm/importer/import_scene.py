@@ -557,3 +557,53 @@ class WM_OT_vrma_import_prerequisite(Operator):
         armature_object_name_candidates: CollectionPropertyProtocol[  # type: ignore[no-redef]
             StringPropertyGroup
         ]
+
+
+class VRM_OT_import_vrm_via_file_handler(Operator):
+    bl_idname = "vrm.import_vrm_via_file_handler"
+    bl_label = "Import VRM via FileHandler"
+
+    filepath: StringProperty(  # type: ignore[valid-type]
+        subtype="FILE_PATH",
+        options={"SKIP_SAVE"},
+    )
+
+    @classmethod
+    def poll(cls, _context: Context) -> bool:
+        return True
+
+    def execute(self, _context: Context) -> set[str]:
+        return ops.import_scene.vrm(filepath=self.filepath, use_addon_preferences=True)
+
+    def invoke(self, context: Context, _event: Event) -> set[str]:
+        return self.execute(context)
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        filepath: str  # type: ignore[no-redef]
+
+
+class VRM_OT_import_vrma_via_file_handler(Operator):
+    bl_idname = "vrm.import_vrma_via_file_handler"
+    bl_label = "Import VRMA via FileHandler"
+
+    filepath: StringProperty(  # type: ignore[valid-type]
+        subtype="FILE_PATH",
+        options={"SKIP_SAVE"},
+    )
+
+    @classmethod
+    def poll(cls, _context: Context) -> bool:
+        return True
+
+    def execute(self, _context: Context) -> set[str]:
+        return ops.import_scene.vrma(filepath=self.filepath)
+
+    def invoke(self, context: Context, _event: Event) -> set[str]:
+        return self.execute(context)
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        filepath: str  # type: ignore[no-redef]

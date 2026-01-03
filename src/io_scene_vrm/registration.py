@@ -466,6 +466,8 @@ classes: list[
     import_scene.IMPORT_SCENE_OT_vrm,
     import_scene.IMPORT_SCENE_OT_vrma,
     import_scene.VRM_PT_import_unsupported_blender_version_warning,
+    import_scene.VRM_OT_import_vrm_via_file_handler,
+    import_scene.VRM_OT_import_vrma_via_file_handler,
     preferences.VrmAddonPreferences,
     extension.VrmAddonArmatureExtensionPropertyGroup,
     extension.VrmAddonBoneExtensionPropertyGroup,
@@ -479,8 +481,6 @@ if bpy.app.version >= (4, 1):
 
     classes.extend(
         [
-            file_handler.VRM_OT_import_vrm_via_file_handler,
-            file_handler.VRM_OT_import_vrma_via_file_handler,
             file_handler.VRM_FH_vrm_import,
             file_handler.VRM_FH_vrma_import,
         ]
