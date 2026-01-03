@@ -382,7 +382,7 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
         (SPEC_VERSION_VRM1, "VRM 1.0", "", "NONE", 1),
     )
 
-    def update_spec_version(self, _context: Context) -> None:
+    def update_spec_version(self, context: Context) -> None:
         for blend_shape_group in self.vrm0.blend_shape_master.blend_shape_groups:
             blend_shape_group.preview = 0
 
@@ -411,6 +411,8 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
             vrm1_collider.hide_set(vrm1_hidden)
             for child in vrm1_collider.children:
                 child.hide_set(vrm1_hidden)
+
+        update_internal_cache(context)
 
     spec_version: EnumProperty(  # type: ignore[valid-type]
         items=spec_version_items,
