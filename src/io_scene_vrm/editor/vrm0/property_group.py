@@ -216,13 +216,17 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         if not armature_data:
             return
 
+        ext = get_armature_extension(armature_data)
+        if not ext.is_vrm0():
+            return
+
         bone_names_str = "\n".join(
             sorted(
                 bone.name + "\n" + (parent.name if (parent := bone.parent) else "")
                 for bone in armature_data.bones.values()
             )
         )
-        humanoid = get_armature_extension(armature_data).vrm0.humanoid
+        humanoid = ext.vrm0.humanoid
         pointer_key = humanoid.as_pointer()
         pointer_to_last_bone_names_str = humanoid.pointer_to_last_bone_names_str
         last_bone_names_str = pointer_to_last_bone_names_str.get(pointer_key)

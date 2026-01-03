@@ -402,8 +402,14 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         *,
         force: bool = False,
     ) -> None:
+        from ..extension import get_armature_extension
+
         armature_data = context.blend_data.armatures.get(armature_data_name)
         if not isinstance(armature_data, Armature):
+            return
+
+        ext = get_armature_extension(armature_data)
+        if not ext.is_vrm1():
             return
 
         bone_names_str = "\n".join(
@@ -412,7 +418,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
                 for bone in armature_data.bones.values()
             )
         )
-        human_bones = get_armature_vrm1_extension(armature_data).humanoid.human_bones
+        human_bones = ext.vrm1.humanoid.human_bones
         pointer_key = human_bones.as_pointer()
         pointer_to_last_bone_names_str = human_bones.pointer_to_last_bone_names_str
         last_bone_names_str = pointer_to_last_bone_names_str.get(pointer_key)
