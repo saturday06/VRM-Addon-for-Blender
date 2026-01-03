@@ -254,7 +254,9 @@ class WM_OT_vrm_license_confirmation(Operator):
     bl_idname = "wm.vrm_license_warning"
     bl_options: AbstractSet[str] = {"REGISTER"}
 
-    filepath: StringProperty()  # type: ignore[valid-type]
+    filepath: StringProperty(  # type: ignore[valid-type]
+        subtype="FILE_PATH",
+    )
 
     license_confirmations: CollectionProperty(type=LicenseConfirmation)  # type: ignore[valid-type]
     import_anyway: BoolProperty(  # type: ignore[valid-type]

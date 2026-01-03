@@ -596,6 +596,7 @@ class VRM_OT_import_mtoon1_texture_image_file(Operator, ImportHelper):
 
     filepath: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
+        subtype="FILE_PATH",
         default="",
     )
 
