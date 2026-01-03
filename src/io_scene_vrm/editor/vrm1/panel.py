@@ -792,7 +792,9 @@ def draw_vrm1_expressions_layout(
 ) -> None:
     defer_migrate(armature.name)
 
-    preset_expressions = list(expressions.preset.name_to_expression_dict().values())
+    expression_preset_and_expressions = (
+        expressions.preset.expression_preset_and_expressions()
+    )
 
     (
         expression_collection_ops,
@@ -811,11 +813,11 @@ def draw_vrm1_expressions_layout(
         vrm1_ops.VRM_OT_move_up_vrm1_expressions_custom_expression,
         vrm1_ops.VRM_OT_move_down_vrm1_expressions_custom_expression,
         can_remove=lambda active_collection_index: (
-            active_collection_index >= len(preset_expressions)
+            active_collection_index >= len(expression_preset_and_expressions)
         ),
         can_move=lambda active_collection_index: (
             len(expressions.custom) >= 2
-            and active_collection_index >= len(preset_expressions)
+            and active_collection_index >= len(expression_preset_and_expressions)
         ),
         menu_and_setup_menu_callback=(
             VRM_MT_vrm1_expression,
@@ -827,15 +829,18 @@ def draw_vrm1_expressions_layout(
         expression_collection_op.armature_object_name = armature.name
         expression_collection_op.custom_expression_name = "custom"
 
-    custom_index = expression_ui_list_element_index - len(preset_expressions)
+    custom_index = expression_ui_list_element_index - len(
+        expression_preset_and_expressions
+    )
 
-    if 0 <= expression_ui_list_element_index < len(preset_expressions):
-        expression = preset_expressions[expression_ui_list_element_index]
-        preset_icon = expressions.preset.get_icon(expression.name)
-        if not preset_icon:
-            logger.error("Unknown preset expression: %s", expression.name)
-            preset_icon = "SHAPEKEY_DATA"
-        layout.label(text=expression.name, translate=False, icon=preset_icon)
+    if 0 <= expression_ui_list_element_index < len(expression_preset_and_expressions):
+        expression_preset, expression = expression_preset_and_expressions[
+            expression_ui_list_element_index
+        ]
+        layout.label(
+            text=expression_preset.name, translate=False, icon=expression_preset.icon
+        )
+        expression_name = expression_preset.name
     elif 0 <= custom_index < len(expressions.custom):
         expression = expressions.custom[custom_index]
 
@@ -845,6 +850,7 @@ def draw_vrm1_expressions_layout(
             )
 
         layout.prop(expression, "custom_name")
+        expression_name = expression.custom_name
     else:
         return
 
@@ -879,7 +885,7 @@ def draw_vrm1_expressions_layout(
 
     for morph_target_bind_collection_op in morph_target_bind_collection_ops:
         morph_target_bind_collection_op.armature_object_name = armature.name
-        morph_target_bind_collection_op.expression_name = expression.name
+        morph_target_bind_collection_op.expression_name = expression_name
 
     for morph_target_bind_collection_item_op in morph_target_bind_collection_item_ops:
         morph_target_bind_collection_item_op.bind_index = morph_target_bind_index
@@ -916,7 +922,7 @@ def draw_vrm1_expressions_layout(
 
     for material_color_bind_collection_op in material_color_bind_collection_ops:
         material_color_bind_collection_op.armature_object_name = armature.name
-        material_color_bind_collection_op.expression_name = expression.name
+        material_color_bind_collection_op.expression_name = expression_name
 
     for (
         material_color_bind_collection_item_op
@@ -954,7 +960,7 @@ def draw_vrm1_expressions_layout(
 
     for texture_transform_bind_collection_op in texture_transform_bind_collection_ops:
         texture_transform_bind_collection_op.armature_object_name = armature.name
-        texture_transform_bind_collection_op.expression_name = expression.name
+        texture_transform_bind_collection_op.expression_name = expression_name
 
     for (
         texture_transform_bind_collection_item_op
