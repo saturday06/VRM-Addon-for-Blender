@@ -487,6 +487,14 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
     pointer_to_bone_name_candidates: ClassVar[dict[int, set[str]]] = {}
 
     @property
+    def bone_name_candidates_or_empty(self) -> tuple[str, ...]:
+        pointer_key = self.as_pointer()
+        bone_name_candidates = self.pointer_to_bone_name_candidates.get(pointer_key)
+        if bone_name_candidates is None:
+            return ()
+        return tuple(sorted(bone_name_candidates))
+
+    @property
     def bone_name_candidates(self) -> set[str]:
         pointer_key = self.as_pointer()
         bone_name_candidates = self.pointer_to_bone_name_candidates.get(pointer_key)
@@ -774,7 +782,7 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
                     for error_human_bone in ext.vrm0.humanoid.human_bones
                     if error_human_bone.node.bone_name
                     and error_human_bone.node.bone_name
-                    not in error_human_bone.node.bone_name_candidates
+                    not in error_human_bone.node.bone_name_candidates_or_empty
                 ]
 
             human_bone, human_bone_name = next(
@@ -840,7 +848,7 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
                     for error_human_bone in human_bone_name_to_human_bone.values()
                     if error_human_bone.node.bone_name
                     and error_human_bone.node.bone_name
-                    not in error_human_bone.node.bone_name_candidates
+                    not in error_human_bone.node.bone_name_candidates_or_empty
                 ]
 
             human_bone = human_bone_name_to_human_bone[
