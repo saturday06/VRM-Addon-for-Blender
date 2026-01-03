@@ -2608,7 +2608,6 @@ def draw_bone_prop_search(
     )
     op.armature_object_name = armature.name
     op.human_bone_name = human_bone_specification.name.value
-    row.separator(factor=0.5)
 
 
 class VRM_OT_show_vrm0_bone_assignment_diagnostics(Operator):
