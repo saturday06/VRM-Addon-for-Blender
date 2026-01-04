@@ -42,5 +42,5 @@ def frame_change_post(_unused: object) -> None:
 
 
 @persistent
-def depsgraph_update_pre(_scene: Scene, _depsgraph: Depsgraph) -> None:
+def depsgraph_update_post(_scene: Scene, _depsgraph: Depsgraph) -> None:
     trigger_scene_watcher(LookAtPreviewUpdater)

@@ -545,7 +545,7 @@ def register() -> None:
         depsgraph_update_pre_once_if_load_post_is_unavailable
     )
     bpy.app.handlers.depsgraph_update_pre.append(depsgraph_update_pre)
-    bpy.app.handlers.depsgraph_update_pre.append(vrm1_handler.depsgraph_update_pre)
+    bpy.app.handlers.depsgraph_update_post.append(vrm1_handler.depsgraph_update_post)
     bpy.app.handlers.depsgraph_update_post.append(mtoon1_handler.depsgraph_update_post)
     bpy.app.handlers.save_pre.append(save_pre)
     bpy.app.handlers.save_pre.append(scene_watcher.save_pre)
@@ -577,7 +577,7 @@ def unregister() -> None:
     bpy.app.handlers.save_pre.remove(scene_watcher.save_pre)
     bpy.app.handlers.save_pre.remove(save_pre)
     bpy.app.handlers.depsgraph_update_post.remove(mtoon1_handler.depsgraph_update_post)
-    bpy.app.handlers.depsgraph_update_pre.remove(vrm1_handler.depsgraph_update_pre)
+    bpy.app.handlers.depsgraph_update_post.remove(vrm1_handler.depsgraph_update_post)
     bpy.app.handlers.depsgraph_update_pre.remove(depsgraph_update_pre)
     if (
         depsgraph_update_pre_once_if_load_post_is_unavailable
