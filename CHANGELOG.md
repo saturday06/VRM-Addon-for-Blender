@@ -2,18 +2,16 @@
 
 ## [3.17.6](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.5...v3.17.6) (2026-01-04)
 
+### 🚀 Improvement
 
-### 🐛 Bug Fixes
-
-* trigger release pipeline ([0fbf4a4](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0fbf4a43f16396ca346571356652138c76db0e88))
+* Improved UI panel display performance. ([cc5c0d8](https://github.com/saturday06/VRM-Addon-for-Blender/commit/cc5c0d80458fc0b9fad260430ae9529050ec9d3d)/[7c68d28](https://github.com/saturday06/VRM-Addon-for-Blender/commit/7c68d28b639e05a81e10fb24ed76172bc599a0ce))
 
 ## [3.17.5](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.4...v3.17.5) (2025-12-20)
 
 
 ### 🐛 Bug Fixes
 
-* disable chat image and CSS attachments in VS Code settings ([8d54219](https://github.com/saturday06/VRM-Addon-for-Blender/commit/8d54219ad845ad987fa4cf09daf0bcd13d996a42))
-* fixed a bug preventing filtering of the VRM 1.0 Expressions list ([422d77b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/422d77ba6f110b01f655823d12f71997f855bb63))
+* fixed a bug preventing filtering of the VRM 1.0 Expressions list ([aee27b3](https://github.com/saturday06/VRM-Addon-for-Blender/commit/aee27b38879b2aeb0eec5d38305aa2bb4257b1c7)) [#1131](https://github.com/saturday06/VRM-Addon-for-Blender/pull/1131) by [@tdw46](https://github.com/tdw46)
 
 ## [3.17.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.3...v3.17.4) (2025-12-18)
 
@@ -27,7 +25,7 @@
 
 ### 🐛 Bug Fixes
 
-* fixed a bug causing WebP texture export to fail ([d44dd2b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d44dd2b58a2a517326a10b93fd338af46e81145d))
+* fixed a bug causing WebP texture export to fail ([d44dd2b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d44dd2b58a2a517326a10b93fd338af46e81145d)) [#1127](https://github.com/saturday06/VRM-Addon-for-Blender/issues/1127)
 
 ## [3.17.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.1...v3.17.2) (2025-12-16)
 
