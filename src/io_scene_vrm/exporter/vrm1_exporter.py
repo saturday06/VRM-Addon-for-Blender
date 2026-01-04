@@ -1063,6 +1063,17 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         image: Image,
         gltf2_addon_export_settings: dict[str, object],
     ) -> int:
+        # Check if image already exists - return early to avoid duplicating buffer data
+        image_index = image_name_to_index_dict.get(image.name)
+        image_dicts = json_dict.get("images")
+        if not isinstance(image_dicts, list):
+            image_dicts = []
+            json_dict["images"] = image_dicts
+        if isinstance(image_index, int) and 0 <= image_index < len(image_dicts):
+            # Image already exists, return its index without duplicating data
+            return image_index
+
+        # Image doesn't exist yet - create new buffer view and image entry
         # TODO: Verify alignment requirement and optimize
         while len(buffer0) % 32 == 0:
             buffer0.append(0)
@@ -1081,26 +1092,15 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             }
         )
 
-        image_index = image_name_to_index_dict.get(image.name)
-        image_dicts = json_dict.get("images")
-        if not isinstance(image_dicts, list):
-            image_dicts = []
-            json_dict["images"] = image_dicts
-        if isinstance(image_index, int) and not 0 <= image_index < len(image_dicts):
-            logger.error(
-                "Bug: not 0 <= %d < len(images)) for %s", image_index, image.name
-            )
-            image_index = None
-        if not isinstance(image_index, int):
-            image_index = len(image_dicts)
-            image_dicts.append(
-                {
-                    "name": image.name,
-                    "bufferView": image_buffer_view_index,
-                    "mimeType": mime,
-                }
-            )
-            image_name_to_index_dict[image.name] = image_index
+        image_index = len(image_dicts)
+        image_dicts.append(
+            {
+                "name": image.name,
+                "bufferView": image_buffer_view_index,
+                "mimeType": mime,
+            }
+        )
+        image_name_to_index_dict[image.name] = image_index
 
         buffer0.extend(image_bytes)
         # TODO: Verify alignment requirement and optimize
