@@ -487,12 +487,9 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
     pointer_to_bone_name_candidates: ClassVar[dict[int, set[str]]] = {}
 
     @property
-    def bone_name_candidates_or_empty(self) -> tuple[str, ...]:
+    def bone_name_candidates_or_none(self) -> Optional[set[str]]:
         pointer_key = self.as_pointer()
-        bone_name_candidates = self.pointer_to_bone_name_candidates.get(pointer_key)
-        if bone_name_candidates is None:
-            return ()
-        return tuple(sorted(bone_name_candidates))
+        return self.pointer_to_bone_name_candidates.get(pointer_key)
 
     @property
     def bone_name_candidates(self) -> set[str]:
@@ -780,9 +777,13 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
                 error_bpy_bone_names = [
                     error_human_bone.node.bone_name
                     for error_human_bone in ext.vrm0.humanoid.human_bones
-                    if error_human_bone.node.bone_name
-                    and error_human_bone.node.bone_name
-                    not in error_human_bone.node.bone_name_candidates_or_empty
+                    if (bone_name := error_human_bone.node.bone_name)
+                    and (
+                        bone_name_candidates
+                        := error_human_bone.node.bone_name_candidates_or_none
+                    )
+                    is not None
+                    and bone_name not in bone_name_candidates
                 ]
 
             human_bone, human_bone_name = next(
@@ -846,9 +847,13 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
                 error_bpy_bone_names = [
                     error_human_bone.node.bone_name
                     for error_human_bone in human_bone_name_to_human_bone.values()
-                    if error_human_bone.node.bone_name
-                    and error_human_bone.node.bone_name
-                    not in error_human_bone.node.bone_name_candidates_or_empty
+                    if (bone_name := error_human_bone.node.bone_name)
+                    and (
+                        bone_name_candidates
+                        := error_human_bone.node.bone_name_candidates_or_none
+                    )
+                    is not None
+                    and bone_name not in bone_name_candidates
                 ]
 
             human_bone = human_bone_name_to_human_bone[
