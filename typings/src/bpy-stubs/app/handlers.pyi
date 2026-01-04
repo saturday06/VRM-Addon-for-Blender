@@ -1,14 +1,24 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from collections.abc import MutableSequence
-from typing import Callable
+from typing import Callable, TypeVar
 
 from bpy.types import Depsgraph, Scene
+from typing_extensions import ParamSpec
 
-def persistent(function: Callable[..., None]) -> Callable[..., None]: ...
+__PersistentParam = ParamSpec("__PersistentParam")
+__PersistentParamReturn = TypeVar("__PersistentParamReturn")
+
+def persistent(
+    function: Callable[__PersistentParam, __PersistentParamReturn],
+) -> Callable[__PersistentParam, __PersistentParamReturn]: ...
 
 # TODO: Investigate the type of arguments
-depsgraph_update_post: MutableSequence[Callable[[Scene, Depsgraph], None]]
-depsgraph_update_pre: MutableSequence[Callable[[Scene, Depsgraph], None]]
+depsgraph_update_post: MutableSequence[
+    Callable[[Scene, Depsgraph], None] | Callable[[Scene], None]
+]
+depsgraph_update_pre: MutableSequence[
+    Callable[[Scene, Depsgraph], None] | Callable[[Scene], None]
+]
 frame_change_post: MutableSequence[Callable[[object], None]]
 frame_change_pre: MutableSequence[Callable[[object], None]]
 load_factory_preferences_post: MutableSequence[Callable[[object], None]]
