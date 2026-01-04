@@ -2,6 +2,7 @@
 
 import bpy
 from bpy.app.handlers import persistent
+from bpy.types import Depsgraph, Scene
 
 from ...common.logger import get_logger
 from ...common.scene_watcher import trigger_scene_watcher
@@ -41,5 +42,5 @@ def frame_change_post(_unused: object) -> None:
 
 
 @persistent
-def depsgraph_update_pre(_unused: object) -> None:
+def depsgraph_update_pre(_scene: Scene, _depsgraph: Depsgraph) -> None:
     trigger_scene_watcher(LookAtPreviewUpdater)

@@ -546,7 +546,7 @@ def register() -> None:
     )
     bpy.app.handlers.depsgraph_update_pre.append(depsgraph_update_pre)
     bpy.app.handlers.depsgraph_update_pre.append(vrm1_handler.depsgraph_update_pre)
-    bpy.app.handlers.depsgraph_update_pre.append(mtoon1_handler.depsgraph_update_pre)
+    bpy.app.handlers.depsgraph_update_post.append(mtoon1_handler.depsgraph_update_post)
     bpy.app.handlers.save_pre.append(save_pre)
     bpy.app.handlers.save_pre.append(scene_watcher.save_pre)
     bpy.app.handlers.frame_change_pre.append(spring_bone1_handler.frame_change_pre)
@@ -576,7 +576,7 @@ def unregister() -> None:
     bpy.app.handlers.frame_change_pre.remove(spring_bone1_handler.frame_change_pre)
     bpy.app.handlers.save_pre.remove(scene_watcher.save_pre)
     bpy.app.handlers.save_pre.remove(save_pre)
-    bpy.app.handlers.depsgraph_update_pre.remove(mtoon1_handler.depsgraph_update_pre)
+    bpy.app.handlers.depsgraph_update_post.remove(mtoon1_handler.depsgraph_update_post)
     bpy.app.handlers.depsgraph_update_pre.remove(vrm1_handler.depsgraph_update_pre)
     bpy.app.handlers.depsgraph_update_pre.remove(depsgraph_update_pre)
     if (

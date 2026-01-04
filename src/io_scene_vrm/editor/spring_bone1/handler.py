@@ -7,7 +7,7 @@ from typing import Final, Optional, Union
 
 import bpy
 from bpy.app.handlers import persistent
-from bpy.types import Armature, Context, Object, PoseBone
+from bpy.types import Armature, Context, Depsgraph, Object, PoseBone, Scene
 from mathutils import Matrix, Quaternion, Vector
 
 from ...common.rotation import (
@@ -691,7 +691,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
 
 
 @persistent
-def depsgraph_update_pre(_unused: object) -> None:
+def depsgraph_update_pre(_scene: Scene, _depsgraph: Depsgraph) -> None:
     context = bpy.context
 
     state.reset(context)
