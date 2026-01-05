@@ -1069,9 +1069,15 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         if not isinstance(image_dicts, list):
             image_dicts = []
             json_dict["images"] = image_dicts
-        if isinstance(image_index, int) and 0 <= image_index < len(image_dicts):
-            # Image already exists, return its index without duplicating data
-            return image_index
+
+        if isinstance(image_index, int):
+            if 0 <= image_index < len(image_dicts):
+                # Image already exists, return its index without duplicating data
+                return image_index
+            logger.error(
+                "Bug: not 0 <= %d < len(images)) for %s", image_index, image.name
+            )
+            image_index = None
 
         # Image doesn't exist yet - create new buffer view and image entry
         # TODO: Verify alignment requirement and optimize
