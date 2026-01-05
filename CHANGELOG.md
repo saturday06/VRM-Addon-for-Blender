@@ -5,7 +5,7 @@
 
 ### 🐛 Bug Fixes
 
-* prevent duplicate image buffer data on export ([af4c953](https://github.com/saturday06/VRM-Addon-for-Blender/commit/af4c9535128ffe5e1b7ca3b76d4ab9fa822fbd26)), closes [#579](https://github.com/saturday06/VRM-Addon-for-Blender/issues/579)
+* prevent duplicate image buffer data on export ([af4c953](https://github.com/saturday06/VRM-Addon-for-Blender/commit/af4c9535128ffe5e1b7ca3b76d4ab9fa822fbd26)) by [@djmittens](https://github.com/djmittens)
 
 ## [3.17.6](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.5...v3.17.6) (2026-01-04)
 
