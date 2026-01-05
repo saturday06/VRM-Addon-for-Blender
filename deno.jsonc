@@ -20,35 +20,75 @@
       "ffi": true,
       "read": true,
       "run": true,
-      "sys": true,
-      "write": true
+      "sys": {
+        "allow": [
+          "cpus",
+          "homedir",
+          "osRelease",
+          "uid"
+        ],
+        "deny": [
+          "networkInterfaces"
+        ]
+      },
+      "write": [
+        "docs/.vitepress/"
+      ]
     },
     "docs:dev": {
       "env": true,
       "ffi": true,
-      "net": true,
+      "net": [
+        "localhost",
+        "127.0.0.1:5173"
+      ],
       "read": true,
       "run": true,
-      "sys": true,
-      "write": true
+      "sys": [
+        "cpus",
+        "homedir",
+        "hostname",
+        "networkInterfaces",
+        "osRelease",
+        "uid"
+      ],
+      "write": [
+        "docs/.vitepress/"
+      ]
     },
     "pyright": {
       "env": true,
       "ffi": true,
       "read": true,
       "run": true,
-      "sys": true,
+      "sys": [
+        "osRelease"
+      ],
       "write": true
     },
     "update-changelog": {
-      "env": ["GITHUB_TOKEN", "GH_TOKEN", "IGNORE_TEST_WIN32"],
-      "net": true,
-      "read": [".git"],
-      "write": ["CHANGELOG.md"]
+      "env": [
+        "GITHUB_TOKEN",
+        "GH_TOKEN",
+        "IGNORE_TEST_WIN32"
+      ],
+      "net": [
+        "api.github.com:443"
+      ],
+      "read": [
+        ".git"
+      ],
+      "write": [
+        "CHANGELOG.md"
+      ]
     },
     "vrm-validator": {
-      "env": ["BLENDER_VRM_TEST_RESOURCES_PATH"],
-      "read": ["."]
+      "env": [
+        "BLENDER_VRM_TEST_RESOURCES_PATH"
+      ],
+      "read": [
+        "."
+      ]
     }
   },
   // Workaround for VitePress
