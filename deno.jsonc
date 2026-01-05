@@ -43,7 +43,7 @@
     "update-changelog": {
       "env": ["GITHUB_TOKEN", "GH_TOKEN", "IGNORE_TEST_WIN32"],
       "net": true,
-      "read": [".git/config"],
+      "read": [".git"],
       "write": ["CHANGELOG.md"]
     },
     "vrm-validator": {
