@@ -2,6 +2,10 @@
 
 ## [3.17.8](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.7...v3.17.8) (2026-01-06)
 
+### 🚀 Improvements
+
+* improve expression animation performance ([e122b68](https://github.com/saturday06/VRM-Addon-for-Blender/commit/e122b68f693b9953f60f231847a3c2e4a2bf16a2))
+
 
 ### 🐛 Bug Fixes
 
