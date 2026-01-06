@@ -213,14 +213,6 @@ def trigger_scene_watcher(scene_watcher_type: type[SceneWatcher]) -> None:
     scene_watcher_scheduler.trigger(scene_watcher_type)
 
 
-def setup() -> None:
-    if bpy.app.timers.is_registered(process_scene_watcher_scheduler):
-        return
-    bpy.app.timers.register(
-        process_scene_watcher_scheduler, first_interval=SceneWatcherScheduler.INTERVAL
-    )
-
-
 @persistent
 def save_pre(_unused: object) -> None:
     context = bpy.context

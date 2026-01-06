@@ -87,7 +87,6 @@ def setup(*, load_post: bool) -> None:
     migration.migrate_all_objects(context, show_progress=True)
     mtoon1_property_group.setup_drivers(context)
     subscription.setup_subscription(load_post=load_post)
-    scene_watcher.setup()
     spring_bone1_handler.reset_state(context)
 
 
@@ -568,6 +567,10 @@ def register() -> None:
     bpy.app.handlers.depsgraph_update_pre.append(
         spring_bone1_handler.depsgraph_update_pre
     )
+    bpy.app.timers.register(
+        scene_watcher.process_scene_watcher_scheduler,
+        first_interval=scene_watcher.SceneWatcherScheduler.INTERVAL,
+    )
 
     io_scene_gltf2_support.init_extras_export()
 
@@ -577,6 +580,8 @@ def register() -> None:
 def unregister() -> None:
     subscription.teardown_subscription()
 
+    if bpy.app.timers.is_registered(scene_watcher.process_scene_watcher_scheduler):
+        bpy.app.timers.unregister(scene_watcher.process_scene_watcher_scheduler)
     bpy.app.handlers.depsgraph_update_pre.remove(
         spring_bone1_handler.depsgraph_update_pre
     )
