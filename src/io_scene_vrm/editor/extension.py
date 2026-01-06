@@ -3,7 +3,6 @@ import math
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Optional, TypeVar
 
-import bpy
 from bpy.props import (
     CollectionProperty,
     EnumProperty,
@@ -48,21 +47,7 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
     )
 
     @staticmethod
-    def update_vrm0_material_property_names_timer_callback() -> Optional[float]:
-        context = bpy.context
-
-        VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(context)
-        return None
-
-    @staticmethod
-    def defer_update_vrm0_material_property_names() -> None:
-        s = VrmAddonSceneExtensionPropertyGroup
-        bpy.app.timers.register(s.update_vrm0_material_property_names_timer_callback)
-
-    @staticmethod
-    def update_vrm0_material_property_names(
-        context: Context, scene_name: Optional[str] = None
-    ) -> None:
+    def update_vrm0_material_property_names(context: Context) -> None:
         # Unity 2022.3.4 + UniVRM 0.112.0
         gltf_property_names = [
             "_Color",
@@ -135,16 +120,7 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
             "_UvAnimMaskTexture_ST_T",
         ]
 
-        if scene_name is None:
-            scenes: Sequence[Scene] = list(context.blend_data.scenes)
-        else:
-            scene = context.blend_data.scenes.get(scene_name)
-            if not scene:
-                logger.error('No scene "%s"', scene_name)
-                return
-            scenes = [scene]
-
-        for scene in scenes:
+        for scene in context.blend_data.scenes:
             ext = get_scene_extension(scene)
 
             if gltf_property_names != [

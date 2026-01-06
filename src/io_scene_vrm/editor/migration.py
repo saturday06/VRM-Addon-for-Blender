@@ -120,9 +120,7 @@ def migrate_all_objects(
                     continue
             migrate(context, obj.name)
 
-    VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(
-        context, context.scene.name
-    )
+    VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(context)
     mtoon1_migration.migrate(context, show_progress=show_progress)
     validate_blend_file_compatibility(context)
     validate_blend_file_addon_compatibility(context)

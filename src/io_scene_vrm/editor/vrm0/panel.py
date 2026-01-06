@@ -745,8 +745,6 @@ def draw_vrm0_blend_shape_master_layout(
                     material_value, "property_name", icon="PROPERTIES"
                 )
             else:
-                scene_extension = get_scene_extension(context.scene)
-                scene_extension.defer_update_vrm0_material_property_names()
                 ext = get_material_extension(material)
                 node, legacy_shader_name = search.legacy_shader_node(material)
                 if ext.mtoon1.enabled or (
