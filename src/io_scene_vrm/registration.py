@@ -75,51 +75,6 @@ from .locale.translation_dictionary import translation_dictionary
 
 logger = get_logger(__name__)
 
-
-def setup_once_when_writable_context_becomes_available(
-    context: Context, *, load_post: bool
-) -> None:
-    """Execute setup process when a writable Context becomes available."""
-    if preferences.get_preferences(context).add_mtoon_shader_node_group:
-        shader.add_mtoon1_auto_setup_shader_node_group(context)
-    migration.migrate_all_objects(context, show_progress=True)
-    mtoon1_property_group.setup_drivers(context)
-    subscription.setup_subscription(load_post=load_post)
-    spring_bone1_handler.reset_state(context)
-
-
-def clear_global_variables() -> None:
-    """Clear Python global variables.
-
-    This function is called from register() or load_pre().
-    """
-    vrm0_property_group.clear_global_variables()
-    vrm1_property_group.clear_global_variables()
-    property_group.clear_global_variables()
-    handler.clear_global_variables()
-
-
-@persistent
-def load_pre(_unused: object) -> None:
-    clear_global_variables()
-
-
-@persistent
-def depsgraph_update_pre(_unused: object) -> None:
-    trigger_clear_addon_version_cache()
-
-
-@persistent
-def save_pre(_unused: object) -> None:
-    # Apply pending changes before saving.
-    context = bpy.context
-    writable_context.trigger_writable_context_becomes_available_once_handlers(
-        context, load_post=False
-    )
-    migration.migrate_all_objects(context)
-    extension.update_internal_cache(context)
-
-
 classes: list[
     Union[
         type[Panel],
@@ -602,3 +557,47 @@ def unregister() -> None:
     # https://github.com/saturday06/VRM-Addon-for-Blender/issues/506#issuecomment-2183766778
     if os.getenv("BLENDER_VRM_DEVELOPMENT_MODE") == "yes":
         cleanse_modules()
+
+
+@persistent
+def load_pre(_unused: object) -> None:
+    clear_global_variables()
+
+
+@persistent
+def depsgraph_update_pre(_unused: object) -> None:
+    trigger_clear_addon_version_cache()
+
+
+@persistent
+def save_pre(_unused: object) -> None:
+    # Apply pending changes before saving.
+    context = bpy.context
+    writable_context.trigger_writable_context_becomes_available_once_handlers(
+        context, load_post=False
+    )
+    migration.migrate_all_objects(context)
+    extension.update_internal_cache(context)
+
+
+def setup_once_when_writable_context_becomes_available(
+    context: Context, *, load_post: bool
+) -> None:
+    """Execute setup process when a writable Context becomes available."""
+    if preferences.get_preferences(context).add_mtoon_shader_node_group:
+        shader.add_mtoon1_auto_setup_shader_node_group(context)
+    migration.migrate_all_objects(context, show_progress=True)
+    mtoon1_property_group.setup_drivers(context)
+    subscription.setup_subscription(load_post=load_post)
+    spring_bone1_handler.reset_state(context)
+
+
+def clear_global_variables() -> None:
+    """Clear Python global variables.
+
+    This function is called from register() or load_pre().
+    """
+    vrm0_property_group.clear_global_variables()
+    vrm1_property_group.clear_global_variables()
+    property_group.clear_global_variables()
+    handler.clear_global_variables()
