@@ -76,6 +76,11 @@ logger = get_logger(__name__)
 
 
 def setup(*, load_post: bool) -> None:
+    """Execute setup process when a writable Context becomes available.
+
+    This function is called from the first depsgraph_update_pre() after register(),
+    or from load_post().
+    """
     context = bpy.context
     if preferences.get_preferences(context).add_mtoon_shader_node_group:
         shader.add_mtoon1_auto_setup_shader_node_group(context)
@@ -87,6 +92,10 @@ def setup(*, load_post: bool) -> None:
 
 
 def clear_global_variables() -> None:
+    """Clear Python global variables.
+
+    Called from register() or load_pre().
+    """
     vrm0_property_group.Vrm0HumanoidPropertyGroup.pointer_to_last_bone_names_str.clear()
     vrm0_property_group.Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.clear()
     vrm1_property_group.Vrm1HumanBonesPropertyGroup.pointer_to_last_bone_names_str.clear()
