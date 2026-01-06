@@ -1869,7 +1869,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
 
 class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
     bl_idname = "vrm.update_vrm1_expression_ui_list_elements"
-    bl_label = "Update VRM 1.0 Expression UI list Elements"
+    bl_label = "Update VRM 1.0 Expression UI List Elements"
     bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context) -> set[str]:
@@ -1877,7 +1877,7 @@ class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
             expressions = get_armature_extension(armature).vrm1.expressions
 
             # Set the number of elements equal to the number of elements wanted to show
-            # in the UIlist.
+            # in the UIList.
             ui_len = len(expressions.expression_ui_list_elements)
             all_len = len(expressions.all_name_to_expression_dict())
             if ui_len == all_len:

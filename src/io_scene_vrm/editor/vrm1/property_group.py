@@ -1632,6 +1632,17 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
             for morph_target_bind in expression.morph_target_binds:
                 morph_target_bind.node.restore_object_assignment(context)
 
+    def fill_missing_expression_names(self) -> None:
+        """Set a name for the expression preset.
+
+        It's not necessary for management, but I want to set it because it's
+        displayed in the animation keyframes.
+        """
+        preset_name_to_expression_dict = self.preset.name_to_expression_dict()
+        for preset_name, preset_expression in preset_name_to_expression_dict.items():
+            if preset_expression.name != preset_name:
+                preset_expression.name = preset_name
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.

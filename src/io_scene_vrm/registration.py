@@ -596,6 +596,7 @@ def setup_once_when_writable_context_becomes_available(
     if preferences.get_preferences(context).add_mtoon_shader_node_group:
         shader.add_mtoon1_auto_setup_shader_node_group(context)
     migration.migrate_all_objects(context, show_progress=True)
+    extension.update_internal_cache(context)
     mtoon1_property_group.setup_drivers(context)
     subscription.setup_subscription(load_post=load_post)
     spring_bone1_handler.reset_state(context)
