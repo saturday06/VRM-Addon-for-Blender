@@ -17,12 +17,6 @@ last_scene_state: Final[list[int]] = []
 
 
 @persistent
-def load_post(_unsed: object) -> None:
-    migration.state.blend_file_compatibility_warning_shown = False
-    migration.state.blend_file_addon_compatibility_warning_shown = False
-
-
-@persistent
 def depsgraph_update_post(_scene: Scene, depsgraph: Depsgraph) -> None:
     if depsgraph.id_type_updated("SCENE"):
         context = bpy.context
@@ -37,4 +31,6 @@ def depsgraph_update_post(_scene: Scene, depsgraph: Depsgraph) -> None:
 
 
 def clear_global_variables() -> None:
+    migration.state.blend_file_compatibility_warning_shown = False
+    migration.state.blend_file_addon_compatibility_warning_shown = False
     last_scene_state.clear()

@@ -21,6 +21,5 @@ def depsgraph_update_post(_scene: Scene, depsgraph: Depsgraph) -> None:
         trigger_scene_watcher(OutlineUpdater)
 
 
-@persistent
-def load_post(_unsed: object) -> None:
+def clear_global_variables() -> None:
     migration.state.material_blender_4_2_warning_shown = False

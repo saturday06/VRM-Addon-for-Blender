@@ -464,8 +464,6 @@ def register() -> None:
     # VIEW3D_MT_mesh_add.append(panel.make_mesh)
 
     bpy.app.handlers.load_pre.append(load_pre)
-    bpy.app.handlers.load_post.append(handler.load_post)
-    bpy.app.handlers.load_post.append(mtoon1_handler.load_post)
     bpy.app.handlers.load_post.append(writable_context.load_post)
     bpy.app.handlers.depsgraph_update_pre.append(depsgraph_update_pre)
     bpy.app.handlers.depsgraph_update_pre.append(writable_context.depsgraph_update_pre)
@@ -517,8 +515,6 @@ def unregister() -> None:
     bpy.app.handlers.depsgraph_update_pre.remove(writable_context.depsgraph_update_pre)
     bpy.app.handlers.depsgraph_update_pre.remove(depsgraph_update_pre)
     bpy.app.handlers.load_post.remove(writable_context.load_post)
-    bpy.app.handlers.load_post.remove(mtoon1_handler.load_post)
-    bpy.app.handlers.load_post.remove(handler.load_post)
     bpy.app.handlers.load_pre.remove(load_pre)
 
     # VIEW3D_MT_mesh_add.remove(panel.make_mesh)
@@ -600,4 +596,5 @@ def clear_global_variables() -> None:
     vrm0_property_group.clear_global_variables()
     vrm1_property_group.clear_global_variables()
     property_group.clear_global_variables()
+    mtoon1_handler.clear_global_variables()
     handler.clear_global_variables()
