@@ -1272,10 +1272,11 @@ class AbstractBaseVrmImporter(ABC):
 
         if self.preferences.set_shading_type_to_material_on_import:
             screen = self.context.screen
-            for area in screen.areas:
-                for space in area.spaces:
-                    if space.type == "VIEW_3D" and isinstance(space, SpaceView3D):
-                        space.shading.type = "MATERIAL"
+            if screen:
+                for area in screen.areas:
+                    for space in area.spaces:
+                        if space.type == "VIEW_3D" and isinstance(space, SpaceView3D):
+                            space.shading.type = "MATERIAL"
 
     def save_t_pose_action(self) -> None:
         if self.armature is None:

@@ -13,29 +13,10 @@ logger = get_logger(__name__)
 
 
 @persistent
-def frame_change_pre(_unused: object) -> None:
-    Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.clear()
-
-
-@persistent
 def frame_change_post(_unused: object) -> None:
     context = bpy.context
 
-    for (
-        shape_key_name,
-        key_block_name,
-    ), value in Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.items():
-        shape_key = context.blend_data.shape_keys.get(shape_key_name)
-        if not shape_key:
-            continue
-        key_blocks = shape_key.key_blocks
-        if not key_blocks:
-            continue
-        key_block = key_blocks.get(key_block_name)
-        if not key_block:
-            continue
-        key_block.value = value
-    Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.clear()
+    Vrm1ExpressionPropertyGroup.apply_pending_preview_update_to_armatures(context)
 
     # Update materials
     Vrm1ExpressionPropertyGroup.update_materials(context)

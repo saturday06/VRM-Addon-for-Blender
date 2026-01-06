@@ -12,6 +12,9 @@ def persistent(
     function: Callable[__PersistentParam, __PersistentParamReturn],
 ) -> Callable[__PersistentParam, __PersistentParamReturn]: ...
 
+animation_playback_post: MutableSequence[Callable[[object], None]]
+animation_playback_pre: MutableSequence[Callable[[object], None]]
+
 # TODO: Investigate the type of arguments
 depsgraph_update_post: MutableSequence[
     Callable[[Scene, Depsgraph], None] | Callable[[Scene], None]

@@ -27,6 +27,7 @@ from bpy.types import (
 from mathutils import Vector
 
 from ...common import convert
+from ...common.animation import is_animation_playing
 from ...common.logger import get_logger
 from ...common.vrm0.human_bone import (
     HumanBoneName,
@@ -563,10 +564,6 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
     active_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
     active_material_value_index: IntProperty(min=0)  # type: ignore[valid-type]
 
-    # During animation playback, shape key values can only be changed
-    # in frame_change_pre/frame_change_post, so we store the changed values here
-    frame_change_post_shape_key_updates: ClassVar[dict[tuple[str, str], float]] = {}
-
     def get_preview(self) -> float:
         value = self.get("preview")
         if isinstance(value, (float, int)):
@@ -589,34 +586,111 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
 
         self["preview"] = value
 
-        for bind in self.binds:
-            mesh_object = context.blend_data.objects.get(bind.mesh.mesh_object_name)
-            if not mesh_object or mesh_object.type != "MESH":
+        self.update_preview(context)
+
+    pending_preview_update_armature_data_names: ClassVar[list[str]] = []
+
+    def update_preview(self, context: Context) -> None:
+        armature_data = self.id_data
+        if not isinstance(armature_data, Armature):
+            return
+
+        if is_animation_playing(context):
+            if (
+                armature_data.name
+                not in self.pending_preview_update_armature_data_names
+            ):
+                self.pending_preview_update_armature_data_names.append(
+                    armature_data.name
+                )
+            return
+
+        self.apply_previews(context, armature_data)
+
+    @classmethod
+    def apply_pending_preview_update_to_armatures(cls, context: Context) -> None:
+        for armature_data_name in cls.pending_preview_update_armature_data_names:
+            armature_data = context.blend_data.armatures.get(armature_data_name)
+            if not armature_data:
                 continue
-            mesh = mesh_object.data
-            if not isinstance(mesh, Mesh):
+            cls.apply_previews(context, armature_data)
+        cls.pending_preview_update_armature_data_names.clear()
+
+    @classmethod
+    def apply_previews(cls, context: Context, armature_data: Armature) -> None:
+        mesh_object_name_to_key_block_name_to_value: dict[str, dict[str, float]] = {}
+        blend_shape_groups = get_armature_vrm0_extension(
+            armature_data
+        ).blend_shape_master.blend_shape_groups
+        for blend_shape_group in blend_shape_groups:
+            if blend_shape_group.is_binary:
+                # https://github.com/vrm-c/UniVRM/blob/38ccb92300c9ab41c72eb3d5b8dc8ce664a659d5/Assets/VRM/Runtime/BlendShape/BlendShapeMerger.cs#L89-L92
+                preview = 0.0 if blend_shape_group.preview < 0.5 else 1.0
+            else:
+                preview = blend_shape_group.preview
+
+            for bind in blend_shape_group.binds:
+                mesh_object_name = bind.mesh.mesh_object_name
+                key_block_name = bind.index
+                value = bind.weight * preview  # Lerp 0.0 * (1 - a) + weight * a
+                key_block_name_to_value = (
+                    mesh_object_name_to_key_block_name_to_value.get(mesh_object_name)
+                )
+                if not key_block_name_to_value:
+                    mesh_object_name_to_key_block_name_to_value[mesh_object_name] = {
+                        key_block_name: value
+                    }
+                    continue
+                key_block_name_to_value[key_block_name] = (
+                    key_block_name_to_value.get(key_block_name, 0) + value
+                )
+
+        mesh_data_name_to_key_block_name_to_total_value: dict[
+            str, dict[str, float]
+        ] = {}
+        for (
+            mesh_object_name,
+            key_block_name_to_value,
+        ) in mesh_object_name_to_key_block_name_to_value.items():
+            mesh_object = context.blend_data.objects.get(mesh_object_name)
+            if not mesh_object:
                 continue
-            mesh_shape_keys = mesh.shape_keys
-            if not mesh_shape_keys:
+            mesh_data = mesh_object.data
+            if not isinstance(mesh_data, Mesh):
                 continue
-            shape_key = context.blend_data.shape_keys.get(mesh_shape_keys.name)
-            if not shape_key:
+            key_block_name_to_total_value = (
+                mesh_data_name_to_key_block_name_to_total_value.get(mesh_data.name)
+            )
+            if not key_block_name_to_total_value:
+                mesh_data_name_to_key_block_name_to_total_value[mesh_data.name] = (
+                    key_block_name_to_value
+                )
                 continue
-            key_blocks = shape_key.key_blocks
+            for key_block_name, value in key_block_name_to_value.items():
+                key_block_name_to_total_value[key_block_name] = (
+                    key_block_name_to_total_value.get(key_block_name, 0) + value
+                )
+
+        for (
+            mesh_data_name,
+            key_block_name_to_value,
+        ) in mesh_data_name_to_key_block_name_to_total_value.items():
+            mesh_data = context.blend_data.meshes.get(mesh_data_name)
+            if not mesh_data:
+                continue
+            shape_keys = mesh_data.shape_keys
+            if not shape_keys:
+                continue
+            key_blocks = shape_keys.key_blocks
             if not key_blocks:
                 continue
-            if bind.index not in key_blocks:
-                continue
-            if self.is_binary:
-                # https://github.com/vrm-c/UniVRM/blob/38ccb92300c9ab41c72eb3d5b8dc8ce664a659d5/Assets/VRM/Runtime/BlendShape/BlendShapeMerger.cs#L89-L92
-                preview = 0.0 if self.preview < 0.5 else 1.0
-            else:
-                preview = self.preview
-            key_block_value = bind.weight * preview  # Lerp 0.0 * (1 - a) + weight * a
-            key_blocks[bind.index].value = key_block_value
-            Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates[
-                (shape_key.name, bind.index)
-            ] = key_block_value
+            for key_block_name, value in key_block_name_to_value.items():
+                key_block = key_blocks.get(key_block_name)
+                if not key_block:
+                    continue
+                if abs(key_block.value - value) < float_info.epsilon:
+                    continue
+                key_block.value = value
 
     preview: FloatProperty(  # type: ignore[valid-type]
         name="Blend Shape Proxy",
@@ -1087,6 +1161,12 @@ class Vrm0PropertyGroup(PropertyGroup):
         )
 
 
+def get_armature_vrm0_extension(armature: Armature) -> Vrm0PropertyGroup:
+    from ..extension import get_armature_extension
+
+    vrm0: Vrm0PropertyGroup = get_armature_extension(armature).vrm0
+    return vrm0
+
+
 def clear_global_variables() -> None:
     Vrm0HumanoidPropertyGroup.pointer_to_last_bone_names_str.clear()
-    Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.clear()

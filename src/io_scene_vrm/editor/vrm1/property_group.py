@@ -31,6 +31,7 @@ from bpy.types import (
 from mathutils import Matrix, Quaternion, Vector
 
 from ...common import convert
+from ...common.animation import is_animation_playing
 from ...common.char import DISABLE_TRANSLATION
 from ...common.logger import get_logger
 from ...common.rotation import set_rotation_without_mode_change
@@ -1079,18 +1080,43 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         ("blend", "Blend", "", "NONE", 2),
     )
 
+    pending_preview_update_armature_data_names: ClassVar[list[str]] = []
+
     def update_preview(self, context: Context) -> None:
         if not self.name:
             logger.debug("Unnamed expression: %s", type(self))
             return
 
-        armature = self.id_data
-        if not isinstance(armature, Armature):
+        armature_data = self.id_data
+        if not isinstance(armature_data, Armature):
             # This is getting triggered after importing VRMA files
             logger.error("No armature for %s", self.name)
             return
 
-        expressions = get_armature_vrm1_extension(armature).expressions
+        if is_animation_playing(context):
+            if (
+                armature_data.name
+                not in self.pending_preview_update_armature_data_names
+            ):
+                self.pending_preview_update_armature_data_names.append(
+                    armature_data.name
+                )
+            return
+
+        self.apply_previews(context, armature_data)
+
+    @classmethod
+    def apply_pending_preview_update_to_armatures(cls, context: Context) -> None:
+        for armature_data_name in cls.pending_preview_update_armature_data_names:
+            armature_data = context.blend_data.armatures.get(armature_data_name)
+            if not armature_data:
+                continue
+            cls.apply_previews(context, armature_data)
+        cls.pending_preview_update_armature_data_names.clear()
+
+    @classmethod
+    def apply_previews(cls, context: Context, armature_data: Armature) -> None:
+        expressions = get_armature_vrm1_extension(armature_data).expressions
         name_to_expression_dict = expressions.all_name_to_expression_dict()
 
         mouth_block_rate = 0.0
@@ -1118,7 +1144,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         blink_blend_factor = max(0.0, min(1 - blink_block_rate, 1.0))
         look_at_blend_factor = max(0.0, min(1 - look_at_block_rate, 1.0))
 
-        shape_key_name_and_key_block_name_to_value: dict[tuple[str, str], float] = {}
+        mesh_object_name_to_key_block_name_to_value: dict[str, dict[str, float]] = {}
         for name, expression in name_to_expression_dict.items():
             if expression.is_binary:
                 # https://github.com/vrm-c/vrm-specification/blob/5b1071b9da1d60bb1bab0b70754615127fc43e9e/specification/VRMC_vrm-1.0/expressions.md?plain=1#L46
@@ -1144,56 +1170,68 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
                     continue
 
             for morph_target_bind in expression.morph_target_binds:
-                mesh_object = context.blend_data.objects.get(
-                    morph_target_bind.node.mesh_object_name
-                )
-                if not mesh_object or mesh_object.type != "MESH":
-                    continue
-                mesh = mesh_object.data
-                if not isinstance(mesh, Mesh):
-                    continue
-                mesh_shape_keys = mesh.shape_keys
-                if not mesh_shape_keys:
-                    continue
-                shape_key = context.blend_data.shape_keys.get(mesh_shape_keys.name)
-                if not shape_key:
-                    continue
-                key_blocks = shape_key.key_blocks
-                if not key_blocks:
-                    continue
-                key_block = key_blocks.get(morph_target_bind.index)
-                if not key_block:
-                    continue
-
                 value = morph_target_bind.weight * preview
-                shape_key_name_and_key_block_name = (shape_key.name, key_block.name)
-                shape_key_name_and_key_block_name_to_value[
-                    shape_key_name_and_key_block_name
-                ] = (
-                    shape_key_name_and_key_block_name_to_value.get(
-                        shape_key_name_and_key_block_name, 0.0
-                    )
-                    + value
+
+                mesh_object_name = morph_target_bind.node.mesh_object_name
+                key_block_name = morph_target_bind.index
+                key_block_name_to_value = (
+                    mesh_object_name_to_key_block_name_to_value.get(mesh_object_name)
+                )
+                if not key_block_name_to_value:
+                    mesh_object_name_to_key_block_name_to_value[mesh_object_name] = {
+                        key_block_name: value
+                    }
+                    continue
+                key_block_name_to_value[key_block_name] = (
+                    key_block_name_to_value.get(key_block_name, 0) + value
+                )
+
+        mesh_data_name_to_key_block_name_to_total_value: dict[
+            str, dict[str, float]
+        ] = {}
+        for (
+            mesh_object_name,
+            key_block_name_to_value,
+        ) in mesh_object_name_to_key_block_name_to_value.items():
+            mesh_object = context.blend_data.objects.get(mesh_object_name)
+            if not mesh_object:
+                continue
+            mesh_data = mesh_object.data
+            if not isinstance(mesh_data, Mesh):
+                continue
+            key_block_name_to_total_value = (
+                mesh_data_name_to_key_block_name_to_total_value.get(mesh_data.name)
+            )
+            if not key_block_name_to_total_value:
+                mesh_data_name_to_key_block_name_to_total_value[mesh_data.name] = (
+                    key_block_name_to_value
+                )
+                continue
+            for key_block_name, value in key_block_name_to_value.items():
+                key_block_name_to_total_value[key_block_name] = (
+                    key_block_name_to_total_value.get(key_block_name, 0) + value
                 )
 
         for (
-            shape_key_name,
-            key_block_name,
-        ), value in shape_key_name_and_key_block_name_to_value.items():
-            shape_key = context.blend_data.shape_keys.get(shape_key_name)
-            if not shape_key:
+            mesh_data_name,
+            key_block_name_to_value,
+        ) in mesh_data_name_to_key_block_name_to_total_value.items():
+            mesh_data = context.blend_data.meshes.get(mesh_data_name)
+            if not mesh_data:
                 continue
-            key_blocks = shape_key.key_blocks
+            shape_keys = mesh_data.shape_keys
+            if not shape_keys:
+                continue
+            key_blocks = shape_keys.key_blocks
             if not key_blocks:
                 continue
-            key_block = key_blocks.get(key_block_name)
-            if not key_block:
-                continue
-            key_block.value = value
-
-        Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.update(
-            shape_key_name_and_key_block_name_to_value
-        )
+            for key_block_name, value in key_block_name_to_value.items():
+                key_block = key_blocks.get(key_block_name)
+                if not key_block:
+                    continue
+                if abs(key_block.value - value) < float_info.epsilon:
+                    continue
+                key_block.value = value
 
     override_blink: EnumProperty(  # type: ignore[valid-type]
         name="Override Blink",
@@ -1223,11 +1261,6 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         name="Texture Transform Binds"
     )
 
-    # Since the value of the shape key can only be changed in
-    # frame_change_pre/frame_change_post during animation playback, the
-    # changed value is saved here.
-    frame_change_post_shape_key_updates: ClassVar[dict[tuple[str, str], float]] = {}
-
     def get_preview(self) -> float:
         value = self.get("preview")
         if isinstance(value, (float, int)):
@@ -1249,6 +1282,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             return
 
         self["preview"] = value
+
         self.update_preview(context)
 
     preview: FloatProperty(  # type: ignore[valid-type]
@@ -1780,4 +1814,3 @@ def get_armature_vrm1_extension(armature: Armature) -> Vrm1PropertyGroup:
 
 def clear_global_variables() -> None:
     Vrm1HumanBonesPropertyGroup.pointer_to_last_bone_names_str.clear()
-    Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.clear()

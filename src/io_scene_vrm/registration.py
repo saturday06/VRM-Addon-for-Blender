@@ -29,7 +29,14 @@ from bpy.types import (
     VIEW3D_MT_armature_add,
 )
 
-from .common import error_dialog, preferences, scene_watcher, shader, writable_context
+from .common import (
+    animation,
+    error_dialog,
+    preferences,
+    scene_watcher,
+    shader,
+    writable_context,
+)
 from .common.debug import cleanse_modules
 from .common.logger import get_logger
 from .common.version import trigger_clear_addon_version_cache
@@ -473,13 +480,16 @@ def register() -> None:
     bpy.app.handlers.save_pre.append(save_pre)
     bpy.app.handlers.save_pre.append(scene_watcher.save_pre)
     bpy.app.handlers.frame_change_pre.append(spring_bone1_handler.frame_change_pre)
-    bpy.app.handlers.frame_change_pre.append(vrm0_handler.frame_change_pre)
     bpy.app.handlers.frame_change_post.append(vrm0_handler.frame_change_post)
-    bpy.app.handlers.frame_change_pre.append(vrm1_handler.frame_change_pre)
     bpy.app.handlers.frame_change_post.append(vrm1_handler.frame_change_post)
     bpy.app.handlers.depsgraph_update_pre.append(
         spring_bone1_handler.depsgraph_update_pre
     )
+    if bpy.app.version >= (3, 6) and bpy.app.binary_path:
+        bpy.app.handlers.animation_playback_pre.append(animation.animation_playback_pre)
+        bpy.app.handlers.animation_playback_post.append(
+            animation.animation_playback_post
+        )
     writable_context.register_writable_context_becomes_available_once_handler(
         setup_once_when_writable_context_becomes_available,
     )
@@ -499,13 +509,16 @@ def unregister() -> None:
     if bpy.app.timers.is_registered(scene_watcher.process_scene_watcher_scheduler):
         bpy.app.timers.unregister(scene_watcher.process_scene_watcher_scheduler)
     writable_context.clear_writable_context_becomes_available_once_handlers()
+    if bpy.app.version >= (3, 6) and bpy.app.binary_path:
+        bpy.app.handlers.animation_playback_post.remove(
+            animation.animation_playback_post
+        )
+        bpy.app.handlers.animation_playback_pre.remove(animation.animation_playback_pre)
     bpy.app.handlers.depsgraph_update_pre.remove(
         spring_bone1_handler.depsgraph_update_pre
     )
     bpy.app.handlers.frame_change_post.remove(vrm1_handler.frame_change_post)
-    bpy.app.handlers.frame_change_pre.remove(vrm1_handler.frame_change_pre)
     bpy.app.handlers.frame_change_post.remove(vrm0_handler.frame_change_post)
-    bpy.app.handlers.frame_change_pre.remove(vrm0_handler.frame_change_pre)
     bpy.app.handlers.frame_change_pre.remove(spring_bone1_handler.frame_change_pre)
     bpy.app.handlers.save_pre.remove(scene_watcher.save_pre)
     bpy.app.handlers.save_pre.remove(save_pre)
@@ -593,6 +606,7 @@ def clear_global_variables() -> None:
 
     This function is called from register() or load_pre().
     """
+    animation.clear_global_variables()
     vrm0_property_group.clear_global_variables()
     vrm1_property_group.clear_global_variables()
     property_group.clear_global_variables()
