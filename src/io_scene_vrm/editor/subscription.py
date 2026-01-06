@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from dataclasses import dataclass
+from typing import Final
 
 import bpy
 from bpy.types import Armature, Bone, Object
@@ -24,7 +25,7 @@ class Subscription:
     setup_once: bool = False
 
 
-subscription = Subscription()
+subscription: Final = Subscription()
 
 
 def setup_subscription(*, load_post: bool) -> None:
