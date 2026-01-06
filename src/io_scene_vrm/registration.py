@@ -93,14 +93,12 @@ def setup(*, load_post: bool) -> None:
 def clear_global_variables() -> None:
     """Clear Python global variables.
 
-    Called from register() or load_pre().
+    This function is called from register() or load_pre().
     """
-    vrm0_property_group.Vrm0HumanoidPropertyGroup.pointer_to_last_bone_names_str.clear()
-    vrm0_property_group.Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.clear()
-    vrm1_property_group.Vrm1HumanBonesPropertyGroup.pointer_to_last_bone_names_str.clear()
-    vrm1_property_group.Vrm1ExpressionPropertyGroup.frame_change_post_shape_key_updates.clear()
-    property_group.BonePropertyGroup.armature_data_name_and_bone_uuid_to_bone_name_cache.clear()
-    property_group.HumanoidStructureBonePropertyGroup.pointer_to_bone_name_candidates.clear()
+    vrm0_property_group.clear_global_variables()
+    vrm1_property_group.clear_global_variables()
+    property_group.clear_global_variables()
+    handler.clear_global_variables()
 
 
 @persistent
@@ -546,7 +544,6 @@ def register() -> None:
     # VIEW3D_MT_mesh_add.append(panel.make_mesh)
 
     bpy.app.handlers.load_pre.append(load_pre)
-    bpy.app.handlers.load_pre.append(handler.load_pre)
     bpy.app.handlers.load_post.append(handler.load_post)
     bpy.app.handlers.load_post.append(mtoon1_handler.load_post)
     bpy.app.handlers.load_post.append(load_post)
@@ -606,7 +603,6 @@ def unregister() -> None:
     bpy.app.handlers.load_post.remove(load_post)
     bpy.app.handlers.load_post.remove(mtoon1_handler.load_post)
     bpy.app.handlers.load_post.remove(handler.load_post)
-    bpy.app.handlers.load_pre.remove(handler.load_pre)
     bpy.app.handlers.load_pre.remove(load_pre)
 
     # VIEW3D_MT_mesh_add.remove(panel.make_mesh)

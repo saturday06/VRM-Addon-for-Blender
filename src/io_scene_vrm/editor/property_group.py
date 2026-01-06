@@ -899,3 +899,8 @@ class CollectionPropertyProtocol(Protocol[T_co]):
     def __contains__(self, value: str) -> bool: ...  # TODO: undocumented
 
     def move(self, from_index: int, to_index: int) -> None: ...  # TODO: undocumented
+
+
+def clear_global_variables() -> None:
+    BonePropertyGroup.armature_data_name_and_bone_uuid_to_bone_name_cache.clear()
+    HumanoidStructureBonePropertyGroup.pointer_to_bone_name_candidates.clear()

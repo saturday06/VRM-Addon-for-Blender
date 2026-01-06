@@ -1085,3 +1085,8 @@ class Vrm0PropertyGroup(PropertyGroup):
         secondary_animation: (  # type: ignore[no-redef]
             Vrm0SecondaryAnimationPropertyGroup
         )
+
+
+def clear_global_variables() -> None:
+    Vrm0HumanoidPropertyGroup.pointer_to_last_bone_names_str.clear()
+    Vrm0BlendShapeGroupPropertyGroup.frame_change_post_shape_key_updates.clear()

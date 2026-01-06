@@ -17,11 +17,6 @@ last_scene_state: Final[list[int]] = []
 
 
 @persistent
-def load_pre(_unused: object) -> None:
-    last_scene_state.clear()
-
-
-@persistent
 def load_post(_unsed: object) -> None:
     migration.state.blend_file_compatibility_warning_shown = False
     migration.state.blend_file_addon_compatibility_warning_shown = False
@@ -39,3 +34,7 @@ def depsgraph_update_post(_scene: Scene, depsgraph: Depsgraph) -> None:
             # Be careful as this can easily cause recursive calls
             for scene in scenes:
                 get_scene_extension(scene).update_vrm0_material_property_names(context)
+
+
+def clear_global_variables() -> None:
+    last_scene_state.clear()
