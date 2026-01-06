@@ -11,6 +11,7 @@ from bpy.types import (
     AddonPreferences,
     Armature,
     Bone,
+    Context,
     Header,
     KeyingSetInfo,
     Material,
@@ -28,7 +29,7 @@ from bpy.types import (
     VIEW3D_MT_armature_add,
 )
 
-from .common import error_dialog, preferences, scene_watcher, shader
+from .common import error_dialog, preferences, scene_watcher, shader, writable_context
 from .common.debug import cleanse_modules
 from .common.logger import get_logger
 from .common.version import trigger_clear_addon_version_cache
@@ -75,13 +76,10 @@ from .locale.translation_dictionary import translation_dictionary
 logger = get_logger(__name__)
 
 
-def setup(*, load_post: bool) -> None:
-    """Execute setup process when a writable Context becomes available.
-
-    This function is called from the first depsgraph_update_pre() after register(),
-    or from load_post().
-    """
-    context = bpy.context
+def setup_once_when_writable_context_becomes_available(
+    context: Context, *, load_post: bool
+) -> None:
+    """Execute setup process when a writable Context becomes available."""
     if preferences.get_preferences(context).add_mtoon_shader_node_group:
         shader.add_mtoon1_auto_setup_shader_node_group(context)
     migration.migrate_all_objects(context, show_progress=True)
@@ -107,41 +105,6 @@ def load_pre(_unused: object) -> None:
 
 
 @persistent
-def load_post(_unused: object) -> None:
-    if (
-        depsgraph_update_pre_once_if_load_post_is_unavailable
-        in bpy.app.handlers.depsgraph_update_pre
-    ):
-        bpy.app.handlers.depsgraph_update_pre.remove(
-            depsgraph_update_pre_once_if_load_post_is_unavailable
-        )
-
-    setup(load_post=True)
-
-
-@persistent
-def depsgraph_update_pre_once_if_load_post_is_unavailable(_unused: object) -> None:
-    """Execute the same routine as load_post() in depsgraph_update_pre().
-
-    We want to execute the same routine as load_post() when register() is called.
-    However, if we execute it directly in register(), an error will occur in the
-    context of Blender startup; we can avoid the error by executing it in
-    depsgraph_update_pre().
-    """
-    if (
-        depsgraph_update_pre_once_if_load_post_is_unavailable
-        not in bpy.app.handlers.depsgraph_update_pre
-    ):
-        return
-
-    bpy.app.handlers.depsgraph_update_pre.remove(
-        depsgraph_update_pre_once_if_load_post_is_unavailable
-    )
-
-    setup(load_post=False)
-
-
-@persistent
 def depsgraph_update_pre(_unused: object) -> None:
     trigger_clear_addon_version_cache()
 
@@ -149,8 +112,10 @@ def depsgraph_update_pre(_unused: object) -> None:
 @persistent
 def save_pre(_unused: object) -> None:
     # Apply pending changes before saving.
-    depsgraph_update_pre_once_if_load_post_is_unavailable(None)
     context = bpy.context
+    writable_context.trigger_writable_context_becomes_available_once_handlers(
+        context, load_post=False
+    )
     migration.migrate_all_objects(context)
     extension.update_internal_cache(context)
 
@@ -546,11 +511,9 @@ def register() -> None:
     bpy.app.handlers.load_pre.append(load_pre)
     bpy.app.handlers.load_post.append(handler.load_post)
     bpy.app.handlers.load_post.append(mtoon1_handler.load_post)
-    bpy.app.handlers.load_post.append(load_post)
-    bpy.app.handlers.depsgraph_update_pre.append(
-        depsgraph_update_pre_once_if_load_post_is_unavailable
-    )
+    bpy.app.handlers.load_post.append(writable_context.load_post)
     bpy.app.handlers.depsgraph_update_pre.append(depsgraph_update_pre)
+    bpy.app.handlers.depsgraph_update_pre.append(writable_context.depsgraph_update_pre)
     bpy.app.handlers.depsgraph_update_post.append(vrm1_handler.depsgraph_update_post)
     bpy.app.handlers.depsgraph_update_post.append(mtoon1_handler.depsgraph_update_post)
     bpy.app.handlers.depsgraph_update_post.append(handler.depsgraph_update_post)
@@ -563,6 +526,9 @@ def register() -> None:
     bpy.app.handlers.frame_change_post.append(vrm1_handler.frame_change_post)
     bpy.app.handlers.depsgraph_update_pre.append(
         spring_bone1_handler.depsgraph_update_pre
+    )
+    writable_context.register_writable_context_becomes_available_once_handler(
+        setup_once_when_writable_context_becomes_available,
     )
     bpy.app.timers.register(
         scene_watcher.process_scene_watcher_scheduler,
@@ -579,6 +545,7 @@ def unregister() -> None:
 
     if bpy.app.timers.is_registered(scene_watcher.process_scene_watcher_scheduler):
         bpy.app.timers.unregister(scene_watcher.process_scene_watcher_scheduler)
+    writable_context.clear_writable_context_becomes_available_once_handlers()
     bpy.app.handlers.depsgraph_update_pre.remove(
         spring_bone1_handler.depsgraph_update_pre
     )
@@ -592,15 +559,9 @@ def unregister() -> None:
     bpy.app.handlers.depsgraph_update_post.remove(handler.depsgraph_update_post)
     bpy.app.handlers.depsgraph_update_post.remove(mtoon1_handler.depsgraph_update_post)
     bpy.app.handlers.depsgraph_update_post.remove(vrm1_handler.depsgraph_update_post)
+    bpy.app.handlers.depsgraph_update_pre.remove(writable_context.depsgraph_update_pre)
     bpy.app.handlers.depsgraph_update_pre.remove(depsgraph_update_pre)
-    if (
-        depsgraph_update_pre_once_if_load_post_is_unavailable
-        in bpy.app.handlers.depsgraph_update_pre
-    ):
-        bpy.app.handlers.depsgraph_update_pre.remove(
-            depsgraph_update_pre_once_if_load_post_is_unavailable
-        )
-    bpy.app.handlers.load_post.remove(load_post)
+    bpy.app.handlers.load_post.remove(writable_context.load_post)
     bpy.app.handlers.load_post.remove(mtoon1_handler.load_post)
     bpy.app.handlers.load_post.remove(handler.load_post)
     bpy.app.handlers.load_pre.remove(load_pre)
