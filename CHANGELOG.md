@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.17.8](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.7...v3.17.8) (2026-01-06)
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug where expression names might not be set correctly ([49c10c4](https://github.com/saturday06/VRM-Addon-for-Blender/commit/49c10c487d04a482f38300ca4c202ad0f011a7a9))
+
 ## [3.17.7](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.6...v3.17.7) (2026-01-05)
 
 
