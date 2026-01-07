@@ -2552,7 +2552,7 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
                 human_bone.node.bone_name = bone_name
                 break
 
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+        Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
             context, armature_data.name, force=True
         )
         return {"FINISHED"}
@@ -2743,7 +2743,7 @@ class VRM_OT_show_vrm0_bone_assignment_diagnostics(Operator):
                 HumanBoneSpecifications.get(human_bone_name)
             )
 
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+        Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
             context, armature_data.name
         )
         HumanoidStructureBonePropertyGroup.find_bone_candidates(

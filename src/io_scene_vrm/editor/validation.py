@@ -122,7 +122,7 @@ class WM_OT_vrm_validator(Operator):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         humanoid = get_armature_extension(armature_data).vrm0.humanoid
-        humanoid.update_all_node_candidates(context, armature_data.name)
+        humanoid.update_all_bone_name_candidates(context, armature_data.name)
         for human_bone in humanoid.human_bones:
             if (
                 not human_bone.node.bone_name
@@ -154,7 +154,7 @@ class WM_OT_vrm_validator(Operator):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
-        human_bones.update_all_node_candidates(context, armature_data.name)
+        human_bones.update_all_bone_name_candidates(context, armature_data.name)
         for (
             human_bone_name,
             human_bone,

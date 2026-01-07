@@ -205,7 +205,9 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
     human_bones.pop("last_bone_names", None)
     human_bones.pop("last_bone_names_str", None)
     Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
-    Vrm1HumanBonesPropertyGroup.update_all_node_candidates(context, armature_data.name)
+    Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
+        context, armature_data.name
+    )
 
     if human_bones.initial_automatic_bone_assignment:
         human_bones.initial_automatic_bone_assignment = False
@@ -268,7 +270,7 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
                     morph_target_bind.node.mesh_object_name
                 )
 
-    Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+    Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
         context,
         armature_data.name,
         force=True,

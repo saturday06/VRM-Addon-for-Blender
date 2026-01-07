@@ -440,8 +440,12 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
 
 def update_internal_cache(context: Context) -> None:
     for armature in context.blend_data.armatures:
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(context, armature.name)
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(context, armature.name)
+        Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
+            context, armature.name
+        )
+        Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
+            context, armature.name
+        )
         expressions = get_armature_extension(armature).vrm1.expressions
         expressions.fill_missing_expression_names()
         ops.vrm.update_vrm1_expression_ui_list_elements()

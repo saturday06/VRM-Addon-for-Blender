@@ -2277,7 +2277,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             head_bone.parent = spine_bone
             head_bone_name = deepcopy(head_bone.name)
 
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+        Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
             context, armature_data.name
         )
 
@@ -2330,7 +2330,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 human_bone.node.bone_name = bone_name
             else:
                 human_bone.node.bone_name = ""
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+        Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
             context, armature_data.name
         )
         with save_workspace(context, armature_object, mode="EDIT"):

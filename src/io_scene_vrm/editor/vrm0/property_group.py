@@ -52,7 +52,7 @@ logger = get_logger(__name__)
 
 
 class Vrm0HumanoidBoneNodePropertyGroup(HumanoidStructureBonePropertyGroup):
-    def update_node_candidates(
+    def update_bone_name_candidates(
         self,
         armature_data: Armature,
         target: HumanBoneSpecification,
@@ -205,7 +205,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         return True
 
     @staticmethod
-    def update_all_node_candidates(
+    def update_all_bone_name_candidates(
         context: Context,
         armature_data_name: str,
         *,
@@ -235,7 +235,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
             return
         pointer_to_last_bone_names_str[pointer_key] = bone_names_str
 
-        HumanoidStructureBonePropertyGroup.update_all_vrm0_node_candidates(
+        HumanoidStructureBonePropertyGroup.update_all_vrm0_bone_name_candidates(
             armature_data
         )
 

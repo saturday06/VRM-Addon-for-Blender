@@ -429,11 +429,11 @@ class BonePropertyGroup(PropertyGroup):
                     collider.reset_bpy_object(context, armature_object)
 
         if bone_property_group_type == BonePropertyGroupType.VRM0_HUMAN:
-            HumanoidStructureBonePropertyGroup.update_all_vrm0_node_candidates(
+            HumanoidStructureBonePropertyGroup.update_all_vrm0_bone_name_candidates(
                 armature_data
             )
         if bone_property_group_type == BonePropertyGroupType.VRM1_HUMAN:
-            HumanoidStructureBonePropertyGroup.update_all_vrm1_node_candidates(
+            HumanoidStructureBonePropertyGroup.update_all_vrm1_bone_name_candidates(
                 armature_data
             )
 
@@ -501,11 +501,11 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
             armature_data = self.find_armature()
             bone_property_group_type = self.get_bone_property_group_type()
             if bone_property_group_type == BonePropertyGroupType.VRM0_HUMAN:
-                HumanoidStructureBonePropertyGroup.update_all_vrm0_node_candidates(
+                HumanoidStructureBonePropertyGroup.update_all_vrm0_bone_name_candidates(
                     armature_data
                 )
             elif bone_property_group_type == BonePropertyGroupType.VRM1_HUMAN:
-                HumanoidStructureBonePropertyGroup.update_all_vrm1_node_candidates(
+                HumanoidStructureBonePropertyGroup.update_all_vrm1_bone_name_candidates(
                     armature_data
                 )
         return bone_name_candidates
@@ -743,7 +743,7 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
         return {bone_cancidate.name for bone_cancidate in bone_candidates}
 
     @staticmethod
-    def update_all_vrm0_node_candidates(armature_data: Armature) -> None:
+    def update_all_vrm0_bone_name_candidates(armature_data: Armature) -> None:
         from .extension import get_armature_extension
 
         ext = get_armature_extension(armature_data)
@@ -767,13 +767,13 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
             vrm0_human_bone.HumanBoneSpecifications.HIPS
         ]
         error_bpy_bone_names = []
-        node_candidates_updated = True
+        bone_name_candidates_updated = True
         while traversing_human_bone_specifications:
             traversing_human_bone_specification = (
                 traversing_human_bone_specifications.pop()
             )
 
-            if node_candidates_updated:
+            if bone_name_candidates_updated:
                 error_bpy_bone_names = [
                     error_human_bone.node.bone_name
                     for error_human_bone in ext.vrm0.humanoid.human_bones
@@ -801,11 +801,13 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
                 (None, None),
             )
             if human_bone and human_bone_name:
-                node_candidates_updated = human_bone.node.update_node_candidates(
-                    armature_data,
-                    vrm0_human_bone.HumanBoneSpecifications.get(human_bone_name),
-                    bpy_bone_name_to_human_bone_specification,
-                    error_bpy_bone_names,
+                bone_name_candidates_updated = (
+                    human_bone.node.update_bone_name_candidates(
+                        armature_data,
+                        vrm0_human_bone.HumanBoneSpecifications.get(human_bone_name),
+                        bpy_bone_name_to_human_bone_specification,
+                        error_bpy_bone_names,
+                    )
                 )
 
             traversing_human_bone_specifications.extend(
@@ -813,7 +815,7 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
             )
 
     @staticmethod
-    def update_all_vrm1_node_candidates(armature_data: Armature) -> None:
+    def update_all_vrm1_bone_name_candidates(armature_data: Armature) -> None:
         from .extension import get_armature_extension
 
         ext = get_armature_extension(armature_data)
@@ -837,13 +839,13 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
             vrm1_human_bone.HumanBoneSpecifications.HIPS
         ]
         error_bpy_bone_names = []
-        node_candidates_updated = True
+        bone_name_candidates_updated = True
         while traversing_human_bone_specifications:
             traversing_human_bone_specification = (
                 traversing_human_bone_specifications.pop()
             )
 
-            if node_candidates_updated:
+            if bone_name_candidates_updated:
                 error_bpy_bone_names = [
                     error_human_bone.node.bone_name
                     for error_human_bone in human_bone_name_to_human_bone.values()
@@ -859,7 +861,7 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
             human_bone = human_bone_name_to_human_bone[
                 traversing_human_bone_specification.name
             ]
-            node_candidates_updated = human_bone.node.update_node_candidates(
+            bone_name_candidates_updated = human_bone.node.update_bone_name_candidates(
                 armature_data,
                 traversing_human_bone_specification,
                 bpy_bone_name_to_human_bone_specification,

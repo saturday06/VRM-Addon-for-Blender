@@ -169,7 +169,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                 pass
             elif get_armature_extension(armature_data).is_vrm0():
                 Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-                Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+                Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
                     context, armature_data.name
                 )
                 humanoid = get_armature_extension(armature_data).vrm0.humanoid
@@ -187,7 +187,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                     )
             elif get_armature_extension(armature_data).is_vrm1():
                 Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
-                Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+                Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
                     context, armature_data.name
                 )
                 human_bones = get_armature_extension(
@@ -506,7 +506,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
             return {"CANCELLED"}
         if get_armature_extension(armature_data).is_vrm0():
             Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-            Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+            Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
                 context, armature_data.name
             )
             humanoid = get_armature_extension(armature_data).vrm0.humanoid
@@ -514,7 +514,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
                 return {"CANCELLED"}
         elif get_armature_extension(armature_data).is_vrm1():
             Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
-            Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+            Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
                 context, armature_data.name
             )
             human_bones = get_armature_extension(

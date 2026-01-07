@@ -542,7 +542,7 @@ def migrate_link_to_bone_object(
         if link_to_bone.parent is not None:
             link_to_bone.parent = None
 
-    Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+    Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
         context,
         armature_data.name,
         force=True,
@@ -717,7 +717,7 @@ def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None
     migrate_auto_pose(context, armature_data)
     migrate_saved_mesh_object_name_to_restore(context, armature_data)
 
-    Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+    Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
         context,
         armature_data.name,
         force=True,

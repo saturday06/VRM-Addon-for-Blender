@@ -1800,7 +1800,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+        Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
             context, armature_data.name
         )
         human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
@@ -1808,7 +1808,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
         bones = armature_data.bones
 
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+        Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
             context, armature_data.name
         )
         vrm0_humanoid = get_armature_extension(armature_data).vrm0.humanoid
@@ -1855,7 +1855,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
                 human_bone.node.bone_name = bone_name
                 break
 
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+        Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
             context, armature_data.name, force=True
         )
         return {"FINISHED"}
@@ -2707,7 +2707,7 @@ class VRM_OT_show_vrm1_bone_assignment_diagnostics(Operator):
             and bpy_bone_name not in human_bone.node.bone_name_candidates
         ]
 
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+        Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
             context, armature_data.name
         )
         HumanoidStructureBonePropertyGroup.find_bone_candidates(

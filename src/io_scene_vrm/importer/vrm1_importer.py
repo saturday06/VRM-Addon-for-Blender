@@ -511,7 +511,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             return
         addon_extension = get_armature_extension(self.armature_data)
 
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+        Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
             self.context, self.armature_data.name, force=True
         )
 

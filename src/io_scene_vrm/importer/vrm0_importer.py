@@ -1301,7 +1301,7 @@ def setup_bones(context: Context, armature: Object) -> None:
     addon_extension = get_armature_extension(armature_data)
 
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-    Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+    Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
         context,
         armature_data.name,
         force=True,

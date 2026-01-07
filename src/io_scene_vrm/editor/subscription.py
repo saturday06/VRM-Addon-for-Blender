@@ -139,10 +139,10 @@ def on_change_bpy_bone_name() -> None:
         ):
             continue
 
-        vrm0_property_group.Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+        vrm0_property_group.Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
             context, armature.name
         )
-        vrm1_property_group.Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+        vrm1_property_group.Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
             context, armature.name
         )
 
