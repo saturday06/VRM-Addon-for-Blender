@@ -211,8 +211,8 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
                 HIERARCHY_MODE_FLEXIBLE,
                 "Flexible",
                 "Allow flexible bone assignments without strict hierarchy."
-                + " The exporter will temporarily restructure bones"
-                + " to match VRM specification during export",
+                + " Bones will be exported with their actual Blender hierarchy."
+                + " Use this mode when working with rigs that don't match VRM hierarchy",
                 "UNLOCKED",
                 1,
             ),
