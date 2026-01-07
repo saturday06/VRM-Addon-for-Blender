@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.17.9](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.8...v3.17.9) (2026-01-07)
+
+
+### 🐛 Bug Fixes
+
+* optimize bone mapping generation performance ([188c5cf](https://github.com/saturday06/VRM-Addon-for-Blender/commit/188c5cf390943a351b5f63fdc59c61dc3ee01c4d))
+
 ## [3.17.8](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.7...v3.17.8) (2026-01-06)
 
 ### 🚀 Improvements
