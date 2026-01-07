@@ -173,7 +173,6 @@ class VRM_OT_load_human_bone_mappings(Operator, ImportHelper):
                 continue
             if not isinstance(bpy_bone_name, str):
                 continue
-            # INFO@MICROSOFT.COM
             found = False
             for human_bone in get_armature_extension(
                 armature_data
