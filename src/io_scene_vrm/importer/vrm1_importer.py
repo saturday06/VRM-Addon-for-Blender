@@ -1302,8 +1302,6 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         if not isinstance(expressions_dict, dict):
             return
 
-        expressions.fill_missing_expression_names()
-
         preset_dict = expressions_dict.get("preset")
         if isinstance(preset_dict, dict):
             for (

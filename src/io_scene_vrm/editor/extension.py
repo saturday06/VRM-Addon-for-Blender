@@ -22,7 +22,6 @@ from bpy.types import (
 )
 from mathutils import Matrix, Quaternion
 
-from ..common import ops
 from ..common.logger import get_logger
 from ..common.preferences import VrmAddonPreferences
 from .mtoon1.property_group import Mtoon1MaterialPropertyGroup
@@ -446,10 +445,6 @@ def update_internal_cache(context: Context) -> None:
         Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
             context, armature.name
         )
-        expressions = get_armature_extension(armature).vrm1.expressions
-        expressions.fill_missing_expression_names()
-        ops.vrm.update_vrm1_expression_ui_list_elements()
-    VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(context)
 
 
 class VrmAddonMaterialExtensionPropertyGroup(PropertyGroup):
