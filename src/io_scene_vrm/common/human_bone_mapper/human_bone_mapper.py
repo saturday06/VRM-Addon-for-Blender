@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import re
 from collections.abc import Mapping
+from functools import cache
 from typing import Optional
 
 from bpy.types import Armature, Bone, Object
@@ -24,6 +25,7 @@ from . import (
 logger = get_logger(__name__)
 
 
+@cache
 def canonicalize_bone_name(bone_name: str) -> str:
     bone_name = "".join(FULLWIDTH_ASCII_TO_ASCII_MAP.get(c, c) for c in bone_name)
     bone_name = re.sub(r"([a-z])([A-Z])", r"\1.\2", bone_name)
@@ -173,7 +175,9 @@ def create_human_bone_mapping(
             ]
         ]
     )[-1]
+    result = {}
     if required_count:
         logger.debug('Treat as "%s" bone mappings', name)
-        return sorted_required_first(armature_data, mapping)
-    return {}
+        result = sorted_required_first(armature_data, mapping)
+    canonicalize_bone_name.cache_clear()
+    return result
