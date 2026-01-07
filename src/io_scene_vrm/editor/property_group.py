@@ -534,8 +534,8 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
             # This allows reassignment of the same bone
             candidates = {
                 bone.name for bone in bones.values()
-                if bone.name not in assigned_bone_names or
-                bpy_bone_name_to_human_bone_specification.get(bone.name) == target
+                if (bone.name not in assigned_bone_names
+                    or bpy_bone_name_to_human_bone_specification.get(bone.name) == target)
             }
             if diagnostics_layout:
                 diagnostics_layout.label(
@@ -771,7 +771,7 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
 
         ext = get_armature_extension(armature_data)
         flexible_mode = (
-            ext.vrm0.humanoid.hierarchy_mode 
+            ext.vrm0.humanoid.hierarchy_mode
             == ext.vrm0.humanoid.HIERARCHY_MODE_FLEXIBLE
         )
 
@@ -848,7 +848,7 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
 
         ext = get_armature_extension(armature_data)
         flexible_mode = (
-            ext.vrm1.humanoid.human_bones.hierarchy_mode 
+            ext.vrm1.humanoid.human_bones.hierarchy_mode
             == ext.vrm1.humanoid.human_bones.HIERARCHY_MODE_FLEXIBLE
         )
 
