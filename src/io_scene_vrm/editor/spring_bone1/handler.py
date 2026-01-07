@@ -753,12 +753,10 @@ def sort_spring_bone_joints(
 
     # Check if it's sorted and return as-is if already sorted.
     # This is logically unnecessary but done for simulation efficiency.
-    already_sorted = True
     sorted_pose_bones: list[PoseBone] = []
     for joint in joints:
         joint_bone = bones.get(joint.node.bone_name)
         if not joint_bone:
-            already_sorted = False
             break
         if not sorted_pose_bones:
             sorted_pose_bones.append(joint_bone)
@@ -767,17 +765,13 @@ def sort_spring_bone_joints(
         sorted_pose_bones.append(joint_bone)
 
         traversing_bone = joint_bone.parent
-        connected = False
         while traversing_bone:
             if traversing_bone == parent_bone:
-                connected = True
                 break
             traversing_bone = traversing_bone.parent
-        if not connected:
-            already_sorted = False
+        else:
             break
-
-    if already_sorted:
+    else:
         return [zip(joints, sorted_pose_bones)]
 
     # Perform sorting

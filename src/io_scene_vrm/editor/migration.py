@@ -205,14 +205,12 @@ def validate_blend_file_addon_compatibility(context: Context) -> None:
     installed_addon_version = get_addon_version()
 
     # TODO: It might be better to store the version in Scene or similar
-    up_to_date = True
     file_addon_version: tuple[int, ...] = (0, 0, 0)
     for armature in context.blend_data.armatures:
         file_addon_version = tuple(get_armature_extension(armature).addon_version)
         if file_addon_version > installed_addon_version:
-            up_to_date = False
             break
-    if up_to_date:
+    else:
         return
 
     file_addon_version_str = ".".join(map(str, file_addon_version))
