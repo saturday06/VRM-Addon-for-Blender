@@ -380,6 +380,11 @@ def draw_vrm0_humanoid_layout(
                 translate=False,
             )
 
+    hierarchy_box = armature_box.box()
+    hierarchy_column = hierarchy_box.row().column()
+    hierarchy_column.label(text="Bone Hierarchy", icon="CONSTRAINT_BONE")
+    hierarchy_column.prop(humanoid, "hierarchy_mode", text="Mode")
+
     draw_vrm0_humanoid_operators_layout(armature, armature_box)
 
     if ops.VRM_OT_simplify_vroid_bones.vroid_bones_exist(data):
