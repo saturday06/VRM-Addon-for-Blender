@@ -16,6 +16,8 @@ jobs:
   test-windows:
     name: test-windows / ${{ matrix.blender.job_name_postfix }}
     runs-on: windows-2025
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -74,6 +76,8 @@ jobs:
   test-macos:
     name: test-macos / ${{ matrix.blender.job_name_postfix }}
     runs-on: macos-15
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -135,6 +139,8 @@ jobs:
   test-linux:
     name: test-linux / ${{ matrix.blender.job_name_postfix }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:

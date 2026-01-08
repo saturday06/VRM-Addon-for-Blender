@@ -13,6 +13,9 @@ on:
 jobs:
   benchmark:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    if: ${{ github.repository_visibility == 'public' }}
     timeout-minutes: 720
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
