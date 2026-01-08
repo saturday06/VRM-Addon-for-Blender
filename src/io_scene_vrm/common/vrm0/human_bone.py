@@ -189,31 +189,31 @@ class HumanBoneSpecification:
     label_no_left_right: str
     requirement: bool
     parent_name: Optional[HumanBoneName]
-    children_names: list[HumanBoneName]
+    children_names: tuple[HumanBoneName, ...]
 
     def parent(self) -> Optional["HumanBoneSpecification"]:
         if self.parent_name is None:
             return None
         return HumanBoneSpecifications.get(self.parent_name)
 
-    def children(self) -> list["HumanBoneSpecification"]:
-        return list(map(HumanBoneSpecifications.get, self.children_names))
+    def children(self) -> tuple["HumanBoneSpecification", ...]:
+        return tuple(map(HumanBoneSpecifications.get, self.children_names))
 
-    def descendants(self) -> list["HumanBoneSpecification"]:
+    def descendants(self) -> tuple["HumanBoneSpecification", ...]:
         result: list[HumanBoneSpecification] = []
-        searching_children = self.children()
+        searching_children = list(self.children())
         while searching_children:
             child = searching_children.pop()
             result.append(child)
             searching_children.extend(child.children())
-        return result
+        return tuple(result)
 
-    def connected(self) -> list["HumanBoneSpecification"]:
+    def connected(self) -> tuple["HumanBoneSpecification", ...]:
         children = self.children()
         parent = self.parent()
         if parent is None:
             return children
-        return [*children, parent]
+        return (*children, parent)
 
     @staticmethod
     def create(
@@ -265,13 +265,13 @@ class HumanBoneSpecification:
     def find_children_human_bone_names(
         human_bone_name: HumanBoneName,
         human_bone_structure: HumanBoneStructure,
-    ) -> list[HumanBoneName]:
+    ) -> tuple[HumanBoneName, ...]:
         for (
             next_human_bone_name,
             next_human_bone_structure,
         ) in human_bone_structure.items():
             if human_bone_name == next_human_bone_name:
-                return list(next_human_bone_structure.keys())
+                return tuple(next_human_bone_structure.keys())
 
             children = HumanBoneSpecification.find_children_human_bone_names(
                 human_bone_name, next_human_bone_structure
@@ -279,7 +279,7 @@ class HumanBoneSpecification:
             if children:
                 return children
 
-        return []
+        return ()
 
     def is_ancestor_of(
         self, human_bone_specification: "HumanBoneSpecification"
