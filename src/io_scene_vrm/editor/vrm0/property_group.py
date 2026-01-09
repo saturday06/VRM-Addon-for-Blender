@@ -463,12 +463,19 @@ class Vrm0FirstPersonPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L18-L30
 class Vrm0BlendShapeBindPropertyGroup(PropertyGroup):
+    def update_preview(self, context: Context) -> None:
+        if not isinstance(armature_data := self.id_data, Armature):
+            return
+        Vrm0BlendShapeGroupPropertyGroup.apply_previews(context, armature_data)
+
     mesh: PointerProperty(  # type: ignore[valid-type]
         name="Mesh",
         type=MeshObjectPropertyGroup,
+        update=update_preview,
     )
     index: StringProperty(  # type: ignore[valid-type]
-        name="Index"
+        name="Index",
+        update=update_preview,
     )
     weight: FloatProperty(  # type: ignore[valid-type]
         name="Weight",
@@ -476,6 +483,7 @@ class Vrm0BlendShapeBindPropertyGroup(PropertyGroup):
         default=1,
         max=1,
         subtype="FACTOR",
+        update=update_preview,
     )
 
     if TYPE_CHECKING:
@@ -554,10 +562,6 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
     material_values: CollectionProperty(  # type: ignore[valid-type]
         type=Vrm0MaterialValueBindPropertyGroup,
         name="Material Values",
-    )
-    is_binary: BoolProperty(  # type: ignore[valid-type]
-        name="Is Binary",
-        description="Use binary change in the blendshape group",
     )
 
     # for UI
@@ -701,6 +705,12 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
         set=set_preview,
     )
 
+    is_binary: BoolProperty(  # type: ignore[valid-type]
+        name="Is Binary",
+        description="Use binary change in the blendshape group",
+        update=update_preview,
+    )
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
@@ -712,10 +722,10 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
         material_values: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm0MaterialValueBindPropertyGroup
         ]
-        is_binary: bool  # type: ignore[no-redef]
         active_bind_index: int  # type: ignore[no-redef]
         active_material_value_index: int  # type: ignore[no-redef]
         preview: float  # type: ignore[no-redef]
+        is_binary: bool  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L10-L18

@@ -949,15 +949,23 @@ class Vrm1FirstPersonPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.morphTargetBind.schema.json
 class Vrm1MorphTargetBindPropertyGroup(PropertyGroup):
+    def update_preview(self, context: Context) -> None:
+        if not isinstance(armature_data := self.id_data, Armature):
+            return
+        Vrm1ExpressionPropertyGroup.apply_previews(context, armature_data)
+
     node: PointerProperty(  # type: ignore[valid-type]
-        type=MeshObjectPropertyGroup
+        type=MeshObjectPropertyGroup,
+        update=update_preview,
     )
     index: StringProperty(  # type: ignore[valid-type]
+        update=update_preview,
     )
     weight: FloatProperty(  # type: ignore[valid-type]
         min=0,
         default=1,
         max=1,
+        update=update_preview,
     )
 
     if TYPE_CHECKING:
@@ -1067,9 +1075,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
     texture_transform_binds: CollectionProperty(  # type: ignore[valid-type]
         type=Vrm1TextureTransformBindPropertyGroup
     )
-    is_binary: BoolProperty(  # type: ignore[valid-type]
-        name="Is Binary"
-    )
+
     materials_to_update: CollectionProperty(  # type: ignore[valid-type]
         type=MaterialPropertyGroup, options={"HIDDEN"}
     )
@@ -1233,6 +1239,10 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
                     continue
                 key_block.value = value
 
+    is_binary: BoolProperty(  # type: ignore[valid-type]
+        name="Is Binary",
+        update=update_preview,
+    )
     override_blink: EnumProperty(  # type: ignore[valid-type]
         name="Override Blink",
         items=expression_override_type_enum.items(),
@@ -1333,10 +1343,10 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         texture_transform_binds: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm1TextureTransformBindPropertyGroup
         ]
-        is_binary: bool  # type: ignore[no-redef]
         materials_to_update: CollectionPropertyProtocol[  # type: ignore[no-redef]
             MaterialPropertyGroup
         ]
+        is_binary: bool  # type: ignore[no-redef]
         override_blink: str  # type: ignore[no-redef]
         override_look_at: str  # type: ignore[no-redef]
         override_mouth: str  # type: ignore[no-redef]
