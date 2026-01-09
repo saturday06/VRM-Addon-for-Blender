@@ -780,4 +780,18 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "https://github.com/vrm-c/vrm-specification/blob/c24d76d99a18738dd2c266be1c83f089064a7b5e/specification/VRMC_vrm-1.0/humanoid.md#humanoid-bone-parent-child-relationship",
     ): "https://github.com/vrm-c/vrm-specification/blob/c24d76d99a18738dd2c266be1c83f089064a7b5e/specification/VRMC_vrm-1.0/humanoid.ja.md#ヒューマノイドボーンの親子関係",
     ("Operator", "Restore Shape Key Assignments"): "シェイプキーの割り当てを復元する",
+    (
+        "Operator",
+        "Assign Auto-Detected Shape Keys",
+    ): "自動検出されたシェイプキーを割り当て",
+    ("Operator", "Assign VRChat Shape Keys"): "VRChatシェイプキーを割り当て",
+    ("Operator", "Assign MMD Shape Keys"): "MMDのシェイプキーを割り当て",
+    (
+        "Operator",
+        "Assign Ready Player Me Shape Keys",
+    ): "Ready Player Meのシェイプキーを割り当て",
+    (
+        "Operator",
+        "Add ARkit / PerfectSync Custom Expressions",
+    ): "ARkit / PerfectSyncのカスタムExpressionを追加",
 }

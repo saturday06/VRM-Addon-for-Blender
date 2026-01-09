@@ -1593,6 +1593,10 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
     )
     active_expression_ui_list_element_index: IntProperty(min=0)  # type: ignore[valid-type]
 
+    initial_automatic_expression_assignment: BoolProperty(  # type: ignore[valid-type]
+        default=True
+    )
+
     def restore_expression_morph_target_bind_object_assignments(
         self, context: Context
     ) -> None:
@@ -1622,6 +1626,7 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
             StringPropertyGroup
         ]
         active_expression_ui_list_element_index: int  # type: ignore[no-redef]
+        initial_automatic_expression_assignment: bool  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.meta.schema.json

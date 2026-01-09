@@ -15,6 +15,7 @@ from bpy.types import (
     Event,
     FCurve,
     Material,
+    Mesh,
     Node,
     NodeSocket,
     NodeTree,
@@ -32,12 +33,25 @@ from bpy.types import (
 from ...common import ops, shader
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
 from ...common.logger import get_logger
+from ...common.shape_key_mapper.arkit_mapping import (
+    ARKIT_SHAPE_KEYS,
+    VRM1_PRESET_TO_ARKIT_SHAPE_KEY_MAPPING,
+)
+from ...common.shape_key_mapper.mmd_mapping import VRM1_PRESET_TO_MMD_SHAPE_KEY_MAPPING
+from ...common.shape_key_mapper.ready_player_me_mapping import (
+    VRM1_PRESET_TO_READY_PLAYER_ME_SHAPE_KEY_MAPPING,
+)
+from ...common.shape_key_mapper.vrchat_mapping import (
+    VRM1_PRESET_TO_VRCHAT_SHAPE_KEY_MAPPING,
+)
 from ...common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
+from ...common.vrm1.expression_preset import ExpressionPreset
 from ...common.vrm1.human_bone import (
     HumanBoneName,
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
+from .. import search
 from ..extension import get_armature_extension
 from ..menu import VRM_MT_bone_assignment
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
@@ -1244,6 +1258,271 @@ class VRM_OT_restore_vrm1_expression_morph_target_bind_object(Operator):
         expressions = get_armature_extension(armature_data).vrm1.expressions
         expressions.restore_expression_morph_target_bind_object_assignments(context)
         return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+
+
+def add_shape_keys_to_vrm1_expressions(
+    context: Context,
+    armature_object_name: str,
+    shape_key_mapping: Mapping[ExpressionPreset, Sequence[Mapping[str, float]]],
+) -> set[str]:
+    armature = context.blend_data.objects.get(armature_object_name)
+    if armature is None or armature.type != "ARMATURE":
+        return {"CANCELLED"}
+    armature_data = armature.data
+    if not isinstance(armature_data, Armature):
+        return {"CANCELLED"}
+
+    mesh_object_name_and_key_block_names = [
+        (obj.name, key_block.name)
+        for obj in search.export_objects(
+            context,
+            armature_object_name,
+            export_invisibles=True,
+            export_only_selections=False,
+            export_lights=False,
+        )
+        if isinstance(mesh_data := obj.data, Mesh)
+        and (shape_keys := mesh_data.shape_keys)
+        and (key_blocks := shape_keys.key_blocks)
+        for key_block in key_blocks
+    ]
+    existing_key_block_names = [
+        key_block_name for _, key_block_name in mesh_object_name_and_key_block_names
+    ]
+    expressions = get_armature_extension(armature_data).vrm1.expressions
+    for expression_preset, key_block_name_to_weights in shape_key_mapping.items():
+        expression = next(
+            (
+                expression
+                for (
+                    searching_preset,
+                    expression,
+                ) in expressions.preset.expression_preset_and_expressions()
+                if searching_preset == expression_preset
+            ),
+            None,
+        )
+        if expression is None:
+            continue
+
+        for match_all in (True, False):
+            for key_block_name_to_weight in key_block_name_to_weights:
+                if expression.morph_target_binds:
+                    continue
+
+                if match_all and not all(
+                    key_block_name in existing_key_block_names
+                    for key_block_name in key_block_name_to_weight.keys()
+                ):
+                    continue
+
+                for mesh_object_name, key_block_name, weight in [
+                    (mesh_object_name, key_block_name, weight)
+                    for key_block_name, weight in key_block_name_to_weight.items()
+                    for mesh_object_name, searching_key_block_name in (
+                        mesh_object_name_and_key_block_names
+                    )
+                    if key_block_name == searching_key_block_name
+                ]:
+                    morph_target_bind = expression.morph_target_binds.add()
+                    morph_target_bind.node.mesh_object_name = mesh_object_name
+                    morph_target_bind.index = key_block_name
+                    morph_target_bind.weight = weight
+
+    return ops.vrm.update_vrm1_expression_ui_list_elements()
+
+
+class VRM_OT_assign_vrm1_expressions_automatically(Operator):
+    bl_idname = "vrm.assign_vrm1_expressions_automatically"
+    bl_label = "Assign Auto-Detected Shape Keys"
+    bl_description = "Assign VRM 1.0 expressions automatically"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        for mapping in [
+            VRM1_PRESET_TO_VRCHAT_SHAPE_KEY_MAPPING,
+            VRM1_PRESET_TO_MMD_SHAPE_KEY_MAPPING,
+            VRM1_PRESET_TO_READY_PLAYER_ME_SHAPE_KEY_MAPPING,
+            VRM1_PRESET_TO_ARKIT_SHAPE_KEY_MAPPING,
+        ]:
+            add_shape_keys_to_vrm1_expressions(
+                context,
+                self.armature_object_name,
+                mapping,
+            )
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+
+
+class VRM_OT_assign_vrm1_vrchat_expressions(Operator):
+    bl_idname = "vrm.assign_vrm1_vrchat_expressions"
+    bl_label = "Assign VRChat Shape Keys"
+    bl_description = "Assign VRChat shape keys as VRM 1.0 Expressions"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        return add_shape_keys_to_vrm1_expressions(
+            context,
+            self.armature_object_name,
+            VRM1_PRESET_TO_VRCHAT_SHAPE_KEY_MAPPING,
+        )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+
+
+class VRM_OT_assign_vrm1_mmd_expressions(Operator):
+    bl_idname = "vrm.assign_vrm1_mmd_expressions"
+    bl_label = "Assign MMD Shape Keys"
+    bl_description = "Assign MMD shape keys as VRM 1.0 Expressions"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        return add_shape_keys_to_vrm1_expressions(
+            context,
+            self.armature_object_name,
+            VRM1_PRESET_TO_MMD_SHAPE_KEY_MAPPING,
+        )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+
+
+class VRM_OT_assign_vrm1_ready_player_me_expressions(Operator):
+    bl_idname = "vrm.assign_vrm1_ready_player_me_expressions"
+    bl_label = "Assign Ready Player Me Shape Keys"
+    bl_description = "Assign Ready Player Me (ARKit) shape keys as VRM 1.0 Expressions"
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        add_shape_keys_to_vrm1_expressions(
+            context,
+            self.armature_object_name,
+            VRM1_PRESET_TO_READY_PLAYER_ME_SHAPE_KEY_MAPPING,
+        )
+        return add_shape_keys_to_vrm1_expressions(
+            context,
+            self.armature_object_name,
+            VRM1_PRESET_TO_ARKIT_SHAPE_KEY_MAPPING,
+        )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+
+
+class VRM_OT_add_vrm1_arkit_custom_expressions(Operator):
+    bl_idname = "vrm.add_vrm1_arkit_custom_expressions"
+    bl_label = "Add ARkit / PerfectSync Custom Expressions"
+    bl_description = (
+        "Add Apple ARKit (Perfect Sync) shape keys as VRM 1.0 Custom Expressions"
+    )
+    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_object_name)
+        if armature is None or armature.type != "ARMATURE":
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+
+        expressions = get_armature_extension(armature_data).vrm1.expressions
+
+        # Collect existing shape keys from meshes
+        existing_shape_keys: dict[str, list[tuple[str, str]]] = {}
+        for obj in search.export_objects(
+            context,
+            self.armature_object_name,
+            export_invisibles=True,
+            export_only_selections=False,
+            export_lights=False,
+        ):
+            if not isinstance(mesh_data := obj.data, Mesh):
+                continue
+            if not (shape_keys := mesh_data.shape_keys):
+                continue
+            if not (key_blocks := shape_keys.key_blocks):
+                continue
+
+            for key_block in key_blocks:
+                if key_block.name not in existing_shape_keys:
+                    existing_shape_keys[key_block.name] = []
+                existing_shape_keys[key_block.name].append((obj.name, key_block.name))
+
+        # Create Custom Expression for all 52 ARKit shape keys
+        for arkit_shape_key_name in ARKIT_SHAPE_KEYS:
+            # Check if Expression with the same name already exists
+            expression = None
+            for custom_expression in expressions.custom:
+                if custom_expression.custom_name == arkit_shape_key_name:
+                    expression = custom_expression
+                    break
+
+            # Create new Expression if it doesn't exist
+            if expression is None:
+                expression = expressions.custom.add()
+                expression.custom_name = arkit_shape_key_name
+
+            # Add morph_target_binds only for shape keys that exist in meshes
+            if arkit_shape_key_name in existing_shape_keys:
+                for mesh_object_name, key_block_name in existing_shape_keys[
+                    arkit_shape_key_name
+                ]:
+                    # Check if the same bind already exists
+                    if any(
+                        morph_target_bind.node.mesh_object_name == mesh_object_name
+                        and morph_target_bind.index == key_block_name
+                        for morph_target_bind in expression.morph_target_binds
+                    ):
+                        continue
+
+                    # Add morph_target_bind
+                    morph_target_bind = expression.morph_target_binds.add()
+                    morph_target_bind.node.mesh_object_name = mesh_object_name
+                    morph_target_bind.index = key_block_name
+                    morph_target_bind.weight = 1.0
+
+        add_shape_keys_to_vrm1_expressions(
+            context,
+            self.armature_object_name,
+            VRM1_PRESET_TO_ARKIT_SHAPE_KEY_MAPPING,
+        )
+        return ops.vrm.update_vrm1_expression_ui_list_elements()
 
     if TYPE_CHECKING:
         # This code is auto generated.

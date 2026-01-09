@@ -26,6 +26,7 @@ from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 from ...common import convert, shader
 from ...common.logger import get_logger
 from ...common.preferences import get_preferences
+from ...common.shader import MmdMaterial
 from .. import search
 from ..extension import get_material_extension
 from .property_group import (
@@ -109,6 +110,40 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
         node, legacy_shader_name = search.legacy_shader_node(material)
         if isinstance(node, Node) and legacy_shader_name == "MToon_unversioned":
             self.convert_mtoon_unversioned_to_mtoon1(context, material, node)
+            return
+
+        mmd_material = MmdMaterial.try_parse(material)
+        if mmd_material:
+            reset_shader_node_group(
+                context,
+                material,
+                reset_material_node_tree=True,
+                reset_node_groups=False,
+            )
+
+            gltf = get_material_extension(material).mtoon1
+            mtoon = gltf.extensions.vrmc_materials_mtoon
+            if texture := mmd_material.texture:
+                gltf.pbr_metallic_roughness.base_color_texture.index.source = texture
+                mtoon.shade_multiply_texture.index.source = texture
+                gltf.pbr_metallic_roughness.base_color_factor = (
+                    0,
+                    0,
+                    0,
+                    mmd_material.alpha,
+                )
+            else:
+                gltf.pbr_metallic_roughness.base_color_factor = (
+                    mmd_material.diffuse_color[0],
+                    mmd_material.diffuse_color[1],
+                    mmd_material.diffuse_color[2],
+                    mmd_material.alpha,
+                )
+            gltf.double_sided = mmd_material.double_sided
+            if mmd_material.alpha < 1.0:
+                gltf.alpha_mode = (
+                    Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND.identifier
+                )
             return
 
         principled_bsdf = PrincipledBSDFWrapper(material)

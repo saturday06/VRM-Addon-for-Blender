@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import uuid
 import warnings
+from collections.abc import Mapping
 from collections.abc import Set as AbstractSet
 from typing import TYPE_CHECKING
 
 from bpy.app.translations import pgettext
 from bpy.props import IntProperty, StringProperty
-from bpy.types import Armature, Context, Event, Object, Operator, UILayout
+from bpy.types import Armature, Context, Event, Mesh, Object, Operator, UILayout
 
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
 from ...common.logger import get_logger
@@ -15,6 +16,7 @@ from ...common.vrm0.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
+from .. import search
 from ..extension import get_armature_extension
 from ..menu import VRM_MT_bone_assignment
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
@@ -952,6 +954,68 @@ class VRM_OT_restore_vrm0_blend_shape_group_bind_object(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
+
+
+def add_shape_keys_to_vrm0_blend_shapes(
+    context: Context,
+    armature_object_name: str,
+    shape_key_mapping: Mapping[str, str],
+) -> set[str]:
+    armature = context.blend_data.objects.get(armature_object_name)
+    if armature is None or armature.type != "ARMATURE":
+        return {"CANCELLED"}
+    armature_data = armature.data
+    if not isinstance(armature_data, Armature):
+        return {"CANCELLED"}
+
+    blend_shape_master = get_armature_extension(armature_data).vrm0.blend_shape_master
+
+    for mesh_object_name, key_block_name in [
+        (obj.name, key_block.name)
+        for obj in search.export_objects(
+            context,
+            armature_object_name,
+            export_invisibles=True,
+            export_only_selections=False,
+            export_lights=False,
+        )
+        if isinstance(mesh_data := obj.data, Mesh)
+        and (shape_keys := mesh_data.shape_keys)
+        and (key_blocks := shape_keys.key_blocks)
+        for key_block in key_blocks
+    ]:
+        preset_name = shape_key_mapping.get(key_block_name)
+        if preset_name is None:
+            continue
+
+        blend_shape_group = None
+        for search_blend_shape_group in blend_shape_master.blend_shape_groups:
+            if search_blend_shape_group.preset_name == preset_name:
+                blend_shape_group = search_blend_shape_group
+                break
+        if blend_shape_group is None:
+            blend_shape_group = blend_shape_master.blend_shape_groups.add()
+            blend_shape_group.name = key_block_name
+            blend_shape_group.preset_name = preset_name
+
+        bind = next(
+            (
+                bind
+                for bind in blend_shape_group.binds
+                if bind.mesh.mesh_object_name == mesh_object_name
+            ),
+            None,
+        )
+        if bind:
+            if bind.index:
+                continue
+        else:
+            bind = blend_shape_group.binds.add()
+            bind.mesh.mesh_object_name = mesh_object_name
+        bind.index = key_block_name
+        bind.weight = 1.0
+
+    return {"FINISHED"}
 
 
 class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(Operator):

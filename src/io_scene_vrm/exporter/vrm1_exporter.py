@@ -35,6 +35,7 @@ from ..common import convert, safe_removal, shader
 from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.convert import Json
 from ..common.deep import make_json
+from ..common.gl import GL_LINEAR, GL_REPEAT
 from ..common.gltf import pack_glb, parse_glb
 from ..common.logger import get_logger
 from ..common.preferences import ExportPreferencesProtocol
@@ -43,6 +44,7 @@ from ..common.rotation import (
     get_rotation_as_quaternion,
     set_rotation_without_mode_change,
 )
+from ..common.shader import MmdMaterial
 from ..common.version import get_addon_version
 from ..common.vrm1.human_bone import HumanBoneName
 from ..common.workspace import save_workspace
@@ -1675,6 +1677,80 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         return material_dict
 
     @classmethod
+    def create_mmd_material_dict(
+        cls,
+        _context: Context,
+        json_dict: dict[str, Json],
+        buffer0: bytearray,
+        material: Material,
+        mmd_material: MmdMaterial,
+        image_name_to_index_dict: dict[str, int],
+        gltf2_addon_export_settings: dict[str, object],
+    ) -> dict[str, Json]:
+        material_dict: dict[str, Json] = {
+            "name": material.name,
+        }
+        if mmd_material.double_sided:
+            material_dict["doubleSided"] = True
+        if mmd_material.alpha < 1.0:
+            material_dict["alphaMode"] = "BLEND"
+
+        if texture_image := mmd_material.texture:
+            pbr_metallic_roughness_dict: dict[str, Json] = {
+                "baseColorFactor": [0, 0, 0, mmd_material.alpha],
+            }
+            image_index = cls.find_or_create_image(
+                json_dict,
+                buffer0,
+                image_name_to_index_dict,
+                texture_image,
+                gltf2_addon_export_settings,
+            )
+
+            sampler_dict: dict[str, Json] = {
+                "magFilter": GL_LINEAR,
+                "minFilter": GL_LINEAR,
+                "wrapS": GL_REPEAT,
+                "wrapT": GL_REPEAT,
+            }
+            sampler_dicts = json_dict.get("samplers")
+            if not isinstance(sampler_dicts, list):
+                sampler_dicts = []
+                json_dict["samplers"] = sampler_dicts
+            if sampler_dict in sampler_dicts:
+                sampler_index = sampler_dicts.index(sampler_dict)
+            else:
+                sampler_index = len(sampler_dicts)
+                sampler_dicts.append(sampler_dict)
+
+            texture_dicts = json_dict.get("textures")
+            if not isinstance(texture_dicts, list):
+                texture_dicts = []
+                json_dict["textures"] = texture_dicts
+
+            texture_dict: dict[str, Json] = {
+                "sampler": sampler_index,
+                "source": image_index,
+            }
+
+            if texture_dict in texture_dicts:
+                texture_index = texture_dicts.index(texture_dict)
+            else:
+                texture_index = len(texture_dicts)
+                texture_dicts.append(texture_dict)
+
+            texture_info: dict[str, Json] = {"index": texture_index}
+            material_dict["emissiveTexture"] = texture_info
+            material_dict["emissiveFactor"] = [1.0, 1.0, 1.0]
+        else:
+            pbr_metallic_roughness_dict = {
+                "baseColorFactor": [*mmd_material.diffuse_color, mmd_material.alpha]
+            }
+
+        material_dict["pbrMetallicRoughness"] = pbr_metallic_roughness_dict
+        return material_dict
+
+    @classmethod
     def create_mtoon_unversioned_material_dict(
         cls,
         context: Context,
@@ -2015,9 +2091,22 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 )
                 continue
 
+            mmd_material = MmdMaterial.try_parse(material)
+            if mmd_material:
+                material_dicts[index] = cls.create_mmd_material_dict(
+                    context,
+                    json_dict,
+                    buffer0,
+                    material,
+                    mmd_material,
+                    image_name_to_index_dict,
+                    gltf2_addon_export_settings,
+                )
+                continue
+
             # MToon_unversioned (MToon for VRM 0.0)
-            node, legacy_shader_name = search.legacy_shader_node(material)
-            if not isinstance(node, Node):
+            legacy_shader_node, legacy_shader_name = search.legacy_shader_node(material)
+            if not isinstance(legacy_shader_node, Node):
                 continue
             if legacy_shader_name == "MToon_unversioned":
                 material_dicts[index] = cls.create_mtoon_unversioned_material_dict(
@@ -2025,7 +2114,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     json_dict,
                     buffer0,
                     material,
-                    node,
+                    legacy_shader_node,
                     image_name_to_index_dict,
                     gltf2_addon_export_settings,
                 )
@@ -2035,7 +2124,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     json_dict,
                     buffer0,
                     material,
-                    node,
+                    legacy_shader_node,
                     image_name_to_index_dict,
                     gltf2_addon_export_settings,
                 )
@@ -2046,7 +2135,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         json_dict,
                         buffer0,
                         material,
-                        node,
+                        legacy_shader_node,
                         image_name_to_index_dict,
                         gltf2_addon_export_settings,
                     )

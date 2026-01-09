@@ -26,7 +26,6 @@ from bpy.types import (
     Object,
     PoseBone,
     ShaderNodeGroup,
-    ShaderNodeTexImage,
     ShapeKey,
 )
 from mathutils import Matrix, Vector
@@ -45,10 +44,10 @@ from ..common.gltf import (
     FLOAT_NEGATIVE_MAX,
     FLOAT_POSITIVE_MAX,
 )
-from ..common.legacy_gltf import TEXTURE_INPUT_NAMES
 from ..common.logger import get_logger
 from ..common.mtoon_unversioned import MtoonUnversioned
 from ..common.progress import Progress, create_progress
+from ..common.shader import MmdMaterial
 from ..common.version import get_addon_version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..common.workspace import save_workspace
@@ -1961,6 +1960,88 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         vrm_material_property_dict["vectorProperties"] = make_json(vector_properties)
         vrm_material_property_dict["textureProperties"] = make_json(texture_properties)
 
+    def write_mmd_material(
+        self,
+        _progress: Progress,
+        texture_dicts: list[dict[str, Json]],
+        sampler_dicts: list[dict[str, Json]],
+        image_dicts: list[dict[str, Json]],
+        buffer_view_dicts: list[dict[str, Json]],
+        _extensions_used: list[str],
+        buffer0: bytearray,
+        image_name_to_image_index: dict[str, int],
+        material: Material,
+        material_dict: dict[str, Json],
+        vrm_material_property_dict: dict[str, Json],
+        mmd_material: MmdMaterial,
+    ) -> None:
+        material_dict |= make_json_dict(
+            {
+                "name": material.name,
+            }
+        )
+        if mmd_material.double_sided:
+            material_dict["doubleSided"] = True
+        if mmd_material.alpha < 1.0:
+            material_dict["alphaMode"] = "BLEND"
+
+        if texture_image := mmd_material.texture:
+            pbr_metallic_roughness_dict: dict[str, Json] = {
+                "baseColorFactor": [0, 0, 0, mmd_material.alpha],
+            }
+            image_index = self.find_or_create_image(
+                image_dicts,
+                buffer_view_dicts,
+                buffer0,
+                image_name_to_image_index,
+                texture_image,
+            )
+
+            sampler_dict: dict[str, Json] = {
+                "magFilter": GL_LINEAR,
+                "minFilter": GL_LINEAR,
+                "wrapS": GL_REPEAT,
+                "wrapT": GL_REPEAT,
+            }
+            if sampler_dict in sampler_dicts:
+                sampler_index = sampler_dicts.index(sampler_dict)
+            else:
+                sampler_index = len(sampler_dicts)
+                sampler_dicts.append(sampler_dict)
+
+            texture_dict: dict[str, Json] = {
+                "sampler": sampler_index,
+                "source": image_index,
+            }
+
+            if texture_dict in texture_dicts:
+                texture_index = texture_dicts.index(texture_dict)
+            else:
+                texture_index = len(texture_dicts)
+                texture_dicts.append(texture_dict)
+
+            texture_info: dict[str, Json] = {"index": texture_index}
+            material_dict["emissiveTexture"] = texture_info
+            material_dict["emissiveFactor"] = [1.0, 1.0, 1.0]
+        else:
+            pbr_metallic_roughness_dict = {
+                "baseColorFactor": [*mmd_material.diffuse_color, mmd_material.alpha]
+            }
+
+        material_dict["pbrMetallicRoughness"] = pbr_metallic_roughness_dict
+
+        vrm_material_property_dict |= make_json_dict(
+            {
+                "name": material.name,
+                "shader": "VRM_USE_GLTFSHADER",
+                "keywordMap": {},
+                "tagMap": {},
+                "floatProperties": {},
+                "vectorProperties": {},
+                "textureProperties": {},
+            }
+        )
+
     def write_gltf_material(
         self,
         _progress: Progress,
@@ -2249,6 +2330,24 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 material_dict,
                 vrm_material_property_dict,
                 legacy_shader_node_group,
+            )
+            return
+
+        mmd_material = MmdMaterial.try_parse(material)
+        if mmd_material:
+            self.write_mmd_material(
+                progress,
+                texture_dicts,
+                sampler_dicts,
+                image_dicts,
+                buffer_view_dicts,
+                extensions_used,
+                buffer0,
+                image_name_to_image_index,
+                material,
+                material_dict,
+                vrm_material_property_dict,
+                mmd_material,
             )
             return
 
@@ -3430,82 +3529,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             self.leave_clear_shape_key_values(
                 self.context, mesh_name_and_shape_key_name_to_value
             )
-
-    def get_legacy_shader_images(self, material: Material) -> Sequence[Image]:
-        node, legacy_shader_name = search.legacy_shader_node(material)
-        if not node or not legacy_shader_name:
-            return []
-
-        images: list[Image] = []
-        if legacy_shader_name == "MToon_unversioned":
-            for (
-                raw_input_socket_name
-            ) in MtoonUnversioned.texture_kind_exchange_dict.values():
-                # Support models that were loaded by earlier versions
-                # (1.3.5 or earlier), which had this typo
-                #
-                # Those models have node.inputs["NomalmapTexture"] instead of
-                # "NormalmapTexture". But 'shader_vals' which comes from
-                # MaterialMtoon.texture_kind_exchange_dict is "NormalmapTexture".
-                # if script reference node.inputs["NormalmapTexture"] in that
-                # situation, it will occur error. So change it to "NomalmapTexture"
-                # which is typo but points to the same thing in those models.
-                if (
-                    raw_input_socket_name == "NormalmapTexture"
-                    and "NormalmapTexture" not in node.inputs
-                    and "NomalmapTexture" in node.inputs
-                ):
-                    input_socket_name = "NomalmapTexture"
-                elif raw_input_socket_name == "ReceiveShadow_Texture":
-                    input_socket_name = "ReceiveShadow_Texture_alpha"
-                else:
-                    input_socket_name = raw_input_socket_name
-
-                input_socket = node.inputs.get(input_socket_name)
-                if not input_socket:
-                    continue
-
-                image_node = shader.search_input_node(input_socket, ShaderNodeTexImage)
-                if not image_node:
-                    continue
-
-                image = image_node.image
-                if not image:
-                    continue
-
-                images.append(image)
-        elif legacy_shader_name == "GLTF":
-            for input_socket_name in TEXTURE_INPUT_NAMES:
-                input_socket = node.inputs.get(input_socket_name)
-                if not input_socket:
-                    continue
-
-                image_node = shader.search_input_node(input_socket, ShaderNodeTexImage)
-                if not image_node:
-                    continue
-
-                image = image_node.image
-                if not image:
-                    continue
-
-                images.append(image)
-
-        elif legacy_shader_name == "TRANSPARENT_ZWRITE":
-            input_socket = node.inputs.get("Main_Texture")
-            if not input_socket:
-                return []
-
-            image_node = shader.search_input_node(input_socket, ShaderNodeTexImage)
-            if not image_node:
-                return []
-
-            image = image_node.image
-            if not image:
-                return []
-
-            return [image]
-
-        return list(dict.fromkeys(images).keys())  # Remove duplicates
 
     def create_gltf2_io_texture(
         self,

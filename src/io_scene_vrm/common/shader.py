@@ -4,6 +4,7 @@ import random
 import string
 import time
 from copy import deepcopy
+from dataclasses import dataclass
 from pathlib import Path
 from sys import float_info
 from typing import Final, Optional, TypeVar, Union
@@ -13,6 +14,7 @@ from bpy.types import (
     Context,
     Driver,
     FCurve,
+    Image,
     Material,
     Node,
     NodeFrame,
@@ -2048,3 +2050,118 @@ def search_input_node(
             searching_node_sockets.extend(from_node.inputs)
 
     return None
+
+
+@dataclass(frozen=True)
+class MmdMaterial:
+    texture: Optional[Image]
+    sphere_texture: Optional[Image]
+    toon_texture: Optional[Image]
+    diffuse_color: tuple[float, float, float]
+    double_sided: bool
+    alpha: float
+
+    @classmethod
+    def find_mmd_shader_node_group(
+        cls, node_tree: NodeTree
+    ) -> Optional[ShaderNodeGroup]:
+        # Search for a ShaderNodeGroup named "mmd_shader" that has a NodeTree
+        # named "MMDShaderDev".
+        # https://github.com/MMD-Blender/blender_mmd_tools/blob/0845cf64aa4928ff7a5b7b52fff5a9bf8c681338/mmd_tools/core/material.py#L622-L628
+        # https://github.com/MMD-Blender/blender_mmd_tools/blob/0845cf64aa4928ff7a5b7b52fff5a9bf8c681338/mmd_tools/core/material.py#L521-L529
+        for node in node_tree.nodes:
+            if node.mute:
+                continue
+
+            if not isinstance(node, ShaderNodeOutputMaterial):
+                continue
+
+            surface_socket = node.inputs.get("Surface")
+            if not surface_socket:
+                continue
+
+            links = surface_socket.links
+            if not links:
+                continue
+
+            link = links[0]
+            if not link.is_valid or link.is_muted:
+                continue
+
+            group_node = link.from_node
+            if group_node.mute:
+                continue
+
+            if not isinstance(group_node, ShaderNodeGroup):
+                continue
+
+            if group_node.name != "mmd_shader":
+                continue
+
+            group_node_tree = group_node.node_tree
+            if not group_node_tree:
+                continue
+
+            if group_node_tree.name != "MMDShaderDev":
+                continue
+
+            return group_node
+        return None
+
+    @classmethod
+    def try_parse(cls, material: Material) -> Optional["MmdMaterial"]:
+        if bpy.app.version < (5, 0, 0) and not material.use_nodes:
+            return None
+        node_tree = material.node_tree
+        if not node_tree:
+            return None
+        shader_node_group = cls.find_mmd_shader_node_group(node_tree)
+        if not shader_node_group:
+            return None
+
+        # https://github.com/MMD-Blender/blender_mmd_tools/blob/0845cf64aa4928ff7a5b7b52fff5a9bf8c681338/mmd_tools/core/material.py#L220-L221
+        texture_node = node_tree.nodes.get("mmd_base_tex")
+        if isinstance(texture_node, ShaderNodeTexImage):
+            texture_image = texture_node.image
+        else:
+            texture_image = None
+
+        # https://github.com/MMD-Blender/blender_mmd_tools/blob/0845cf64aa4928ff7a5b7b52fff5a9bf8c681338/mmd_tools/core/material.py#L536
+        if isinstance(
+            diffuse_input := shader_node_group.inputs.get("Diffuse Color"),
+            COLOR_SOCKET_CLASSES,
+        ):
+            diffuse_color = (
+                max(0, min(diffuse_input.default_value[0], 1.0)),
+                max(0, min(diffuse_input.default_value[1], 1.0)),
+                max(0, min(diffuse_input.default_value[2], 1.0)),
+            )
+        else:
+            diffuse_color = (1.0, 1.0, 1.0)
+
+        # https://github.com/MMD-Blender/blender_mmd_tools/blob/0845cf64aa4928ff7a5b7b52fff5a9bf8c681338/mmd_tools/core/material.py#L539
+        if isinstance(
+            alpha_input := shader_node_group.inputs.get("Alpha"),
+            SCALAR_SOCKET_CLASSES,
+        ):
+            alpha = convert.float_or(alpha_input.default_value, 1.0, 0.0, 1.0)
+        else:
+            alpha = 1.0
+
+        # https://github.com/MMD-Blender/blender_mmd_tools/blob/0845cf64aa4928ff7a5b7b52fff5a9bf8c681338/mmd_tools/core/material.py#L540
+        if isinstance(
+            double_sided_input := shader_node_group.inputs.get("Double Sided"),
+            SCALAR_SOCKET_CLASSES,
+        ):
+            double_sided = bool(double_sided_input.default_value)
+        else:
+            double_sided = False
+
+        return MmdMaterial(
+            texture=texture_image,
+            sphere_texture=None,
+            toon_texture=None,
+            diffuse_color=diffuse_color,
+            double_sided=double_sided,
+            alpha=alpha,
+        )
