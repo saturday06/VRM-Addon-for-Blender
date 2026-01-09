@@ -13,6 +13,7 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
+    if: ${{ github.repository_visibility == 'public' }}
     steps:
       - uses: actions/stale@997185467fa4f803885201cee163a9f38240193d # v10.1.1
         with:
