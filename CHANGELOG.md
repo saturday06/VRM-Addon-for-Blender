@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.18.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.9...v3.18.0) (2026-01-09)
+
+
+### 🚀 Features
+
+* enhanced support for reading well-known models such as VRC, MMD, and RPM ([73a39c5](https://github.com/saturday06/VRM-Addon-for-Blender/commit/73a39c59d976dbcff463efa6c0ed6b12523d69b7))
+
 ## [3.17.9](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.8...v3.17.9) (2026-01-07)
 
 
