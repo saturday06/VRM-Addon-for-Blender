@@ -2,7 +2,6 @@
 import math
 import sys
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
 from sys import float_info
 from typing import TYPE_CHECKING, ClassVar, Optional
 
@@ -35,6 +34,10 @@ from ...common.animation import is_animation_playing
 from ...common.char import DISABLE_TRANSLATION
 from ...common.logger import get_logger
 from ...common.rotation import set_rotation_without_mode_change
+from ...common.vrm1.expression_preset import (
+    ExpressionPreset,
+    ExpressionPresets,
+)
 from ...common.vrm1.human_bone import (
     HumanBoneName,
     HumanBoneSpecification,
@@ -1397,15 +1400,6 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
         custom_name: str  # type: ignore[no-redef]
 
 
-@dataclass(frozen=True)
-class ExpressionPreset:
-    name: str
-    icon: str
-    mouth: bool
-    blink: bool
-    look_at: bool
-
-
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.schema.json
 class Vrm1ExpressionsPresetPropertyGroup(PropertyGroup):
     happy: PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
@@ -1432,111 +1426,75 @@ class Vrm1ExpressionsPresetPropertyGroup(PropertyGroup):
     ) -> tuple[tuple[ExpressionPreset, Vrm1ExpressionPropertyGroup], ...]:
         return (
             (
-                ExpressionPreset(
-                    "happy", "HEART", mouth=False, blink=False, look_at=False
-                ),
+                ExpressionPresets.HAPPY,
                 self.happy,
             ),
             (
-                ExpressionPreset(
-                    "angry", "ORPHAN_DATA", mouth=False, blink=False, look_at=False
-                ),
+                ExpressionPresets.ANGRY,
                 self.angry,
             ),
             (
-                ExpressionPreset(
-                    "sad", "MOD_FLUIDSIM", mouth=False, blink=False, look_at=False
-                ),
+                ExpressionPresets.SAD,
                 self.sad,
             ),
             (
-                ExpressionPreset(
-                    "relaxed", "LIGHT_SUN", mouth=False, blink=False, look_at=False
-                ),
+                ExpressionPresets.RELAXED,
                 self.relaxed,
             ),
             (
-                ExpressionPreset(
-                    "surprised", "LIGHT_SUN", mouth=False, blink=False, look_at=False
-                ),
+                ExpressionPresets.SURPRISED,
                 self.surprised,
             ),
             (
-                ExpressionPreset(
-                    "neutral", "VIEW_ORTHO", mouth=False, blink=False, look_at=False
-                ),
+                ExpressionPresets.NEUTRAL,
                 self.neutral,
             ),
             (
-                ExpressionPreset(
-                    "aa", "EVENT_A", mouth=True, blink=False, look_at=False
-                ),
+                ExpressionPresets.AA,
                 self.aa,
             ),
             (
-                ExpressionPreset(
-                    "ih", "EVENT_I", mouth=True, blink=False, look_at=False
-                ),
+                ExpressionPresets.IH,
                 self.ih,
             ),
             (
-                ExpressionPreset(
-                    "ou", "EVENT_U", mouth=True, blink=False, look_at=False
-                ),
+                ExpressionPresets.OU,
                 self.ou,
             ),
             (
-                ExpressionPreset(
-                    "ee", "EVENT_E", mouth=True, blink=False, look_at=False
-                ),
+                ExpressionPresets.EE,
                 self.ee,
             ),
             (
-                ExpressionPreset(
-                    "oh", "EVENT_O", mouth=True, blink=False, look_at=False
-                ),
+                ExpressionPresets.OH,
                 self.oh,
             ),
             (
-                ExpressionPreset(
-                    "blink", "HIDE_ON", mouth=False, blink=True, look_at=False
-                ),
+                ExpressionPresets.BLINK,
                 self.blink,
             ),
             (
-                ExpressionPreset(
-                    "blinkLeft", "HIDE_ON", mouth=False, blink=True, look_at=False
-                ),
+                ExpressionPresets.BLINK_LEFT,
                 self.blink_left,
             ),
             (
-                ExpressionPreset(
-                    "blinkRight", "HIDE_ON", mouth=False, blink=True, look_at=False
-                ),
+                ExpressionPresets.BLINK_RIGHT,
                 self.blink_right,
             ),
             (
-                ExpressionPreset(
-                    "lookUp", "ANCHOR_TOP", mouth=False, blink=False, look_at=True
-                ),
+                ExpressionPresets.LOOK_UP,
                 self.look_up,
             ),
             (
-                ExpressionPreset(
-                    "lookDown", "ANCHOR_BOTTOM", mouth=False, blink=False, look_at=True
-                ),
+                ExpressionPresets.LOOK_DOWN,
                 self.look_down,
             ),
             (
-                ExpressionPreset(
-                    "lookLeft", "ANCHOR_RIGHT", mouth=False, blink=False, look_at=True
-                ),
+                ExpressionPresets.LOOK_LEFT,
                 self.look_left,
             ),
             (
-                ExpressionPreset(
-                    "lookRight", "ANCHOR_LEFT", mouth=False, blink=False, look_at=True
-                ),
+                ExpressionPresets.LOOK_RIGHT,
                 self.look_right,
             ),
         )

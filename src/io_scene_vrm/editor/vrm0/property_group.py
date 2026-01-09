@@ -34,6 +34,10 @@ from ...common.vrm0.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
+from ...common.vrm1.expression_preset import (
+    VRM0_PRESET_UNKNOWN,
+    ExpressionPresets,
+)
 from ..property_group import (
     BonePropertyGroup,
     FloatPropertyGroup,
@@ -530,24 +534,24 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
     )
 
     preset_name_enum, (PRESET_NAME_UNKNOWN, *__preset_names) = property_group_enum(
-        ("unknown", "Unknown", "", "SHAPEKEY_DATA", 0),
-        ("neutral", "Neutral", "", "VIEW_ORTHO", 1),
-        ("a", "A", "", "EVENT_A", 2),
-        ("i", "I", "", "EVENT_I", 3),
-        ("u", "U", "", "EVENT_U", 4),
-        ("e", "E", "", "EVENT_E", 5),
-        ("o", "O", "", "EVENT_O", 6),
-        ("blink", "Blink", "", "HIDE_ON", 7),
-        ("joy", "Joy", "", "HEART", 8),
-        ("angry", "Angry", "", "ORPHAN_DATA", 9),
-        ("sorrow", "Sorrow", "", "MOD_FLUIDSIM", 10),
-        ("fun", "Fun", "", "LIGHT_SUN", 11),
-        ("lookup", "Look Up", "", "ANCHOR_TOP", 12),
-        ("lookdown", "Look Down", "", "ANCHOR_BOTTOM", 13),
-        ("lookleft", "Look Left", "", "ANCHOR_RIGHT", 14),
-        ("lookright", "Look Right", "", "ANCHOR_LEFT", 15),
-        ("blink_l", "Blink_L", "", "HIDE_ON", 16),
-        ("blink_r", "Blink_R", "", "HIDE_ON", 17),
+        (VRM0_PRESET_UNKNOWN, "Unknown", "", "SHAPEKEY_DATA", 0),
+        (ExpressionPresets.NEUTRAL.vrm0_preset, "Neutral", "", "VIEW_ORTHO", 1),
+        (ExpressionPresets.AA.vrm0_preset, "A", "", "EVENT_A", 2),
+        (ExpressionPresets.IH.vrm0_preset, "I", "", "EVENT_I", 3),
+        (ExpressionPresets.OU.vrm0_preset, "U", "", "EVENT_U", 4),
+        (ExpressionPresets.EE.vrm0_preset, "E", "", "EVENT_E", 5),
+        (ExpressionPresets.OH.vrm0_preset, "O", "", "EVENT_O", 6),
+        (ExpressionPresets.BLINK.vrm0_preset, "Blink", "", "HIDE_ON", 7),
+        (ExpressionPresets.HAPPY.vrm0_preset, "Joy", "", "HEART", 8),
+        (ExpressionPresets.ANGRY.vrm0_preset, "Angry", "", "ORPHAN_DATA", 9),
+        (ExpressionPresets.SAD.vrm0_preset, "Sorrow", "", "MOD_FLUIDSIM", 10),
+        (ExpressionPresets.RELAXED.vrm0_preset, "Fun", "", "LIGHT_SUN", 11),
+        (ExpressionPresets.LOOK_UP.vrm0_preset, "Look Up", "", "ANCHOR_TOP", 12),
+        (ExpressionPresets.LOOK_DOWN.vrm0_preset, "Look Down", "", "ANCHOR_BOTTOM", 13),
+        (ExpressionPresets.LOOK_LEFT.vrm0_preset, "Look Left", "", "ANCHOR_RIGHT", 14),
+        (ExpressionPresets.LOOK_RIGHT.vrm0_preset, "Look Right", "", "ANCHOR_LEFT", 15),
+        (ExpressionPresets.BLINK_LEFT.vrm0_preset, "Blink_L", "", "HIDE_ON", 16),
+        (ExpressionPresets.BLINK_RIGHT.vrm0_preset, "Blink_R", "", "HIDE_ON", 17),
     )
 
     preset_name: EnumProperty(  # type: ignore[valid-type]
