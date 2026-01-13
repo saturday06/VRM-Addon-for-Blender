@@ -381,7 +381,7 @@ class WM_OT_vrm_validator(Operator):
                         ) in vrm1_human_bone.HumanBoneSpecifications.all_human_bones:
                             if not human_bone_specification.parent_requirement:
                                 continue
-                            parent = human_bone_specification.parent()
+                            parent = human_bone_specification.parent
                             if parent is None:
                                 message = (
                                     f"Fatal: {human_bone_specification.name} has"

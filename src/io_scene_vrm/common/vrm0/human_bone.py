@@ -5,6 +5,7 @@ import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum
+from functools import cached_property
 from typing import ClassVar, Optional
 
 
@@ -191,29 +192,25 @@ class HumanBoneSpecification:
     parent_name: Optional[HumanBoneName]
     children_names: tuple[HumanBoneName, ...]
 
+    @cached_property
     def parent(self) -> Optional["HumanBoneSpecification"]:
         if self.parent_name is None:
             return None
         return HumanBoneSpecifications.get(self.parent_name)
 
+    @cached_property
     def children(self) -> tuple["HumanBoneSpecification", ...]:
         return tuple(map(HumanBoneSpecifications.get, self.children_names))
 
+    @cached_property
     def descendants(self) -> tuple["HumanBoneSpecification", ...]:
         result: list[HumanBoneSpecification] = []
-        searching_children = list(self.children())
+        searching_children = list(self.children)
         while searching_children:
             child = searching_children.pop()
             result.append(child)
-            searching_children.extend(child.children())
+            searching_children.extend(child.children)
         return tuple(result)
-
-    def connected(self) -> tuple["HumanBoneSpecification", ...]:
-        children = self.children()
-        parent = self.parent()
-        if parent is None:
-            return children
-        return (*children, parent)
 
     @staticmethod
     def create(
@@ -284,11 +281,11 @@ class HumanBoneSpecification:
     def is_ancestor_of(
         self, human_bone_specification: "HumanBoneSpecification"
     ) -> bool:
-        parent = human_bone_specification.parent()
+        parent = human_bone_specification.parent
         while parent:
             if parent == self:
                 return True
-            parent = parent.parent()
+            parent = parent.parent
         return False
 
 

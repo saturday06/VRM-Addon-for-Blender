@@ -356,7 +356,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
             if not parent:
                 logger.error("No parent for '%s' in dict", name)
                 continue
-            parent_specification = specification.parent()
+            parent_specification = specification.parent
             if not parent_specification:
                 logger.error("No parent specification for '%s'", name)
                 continue

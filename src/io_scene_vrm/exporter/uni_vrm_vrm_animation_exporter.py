@@ -77,7 +77,7 @@ def connect_humanoid_node_dicts(
                 parent_node_dict["children"] = children
             children.append(node_index)
         parent_node_dict = current_node_dict
-    for child in human_bone_specification.children():
+    for child in human_bone_specification.children:
         connect_humanoid_node_dicts(
             child,
             human_bone_name_to_node_dict,
@@ -114,7 +114,7 @@ def create_node_dicts(
                     node_dicts,
                     bone_name_to_node_index,
                 )
-                for child in human_bone_specification.children()
+                for child in human_bone_specification.children
             ],
             list[int](),
         )
@@ -146,7 +146,7 @@ def create_node_dicts(
             create_node_dicts(
                 armature, human_bones, child, bone, node_dicts, bone_name_to_node_index
             )
-            for child in human_bone_specification.children()
+            for child in human_bone_specification.children
         ],
         list[int](),
     )
@@ -710,7 +710,7 @@ def set_frame_rotations(
 
     bone = armature.pose.bones.get(human_bone.node.bone_name)
     if not bone:
-        for child in human_bone_specification.children():
+        for child in human_bone_specification.children:
             set_frame_rotations(
                 armature,
                 human_bones,
@@ -730,7 +730,7 @@ def set_frame_rotations(
         bone_name_to_quaternions[bone.name] = quaternions
     quaternions.append(quaternion)
 
-    for child in human_bone_specification.children():
+    for child in human_bone_specification.children:
         set_frame_rotations(
             armature,
             human_bones,

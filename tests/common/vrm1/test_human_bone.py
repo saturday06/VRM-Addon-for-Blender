@@ -33,14 +33,14 @@ class TestVrm1HumanBone(TestCase):
 
     def test_parent(self) -> None:
         self.assertEqual(vrm1_human_bone.HumanBoneSpecifications.HIPS.parent_name, None)
-        self.assertEqual(vrm1_human_bone.HumanBoneSpecifications.HIPS.parent(), None)
+        self.assertEqual(vrm1_human_bone.HumanBoneSpecifications.HIPS.parent, None)
 
         self.assertEqual(
             vrm1_human_bone.HumanBoneSpecifications.RIGHT_TOES.parent_name,
             vrm1_human_bone.HumanBoneName.RIGHT_FOOT,
         )
         self.assertEqual(
-            vrm1_human_bone.HumanBoneSpecifications.RIGHT_TOES.parent(),
+            vrm1_human_bone.HumanBoneSpecifications.RIGHT_TOES.parent,
             vrm1_human_bone.HumanBoneSpecifications.RIGHT_FOOT,
         )
 
@@ -49,7 +49,7 @@ class TestVrm1HumanBone(TestCase):
             vrm1_human_bone.HumanBoneName.UPPER_CHEST,
         )
         self.assertEqual(
-            vrm1_human_bone.HumanBoneSpecifications.LEFT_SHOULDER.parent(),
+            vrm1_human_bone.HumanBoneSpecifications.LEFT_SHOULDER.parent,
             vrm1_human_bone.HumanBoneSpecifications.UPPER_CHEST,
         )
 
@@ -58,7 +58,7 @@ class TestVrm1HumanBone(TestCase):
             vrm1_human_bone.HumanBoneName.UPPER_CHEST,
         )
         self.assertEqual(
-            vrm1_human_bone.HumanBoneSpecifications.NECK.parent(),
+            vrm1_human_bone.HumanBoneSpecifications.NECK.parent,
             vrm1_human_bone.HumanBoneSpecifications.UPPER_CHEST,
         )
 
@@ -72,7 +72,7 @@ class TestVrm1HumanBone(TestCase):
             ),
         )
         self.assertEqual(
-            vrm1_human_bone.HumanBoneSpecifications.HIPS.children(),
+            vrm1_human_bone.HumanBoneSpecifications.HIPS.children,
             (
                 vrm1_human_bone.HumanBoneSpecifications.SPINE,
                 vrm1_human_bone.HumanBoneSpecifications.LEFT_UPPER_LEG,
@@ -84,7 +84,7 @@ class TestVrm1HumanBone(TestCase):
             vrm1_human_bone.HumanBoneSpecifications.RIGHT_TOES.children_names, ()
         )
         self.assertEqual(
-            vrm1_human_bone.HumanBoneSpecifications.RIGHT_TOES.children(), ()
+            vrm1_human_bone.HumanBoneSpecifications.RIGHT_TOES.children, ()
         )
 
         self.assertEqual(
@@ -92,7 +92,7 @@ class TestVrm1HumanBone(TestCase):
             (vrm1_human_bone.HumanBoneName.LEFT_UPPER_ARM,),
         )
         self.assertEqual(
-            vrm1_human_bone.HumanBoneSpecifications.LEFT_SHOULDER.children(),
+            vrm1_human_bone.HumanBoneSpecifications.LEFT_SHOULDER.children,
             (vrm1_human_bone.HumanBoneSpecifications.LEFT_UPPER_ARM,),
         )
 
@@ -105,7 +105,7 @@ class TestVrm1HumanBone(TestCase):
             ),
         )
         self.assertEqual(
-            vrm1_human_bone.HumanBoneSpecifications.UPPER_CHEST.children(),
+            vrm1_human_bone.HumanBoneSpecifications.UPPER_CHEST.children,
             (
                 vrm1_human_bone.HumanBoneSpecifications.NECK,
                 vrm1_human_bone.HumanBoneSpecifications.LEFT_SHOULDER,

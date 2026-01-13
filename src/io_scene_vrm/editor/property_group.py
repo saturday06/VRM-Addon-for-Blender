@@ -535,14 +535,14 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
         # If the target's ancestor has a Human Bone assignment, use that as the
         # search start bone
         searching_bones: Optional[list[Bone]] = None
-        ancestor: Optional[HumanBoneSpecification] = target.parent()
+        ancestor: Optional[HumanBoneSpecification] = target.parent
         while ancestor:
             ancestor_bpy_bone_name = human_bone_name_to_bpy_bone_name.get(ancestor.name)
             if not ancestor_bpy_bone_name or not (
                 ancestor_bpy_bone := bones.get(ancestor_bpy_bone_name)
             ):
                 # If there's no Human Bone assignment, traverse to the parent
-                ancestor = ancestor.parent()
+                ancestor = ancestor.parent
                 continue
 
             if ancestor_bpy_bone.name in error_bpy_bone_names:
@@ -811,7 +811,7 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
                 )
 
             traversing_human_bone_specifications.extend(
-                traversing_human_bone_specification.children()
+                traversing_human_bone_specification.children
             )
 
     @staticmethod
@@ -869,7 +869,7 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
             )
 
             traversing_human_bone_specifications.extend(
-                traversing_human_bone_specification.children()
+                traversing_human_bone_specification.children
             )
 
 

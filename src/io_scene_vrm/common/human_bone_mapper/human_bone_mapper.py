@@ -69,12 +69,12 @@ def match_count(
             continue
 
         parent_specification: Optional[HumanBoneSpecification] = None
-        search_parent_specification = specification.parent()
+        search_parent_specification = specification.parent
         while search_parent_specification:
             if search_parent_specification in mapping.values():
                 parent_specification = search_parent_specification
                 break
-            search_parent_specification = search_parent_specification.parent()
+            search_parent_specification = search_parent_specification.parent
 
         found = False
         bone: Optional[Bone] = bone.parent

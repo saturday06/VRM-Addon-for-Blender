@@ -1460,7 +1460,7 @@ def setup_bones(context: Context, armature: Object) -> None:
                 specification = HumanBoneSpecifications.get(searching_tip_bone_name)
                 if specification.requirement:
                     break
-                parent_specification = specification.parent()
+                parent_specification = specification.parent
                 if not parent_specification:
                     logger.error(
                         'logic error: "%s" has no parent', searching_tip_bone_name
@@ -1470,7 +1470,7 @@ def setup_bones(context: Context, armature: Object) -> None:
                 # Do nothing if there are already assigned bones in the parent's
                 # descendants
                 assigned_parent_descendant_found = False
-                for parent_descendant in parent_specification.descendants():
+                for parent_descendant in parent_specification.descendants:
                     parent_descendant_human_bone = human_bone_name_to_human_bone.get(
                         parent_descendant.name
                     )

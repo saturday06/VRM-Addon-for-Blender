@@ -74,7 +74,7 @@ def connect_humanoid_node_dicts(
                 parent_node_dict["children"] = children
             children.append(node_index)
         parent_node_dict = current_node_dict
-    for child in human_bone_specification.children():
+    for child in human_bone_specification.children:
         connect_humanoid_node_dicts(
             child,
             human_bone_name_to_node_dict,
