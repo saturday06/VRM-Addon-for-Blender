@@ -103,7 +103,7 @@ from .workspace import wm_append_without_library
 
 logger = get_logger(__name__)
 
-LAST_MODIFIED_VERSION: Final = (3, 16, 1)
+LAST_MODIFIED_VERSION: Final = (3, 18, 1)
 
 BOOL_SOCKET_CLASSES: Final = (NodeSocketBool,)
 FLOAT_SOCKET_CLASSES: Final = (
