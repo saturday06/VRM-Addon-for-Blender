@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.18.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.18.0...v3.18.1) (2026-01-15)
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug that caused glTF alpha mask mode material output to fail ([53490f9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/53490f91d3ffa72a47f895b9b911809ee1618227))
+
 ## [3.18.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.9...v3.18.0) (2026-01-09)
 
 
