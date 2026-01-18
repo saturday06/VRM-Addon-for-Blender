@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.19.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.18.1...v3.19.0) (2026-01-18)
+
+
+### 🚀 Features
+
+* structure-based human bone auto assignment ([32cb02b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/32cb02b1f89838115872f214b065d29218c769b1))
+
 ## [3.18.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.18.0...v3.18.1) (2026-01-15)
 
 
