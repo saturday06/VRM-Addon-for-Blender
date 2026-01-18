@@ -2597,10 +2597,36 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         humanoid = get_armature_extension(armature_data).vrm0.humanoid
         bones = armature_data.bones
+
+        default_mapping = {
+            bone_name: HumanBoneSpecifications.get(human_bone_name)
+            for human_bone in humanoid.human_bones
+            if (bone_name := human_bone.node.bone_name)
+            and (human_bone_name := HumanBoneName.from_str(human_bone.bone))
+        }
+        default_requied_bone_count = sum(
+            1
+            for human_bone_specification in default_mapping.values()
+            if human_bone_specification.requirement
+        )
+
+        generated_mapping = create_human_bone_mapping(armature)
+        generated_required_bone_count = sum(
+            1
+            for human_bone_specification in generated_mapping.values()
+            if human_bone_specification.requirement
+        )
+
+        if default_requied_bone_count > generated_required_bone_count:
+            return {"CANCELLED"}
+
+        for human_bone in humanoid.human_bones:
+            human_bone.node.bone_name = ""
+
         for (
             bone_name,
             vrm1_specification,
-        ) in create_human_bone_mapping(armature).items():
+        ) in generated_mapping.items():
             bone = bones.get(bone_name)
             if not bone:
                 continue

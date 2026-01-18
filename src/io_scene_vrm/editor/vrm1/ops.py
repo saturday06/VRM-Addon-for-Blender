@@ -2116,10 +2116,34 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
                     continue
                 human_bone.node.bone_name = vrm0_human_bone.node.bone_name
 
+        default_mapping = {
+            bone_name: HumanBoneSpecifications.get(human_bone_name)
+            for human_bone_name, human_bone in human_bone_name_to_human_bone.items()
+            if (bone_name := human_bone.node.bone_name)
+        }
+        default_requied_bone_count = sum(
+            1
+            for human_bone_specification in default_mapping.values()
+            if human_bone_specification.requirement
+        )
+
+        generated_mapping = create_human_bone_mapping(armature)
+        generated_required_bone_count = sum(
+            1
+            for human_bone_specification in generated_mapping.values()
+            if human_bone_specification.requirement
+        )
+
+        if default_requied_bone_count > generated_required_bone_count:
+            return {"CANCELLED"}
+
+        for human_bone in human_bone_name_to_human_bone.values():
+            human_bone.node.bone_name = ""
+
         for (
             bone_name,
             specification,
-        ) in create_human_bone_mapping(armature).items():
+        ) in generated_mapping.items():
             bone = bones.get(bone_name)
             if not bone:
                 continue

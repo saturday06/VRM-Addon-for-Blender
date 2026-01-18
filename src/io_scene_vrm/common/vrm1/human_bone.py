@@ -209,6 +209,16 @@ class HumanBoneSpecification:
         return tuple(map(HumanBoneSpecifications.get, self.children_names))
 
     @cached_property
+    def required_children(self) -> tuple["HumanBoneSpecification", ...]:
+        required_children = list["HumanBoneSpecification"]()
+        for child in self.children:
+            if child.requirement:
+                required_children.append(child)
+            else:
+                required_children.extend(child.required_children)
+        return tuple(required_children)
+
+    @cached_property
     def descendants(self) -> tuple["HumanBoneSpecification", ...]:
         result: list[HumanBoneSpecification] = []
         searching_children = list(self.children)
@@ -217,6 +227,12 @@ class HumanBoneSpecification:
             result.append(child)
             searching_children.extend(child.children)
         return tuple(result)
+
+    @cached_property
+    def recursive_requirement_len(self) -> int:
+        return int(self.requirement) + sum(
+            int(descendant.requirement) for descendant in self.descendants
+        )
 
     @staticmethod
     def create(
