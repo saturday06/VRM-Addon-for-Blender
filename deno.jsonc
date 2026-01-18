@@ -97,11 +97,11 @@
   "imports": {
     "@octokit/rest": "npm:@octokit/rest@22.0.1",
     "@octokit/types": "npm:@octokit/types@16.0.0",
-    "@types/node": "npm:@types/node@25.0.3",
+    "@types/node": "npm:@types/node@25.0.9",
     "gltf-validator": "npm:gltf-validator@2.0.0-dev.3.10",
     "isomorphic-git": "npm:isomorphic-git@1.36.1",
-    "pyright": "npm:pyright@1.1.407",
+    "pyright": "npm:pyright@1.1.408",
     "vitepress": "npm:vitepress@1.6.4",
-    "vue": "npm:vue@3.5.26"
+    "vue": "npm:vue@3.5.27"
   }
 }
