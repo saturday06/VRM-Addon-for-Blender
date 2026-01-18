@@ -523,8 +523,37 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
         bpy_bone_name_to_human_bone_specification: Mapping[str, HumanBoneSpecification],
         error_bpy_bone_names: Sequence[str],
         diagnostics_layout: Optional[UILayout] = None,
+        *,
+        flexible_mode: bool = False,
     ) -> set[str]:
         bones = armature_data.bones
+
+        # In Flexible mode, allow any bone that isn't already assigned to another
+        # VRM bone
+        if flexible_mode:
+            assigned_bone_names = set(bpy_bone_name_to_human_bone_specification.keys())
+            # Remove the target bone's current assignment if it exists
+            # This allows reassignment of the same bone
+            candidates = {
+                bone.name
+                for bone in bones.values()
+                if (
+                    bone.name not in assigned_bone_names
+                    or bpy_bone_name_to_human_bone_specification.get(bone.name)
+                    == target
+                )
+            }
+            if diagnostics_layout:
+                diagnostics_layout.label(
+                    text=pgettext(
+                        "Flexible mode: All bones except those assigned"
+                        + " to other VRM Human Bones are candidates."
+                    ),
+                    translate=False,
+                    icon="INFO",
+                )
+            return candidates
+
         human_bone_name_to_bpy_bone_name = {
             value.name: key
             for key, value in bpy_bone_name_to_human_bone_specification.items()
@@ -747,6 +776,10 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
         from .extension import get_armature_extension
 
         ext = get_armature_extension(armature_data)
+        flexible_mode = (
+            ext.vrm0.humanoid.hierarchy_mode
+            == ext.vrm0.humanoid.HIERARCHY_MODE_FLEXIBLE
+        )
 
         bpy_bone_name_to_human_bone_specification: dict[
             str, vrm0_human_bone.HumanBoneSpecification
@@ -807,6 +840,7 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
                         vrm0_human_bone.HumanBoneSpecifications.get(human_bone_name),
                         bpy_bone_name_to_human_bone_specification,
                         error_bpy_bone_names,
+                        flexible_mode=flexible_mode,
                     )
                 )
 
@@ -819,6 +853,10 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
         from .extension import get_armature_extension
 
         ext = get_armature_extension(armature_data)
+        flexible_mode = (
+            ext.vrm1.humanoid.human_bones.hierarchy_mode
+            == ext.vrm1.humanoid.human_bones.HIERARCHY_MODE_FLEXIBLE
+        )
 
         human_bone_name_to_human_bone = (
             ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone()
@@ -866,6 +904,7 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
                 traversing_human_bone_specification,
                 bpy_bone_name_to_human_bone_specification,
                 error_bpy_bone_names,
+                flexible_mode=flexible_mode,
             )
 
             traversing_human_bone_specifications.extend(

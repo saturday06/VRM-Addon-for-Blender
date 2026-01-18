@@ -122,6 +122,11 @@ class WM_OT_vrm_validator(Operator):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         humanoid = get_armature_extension(armature_data).vrm0.humanoid
+
+        # Skip hierarchy validation in Flexible mode
+        if humanoid.hierarchy_mode == humanoid.HIERARCHY_MODE_FLEXIBLE:
+            return
+
         humanoid.update_all_bone_name_candidates(context, armature_data.name)
         for human_bone in humanoid.human_bones:
             if (
@@ -154,6 +159,11 @@ class WM_OT_vrm_validator(Operator):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
+
+        # Skip hierarchy validation in Flexible mode
+        if human_bones.hierarchy_mode == human_bones.HIERARCHY_MODE_FLEXIBLE:
+            return
+
         human_bones.update_all_bone_name_candidates(context, armature_data.name)
         for (
             human_bone_name,

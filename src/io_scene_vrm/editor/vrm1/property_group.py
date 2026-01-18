@@ -65,12 +65,15 @@ class Vrm1HumanBoneNodePropertyGroup(HumanoidStructureBonePropertyGroup):
         target: HumanBoneSpecification,
         bpy_bone_name_to_human_bone_specification: dict[str, HumanBoneSpecification],
         error_bpy_bone_names: Sequence[str],
+        *,
+        flexible_mode: bool = False,
     ) -> bool:
         new_candidates = HumanoidStructureBonePropertyGroup.find_bone_candidates(
             armature_data,
             target,
             bpy_bone_name_to_human_bone_specification,
             error_bpy_bone_names,
+            flexible_mode=flexible_mode,
         )
 
         bone_name_candidates = self.bone_name_candidates
@@ -260,6 +263,36 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
     )
     right_little_distal: PointerProperty(  # type: ignore[valid-type]
         type=Vrm1HumanBonePropertyGroup
+    )
+
+    # Bone Hierarchy Mode
+    HIERARCHY_MODE_STRICT = "STRICT"
+    HIERARCHY_MODE_FLEXIBLE = "FLEXIBLE"
+
+    hierarchy_mode: EnumProperty(  # type: ignore[valid-type]
+        items=[
+            (
+                HIERARCHY_MODE_STRICT,
+                "Strict",
+                "Enforce VRM specification bone hierarchy requirements."
+                " Bones must follow the parent-child relationships"
+                " defined in the VRM specification",
+                "LOCKED",
+                0,
+            ),
+            (
+                HIERARCHY_MODE_FLEXIBLE,
+                "Flexible",
+                "Allow flexible bone assignments without strict hierarchy."
+                " Bones will be exported with their actual Blender hierarchy."
+                " Use this mode when working with rigs that don't match VRM hierarchy",
+                "UNLOCKED",
+                1,
+            ),
+        ],
+        name="Bone Hierarchy Mode",
+        description="Choose how bone hierarchy is validated and handled during export",
+        default=HIERARCHY_MODE_STRICT,
     )
 
     # for UI
@@ -492,6 +525,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         right_little_proximal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         right_little_intermediate: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         right_little_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
+        hierarchy_mode: str  # type: ignore[no-redef]
         initial_automatic_bone_assignment: bool  # type: ignore[no-redef]
         allow_non_humanoid_rig: bool  # type: ignore[no-redef]
 

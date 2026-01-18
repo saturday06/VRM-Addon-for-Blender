@@ -342,6 +342,11 @@ def draw_vrm1_humanoid_layout(
                 translate=False,
             )
 
+    hierarchy_box = armature_box.box()
+    hierarchy_column = hierarchy_box.row().column()
+    hierarchy_column.label(text="Bone Hierarchy", icon="CONSTRAINT_BONE")
+    hierarchy_column.prop(human_bones, "hierarchy_mode", text="Mode")
+
     bone_operator_column = layout.column()
     layout_operator(
         bone_operator_column,
