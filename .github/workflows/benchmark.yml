@@ -89,7 +89,7 @@ jobs:
           export PYTHONPATH="${PWD}/src:/opt/vrm/lib/python3.12/site-packages"
           echo "PYTHONPATH=${PYTHONPATH}" >>"$GITHUB_ENV"
           python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 4))'
-      - uses: CodSpeedHQ/action@972e3437949c89e1357ebd1a2dbc852fcbc57245 # v4.5.1
+      - uses: CodSpeedHQ/action@dbda7111f8ac363564b0c51b992d4ce76bb89f2f # v4.5.2
         with:
           mode: simulation
           run: pytest src/ --codspeed || true
