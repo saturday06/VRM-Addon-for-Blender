@@ -1841,6 +1841,8 @@ class ArmatureModifier(Modifier):
 
 class NodesModifier(Modifier):
     node_group: NodeTree | None  # Whether it becomes None needs verification
+    show_group_selector: bool
+    show_manage_panel: bool
 
 class OperatorFileListElement(PropertyGroup): ...
 

@@ -937,6 +937,10 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
             modifier = new_modifier
             modifier.show_expanded = False
             modifier.show_in_editmode = False
+            if bpy.app.version >= (4, 0):
+                modifier.show_group_selector = False
+            if bpy.app.version >= (5, 0):
+                modifier.show_manage_panel = False
 
         if modifier.name != modifier_name:
             modifier.name = modifier_name
