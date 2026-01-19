@@ -939,6 +939,8 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
             modifier.show_in_editmode = False
             if bpy.app.version >= (4, 0):
                 modifier.show_group_selector = False
+            if bpy.app.version >= (4, 2):
+                modifier.use_pin_to_last = True
             if bpy.app.version >= (5, 0):
                 modifier.show_manage_panel = False
 

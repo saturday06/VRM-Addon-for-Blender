@@ -1825,6 +1825,7 @@ class Modifier(bpy_struct):
     show_in_editmode: bool
     show_viewport: bool
     show_render: bool
+    use_pin_to_last: bool
 
     @property
     def type(self) -> str: ...
