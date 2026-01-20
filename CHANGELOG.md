@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.19.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.0...v3.19.1) (2026-01-19)
+
+
+### 🐛 Bug Fixes
+
+* corrected the generation order of MToon outlines ([9d0075c](https://github.com/saturday06/VRM-Addon-for-Blender/commit/9d0075ccf8292667e9794003da0f18e861c93514))
+
 ## [3.19.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.18.1...v3.19.0) (2026-01-18)
 
 
