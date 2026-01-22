@@ -1,9 +1,13 @@
+import os from "node:os";
 import {
   Awaitable,
   defineConfig,
   HeadConfig,
   TransformContext,
 } from "vitepress";
+
+const isPossiblyWsl = os.platform() === "linux" &&
+  os.release().split("-").some((part) => /^(microsoft|wsl)/i.test(part));
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -348,5 +352,13 @@ export default defineConfig({
     return [
       ["meta", { property: "og:image", content: ogImagePath }],
     ];
+  },
+  vite: {
+    server: {
+      strictPort: true,
+      watch: {
+        usePolling: isPossiblyWsl,
+      },
+    },
   },
 });
