@@ -28,8 +28,8 @@ from .mtoon1.property_group import Mtoon1MaterialPropertyGroup
 from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup
 from .property_group import StringPropertyGroup, property_group_enum
 from .spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
-from .vrm0.property_group import Vrm0HumanoidPropertyGroup, Vrm0PropertyGroup
-from .vrm1.property_group import Vrm1HumanBonesPropertyGroup, Vrm1PropertyGroup
+from .vrm0.property_group import Vrm0PropertyGroup
+from .vrm1.property_group import Vrm1PropertyGroup
 
 if TYPE_CHECKING:
     from .property_group import CollectionPropertyProtocol
@@ -358,7 +358,7 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
         (SPEC_VERSION_VRM1, "VRM 1.0", "", "NONE", 1),
     )
 
-    def update_spec_version(self, context: Context) -> None:
+    def update_spec_version(self, _context: Context) -> None:
         for blend_shape_group in self.vrm0.blend_shape_master.blend_shape_groups:
             blend_shape_group.preview = 0
 
@@ -387,8 +387,6 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
             vrm1_collider.hide_set(vrm1_hidden)
             for child in vrm1_collider.children:
                 child.hide_set(vrm1_hidden)
-
-        update_internal_cache(context)
 
     spec_version: EnumProperty(  # type: ignore[valid-type]
         items=spec_version_items,
@@ -435,16 +433,6 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
             NodeConstraint1NodeConstraintPropertyGroup
         )
         spec_version: str  # type: ignore[no-redef]
-
-
-def update_internal_cache(context: Context) -> None:
-    for armature in context.blend_data.armatures:
-        Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
-            context, armature.name
-        )
-        Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
-            context, armature.name
-        )
 
 
 class VrmAddonMaterialExtensionPropertyGroup(PropertyGroup):
