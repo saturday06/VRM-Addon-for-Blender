@@ -42,7 +42,12 @@
     "type=volume,target=${containerWorkspaceFolder}/.cache",
     "type=volume,target=${containerWorkspaceFolder}/.ruff_cache",
     "type=volume,target=${containerWorkspaceFolder}/.venv",
-    "type=volume,target=${containerWorkspaceFolder}/node_modules"
+    "type=volume,target=${containerWorkspaceFolder}/docs/.vitepress/cache",
+    "type=volume,target=${containerWorkspaceFolder}/node_modules",
+    "type=volume,target=${containerWorkspaceFolder}/tests/resources/unity/VrmaInspector/Library/",
+    "type=volume,target=${containerWorkspaceFolder}/tests/resources/unity/VrmaInspector/Temp/",
+    "type=volume,target=${containerWorkspaceFolder}/tests/resources/unity/VrmaRecorder/Library/",
+    "type=volume,target=${containerWorkspaceFolder}/tests/resources/unity/VrmaRecorder/Temp/"
   ],
   "customizations": {
     "vscode": {
@@ -53,6 +58,15 @@
         "chat.sendElementsToChat.attachCSS": false,
 
         "files.watchStrategy": "polling",
+        "files.watcherExclude": {
+          "**/.cache/**": true,
+          "**/.ruff_cache/**": true,
+          "**/.venv/**": true,
+          "**/docs/.vitepress/cache/**": true,
+          "**/node_modules/**": true,
+          "**/tests/resources/unity/*/Library/**": true,
+          "**/tests/resources/unity/*/Temp/**": true
+        },
         "python.testing.unittestArgs": ["-v", "-s", ".", "-p", "test_*.py"],
         "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
         "python.terminal.activateEnvironment": false,
