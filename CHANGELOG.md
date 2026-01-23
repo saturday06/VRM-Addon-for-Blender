@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.19.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.1...v3.19.2) (2026-01-23)
+
+
+### 🐛 Bug Fixes
+
+* remove unnecessary cache update on save blend file ([3212b90](https://github.com/saturday06/VRM-Addon-for-Blender/commit/3212b90f649e049d7f3ad4c5ba176b3f596db379))
+
 ## [3.19.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.0...v3.19.1) (2026-01-19)
 
 
