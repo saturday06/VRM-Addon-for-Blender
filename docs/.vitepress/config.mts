@@ -3,6 +3,7 @@ import {
   Awaitable,
   defineConfig,
   HeadConfig,
+  PageData,
   TransformContext,
 } from "vitepress";
 
@@ -321,6 +322,16 @@ export default defineConfig({
       href: "/favicon-16x16.png",
     }],
   ],
+
+  transformPageData(pageData: PageData) {
+    const description = pageData.frontmatter?.description;
+    if (typeof description !== "string" || description.trim().length === 0) {
+      throw new Error(
+        `[docs] Missing description frontmatter: ${pageData.relativePath}`,
+      );
+    }
+    return pageData;
+  },
 
   transformHead(context: TransformContext): Awaitable<HeadConfig[]> {
     // Generate og:image path from article path
