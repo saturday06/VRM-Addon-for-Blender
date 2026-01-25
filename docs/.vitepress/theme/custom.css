@@ -42,6 +42,7 @@ html {
   display: inline;
   vertical-align: middle;
 
+  background-color: #444;
   border: 2px solid #444;
   border-radius: 2px;
 }
