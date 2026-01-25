@@ -1,5 +1,6 @@
 ---
 title: "Add-on Installation"
+description: "Step-by-step installation guide for VRM Add-on for Blender."
 ---
 
 This tutorial explains how to install VRM Add-on for Blender.

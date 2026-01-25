@@ -1,5 +1,6 @@
 ---
 title: "アドオンのインストール"
+description: "VRM Add-on for Blenderのインストール手順を解説します。"
 ---
 
 このチュートリアルでは、VRM Add-on for Blenderのインストール手順を解説します。

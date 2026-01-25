@@ -1,5 +1,6 @@
 ---
 title: "VRM Animation"
+description: "How to import and export VRM Animation files."
 ---
 
 This section explains how to import and export VRM Animation files.

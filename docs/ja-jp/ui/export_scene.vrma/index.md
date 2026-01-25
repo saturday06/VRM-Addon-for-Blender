@@ -1,3 +1,8 @@
+---
+title: "VRM Animation（.vrma）のエクスポート"
+description: "BlenderからVRM Animation（.vrma）を書き出す方法と含まれるデータを説明します。"
+---
+
 メニューの `ファイル` → `エクスポート` → `VRM Animation (.vrma)`
 を選択することで、 [VRM Animation](../../animation/)
 のエクスポートダイアログが表示されます。

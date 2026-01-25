@@ -1,3 +1,8 @@
+---
+title: "Import VRM Animation (.vrma)"
+description: "Import VRM Animation (.vrma) into a VRM 1.0 model in Blender."
+---
+
 By selecting `File` → `Import` → `VRM Animation (.vrma)` from the menu, the
 [VRM Animation](../../animation/) import dialog will be displayed.
 

@@ -1,5 +1,6 @@
 ---
 title: "VRMアニメーション"
+description: "VRM Animationのインポートとエクスポート手順を解説します。"
 ---
 
 VRM Animationのインポートとエクスポートの解説です。
