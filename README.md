@@ -15,7 +15,7 @@ Choose one of the following three methods.
 
 - [Blender 4.2 or later, download from Blender Preferences](https://vrm-addon-for-blender.info/en-us/installation/#installation-4.2-or-later-online)
 - [Blender 4.2 or later, download from a web browser](https://vrm-addon-for-blender.info/en-us/installation/#installation-4.2-or-later-offline)
-- [Blender 2.93 to 4.1](https://vrm-addon-for-blender.info/en-us/installation/#installation-2.93-to-4.1)
+- [Blender 2.93 to 4.1](https://vrm-addon-for-blender.info/en-us/#download)
 
 ## Tutorials
 
@@ -116,7 +116,7 @@ Blenderのバージョンやダウンロード元にあわせて手順が変わ�
 
 - [Blender 4.2以上で、Blenderの設定画面からダウンロードする場合](https://vrm-addon-for-blender.info/ja-jp/installation/#installation-4.2-or-later-online)
 - [Blender 4.2以上で、Webブラウザからダウンロードする場合](https://vrm-addon-for-blender.info/ja-jp/installation/#installation-4.2-or-later-offline)
-- [Blender 2.93から4.1の場合](https://vrm-addon-for-blender.info/ja-jp/installation/#installation-2.93-to-4.1)
+- [Blender 2.93から4.1の場合](https://vrm-addon-for-blender.info/ja-jp/#download)
 
 ## チュートリアル
 
