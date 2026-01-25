@@ -15,8 +15,8 @@ Blender. It supports Blender versions 2.93 to 5.0. It also provides
 
 ## Download {#download}
 
-- For Blender 4.2 or later, please download from
-  [Blender Extensions Platform](https://extensions.blender.org/add-ons/vrm).
+- For Blender 4.2 or later, please download and install it by following
+  [the instructions here](installation/#installation-methods).
 - For Blender 2.93 to 4.1: <DownloadLink />\
   <small>[Past Releases](https://github.com/saturday06/VRM-Addon-for-Blender/releases)</small>
 

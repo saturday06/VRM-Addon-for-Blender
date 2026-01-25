@@ -10,10 +10,12 @@ Blender. It also provides
 
 ## Download
 
-- For Blender 4.2 or later:
-  [🛠️**Blender Extensions Platform**](https://extensions.blender.org/add-ons/vrm).
-- For Blender 2.93 to 4.1:
-  [🌐**The Official Site**](https://vrm-addon-for-blender.info).
+The steps vary depending on your Blender version and where you download from.
+Choose one of the following three methods.
+
+- [Blender 4.2 or later, download from Blender Preferences](https://vrm-addon-for-blender.info/en-us/installation/#installation-4.2-or-later-online)
+- [Blender 4.2 or later, download from a web browser](https://vrm-addon-for-blender.info/en-us/installation/#installation-4.2-or-later-offline)
+- [Blender 2.93 to 4.1](https://vrm-addon-for-blender.info/en-us/installation/#installation-2.93-to-4.1)
 
 ## Tutorials
 
@@ -110,10 +112,11 @@ BlenderにVRM関連機能を追加するアドオンです。[Pythonスクリプ
 
 ## ダウンロード
 
-- Blender 4.2以上をお使いの場合:
-  [🛠️**Blender Extensions Platform**](https://extensions.blender.org/add-ons/vrm)
-- Blender 2.93から4.1をお使いの場合:
-  [🌐**オフィシャルWebサイト**](https://vrm-addon-for-blender.info)
+Blenderのバージョンやダウンロード元にあわせて手順が変わります。次の3種類の方式から選択してください。
+
+- [Blender 4.2以上で、Blenderの設定画面からダウンロードする場合](https://vrm-addon-for-blender.info/ja-jp/installation/#installation-4.2-or-later-online)
+- [Blender 4.2以上で、Webブラウザからダウンロードする場合](https://vrm-addon-for-blender.info/ja-jp/installation/#installation-4.2-or-later-offline)
+- [Blender 2.93から4.1の場合](https://vrm-addon-for-blender.info/ja-jp/installation/#installation-2.93-to-4.1)
 
 ## チュートリアル
 

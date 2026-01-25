@@ -14,9 +14,8 @@ Blenderは、BlenderにVRMのインポート、エクスポートや編集機能
 
 ## ダウンロード {#download}
 
-- Blender 4.2以上をお使いの場合
-  [Blender Extensions Platform](https://extensions.blender.org/add-ons/vrm)
-  経由でダウンロードをお願いします。
+- Blender
+  4.2以上をお使いの場合、[こちらの手順に従ってダウンロードとインストールを行ってください](installation/#installation-methods)。
 - Blender 2.93から4.1をお使いの場合はこちら: <DownloadLinkJa />\
   <small>[過去のバージョン一覧](https://github.com/saturday06/VRM-Addon-for-Blender/releases)</small>
 
