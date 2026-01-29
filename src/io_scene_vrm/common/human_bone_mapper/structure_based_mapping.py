@@ -568,11 +568,14 @@ def search_structure_based_mapping_step(
 ) -> SearchBranch:
     if skip_count < 0 or bone.recursive_len < skip_count:
         return SEARCH_STOP_BRANCH
-    if search_context.require_requirement and bone.recursive_len < skip_count + sum(
-        human_bone_specification.recursive_requirement_len
-        for human_bone_specification in human_bone_specifications
-    ):
-        return SEARCH_STOP_BRANCH
+
+    if search_context.require_requirement:
+        recursive_requirement_len = sum(
+            human_bone_specification.recursive_requirement_len
+            for human_bone_specification in human_bone_specifications
+        )
+        if bone.recursive_len < skip_count + recursive_requirement_len:
+            return SEARCH_STOP_BRANCH
 
     if depth > search_context.max_recursion_depth:
         return SEARCH_STOP_BRANCH
