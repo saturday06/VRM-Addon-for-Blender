@@ -2,6 +2,7 @@
 import difflib
 from collections.abc import Mapping
 from typing import Optional, Union
+from unittest import TestCase
 
 import bpy
 from bpy.types import Armature, Context, EditBone, Object
@@ -9,7 +10,11 @@ from mathutils import Vector
 
 from io_scene_vrm.common.human_bone_mapper.structure_based_mapping import (
     DEFAULT_MAX_SEARCH_COUNT,
+    AssignedSearchBranch,
+    NormalizedBone,
+    UnassignedSearchBranch,
     create_structure_based_mapping,
+    search_branch_from_json,
 )
 from io_scene_vrm.common.test_helper import AddonTestCase
 from io_scene_vrm.common.vrm1.human_bone import (
@@ -77,6 +82,91 @@ def create_armature(
     bpy.ops.object.mode_set(mode="OBJECT")
 
     return armature_object, mapping
+
+
+def create_normalized_bone(
+    name: str,
+    x: float,
+    y: float,
+    z: float,
+    children: tuple[NormalizedBone, ...] = (),
+) -> NormalizedBone:
+    recursive_len = 1 + sum(child.recursive_len for child in children)
+    return NormalizedBone(
+        name=name,
+        x=x,
+        y=y,
+        z=z,
+        children=children,
+        recursive_len=recursive_len,
+    )
+
+
+class TestSearchBranchJson(TestCase):
+    def test_roundtrip_assigned_branch(self) -> None:
+        hips_bone = create_normalized_bone("hips", 0.0, 0.0, 1.0)
+        spine_bone = create_normalized_bone("spine", 0.0, 0.0, 2.0)
+        head_bone = create_normalized_bone("head", 0.0, 0.0, 3.0)
+
+        head_branch = AssignedSearchBranch(
+            depth=3,
+            bone=head_bone,
+            human_bone_specification=HumanBoneSpecifications.HEAD,
+            parent=(spine_bone, HumanBoneSpecifications.SPINE),
+            children=(),
+        )
+        spine_branch = AssignedSearchBranch(
+            depth=2,
+            bone=spine_bone,
+            human_bone_specification=HumanBoneSpecifications.SPINE,
+            parent=(hips_bone, HumanBoneSpecifications.HIPS),
+            children=(head_branch,),
+        )
+        hips_branch = AssignedSearchBranch(
+            depth=1,
+            bone=hips_bone,
+            human_bone_specification=HumanBoneSpecifications.HIPS,
+            parent=None,
+            children=(spine_branch,),
+        )
+
+        json_str = hips_branch.to_json()
+        restored = search_branch_from_json(json_str)
+
+        self.assertEqual(hips_branch, restored)
+
+    def test_roundtrip_unassigned_branch(self) -> None:
+        hips_bone = create_normalized_bone("hips", 0.0, 0.0, 1.0)
+        spine_bone = create_normalized_bone("spine", 0.0, 0.0, 2.0)
+
+        spine_branch = AssignedSearchBranch(
+            depth=2,
+            bone=spine_bone,
+            human_bone_specification=HumanBoneSpecifications.SPINE,
+            parent=(hips_bone, HumanBoneSpecifications.HIPS),
+            children=(),
+        )
+        hips_branch = AssignedSearchBranch(
+            depth=1,
+            bone=hips_bone,
+            human_bone_specification=HumanBoneSpecifications.HIPS,
+            parent=None,
+            children=(spine_branch,),
+        )
+        unassigned = UnassignedSearchBranch(children=(hips_branch,))
+
+        json_str = unassigned.to_json()
+        restored = search_branch_from_json(json_str)
+
+        self.assertEqual(unassigned, restored)
+
+    def test_roundtrip_empty_unassigned_branch(self) -> None:
+        unassigned = UnassignedSearchBranch()
+
+        json_str = unassigned.to_json()
+        restored = search_branch_from_json(json_str)
+
+        self.assertEqual(unassigned, restored)
 
 
 class TestStructureBasedMapper(AddonTestCase):

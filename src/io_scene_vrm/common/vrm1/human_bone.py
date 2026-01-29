@@ -801,3 +801,10 @@ class HumanBoneSpecifications:
     @staticmethod
     def get(name: HumanBoneName) -> HumanBoneSpecification:
         return HumanBoneSpecifications.human_bone_name_to_human_bone[name]
+
+    @staticmethod
+    def from_name_str(name_str: str) -> Optional[HumanBoneSpecification]:
+        human_bone_name = HumanBoneName.from_str(name_str)
+        if human_bone_name is None:
+            return None
+        return HumanBoneSpecifications.get(human_bone_name)

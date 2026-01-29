@@ -10,6 +10,7 @@ from typing import Final, Optional, Union
 from bpy.types import Armature, Bone, Object
 from mathutils import Matrix
 
+from ..deep import Json
 from ..logger import get_logger
 from ..vrm1.human_bone import (
     HumanBoneName,
@@ -133,6 +134,65 @@ class NormalizedBone:
             recursive_len=1 + sum(child.recursive_len for child in children),
         )
 
+    @classmethod
+    def from_json(cls, data: Json) -> "NormalizedBone":
+        if not isinstance(data, Mapping):
+            message = "NormalizedBone must be an object"
+            raise TypeError(message)
+        name = data.get("name")
+        if not isinstance(name, str):
+            message = "NormalizedBone.name must be a string"
+            raise TypeError(message)
+
+        x = data.get("x")
+        y = data.get("y")
+        z = data.get("z")
+        if not isinstance(x, (int, float)):
+            message = "NormalizedBone.x must be a number"
+            raise TypeError(message)
+        if not isinstance(y, (int, float)):
+            message = "NormalizedBone.y must be a number"
+            raise TypeError(message)
+        if not isinstance(z, (int, float)):
+            message = "NormalizedBone.z must be a number"
+            raise TypeError(message)
+
+        children_data = data.get("children")
+        if children_data is None:
+            children_data = []
+        if not isinstance(children_data, list):
+            message = "NormalizedBone.children must be a list"
+            raise TypeError(message)
+        children = tuple(cls.from_json(child) for child in children_data)
+
+        recursive_len = data.get("recursiveLen")
+        if recursive_len is None:
+            recursive_len_value = 1 + sum(child.recursive_len for child in children)
+        elif isinstance(recursive_len, int):
+            recursive_len_value = recursive_len
+        else:
+            message = "NormalizedBone.recursiveLen must be an int"
+            raise ValueError(message)
+
+        return NormalizedBone(
+            name=name,
+            x=float(x),
+            y=float(y),
+            z=float(z),
+            children=children,
+            recursive_len=recursive_len_value,
+        )
+
+    def to_json(self) -> Json:
+        return {
+            "name": self.name,
+            "x": self.x,
+            "y": self.y,
+            "z": self.z,
+            "children": [child.to_json() for child in self.children],
+            "recursiveLen": self.recursive_len,
+        }
+
     def dump(self) -> str:
         output = f'("{self.name}", ({self.x:.3f}, {self.y:.3f}, {self.z:.3f})): {{\n'
         for child in self.children:
@@ -144,9 +204,71 @@ class NormalizedBone:
 SearchBranch = Union["UnassignedSearchBranch", "AssignedSearchBranch"]
 
 
+def parent_from_json(
+    data: Json,
+) -> Optional[tuple[NormalizedBone, HumanBoneSpecification]]:
+    if data is None:
+        return None
+    if not isinstance(data, Mapping):
+        message = "parent must be an object or null"
+        raise TypeError(message)
+    bone_data = data.get("bone")
+    if not isinstance(bone_data, Mapping):
+        message = "parent.bone must be an object"
+        raise TypeError(message)
+    bone = NormalizedBone.from_json(bone_data)
+    human_bone_name_str = data.get("humanBoneName")
+    if not isinstance(human_bone_name_str, str):
+        message = "parent.humanBoneName must be a string"
+        raise TypeError(message)
+    human_bone_specification = HumanBoneSpecifications.from_name_str(
+        human_bone_name_str
+    )
+    if human_bone_specification is None:
+        message = f"Unknown human bone name: {human_bone_name_str}"
+        raise ValueError(message)
+    return (bone, human_bone_specification)
+
+
+def search_branch_from_json(data: Json) -> SearchBranch:
+    if not isinstance(data, Mapping):
+        message = "SearchBranch must be an object"
+        raise TypeError(message)
+    type_name = data.get("type_name")
+    if type_name == AssignedSearchBranch.__name__:
+        return AssignedSearchBranch.from_json(data)
+
+    if type_name == UnassignedSearchBranch.__name__:
+        return UnassignedSearchBranch.from_json(data)
+
+    message = (
+        "SearchBranch.type_name must be 'AssignedSearchBranch'"
+        + " or 'UnassignedSearchBranch'"
+    )
+    raise ValueError(message)
+
+
 @dataclass(frozen=True)
 class UnassignedSearchBranch:
     children: tuple[SearchBranch, ...] = ()
+
+    def to_json(self) -> Json:
+        return {
+            "type_name": type(self).__name__,
+            "children": [child.to_json() for child in self.children],
+        }
+
+    @classmethod
+    def from_json(cls, data: Mapping[str, Json]) -> "UnassignedSearchBranch":
+        children_data = data.get("children")
+        if children_data is None:
+            children_data = []
+        if not isinstance(children_data, list):
+            message = "UnassignedSearchBranch.children must be a list"
+            raise TypeError(message)
+        return UnassignedSearchBranch(
+            children=tuple(search_branch_from_json(child) for child in children_data)
+        )
 
     @cached_property
     def score(self) -> float:
@@ -170,6 +292,62 @@ class AssignedSearchBranch:
     human_bone_specification: HumanBoneSpecification
     parent: Optional[tuple[NormalizedBone, HumanBoneSpecification]]
     children: tuple[SearchBranch, ...]
+
+    def to_json(self) -> Json:
+        parent = self.parent
+        if parent is None:
+            parent_json: Json = None
+        else:
+            parent_bone, parent_spec = parent
+            parent_json = {
+                "bone": parent_bone.to_json(),
+                "humanBoneName": parent_spec.name.value,
+            }
+        return {
+            "type_name": type(self).__name__,
+            "depth": self.depth,
+            "bone": self.bone.to_json(),
+            "humanBoneName": self.human_bone_specification.name.value,
+            "parent": parent_json,
+            "children": [child.to_json() for child in self.children],
+        }
+
+    @classmethod
+    def from_json(cls, data: Mapping[str, Json]) -> "AssignedSearchBranch":
+        depth = data.get("depth")
+        if not isinstance(depth, int):
+            message = "AssignedSearchBranch.depth must be an int"
+            raise TypeError(message)
+        bone_data = data.get("bone")
+        if not isinstance(bone_data, Mapping):
+            message = "AssignedSearchBranch.bone must be an object"
+            raise TypeError(message)
+        bone = NormalizedBone.from_json(bone_data)
+        human_bone_name_str = data.get("humanBoneName")
+        if not isinstance(human_bone_name_str, str):
+            message = "AssignedSearchBranch.humanBoneName must be a string"
+            raise TypeError(message)
+        human_bone_specification = HumanBoneSpecifications.from_name_str(
+            human_bone_name_str
+        )
+        if human_bone_specification is None:
+            message = f"Unknown human bone name: {human_bone_name_str}"
+            raise ValueError(message)
+        parent = parent_from_json(data.get("parent"))
+        children_data = data.get("children")
+        if children_data is None:
+            children_data = []
+        if not isinstance(children_data, list):
+            message = "AssignedSearchBranch.children must be a list"
+            raise TypeError(message)
+        children = tuple(search_branch_from_json(child) for child in children_data)
+        return AssignedSearchBranch(
+            depth=depth,
+            bone=bone,
+            human_bone_specification=human_bone_specification,
+            parent=parent,
+            children=children,
+        )
 
     @cached_property
     def score(self) -> float:
