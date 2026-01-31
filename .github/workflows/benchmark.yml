@@ -75,7 +75,7 @@ jobs:
           python-version: ${{ env.BENCHMARK_PYTHON_VERSION }}
       - run: pip3 install "numpy < 3" "requests < 3" "zstandard < 1" "pytest < 10" "pytest-codspeed < 5"
       - run: echo /opt/vrm/lib | sudo tee /etc/ld.so.conf.d/vrm.conf
-      - uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      - uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
         id: cache
         with:
           path: benchmark-dependencies.tar.gz
@@ -89,7 +89,7 @@ jobs:
           export PYTHONPATH="${PWD}/src:/opt/vrm/lib/python3.12/site-packages"
           echo "PYTHONPATH=${PYTHONPATH}" >>"$GITHUB_ENV"
           python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 4))'
-      - uses: CodSpeedHQ/action@dbda7111f8ac363564b0c51b992d4ce76bb89f2f # v4.5.2
+      - uses: CodSpeedHQ/action@0700edb451d0e9f2426f99bd6977027e550fb2a6 # v4.7.0
         with:
           mode: simulation
           run: pytest src/ --codspeed || true
