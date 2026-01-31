@@ -25,7 +25,7 @@ validate_file_name_characters() (
 validate_permissions() (
   set +x
 
-  git ls-files -z ':!tools/*.sh' ':!tools/*.py' ':!tests/resources' ':!typings' | while IFS= read -r -d '' f; do
+  git ls-files -z ':(exclude)tools/*.sh' ':(exclude)tools/*.py' ':(exclude)tests/resources' ':(exclude)typings' | while IFS= read -r -d '' f; do
     if [ -x "$f" ]; then
       echo "$f has unnecessary executable permission."
       exit 1
