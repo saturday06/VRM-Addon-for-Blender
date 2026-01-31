@@ -1,10 +1,9 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import math
-from collections.abc import Set as AbstractSet
 from dataclasses import dataclass
 from pathlib import Path
 from sys import float_info
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 import bpy
 from bpy.app.translations import pgettext
@@ -54,7 +53,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
     bl_idname = "vrm.convert_material_to_mtoon1"
     bl_label = "Convert Material to MToon 1.0"
     bl_description = "Convert Material to MToon 1.0"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     material_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
@@ -538,7 +537,7 @@ class VRM_OT_convert_mtoon1_to_bsdf_principled(Operator):
     bl_idname = "vrm.convert_mtoon1_to_bsdf_principled"
     bl_label = "Convert MToon 1.0 to Principled BSDF"
     bl_description = "Convert MToon 1.0 to Principled BSDF"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     material_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
@@ -602,7 +601,7 @@ class VRM_OT_reset_mtoon1_material_shader_node_tree(Operator):
     bl_idname = "vrm.reset_mtoon1_material_shader_node_group"
     bl_label = "Reset Shader Nodes"
     bl_description = "Reset MToon 1.0 Material Shader Node Tree"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     material_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
@@ -627,7 +626,7 @@ class VRM_OT_import_mtoon1_texture_image_file(Operator, ImportHelper):
     bl_idname = "vrm.import_mtoon1_texture_image_file"
     bl_label = "Open"
     bl_description = "Import Texture Image File"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     filepath: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -812,7 +811,7 @@ class VRM_OT_refresh_mtoon1_outline(Operator):
     bl_idname = "vrm.refresh_mtoon1_outline"
     bl_label = "Refresh MToon 1.0 Outline Width Mode"
     bl_description = "Import Texture Image File"
-    bl_options: AbstractSet[str] = {"UNDO"}
+    bl_options: ClassVar = {"UNDO"}
 
     material_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
@@ -1151,7 +1150,7 @@ class VRM_OT_show_material_blender_4_2_warning(Operator):
     bl_idname = "vrm.show_material_blender_4_2_warning"
     bl_label = "Blender 4.2 Material Upgrade Warning"
     bl_description = "Show Material Blender 4.2 Warning"
-    bl_options: AbstractSet[str] = {"REGISTER"}
+    bl_options: ClassVar = {"REGISTER"}
 
     material_name_lines: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}

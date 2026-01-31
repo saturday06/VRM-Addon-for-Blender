@@ -4,9 +4,8 @@
 import json
 import warnings
 import webbrowser
-from collections.abc import Set as AbstractSet
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, TypeVar, cast
+from typing import TYPE_CHECKING, ClassVar, Optional, TypeVar, cast
 from urllib.parse import urlparse
 
 from bpy.app.translations import pgettext
@@ -40,7 +39,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
     bl_idname = "vrm.bones_rename"
     bl_label = "Symmetrize VRoid Bone Names on X-Axis"
     bl_description = "Make VRoid bone names editable for X-axis mirroring."
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -94,7 +93,7 @@ class VRM_OT_save_human_bone_mappings(Operator, ExportHelper):
     bl_idname = "vrm.save_human_bone_mappings"
     bl_label = "Save Bone Mappings"
     bl_description = "Save bone mappings."
-    bl_options: AbstractSet[str] = {"REGISTER"}
+    bl_options: ClassVar = {"REGISTER"}
 
     filename_ext = ".json"
     filter_glob: StringProperty(  # type: ignore[valid-type]
@@ -144,7 +143,7 @@ class VRM_OT_load_human_bone_mappings(Operator, ImportHelper):
     bl_idname = "vrm.load_human_bone_mappings"
     bl_label = "Load Bone Mappings"
     bl_description = "Load bone mappings."
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     filename_ext = ".json"
     filter_glob: StringProperty(  # type: ignore[valid-type]
@@ -201,7 +200,7 @@ class VRM_OT_open_url_in_web_browser(Operator):
     bl_idname = "vrm.open_url_in_web_browser"
     bl_label = "Open"
     bl_description = "Open the URL in the default web browser."
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     url: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
@@ -232,7 +231,7 @@ class VRM_OT_show_blend_file_compatibility_warning(Operator):
     bl_idname = "vrm.show_blend_file_compatibility_warning"
     bl_label = "File Compatibility Warning"
     bl_description = "Show blend file compatibility warning."
-    bl_options: AbstractSet[str] = {"REGISTER"}
+    bl_options: ClassVar = {"REGISTER"}
 
     file_version: StringProperty(options={"HIDDEN"})  # type: ignore[valid-type]
     app_version: StringProperty(options={"HIDDEN"})  # type: ignore[valid-type]
@@ -279,7 +278,7 @@ class VRM_OT_show_blend_file_addon_compatibility_warning(Operator):
     bl_idname = "vrm.show_blend_file_addon_compatibility_warning"
     bl_label = "VRM Add-on Compatibility Warning"
     bl_description = "Show blend file and VRM add-on compatibility warning."
-    bl_options: AbstractSet[str] = {"REGISTER"}
+    bl_options: ClassVar = {"REGISTER"}
 
     file_addon_version: StringProperty(options={"HIDDEN"})  # type: ignore[valid-type]
     installed_addon_version: StringProperty(options={"HIDDEN"})  # type: ignore[valid-type]
@@ -361,7 +360,7 @@ class VRM_OT_make_estimated_humanoid_t_pose(Operator):
     bl_idname = "vrm.make_estimated_humanoid_t_pose"
     bl_label = "Make Estimated T-Pose"
     bl_description = "Create VRM estimated humanoid T-pose."
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -405,7 +404,7 @@ class VRM_OT_assign_bone_to_bone_property_group(Operator):
     bl_idname = "vrm.assign_bone_to_bone_property_group"
     bl_label = "Assign Bone to Bone Property Group"
     bl_description = "Assign selected bone to the bone property group."
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_data_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -443,7 +442,7 @@ class VRM_OT_unassign_bone_to_bone_property_group(Operator):
     bl_idname = "vrm.unassign_bone_to_bone_property_group"
     bl_label = "Unassign Bone"
     bl_description = "Unassign selected bone."
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_data_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},

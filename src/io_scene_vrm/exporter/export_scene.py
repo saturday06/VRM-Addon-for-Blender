@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import traceback
-from collections.abc import Set as AbstractSet
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 import bpy
 from bpy.app.translations import pgettext
@@ -71,7 +70,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
     bl_idname = "export_scene.vrm"
     bl_label = "Save"
     bl_description = "export VRM"
-    bl_options: AbstractSet[str] = {"REGISTER"}
+    bl_options: ClassVar = {"REGISTER"}
 
     filename_ext = ".vrm"
     filter_glob: StringProperty(  # type: ignore[valid-type]
@@ -332,7 +331,7 @@ class VRM_PT_export_file_browser_tool_props(Panel):
     bl_region_type = "TOOL_PROPS"
     bl_parent_id = "FILE_PT_operator"
     bl_label = ""
-    bl_options: AbstractSet[str] = {"HIDE_HEADER"}
+    bl_options: ClassVar = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:
@@ -395,7 +394,7 @@ class VRM_PT_export_vrma_help(Panel):
     bl_region_type = "TOOL_PROPS"
     bl_parent_id = "FILE_PT_operator"
     bl_label = ""
-    bl_options: AbstractSet[str] = {"HIDE_HEADER"}
+    bl_options: ClassVar = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:
@@ -426,7 +425,7 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
     bl_idname = "export_scene.vrma"
     bl_label = "Save"
     bl_description = "Export VRM Animation"
-    bl_options: AbstractSet[str] = {"REGISTER"}
+    bl_options: ClassVar = {"REGISTER"}
 
     filename_ext = ".vrma"
     filter_glob: StringProperty(  # type: ignore[valid-type]
@@ -485,7 +484,7 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
 class WM_OT_vrm_export_human_bones_assignment(Operator):
     bl_label = "Required VRM Human Bones Assignment"
     bl_idname = "wm.vrm_export_human_bones_assignment"
-    bl_options: AbstractSet[str] = {"REGISTER"}
+    bl_options: ClassVar = {"REGISTER"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -627,7 +626,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
 class WM_OT_vrm_export_confirmation(Operator):
     bl_label = "VRM Export Confirmation"
     bl_idname = "wm.vrm_export_confirmation"
-    bl_options: AbstractSet[str] = {"REGISTER"}
+    bl_options: ClassVar = {"REGISTER"}
 
     errors: CollectionProperty(type=validation.VrmValidationError)  # type: ignore[valid-type]
 
@@ -690,7 +689,7 @@ class WM_OT_vrm_export_confirmation(Operator):
 class WM_OT_vrm_export_armature_selection(Operator):
     bl_label = "VRM Export Armature Selection"
     bl_idname = "wm.vrm_export_armature_selection"
-    bl_options: AbstractSet[str] = {"REGISTER"}
+    bl_options: ClassVar = {"REGISTER"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -755,7 +754,7 @@ class WM_OT_vrm_export_armature_selection(Operator):
 class WM_OT_vrma_export_prerequisite(Operator):
     bl_label = "VRM Animation Export Prerequisite"
     bl_idname = "wm.vrma_export_prerequisite"
-    bl_options: AbstractSet[str] = {"REGISTER"}
+    bl_options: ClassVar = {"REGISTER"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},

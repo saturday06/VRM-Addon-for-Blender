@@ -1,6 +1,13 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from collections.abc import Set as AbstractSet
-from typing import Callable, Optional, Protocol, TypeVar, Union, runtime_checkable
+from typing import (
+    Callable,
+    ClassVar,
+    Optional,
+    Protocol,
+    TypeVar,
+    Union,
+    runtime_checkable,
+)
 
 from bpy.app.translations import pgettext
 from bpy.types import (
@@ -207,7 +214,7 @@ class VRM_PT_current_selected_armature(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
-    bl_options: AbstractSet[str] = {"HIDE_HEADER"}
+    bl_options: ClassVar = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:
@@ -271,7 +278,7 @@ class VRM_PT_controller_unsupported_blender_version_warning(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
-    bl_options: AbstractSet[str] = {"HIDE_HEADER"}
+    bl_options: ClassVar = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, _context: Context) -> bool:

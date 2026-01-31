@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from collections.abc import Set as AbstractSet
+
+from typing import ClassVar
 
 import bpy
 from bpy.app.translations import pgettext
@@ -386,7 +387,7 @@ class VRM_PT_vrm1_humanoid_armature_object_property(Panel):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
-    bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
+    bl_options: ClassVar = {"DEFAULT_CLOSED"}
     bl_parent_id = VRM_PT_vrm_armature_object_property.bl_idname
 
     @classmethod
@@ -420,7 +421,7 @@ class VRM_PT_vrm1_humanoid_ui(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
-    bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
+    bl_options: ClassVar = {"DEFAULT_CLOSED"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:
@@ -486,7 +487,7 @@ class VRM_PT_vrm1_first_person_armature_object_property(Panel):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
-    bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
+    bl_options: ClassVar = {"DEFAULT_CLOSED"}
     bl_parent_id = VRM_PT_vrm_armature_object_property.bl_idname
 
     @classmethod
@@ -520,7 +521,7 @@ class VRM_PT_vrm1_first_person_ui(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
-    bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
+    bl_options: ClassVar = {"DEFAULT_CLOSED"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:
@@ -593,7 +594,7 @@ class VRM_PT_vrm1_look_at_armature_object_property(Panel):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
-    bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
+    bl_options: ClassVar = {"DEFAULT_CLOSED"}
     bl_parent_id = VRM_PT_vrm_armature_object_property.bl_idname
 
     @classmethod
@@ -627,7 +628,7 @@ class VRM_PT_vrm1_look_at_ui(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
-    bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
+    bl_options: ClassVar = {"DEFAULT_CLOSED"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:
@@ -979,7 +980,7 @@ class VRM_PT_vrm1_expressions_armature_object_property(Panel):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
-    bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
+    bl_options: ClassVar = {"DEFAULT_CLOSED"}
     bl_parent_id = VRM_PT_vrm_armature_object_property.bl_idname
 
     @classmethod
@@ -1013,7 +1014,7 @@ class VRM_PT_vrm1_expressions_ui(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
-    bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
+    bl_options: ClassVar = {"DEFAULT_CLOSED"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:
@@ -1133,7 +1134,7 @@ class VRM_PT_vrm1_meta_armature_object_property(Panel):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
-    bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
+    bl_options: ClassVar = {"DEFAULT_CLOSED"}
     bl_parent_id = VRM_PT_vrm_armature_object_property.bl_idname
 
     @classmethod
@@ -1163,7 +1164,7 @@ class VRM_PT_vrm1_meta_ui(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
-    bl_options: AbstractSet[str] = {"DEFAULT_CLOSED"}
+    bl_options: ClassVar = {"DEFAULT_CLOSED"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:

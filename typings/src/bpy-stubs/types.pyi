@@ -9,7 +9,7 @@ from collections.abc import (
     Sequence,
     ValuesView,
 )
-from typing import Callable, Generic, TypeVar, overload
+from typing import Callable, ClassVar, Generic, TypeVar, overload
 
 from mathutils import Color, Euler, Matrix, Quaternion, Vector
 from typing_extensions import TypeAlias
@@ -578,6 +578,7 @@ class PoseBone(bpy_struct, __CustomProperty):
 class ArmatureBones(bpy_prop_collection[Bone]):
     active: Bone | None  # TODO: Can it be None?
 
+class OperatorOptions(bpy_struct): ...
 class OperatorProperties(bpy_struct): ...
 
 class UILayout(bpy_struct):
@@ -2186,6 +2187,7 @@ class BlendDataScenes(bpy_prop_collection[Scene]):
     def remove(self, scene: Scene, *, do_unlink: bool = True) -> None: ...
 
 class VectorFont(ID): ...
+class Macro(bpy_struct): ...
 
 class MetaElement(bpy_struct):
     co: Vector
@@ -2348,10 +2350,27 @@ class BlendData:
     def worlds(self) -> BlendDataWorlds: ...
 
 class Operator(bpy_struct):
+    bl_description: str
     bl_idname: str
     bl_label: str
+    bl_options: ClassVar[set[str]]
+    bl_translation_context: str
+    bl_undo_group: str
+    @property
+    def has_reports(self) -> bool: ...
     @property
     def layout(self) -> UILayout: ...
+    @property
+    def macros(self) -> bpy_prop_collection[Macro]: ...
+    @property
+    def name(self) -> str: ...
+    @property
+    def options(self) -> OperatorOptions: ...
+    @property
+    def properties(self) -> OperatorProperties: ...
+    bl_property: str
+    def report(self, type: set[str], message: str) -> None: ...
+    def is_repeat(self) -> bool: ...
 
 # This type is used with UILayout.prop_search, but definition is unclear due to docs
 AnyType: TypeAlias = ID | BlendData | Operator | PropertyGroup

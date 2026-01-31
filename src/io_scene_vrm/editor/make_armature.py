@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from collections.abc import Set as AbstractSet
 from math import radians
 from sys import float_info
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 import bpy
 from bpy.props import BoolProperty, FloatProperty, StringProperty
@@ -26,7 +25,7 @@ class ICYP_OT_make_armature(Operator):
     bl_idname = "icyp.make_basic_armature"
     bl_label = "Add VRM Humanoid"
     bl_description = "make armature and simple setup for VRM export"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     skip_heavy_armature_setup: BoolProperty(  # type: ignore[valid-type]
         default=False,

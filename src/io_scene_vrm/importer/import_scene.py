@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import traceback
-from collections.abc import Set as AbstractSet
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import bpy
 from bpy.app.translations import pgettext
@@ -66,7 +65,7 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
     bl_idname = "import_scene.vrm"
     bl_label = "Open"
     bl_description = "import VRM"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrm"
     filter_glob: StringProperty(  # type: ignore[valid-type]
@@ -195,7 +194,7 @@ class VRM_PT_import_file_browser_tool_props(Panel):
     bl_region_type = "TOOL_PROPS"
     bl_parent_id = "FILE_PT_operator"
     bl_label = ""
-    bl_options: AbstractSet[str] = {"HIDE_HEADER"}
+    bl_options: ClassVar = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:
@@ -223,7 +222,7 @@ class VRM_PT_import_unsupported_blender_version_warning(Panel):
     bl_region_type = "TOOL_PROPS"
     bl_parent_id = "FILE_PT_operator"
     bl_label = ""
-    bl_options: AbstractSet[str] = {"HIDE_HEADER"}
+    bl_options: ClassVar = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:
@@ -252,7 +251,7 @@ class VRM_PT_import_unsupported_blender_version_warning(Panel):
 class WM_OT_vrm_license_confirmation(Operator):
     bl_label = "VRM License Confirmation"
     bl_idname = "wm.vrm_license_warning"
-    bl_options: AbstractSet[str] = {"REGISTER"}
+    bl_options: ClassVar = {"REGISTER"}
 
     filepath: StringProperty(  # type: ignore[valid-type]
         subtype="FILE_PATH",
@@ -388,7 +387,7 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
     bl_idname = "import_scene.vrma"
     bl_label = "Open"
     bl_description = "Import VRM Animation"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrma"
     filter_glob: StringProperty(  # type: ignore[valid-type]
@@ -464,7 +463,7 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
 class WM_OT_vrma_import_prerequisite(Operator):
     bl_label = "VRM Animation Import Prerequisite"
     bl_idname = "wm.vrma_import_prerequisite"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},

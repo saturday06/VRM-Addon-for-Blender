@@ -2,7 +2,6 @@
 import re
 import warnings
 from collections.abc import Mapping, Sequence
-from collections.abc import Set as AbstractSet
 from typing import TYPE_CHECKING, ClassVar, Optional, Protocol
 
 import bpy
@@ -69,7 +68,7 @@ class VRM_OT_add_vrm1_meta_author(Operator):
     bl_idname = "vrm.add_vrm1_meta_author"
     bl_label = "Add Author"
     bl_description = "Add VRM 1.0 Meta Author"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -118,7 +117,7 @@ class VRM_OT_remove_vrm1_meta_author(Operator):
     bl_idname = "vrm.remove_vrm1_meta_author"
     bl_label = "Remove Author"
     bl_description = "Remove VRM 1.0 Meta Author"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -177,7 +176,7 @@ class VRM_OT_move_up_vrm1_meta_author(Operator):
     bl_idname = "vrm.move_up_vrm1_meta_author"
     bl_label = "Move Up Author"
     bl_description = "Move Up VRM 1.0 Meta Author"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -234,7 +233,7 @@ class VRM_OT_move_down_vrm1_meta_author(Operator):
     bl_idname = "vrm.move_down_vrm1_meta_author"
     bl_label = "Move Down Author"
     bl_description = "Move Down VRM 1.0 Meta Author"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -291,7 +290,7 @@ class VRM_OT_add_vrm1_meta_reference(Operator):
     bl_idname = "vrm.add_vrm1_meta_reference"
     bl_label = "Add Reference"
     bl_description = "Add VRM 1.0 Meta Reference"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -340,7 +339,7 @@ class VRM_OT_remove_vrm1_meta_reference(Operator):
     bl_idname = "vrm.remove_vrm1_meta_reference"
     bl_label = "Remove Reference"
     bl_description = "Remove VRM 1.0 Meta Reference"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -399,7 +398,7 @@ class VRM_OT_move_up_vrm1_meta_reference(Operator):
     bl_idname = "vrm.move_up_vrm1_meta_reference"
     bl_label = "Move Up Reference"
     bl_description = "Move Up VRM 1.0 Meta Reference"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -456,7 +455,7 @@ class VRM_OT_move_down_vrm1_meta_reference(Operator):
     bl_idname = "vrm.move_down_vrm1_meta_reference"
     bl_label = "Move Down Reference"
     bl_description = "Move Down VRM 1.0 Meta Reference"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -513,7 +512,7 @@ class VRM_OT_add_vrm1_expressions_custom_expression(Operator):
     bl_idname = "vrm.add_vrm1_expressions_custom_expression"
     bl_label = "Add Custom Expression"
     bl_description = "Add VRM 1.0 Custom Expression"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -570,7 +569,7 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(Operator):
     bl_idname = "vrm.remove_vrm1_expressions_custom_expression"
     bl_label = "Remove Custom Expression"
     bl_description = "Remove VRM 1.0 Custom Expression"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -631,7 +630,7 @@ class VRM_OT_move_up_vrm1_expressions_custom_expression(Operator):
     bl_idname = "vrm.move_up_vrm1_expressions_custom_expression"
     bl_label = "Move Up Custom Expression"
     bl_description = "Move Up VRM 1.0 Custom Expression"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -697,7 +696,7 @@ class VRM_OT_move_down_vrm1_expressions_custom_expression(Operator):
     bl_idname = "vrm.move_down_vrm1_expressions_custom_expression"
     bl_label = "Move Down Custom Expression"
     bl_description = "Move Down VRM 1.0 Custom Expression"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -763,7 +762,7 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(Operator):
     bl_idname = "vrm.add_vrm1_first_person_mesh_annotation"
     bl_label = "Add Mesh Annotation"
     bl_description = "Add VRM 1.0 First Person Mesh Annotation"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -813,7 +812,7 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(Operator):
     bl_idname = "vrm.remove_vrm1_first_person_mesh_annotation"
     bl_label = "Remove Mesh Annotation"
     bl_description = "Remove VRM 1.0 First Person Mesh Annotation"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -872,7 +871,7 @@ class VRM_OT_move_up_vrm1_first_person_mesh_annotation(Operator):
     bl_idname = "vrm.move_up_vrm1_first_person_mesh_annotation"
     bl_label = "Move Up Mesh Annotation"
     bl_description = "Move Up VRM 1.0 First Person Mesh Annotation"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -931,7 +930,7 @@ class VRM_OT_move_down_vrm1_first_person_mesh_annotation(Operator):
     bl_idname = "vrm.move_down_vrm1_first_person_mesh_annotation"
     bl_label = "Move Down Mesh Annotation"
     bl_description = "Move Down VRM 1.0 First Person Mesh Annotation"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -990,7 +989,7 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(Operator):
     bl_idname = "vrm.add_vrm1_expression_morph_target_bind"
     bl_label = "Add Morph Target Bind"
     bl_description = "Add VRM 1.0 Expression Morph Target Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1048,7 +1047,7 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(Operator):
     bl_idname = "vrm.remove_vrm1_expression_morph_target_bind"
     bl_label = "Remove Morph Target Bind"
     bl_description = "Remove VRM 1.0 Expression Morph Target Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1114,7 +1113,7 @@ class VRM_OT_move_up_vrm1_expression_morph_target_bind(Operator):
     bl_idname = "vrm.move_up_vrm1_expression_morph_target_bind"
     bl_label = "Move Up Morph Target Bind"
     bl_description = "Move Up VRM 1.0 Expression Morph Target Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1178,7 +1177,7 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(Operator):
     bl_idname = "vrm.move_down_vrm1_expression_morph_target_bind"
     bl_label = "Move Down Morph Target Bind"
     bl_description = "Move Down VRM 1.0 Expression Morph Target Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1242,7 +1241,7 @@ class VRM_OT_restore_vrm1_expression_morph_target_bind_object(Operator):
     bl_idname = "vrm.restore_vrm1_expression_morph_target_bind_object"
     bl_label = "Restore Shape Key Assignments"
     bl_description = "Restore VRM 1.0 Expression Morph Target Bind Object Assignments"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1341,7 +1340,7 @@ class VRM_OT_assign_vrm1_expressions_automatically(Operator):
     bl_idname = "vrm.assign_vrm1_expressions_automatically"
     bl_label = "Assign Auto-Detected Shape Keys"
     bl_description = "Assign VRM 1.0 expressions automatically"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1371,7 +1370,7 @@ class VRM_OT_assign_vrm1_vrchat_expressions(Operator):
     bl_idname = "vrm.assign_vrm1_vrchat_expressions"
     bl_label = "Assign VRChat Shape Keys"
     bl_description = "Assign VRChat shape keys as VRM 1.0 Expressions"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1394,7 +1393,7 @@ class VRM_OT_assign_vrm1_mmd_expressions(Operator):
     bl_idname = "vrm.assign_vrm1_mmd_expressions"
     bl_label = "Assign MMD Shape Keys"
     bl_description = "Assign MMD shape keys as VRM 1.0 Expressions"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1417,7 +1416,7 @@ class VRM_OT_assign_vrm1_ready_player_me_expressions(Operator):
     bl_idname = "vrm.assign_vrm1_ready_player_me_expressions"
     bl_label = "Assign Ready Player Me Shape Keys"
     bl_description = "Assign Ready Player Me (ARKit) shape keys as VRM 1.0 Expressions"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1447,7 +1446,7 @@ class VRM_OT_add_vrm1_arkit_custom_expressions(Operator):
     bl_description = (
         "Add Apple ARKit (Perfect Sync) shape keys as VRM 1.0 Custom Expressions"
     )
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1534,7 +1533,7 @@ class VRM_OT_add_vrm1_expression_material_color_bind(Operator):
     bl_idname = "vrm.add_vrm1_expression_material_color_bind"
     bl_label = "Add Material Color Bind"
     bl_description = "Add VRM 1.0 Expression Material Value Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1594,7 +1593,7 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(Operator):
     bl_idname = "vrm.remove_vrm1_expression_material_color_bind"
     bl_label = "Remove Material Color Bind"
     bl_description = "Remove VRM 1.0 Expression Material Color Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1660,7 +1659,7 @@ class VRM_OT_move_up_vrm1_expression_material_color_bind(Operator):
     bl_idname = "vrm.move_up_vrm1_expression_material_color_bind"
     bl_label = "Move Up Material Color Bind"
     bl_description = "Move Up VRM 1.0 Expression Material Color Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1724,7 +1723,7 @@ class VRM_OT_move_down_vrm1_expression_material_color_bind(Operator):
     bl_idname = "vrm.move_down_vrm1_expression_material_color_bind"
     bl_label = "Move Down Material Color Bind"
     bl_description = "Move Down VRM 1.0 Expression Material Color Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1788,7 +1787,7 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(Operator):
     bl_idname = "vrm.add_vrm1_expression_texture_transform_bind"
     bl_label = "Add Texture Transform Bind"
     bl_description = "Add VRM 1.0 Expression Texture Transform Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1846,7 +1845,7 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(Operator):
     bl_idname = "vrm.remove_vrm1_expression_texture_transform_bind"
     bl_label = "Remove Texture Transform Bind"
     bl_description = "Remove VRM 1.0 Expression Texture Transform Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1912,7 +1911,7 @@ class VRM_OT_move_up_vrm1_expression_texture_transform_bind(Operator):
     bl_idname = "vrm.move_up_vrm1_expression_texture_transform_bind"
     bl_label = "Move Up Texture Transform Bind"
     bl_description = "Move Up VRM 1.0 Expression Texture Transform Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1976,7 +1975,7 @@ class VRM_OT_move_down_vrm1_expression_texture_transform_bind(Operator):
     bl_idname = "vrm.move_down_vrm1_expression_texture_transform_bind"
     bl_label = "Move Down Morph Target Bind"
     bl_description = "Move Down VRM 1.0 Expression Morph Target Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -2046,7 +2045,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
     bl_idname = "vrm.assign_vrm1_humanoid_human_bones_automatically"
     bl_label = "Automatic Bone Assignment"
     bl_description = "Assign VRM 1.0 Humanoid Human Bones"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -2173,7 +2172,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
 class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
     bl_idname = "vrm.update_vrm1_expression_ui_list_elements"
     bl_label = "Update VRM 1.0 Expression UI List Elements"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context) -> set[str]:
         for armature in context.blend_data.armatures:
@@ -2204,7 +2203,7 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
     bl_idname = "vrm.refresh_vrm1_expression_texture_transform_bind_preview"
     bl_label = "Refresh Texture Transform Bind Preview"
     bl_description = "Refresh VRM 1.0 Expression Texture Transform Bind Preview"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
