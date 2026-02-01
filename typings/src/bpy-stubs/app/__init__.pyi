@@ -21,6 +21,7 @@ debug_value: bool
 debug_wm: bool
 tempdir: str
 use_event_simulate: bool
+background: bool
 build_platform: bytes
 build_type: bytes
 version_cycle: str
