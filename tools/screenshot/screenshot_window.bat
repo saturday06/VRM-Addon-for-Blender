@@ -9,7 +9,7 @@ echo - Simplify the file view as much as possible.
 echo - Make sure generated screenshot size is 1320x1080.
 echo - In English, set the interface font to an empty string.
 echo - In Japanese, set the interface font to "C:\Windows\Fonts\meiryo.ttc"
-echo   and set the monospaced font to "C:\Windows\Fonts\msgothic.ttc".
+echo   and set the monospaced font to "C:\Windows\Fonts\BIZ-UDGothicR.ttc".
 rem Blender uses customized NotoSansCJK but it cannot display Japanese Kanji correctly.
 rem We need to use NotoSansCJKjp instead. But it's not installed on the system.
 rem And I think "Yu Gothic" looks thin and not suitable for screenshots.
