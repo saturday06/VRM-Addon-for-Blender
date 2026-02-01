@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  benchmark:
+  prepare-benchmark:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -21,75 +21,23 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - run: |
-          sudo DEBIAN_FRONTEND=noninteractive apt-get update -q
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install \
-            build-essential \
-            ca-certificates \
-            cmake \
-            cmake-curses-gui \
-            cmake-gui patch \
-            curl \
-            git \
-            git-lfs \
-            libboost-dev \
-            libdbus-1-dev \
-            libdecor-0-dev \
-            libegl-dev \
-            libembree-dev \
-            libepoxy-dev \
-            libfftw3-dev \
-            libfreetype-dev \
-            libgl-dev \
-            libgmp-dev \
-            libopenexr-dev \
-            libosd-dev \
-            libpng-dev \
-            libpugixml-dev \
-            libpython3-dev \
-            libshaderc-dev \
-            libtbb-dev \
-            libtiff-dev \
-            libvulkan-dev \
-            libwayland-dev \
-            libx11-dev \
-            libxcursor-dev \
-            libxi-dev \
-            libxinerama-dev \
-            libxkbcommon-dev \
-            libxrandr-dev \
-            libxxf86vm-dev \
-            libzstd-dev \
-            ninja-build \
-            pybind11-dev \
-            subversion \
-            wayland-protocols \
-            xz-utils \
-            --no-install-recommends --yes
-      - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-        env:
-          BENCHMARK_PYTHON_VERSION: "3.12" # Set as environment variable to prevent automatic updates by renovate
+      - uses: ./.github/actions/prepare-benchmark
+
+  benchmark:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    needs: prepare-benchmark
+    timeout-minutes: 720
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          # For reasons unknown, flamegraphs cannot be generated with Codspeed unless Python is
-          # installed via actions/setup-python.
-          python-version: ${{ env.BENCHMARK_PYTHON_VERSION }}
-      - run: pip3 install "numpy < 3" "requests < 3" "zstandard < 1" "pytest < 10" "pytest-codspeed < 5"
-      - run: echo /opt/vrm/lib | sudo tee /etc/ld.so.conf.d/vrm.conf
-      - uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
-        id: cache
-        with:
-          path: benchmark-dependencies.tar.gz
-          key: benchmark-dependencies-${{ runner.os }}-${{ hashFiles('tools/install_ci_codspeed_dependencies.sh') }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: ./tools/install_ci_codspeed_dependencies.sh
-      - run: sudo rm -fr /opt/vrm
-      - run: sudo tar xzf benchmark-dependencies.tar.gz -C /opt
-      - run: sudo ldconfig
-      - run: |
-          export PYTHONPATH="${PWD}/src:/opt/vrm/lib/python3.12/site-packages"
-          echo "PYTHONPATH=${PYTHONPATH}" >>"$GITHUB_ENV"
-          python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 4))'
+          persist-credentials: false
+      - uses: ./.github/actions/prepare-benchmark
+        id: prepare-benchmark
       - uses: CodSpeedHQ/action@0700edb451d0e9f2426f99bd6977027e550fb2a6 # v4.7.0
+        env:
+          PYTHONPATH: "${{ github.workspace }}/src:${{ steps.prepare-benchmark.outputs.PYTHONPATH }}"
         with:
           mode: simulation
           run: pytest src/ --codspeed || true

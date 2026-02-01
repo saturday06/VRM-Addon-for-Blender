@@ -1,0 +1,89 @@
+name: prepare-benchmark
+
+description: "Preparing the benchmark."
+
+outputs:
+  PYTHONPATH:
+    value: ${{ steps.pythonpath.outputs.PYTHONPATH }}
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        sudo DEBIAN_FRONTEND=noninteractive apt-get update -q
+        sudo DEBIAN_FRONTEND=noninteractive apt-get install \
+          build-essential \
+          ca-certificates \
+          cmake \
+          cmake-curses-gui \
+          cmake-gui patch \
+          curl \
+          git \
+          git-lfs \
+          libboost-dev \
+          libdbus-1-dev \
+          libdecor-0-dev \
+          libegl-dev \
+          libembree-dev \
+          libepoxy-dev \
+          libfftw3-dev \
+          libfreetype-dev \
+          libgl-dev \
+          libgmp-dev \
+          libopenexr-dev \
+          libosd-dev \
+          libpng-dev \
+          libpugixml-dev \
+          libpython3-dev \
+          libshaderc-dev \
+          libtbb-dev \
+          libtiff-dev \
+          libvulkan-dev \
+          libwayland-dev \
+          libx11-dev \
+          libxcursor-dev \
+          libxi-dev \
+          libxinerama-dev \
+          libxkbcommon-dev \
+          libxrandr-dev \
+          libxxf86vm-dev \
+          libzstd-dev \
+          ninja-build \
+          pybind11-dev \
+          subversion \
+          wayland-protocols \
+          xz-utils \
+          --no-install-recommends --yes
+      shell: bash
+    - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+      env:
+        BENCHMARK_PYTHON_VERSION: "3.12" # Set as environment variable to prevent automatic updates by renovate
+      with:
+        # For reasons unknown, flamegraphs cannot be generated with Codspeed unless Python is
+        # installed via actions/setup-python.
+        python-version: ${{ env.BENCHMARK_PYTHON_VERSION }}
+    - run: pip3 install "numpy < 3" "requests < 3" "zstandard < 1" "pytest < 10" "pytest-codspeed < 5"
+      shell: bash
+    - run: echo /opt/vrm/lib | sudo tee /etc/ld.so.conf.d/vrm.conf
+      shell: bash
+    - uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+      id: cache
+      with:
+        path: benchmark-dependencies.tar.gz
+        key: benchmark-dependencies-${{ runner.os }}-${{ hashFiles('tools/install_ci_codspeed_dependencies.sh') }}
+    - if: steps.cache.outputs.cache-hit != 'true'
+      run: ./tools/install_ci_codspeed_dependencies.sh
+      shell: bash
+    - run: sudo rm -fr /opt/vrm
+      shell: bash
+    - run: sudo tar xzf benchmark-dependencies.tar.gz -C /opt
+      shell: bash
+    - run: sudo ldconfig
+      shell: bash
+    - run: echo "PYTHONPATH=/opt/vrm/lib/python3.12/site-packages" >>"$GITHUB_OUTPUT"
+      id: pythonpath
+      shell: bash
+    - run: python3 -c 'import bpy; assert(bpy.app.version == (4, 5, 4))'
+      env:
+        PYTHONPATH: ${{ steps.pythonpath.outputs.PYTHONPATH }}
+      shell: bash
