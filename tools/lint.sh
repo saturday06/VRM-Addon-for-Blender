@@ -66,3 +66,4 @@ deno task pyright
 deno task vrm-validator
 validate_vrm_validator_works_correctly
 validate_permissions
+: --- OK --- :
