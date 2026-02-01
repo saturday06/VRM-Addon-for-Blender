@@ -46,6 +46,7 @@ from ..editor.vrm1.panel import (
 )
 from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
+from .khr_character_exporter import KhrCharacterExporter
 from .uni_vrm_vrm_animation_exporter import UniVrmVrmAnimationExporter
 from .vrm0_exporter import Vrm0Exporter
 from .vrm1_exporter import Vrm1Exporter
@@ -276,6 +277,7 @@ def export_vrm(
 
     armature_object: Optional[Object] = next(iter(armature_objects), None)
     is_vrm1 = False
+    is_khr_character = False
 
     with save_workspace(
         context,
@@ -287,6 +289,9 @@ def export_vrm(
             armature_data = armature_object.data
             if isinstance(armature_data, Armature):
                 is_vrm1 = get_armature_extension(armature_data).is_vrm1()
+                is_khr_character = get_armature_extension(
+                    armature_data
+                ).is_khr_character()
         else:
             armature_object_is_temporary = True
             ops.icyp.make_basic_armature("EXEC_DEFAULT")
@@ -297,25 +302,32 @@ def export_vrm(
 
         migration.migrate(context, armature_object.name)
 
-        if is_vrm1:
-            vrm_exporter: AbstractBaseVrmExporter = Vrm1Exporter(
+        if is_khr_character:
+            exporter: AbstractBaseVrmExporter = KhrCharacterExporter(
+                context,
+                export_objects,
+                armature_object,
+                export_preferences,
+            )
+        elif is_vrm1:
+            exporter: AbstractBaseVrmExporter = Vrm1Exporter(
                 context,
                 export_objects,
                 armature_object,
                 export_preferences,
             )
         else:
-            vrm_exporter = Vrm0Exporter(
+            exporter: AbstractBaseVrmExporter = Vrm0Exporter(
                 context,
                 export_objects,
                 armature_object,
             )
 
-        vrm_bytes = vrm_exporter.export_vrm()
-        if vrm_bytes is None:
+        glb_bytes = exporter.export()
+        if glb_bytes is None:
             return {"CANCELLED"}
 
-    Path(filepath).write_bytes(vrm_bytes)
+    Path(filepath).write_bytes(glb_bytes)
 
     if armature_object_is_temporary and not safe_removal.remove_object(
         context, armature_object

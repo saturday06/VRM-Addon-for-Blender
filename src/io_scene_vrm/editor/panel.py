@@ -264,12 +264,19 @@ class VRM_PT_controller(Panel):
             vrm_validator_op.armature_object_name = armature.name
             armature_data = armature.data
             if isinstance(armature_data, Armature):
+                ext = get_armature_extension(armature_data)
                 layout.prop(
-                    get_armature_extension(armature_data),
+                    ext,
                     "spec_version",
                     text="",
                     translate=False,
                 )
+                if ext.is_khr_character():
+                    box = layout.box()
+                    box.label(
+                        icon="ERROR",
+                        text="KHR character support is currently under development",
+                    )
 
 
 class VRM_PT_controller_unsupported_blender_version_warning(Panel):

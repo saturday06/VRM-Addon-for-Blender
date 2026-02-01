@@ -52,6 +52,11 @@ from .editor import (
     subscription,
     validation,
 )
+from .editor.khr_character import panel as khr_character_panel
+from .editor.khr_character import property_group as khr_character_property_group
+from .editor.khr_xmp_json_ld import ops as khr_xmp_json_ld_ops
+from .editor.khr_xmp_json_ld import property_group as khr_xmp_json_ld_property_group
+from .editor.khr_xmp_json_ld import ui_list as khr_xmp_json_ld_ui_list
 from .editor.mtoon1 import handler as mtoon1_handler
 from .editor.mtoon1 import ops as mtoon1_ops
 from .editor.mtoon1 import panel as mtoon1_panel
@@ -214,6 +219,23 @@ classes: list[
     mtoon1_property_group.Mtoon0ReceiveShadowTexturePropertyGroup,
     mtoon1_property_group.Mtoon1MaterialPropertyGroup,
     mtoon1_property_group.MaterialTraceablePropertyGroup,
+    khr_xmp_json_ld_ops.VRM_OT_add_khr_xmp_json_ld_packet_dc_creator,
+    khr_xmp_json_ld_ops.VRM_OT_remove_khr_xmp_json_ld_packet_dc_creator,
+    khr_xmp_json_ld_ops.VRM_OT_move_up_khr_xmp_json_ld_packet_dc_creator,
+    khr_xmp_json_ld_ops.VRM_OT_move_down_khr_xmp_json_ld_packet_dc_creator,
+    khr_xmp_json_ld_ops.VRM_OT_add_khr_xmp_json_ld_packet_dc_license,
+    khr_xmp_json_ld_ops.VRM_OT_remove_khr_xmp_json_ld_packet_dc_license,
+    khr_xmp_json_ld_ops.VRM_OT_move_up_khr_xmp_json_ld_packet_dc_license,
+    khr_xmp_json_ld_ops.VRM_OT_move_down_khr_xmp_json_ld_packet_dc_license,
+    khr_xmp_json_ld_ops.VRM_OT_add_khr_xmp_json_ld_packet_dc_subject,
+    khr_xmp_json_ld_ops.VRM_OT_remove_khr_xmp_json_ld_packet_dc_subject,
+    khr_xmp_json_ld_ops.VRM_OT_move_up_khr_xmp_json_ld_packet_dc_subject,
+    khr_xmp_json_ld_ops.VRM_OT_move_down_khr_xmp_json_ld_packet_dc_subject,
+    khr_xmp_json_ld_property_group.KhrXmpJsonLdKhrCharacterPacketPropertyGroup,
+    khr_xmp_json_ld_ui_list.VRM_UL_khr_xmp_json_ld_packet_dc_creator,
+    khr_xmp_json_ld_ui_list.VRM_UL_khr_xmp_json_ld_packet_dc_license,
+    khr_xmp_json_ld_ui_list.VRM_UL_khr_xmp_json_ld_packet_dc_subject,
+    khr_character_property_group.KhrCharacterPropertyGroup,
     mtoon1_panel.VRM_PT_vrm_material_property,
     panel.VRM_PT_current_selected_armature,
     panel.VRM_PT_controller_unsupported_blender_version_warning,
@@ -229,6 +251,8 @@ classes: list[
     vrm0_ui_list.VRM_UL_vrm0_secondary_animation_group_bone,
     vrm0_ui_list.VRM_UL_vrm0_secondary_animation_group_collider_group,
     vrm0_ui_list.VRM_UL_vrm0_secondary_animation_collider_group_collider,
+    khr_character_panel.VRM_PT_khr_character_armature_object_property,
+    khr_character_panel.VRM_PT_khr_character_ui,
     vrm0_panel.VRM_PT_vrm0_meta_armature_object_property,
     vrm0_panel.VRM_PT_vrm0_meta_ui,
     vrm0_panel.VRM_PT_vrm0_humanoid_armature_object_property,

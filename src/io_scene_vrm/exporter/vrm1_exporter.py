@@ -2688,7 +2688,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         return True
 
-    def export_vrm(self) -> Optional[bytes]:
+    def export(self) -> Optional[bytes]:
         init_extras_export()
 
         armature_data = self.armature.data

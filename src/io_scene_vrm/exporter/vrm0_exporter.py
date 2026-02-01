@@ -249,7 +249,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 normal_start_index : normal_start_index + self.NORMAL_STRUCT.size
             ] = self.NORMAL_STRUCT.pack(*target_normal)
 
-    def export_vrm(self) -> Optional[bytes]:
+    def export(self) -> Optional[bytes]:
         init_extras_export()
 
         with (
