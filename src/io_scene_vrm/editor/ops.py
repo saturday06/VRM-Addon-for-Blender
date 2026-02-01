@@ -3,11 +3,11 @@
 # SPDX-FileCopyrightText: 2024 saturday06
 import json
 import warnings
-import webbrowser
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, Optional, TypeVar, cast
 from urllib.parse import urlparse
 
+import bpy
 from bpy.app.translations import pgettext
 from bpy.props import StringProperty
 from bpy.types import (
@@ -218,8 +218,7 @@ class VRM_OT_open_url_in_web_browser(Operator):
         url = self.url
         if not self.supported(url):
             return {"CANCELLED"}
-        webbrowser.open(self.url)
-        return {"FINISHED"}
+        return bpy.ops.wm.url_open(url=url)
 
     if TYPE_CHECKING:
         # This code is auto generated.
