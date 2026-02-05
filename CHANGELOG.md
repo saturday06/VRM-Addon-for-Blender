@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.19.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.2...v3.19.3) (2026-02-05)
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug that caused alpha clip node switching to fail ([b522389](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b5223899b9b13aca30cf1ff44f182e88e2315494))
+
 ## [3.19.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.1...v3.19.2) (2026-01-23)
 
 
