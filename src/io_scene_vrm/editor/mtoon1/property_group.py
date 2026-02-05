@@ -3110,7 +3110,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         alpha_clip_input_node = node_tree.nodes.get(ALPHA_CLIP_INPUT_NODE_NAME)
         if (
             isinstance(alpha_clip_input_node, ShaderNodeMath)
-            and alpha_clip_input_node.operation == "MINIMUM"
+            and alpha_clip_input_node.operation == "LESS_THAN"
         ):
             inputs = alpha_clip_input_node.inputs
             if len(inputs) >= 2:
