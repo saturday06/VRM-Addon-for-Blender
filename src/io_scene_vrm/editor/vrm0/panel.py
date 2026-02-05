@@ -449,7 +449,7 @@ class VRM_PT_vrm0_humanoid_ui(Panel):
     bl_label = "VRM 0.x Humanoid"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM"
+    bl_category = "KHR Character / VRM"
     bl_options: ClassVar = {"DEFAULT_CLOSED"}
 
     @classmethod
@@ -573,7 +573,7 @@ class VRM_PT_vrm0_first_person_ui(Panel):
     bl_label = "VRM 0.x First Person"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM"
+    bl_category = "KHR Character / VRM"
     bl_options: ClassVar = {"DEFAULT_CLOSED"}
 
     @classmethod
@@ -849,7 +849,7 @@ class VRM_PT_vrm0_blend_shape_master_ui(Panel):
     bl_label = "VRM 0.x Blend Shape Proxy"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM"
+    bl_category = "KHR Character / VRM"
     bl_options: ClassVar = {"DEFAULT_CLOSED"}
 
     @classmethod
@@ -1131,7 +1131,7 @@ class VRM_PT_vrm0_secondary_animation_ui(Panel):
     bl_label = "VRM 0.x Spring Bone"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM"
+    bl_category = "KHR Character / VRM"
     bl_options: ClassVar = {"DEFAULT_CLOSED"}
 
     @classmethod
@@ -1222,7 +1222,7 @@ class VRM_PT_vrm0_meta_ui(Panel):
     bl_label = "VRM 0.x Meta"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM"
+    bl_category = "KHR Character / VRM"
     bl_options: ClassVar = {"DEFAULT_CLOSED"}
 
     @classmethod

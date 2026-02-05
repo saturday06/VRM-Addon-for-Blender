@@ -14,6 +14,7 @@ from ..khr_xmp_json_ld.property_group import KhrXmpJsonLdKhrCharacterPacketPrope
 logger = get_logger(__name__)
 
 
+# https://github.com/Kjakubzak/glTF/blob/ee572d4e3148d2f21bb469f3d0575d6701f91b2e/extensions/2.0/Khronos/KHR_character/README.md
 class KhrCharacterPropertyGroup(PropertyGroup):
     khr_xmp_json_ld_packet: PointerProperty(  # type: ignore[valid-type]
         type=KhrXmpJsonLdKhrCharacterPacketPropertyGroup
