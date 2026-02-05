@@ -3,27 +3,17 @@
 
 from typing import ClassVar
 
-from bpy.types import Armature, Context, Object, Panel, UILayout
+from bpy.types import Armature, Context, Panel
 
 from .. import search
 from ..extension import get_armature_extension
+from ..khr_xmp_json_ld.panel import draw_khr_xmp_json_ld_packet_layout
 from ..panel import VRM_PT_vrm_armature_object_property
-from .property_group import KhrCharacterPropertyGroup
-
-
-def draw_khr_character_layout(
-    _context: Context,
-    _armature: Object,
-    layout: UILayout,
-    _khr_character: KhrCharacterPropertyGroup,
-) -> None:
-    box = layout.box()
-    box.label(text="KHR Character Properties", icon="OUTLINER_OB_ARMATURE")
 
 
 class VRM_PT_khr_character_armature_object_property(Panel):
     bl_idname = "VRM_PT_khr_character_armature_object_property"
-    bl_label = "KHR Character"
+    bl_label = "XMP Linked Data"
     bl_translation_context = "VRM"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
@@ -43,14 +33,17 @@ class VRM_PT_khr_character_armature_object_property(Panel):
         if not isinstance(armature_data, Armature):
             return
         ext = get_armature_extension(armature_data)
-        draw_khr_character_layout(
-            context, active_object, self.layout, ext.khr_character
+        draw_khr_xmp_json_ld_packet_layout(
+            context,
+            active_object,
+            self.layout,
+            ext.khr_character.khr_xmp_json_ld_packet,
         )
 
 
 class VRM_PT_khr_character_ui(Panel):
     bl_idname = "VRM_PT_khr_character_ui"
-    bl_label = "KHR Character"
+    bl_label = "XMP Linked Data"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
@@ -68,6 +61,9 @@ class VRM_PT_khr_character_ui(Panel):
         if not isinstance(armature_data, Armature):
             return
         ext = get_armature_extension(armature_data)
-        draw_khr_character_layout(
-            context, active_object, self.layout, ext.khr_character
+        draw_khr_xmp_json_ld_packet_layout(
+            context,
+            active_object,
+            self.layout,
+            ext.khr_character.khr_xmp_json_ld_packet,
         )

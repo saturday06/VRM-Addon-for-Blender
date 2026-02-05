@@ -33,8 +33,8 @@ logger = get_logger(__name__)
 
 
 def draw_khr_xmp_json_ld_packet_layout(
-    armature: Object,
     _context: Context,
+    armature: Object,
     layout: UILayout,
     packet: KhrXmpJsonLdKhrCharacterPacketPropertyGroup,
 ) -> None:
