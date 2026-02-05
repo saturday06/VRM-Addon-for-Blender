@@ -273,10 +273,9 @@ class VRM_PT_controller(Panel):
                 )
                 if ext.is_khr_character():
                     box = layout.box()
-                    box.label(
-                        icon="ERROR",
-                        text="KHR character support is currently under development",
-                    )
+                    column = box.column(align=True)
+                    column.label(icon="ERROR", text="KHR character support is")
+                    column.label(icon="BLANK1", text="under development")
 
 
 class VRM_PT_controller_unsupported_blender_version_warning(Panel):
