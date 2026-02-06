@@ -27,19 +27,6 @@ extend-ignore = [
 pythonVersion = "3.9" # It overrides 'project.requires-python = "== 3.10.*"'
 pythonPlatform = "All"
 typeCheckingMode = "strict"
-stubPath = "typings/src"
-exclude = [
-  # Too many files in Unity folders, causing
-  # 'Enumeration of workspace source files is taking longer than 10 seconds.'
-  # warning, so explicitly excluding them
-  "tests/resources/unity",
-
-  # Re-setting default exclusion folder settings since they get lost
-  # https://github.com/microsoft/pyright/blob/1.1.400/packages/pyright-internal/src/analyzer/service.ts#L793
-  "**/node_modules",
-  "**/__pycache__",
-  "**/.*",
-]
 
 reportMissingModuleSource = false
 reportCallInDefaultInitializer = true

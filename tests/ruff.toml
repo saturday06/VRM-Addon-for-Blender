@@ -2,10 +2,6 @@ extend = "../pyproject.toml"
 
 [lint]
 extend-ignore = [
-  # ----- fixing -----
-
   "S603", # `subprocess` call: check for execution of untrusted input
   "S607", # Starting a process with a partial executable path
-
-  # ----- ignored -----
 ]
