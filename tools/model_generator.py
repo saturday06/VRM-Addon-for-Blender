@@ -438,13 +438,69 @@ def main(argv: list[str]) -> int:
     if not isinstance(extensions_used, list):
         extensions_used = []
         json_dict["extensionsUsed"] = extensions_used
-    if "VRMC_vrm" not in extensions_used:
-        extensions_used.append("VRMC_vrm")
+    for extension_name in ["VRMC_vrm", "KHR_character", "KHR_xmp_json_ld"]:
+        if extension_name not in extensions_used:
+            extensions_used.append(extension_name)
 
     extensions_dict = json_dict.get("extensions")
     if not isinstance(extensions_dict, dict):
         extensions_dict = {}
         json_dict["extensions"] = extensions_dict
+
+    khr_xmp_json_ld_dict = extensions_dict.get("KHR_xmp_json_ld")
+    if not isinstance(khr_xmp_json_ld_dict, dict):
+        khr_xmp_json_ld_dict = {}
+        extensions_dict["KHR_xmp_json_ld"] = khr_xmp_json_ld_dict
+    khr_xmp_json_ld_packets = khr_xmp_json_ld_dict.get("packets")
+    if not isinstance(khr_xmp_json_ld_packets, list):
+        khr_xmp_json_ld_packets = []
+        khr_xmp_json_ld_dict["packets"] = khr_xmp_json_ld_packets
+    packet_index = len(khr_xmp_json_ld_packets)
+    khr_xmp_json_ld_packets.append(
+        {
+            "@context": {
+                "dc": "http://purl.org/dc/elements/1.1/",
+                "vrm": "https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_vrm-1.0/meta.md",
+            },
+            "dc:title": "Generated VRM 1.0 Debug Model",
+            "dc:creator": {
+                "@list": [
+                    "Hiroshi Nosawa",
+                ]
+            },
+            "dc:license": {
+                "@list": [
+                    "https://vrm.dev/licenses/1.0/",
+                ]
+            },
+            "dc:created": "2026-02-07",
+            "dc:rights": "Public Domain",
+            "dc:publisher": "Hiroshi Nosawa Publishing",
+            "dc:description": "Tomahawwwwwwwwwwwwk boooooomerang",
+            "dc:subject": {"@list": ["90's Super Robot", "No Sweetness Allowed"]},
+            "dc:source": "hiroshi-nosawa.example.com/debug",
+            "khr:version": "1.0.0",
+            "khr:thumbnailImage": image_index,
+        }
+    )
+
+    asset_dict = json_dict.get("asset")
+    if not isinstance(asset_dict, dict):
+        asset_dict = {}
+        json_dict["asset"] = asset_dict
+    asset_extensions_dict = asset_dict.get("extensions")
+    if not isinstance(asset_extensions_dict, dict):
+        asset_extensions_dict = {}
+        asset_dict["extensions"] = asset_extensions_dict
+    asset_extensions_khr_xmp_json_ld_dict = asset_extensions_dict.get("KHR_xmp_json_ld")
+    if not isinstance(asset_extensions_khr_xmp_json_ld_dict, dict):
+        asset_extensions_khr_xmp_json_ld_dict = {}
+        asset_extensions_dict["KHR_xmp_json_ld"] = asset_extensions_khr_xmp_json_ld_dict
+    if not isinstance(asset_extensions_khr_xmp_json_ld_dict.get("packet"), int):
+        asset_extensions_khr_xmp_json_ld_dict["packet"] = packet_index
+
+    extensions_khr_character = {"rootNode": hips_index}
+    extensions_dict["KHR_character"] = make_json(extensions_khr_character)
 
     extensions_vrmc_vrm = {
         "specVersion": "1.0",
