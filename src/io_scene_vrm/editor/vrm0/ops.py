@@ -2612,8 +2612,10 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
         generated_mapping = create_human_bone_mapping(armature)
         generated_required_bone_count = sum(
             1
-            for human_bone_specification in generated_mapping.values()
-            if human_bone_specification.requirement
+            for vrm1_human_bone_specification in generated_mapping.values()
+            if HumanBoneSpecifications.get(
+                vrm1_human_bone_specification.vrm0_name
+            ).requirement
         )
 
         if default_requied_bone_count > generated_required_bone_count:
