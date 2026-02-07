@@ -808,3 +808,15 @@ class HumanBoneSpecifications:
         if human_bone_name is None:
             return None
         return HumanBoneSpecifications.get(human_bone_name)
+
+    @staticmethod
+    def from_vrm0_name_str(
+        vrm0_name_str: str,
+    ) -> Optional[HumanBoneSpecification]:
+        vrm0_name = Vrm0HumanBoneName.from_str(vrm0_name_str)
+        if vrm0_name is None:
+            return None
+        for human_bone in HumanBoneSpecifications.all_human_bones:
+            if human_bone.vrm0_name == vrm0_name:
+                return human_bone
+        return None

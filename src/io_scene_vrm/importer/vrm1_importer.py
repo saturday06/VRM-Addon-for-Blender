@@ -21,7 +21,6 @@ from ..common.logger import get_logger
 from ..common.preferences import get_preferences
 from ..common.progress import PartialProgress
 from ..common.version import get_addon_version
-from ..common.vrm1 import human_bone as vrm1_human_bone
 from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration
 from ..editor.extension import (
@@ -46,6 +45,7 @@ from ..editor.spring_bone1.property_group import (
     SpringBone1ColliderPropertyGroup,
     SpringBone1SpringBonePropertyGroup,
 )
+from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
 from ..editor.vrm1.property_group import (
     Vrm1ExpressionPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
@@ -913,6 +913,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             return
         addon_extension = get_armature_extension(self.armature_data)
         vrm1 = addon_extension.vrm1
+        vrm0 = addon_extension.vrm0
 
         addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM1
         vrm1_extension_dict = self.parse_result.vrm1_extension_dict
@@ -923,7 +924,9 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         textblock.write(json.dumps(self.parse_result.json_dict, indent=4))
 
         self.load_vrm1_meta(vrm1.meta, vrm1_extension_dict.get("meta"))
-        self.load_vrm1_humanoid(vrm1.humanoid, vrm1_extension_dict.get("humanoid"))
+        self.load_vrm1_humanoid(
+            vrm1.humanoid, vrm1_extension_dict.get("humanoid"), vrm0.humanoid
+        )
         self.setup_vrm1_humanoid_bones()
         self.load_vrm1_first_person(
             vrm1.first_person, vrm1_extension_dict.get("firstPerson")
@@ -1038,7 +1041,10 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             meta.other_license_url = str(other_license_url)
 
     def load_vrm1_humanoid(
-        self, humanoid: Vrm1HumanoidPropertyGroup, humanoid_dict: Json
+        self,
+        humanoid: Vrm1HumanoidPropertyGroup,
+        humanoid_dict: Json,
+        vrm0_humanoid: Vrm0HumanoidPropertyGroup,
     ) -> None:
         if not isinstance(humanoid_dict, dict):
             return
@@ -1047,15 +1053,11 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         if not isinstance(human_bones_dict, dict):
             return
 
-        human_bone_name_to_human_bone = (
-            humanoid.human_bones.human_bone_name_to_human_bone()
-        )
-
         assigned_bone_names: list[str] = []
-        for human_bone_name in [
-            human_bone.name
-            for human_bone in vrm1_human_bone.HumanBoneSpecifications.all_human_bones
-        ]:
+        for (
+            human_bone_name,
+            human_bone,
+        ) in humanoid.human_bones.human_bone_name_to_human_bone().items():
             human_bone_dict = human_bones_dict.get(human_bone_name.value)
             if not isinstance(human_bone_dict, dict):
                 continue
@@ -1065,7 +1067,25 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             bone_name = self.bone_names.get(node_index)
             if not isinstance(bone_name, str) or bone_name in assigned_bone_names:
                 continue
-            human_bone_name_to_human_bone[human_bone_name].node.bone_name = bone_name
+            human_bone.node.bone_name = bone_name
+            human_bone_specification = HumanBoneSpecifications.get(human_bone_name)
+
+            vrm0_human_bone_name = human_bone_specification.vrm0_name
+            vrm0_human_bone = next(
+                (
+                    vrm0_human_bone
+                    for vrm0_human_bone in vrm0_humanoid.human_bones
+                    if vrm0_human_bone.bone == vrm0_human_bone_name.value
+                ),
+                None,
+            )
+            if vrm0_human_bone:
+                logger.warning('Duplicated VRM0 bone: "%s"', vrm0_human_bone_name)
+            else:
+                vrm0_human_bone = vrm0_humanoid.human_bones.add()
+                vrm0_human_bone.bone = vrm0_human_bone_name.value
+            vrm0_human_bone.node.bone_name = bone_name
+
             assigned_bone_names.append(bone_name)
 
     def load_vrm1_first_person(

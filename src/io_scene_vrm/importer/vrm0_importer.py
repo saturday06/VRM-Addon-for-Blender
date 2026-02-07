@@ -24,6 +24,9 @@ from ..common.preferences import get_preferences
 from ..common.progress import PartialProgress
 from ..common.version import get_addon_version
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
+from ..common.vrm1.human_bone import (
+    HumanBoneSpecifications as Vrm1HumanBoneSpecifications,
+)
 from ..editor import make_armature, migration
 from ..editor.extension import get_armature_extension, get_material_extension
 from ..editor.make_armature import (
@@ -44,6 +47,7 @@ from ..editor.vrm0.property_group import (
     Vrm0MetaPropertyGroup,
     Vrm0SecondaryAnimationPropertyGroup,
 )
+from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 
 logger = get_logger(__name__)
@@ -679,6 +683,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         addon_extension = get_armature_extension(self.armature_data)
         addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM0
         vrm0 = addon_extension.vrm0
+        vrm1 = addon_extension.vrm1
 
         if self.parse_result.spec_version_number >= (1, 0):
             return
@@ -691,7 +696,9 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         textblock.write(json.dumps(self.parse_result.json_dict, indent=4))
 
         self.load_vrm0_meta(vrm0.meta, vrm0_extension.get("meta"))
-        self.load_vrm0_humanoid(vrm0.humanoid, vrm0_extension.get("humanoid"))
+        self.load_vrm0_humanoid(
+            vrm0.humanoid, vrm0_extension.get("humanoid"), vrm1.humanoid.human_bones
+        )
         setup_bones(self.context, armature)
         self.load_vrm0_first_person(
             vrm0.first_person, vrm0_extension.get("firstPerson")
@@ -787,7 +794,10 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                     meta.texture = self.images[image_index]
 
     def load_vrm0_humanoid(
-        self, humanoid: Vrm0HumanoidPropertyGroup, humanoid_dict: Json
+        self,
+        humanoid: Vrm0HumanoidPropertyGroup,
+        humanoid_dict: Json,
+        vrm1_human_bones: Vrm1HumanBonesPropertyGroup,
     ) -> None:
         if not isinstance(humanoid_dict, dict):
             return
@@ -821,8 +831,20 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                     logger.warning('Duplicated bone: "%s"', bone)
                 else:
                     human_bone = humanoid.human_bones.add()
-                human_bone.bone = bone
+                    human_bone.bone = bone
                 human_bone.node.bone_name = node_bone_name
+
+                vrm1_human_bone_specification = (
+                    Vrm1HumanBoneSpecifications.from_vrm0_name_str(bone)
+                )
+                if vrm1_human_bone_specification:
+                    vrm1_human_bone = (
+                        vrm1_human_bones.human_bone_name_to_human_bone().get(
+                            vrm1_human_bone_specification.name
+                        )
+                    )
+                    if vrm1_human_bone:
+                        vrm1_human_bone.node.bone_name = node_bone_name
 
                 use_default_values = human_bone_dict.get("useDefaultValues")
                 if isinstance(use_default_values, bool):

@@ -1054,10 +1054,9 @@ class AbstractBaseVrmImporter(ABC):
 
                 vrm0 = get_armature_extension(data).vrm0
                 vrm1 = get_armature_extension(data).vrm1
-                if self.parse_result.spec_version_number < (1, 0):
-                    vrm0.humanoid.initial_automatic_bone_assignment = False
-                else:
-                    vrm1.humanoid.human_bones.initial_automatic_bone_assignment = False
+                vrm0.humanoid.initial_automatic_bone_assignment = False
+                vrm1.humanoid.human_bones.initial_automatic_bone_assignment = False
+                if self.parse_result.spec_version_number >= (1, 0):
                     vrm1.expressions.initial_automatic_expression_assignment = False
                 vrm0.humanoid.pose = vrm0.humanoid.POSE_CURRENT_POSE.identifier
                 vrm1.humanoid.pose = vrm1.humanoid.POSE_CURRENT_POSE.identifier
