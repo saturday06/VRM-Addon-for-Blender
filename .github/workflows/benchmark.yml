@@ -35,7 +35,7 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/prepare-benchmark
         id: prepare-benchmark
-      - uses: CodSpeedHQ/action@0700edb451d0e9f2426f99bd6977027e550fb2a6 # v4.7.0
+      - uses: CodSpeedHQ/action@e736f0d2aeb36da38e9f08eca4dff7967408d154 # v4.8.2
         env:
           PYTHONPATH: "${{ github.workspace }}/src:${{ steps.prepare-benchmark.outputs.PYTHONPATH }}"
         with:
