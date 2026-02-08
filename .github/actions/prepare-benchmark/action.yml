@@ -2,6 +2,10 @@ name: prepare-benchmark
 
 description: "Preparing the benchmark."
 
+inputs:
+  require-cache:
+    default: false
+
 outputs:
   PYTHONPATH:
     value: ${{ steps.pythonpath.outputs.PYTHONPATH }}
@@ -84,7 +88,12 @@ runs:
       with:
         path: benchmark-dependencies.tar.gz
         key: benchmark-dependencies-${{ runner.os }}-${{ hashFiles('tools/install_ci_codspeed_dependencies.sh') }}
-    - if: steps.cache.outputs.cache-hit != 'true'
+    - if: ${{ steps.cache.outputs.cache-hit != 'true' && inputs.require-cache == 'true' }}
+      run: |
+        echo "Cache miss for benchmark dependencies, but cache is required. Failing the job." 1>&2
+        exit 1
+      shell: bash
+    - if: ${{ steps.cache.outputs.cache-hit != 'true' }}
       run: ./tools/install_ci_codspeed_dependencies.sh
       shell: bash
     - run: sudo rm -fr /opt/vrm
