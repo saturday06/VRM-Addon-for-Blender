@@ -722,7 +722,6 @@ class UILayout(bpy_struct):
         rows: int = 5,
         maxrows: int = 5,
         type: str = "DEFAULT",
-        columns: int = 9,
         sort_reverse: bool = False,
         sort_lock: bool = False,
     ) -> None: ...
