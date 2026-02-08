@@ -7,6 +7,9 @@
 
 * fixed a bug that caused alpha clip node switching to fail ([b522389](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b5223899b9b13aca30cf1ff44f182e88e2315494))
 
+### 🧪 Experimental
+* KHR_character support code under development ([603fcea](https://github.com/saturday06/VRM-Addon-for-Blender/commit/603fceaf6d21b884f5aad817484794b92221e257))
+
 ## [3.19.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.1...v3.19.2) (2026-01-23)
 
 
