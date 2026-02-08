@@ -11,10 +11,10 @@ requires-python = "==3.10.*" # I actually want to use 3.9, but bpy 3.6.* doesn't
 
 dependencies = [
   # https://github.com/saturday06/VRM-Addon-for-Blender/blob/v3.10.1/uv.lock#L12-L27
-  "bpy ==3.6.*; platform_machine == 'arm64' and sys_platform == 'darwin'",
-  "bpy ==3.6.*; platform_machine == 'x86_64' and sys_platform == 'darwin'",
-  "bpy ==3.6.*; platform_machine == 'x86_64' and sys_platform == 'linux'",
-  "bpy ==3.6.*; platform_machine == 'AMD64' and sys_platform == 'win32'",
+  "bpy ==3.6.*; python_version == '3.10.*' and platform_machine == 'arm64' and sys_platform == 'darwin'",
+  "bpy ==3.6.*; python_version == '3.10.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
+  "bpy ==3.6.*; python_version == '3.10.*' and platform_machine == 'x86_64' and sys_platform == 'linux'",
+  "bpy ==3.6.*; python_version == '3.10.*' and platform_machine == 'AMD64' and sys_platform == 'win32'",
 ]
 
 [dependency-groups]
