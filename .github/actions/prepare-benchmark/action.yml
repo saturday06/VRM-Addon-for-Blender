@@ -18,8 +18,10 @@ runs:
           cmake-curses-gui \
           cmake-gui patch \
           curl \
+          dasel \
           git \
           git-lfs \
+          jq \
           libboost-dev \
           libdbus-1-dev \
           libdecor-0-dev \
@@ -62,7 +64,18 @@ runs:
         # For reasons unknown, flamegraphs cannot be generated with Codspeed unless Python is
         # installed via actions/setup-python.
         python-version: ${{ env.BENCHMARK_PYTHON_VERSION }}
-    - run: pip3 install "numpy < 3" "requests < 3" "zstandard < 1" "pytest < 10" "pytest-codspeed < 5"
+    - uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+    - run: |
+        uv export --format pylock.toml > pylock.toml
+        dasel -f pylock.toml -w json > pylock.toml.json
+        pytest_version=$(jq -r '.packages[] | select(.name == "pytest") | .version' pylock.toml.json)
+        pytest_codspeed_version=$(jq -r '.packages[] | select(.name == "pytest-codspeed") | .version' pylock.toml.json)
+        pip3 install \
+          "numpy < 1.27" \
+          "pytest == ${pytest_version}" \
+          "pytest-codspeed == ${pytest_codspeed_version}" \
+          "requests < 2.33" \
+          "zstandard < 0.24"
       shell: bash
     - run: echo /opt/vrm/lib | sudo tee /etc/ld.so.conf.d/vrm.conf
       shell: bash
