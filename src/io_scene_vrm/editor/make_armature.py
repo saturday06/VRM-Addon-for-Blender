@@ -689,9 +689,9 @@ def connect_parent_tail_and_child_head_if_very_close_position(
 
         children_by_distance = sorted(
             bone.children,
-            key=lambda child: (child.parent.tail - child.head).length_squared
-            if child.parent
-            else 0.0,
+            key=lambda child: (
+                (child.parent.tail - child.head).length_squared if child.parent else 0.0
+            ),
         )
         for child in children_by_distance:
             if (bone.tail - child.head).length < AUTO_BONE_CONNECTION_DISTANCE and (

@@ -134,9 +134,8 @@ class PrincipledBsdfNodeSocketTarget(NodeSocketTarget):
         name = self.get_node_name(material)
         if name is None:
             return lambda _: False
-        return (
-            lambda node: isinstance(node, ShaderNodeBsdfPrincipled)
-            and node.name == name
+        return lambda node: (
+            isinstance(node, ShaderNodeBsdfPrincipled) and node.name == name
         )
 
 
@@ -153,9 +152,8 @@ class StaticNodeSocketTarget(NodeSocketTarget):
 
     def create_node_selector(self, material: Material) -> Callable[[Node], bool]:
         _ = material
-        return (
-            lambda node: isinstance(node, self.in_node_type)
-            and node.name == self.in_node_name
+        return lambda node: (
+            isinstance(node, self.in_node_type) and node.name == self.in_node_name
         )
 
 
