@@ -172,7 +172,7 @@ def update_property_typing(
         if class_def_index is None:
             # Find class definition
             pattern = "^class " + current_class.__name__ + "[^a-zA-Z0-9_]"
-            if re.match(pattern, line):
+            if re.search(pattern, line):
                 logger.info("class def found %s", class_def_index)
                 class_def_index = line_index
             else:
@@ -180,20 +180,22 @@ def update_property_typing(
 
         if class_def_colon_index is None:
             # Find colon
-            if re.match(".*:", line.split("#")[0]):
+            if ":" in line.split("#")[0]:
                 logger.info("class colon def found %s", class_def_colon_index)
                 class_def_colon_index = line_index
                 continue
             continue
 
         # Find `if TYPE_CHECKING:`
-        if re.match("^    if TYPE_CHECKING:", line):
+        if re.search("^    if TYPE_CHECKING:", line):
             class_type_checking_index = line_index
-        elif class_type_checking_index is not None and re.match("^    [a-zA-Z#]", line):
+        elif class_type_checking_index is not None and re.search(
+            "^    [a-zA-Z#]", line
+        ):
             # Reset `if TYPE_CHECKING:` if something else is found after it
             class_type_checking_index = None
 
-        if re.match(r"^\S", line):
+        if re.search(r"^\S", line):
             another_def_start_index = line_index
             break
 

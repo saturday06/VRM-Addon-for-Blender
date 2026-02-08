@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-import re
 import warnings
 from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, ClassVar, Optional, Protocol
@@ -2739,15 +2738,6 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         return any(
             expr_name in self.get_blockable_expressions(bt) for bt in blockable_types
         )
-
-    def get_property_value(self, armature: Object, data_path: str) -> object:
-        prop: object = armature
-        for prop_name in data_path.split("."):
-            if not re.match(prop_name, "^[a-zA-Z_][a-zA-Z0-9_]*$"):
-                message = f'Invalid prop name: "{prop_name}"'
-                raise AssertionError(message)
-            prop = getattr(prop, prop_name)
-        return prop
 
     def get_blockable_expressions(self, blockable_type: str) -> Sequence[str]:
         if blockable_type == "blink":

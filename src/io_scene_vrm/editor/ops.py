@@ -64,7 +64,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
 
     @staticmethod
     def vroid_bones_exist(armature: Armature) -> bool:
-        return any(map(FULL_PATTERN.match, armature.bones.keys()))
+        return any(map(FULL_PATTERN.search, armature.bones.keys()))
 
     def execute(self, context: Context) -> set[str]:
         if not self.armature_object_name and self.armature_name:
