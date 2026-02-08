@@ -450,8 +450,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     ) -> dict[str, Json]:
         meta_dict: dict[str, Json] = {
             "licenseUrl": "https://vrm.dev/licenses/1.0/",
-            "name": meta.vrm_name if meta.vrm_name else "undefined",
-            "version": meta.version if meta.version else "undefined",
+            "name": meta.vrm_name or "undefined",
+            "version": meta.version or "undefined",
             "avatarPermission": meta.avatar_permission,
             "allowExcessivelyViolentUsage": meta.allow_excessively_violent_usage,
             "allowExcessivelySexualUsage": meta.allow_excessively_sexual_usage,
