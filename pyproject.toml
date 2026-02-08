@@ -152,7 +152,7 @@ extend_skip_glob = ["*"] # Please use Ruff instead.
 ignore-paths = "." # Please use Ruff instead.
 
 [tool.ty.rules]
-unused-ignore-comment = "ignore"
+unused-type-ignore-comment = "ignore"
 
 [tool.ty.environment]
 python-version = "3.9" # It overrides 'project.requires-python = "== 3.10.*"'
