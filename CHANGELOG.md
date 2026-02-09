@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.19.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.3...v3.19.4) (2026-02-09)
+
+
+### 🐛 Bug Fixes
+
+* fix a bug where VRM0's automatic bone assignment could sometimes fail ([37f687f](https://github.com/saturday06/VRM-Addon-for-Blender/commit/37f687f5f20aad07db07d2fb0f5303f3c2d0dece))
+
 ## [3.19.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.2...v3.19.3) (2026-02-05)
 
 
