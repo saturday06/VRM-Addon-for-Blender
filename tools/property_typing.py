@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import logging
 import re
+import shutil
 import sys
+import tempfile
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import Optional
@@ -131,6 +133,7 @@ def write_property_typing(
 def update_property_typing(
     current_class: type,
     typing_code: str,
+    output_folder_path: Path,
     *,
     more: bool,
 ) -> None:
@@ -152,16 +155,19 @@ def update_property_typing(
         logger.info("Unexpected module: %s", module)
         return
 
-    path = Path(__file__).parent.parent / "src" / "io_scene_vrm"
+    relative_path = Path("io_scene_vrm")
     while modules:
         module = modules.pop()
-        path = path / module
-    path = path.with_suffix(".py")
+        relative_path = relative_path / module
+    relative_path = relative_path.with_suffix(".py")
+    input_path = Path(__file__).parent.parent / "src" / relative_path
+    output_path = output_folder_path / relative_path
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info("%s", path)
+    logger.info("%s -> %s", input_path, output_path)
 
     # Find the definition location of the corresponding class
-    lines = path.read_text(encoding="UTF-8").splitlines()
+    lines = input_path.read_text(encoding="UTF-8").splitlines()
     # Skip to the definition of the corresponding class
 
     class_def_index: Optional[int] = None
@@ -232,19 +238,11 @@ def update_property_typing(
             + typing_code.replace("# type: ignore[no-redef]", ""),
         )
 
-    path.write_bytes(str.join("\n", lines).encode())
+    output_path.write_bytes(str.join("\n", lines).encode().strip() + b"\n")
 
 
-def main() -> int:
-    argument_parser = ArgumentParser()
-    argument_parser.add_argument("--more", action="store_true", dest="more")
-    args = argument_parser.parse_args()
-    more: bool = args.more
-
-    ops_dir = Path(__file__).parent.parent / "src" / "io_scene_vrm" / "common" / "ops"
-    for generated_py_path in ops_dir.glob("*.py"):
-        if generated_py_path.name != "__init__.py":
-            generated_py_path.unlink()
+def generate_property_typing_code(output_folder_path: Path, *, more: bool) -> int:
+    ops_folder_path = output_folder_path / "io_scene_vrm" / "common" / "ops"
 
     classes = list(registration.classes)
     searching_classes = list(registration.classes)
@@ -269,7 +267,7 @@ def main() -> int:
             if isinstance(bl_idname, str):
                 dirs = bl_idname.split(".")
                 method = dirs.pop()
-                ops_path = ops_dir / Path(*dirs).with_suffix(".py")
+                ops_path = ops_folder_path / Path(*dirs).with_suffix(".py")
                 logger.info("%s", ops_path)
                 ops_code = (
                     "# This code is auto generated.\n"
@@ -349,6 +347,7 @@ def main() -> int:
             ops_code += "    )\n\n\n"
             logger.info("%s", ops_code)
             if not ops_path.exists():
+                ops_path.parent.mkdir(parents=True, exist_ok=True)
                 ops_code = (
                     "# This code is auto generated.\n"
                     + "# To regenerate, run the"
@@ -360,7 +359,31 @@ def main() -> int:
             if ops_path.exists():
                 ops_code = ops_path.read_text() + ops_code
             ops_path.write_text(ops_code)
-        update_property_typing(current_class, code, more=more)
+        update_property_typing(current_class, code, output_folder_path, more=more)
+    return 0
+
+
+def main() -> int:
+    argument_parser = ArgumentParser()
+    argument_parser.add_argument("--more", action="store_true", dest="more")
+    args = argument_parser.parse_args()
+    more: bool = args.more
+
+    with tempfile.TemporaryDirectory() as temp_folder_path_str:
+        output_folder_path = Path(temp_folder_path_str) / "output"
+        code_generation_result = generate_property_typing_code(
+            output_folder_path, more=more
+        )
+        if code_generation_result != 0:
+            return code_generation_result
+
+        src_folder_path = Path(__file__).parent.parent / "src"
+        ops_folder_path = src_folder_path / "io_scene_vrm" / "common" / "ops"
+        for ops_py_path in ops_folder_path.glob("*.py"):
+            if ops_py_path.name != "__init__.py":
+                ops_py_path.unlink()
+
+        shutil.copytree(output_folder_path, src_folder_path, dirs_exist_ok=True)
     return 0
 
 
