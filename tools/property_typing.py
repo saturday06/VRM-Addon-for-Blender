@@ -149,17 +149,14 @@ def update_property_typing(
 
     # Find the corresponding file
     modules = current_class.__module__.split(".")
-    modules.reverse()
-    module = modules.pop()
-    if module != "io_scene_vrm":
-        logger.info("Unexpected module: %s", module)
+    if any(not module.isidentifier() for module in modules):
+        message = f"Unexpected module: {current_class.__module__}"
+        raise AssertionError(message)
+    if modules[0] != "io_scene_vrm":
+        logger.info("Skipping module: %s", modules[0])
         return
 
-    relative_path = Path("io_scene_vrm")
-    while modules:
-        module = modules.pop()
-        relative_path = relative_path / module
-    relative_path = relative_path.with_suffix(".py")
+    relative_path = Path(*modules).with_suffix(".py")
     input_path = Path(__file__).parent.parent / "src" / relative_path
     output_path = output_folder_path / relative_path
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -265,9 +262,12 @@ def generate_property_typing_code(output_folder_path: Path, *, more: bool) -> in
             logger.info("##### ops #####")
             bl_idname = convert_any.to_object(getattr(current_class, "bl_idname", None))
             if isinstance(bl_idname, str):
-                dirs = bl_idname.split(".")
-                method = dirs.pop()
-                ops_path = ops_folder_path / Path(*dirs).with_suffix(".py")
+                modules = bl_idname.split(".")
+                if any(not module.isidentifier() for module in modules):
+                    message = f"Unexpected bl_idname: {bl_idname}"
+                    raise AssertionError(message)
+                method = modules.pop()
+                ops_path = ops_folder_path / Path(*modules).with_suffix(".py")
                 logger.info("%s", ops_path)
                 ops_code = (
                     "# This code is auto generated.\n"
