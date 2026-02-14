@@ -68,7 +68,7 @@ runs:
         # For reasons unknown, flamegraphs cannot be generated with Codspeed unless Python is
         # installed via actions/setup-python.
         python-version: ${{ env.BENCHMARK_PYTHON_VERSION }}
-    - uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # v7.2.0
+    - uses: astral-sh/setup-uv@803947b9bd8e9f986429fa0c5a41c367cd732b41 # v7.2.1
     - run: |
         uv export --format pylock.toml > pylock.toml
         dasel -f pylock.toml -w json > pylock.toml.json
@@ -83,7 +83,7 @@ runs:
       shell: bash
     - run: echo /opt/vrm/lib | sudo tee /etc/ld.so.conf.d/vrm.conf
       shell: bash
-    - uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+    - uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
       id: cache
       with:
         path: benchmark-dependencies.tar.gz
