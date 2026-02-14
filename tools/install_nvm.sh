@@ -12,7 +12,7 @@ NVM_SHELL_CONFIG
 fi
 
 # https://github.com/nvm-sh/nvm/blob/v0.40.3/README.md?plain=1#L107
-nvm_installer_url="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh"
+nvm_installer_url="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh"
 if command -v curl; then
   curl \
     --fail \
