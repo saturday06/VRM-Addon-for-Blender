@@ -47,6 +47,6 @@ if [ -n "$cached_image_path" ] && [ "$cached_image_id" != "$new_image_id" ]; the
 fi
 
 # Run the built super-linter.
-docker run --rm -v "${repository_root_path}:/tmp/lint" "$super_linter_tag_name"
+docker run --rm -v "${repository_root_path}:/tmp/lint" "$@" "$super_linter_tag_name"
 
 : ----- OK ----- : +

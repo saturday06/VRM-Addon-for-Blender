@@ -20,7 +20,7 @@ ENV FILTER_REGEX_EXCLUDE="^/tmp/lint/CHANGELOG\.md$"
 # https://github.com/super-linter/super-linter?tab=readme-ov-file#configure-linters
 ENV LINTER_RULES_PATH=.
 
-ENV DEFAULT_BRANCH=main
+ENV DEFAULT_BRANCH=HEAD
 ENV SAVE_SUPER_LINTER_SUMMARY=true
 
 ENV GITHUB_ACTIONS_CONFIG_FILE=.github/actionlint.yaml

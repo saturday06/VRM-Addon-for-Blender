@@ -35,6 +35,16 @@
     },
     {
       "customType": "regex",
+      "managerFilePatterns": ["/^tools/install_act.sh$/"],
+      "matchStrings": [
+        "\"https://github\\.com/nektos/act/releases/download/(?<currentValue>v\\d+\\.\\d+\\.\\d+)/act_Linux_x86_64\\.tar\\.gz\"",
+        "\"https://github\\.com/nektos/act/releases/download/(?<currentValue>v\\d+\\.\\d+\\.\\d+)/act_Linux_arm64\\.tar\\.gz\""
+      ],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "nektos/act"
+    },
+    {
+      "customType": "regex",
       "managerFilePatterns": ["/^.dvmrc$/"],
       "matchStrings": ["(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
       "datasourceTemplate": "github-releases",

@@ -169,9 +169,10 @@ jobs:
         run: sudo ./tools/install_ubuntu_packages.sh
       - name: Test
         run: |
-          mkdir -p "${HOME}/.local/blender"
-          tar -x --strip-components=1 -f blender.tar.xz -C "${HOME}/.local/blender"
-          "${HOME}/.local/blender/blender" --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
+          blender_base_path="$PWD/tests/temp/blender"
+          mkdir -p "$blender_base_path"
+          tar -x --strip-components=1 -f blender.tar.xz -C "$blender_base_path"
+          "${blender_base_path}/blender" --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: failure()
