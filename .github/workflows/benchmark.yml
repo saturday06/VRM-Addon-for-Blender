@@ -37,7 +37,7 @@ jobs:
         id: prepare-benchmark
         with:
           require-cache: true
-      - uses: CodSpeedHQ/action@208425962c215de49ed713e18c4b9bde9bda5c52 # v4.10.2
+      - uses: CodSpeedHQ/action@4deb3275dd364fb96fb074c953133d29ec96f80f # v4.10.6
         env:
           PYTHONPATH: "${{ github.workspace }}/src:${{ steps.prepare-benchmark.outputs.PYTHONPATH }}"
         with:
