@@ -40,10 +40,8 @@ jobs:
         id: cache-archive
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
-          path: |
-            blender.zip
-            tests/temp
-          key: ${{ matrix.blender.archive_url_path }}-archive-9
+          path: tests/temp
+          key: ${{ matrix.blender.archive_url_path }}-archive-10
       - name: Download archive
         if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
@@ -52,7 +50,7 @@ jobs:
           $retry = 10
           for (; $true; $retry--) {
             try {
-              Start-BitsTransfer blender.zip -Source $env:BLENDER_ARCHIVE_URL
+              Start-BitsTransfer tests\temp\blender.zip -Source $env:BLENDER_ARCHIVE_URL
               break
             } catch {
               if ($retry -le 0) {
@@ -63,8 +61,8 @@ jobs:
           }
       - name: Test
         run: |
-          Expand-Archive -LiteralPath blender.zip -DestinationPath "$env:TEMP\blender"
-          $env:BLENDER_VRM_TEST_BLENDER_PATH = (Get-ChildItem "$env:TEMP\blender\*\blender.exe")[0].FullName
+          Expand-Archive -LiteralPath tests\temp\blender.zip -DestinationPath tests\temp\blender
+          $env:BLENDER_VRM_TEST_BLENDER_PATH = (Get-ChildItem "tests\temp\blender\*\blender.exe")[0].FullName
           & $env:BLENDER_VRM_TEST_BLENDER_PATH --background -noaudio --python-exit-code 1 --python tools\unittest_discover.py
       - name: Archive failed io test result
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -102,16 +100,14 @@ jobs:
         id: cache-archive
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
-          path: |
-            blender.dmg
-            tests/temp
-          key: ${{ matrix.blender.archive_url_path }}-archive-9
+          path: tests/temp
+          key: ${{ matrix.blender.archive_url_path }}-archive-10
       - name: Download archive
         if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
           BLENDER_ARCHIVE_URL: ${{ env.BLENDER_ARCHIVE_BASE_URL }}/${{ matrix.blender.archive_url_path }}
         run: |
-          curl --fail --show-error --location --retry 5 --retry-all-errors --output blender.dmg "$BLENDER_ARCHIVE_URL"
+          curl --fail --show-error --location --retry 5 --retry-all-errors --output tests/temp/blender.dmg "$BLENDER_ARCHIVE_URL"
       - name: Install dependencies
         run: |
           for retry in $(seq 5 -1 0); do
@@ -126,9 +122,11 @@ jobs:
           done
       - name: Test
         run: |
-          hdiutil attach blender.dmg
-          cp -fr /Volumes/Blender/Blender.app /Applications
-          /Applications/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
+          unpack_path=$(mktemp -d)
+          hdiutil attach tests/temp/blender.dmg -mountpoint "$unpack_path"
+          cp -fr "${unpack_path}/Blender.app" tests/temp
+          hdiutil detach "$unpack_path" || true
+          ./tests/temp/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: failure()
@@ -155,23 +153,21 @@ jobs:
         id: cache-archive
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
-          path: |
-            blender.tar.xz
-            tests/temp
-          key: ${{ matrix.blender.archive_url_path }}-archive-9
+          path: tests/temp
+          key: ${{ matrix.blender.archive_url_path }}-archive-10
       - name: Download archive
         if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
           BLENDER_ARCHIVE_URL: ${{ env.BLENDER_ARCHIVE_BASE_URL }}/${{ matrix.blender.archive_url_path }}
         run: |
-          curl --fail --show-error --location --retry 5 --retry-all-errors --output blender.tar.xz "$BLENDER_ARCHIVE_URL"
+          curl --fail --show-error --location --retry 5 --retry-all-errors --output tests/temp/blender.tar.xz "$BLENDER_ARCHIVE_URL"
       - name: Install dependencies
         run: sudo ./tools/install_ubuntu_packages.sh
       - name: Test
         run: |
           blender_base_path="$PWD/tests/temp/blender"
           mkdir -p "$blender_base_path"
-          tar -x --strip-components=1 -f blender.tar.xz -C "$blender_base_path"
+          tar -x --strip-components=1 -f tests/temp/blender.tar.xz -C "$blender_base_path"
           "${blender_base_path}/blender" --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
