@@ -41,7 +41,7 @@ jobs:
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: tests/temp
-          key: ${{ matrix.blender.archive_url_path }}-archive-10
+          key: ${{ matrix.blender.archive_url_path }}-archive-11
       - name: Download archive
         if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
@@ -61,8 +61,8 @@ jobs:
           }
       - name: Test
         run: |
-          Expand-Archive -LiteralPath tests\temp\blender.zip -DestinationPath tests\temp\blender
-          $env:BLENDER_VRM_TEST_BLENDER_PATH = (Get-ChildItem "tests\temp\blender\*\blender.exe")[0].FullName
+          Expand-Archive -LiteralPath tests\temp\blender.zip -DestinationPath .github\blender
+          $env:BLENDER_VRM_TEST_BLENDER_PATH = (Get-ChildItem ".github\blender\*\blender.exe")[0].FullName
           & $env:BLENDER_VRM_TEST_BLENDER_PATH --background -noaudio --python-exit-code 1 --python tools\unittest_discover.py
       - name: Archive failed io test result
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -101,7 +101,7 @@ jobs:
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: tests/temp
-          key: ${{ matrix.blender.archive_url_path }}-archive-10
+          key: ${{ matrix.blender.archive_url_path }}-archive-11
       - name: Download archive
         if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
@@ -124,9 +124,9 @@ jobs:
         run: |
           unpack_path=$(mktemp -d)
           hdiutil attach tests/temp/blender.dmg -mountpoint "$unpack_path"
-          cp -fr "${unpack_path}/Blender.app" tests/temp
+          cp -fr "${unpack_path}/Blender.app" .github/Blender.app
           hdiutil detach "$unpack_path" || true
-          ./tests/temp/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
+          ./.github/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: failure()
@@ -154,7 +154,7 @@ jobs:
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: tests/temp
-          key: ${{ matrix.blender.archive_url_path }}-archive-10
+          key: ${{ matrix.blender.archive_url_path }}-archive-11
       - name: Download archive
         if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
@@ -165,7 +165,7 @@ jobs:
         run: sudo ./tools/install_ubuntu_packages.sh
       - name: Test
         run: |
-          blender_base_path="$PWD/tests/temp/blender"
+          blender_base_path="$PWD/.github/blender"
           mkdir -p "$blender_base_path"
           tar -x --strip-components=1 -f tests/temp/blender.tar.xz -C "$blender_base_path"
           "${blender_base_path}/blender" --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
