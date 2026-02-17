@@ -4,7 +4,6 @@
 set -eux -o pipefail
 
 install_ubuntu_vnc_packages() (
-  timeout 5m apt-get update -qq || exit 1
   DEBIAN_FRONTEND=noninteractive timeout 15m apt-get install \
     blender \
     build-essential \
@@ -18,7 +17,7 @@ install_ubuntu_vnc_packages() (
     websockify \
     xterm \
     xvfb \
-    -y --no-install-recommends ||
+    --yes --update --no-install-recommends ||
     exit 1
 )
 

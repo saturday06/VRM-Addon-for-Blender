@@ -4,7 +4,6 @@
 set -eux -o pipefail
 
 install_ubuntu_packages() (
-  timeout 5m apt-get update -qq || exit 1
   DEBIAN_FRONTEND=noninteractive timeout 15m apt-get install \
     advancecomp \
     curl \
@@ -36,7 +35,7 @@ install_ubuntu_packages() (
     xxd \
     xz-utils \
     zopfli \
-    -y --no-install-recommends ||
+    --yes --update --no-install-recommends ||
     exit 1
 )
 
