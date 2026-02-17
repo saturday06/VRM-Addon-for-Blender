@@ -19,7 +19,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install deb packages
-        run: sudo ./tools/install_ubuntu_packages.sh
+        run: if sudo --non-interactive true; then sudo ./tools/install_ubuntu_packages.sh; fi
       - uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # v2.0.3
         with:
           deno-version-file: .dvmrc

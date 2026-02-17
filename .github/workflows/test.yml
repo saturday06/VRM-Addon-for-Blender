@@ -162,7 +162,7 @@ jobs:
         run: |
           curl --fail --show-error --location --retry 5 --retry-all-errors --output tests/temp/blender.tar.xz "$BLENDER_ARCHIVE_URL"
       - name: Install dependencies
-        run: sudo ./tools/install_ubuntu_packages.sh
+        run: if sudo --non-interactive true; then sudo ./tools/install_ubuntu_packages.sh; fi
       - name: Test
         run: |
           blender_base_path="$PWD/.github/blender"
