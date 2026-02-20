@@ -11,7 +11,7 @@ repository_root_path=$(
 python_site_packages_path="${CMAKE_PREFIX_PATH}/lib/python3.12/site-packages"
 
 sudo mkdir -p "$CMAKE_PREFIX_PATH"
-sudo chown "$(id -u):$(id -g)" "$CMAKE_PREFIX_PATH"
+sudo chown "$(id -un):$(id -gn)" "$CMAKE_PREFIX_PATH"
 
 mkdir -p "$python_site_packages_path"
 
