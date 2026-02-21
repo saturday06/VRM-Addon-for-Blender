@@ -10,7 +10,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "The installed VRM add-on is not compatible with Blender {blender_version}."
         + " Please upgrade the add-on.",
     ): "已安装的 VRM 附加组件有"
-    + "Blender {blender_version}尚不支持。。\n"
+    + "Blender {blender_version}尚不支持。\n"
     + "更新附加组件。",
     (
         "*",
@@ -90,12 +90,12 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         "No errors found. Ready to export VRM",
-    ): "未发现任何错误。。可导出 VRM",
+    ): "未发现任何错误。可导出 VRM",
     (
         "*",
         "No errors found. But there are {warning_count} warning(s)."
         + " The output may not be what you expected.",
-    ): "没有错误。、{warning_count}有关于此的警告。。" + "输出结果可能与预期不同。",
+    ): "没有错误。、{warning_count}有关于此的警告。" + "输出结果可能与预期不同。",
     ("*", "VRM Export"): "VRM 输出",
     ("*", "Create VRM Model"): "创建 VRM 模型",
     ("*", "Check VRM Model"): "按VRM 模型标准检查",
@@ -111,19 +111,19 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         "Multiple armatures were found. Please select one to export as VRM.",
-    ): "存在多个armatures。。" + "选择要导出为 VRM 的armatures。",
+    ): "存在多个armatures。" + "选择要导出为 VRM 的armatures。",
     ("*", "Import Anyway"): "强制导入",
     ("*", "Export Anyway"): "强制导出",
     (
         "*",
         "There is a high-impact warning. VRM may not export as intended.",
-    ): "有影响较大的警告。。" + "VRM 可能无法按预期输出。",
+    ): "有影响较大的警告。" + "VRM 可能无法按预期输出。",
     ("*", "A light is required"): "需要照明。",
     ("*", "License Confirmation"): "许可确认。",
     (
         "*",
         'This VRM is licensed by VRoid Hub License "Alterations: No".',
-    ): "指定的 VRM 具有 VRoid Hub 的许可「改変: 禁止」。。",
+    ): "指定的 VRM 具有 VRoid Hub 的许可「改变: 禁止」。",
     (
         "*",
         'This VRM is licensed by UV License with "Remarks".',
@@ -136,7 +136,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         "glTF nodes (mesh, bone) cannot have duplicate names."
         + " {name} is duplicated.",
-    ): "glTF 节点元素(网格,骨骼)名称不得重复。。" + "「{name}」是重复的。。",
+    ): "glTF 节点元素(网格,骨骼)名称不得重复。" + "「{name}」是重复的。",
     (
         "*",
         "The same name cannot be used"
@@ -174,7 +174,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + ' "VRM" Panel → "VRM 0.x Humanoid" → {humanoid_name}'
         + " will be empty or displayed in red"
         + " if hierarchy is wrong",
-    ): "VRM必须的骨骼「{humanoid_name}」是未指定的。。"
+    ): "VRM必须的骨骼「{humanoid_name}」是未指定的。"
     + "「VRM」面板「VRM 0.x Humanoid」→「VRM必须的骨骼」将为空或显示为红色"
     + "「{humanoid_name}」如果层次结构有误。",
     (
@@ -195,7 +195,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + '"VRM" Panel → "Humanoid" → {humanoid_name}'
         + " will be empty or displayed in red"
         + " if hierarchy is wrong",
-    ): "VRM必须的骨骼「{humanoid_name}」是未指定的。。"
+    ): "VRM必须的骨骼「{humanoid_name}」是未指定的。"
     + "「VRM」面板「Humanoid」→「VRM必须的骨骼」将为空或显示为红色"
     + "「{humanoid_name}」如果层次结构有误。",
     (
@@ -206,7 +206,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'Please assign "{parent_name}"'
         + ' because "{name}" requires it as its child bone.',
-    ): "「{parent_name}」指定。" + "因为「{name}」需要将其作为子骨骼。。",
+    ): "「{parent_name}」指定。" + "因为「{name}」需要将其作为子骨骼。",
     (
         "*",
         'Non-triangular faces detected in "{name}". '
@@ -220,7 +220,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + ' → "Optional VRM Human Bones" → "{parent}".',
     ): "VRM骨骼「{child}」需要「{parent}」。"
     + "「VRM」面板「Humanoid」→「VRM可选的骨骼」で"
-    + "「{parent}」骨骼設定。",
+    + "「{parent}」骨骼设定。",
     (
         "*",
         'Object "{name}" contains a negative value for the scale;'
@@ -232,21 +232,21 @@ translation_dictionary: dict[tuple[str, str], str] = {
         'Node Constraint "{owner_name} / {constraint_name}" has'
         + " a circular dependency",
     ): "ノードコンストレイント「{owner_name} / {constraint_name}」に"
-    + "存在循环依赖关系。。",
-    ("*", "No armature exists."): "骨架不存在。。",
+    + "存在循环依赖关系。",
+    ("*", "No armature exists."): "骨架不存在。",
     (
         "*",
         'vertex index "{vertex_index}" is no weight'
         + ' in "{mesh_name}".'
         + " Add weight to parent bone automatically.",
-    ): "「{mesh_name}」的頂点id「{vertex_index}」未加权。" + "自动为父骨骼分配权重。。",
+    ): "「{mesh_name}」的顶点id「{vertex_index}」未加权。" + "自动为父骨骼分配权重。",
     (
         "*",
         'vertex index "{vertex_index}" has'
         + ' too many (over 4) weight in "{mesh_name}".'
         + " It will be truncated to 4 descending"
         + " order by its weight.",
-    ): "「{mesh_name}」的頂点id「{vertex_index}」有 5 块或更多骨骼影响到。"
+    ): "「{mesh_name}」的顶点id「{vertex_index}」有 5 块或更多骨骼影响到。"
     + "最多 4 个，按重度顺序导出。",
     (
         "*",
@@ -256,19 +256,19 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + ' to "Surface" directly. Empty material will be exported.',
     ): "「{material_name}」需要启用「VRM MToon Material」或者链接"
     + "「原理化BSDF」「MToon_unversioned」「TRANSPARENT_ZWRITE」の"
-    + "直接向 “表面 ”指定其中之一。 输出空材质。。",
+    + "直接向 “表面 ”指定其中之一。 输出空材质。",
     (
         "*",
         '"{image_name}" was not found at file path "{image_filepath}". '
         + "Please load the file in Blender.",
     ): '「{image_name}」指定文件路径中的图像文件。「"{image_filepath}"」'
-    + "图像不存在于 请重新加载图像。。",
+    + "图像不存在于 请重新加载图像。",
     (
         "*",
         "firstPersonBone was not found. "
         + 'VRM HumanBone "head" will be used automatically instead.',
-    ): "firstPersonBone未设置。。"
-    + "自动设置将 VRM humanborn「head」改为 firstPersonBone。。",
+    ): "firstPersonBone未设置。"
+    + "自动设置将 VRM HumanBone「head」改为 firstPersonBone。",
     (
         "*",
         'A mesh named "{mesh_name}" is assigned to a blend'
@@ -357,7 +357,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "约束导出为动画约束\n"
     + " - 阻尼轨道\n"
     + " - 启用状态\n"
-    + " - 目标骨头的头部/Tail is 0\n"
+    + " - 目标骨头的{head_tail} is 0\n"
     + " - 不遵循目标骨骼的 B 骨\n"
     + " - 循环依赖关系不存在\n"
     + " - 满足所有条件的\n",
@@ -404,7 +404,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         'Material "{name}" {texture}\'s Offset and Scale'
         + " in VRM 0.0 are the values of"
         + " the Lit Color Texture",
-    ): "VRM 0.0材质「name」的{texture}的偏移和缩放为" + "Lit Color Texture的值",
+    ): "VRM 0.0材质「{name}」的{texture}的偏移和缩放为" + "Lit Color Texture的值",
     (
         "*",
         'It is recommended to set "{colorspace}"'
@@ -482,7 +482,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
             + "- Look At preview target translation\n"
         ),
     ): (
-        "エクスポートされるアニメーション\n"
+        "Animations to be exported\n"
         + "- 人形骨骼旋转值\n"
         + "- Humanoid Hips骨骼运动值\n"
         + "- 表情的预览值\n"
@@ -525,11 +525,11 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + 'Please check the "{alpha_mode}" settings for materials that have'
         + " MToon enabled.\n"
         + "Materials that may be affected are as follows:",
-    ): "升级到 Blender 4.2可能会无意间改变一些MOOT材质的"
+    ): "升级到 Blender 4.2可能会无意间改变一些MToon材质的"
     + "「{alpha_mode}」为「{transparent}」\n"
-    + "这是以前使用材质的“{blend_mode}实现的"
+    + "这是以前使用材质的“{blend_mode}”实现的"
     + "但由于该设置在Blender 4.2中被删除\n"
-    + "現在的VRM插件，这个「{alpha_mode}」功能使用其他方式实现"
+    + "现在的VRM插件，这个「{alpha_mode}」功能使用其他方式实现"
     + "但是无法自动迁移旧的配置 因为这些参数无法读取了\n"
     + "请检查材质「{alpha_mode}」设置中。"
     + "具有MToon启动\n"
