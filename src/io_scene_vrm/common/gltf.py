@@ -4,7 +4,7 @@ import json
 import struct
 from io import BytesIO
 from typing import Final, Optional, Union
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 from mathutils import Quaternion, Vector
 
@@ -181,8 +181,6 @@ def read_accessor_as_bytes(
     if buffer_index == 0 and bin_chunk_bytes is not None:
         buffer_bytes = bin_chunk_bytes
     else:
-        prefix = "application/gltf-buffer;base64,"
-
         buffer_dict = buffer_dicts[buffer_index]
         if not isinstance(buffer_dict, dict):
             return None
@@ -196,10 +194,19 @@ def read_accessor_as_bytes(
             return None
         if parsed_url.scheme != "data":
             return None
-        if not parsed_url.path.startswith(prefix):  # TODO: all variants
+
+        path_components = parsed_url.path.split(",", 1)
+        if len(path_components) != 2:
             return None
-        buffer_base64 = parsed_url.path.removeprefix(prefix)
-        buffer_bytes = base64.b64decode(buffer_base64)
+
+        header, data = path_components
+        if not header.endswith(";base64"):
+            return None
+        unquoted_data = unquote(data)
+        try:
+            buffer_bytes = base64.b64decode(unquoted_data)
+        except ValueError:
+            return None
 
     byte_offset = buffer_view_dict.get("byteOffset", 0)
     if not isinstance(byte_offset, int):
