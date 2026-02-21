@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 # SPDX-FileCopyrightText: 2018 iCyP
 
+import functools
 import json
 import math
 import uuid
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Optional, Union
 
@@ -168,18 +169,45 @@ class MaterialProperty:
         )
 
 
+def calculate_mtoon0_render_queue_offset_maps(
+    material_properties: Sequence[MaterialProperty],
+) -> tuple[Mapping[int, int], Mapping[int, int]]:
+    """Build render queue offset maps for MToon0 materials.
+
+    Based on UniVRM's migration logic:
+    https://github.com/vrm-c/UniVRM/blob/v0.131.0/Packages/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs#L33-L131
+
+    Returns a tuple of (transparent_queue_map, transparent_z_write_queue_map).
+    The maps convert raw VRM0 render queue values to MToon1 render queue offset numbers.
+    For Transparent materials, the highest raw queue maps to 0, then -1, -2, ...
+    For TransparentWithZWrite materials, the lowest raw queue maps to 0, then 1, 2, ...
+    """
+    transparent_render_queues: set[int] = set()
+    transparent_z_write_render_queues: set[int] = set()
+    for material_property in material_properties:
+        if (
+            material_property.shader != "VRM/MToon"
+            or material_property.render_queue is None
+        ):
+            continue
+        blend_mode = material_property.float_properties.get("_BlendMode")
+        if blend_mode is None:
+            continue
+        if math.fabs(blend_mode - 2) < 0.001:
+            transparent_render_queues.add(material_property.render_queue)
+        elif math.fabs(blend_mode - 3) < 0.001:
+            transparent_z_write_render_queues.add(material_property.render_queue)
+    transparent_queue_map = {
+        q: -i for i, q in enumerate(sorted(transparent_render_queues, reverse=True))
+    }
+    transparent_z_write_queue_map = {
+        q: i for i, q in enumerate(sorted(transparent_z_write_render_queues))
+    }
+    return transparent_queue_map, transparent_z_write_queue_map
+
+
 class Vrm0Importer(AbstractBaseVrmImporter):
     def load_materials(self, progress: PartialProgress) -> None:
-        shader_to_assignment_method = {
-            "VRM/MToon": self.assign_mtoon0_property,
-            "VRM/UnlitTexture": self.assign_unlit_texture_property,
-            "VRM/UnlitCutout": self.assign_unlit_cutout_property,
-            "VRM/UnlitTransparent": self.assign_unlit_transparent_property,
-            "VRM/UnlitTransparentZWrite": (
-                self.assign_unlit_transparent_z_write_property
-            ),
-        }
-
         material_dicts = self.parse_result.json_dict.get("materials")
         if not isinstance(material_dicts, list):
             return
@@ -188,6 +216,27 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             MaterialProperty.create(self.parse_result.json_dict, index)
             for index in range(len(material_dicts))
         ]
+
+        transparent_queue_map, transparent_z_write_queue_map = (
+            calculate_mtoon0_render_queue_offset_maps(material_properties)
+        )
+
+        shader_to_assignment_method: Mapping[
+            str,
+            Callable[[Material, MaterialProperty], None],
+        ] = {
+            "VRM/MToon": functools.partial(
+                self.assign_mtoon0_property,
+                transparent_queue_map=transparent_queue_map,
+                transparent_z_write_queue_map=transparent_z_write_queue_map,
+            ),
+            "VRM/UnlitTexture": self.assign_unlit_texture_property,
+            "VRM/UnlitCutout": self.assign_unlit_cutout_property,
+            "VRM/UnlitTransparent": self.assign_unlit_transparent_property,
+            "VRM/UnlitTransparentZWrite": (
+                self.assign_unlit_transparent_z_write_property
+            ),
+        }
 
         for index, material_property in enumerate(material_properties):
             assignment_method = shader_to_assignment_method.get(
@@ -294,7 +343,11 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         )
 
     def assign_mtoon0_property(
-        self, material: Material, material_property: MaterialProperty
+        self,
+        material: Material,
+        material_property: MaterialProperty,
+        transparent_queue_map: Mapping[int, int],
+        transparent_z_write_queue_map: Mapping[int, int],
     ) -> None:
         # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_15_26/io_scene_vrm/editor/mtoon1/ops.py#L98
         material.use_backface_culling = True
@@ -571,6 +624,17 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         render_queue = material_property.render_queue
         if render_queue is not None:
             gltf.mtoon0_render_queue = render_queue
+
+        # https://github.com/vrm-c/UniVRM/blob/v0.131.0/Packages/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs#L100-L131
+        if render_queue is not None:
+            if blend_mode is not None and math.fabs(blend_mode - 2) < 0.001:
+                mtoon.render_queue_offset_number = max(
+                    -9, min(0, transparent_queue_map.get(render_queue, 0))
+                )
+            elif blend_mode is not None and math.fabs(blend_mode - 3) < 0.001:
+                mtoon.render_queue_offset_number = max(
+                    0, min(9, transparent_z_write_queue_map.get(render_queue, 0))
+                )
 
     def assign_unlit_common_property(
         self,

@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from unittest import main
+from typing import Optional
+from unittest import TestCase
 
 import bpy
 from bpy.types import Armature
@@ -8,7 +9,11 @@ from mathutils import Vector
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.debug import assert_vector3_equals
 from io_scene_vrm.common.test_helper import AddonTestCase
-from io_scene_vrm.importer.vrm0_importer import setup_bones
+from io_scene_vrm.importer.vrm0_importer import (
+    MaterialProperty,
+    calculate_mtoon0_render_queue_offset_maps,
+    setup_bones,
+)
 
 
 class TestVrm0Importer(AddonTestCase):
@@ -330,5 +335,114 @@ class TestVrm0Importer(AddonTestCase):
         )
 
 
-if __name__ == "__main__":
-    main()
+class TestCalculateMtoon0RenderQueueOffsetMaps(TestCase):
+    def make_mtoon_property(
+        self, render_queue: Optional[int], blend_mode: Optional[float]
+    ) -> MaterialProperty:
+        return MaterialProperty(
+            name="test",
+            shader="VRM/MToon",
+            render_queue=render_queue,
+            keyword_map={},
+            tag_map={},
+            float_properties=({} if blend_mode is None else {"_BlendMode": blend_mode}),
+            vector_properties={},
+            texture_properties={},
+        )
+
+    def test_empty(self) -> None:
+        t_map, tz_map = calculate_mtoon0_render_queue_offset_maps([])
+        self.assertEqual(t_map, {})
+        self.assertEqual(tz_map, {})
+
+    def test_transparent_single_queue(self) -> None:
+        mp = self.make_mtoon_property(render_queue=3000, blend_mode=2.0)
+        t_map, tz_map = calculate_mtoon0_render_queue_offset_maps([mp])
+        self.assertEqual(t_map, {3000: 0})
+        self.assertEqual(tz_map, {})
+
+    def test_transparent_two_queues(self) -> None:
+        mp_high = self.make_mtoon_property(render_queue=3000, blend_mode=2.0)
+        mp_low = self.make_mtoon_property(render_queue=2999, blend_mode=2.0)
+        t_map, tz_map = calculate_mtoon0_render_queue_offset_maps([mp_high, mp_low])
+        # Highest queue -> 0, lower queue -> -1
+        self.assertEqual(t_map, {3000: 0, 2999: -1})
+        self.assertEqual(tz_map, {})
+
+    def test_transparent_more_than_nine_queues(self) -> None:
+        # 11 unique render queues: maps to 0, -1, ..., -9, -10
+        # the -10 entry should be clamped to -9 when applied
+        mps = [
+            self.make_mtoon_property(render_queue=3000 - i, blend_mode=2.0)
+            for i in range(11)
+        ]
+        t_map, _ = calculate_mtoon0_render_queue_offset_maps(mps)
+        # The lowest queue (2990) maps to -10, clamped to -9 at application
+        self.assertEqual(t_map[3000], 0)
+        self.assertEqual(t_map[2999], -1)
+        self.assertEqual(t_map[2991], -9)
+        self.assertEqual(t_map[2990], -10)
+
+    def test_transparent_z_write_more_than_nine_queues(self) -> None:
+        # 11 unique render queues: maps to 0, 1, ..., 9, 10
+        # the 10 entry should be clamped to 9 when applied
+        mps = [
+            self.make_mtoon_property(render_queue=2501 + i, blend_mode=3.0)
+            for i in range(11)
+        ]
+        _, tz_map = calculate_mtoon0_render_queue_offset_maps(mps)
+        # The lowest queue (2501) maps to 0, the highest (2511) maps to 10
+        self.assertEqual(tz_map[2501], 0)
+        self.assertEqual(tz_map[2502], 1)
+        self.assertEqual(tz_map[2509], 8)
+        self.assertEqual(tz_map[2510], 9)
+        self.assertEqual(tz_map[2511], 10)
+
+    def test_transparent_z_write_single_queue(self) -> None:
+        mp = self.make_mtoon_property(render_queue=2501, blend_mode=3.0)
+        t_map, tz_map = calculate_mtoon0_render_queue_offset_maps([mp])
+        self.assertEqual(t_map, {})
+        self.assertEqual(tz_map, {2501: 0})
+
+    def test_transparent_z_write_two_queues(self) -> None:
+        mp_low = self.make_mtoon_property(render_queue=2501, blend_mode=3.0)
+        mp_high = self.make_mtoon_property(render_queue=2502, blend_mode=3.0)
+        t_map, tz_map = calculate_mtoon0_render_queue_offset_maps([mp_low, mp_high])
+        self.assertEqual(t_map, {})
+        # Lowest queue -> 0, higher queue -> 1
+        self.assertEqual(tz_map, {2501: 0, 2502: 1})
+
+    def test_non_mtoon_shader_ignored(self) -> None:
+        mp = MaterialProperty(
+            name="test",
+            shader="VRM/UnlitTexture",
+            render_queue=3000,
+            keyword_map={},
+            tag_map={},
+            float_properties={"_BlendMode": 2.0},
+            vector_properties={},
+            texture_properties={},
+        )
+        t_map, tz_map = calculate_mtoon0_render_queue_offset_maps([mp])
+        self.assertEqual(t_map, {})
+        self.assertEqual(tz_map, {})
+
+    def test_none_render_queue_ignored(self) -> None:
+        mp = self.make_mtoon_property(render_queue=None, blend_mode=2.0)
+        t_map, tz_map = calculate_mtoon0_render_queue_offset_maps([mp])
+        self.assertEqual(t_map, {})
+        self.assertEqual(tz_map, {})
+
+    def test_mixed_render_modes(self) -> None:
+        mp_opaque = self.make_mtoon_property(render_queue=2000, blend_mode=0.0)
+        mp_cutout = self.make_mtoon_property(render_queue=2450, blend_mode=1.0)
+        mp_transparent = self.make_mtoon_property(render_queue=3000, blend_mode=2.0)
+        mp_z_write = self.make_mtoon_property(render_queue=2501, blend_mode=3.0)
+        t_map, tz_map = calculate_mtoon0_render_queue_offset_maps(
+            [mp_opaque, mp_cutout, mp_transparent, mp_z_write]
+        )
+        # Opaque and cutout do not appear in the maps
+        self.assertNotIn(2000, t_map)
+        self.assertNotIn(2450, t_map)
+        self.assertEqual(t_map, {3000: 0})
+        self.assertEqual(tz_map, {2501: 0})
