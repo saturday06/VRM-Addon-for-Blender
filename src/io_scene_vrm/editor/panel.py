@@ -41,15 +41,13 @@ class TemplateListCollectionProtocol(Protocol):
 
 
 def draw_url_warning(layout: UILayout, url: str) -> None:
-    if not url:
+    if is_valid_url(url, allow_empty_str=True):
         return
-
-    if not is_valid_url(url, allow_empty_str=True):
-        layout.label(
-            text=pgettext('"{url}" is not a valid URL.').format(url=url),
-            icon="ERROR",
-            translate=False,
-        )
+    layout.label(
+        text=pgettext('"{url}" is not a valid URL.').format(url=url),
+        icon="ERROR",
+        translate=False,
+    )
 
 
 def draw_template_list(
