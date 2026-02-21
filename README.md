@@ -2,10 +2,10 @@
 
 [ English / [日本語](#ja_JP) ]
 
-# VRM Add-on for Blender [![CI status](https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/saturday06/VRM-Addon-for-Blender/actions) [![CodSpeed Badge](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/saturday06/VRM-Addon-for-Blender?utm_source=badge)
+# KHR Character / VRM Add-on for Blender [![CI status](https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/saturday06/VRM-Addon-for-Blender/actions) [![CodSpeed Badge](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/saturday06/VRM-Addon-for-Blender?utm_source=badge)
 
-VRM Add-on for Blender adds VRM import, export, and editing capabilities to
-Blender. It also provides
+Import, export, and editing functions for VRM format and experimental KHR
+Character format. It also provides
 [an API for automation via Python scripts](https://vrm-addon-for-blender.info/en-us/scripting-api/).
 
 ## Download
@@ -106,9 +106,10 @@ New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blen
 
 [ [English](#en) / 日本語 ]
 
-# VRM Add-on for Blender [![CI status](https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/saturday06/VRM-Addon-for-Blender/actions) [![CodSpeed Badge](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/saturday06/VRM-Addon-for-Blender?utm_source=badge)
+# KHR Character / VRM Add-on for Blender [![CI status](https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/saturday06/VRM-Addon-for-Blender/actions) [![CodSpeed Badge](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/saturday06/VRM-Addon-for-Blender?utm_source=badge)
 
-BlenderにVRM関連機能を追加するアドオンです。[Pythonスクリプトによる自動化用のAPI](https://vrm-addon-for-blender.info/ja-jp/scripting-api)も提供します。
+BlenderにVRM関連機能と実験的なKHR
+Character関連機能を追加するアドオンです。[Pythonスクリプトによる自動化用のAPI](https://vrm-addon-for-blender.info/ja-jp/scripting-api)も提供します。
 
 ## ダウンロード
 

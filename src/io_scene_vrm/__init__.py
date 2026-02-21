@@ -6,7 +6,7 @@ from .exporter import gltf2_export_user_extension
 from .importer import gltf2_import_user_extension
 
 bl_info = {
-    "name": "VRM format",
+    "name": "KHR Character / VRM format",
     "author": "saturday06, iCyP",
     "version": (
         3,  # x-release-please-major
@@ -14,7 +14,7 @@ bl_info = {
         4,  # x-release-please-patch
     ),
     "location": "File > Import-Export",
-    "description": "Import-Edit-Export VRM",
+    "description": "Import, export, and editing functions for VRM format.",
     "blender": (2, 93, 0),
     "warning": "",
     "support": "COMMUNITY",
