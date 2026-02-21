@@ -2,6 +2,7 @@
 from pathlib import Path
 from sys import float_info
 from typing import TYPE_CHECKING, Optional
+from urllib.parse import urlparse
 
 from bpy.app.translations import pgettext
 from bpy.props import BoolProperty, CollectionProperty, IntProperty, StringProperty
@@ -484,6 +485,15 @@ class WM_OT_vrm_validator(Operator):
             and isinstance(armature_data := armature.data, Armature)
             and get_armature_extension(armature_data).is_vrm1()
         ):
+            # meta URL validation
+            meta1 = get_armature_extension(armature_data).vrm1.meta
+            if url_has_invalid_scheme(meta1.other_license_url):
+                warning_messages.append(
+                    pgettext('"{url}" is not a valid URL.').format(
+                        url=meta1.other_license_url
+                    )
+                )
+
             error_messages.extend(
                 pgettext(
                     'Object "{name}" contains a negative value for the scale;'
@@ -781,6 +791,17 @@ class WM_OT_vrm_validator(Operator):
                     )
                 )
 
+            # meta URL validation
+            meta0 = get_armature_extension(armature_data).vrm0.meta
+            warning_messages.extend(
+                pgettext('"{url}" is not a valid URL.').format(url=url_value)
+                for url_value in [
+                    meta0.other_permission_url,
+                    meta0.other_license_url,
+                ]
+                if url_has_invalid_scheme(url_value)
+            )
+
             # blend_shape_master
             # TODO: material value and material existence
             blend_shape_master = get_armature_extension(
@@ -998,3 +1019,7 @@ def node_material_input_check(
                         + " Please add an image.",
                     ).format(material_name=material.name)
                 )
+
+
+def url_has_invalid_scheme(url: str) -> bool:
+    return bool(url) and not urlparse(url).scheme

@@ -134,6 +134,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "指定的 VRM 具有「Other」许可证规定、" + "未设置 URL。",
     (
         "*",
+        '"{url}" is not a valid URL.',
+    ): "「{url}」不是有效的 URL。",
+    (
+        "*",
         "glTF nodes (mesh, bone) cannot have duplicate names."
         + " {name} is duplicated.",
     ): "glTF 节点元素(网格,骨骼)名称不得重复。" + "「{name}」是重复的。",

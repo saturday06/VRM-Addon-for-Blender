@@ -191,6 +191,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "URLが設定されていません。",
     (
         "*",
+        '"{url}" is not a valid URL.',
+    ): "「{url}」は有効なURLではありません。",
+    (
+        "*",
         "This VRM is not allowed to be edited. Please check its license",
     ): "このVRMは改変不可に設定されています。ライセンスを確認してください。",
     (

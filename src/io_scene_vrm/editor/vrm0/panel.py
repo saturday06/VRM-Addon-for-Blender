@@ -23,7 +23,11 @@ from ..extension import (
 from ..menu import VRM_MT_bone_assignment
 from ..migration import defer_migrate
 from ..ops import layout_operator
-from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
+from ..panel import (
+    VRM_PT_vrm_armature_object_property,
+    draw_template_list,
+    draw_url_warning,
+)
 from ..search import active_object_is_vrm0_armature
 from . import ops as vrm0_ops
 from .menu import VRM_MT_vrm0_blend_shape_master
@@ -1185,9 +1189,11 @@ def draw_vrm0_meta_layout(
         icon="SOLO_OFF",
     )
     layout.prop(meta, "other_permission_url", icon="URL")
+    draw_url_warning(layout, meta.other_permission_url)
     layout.prop(meta, "license_name", icon="COMMUNITY")
     if meta.license_name == Vrm0MetaPropertyGroup.LICENSE_NAME_OTHER.identifier:
         layout.prop(meta, "other_license_url", icon="URL")
+        draw_url_warning(layout, meta.other_license_url)
 
 
 class VRM_PT_vrm0_meta_armature_object_property(Panel):

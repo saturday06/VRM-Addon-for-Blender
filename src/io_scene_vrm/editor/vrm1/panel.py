@@ -12,7 +12,11 @@ from .. import ops, search
 from ..extension import get_armature_extension, get_bone_extension
 from ..migration import defer_migrate
 from ..ops import layout_operator
-from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
+from ..panel import (
+    VRM_PT_vrm_armature_object_property,
+    draw_template_list,
+    draw_url_warning,
+)
 from ..search import active_object_is_vrm1_armature
 from . import ops as vrm1_ops
 from .menu import VRM_MT_vrm1_expression
@@ -1125,6 +1129,7 @@ def draw_vrm1_meta_layout(
     layout.prop(meta, "allow_antisocial_or_hate_usage")
     layout.prop(meta, "allow_redistribution")
     layout.prop(meta, "other_license_url", icon="URL")
+    draw_url_warning(layout, meta.other_license_url)
 
 
 class VRM_PT_vrm1_meta_armature_object_property(Panel):

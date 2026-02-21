@@ -26,6 +26,7 @@ from ..common.preferences import get_preferences
 from . import make_armature, search, validation
 from .extension import get_armature_extension
 from .ops import layout_operator
+from .validation import url_has_invalid_scheme
 
 __AddOperator = TypeVar("__AddOperator", bound=Operator)
 __RemoveOperator = TypeVar("__RemoveOperator", bound=Operator)
@@ -37,6 +38,18 @@ __MoveDownOperator = TypeVar("__MoveDownOperator", bound=Operator)
 class TemplateListCollectionProtocol(Protocol):
     def __len__(self) -> int: ...
     def __getitem__(self, index: int) -> object: ...
+
+
+def draw_url_warning(layout: UILayout, url: str) -> None:
+    if not url:
+        return
+
+    if url_has_invalid_scheme(url):
+        layout.label(
+            text=pgettext('"{url}" is not a valid URL.').format(url=url),
+            icon="ERROR",
+            translate=False,
+        )
 
 
 def draw_template_list(
