@@ -488,7 +488,7 @@ class WM_OT_vrm_validator(Operator):
             # meta URL validation
             meta1 = get_armature_extension(armature_data).vrm1.meta
             if not is_valid_url(meta1.other_license_url, allow_empty_str=True):
-                warning_messages.append(
+                skippable_warning_messages.append(
                     pgettext('"{url}" is not a valid URL.').format(
                         url=meta1.other_license_url
                     )
@@ -793,7 +793,7 @@ class WM_OT_vrm_validator(Operator):
 
             # meta URL validation
             meta0 = get_armature_extension(armature_data).vrm0.meta
-            warning_messages.extend(
+            skippable_warning_messages.extend(
                 pgettext('"{url}" is not a valid URL.').format(url=url_value)
                 for url_value in [
                     meta0.other_permission_url,
