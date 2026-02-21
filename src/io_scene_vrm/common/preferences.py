@@ -92,7 +92,8 @@ def draw_import_preferences_layout(
         return
 
     layout.prop(preferences, "extract_textures_into_folder")
-    layout.prop(preferences, "make_new_texture_folder")
+    if preferences.extract_textures_into_folder:
+        layout.prop(preferences, "make_new_texture_folder")
     layout.prop(preferences, "set_shading_type_to_material_on_import")
     layout.prop(preferences, "set_view_transform_to_standard_on_import")
     layout.prop(preferences, "set_armature_display_to_wire")
