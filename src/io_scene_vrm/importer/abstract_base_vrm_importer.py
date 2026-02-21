@@ -339,9 +339,9 @@ class AbstractBaseVrmImporter(ABC):
                     )
             if not image_path_stem:
                 image_path_stem = image.name
+            image_path_stem = Path(clean_name(image_path_stem[:100])).stem
             if not image_path_stem:
                 image_path_stem = f"Image_{image_index}"
-            image_path_stem = clean_name(image_path_stem[:100])
 
             original_image_path_suffix = image_original_file_path.suffix
             detected_image_path_suffix = "." + image.file_format.lower()
