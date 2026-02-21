@@ -4,7 +4,7 @@ import json
 import struct
 from io import BytesIO
 from typing import Final, Optional, Union
-from urllib.parse import unquote, urlparse
+from urllib.parse import unquote, urlsplit
 
 from mathutils import Quaternion, Vector
 
@@ -189,13 +189,13 @@ def read_accessor_as_bytes(
         if not isinstance(uri, str):
             return None
         try:
-            parsed_url = urlparse(uri)
+            parsed_uri = urlsplit(uri)
         except ValueError:
             return None
-        if parsed_url.scheme != "data":
+        if parsed_uri.scheme != "data":
             return None
 
-        path_components = parsed_url.path.split(",", 1)
+        path_components = parsed_uri.path.split(",", 1)
         if len(path_components) != 2:
             return None
 

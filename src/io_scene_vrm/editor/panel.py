@@ -26,7 +26,7 @@ from ..common.preferences import get_preferences
 from . import make_armature, search, validation
 from .extension import get_armature_extension
 from .ops import layout_operator
-from .validation import url_has_invalid_scheme
+from .validation import is_valid_url
 
 __AddOperator = TypeVar("__AddOperator", bound=Operator)
 __RemoveOperator = TypeVar("__RemoveOperator", bound=Operator)
@@ -44,7 +44,7 @@ def draw_url_warning(layout: UILayout, url: str) -> None:
     if not url:
         return
 
-    if url_has_invalid_scheme(url):
+    if not is_valid_url(url, allow_empty_str=True):
         layout.label(
             text=pgettext('"{url}" is not a valid URL.').format(url=url),
             icon="ERROR",

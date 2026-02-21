@@ -2,7 +2,7 @@
 from pathlib import Path
 from sys import float_info
 from typing import TYPE_CHECKING, Optional
-from urllib.parse import urlparse
+from urllib.parse import urlsplit
 
 from bpy.app.translations import pgettext
 from bpy.props import BoolProperty, CollectionProperty, IntProperty, StringProperty
@@ -487,7 +487,7 @@ class WM_OT_vrm_validator(Operator):
         ):
             # meta URL validation
             meta1 = get_armature_extension(armature_data).vrm1.meta
-            if url_has_invalid_scheme(meta1.other_license_url):
+            if not is_valid_url(meta1.other_license_url, allow_empty_str=True):
                 warning_messages.append(
                     pgettext('"{url}" is not a valid URL.').format(
                         url=meta1.other_license_url
@@ -799,7 +799,7 @@ class WM_OT_vrm_validator(Operator):
                     meta0.other_permission_url,
                     meta0.other_license_url,
                 ]
-                if url_has_invalid_scheme(url_value)
+                if not is_valid_url(url_value, allow_empty_str=True)
             )
 
             # blend_shape_master
@@ -1021,5 +1021,11 @@ def node_material_input_check(
                 )
 
 
-def url_has_invalid_scheme(url: str) -> bool:
-    return bool(url) and not urlparse(url).scheme
+def is_valid_url(url_str: str, *, allow_empty_str: bool) -> bool:
+    if not url_str:
+        return allow_empty_str
+    try:
+        url = urlsplit(url_str)
+    except ValueError:
+        return False
+    return bool(url.scheme)

@@ -5,7 +5,7 @@ import json
 import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, Optional, TypeVar, cast
-from urllib.parse import urlparse
+from urllib.parse import urlsplit
 
 import bpy
 from bpy.app.translations import pgettext
@@ -208,8 +208,10 @@ class VRM_OT_open_url_in_web_browser(Operator):
 
     @staticmethod
     def supported(url_str: str) -> bool:
+        if not url_str:
+            return False
         try:
-            url = urlparse(url_str)
+            url = urlsplit(url_str)
         except ValueError:
             return False
         return url.scheme in ["http", "https"]
