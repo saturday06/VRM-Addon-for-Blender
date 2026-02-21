@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.19.5](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.4...v3.19.5) (2026-02-21)
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug in edge cases during image filename generation ([8be2a88](https://github.com/saturday06/VRM-Addon-for-Blender/commit/8be2a881827fef4f7e2b5f11e3e3fba688de011a))
+* improve URI handling in read_accessor_as_bytes function ([b0279c8](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b0279c8c97d7c6444febf887c077fa430028dcc7))
+* update buffer alignment from 32 to 4 bytes in animation export functions ([d3348f1](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d3348f129c629dbd589c5da098b7a46159739a43))
+
 ## [3.19.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.3...v3.19.4) (2026-02-09)
 
 
