@@ -22,6 +22,18 @@ class TestDeep(TestCase):
         self.assertEqual(len(cm.output), 3)
         self.assertIn("is non-finite value", cm.output[0])
 
+        # Nested non-finite floats
+        with self.assertLogs("io_scene_vrm.common.deep", level="WARNING") as cm:
+            self.assertEqual(
+                deep.make_json([math.nan, math.inf, -math.inf]),
+                [0.0, 0.0, 0.0],
+            )
+            self.assertEqual(
+                deep.make_json({"a": math.nan, "b": math.inf, "c": -math.inf}),
+                {"a": 0.0, "b": 0.0, "c": 0.0},
+            )
+        self.assertEqual(len(cm.output), 6)
+
         # Lists
         self.assertEqual(deep.make_json([1, "bar"]), [1, "bar"])
         self.assertEqual(deep.make_json((1, 2)), [1, 2])
