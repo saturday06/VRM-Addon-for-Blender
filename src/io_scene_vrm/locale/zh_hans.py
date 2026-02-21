@@ -75,7 +75,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Export Invisible Objects"): "包括隐藏对象",
     ("*", "Export Only Selections"): "仅选定对象",
     ("*", "Enable Advanced Options"): "启用高级选项",
-    ("*", "Don't overwrite existing texture folder"): "不要覆盖现有纹理文件夹",
+    ("*", "Don't overwrite existing texture image folder"): "不要覆盖现有纹理文件夹",
     (
         "*",
         "Export All Bone Influences",

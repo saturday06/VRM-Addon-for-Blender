@@ -248,7 +248,7 @@ class VrmAddonPreferences(AddonPreferences):
         default=False,
     )
     make_new_texture_folder: BoolProperty(  # type: ignore[valid-type]
-        name="Don't overwrite existing texture folder",
+        name="Don't overwrite existing texture image folder",
         default=True,
     )
     set_shading_type_to_material_on_import: BoolProperty(  # type: ignore[valid-type]

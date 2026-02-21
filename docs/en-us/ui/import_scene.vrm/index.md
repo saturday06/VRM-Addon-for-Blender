@@ -17,7 +17,7 @@ Creates a folder in the same location as the VRM file and extracts the textures
 contained within the VRM file. If unchecked, textures will be embedded in the
 currently edited `.blend` file.
 
-### ✅ Don't overwrite existing texture folder
+### ✅ Don't overwrite existing texture image folder
 
 When creating a folder for texture images, if a folder already exists, a
 sequential number will be appended to prevent overwriting the folder.

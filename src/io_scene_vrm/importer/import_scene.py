@@ -84,7 +84,7 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
         default=False,
     )
     make_new_texture_folder: BoolProperty(  # type: ignore[valid-type]
-        name="Don't overwrite existing texture folder",
+        name="Don't overwrite existing texture image folder",
         update=import_vrm_update_addon_preferences,
         default=True,
     )
