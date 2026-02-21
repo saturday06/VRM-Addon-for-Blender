@@ -2752,7 +2752,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         loop_index: int,
         vertex_attributes_collector: VertexAttributesCollector,
         vertex_morph_target_collector: VertexMorphTargetCollector,
-        vertex_index_to_morph_normal_diffs: tuple[tuple[float, float, float], ...],
+        vertex_index_to_morph_normal_diffs: Sequence[tuple[float, float, float]],
     ) -> None:
         texcoord = None
         if uv_layer:
@@ -3861,7 +3861,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         no_morph_normal_export_vertex_indices: set[int],
         shape_key_mesh_data: Mesh,
         reference_vertex_normal_vectors: list[Vector],
-    ) -> tuple[tuple[float, float, float], ...]:
+    ) -> Sequence[tuple[float, float, float]]:
         vertex_normal_vectors = Vrm0Exporter.create_export_vertex_normal_vectors(
             no_morph_normal_export_vertex_indices,
             shape_key_mesh_data,
@@ -3879,19 +3879,17 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         #         logger.error("  %s", v)
 
         # logger.error("RESULT:")
-        vertex_index_to_morph_normal_diffs: tuple[tuple[float, float, float], ...] = (
-            tuple(
-                (
-                    vertex_normal_vector.x - reference_vertex_normal_vector.x,
-                    vertex_normal_vector.y - reference_vertex_normal_vector.y,
-                    vertex_normal_vector.z - reference_vertex_normal_vector.z,
-                )
-                for vertex_normal_vector, reference_vertex_normal_vector in zip(
-                    vertex_normal_vectors,
-                    reference_vertex_normal_vectors,
-                )
+        vertex_index_to_morph_normal_diffs = [
+            (
+                vertex_normal_vector.x - reference_vertex_normal_vector.x,
+                vertex_normal_vector.y - reference_vertex_normal_vector.y,
+                vertex_normal_vector.z - reference_vertex_normal_vector.z,
             )
-        )
+            for vertex_normal_vector, reference_vertex_normal_vector in zip(
+                vertex_normal_vectors,
+                reference_vertex_normal_vectors,
+            )
+        ]
         # logger.error(
         #     "  %s:%s",
         #     shape_key_name,
