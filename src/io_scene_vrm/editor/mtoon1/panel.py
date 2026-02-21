@@ -116,12 +116,12 @@ def draw_texture_info(
     if is_vrm0:
         if ext.extensions.vrmc_materials_mtoon.matcap_texture == texture_info:
             box.box().label(
-                text="Offset and Scale are ignored in VRM 0.0", icon="ERROR"
+                text="Offset and Scale are ignored in VRM 0.0.", icon="ERROR"
             )
         elif ext.pbr_metallic_roughness.base_color_texture != texture_info:
             box.box().label(
                 text="Offset and Scale in VRM 0.0 are"
-                + " the values of the Lit Color Texture",
+                + " the values of the Lit Color Texture.",
                 icon="ERROR",
             )
 

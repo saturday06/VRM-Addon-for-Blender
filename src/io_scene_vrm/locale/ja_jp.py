@@ -134,8 +134,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "読めなくなります。",
     (
         "*",
-        "No errors found. Ready to export VRM",
-    ): "エラーはありませんでした。VRMのエクスポートをすることができます",
+        "No errors found. Ready to export VRM.",
+    ): "エラーはありませんでした。VRMのエクスポートをすることができます。",
     (
         "*",
         "No errors found. But there are {warning_count} warning(s)."
@@ -260,7 +260,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " of {humanoid_name} and its children."
         + ' "VRM" Panel → "VRM 0.x Humanoid" → {humanoid_name}'
         + " will be empty or displayed in red"
-        + " if hierarchy is wrong",
+        + " if hierarchy is wrong.",
     ): "VRM必須ボーン「{humanoid_name}」が未割り当てです。"
     + "「VRM」パネルの「VRM 0.x Humanoid」→「VRM必須ボーン」で"
     + "「{humanoid_name}」ボーンの設定をしてください。",
@@ -272,7 +272,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + ' to VRM Human Bone "{human_bone}". '
         + 'Confirm hierarchy of "{bone}" and its children. '
         + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
-        + " if wrong hierarchy",
+        + " if wrong hierarchy.",
     ): "ボーン「{bone}」をVRMヒューマンボーン「{human_bone}」に"
     + "割り当てることができませんでした。"
     + "「VRM」パネルの「VRM 0.x Humanoid」で"
@@ -284,7 +284,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " of {humanoid_name} and its children. "
         + '"VRM" Panel → "Humanoid" → {humanoid_name}'
         + " will be empty or displayed in red"
-        + " if hierarchy is wrong",
+        + " if hierarchy is wrong.",
     ): "VRM必須ボーン「{humanoid_name}」が未割り当てです。"
     + "「VRM」パネルの「Humanoid」→「VRM必須ボーン」で"
     + "「{humanoid_name}」ボーンの設定をしてください。",
@@ -367,9 +367,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'A mesh named "{mesh_name}" is assigned to a blend'
         + ' shape group named "{blend_shape_group_name}" but'
-        + " the mesh will not be exported",
+        + " the mesh will not be exported.",
     ): "Blend Shape Group「{blend_shape_group_name}」にメッシュ「{mesh_name}」が"
-    + "割り当てられていますが、そのメッシュはエクスポートされません",
+    + "割り当てられていますが、そのメッシュはエクスポートされません。",
     (
         "*",
         'A shape key named "{shape_key_name}" in a mesh'
@@ -378,12 +378,12 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " shape key doesn't exist.",
     ): "Blend Shape Group「{blend_shape_group_name}」にメッシュ"
     + "「{mesh_name}」のシェイプキー「{shape_key_name}」が割り当てられていますが、"
-    + "そのようなシェイプキーは存在しません",
+    + "そのようなシェイプキーは存在しません。",
     (
         "*",
-        'need "{expect_node_type}" input' + ' in "{shader_val}" of "{material_name}"',
+        'need "{expect_node_type}" input' + ' in "{shader_val}" of "{material_name}".',
     ): "「{material_name}」の「{shader_val}」には、"
-    + "「{expect_node_type}」を直接つないでください。 ",
+    + "「{expect_node_type}」を直接つないでください。",
     (
         "*",
         'Image in material "{material_name}" is not set.' + " Please add an image.",
@@ -482,23 +482,24 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Axis Translation on Export"): "エクスポート時の軸の変換",
     (
         "*",
-        "Offset and Scale are ignored in VRM 0.0",
-    ): "VRM 0.0ではオフセットとスケールは無視されます",
+        "Offset and Scale are ignored in VRM 0.0.",
+    ): "VRM 0.0ではオフセットとスケールは無視されます。",
     (
         "*",
-        'Material "{name}" {texture}\'s Offset and Scale are' + " ignored in VRM 0.0",
-    ): "VRM 0.0ではマテリアル「{name}」の{texture}のオフセットとスケールは無視されます",
+        'Material "{name}" {texture}\'s Offset and Scale are' + " ignored in VRM 0.0.",
+    ): "VRM 0.0ではマテリアル「{name}」の{texture}のオフセットとスケールは"
+    + "無視されます。",
     (
         "*",
-        "Offset and Scale in VRM 0.0 are" + " the values of the Lit Color Texture",
-    ): "VRM 0.0でのオフセットとスケールはLit Colorテクスチャの値になります",
+        "Offset and Scale in VRM 0.0 are" + " the values of the Lit Color Texture.",
+    ): "VRM 0.0でのオフセットとスケールはLit Colorテクスチャの値になります。",
     (
         "*",
         'Material "{name}" {texture}\'s Offset and Scale'
         + " in VRM 0.0 are the values of"
-        + " the Lit Color Texture",
+        + " the Lit Color Texture.",
     ): "VRM 0.0でのマテリアル「name」の{texture}のオフセットとスケールは"
-    + "Lit Colorテクスチャの値になります",
+    + "Lit Colorテクスチャの値になります。",
     (
         "*",
         'It is recommended to set "{colorspace}"'
@@ -508,7 +509,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'It is recommended to set "{colorspace}"'
         + ' to "{input_colorspace}" for "{texture_label}"'
-        + ' in Material "{name}"',
+        + ' in Material "{name}".',
     ): "マテリアル{name}の{texture_label}の{input_colorspace}には"
     + "「{colorspace}」の設定が推奨されます。",
     (

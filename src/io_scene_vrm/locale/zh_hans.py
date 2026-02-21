@@ -89,8 +89,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Export Lights"): "输出灯光",
     (
         "*",
-        "No errors found. Ready to export VRM",
-    ): "未发现任何错误。可导出 VRM",
+        "No errors found. Ready to export VRM.",
+    ): "未发现任何错误。可导出 VRM。",
     (
         "*",
         "No errors found. But there are {warning_count} warning(s)."
@@ -177,7 +177,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " of {humanoid_name} and its children."
         + ' "VRM" Panel → "VRM 0.x Humanoid" → {humanoid_name}'
         + " will be empty or displayed in red"
-        + " if hierarchy is wrong",
+        + " if hierarchy is wrong.",
     ): "VRM必须的骨骼「{humanoid_name}」是未指定的。"
     + "「VRM」面板「VRM 0.x Humanoid」→「VRM必须的骨骼」将为空或显示为红色"
     + "「{humanoid_name}」如果层次结构有误。",
@@ -187,7 +187,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + ' to VRM Human Bone "{human_bone}". '
         + 'Confirm hierarchy of "{bone}" and its children. '
         + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
-        + " if wrong hierarchy",
+        + " if wrong hierarchy.",
     ): "骨骼「{bone}」到 VRM 骨「{human_bone}」无法分配。"
     + "「VRM」面板「VRM 0.x Humanoid」で"
     + "「{human_bone}」检查骨骼设置。",
@@ -198,7 +198,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " of {humanoid_name} and its children. "
         + '"VRM" Panel → "Humanoid" → {humanoid_name}'
         + " will be empty or displayed in red"
-        + " if hierarchy is wrong",
+        + " if hierarchy is wrong.",
     ): "VRM必须的骨骼「{humanoid_name}」是未指定的。"
     + "「VRM」面板「Humanoid」→「VRM必须的骨骼」将为空或显示为红色"
     + "「{humanoid_name}」如果层次结构有误。",
@@ -277,9 +277,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'A mesh named "{mesh_name}" is assigned to a blend'
         + ' shape group named "{blend_shape_group_name}" but'
-        + " the mesh will not be exported",
+        + " the mesh will not be exported.",
     ): "Blend Shape Group「{blend_shape_group_name}」有一个网格「{mesh_name}」"
-    + "已分配、但网格未导出",
+    + "已分配、但网格未导出。",
     (
         "*",
         'A shape key named "{shape_key_name}" in a mesh'
@@ -288,12 +288,12 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " shape key doesn't exist.",
     ): "名为 「{shape_key_name}」的形态键在网格"
     + " 「{mesh_name}」 已被分配给混合形状"
-    + "但是此形态键不存在",
+    + "但是此形态键不存在。",
     (
         "*",
-        'need "{expect_node_type}" input' + ' in "{shader_val}" of "{material_name}"',
+        'need "{expect_node_type}" input' + ' in "{shader_val}" of "{material_name}".',
     ): "「{material_name}」的「{shader_val}」需要、"
-    + "「{expect_node_type}」直接连接。 ",
+    + "「{expect_node_type}」直接连接。",
     (
         "*",
         'Image in material "{material_name}" is not set.' + " Please add an image.",
@@ -393,22 +393,22 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Axis Translation on Export"): "导出时转换轴",
     (
         "*",
-        "Offset and Scale are ignored in VRM 0.0",
-    ): "偏移和缩放在 VRM 0.0 中被忽略",
+        "Offset and Scale are ignored in VRM 0.0.",
+    ): "偏移和缩放在 VRM 0.0 中被忽略。",
     (
         "*",
-        'Material "{name}" {texture}\'s Offset and Scale are' + " ignored in VRM 0.0",
-    ): "VRM 0.0材质「{name}」的{texture}的偏移和缩放将被忽略",
+        'Material "{name}" {texture}\'s Offset and Scale are' + " ignored in VRM 0.0.",
+    ): "VRM 0.0材质「{name}」的{texture}的偏移和缩放将被忽略。",
     (
         "*",
-        "Offset and Scale in VRM 0.0 are" + " the values of the Lit Color Texture",
-    ): "VRM 0.0 中的偏移和缩放是 Lit Color Texture 的值",
+        "Offset and Scale in VRM 0.0 are" + " the values of the Lit Color Texture.",
+    ): "VRM 0.0 中的偏移和缩放是 Lit Color Texture 的值。",
     (
         "*",
         'Material "{name}" {texture}\'s Offset and Scale'
         + " in VRM 0.0 are the values of"
-        + " the Lit Color Texture",
-    ): "VRM 0.0材质「{name}」的{texture}的偏移和缩放为" + "Lit Color Texture的值",
+        + " the Lit Color Texture.",
+    ): "VRM 0.0材质「{name}」的{texture}的偏移和缩放为" + "Lit Color Texture的值。",
     (
         "*",
         'It is recommended to set "{colorspace}"'
@@ -418,7 +418,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'It is recommended to set "{colorspace}"'
         + ' to "{input_colorspace}" for "{texture_label}"'
-        + ' in Material "{name}"',
+        + ' in Material "{name}".',
     ): "材质{name}的{texture_label}的{input_colorspace}"
     + "建议使用「{colorspace}」的设定。",
     (

@@ -136,7 +136,7 @@ class WM_OT_vrm_validator(Operator):
                     + ' to VRM Human Bone "{human_bone}". '
                     + 'Confirm hierarchy of "{bone}" and its children. '
                     + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
-                    + " if wrong hierarchy"
+                    + " if wrong hierarchy."
                 ).format(
                     bone=human_bone.node.bone_name,
                     human_bone=human_bone.specification().title,
@@ -173,7 +173,7 @@ class WM_OT_vrm_validator(Operator):
                     + ' to VRM Human Bone "{human_bone}". '
                     + 'Confirm hierarchy of "{bone}" and its children. '
                     + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
-                    + " if wrong hierarchy"
+                    + " if wrong hierarchy."
                 ).format(
                     bone=human_bone.node.bone_name,
                     human_bone=specification.title,
@@ -371,7 +371,7 @@ class WM_OT_vrm_validator(Operator):
                                     + " of {humanoid_name} and its children. "
                                     + '"VRM" Panel → "Humanoid" → {humanoid_name}'
                                     + " will be empty or displayed in red"
-                                    + " if hierarchy is wrong"
+                                    + " if hierarchy is wrong."
                                 ).format(humanoid_name=human_bone_specification.title)
                             )
 
@@ -454,7 +454,7 @@ class WM_OT_vrm_validator(Operator):
                                 + " of {humanoid_name} and its children."
                                 + ' "VRM" Panel → "VRM 0.x Humanoid" → {humanoid_name}'
                                 + " will be empty or displayed in red"
-                                + " if hierarchy is wrong"
+                                + " if hierarchy is wrong."
                             ).format(humanoid_name=humanoid_name.capitalize())
                         )
                 if all_required_bones_exist:
@@ -715,7 +715,7 @@ class WM_OT_vrm_validator(Operator):
                     pgettext(
                         'It is recommended to set "{colorspace}"'
                         + ' to "{input_colorspace}" for "{texture_label}"'
-                        + ' in Material "{name}"'
+                        + ' in Material "{name}".'
                     ).format(
                         name=mat.name,
                         texture_label=source.name,
@@ -753,7 +753,7 @@ class WM_OT_vrm_validator(Operator):
                         skippable_warning_messages.append(
                             pgettext(
                                 'Material "{name}" {texture}\'s Offset and Scale are'
-                                + " ignored in VRM 0.0"
+                                + " ignored in VRM 0.0."
                             ).format(
                                 name=mat.name,
                                 texture=texture_info.index.label,
@@ -769,7 +769,7 @@ class WM_OT_vrm_validator(Operator):
                         pgettext(
                             'Material "{name}" {texture}\'s Offset and Scale'
                             + " in VRM 0.0 are the values of"
-                            + " the Lit Color Texture"
+                            + " the Lit Color Texture."
                         ).format(
                             name=mat.name,
                             texture=texture_info.index.label,
@@ -828,7 +828,7 @@ class WM_OT_vrm_validator(Operator):
                             pgettext(
                                 'A mesh named "{mesh_name}" is assigned to a blend'
                                 + ' shape group named "{blend_shape_group_name}" but'
-                                + " the mesh will not be exported"
+                                + " the mesh will not be exported."
                             ).format(
                                 blend_shape_group_name=blend_shape_group.name,
                                 mesh_name=mesh_object_name,
@@ -928,7 +928,7 @@ class WM_OT_vrm_validator(Operator):
         elif not error_errors and show_successful_message:
             row = layout.row()
             row.emboss = "NONE"
-            row.box().label(text="No errors found. Ready to export VRM")
+            row.box().label(text="No errors found. Ready to export VRM.")
 
         if error_errors:
             layout.label(text="Error", icon="ERROR")
@@ -1001,7 +1001,7 @@ def node_material_input_check(
             messages.append(
                 pgettext(
                     'need "{expect_node_type}" input'
-                    + ' in "{shader_val}" of "{material_name}"',
+                    + ' in "{shader_val}" of "{material_name}".',
                 ).format(
                     expect_node_type=expect_node_type,
                     shader_val=shader_val,
