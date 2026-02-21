@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import statistics
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from sys import float_info
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING, Optional
 
 import bpy
 from bpy.props import (

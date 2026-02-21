@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+from collections.abc import Callable
 from typing import (
-    Callable,
     ClassVar,
     Optional,
     Protocol,

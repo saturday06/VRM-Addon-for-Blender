@@ -2,9 +2,9 @@
 import math
 import re
 import sys
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Callable, Final, Optional, Protocol, Union
+from typing import TYPE_CHECKING, Final, Optional, Protocol, Union
 
 import bpy
 from bpy.props import (
