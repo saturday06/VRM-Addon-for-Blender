@@ -8,14 +8,28 @@ from .blender_manifest import BlenderManifest
 
 DEVELOPMENT_MODULE: Final = ".".join(__name__.split(".")[:-2])
 MANIFEST_ID: Final = BlenderManifest.read().id
-ESCAPE_START_CHAR: Final = "⟨"
-ESCAPE_END_CHAR: Final = "⟩"
+ESCAPE_CHAR: Final = "\N{MODIFIER LETTER PRIME}"
+SPECIAL_REPLACEMENTS: Final = {
+    " ": "\N{MODIFIER LETTER LOW MACRON}",
+    ".": "\N{MODIFIER LETTER LOW VERTICAL LINE}",
+    "-": "\N{MODIFIER LETTER HALF TRIANGULAR COLON}",
+}
 
 
 def make_test_method_name(text: str) -> str:
+    special_chars = [ESCAPE_CHAR, *SPECIAL_REPLACEMENTS.values()]
+    if not all(char.isidentifier() for char in special_chars):
+        message = f"{special_chars} contains non identifier"
+        raise AssertionError(message)
+
     test_method_name = "test_"
     for char in text:
-        if char in [ESCAPE_START_CHAR, ESCAPE_END_CHAR]:
+        replacement_char = SPECIAL_REPLACEMENTS.get(char)
+        if replacement_char is not None:
+            test_method_name = f"{test_method_name}{replacement_char}"
+            continue
+
+        if char in special_chars:
             test_method_name = f"{test_method_name}{char}{char}"
             continue
 
@@ -24,9 +38,7 @@ def make_test_method_name(text: str) -> str:
             test_method_name = appended_test_method_name
             continue
 
-        test_method_name = (
-            f"{test_method_name}{ESCAPE_START_CHAR}{ord(char):x}{ESCAPE_END_CHAR}"
-        )
+        test_method_name = f"{test_method_name}{ESCAPE_CHAR}{ord(char):x}{ESCAPE_CHAR}"
 
     if not test_method_name.isidentifier():
         message = f"Cannot convert to test method name: {text}"
