@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.20.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.5...v3.20.0) (2026-02-22)
+
+
+### 🚀 Features
+
+* auto-set renderQueueOffsetNumber in VRM0 MToon0 import using UniVRM migration logic ([9f61835](https://github.com/saturday06/VRM-Addon-for-Blender/commit/9f6183533fd77fcdd1750b51756cb79eadb225df))
+* hide make_new_texture_folder when extract_textures_into_folder is disabled ([13e9da9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/13e9da994f10ee0fb212a13c7b3ef9a80355d465))
+
+
+### 🐛 Bug Fixes
+
+* tweak Simplified Chinese translation ([adb530a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/adb530a58d74b5480c11d9e436a1e473724339bf))
+
 ## [3.19.5](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.4...v3.19.5) (2026-02-21)
 
 
