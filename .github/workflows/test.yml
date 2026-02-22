@@ -115,9 +115,17 @@ jobs:
               >&2 echo "Failed to install dependencies"
               exit 1
             fi
-            if brew update && perl -e 'alarm 300; exec @ARGV' -- brew install ffmpeg imagemagick; then
+
+            if brew update &&
+              perl \
+                -Mstrict \
+                -Mwarnings \
+                -e 'my $pid = fork(); if ($pid == 0) { exec(@ARGV); exit(1); } local $SIG{ALRM} = sub { kill("TERM", $pid); }; alarm(300); waitpid($pid, 0); exit($?);' \
+                -- \
+                brew install ffmpeg imagemagick; then
               break
             fi
+
             sleep 300
           done
       - name: Test
