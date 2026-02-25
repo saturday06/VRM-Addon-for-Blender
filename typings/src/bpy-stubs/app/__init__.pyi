@@ -28,3 +28,5 @@ version_cycle: str
 version: tuple[int, int, int]
 version_string: str
 binary_path: str
+
+def is_job_running(job_type: str) -> bool: ...

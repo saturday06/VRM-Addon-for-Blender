@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Final
+from typing import Any, Final, cast
 
 import bpy
 from bpy.app.handlers import persistent
@@ -20,9 +20,9 @@ _temp_render_layers_scene_pointers: Final[set[int]] = set()
 
 
 def _ensure_render_layers_node(scene: Scene) -> None:
-    if not getattr(scene, "use_nodes", False):
+    if not scene.use_nodes:
         return
-    node_tree = getattr(scene, "node_tree", None)
+    node_tree = scene.node_tree
     if not node_tree:
         return
 
@@ -31,7 +31,7 @@ def _ensure_render_layers_node(scene: Scene) -> None:
             return
 
     render_layers_node = node_tree.nodes.new("CompositorNodeRLayers")
-    render_layers_node[_TEMP_RENDER_LAYERS_NODE_KEY] = True
+    cast("Any", render_layers_node)[_TEMP_RENDER_LAYERS_NODE_KEY] = True
     _temp_render_layers_scene_pointers.add(scene.as_pointer())
     logger.info(
         "Added temporary Render Layers node to ensure render handlers run."
@@ -47,7 +47,7 @@ def _remove_temp_render_layers_node(scene: Scene) -> None:
         return
 
     for node in list(node_tree.nodes):
-        if node.get(_TEMP_RENDER_LAYERS_NODE_KEY):
+        if cast("Any", node).get(_TEMP_RENDER_LAYERS_NODE_KEY):
             node_tree.nodes.remove(node)
             break
 

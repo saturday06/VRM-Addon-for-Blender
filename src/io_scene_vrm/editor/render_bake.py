@@ -34,12 +34,24 @@ class _BakeState:
     restore_pending: bool = False
     render_active: bool = False
     original_frame: int = 0
-    armature_action_state: dict[int, _ActionState] = field(default_factory=dict)
-    shapekey_action_state: dict[int, _ActionState] = field(default_factory=dict)
-    armature_temp_action: dict[int, Action] = field(default_factory=dict)
-    shapekey_temp_action: dict[int, Action] = field(default_factory=dict)
-    preview_values: dict[int, dict[str, float]] = field(default_factory=dict)
-    temp_actions: list[Action] = field(default_factory=list)
+    armature_action_state: dict[int, _ActionState] = field(  # pyright: ignore[reportUnknownVariableType]
+        default_factory=dict
+    )
+    shapekey_action_state: dict[int, _ActionState] = field(  # pyright: ignore[reportUnknownVariableType]
+        default_factory=dict
+    )
+    armature_temp_action: dict[int, Action] = field(  # pyright: ignore[reportUnknownVariableType]
+        default_factory=dict
+    )
+    shapekey_temp_action: dict[int, Action] = field(  # pyright: ignore[reportUnknownVariableType]
+        default_factory=dict
+    )
+    preview_values: dict[int, dict[str, float]] = field(  # pyright: ignore[reportUnknownVariableType]
+        default_factory=dict
+    )
+    temp_actions: list[Action] = field(  # pyright: ignore[reportUnknownVariableType]
+        default_factory=list
+    )
 
 
 state = _BakeState()
@@ -107,7 +119,11 @@ def restore_after_render(context: Context) -> None:
                 continue
 
             if action_state.had_animation_data:
-                armature_data.animation_data.action = action_state.action
+                animation_data = armature_data.animation_data
+                if not animation_data:
+                    animation_data = armature_data.animation_data_create()
+                if animation_data:
+                    animation_data.action = action_state.action
             else:
                 armature_data.animation_data_clear()
 
@@ -131,7 +147,11 @@ def restore_after_render(context: Context) -> None:
                 continue
 
             if action_state.had_animation_data:
-                shape_keys.animation_data.action = action_state.action
+                animation_data = shape_keys.animation_data
+                if not animation_data:
+                    animation_data = shape_keys.animation_data_create()
+                if animation_data:
+                    animation_data.action = action_state.action
             else:
                 shape_keys.animation_data_clear()
 
@@ -163,6 +183,8 @@ def _prepare_actions_for_bake(context: Context) -> None:
         had_animation_data = animation_data is not None
         if not animation_data:
             animation_data = armature_data.animation_data_create()
+        if not animation_data:
+            continue
         state.armature_action_state[armature_data.as_pointer()] = _ActionState(
             had_animation_data=had_animation_data,
             action=animation_data.action,
@@ -192,6 +214,8 @@ def _prepare_actions_for_bake(context: Context) -> None:
         had_animation_data = animation_data is not None
         if not animation_data:
             animation_data = shape_keys.animation_data_create()
+        if not animation_data:
+            continue
         state.shapekey_action_state[shape_keys.as_pointer()] = _ActionState(
             had_animation_data=had_animation_data,
             action=animation_data.action,
@@ -426,7 +450,10 @@ def _get_evaluated_armature_data_by_name(
         evaluated_obj = obj.evaluated_get(depsgraph)
         evaluated_data = evaluated_obj.data
         if isinstance(evaluated_data, Armature):
-            evaluated_armatures_by_name[obj.data.name] = evaluated_data
+            obj_data = obj.data
+            if not obj_data:
+                continue
+            evaluated_armatures_by_name[obj_data.name] = evaluated_data
     return evaluated_armatures_by_name
 
 
@@ -438,6 +465,8 @@ def _activate_baked_actions(context: Context) -> None:
         animation_data = armature_data.animation_data
         if not animation_data:
             animation_data = armature_data.animation_data_create()
+        if not animation_data:
+            continue
         animation_data.action = action
 
     for mesh in context.blend_data.meshes:
@@ -450,6 +479,8 @@ def _activate_baked_actions(context: Context) -> None:
         animation_data = shape_keys.animation_data
         if not animation_data:
             animation_data = shape_keys.animation_data_create()
+        if not animation_data:
+            continue
         animation_data.action = action
 
 
