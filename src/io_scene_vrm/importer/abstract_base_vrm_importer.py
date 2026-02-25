@@ -12,6 +12,7 @@ import secrets
 import shutil
 import struct
 import tempfile
+import uuid
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
@@ -69,6 +70,86 @@ class ParseResult:
     vrm0_extension_dict: Mapping[str, Json]
     vrm1_extension_dict: Mapping[str, Json]
     hips_node_index: Optional[int]
+    bin_chunk: bytes
+
+    def load_thumbnail_image(self, context: Context) -> Optional[str]:
+        image_index = None
+
+        if isinstance(meta_dict := self.vrm1_extension_dict.get("meta"), dict):
+            image_index = meta_dict.get("thumbnailImage")
+
+        if (
+            not isinstance(image_index, int)
+            and isinstance(meta_dict := self.vrm0_extension_dict.get("meta"), dict)
+            and isinstance(texture_index := meta_dict.get("texture"), int)
+            and isinstance(texture_dicts := self.json_dict.get("textures"), list)
+            and 0 <= texture_index < len(texture_dicts)
+            and isinstance(texture_dict := texture_dicts[texture_index], dict)
+        ):
+            image_index = texture_dict.get("source")
+
+        if not isinstance(image_index, int):
+            return None
+
+        image_dicts = self.json_dict.get("images")
+        if not isinstance(image_dicts, list):
+            return None
+        if not (0 <= image_index < len(image_dicts)):
+            return None
+
+        image_dict = image_dicts[image_index]
+        if not isinstance(image_dict, dict):
+            return None
+
+        image_uri = image_dict.get("uri")
+        if isinstance(image_uri, str):
+            return None
+
+        buffer_view_index = image_dict.get("bufferView")
+        if not isinstance(buffer_view_index, int):
+            return None
+
+        buffer_view_dicts = self.json_dict.get("bufferViews")
+        if not isinstance(buffer_view_dicts, list):
+            return None
+        if not (0 <= buffer_view_index < len(buffer_view_dicts)):
+            return None
+
+        buffer_view_dict = buffer_view_dicts[buffer_view_index]
+        if not isinstance(buffer_view_dict, dict):
+            return None
+
+        buffer_index = buffer_view_dict.get("buffer")
+        if buffer_index != 0:
+            return None
+
+        byte_offset = buffer_view_dict.get("byteOffset")
+        if not isinstance(byte_offset, int):
+            return None
+
+        byte_length = buffer_view_dict.get("byteLength")
+        if not isinstance(byte_length, int):
+            return None
+
+        image_bytes = self.bin_chunk[byte_offset : byte_offset + byte_length]
+        if not image_bytes:
+            return None
+
+        mime_type = image_dict.get("mimeType")
+        if mime_type == "image/jpeg":
+            suffix = ".jpg"
+        elif mime_type == "image/png":
+            suffix = ".png"
+        else:
+            return None
+
+        with tempfile.NamedTemporaryFile(suffix=suffix) as temp_file:
+            temp_file.write(image_bytes)
+            temp_file.flush()
+            image = context.blend_data.images.load(temp_file.name)
+            image.name = "vrm-thumbnail-" + uuid.uuid4().hex
+            image.pack()
+            return image.name
 
 
 class AbstractBaseVrmImporter(ABC):
@@ -339,9 +420,9 @@ class AbstractBaseVrmImporter(ABC):
                     )
             if not image_path_stem:
                 image_path_stem = image.name
+            image_path_stem = Path(clean_name(image_path_stem[:100])).stem
             if not image_path_stem:
                 image_path_stem = f"Image_{image_index}"
-            image_path_stem = clean_name(image_path_stem[:100])
 
             original_image_path_suffix = image_original_file_path.suffix
             detected_image_path_suffix = "." + image.file_format.lower()
@@ -1052,14 +1133,14 @@ class AbstractBaseVrmImporter(ABC):
                 ):
                     continue
 
-                vrm0_humanoid = get_armature_extension(data).vrm0.humanoid
-                vrm1_humanoid = get_armature_extension(data).vrm1.humanoid
-                if self.parse_result.spec_version_number < (1, 0):
-                    vrm0_humanoid.initial_automatic_bone_assignment = False
-                else:
-                    vrm1_humanoid.human_bones.initial_automatic_bone_assignment = False
-                vrm0_humanoid.pose = vrm0_humanoid.POSE_CURRENT_POSE.identifier
-                vrm1_humanoid.pose = vrm1_humanoid.POSE_CURRENT_POSE.identifier
+                vrm0 = get_armature_extension(data).vrm0
+                vrm1 = get_armature_extension(data).vrm1
+                vrm0.humanoid.initial_automatic_bone_assignment = False
+                vrm1.humanoid.human_bones.initial_automatic_bone_assignment = False
+                if self.parse_result.spec_version_number >= (1, 0):
+                    vrm1.expressions.initial_automatic_expression_assignment = False
+                vrm0.humanoid.pose = vrm0.humanoid.POSE_CURRENT_POSE.identifier
+                vrm1.humanoid.pose = vrm1.humanoid.POSE_CURRENT_POSE.identifier
                 self.armature = obj
 
         if (
@@ -1328,7 +1409,7 @@ class AbstractBaseVrmImporter(ABC):
 
 
 def parse_vrm_json(filepath: Path, *, license_validation: bool) -> ParseResult:
-    json_dict, _ = parse_glb(filepath.read_bytes())
+    json_dict, bin_chunk = parse_glb(filepath.read_bytes())
 
     extensions_dict = json_dict.get("extensions")
     if isinstance(extensions_dict, dict):
@@ -1374,6 +1455,7 @@ def parse_vrm_json(filepath: Path, *, license_validation: bool) -> ParseResult:
         vrm0_extension_dict=vrm0_extension_dict,
         vrm1_extension_dict=vrm1_extension_dict,
         hips_node_index=hips_node_index,
+        bin_chunk=bin_chunk,
     )
 
 

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import statistics
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from sys import float_info
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING, Optional
 
 import bpy
 from bpy.props import (
@@ -1225,6 +1225,10 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
         update=update_enable_animation,
     )
 
+    initial_automatic_spring_bone_assignment: BoolProperty(  # type: ignore[valid-type]
+        default=True,
+    )
+
     # for UI
     show_expanded_colliders: BoolProperty(  # type: ignore[valid-type]
         name="Spring Bone Colliders"
@@ -1253,6 +1257,7 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
             SpringBone1SpringPropertyGroup
         ]
         enable_animation: bool  # type: ignore[no-redef]
+        initial_automatic_spring_bone_assignment: bool  # type: ignore[no-redef]
         show_expanded_colliders: bool  # type: ignore[no-redef]
         show_expanded_collider_groups: bool  # type: ignore[no-redef]
         show_expanded_springs: bool  # type: ignore[no-redef]

@@ -1,6 +1,13 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from collections.abc import Set as AbstractSet
-from typing import Callable, Optional, Protocol, TypeVar, Union, runtime_checkable
+from collections.abc import Callable
+from typing import (
+    ClassVar,
+    Optional,
+    Protocol,
+    TypeVar,
+    Union,
+    runtime_checkable,
+)
 
 from bpy.app.translations import pgettext
 from bpy.types import (
@@ -19,6 +26,7 @@ from ..common.preferences import get_preferences
 from . import make_armature, search, validation
 from .extension import get_armature_extension
 from .ops import layout_operator
+from .validation import is_valid_url
 
 __AddOperator = TypeVar("__AddOperator", bound=Operator)
 __RemoveOperator = TypeVar("__RemoveOperator", bound=Operator)
@@ -30,6 +38,16 @@ __MoveDownOperator = TypeVar("__MoveDownOperator", bound=Operator)
 class TemplateListCollectionProtocol(Protocol):
     def __len__(self) -> int: ...
     def __getitem__(self, index: int) -> object: ...
+
+
+def draw_url_warning(layout: UILayout, url: str) -> None:
+    if is_valid_url(url, allow_empty_str=True):
+        return
+    layout.label(
+        text=pgettext('"{url}" is not a valid URL.').format(url=url),
+        icon="ERROR",
+        translate=False,
+    )
 
 
 def draw_template_list(
@@ -207,7 +225,7 @@ class VRM_PT_current_selected_armature(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
-    bl_options: AbstractSet[str] = {"HIDE_HEADER"}
+    bl_options: ClassVar = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:
@@ -257,12 +275,18 @@ class VRM_PT_controller(Panel):
             vrm_validator_op.armature_object_name = armature.name
             armature_data = armature.data
             if isinstance(armature_data, Armature):
+                ext = get_armature_extension(armature_data)
                 layout.prop(
-                    get_armature_extension(armature_data),
+                    ext,
                     "spec_version",
                     text="",
                     translate=False,
                 )
+                if ext.is_khr_character():
+                    box = layout.box()
+                    column = box.column(align=True)
+                    column.label(icon="ERROR", text="KHR character support is")
+                    column.label(icon="BLANK1", text="under development")
 
 
 class VRM_PT_controller_unsupported_blender_version_warning(Panel):
@@ -271,7 +295,7 @@ class VRM_PT_controller_unsupported_blender_version_warning(Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "VRM"
-    bl_options: AbstractSet[str] = {"HIDE_HEADER"}
+    bl_options: ClassVar = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, _context: Context) -> bool:

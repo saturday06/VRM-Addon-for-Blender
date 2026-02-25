@@ -118,6 +118,7 @@ def vrm_license_warning(
         Sequence[Mapping[str, Union[str, int, float, bool]]]
     ] = None,
     import_anyway: bool = False,
+    thumbnail_image_name: str = "",
     extract_textures_into_folder: bool = False,
     make_new_texture_folder: bool = False,
     set_shading_type_to_material_on_import: bool = False,
@@ -134,6 +135,7 @@ def vrm_license_warning(
         if license_confirmations is not None
         else [],
         import_anyway=import_anyway,
+        thumbnail_image_name=thumbnail_image_name,
         extract_textures_into_folder=extract_textures_into_folder,
         make_new_texture_folder=make_new_texture_folder,
         set_shading_type_to_material_on_import=set_shading_type_to_material_on_import,

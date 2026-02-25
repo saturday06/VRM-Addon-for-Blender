@@ -52,6 +52,11 @@ from .editor import (
     subscription,
     validation,
 )
+from .editor.khr_character import panel as khr_character_panel
+from .editor.khr_character import property_group as khr_character_property_group
+from .editor.khr_xmp_json_ld import ops as khr_xmp_json_ld_ops
+from .editor.khr_xmp_json_ld import property_group as khr_xmp_json_ld_property_group
+from .editor.khr_xmp_json_ld import ui_list as khr_xmp_json_ld_ui_list
 from .editor.mtoon1 import handler as mtoon1_handler
 from .editor.mtoon1 import ops as mtoon1_ops
 from .editor.mtoon1 import panel as mtoon1_panel
@@ -214,6 +219,23 @@ classes: list[
     mtoon1_property_group.Mtoon0ReceiveShadowTexturePropertyGroup,
     mtoon1_property_group.Mtoon1MaterialPropertyGroup,
     mtoon1_property_group.MaterialTraceablePropertyGroup,
+    khr_xmp_json_ld_ops.VRM_OT_add_khr_xmp_json_ld_packet_dc_creator,
+    khr_xmp_json_ld_ops.VRM_OT_remove_khr_xmp_json_ld_packet_dc_creator,
+    khr_xmp_json_ld_ops.VRM_OT_move_up_khr_xmp_json_ld_packet_dc_creator,
+    khr_xmp_json_ld_ops.VRM_OT_move_down_khr_xmp_json_ld_packet_dc_creator,
+    khr_xmp_json_ld_ops.VRM_OT_add_khr_xmp_json_ld_packet_dc_license,
+    khr_xmp_json_ld_ops.VRM_OT_remove_khr_xmp_json_ld_packet_dc_license,
+    khr_xmp_json_ld_ops.VRM_OT_move_up_khr_xmp_json_ld_packet_dc_license,
+    khr_xmp_json_ld_ops.VRM_OT_move_down_khr_xmp_json_ld_packet_dc_license,
+    khr_xmp_json_ld_ops.VRM_OT_add_khr_xmp_json_ld_packet_dc_subject,
+    khr_xmp_json_ld_ops.VRM_OT_remove_khr_xmp_json_ld_packet_dc_subject,
+    khr_xmp_json_ld_ops.VRM_OT_move_up_khr_xmp_json_ld_packet_dc_subject,
+    khr_xmp_json_ld_ops.VRM_OT_move_down_khr_xmp_json_ld_packet_dc_subject,
+    khr_xmp_json_ld_property_group.KhrXmpJsonLdKhrCharacterPacketPropertyGroup,
+    khr_xmp_json_ld_ui_list.VRM_UL_khr_xmp_json_ld_packet_dc_creator,
+    khr_xmp_json_ld_ui_list.VRM_UL_khr_xmp_json_ld_packet_dc_license,
+    khr_xmp_json_ld_ui_list.VRM_UL_khr_xmp_json_ld_packet_dc_subject,
+    khr_character_property_group.KhrCharacterPropertyGroup,
     mtoon1_panel.VRM_PT_vrm_material_property,
     panel.VRM_PT_current_selected_armature,
     panel.VRM_PT_controller_unsupported_blender_version_warning,
@@ -229,6 +251,8 @@ classes: list[
     vrm0_ui_list.VRM_UL_vrm0_secondary_animation_group_bone,
     vrm0_ui_list.VRM_UL_vrm0_secondary_animation_group_collider_group,
     vrm0_ui_list.VRM_UL_vrm0_secondary_animation_collider_group_collider,
+    khr_character_panel.VRM_PT_khr_character_armature_object_property,
+    khr_character_panel.VRM_PT_khr_character_ui,
     vrm0_panel.VRM_PT_vrm0_meta_armature_object_property,
     vrm0_panel.VRM_PT_vrm0_meta_ui,
     vrm0_panel.VRM_PT_vrm0_humanoid_armature_object_property,
@@ -326,6 +350,11 @@ classes: list[
     vrm1_ops.VRM_OT_move_up_vrm1_expression_morph_target_bind,
     vrm1_ops.VRM_OT_move_down_vrm1_expression_morph_target_bind,
     vrm1_ops.VRM_OT_restore_vrm1_expression_morph_target_bind_object,
+    vrm1_ops.VRM_OT_add_vrm1_arkit_custom_expressions,
+    vrm1_ops.VRM_OT_assign_vrm1_mmd_expressions,
+    vrm1_ops.VRM_OT_assign_vrm1_ready_player_me_expressions,
+    vrm1_ops.VRM_OT_assign_vrm1_vrchat_expressions,
+    vrm1_ops.VRM_OT_assign_vrm1_expressions_automatically,
     vrm1_ops.VRM_OT_add_vrm1_expression_material_color_bind,
     vrm1_ops.VRM_OT_remove_vrm1_expression_material_color_bind,
     vrm1_ops.VRM_OT_move_up_vrm1_expression_material_color_bind,
@@ -586,7 +615,6 @@ def save_pre(_unused: object) -> None:
         context, load_post=False
     )
     migration.migrate_all_objects(context)
-    extension.update_internal_cache(context)
 
 
 def setup_once_when_writable_context_becomes_available(
@@ -596,7 +624,6 @@ def setup_once_when_writable_context_becomes_available(
     if preferences.get_preferences(context).add_mtoon_shader_node_group:
         shader.add_mtoon1_auto_setup_shader_node_group(context)
     migration.migrate_all_objects(context, show_progress=True)
-    extension.update_internal_cache(context)
     mtoon1_property_group.setup_drivers(context)
     subscription.setup_subscription(load_post=load_post)
     spring_bone1_handler.reset_state(context)

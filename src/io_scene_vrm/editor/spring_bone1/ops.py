@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import uuid
 import warnings
-from collections.abc import Set as AbstractSet
 from sys import float_info
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from bpy.props import BoolProperty, FloatProperty, IntProperty, StringProperty
 from bpy.types import Armature, Context, Operator
@@ -20,7 +19,7 @@ class VRM_OT_add_spring_bone1_collider(Operator):
     bl_idname = "vrm.add_spring_bone1_collider"
     bl_label = "Add Collider"
     bl_description = "Add VRM 1.0 Collider"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -71,7 +70,7 @@ class VRM_OT_remove_spring_bone1_collider(Operator):
     bl_idname = "vrm.remove_spring_bone1_collider"
     bl_label = "Remove Collider"
     bl_description = "Remove VRM 0.x Collider"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -159,7 +158,7 @@ class VRM_OT_move_up_spring_bone1_collider_group(Operator):
     bl_idname = "vrm.move_up_spring_bone1_collider_group"
     bl_label = "Move Up Collider Group"
     bl_description = "Move Up VRM 1.0 Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -218,7 +217,7 @@ class VRM_OT_move_down_spring_bone1_collider_group(Operator):
     bl_idname = "vrm.move_down_spring_bone1_collider_group"
     bl_label = "Move Down Collider Group"
     bl_description = "Move Down VRM 1.0 Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -277,7 +276,7 @@ class VRM_OT_add_spring_bone1_spring(Operator):
     bl_idname = "vrm.add_spring_bone1_spring"
     bl_label = "Add Spring"
     bl_description = "Add VRM 1.0 Spring"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -326,7 +325,7 @@ class VRM_OT_remove_spring_bone1_spring(Operator):
     bl_idname = "vrm.remove_spring_bone1_spring"
     bl_label = "Remove Spring"
     bl_description = "Remove VRM 1.0 Spring"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -385,7 +384,7 @@ class VRM_OT_move_up_spring_bone1_spring(Operator):
     bl_idname = "vrm.move_up_spring_bone1_spring"
     bl_label = "Move Up Spring"
     bl_description = "Move Up VRM 1.0 Spring"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -443,7 +442,7 @@ class VRM_OT_move_down_spring_bone1_spring(Operator):
     bl_idname = "vrm.move_down_spring_bone1_spring"
     bl_label = "Move Down Spring"
     bl_description = "Move Down VRM 1.0 Spring"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -501,7 +500,7 @@ class VRM_OT_add_spring_bone1_collider_group(Operator):
     bl_idname = "vrm.add_spring_bone1_collider_group"
     bl_label = "Add Collider Group"
     bl_description = "Add VRM 1.0 Spring Bone Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -551,7 +550,7 @@ class VRM_OT_remove_spring_bone1_collider_group(Operator):
     bl_idname = "vrm.remove_spring_bone1_collider_group"
     bl_label = "Remove Collider Group"
     bl_description = "Remove VRM 1.0 Spring Bone Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -627,7 +626,7 @@ class VRM_OT_move_up_spring_bone1_collider(Operator):
     bl_idname = "vrm.move_up_spring_bone1_collider"
     bl_label = "Move Up Collider"
     bl_description = "Move Up VRM 1.0 Collider"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -685,7 +684,7 @@ class VRM_OT_move_down_spring_bone1_collider(Operator):
     bl_idname = "vrm.move_down_spring_bone1_collider"
     bl_label = "Move Down Collider"
     bl_description = "Move Down VRM 1.0 Collider"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -743,7 +742,7 @@ class VRM_OT_add_spring_bone1_collider_group_collider(Operator):
     bl_idname = "vrm.add_spring_bone1_collider_group_collider"
     bl_label = "Add Collider"
     bl_description = "Add VRM 1.0 Spring Bone Collider Group Collider"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -802,7 +801,7 @@ class VRM_OT_remove_spring_bone1_collider_group_collider(Operator):
     bl_idname = "vrm.remove_spring_bone1_collider_group_collider"
     bl_label = "Remove Collider"
     bl_description = "Remove VRM 1.0 Spring Bone Collider Group Collider"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -871,7 +870,7 @@ class VRM_OT_move_up_spring_bone1_collider_group_collider(Operator):
     bl_idname = "vrm.move_up_spring_bone1_collider_group_collider"
     bl_label = "Move Up Collider"
     bl_description = "Move Up VRM 1.0 Collider Group Collider"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -936,7 +935,7 @@ class VRM_OT_move_down_spring_bone1_collider_group_collider(Operator):
     bl_idname = "vrm.move_down_spring_bone1_collider_group_collider"
     bl_label = "Move Down Collider"
     bl_description = "Move Down VRM 1.0 Collider Group Collider"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1001,7 +1000,7 @@ class VRM_OT_add_spring_bone1_spring_collider_group(Operator):
     bl_idname = "vrm.add_spring_bone1_spring_collider_group"
     bl_label = "Add Collider Group"
     bl_description = "Add VRM 1.0 Spring Bone Spring Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1058,7 +1057,7 @@ class VRM_OT_remove_spring_bone1_spring_collider_group(Operator):
     bl_idname = "vrm.remove_spring_bone1_spring_collider_group"
     bl_label = "Remove Collider Group"
     bl_description = "Remove VRM 1.0 Spring Bone Spring Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1124,7 +1123,7 @@ class VRM_OT_move_up_spring_bone1_spring_collider_group(Operator):
     bl_idname = "vrm.move_up_spring_bone1_spring_collider_group"
     bl_label = "Move Up Collider Group"
     bl_description = "Move Up VRM 1.0 Spring Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1192,7 +1191,7 @@ class VRM_OT_move_down_spring_bone1_spring_collider_group(Operator):
     bl_idname = "vrm.move_down_spring_bone1_spring_collider_group"
     bl_label = "Move Down Collider Group"
     bl_description = "Move Down VRM 1.0 Spring Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1260,7 +1259,7 @@ class VRM_OT_add_spring_bone1_joint(Operator):
     bl_idname = "vrm.add_spring_bone1_spring_joint"
     bl_label = "Add Joint"
     bl_description = "Add VRM 1.0 Spring Bone Spring Joint"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1335,7 +1334,7 @@ class VRM_OT_remove_spring_bone1_joint(Operator):
     bl_idname = "vrm.remove_spring_bone1_spring_joint"
     bl_label = "Remove Joint"
     bl_description = "Remove VRM 1.0 Spring Bone Spring Joint"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1401,7 +1400,7 @@ class VRM_OT_move_up_spring_bone1_joint(Operator):
     bl_idname = "vrm.move_up_spring_bone1_joint"
     bl_label = "Move Up Joint"
     bl_description = "Move Up VRM 1.0 Joint"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1467,7 +1466,7 @@ class VRM_OT_move_down_spring_bone1_joint(Operator):
     bl_idname = "vrm.move_down_spring_bone1_joint"
     bl_label = "Move Down Joint"
     bl_description = "Move Down VRM 1.0 Joint"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1533,7 +1532,7 @@ class VRM_OT_reset_spring_bone1_animation_state(Operator):
     bl_idname = "vrm.reset_spring_bone1_animation_state"
     bl_label = "Reset SpringBone Animation State"
     bl_description = "Reset SpringBone Animation State"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1582,7 +1581,7 @@ class VRM_OT_update_spring_bone1_animation(Operator):
     bl_idname = "vrm.update_spring_bone1_animation"
     bl_label = "Update SpringBone Animation"
     bl_description = "Update SpringBone Animation"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     delta_time: FloatProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1599,3 +1598,136 @@ class VRM_OT_update_spring_bone1_animation(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         delta_time: float  # type: ignore[no-redef]
+
+
+def assign_vrm1_spring_bone_from_vrm0(
+    context: Context,
+    armature_object_name: str,
+) -> None:
+    armature = context.blend_data.objects.get(armature_object_name)
+    if armature is None or armature.type != "ARMATURE":
+        return
+    armature_data = armature.data
+    if not isinstance(armature_data, Armature):
+        return
+
+    ext = get_armature_extension(armature_data)
+    vrm0_secondary = ext.vrm0.secondary_animation
+    spring_bone1 = ext.spring_bone1
+
+    if not vrm0_secondary.collider_groups and not vrm0_secondary.bone_groups:
+        return
+
+    if spring_bone1.colliders or spring_bone1.springs:
+        return
+
+    # Map from VRM0 collider_group index to list of VRM1 collider indices
+    vrm0_collider_group_index_to_vrm1_collider_indices: dict[int, list[int]] = {}
+
+    for vrm0_cg_index, vrm0_cg in enumerate(vrm0_secondary.collider_groups):
+        vrm1_collider_indices: list[int] = []
+        for vrm0_collider in vrm0_cg.colliders:
+            if not vrm0_collider.bpy_object or not vrm0_collider.bpy_object.name:
+                continue
+            vrm0_bpy_obj = vrm0_collider.bpy_object
+            collider1 = spring_bone1.colliders.add()
+            collider1.uuid = uuid.uuid4().hex
+            collider1.node.bone_name = vrm0_cg.node.bone_name
+            collider1.reset_bpy_object(context, armature)
+            if collider1.bpy_object:
+                collider1.bpy_object.matrix_world = vrm0_bpy_obj.matrix_world
+                collider1.bpy_object.empty_display_size = (
+                    vrm0_bpy_obj.empty_display_size
+                )
+            collider1.shape.sphere.radius = vrm0_bpy_obj.empty_display_size
+            vrm1_collider_indices.append(len(spring_bone1.colliders) - 1)
+        vrm0_collider_group_index_to_vrm1_collider_indices[vrm0_cg_index] = (
+            vrm1_collider_indices
+        )
+
+    # Create VRM1 collider groups from VRM0 collider groups
+    # Map from VRM0 collider_group index to VRM1 collider_group index
+    vrm0_cg_index_to_vrm1_cg_index: dict[int, int] = {}
+    for vrm0_cg_index, vrm0_cg in enumerate(vrm0_secondary.collider_groups):
+        collider_group1 = spring_bone1.collider_groups.add()
+        collider_group1.uuid = uuid.uuid4().hex
+        collider_group1.vrm_name = vrm0_cg.node.bone_name
+        vrm1_cg_index = len(spring_bone1.collider_groups) - 1
+        vrm0_cg_index_to_vrm1_cg_index[vrm0_cg_index] = vrm1_cg_index
+
+        vrm1_collider_indices = vrm0_collider_group_index_to_vrm1_collider_indices.get(
+            vrm0_cg_index, []
+        )
+        for vrm1_collider_index in vrm1_collider_indices:
+            if not 0 <= vrm1_collider_index < len(spring_bone1.colliders):
+                continue
+            collider1 = spring_bone1.colliders[vrm1_collider_index]
+            collider_ref = collider_group1.colliders.add()
+            collider_ref.collider_name = collider1.name
+
+    # Create VRM1 springs from VRM0 bone groups
+    for vrm0_bone_group in vrm0_secondary.bone_groups:
+        for root_bone_prop in vrm0_bone_group.bones:
+            root_bone_name = root_bone_prop.bone_name
+            if not root_bone_name:
+                continue
+            root_bone = armature_data.bones.get(root_bone_name)
+            if root_bone is None:
+                continue
+
+            spring1 = spring_bone1.springs.add()
+            spring1.vrm_name = vrm0_bone_group.comment or root_bone_name
+            spring1.center.bone_name = vrm0_bone_group.center.bone_name
+
+            # Walk bone chain and add joints
+            bone = root_bone
+            while True:
+                joint = spring1.joints.add()
+                joint.node.bone_name = bone.name
+                joint.stiffness = vrm0_bone_group.stiffiness
+                joint.gravity_power = vrm0_bone_group.gravity_power
+                joint.gravity_dir = list(vrm0_bone_group.gravity_dir)
+                joint.drag_force = vrm0_bone_group.drag_force
+                joint.hit_radius = vrm0_bone_group.hit_radius
+                if bone.children:
+                    bone = bone.children[0]
+                else:
+                    break
+
+            # Add collider group references
+            for vrm0_cg_ref in vrm0_bone_group.collider_groups:
+                ref_name = vrm0_cg_ref.value
+                # Find the matching VRM0 collider group
+                for vrm0_cg_index, vrm0_cg in enumerate(vrm0_secondary.collider_groups):
+                    if vrm0_cg.name == ref_name:
+                        vrm1_cg_index = vrm0_cg_index_to_vrm1_cg_index.get(
+                            vrm0_cg_index
+                        )
+                        if vrm1_cg_index is not None and 0 <= vrm1_cg_index < len(
+                            spring_bone1.collider_groups
+                        ):
+                            cg_ref = spring1.collider_groups.add()
+                            cg_ref.collider_group_name = spring_bone1.collider_groups[
+                                vrm1_cg_index
+                            ].name
+                        break
+
+
+class VRM_OT_assign_vrm1_spring_bone_from_vrm0(Operator):
+    bl_idname = "vrm.assign_vrm1_spring_bone_from_vrm0"
+    bl_label = "Copy VRM 0.0 Spring Bone"
+    bl_description = "Copy VRM 0.0 Spring Bone data to VRM 1.0 Spring Bone"
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        assign_vrm1_spring_bone_from_vrm0(context, self.armature_object_name)
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]

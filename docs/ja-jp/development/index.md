@@ -1,5 +1,6 @@
 ---
 title: "開発環境のセットアップ"
+description: "VRM Add-on for Blenderの開発環境セットアップ手順を解説します。"
 ---
 
 アドオンの開発環境のセットアップ手順です。

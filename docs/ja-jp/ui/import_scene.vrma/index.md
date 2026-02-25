@@ -1,3 +1,8 @@
+---
+title: "VRM Animation（.vrma）のインポート"
+description: "VRM 1.0モデルにVRM Animation（.vrma）を読み込む手順を説明します。"
+---
+
 メニューの `ファイル` → `インポート` → `VRM Animation (.vrma)`
 を選択することで、 [VRM Animation](../../animation/)
 のインポートダイアログが表示されます。

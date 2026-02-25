@@ -1,5 +1,6 @@
 ---
 title: "Development How-To"
+description: "Set up the development environment for VRM Add-on for Blender."
 ---
 
 Instructions for setting up the add-on development environment.

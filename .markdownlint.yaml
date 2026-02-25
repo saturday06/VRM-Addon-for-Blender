@@ -1,7 +1,8 @@
 default: true
 MD013:
-  line_length: 600
+  line_length: 700
 MD024: false
+MD028: false
 MD033:
   allowed_elements:
     - a

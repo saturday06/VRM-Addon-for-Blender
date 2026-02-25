@@ -1,3 +1,8 @@
+---
+title: "Export VRM Animation (.vrma)"
+description: "Export VRM Animation (.vrma) from Blender and see what data is included."
+---
+
 By selecting `File` → `Export` → `VRM Animation (.vrma)` from the menu, the
 [VRM Animation](../../animation/) export dialog will be displayed.
 

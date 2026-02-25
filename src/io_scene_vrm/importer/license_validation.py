@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import contextlib
 from typing import Optional
-from urllib.parse import ParseResult, parse_qsl, urlparse
+from urllib.parse import SplitResult, parse_qsl, urlsplit
 
 from bpy.app.translations import pgettext
 
@@ -54,7 +54,7 @@ def validate_license_url(
         return
     url = None
     with contextlib.suppress(ValueError):
-        url = urlparse(url_str)
+        url = urlsplit(url_str)
     if url:
         query_dict = dict(parse_qsl(url.query))
         if validate_vroid_hub_license_url(
@@ -71,7 +71,7 @@ def validate_license_url(
 
 
 def validate_vroid_hub_license_url(
-    url: ParseResult,
+    url: SplitResult,
     query_dict: dict[str, str],
     json_key: str,
     props: list[LicenseConfirmationRequiredProp],
@@ -93,7 +93,7 @@ def validate_vroid_hub_license_url(
 
 
 def validate_uni_virtual_license_url(
-    url: ParseResult,
+    url: SplitResult,
     query_dict: dict[str, str],
     json_key: str,
     props: list[LicenseConfirmationRequiredProp],

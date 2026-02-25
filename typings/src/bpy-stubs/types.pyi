@@ -9,7 +9,7 @@ from collections.abc import (
     Sequence,
     ValuesView,
 )
-from typing import Callable, Generic, TypeVar, overload
+from typing import Callable, ClassVar, Generic, TypeVar, overload
 
 from mathutils import Color, Euler, Matrix, Quaternion, Vector
 from typing_extensions import TypeAlias
@@ -89,6 +89,8 @@ class ID(bpy_struct, __CustomProperty):
     def animation_data_clear(self) -> None: ...
     def user_remap(self, new_id: ID) -> None: ...
     def update_tag(self, refresh: set[str] = ...) -> None: ...
+    @property
+    def preview(self) -> ImagePreview | None: ...
     def copy(self) -> ID: ...
 
 class Property(bpy_struct):
@@ -173,6 +175,10 @@ class BlenderRNA(bpy_struct):
     ) -> bpy_prop_collection[
         Property  # TODO: verify if this matches bpy.types.Property
     ]: ...  # Does not exist in documentation.
+
+class ImagePreview(bpy_struct):
+    @property
+    def icon_id(self) -> int: ...
 
 class Gizmo(bpy_struct):
     alpha: float
@@ -319,6 +325,7 @@ class Action(ID):
     @property
     def slots(self) -> ActionSlots: ...
 
+class TextureSlot(bpy_struct): ...
 class Texture(ID): ...
 
 class LayerObjects(bpy_prop_collection["Object"]):
@@ -578,6 +585,7 @@ class PoseBone(bpy_struct, __CustomProperty):
 class ArmatureBones(bpy_prop_collection[Bone]):
     active: Bone | None  # TODO: Can it be None?
 
+class OperatorOptions(bpy_struct): ...
 class OperatorProperties(bpy_struct): ...
 
 class UILayout(bpy_struct):
@@ -709,6 +717,15 @@ class UILayout(bpy_struct):
         filter: str = "ALL",
         hide_buttons: bool = False,
     ) -> None: ...
+    def template_preview(
+        self,
+        id: ID,
+        show_buttons: bool = True,
+        parent: ID | None = None,
+        slot: TextureSlot | None = None,
+        preview_id: str = "",
+    ) -> None: ...
+    def template_icon(self, icon_value: int, scale: float = 1.0) -> None: ...
     def template_list(
         self,
         listtype_name: str,
@@ -721,10 +738,11 @@ class UILayout(bpy_struct):
         rows: int = 5,
         maxrows: int = 5,
         type: str = "DEFAULT",
-        columns: int = 9,
         sort_reverse: bool = False,
         sort_lock: bool = False,
     ) -> None: ...
+    @classmethod
+    def icon(cls, data: AnyType) -> int: ...
 
 class AddonPreferences(bpy_struct):
     layout: UILayout  # TODO: No documentation
@@ -1825,6 +1843,7 @@ class Modifier(bpy_struct):
     show_in_editmode: bool
     show_viewport: bool
     show_render: bool
+    use_pin_to_last: bool
 
     @property
     def type(self) -> str: ...
@@ -1841,6 +1860,8 @@ class ArmatureModifier(Modifier):
 
 class NodesModifier(Modifier):
     node_group: NodeTree | None  # Whether it becomes None needs verification
+    show_group_selector: bool
+    show_manage_panel: bool
 
 class OperatorFileListElement(PropertyGroup): ...
 
@@ -2002,6 +2023,7 @@ class SpaceFileBrowser(Space):
 class View2D(bpy_struct): ...
 
 class Region(bpy_struct):
+    active_panel_category: str
     def alignment(self) -> str: ...
     def data(self) -> AnyType: ...
     def height(self) -> int: ...
@@ -2034,6 +2056,8 @@ class Context(bpy_struct):
     def mode(self) -> str: ...
     @property
     def preferences(self) -> Preferences: ...
+    @property
+    def region(self) -> Region: ...
     @property
     def region_data(self) -> RegionView3D: ...
     @property
@@ -2125,6 +2149,14 @@ class BlendDataImages(bpy_prop_collection[Image]):
         tiled: bool = False,
     ) -> Image: ...
     def load(self, filepath: str, check_existing: bool = False) -> Image: ...
+    def remove(
+        self,
+        image: Image,
+        *,
+        do_unlink: bool = True,
+        do_id_user: bool = True,
+        do_ui_user: bool = True,
+    ) -> None: ...
 
 class BlendDataArmatures(bpy_prop_collection[Armature]):
     def new(self, name: str) -> Armature: ...
@@ -2183,6 +2215,7 @@ class BlendDataScenes(bpy_prop_collection[Scene]):
     def remove(self, scene: Scene, *, do_unlink: bool = True) -> None: ...
 
 class VectorFont(ID): ...
+class Macro(bpy_struct): ...
 
 class MetaElement(bpy_struct):
     co: Vector
@@ -2345,10 +2378,27 @@ class BlendData:
     def worlds(self) -> BlendDataWorlds: ...
 
 class Operator(bpy_struct):
+    bl_description: str
     bl_idname: str
     bl_label: str
+    bl_options: ClassVar[set[str]]
+    bl_translation_context: str
+    bl_undo_group: str
+    @property
+    def has_reports(self) -> bool: ...
     @property
     def layout(self) -> UILayout: ...
+    @property
+    def macros(self) -> bpy_prop_collection[Macro]: ...
+    @property
+    def name(self) -> str: ...
+    @property
+    def options(self) -> OperatorOptions: ...
+    @property
+    def properties(self) -> OperatorProperties: ...
+    bl_property: str
+    def report(self, type: set[str], message: str) -> None: ...
+    def is_repeat(self) -> bool: ...
 
 # This type is used with UILayout.prop_search, but definition is unclear due to docs
 AnyType: TypeAlias = ID | BlendData | Operator | PropertyGroup

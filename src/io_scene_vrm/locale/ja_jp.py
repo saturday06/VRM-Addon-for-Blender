@@ -134,8 +134,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "読めなくなります。",
     (
         "*",
-        "No errors found. Ready to export VRM",
-    ): "エラーはありませんでした。VRMのエクスポートをすることができます",
+        "No errors found. Ready to export VRM.",
+    ): "エラーはありませんでした。VRMのエクスポートをすることができます。",
     (
         "*",
         "No errors found. But there are {warning_count} warning(s)."
@@ -152,8 +152,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Extract texture images into the folder"): "テクスチャ画像をフォルダに展開",
     (
         "*",
-        "Don't overwrite existing texture folder",
-    ): "すでに存在するテクスチャ画像フォルダを上書きしない",
+        "Don't overwrite existing texture image folder",
+    ): "既に存在するテクスチャ画像のフォルダを上書きしない",
     (
         "*",
         'Official add-on "glTF 2.0 format" is required. Please enable it.',
@@ -189,6 +189,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
         'The VRM selects "Other" license but no license url is found.',
     ): "指定されたVRMには「Other」ライセンスが設定されていますが、"
     + "URLが設定されていません。",
+    (
+        "*",
+        '"{url}" is not a valid URL.',
+    ): "「{url}」は有効なURLではありません。",
     (
         "*",
         "This VRM is not allowed to be edited. Please check its license",
@@ -256,7 +260,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " of {humanoid_name} and its children."
         + ' "VRM" Panel → "VRM 0.x Humanoid" → {humanoid_name}'
         + " will be empty or displayed in red"
-        + " if hierarchy is wrong",
+        + " if hierarchy is wrong.",
     ): "VRM必須ボーン「{humanoid_name}」が未割り当てです。"
     + "「VRM」パネルの「VRM 0.x Humanoid」→「VRM必須ボーン」で"
     + "「{humanoid_name}」ボーンの設定をしてください。",
@@ -268,7 +272,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + ' to VRM Human Bone "{human_bone}". '
         + 'Confirm hierarchy of "{bone}" and its children. '
         + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
-        + " if wrong hierarchy",
+        + " if wrong hierarchy.",
     ): "ボーン「{bone}」をVRMヒューマンボーン「{human_bone}」に"
     + "割り当てることができませんでした。"
     + "「VRM」パネルの「VRM 0.x Humanoid」で"
@@ -280,7 +284,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " of {humanoid_name} and its children. "
         + '"VRM" Panel → "Humanoid" → {humanoid_name}'
         + " will be empty or displayed in red"
-        + " if hierarchy is wrong",
+        + " if hierarchy is wrong.",
     ): "VRM必須ボーン「{humanoid_name}」が未割り当てです。"
     + "「VRM」パネルの「Humanoid」→「VRM必須ボーン」で"
     + "「{humanoid_name}」ボーンの設定をしてください。",
@@ -363,9 +367,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'A mesh named "{mesh_name}" is assigned to a blend'
         + ' shape group named "{blend_shape_group_name}" but'
-        + " the mesh will not be exported",
+        + " the mesh will not be exported.",
     ): "Blend Shape Group「{blend_shape_group_name}」にメッシュ「{mesh_name}」が"
-    + "割り当てられていますが、そのメッシュはエクスポートされません",
+    + "割り当てられていますが、そのメッシュはエクスポートされません。",
     (
         "*",
         'A shape key named "{shape_key_name}" in a mesh'
@@ -374,12 +378,12 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " shape key doesn't exist.",
     ): "Blend Shape Group「{blend_shape_group_name}」にメッシュ"
     + "「{mesh_name}」のシェイプキー「{shape_key_name}」が割り当てられていますが、"
-    + "そのようなシェイプキーは存在しません",
+    + "そのようなシェイプキーは存在しません。",
     (
         "*",
-        'need "{expect_node_type}" input' + ' in "{shader_val}" of "{material_name}"',
+        'need "{expect_node_type}" input' + ' in "{shader_val}" of "{material_name}".',
     ): "「{material_name}」の「{shader_val}」には、"
-    + "「{expect_node_type}」を直接つないでください。 ",
+    + "「{expect_node_type}」を直接つないでください。",
     (
         "*",
         'Image in material "{material_name}" is not set.' + " Please add an image.",
@@ -478,23 +482,24 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Axis Translation on Export"): "エクスポート時の軸の変換",
     (
         "*",
-        "Offset and Scale are ignored in VRM 0.0",
-    ): "VRM 0.0ではオフセットとスケールは無視されます",
+        "Offset and Scale are ignored in VRM 0.0.",
+    ): "VRM 0.0ではオフセットとスケールは無視されます。",
     (
         "*",
-        'Material "{name}" {texture}\'s Offset and Scale are' + " ignored in VRM 0.0",
-    ): "VRM 0.0ではマテリアル「{name}」の{texture}のオフセットとスケールは無視されます",
+        'Material "{name}" {texture}\'s Offset and Scale are' + " ignored in VRM 0.0.",
+    ): "VRM 0.0ではマテリアル「{name}」の{texture}のオフセットとスケールは"
+    + "無視されます。",
     (
         "*",
-        "Offset and Scale in VRM 0.0 are" + " the values of the Lit Color Texture",
-    ): "VRM 0.0でのオフセットとスケールはLit Colorテクスチャの値になります",
+        "Offset and Scale in VRM 0.0 are" + " the values of the Lit Color Texture.",
+    ): "VRM 0.0でのオフセットとスケールはLit Colorテクスチャの値になります。",
     (
         "*",
         'Material "{name}" {texture}\'s Offset and Scale'
         + " in VRM 0.0 are the values of"
-        + " the Lit Color Texture",
+        + " the Lit Color Texture.",
     ): "VRM 0.0でのマテリアル「name」の{texture}のオフセットとスケールは"
-    + "Lit Colorテクスチャの値になります",
+    + "Lit Colorテクスチャの値になります。",
     (
         "*",
         'It is recommended to set "{colorspace}"'
@@ -504,7 +509,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "*",
         'It is recommended to set "{colorspace}"'
         + ' to "{input_colorspace}" for "{texture_label}"'
-        + ' in Material "{name}"',
+        + ' in Material "{name}".',
     ): "マテリアル{name}の{texture_label}の{input_colorspace}には"
     + "「{colorspace}」の設定が推奨されます。",
     (
@@ -780,4 +785,18 @@ translation_dictionary: dict[tuple[str, str], str] = {
         "https://github.com/vrm-c/vrm-specification/blob/c24d76d99a18738dd2c266be1c83f089064a7b5e/specification/VRMC_vrm-1.0/humanoid.md#humanoid-bone-parent-child-relationship",
     ): "https://github.com/vrm-c/vrm-specification/blob/c24d76d99a18738dd2c266be1c83f089064a7b5e/specification/VRMC_vrm-1.0/humanoid.ja.md#ヒューマノイドボーンの親子関係",
     ("Operator", "Restore Shape Key Assignments"): "シェイプキーの割り当てを復元する",
+    (
+        "Operator",
+        "Assign Auto-Detected Shape Keys",
+    ): "自動検出されたシェイプキーを割り当て",
+    ("Operator", "Assign VRChat Shape Keys"): "VRChatシェイプキーを割り当て",
+    ("Operator", "Assign MMD Shape Keys"): "MMDのシェイプキーを割り当て",
+    (
+        "Operator",
+        "Assign Ready Player Me Shape Keys",
+    ): "Ready Player Meのシェイプキーを割り当て",
+    (
+        "Operator",
+        "Add ARkit / PerfectSync Custom Expressions",
+    ): "ARkit / PerfectSyncのカスタムExpressionを追加",
 }

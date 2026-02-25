@@ -2,7 +2,6 @@
 import math
 import sys
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
 from sys import float_info
 from typing import TYPE_CHECKING, ClassVar, Optional
 
@@ -35,6 +34,10 @@ from ...common.animation import is_animation_playing
 from ...common.char import DISABLE_TRANSLATION
 from ...common.logger import get_logger
 from ...common.rotation import set_rotation_without_mode_change
+from ...common.vrm1.expression_preset import (
+    ExpressionPreset,
+    ExpressionPresets,
+)
 from ...common.vrm1.human_bone import (
     HumanBoneName,
     HumanBoneSpecification,
@@ -56,7 +59,7 @@ logger = get_logger(__name__)
 
 
 class Vrm1HumanBoneNodePropertyGroup(HumanoidStructureBonePropertyGroup):
-    def update_node_candidates(
+    def update_bone_name_candidates(
         self,
         armature_data: Armature,
         target: HumanBoneSpecification,
@@ -353,7 +356,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
             if not parent:
                 logger.error("No parent for '%s' in dict", name)
                 continue
-            parent_specification = specification.parent()
+            parent_specification = specification.parent
             if not parent_specification:
                 logger.error("No parent specification for '%s'", name)
                 continue
@@ -397,7 +400,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
                 break
 
     @staticmethod
-    def update_all_node_candidates(
+    def update_all_bone_name_candidates(
         context: Context,
         armature_data_name: str,
         *,
@@ -427,7 +430,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
             return
         pointer_to_last_bone_names_str[pointer_key] = bone_names_str
 
-        HumanoidStructureBonePropertyGroup.update_all_vrm1_node_candidates(
+        HumanoidStructureBonePropertyGroup.update_all_vrm1_bone_name_candidates(
             armature_data
         )
 
@@ -949,15 +952,23 @@ class Vrm1FirstPersonPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.morphTargetBind.schema.json
 class Vrm1MorphTargetBindPropertyGroup(PropertyGroup):
+    def update_preview(self, context: Context) -> None:
+        if not isinstance(armature_data := self.id_data, Armature):
+            return
+        Vrm1ExpressionPropertyGroup.apply_previews(context, armature_data)
+
     node: PointerProperty(  # type: ignore[valid-type]
-        type=MeshObjectPropertyGroup
+        type=MeshObjectPropertyGroup,
+        update=update_preview,
     )
     index: StringProperty(  # type: ignore[valid-type]
+        update=update_preview,
     )
     weight: FloatProperty(  # type: ignore[valid-type]
         min=0,
         default=1,
         max=1,
+        update=update_preview,
     )
 
     if TYPE_CHECKING:
@@ -1067,9 +1078,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
     texture_transform_binds: CollectionProperty(  # type: ignore[valid-type]
         type=Vrm1TextureTransformBindPropertyGroup
     )
-    is_binary: BoolProperty(  # type: ignore[valid-type]
-        name="Is Binary"
-    )
+
     materials_to_update: CollectionProperty(  # type: ignore[valid-type]
         type=MaterialPropertyGroup, options={"HIDDEN"}
     )
@@ -1233,6 +1242,10 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
                     continue
                 key_block.value = value
 
+    is_binary: BoolProperty(  # type: ignore[valid-type]
+        name="Is Binary",
+        update=update_preview,
+    )
     override_blink: EnumProperty(  # type: ignore[valid-type]
         name="Override Blink",
         items=expression_override_type_enum.items(),
@@ -1333,10 +1346,10 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         texture_transform_binds: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm1TextureTransformBindPropertyGroup
         ]
-        is_binary: bool  # type: ignore[no-redef]
         materials_to_update: CollectionPropertyProtocol[  # type: ignore[no-redef]
             MaterialPropertyGroup
         ]
+        is_binary: bool  # type: ignore[no-redef]
         override_blink: str  # type: ignore[no-redef]
         override_look_at: str  # type: ignore[no-redef]
         override_mouth: str  # type: ignore[no-redef]
@@ -1387,15 +1400,6 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
         custom_name: str  # type: ignore[no-redef]
 
 
-@dataclass(frozen=True)
-class ExpressionPreset:
-    name: str
-    icon: str
-    mouth: bool
-    blink: bool
-    look_at: bool
-
-
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.schema.json
 class Vrm1ExpressionsPresetPropertyGroup(PropertyGroup):
     happy: PointerProperty(type=Vrm1ExpressionPropertyGroup)  # type: ignore[valid-type]
@@ -1422,111 +1426,75 @@ class Vrm1ExpressionsPresetPropertyGroup(PropertyGroup):
     ) -> tuple[tuple[ExpressionPreset, Vrm1ExpressionPropertyGroup], ...]:
         return (
             (
-                ExpressionPreset(
-                    "happy", "HEART", mouth=False, blink=False, look_at=False
-                ),
+                ExpressionPresets.HAPPY,
                 self.happy,
             ),
             (
-                ExpressionPreset(
-                    "angry", "ORPHAN_DATA", mouth=False, blink=False, look_at=False
-                ),
+                ExpressionPresets.ANGRY,
                 self.angry,
             ),
             (
-                ExpressionPreset(
-                    "sad", "MOD_FLUIDSIM", mouth=False, blink=False, look_at=False
-                ),
+                ExpressionPresets.SAD,
                 self.sad,
             ),
             (
-                ExpressionPreset(
-                    "relaxed", "LIGHT_SUN", mouth=False, blink=False, look_at=False
-                ),
+                ExpressionPresets.RELAXED,
                 self.relaxed,
             ),
             (
-                ExpressionPreset(
-                    "surprised", "LIGHT_SUN", mouth=False, blink=False, look_at=False
-                ),
+                ExpressionPresets.SURPRISED,
                 self.surprised,
             ),
             (
-                ExpressionPreset(
-                    "neutral", "VIEW_ORTHO", mouth=False, blink=False, look_at=False
-                ),
+                ExpressionPresets.NEUTRAL,
                 self.neutral,
             ),
             (
-                ExpressionPreset(
-                    "aa", "EVENT_A", mouth=True, blink=False, look_at=False
-                ),
+                ExpressionPresets.AA,
                 self.aa,
             ),
             (
-                ExpressionPreset(
-                    "ih", "EVENT_I", mouth=True, blink=False, look_at=False
-                ),
+                ExpressionPresets.IH,
                 self.ih,
             ),
             (
-                ExpressionPreset(
-                    "ou", "EVENT_U", mouth=True, blink=False, look_at=False
-                ),
+                ExpressionPresets.OU,
                 self.ou,
             ),
             (
-                ExpressionPreset(
-                    "ee", "EVENT_E", mouth=True, blink=False, look_at=False
-                ),
+                ExpressionPresets.EE,
                 self.ee,
             ),
             (
-                ExpressionPreset(
-                    "oh", "EVENT_O", mouth=True, blink=False, look_at=False
-                ),
+                ExpressionPresets.OH,
                 self.oh,
             ),
             (
-                ExpressionPreset(
-                    "blink", "HIDE_ON", mouth=False, blink=True, look_at=False
-                ),
+                ExpressionPresets.BLINK,
                 self.blink,
             ),
             (
-                ExpressionPreset(
-                    "blinkLeft", "HIDE_ON", mouth=False, blink=True, look_at=False
-                ),
+                ExpressionPresets.BLINK_LEFT,
                 self.blink_left,
             ),
             (
-                ExpressionPreset(
-                    "blinkRight", "HIDE_ON", mouth=False, blink=True, look_at=False
-                ),
+                ExpressionPresets.BLINK_RIGHT,
                 self.blink_right,
             ),
             (
-                ExpressionPreset(
-                    "lookUp", "ANCHOR_TOP", mouth=False, blink=False, look_at=True
-                ),
+                ExpressionPresets.LOOK_UP,
                 self.look_up,
             ),
             (
-                ExpressionPreset(
-                    "lookDown", "ANCHOR_BOTTOM", mouth=False, blink=False, look_at=True
-                ),
+                ExpressionPresets.LOOK_DOWN,
                 self.look_down,
             ),
             (
-                ExpressionPreset(
-                    "lookLeft", "ANCHOR_RIGHT", mouth=False, blink=False, look_at=True
-                ),
+                ExpressionPresets.LOOK_LEFT,
                 self.look_left,
             ),
             (
-                ExpressionPreset(
-                    "lookRight", "ANCHOR_LEFT", mouth=False, blink=False, look_at=True
-                ),
+                ExpressionPresets.LOOK_RIGHT,
                 self.look_right,
             ),
         )
@@ -1625,6 +1593,10 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
     )
     active_expression_ui_list_element_index: IntProperty(min=0)  # type: ignore[valid-type]
 
+    initial_automatic_expression_assignment: BoolProperty(  # type: ignore[valid-type]
+        default=True
+    )
+
     def restore_expression_morph_target_bind_object_assignments(
         self, context: Context
     ) -> None:
@@ -1654,6 +1626,7 @@ class Vrm1ExpressionsPropertyGroup(PropertyGroup):
             StringPropertyGroup
         ]
         active_expression_ui_list_element_index: int  # type: ignore[no-redef]
+        initial_automatic_expression_assignment: bool  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.meta.schema.json

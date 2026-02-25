@@ -22,15 +22,15 @@ from bpy.types import (
 )
 from mathutils import Matrix, Quaternion
 
-from ..common import ops
 from ..common.logger import get_logger
 from ..common.preferences import VrmAddonPreferences
+from .khr_character.property_group import KhrCharacterPropertyGroup
 from .mtoon1.property_group import Mtoon1MaterialPropertyGroup
 from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup
 from .property_group import StringPropertyGroup, property_group_enum
 from .spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
-from .vrm0.property_group import Vrm0HumanoidPropertyGroup, Vrm0PropertyGroup
-from .vrm1.property_group import Vrm1HumanBonesPropertyGroup, Vrm1PropertyGroup
+from .vrm0.property_group import Vrm0PropertyGroup
+from .vrm1.property_group import Vrm1PropertyGroup
 
 if TYPE_CHECKING:
     from .property_group import CollectionPropertyProtocol
@@ -352,25 +352,35 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
         type=NodeConstraint1NodeConstraintPropertyGroup
     )
 
+    khr_character: PointerProperty(  # type: ignore[valid-type]
+        type=KhrCharacterPropertyGroup
+    )
+
     SPEC_VERSION_VRM0 = "0.0"
     SPEC_VERSION_VRM1 = "1.0"
+    SPEC_VERSION_KHR_CHARACTER = "KHR_character"
     spec_version_items = (
         (SPEC_VERSION_VRM0, "VRM 0.0", "", "NONE", 0),
         (SPEC_VERSION_VRM1, "VRM 1.0", "", "NONE", 1),
+        (
+            SPEC_VERSION_KHR_CHARACTER,
+            "KHR Character (Experimental)",
+            "",
+            "EXPERIMENTAL",
+            2,
+        ),
     )
 
-    def update_spec_version(self, context: Context) -> None:
+    def update_spec_version(self, _context: Context) -> None:
         for blend_shape_group in self.vrm0.blend_shape_master.blend_shape_groups:
             blend_shape_group.preview = 0
 
+        vrm0_hidden = True
+        vrm1_hidden = True
         if self.spec_version == self.SPEC_VERSION_VRM0:
             vrm0_hidden = False
-            vrm1_hidden = True
         elif self.spec_version == self.SPEC_VERSION_VRM1:
-            vrm0_hidden = True
             vrm1_hidden = False
-        else:
-            return
 
         for vrm0_collider in [
             collider.bpy_object
@@ -389,8 +399,6 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
             for child in vrm1_collider.children:
                 child.hide_set(vrm1_hidden)
 
-        update_internal_cache(context)
-
     spec_version: EnumProperty(  # type: ignore[valid-type]
         items=spec_version_items,
         name="Spec Version",
@@ -403,6 +411,15 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
 
     def is_vrm1(self) -> bool:
         return str(self.spec_version) == self.SPEC_VERSION_VRM1
+
+    def is_vrm(self) -> bool:
+        return (
+            str(self.spec_version) == self.SPEC_VERSION_VRM0
+            or str(self.spec_version) == self.SPEC_VERSION_VRM1
+        )
+
+    def is_khr_character(self) -> bool:
+        return str(self.spec_version) == self.SPEC_VERSION_KHR_CHARACTER
 
     @staticmethod
     def has_vrm_model_metadata(obj: Object) -> bool:
@@ -435,17 +452,8 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
         node_constraint1: (  # type: ignore[no-redef]
             NodeConstraint1NodeConstraintPropertyGroup
         )
+        khr_character: KhrCharacterPropertyGroup  # type: ignore[no-redef]
         spec_version: str  # type: ignore[no-redef]
-
-
-def update_internal_cache(context: Context) -> None:
-    for armature in context.blend_data.armatures:
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(context, armature.name)
-        Vrm1HumanBonesPropertyGroup.update_all_node_candidates(context, armature.name)
-        expressions = get_armature_extension(armature).vrm1.expressions
-        expressions.fill_missing_expression_names()
-        ops.vrm.update_vrm1_expression_ui_list_elements()
-    VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(context)
 
 
 class VrmAddonMaterialExtensionPropertyGroup(PropertyGroup):

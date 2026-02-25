@@ -12,7 +12,7 @@ raise "No input path" unless input_path
 image = Magick::ImageList.new(input_path).first
 base_columns = 660
 if image.columns % base_columns > 0
-  raise "Image width is not a multiple of #{base_columns} pixels but #{image.columns}"
+  raise "'#{input_path}' width is not a multiple of #{base_columns} pixels but #{image.columns}"
 end
 pixels = image.get_pixels(0, 0, image.columns, image.rows)
 

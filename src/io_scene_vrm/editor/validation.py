@@ -2,6 +2,7 @@
 from pathlib import Path
 from sys import float_info
 from typing import TYPE_CHECKING, Optional
+from urllib.parse import urlsplit
 
 from bpy.app.translations import pgettext
 from bpy.props import BoolProperty, CollectionProperty, IntProperty, StringProperty
@@ -122,7 +123,7 @@ class WM_OT_vrm_validator(Operator):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         humanoid = get_armature_extension(armature_data).vrm0.humanoid
-        humanoid.update_all_node_candidates(context, armature_data.name)
+        humanoid.update_all_bone_name_candidates(context, armature_data.name)
         for human_bone in humanoid.human_bones:
             if (
                 not human_bone.node.bone_name
@@ -135,7 +136,7 @@ class WM_OT_vrm_validator(Operator):
                     + ' to VRM Human Bone "{human_bone}". '
                     + 'Confirm hierarchy of "{bone}" and its children. '
                     + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
-                    + " if wrong hierarchy"
+                    + " if wrong hierarchy."
                 ).format(
                     bone=human_bone.node.bone_name,
                     human_bone=human_bone.specification().title,
@@ -154,7 +155,7 @@ class WM_OT_vrm_validator(Operator):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
-        human_bones.update_all_node_candidates(context, armature_data.name)
+        human_bones.update_all_bone_name_candidates(context, armature_data.name)
         for (
             human_bone_name,
             human_bone,
@@ -172,7 +173,7 @@ class WM_OT_vrm_validator(Operator):
                     + ' to VRM Human Bone "{human_bone}". '
                     + 'Confirm hierarchy of "{bone}" and its children. '
                     + '"VRM" Panel → "Humanoid" → "{human_bone}" is empty'
-                    + " if wrong hierarchy"
+                    + " if wrong hierarchy."
                 ).format(
                     bone=human_bone.node.bone_name,
                     human_bone=specification.title,
@@ -370,7 +371,7 @@ class WM_OT_vrm_validator(Operator):
                                     + " of {humanoid_name} and its children. "
                                     + '"VRM" Panel → "Humanoid" → {humanoid_name}'
                                     + " will be empty or displayed in red"
-                                    + " if hierarchy is wrong"
+                                    + " if hierarchy is wrong."
                                 ).format(humanoid_name=human_bone_specification.title)
                             )
 
@@ -381,7 +382,7 @@ class WM_OT_vrm_validator(Operator):
                         ) in vrm1_human_bone.HumanBoneSpecifications.all_human_bones:
                             if not human_bone_specification.parent_requirement:
                                 continue
-                            parent = human_bone_specification.parent()
+                            parent = human_bone_specification.parent
                             if parent is None:
                                 message = (
                                     f"Fatal: {human_bone_specification.name} has"
@@ -453,7 +454,7 @@ class WM_OT_vrm_validator(Operator):
                                 + " of {humanoid_name} and its children."
                                 + ' "VRM" Panel → "VRM 0.x Humanoid" → {humanoid_name}'
                                 + " will be empty or displayed in red"
-                                + " if hierarchy is wrong"
+                                + " if hierarchy is wrong."
                             ).format(humanoid_name=humanoid_name.capitalize())
                         )
                 if all_required_bones_exist:
@@ -484,6 +485,15 @@ class WM_OT_vrm_validator(Operator):
             and isinstance(armature_data := armature.data, Armature)
             and get_armature_extension(armature_data).is_vrm1()
         ):
+            # meta URL validation
+            meta1 = get_armature_extension(armature_data).vrm1.meta
+            if not is_valid_url(meta1.other_license_url, allow_empty_str=True):
+                skippable_warning_messages.append(
+                    pgettext('"{url}" is not a valid URL.').format(
+                        url=meta1.other_license_url
+                    )
+                )
+
             error_messages.extend(
                 pgettext(
                     'Object "{name}" contains a negative value for the scale;'
@@ -705,7 +715,7 @@ class WM_OT_vrm_validator(Operator):
                     pgettext(
                         'It is recommended to set "{colorspace}"'
                         + ' to "{input_colorspace}" for "{texture_label}"'
-                        + ' in Material "{name}"'
+                        + ' in Material "{name}".'
                     ).format(
                         name=mat.name,
                         texture_label=source.name,
@@ -743,7 +753,7 @@ class WM_OT_vrm_validator(Operator):
                         skippable_warning_messages.append(
                             pgettext(
                                 'Material "{name}" {texture}\'s Offset and Scale are'
-                                + " ignored in VRM 0.0"
+                                + " ignored in VRM 0.0."
                             ).format(
                                 name=mat.name,
                                 texture=texture_info.index.label,
@@ -759,7 +769,7 @@ class WM_OT_vrm_validator(Operator):
                         pgettext(
                             'Material "{name}" {texture}\'s Offset and Scale'
                             + " in VRM 0.0 are the values of"
-                            + " the Lit Color Texture"
+                            + " the Lit Color Texture."
                         ).format(
                             name=mat.name,
                             texture=texture_info.index.label,
@@ -780,6 +790,17 @@ class WM_OT_vrm_validator(Operator):
                         + 'VRM HumanBone "head" will be used automatically instead.'
                     )
                 )
+
+            # meta URL validation
+            meta0 = get_armature_extension(armature_data).vrm0.meta
+            skippable_warning_messages.extend(
+                pgettext('"{url}" is not a valid URL.').format(url=url_value)
+                for url_value in [
+                    meta0.other_permission_url,
+                    meta0.other_license_url,
+                ]
+                if not is_valid_url(url_value, allow_empty_str=True)
+            )
 
             # blend_shape_master
             # TODO: material value and material existence
@@ -807,7 +828,7 @@ class WM_OT_vrm_validator(Operator):
                             pgettext(
                                 'A mesh named "{mesh_name}" is assigned to a blend'
                                 + ' shape group named "{blend_shape_group_name}" but'
-                                + " the mesh will not be exported"
+                                + " the mesh will not be exported."
                             ).format(
                                 blend_shape_group_name=blend_shape_group.name,
                                 mesh_name=mesh_object_name,
@@ -907,7 +928,7 @@ class WM_OT_vrm_validator(Operator):
         elif not error_errors and show_successful_message:
             row = layout.row()
             row.emboss = "NONE"
-            row.box().label(text="No errors found. Ready to export VRM")
+            row.box().label(text="No errors found. Ready to export VRM.")
 
         if error_errors:
             layout.label(text="Error", icon="ERROR")
@@ -980,7 +1001,7 @@ def node_material_input_check(
             messages.append(
                 pgettext(
                     'need "{expect_node_type}" input'
-                    + ' in "{shader_val}" of "{material_name}"',
+                    + ' in "{shader_val}" of "{material_name}".',
                 ).format(
                     expect_node_type=expect_node_type,
                     shader_val=shader_val,
@@ -998,3 +1019,13 @@ def node_material_input_check(
                         + " Please add an image.",
                     ).format(material_name=material.name)
                 )
+
+
+def is_valid_url(url_str: str, *, allow_empty_str: bool) -> bool:
+    if not url_str:
+        return allow_empty_str
+    try:
+        url = urlsplit(url_str)
+    except ValueError:
+        return False
+    return bool(url.scheme)

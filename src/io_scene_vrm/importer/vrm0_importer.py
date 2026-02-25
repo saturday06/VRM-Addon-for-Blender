@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 # SPDX-FileCopyrightText: 2018 iCyP
 
+import functools
 import json
 import math
 import uuid
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Optional, Union
 
@@ -24,6 +25,9 @@ from ..common.preferences import get_preferences
 from ..common.progress import PartialProgress
 from ..common.version import get_addon_version
 from ..common.vrm0.human_bone import HumanBoneName, HumanBoneSpecifications
+from ..common.vrm1.human_bone import (
+    HumanBoneSpecifications as Vrm1HumanBoneSpecifications,
+)
 from ..editor import make_armature, migration
 from ..editor.extension import get_armature_extension, get_material_extension
 from ..editor.make_armature import (
@@ -44,6 +48,7 @@ from ..editor.vrm0.property_group import (
     Vrm0MetaPropertyGroup,
     Vrm0SecondaryAnimationPropertyGroup,
 )
+from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 
 logger = get_logger(__name__)
@@ -164,18 +169,45 @@ class MaterialProperty:
         )
 
 
+def calculate_mtoon0_render_queue_offset_maps(
+    material_properties: Sequence[MaterialProperty],
+) -> tuple[Mapping[int, int], Mapping[int, int]]:
+    """Build render queue offset maps for MToon0 materials.
+
+    Based on UniVRM's migration logic:
+    https://github.com/vrm-c/UniVRM/blob/v0.131.0/Packages/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs#L33-L131
+
+    Returns a tuple of (transparent_queue_map, transparent_z_write_queue_map).
+    The maps convert raw VRM0 render queue values to MToon1 render queue offset numbers.
+    For Transparent materials, the highest raw queue maps to 0, then -1, -2, ...
+    For TransparentWithZWrite materials, the lowest raw queue maps to 0, then 1, 2, ...
+    """
+    transparent_render_queues: set[int] = set()
+    transparent_z_write_render_queues: set[int] = set()
+    for material_property in material_properties:
+        if (
+            material_property.shader != "VRM/MToon"
+            or material_property.render_queue is None
+        ):
+            continue
+        blend_mode = material_property.float_properties.get("_BlendMode")
+        if blend_mode is None:
+            continue
+        if math.fabs(blend_mode - 2) < 0.001:
+            transparent_render_queues.add(material_property.render_queue)
+        elif math.fabs(blend_mode - 3) < 0.001:
+            transparent_z_write_render_queues.add(material_property.render_queue)
+    transparent_queue_map = {
+        q: -i for i, q in enumerate(sorted(transparent_render_queues, reverse=True))
+    }
+    transparent_z_write_queue_map = {
+        q: i for i, q in enumerate(sorted(transparent_z_write_render_queues))
+    }
+    return transparent_queue_map, transparent_z_write_queue_map
+
+
 class Vrm0Importer(AbstractBaseVrmImporter):
     def load_materials(self, progress: PartialProgress) -> None:
-        shader_to_assignment_method = {
-            "VRM/MToon": self.assign_mtoon0_property,
-            "VRM/UnlitTexture": self.assign_unlit_texture_property,
-            "VRM/UnlitCutout": self.assign_unlit_cutout_property,
-            "VRM/UnlitTransparent": self.assign_unlit_transparent_property,
-            "VRM/UnlitTransparentZWrite": (
-                self.assign_unlit_transparent_z_write_property
-            ),
-        }
-
         material_dicts = self.parse_result.json_dict.get("materials")
         if not isinstance(material_dicts, list):
             return
@@ -184,6 +216,27 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             MaterialProperty.create(self.parse_result.json_dict, index)
             for index in range(len(material_dicts))
         ]
+
+        transparent_queue_map, transparent_z_write_queue_map = (
+            calculate_mtoon0_render_queue_offset_maps(material_properties)
+        )
+
+        shader_to_assignment_method: Mapping[
+            str,
+            Callable[[Material, MaterialProperty], None],
+        ] = {
+            "VRM/MToon": functools.partial(
+                self.assign_mtoon0_property,
+                transparent_queue_map=transparent_queue_map,
+                transparent_z_write_queue_map=transparent_z_write_queue_map,
+            ),
+            "VRM/UnlitTexture": self.assign_unlit_texture_property,
+            "VRM/UnlitCutout": self.assign_unlit_cutout_property,
+            "VRM/UnlitTransparent": self.assign_unlit_transparent_property,
+            "VRM/UnlitTransparentZWrite": (
+                self.assign_unlit_transparent_z_write_property
+            ),
+        }
 
         for index, material_property in enumerate(material_properties):
             assignment_method = shader_to_assignment_method.get(
@@ -290,7 +343,11 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         )
 
     def assign_mtoon0_property(
-        self, material: Material, material_property: MaterialProperty
+        self,
+        material: Material,
+        material_property: MaterialProperty,
+        transparent_queue_map: Mapping[int, int],
+        transparent_z_write_queue_map: Mapping[int, int],
     ) -> None:
         # https://github.com/saturday06/VRM-Addon-for-Blender/blob/2_15_26/io_scene_vrm/editor/mtoon1/ops.py#L98
         material.use_backface_culling = True
@@ -568,6 +625,17 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         if render_queue is not None:
             gltf.mtoon0_render_queue = render_queue
 
+        # https://github.com/vrm-c/UniVRM/blob/v0.131.0/Packages/VRM10/Runtime/Migration/Materials/MigrationMToonMaterial.cs#L100-L131
+        if render_queue is not None:
+            if blend_mode is not None and math.fabs(blend_mode - 2) < 0.001:
+                mtoon.render_queue_offset_number = max(
+                    -9, min(0, transparent_queue_map.get(render_queue, 0))
+                )
+            elif blend_mode is not None and math.fabs(blend_mode - 3) < 0.001:
+                mtoon.render_queue_offset_number = max(
+                    0, min(9, transparent_z_write_queue_map.get(render_queue, 0))
+                )
+
     def assign_unlit_common_property(
         self,
         material: Material,
@@ -679,6 +747,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         addon_extension = get_armature_extension(self.armature_data)
         addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM0
         vrm0 = addon_extension.vrm0
+        vrm1 = addon_extension.vrm1
 
         if self.parse_result.spec_version_number >= (1, 0):
             return
@@ -691,7 +760,9 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         textblock.write(json.dumps(self.parse_result.json_dict, indent=4))
 
         self.load_vrm0_meta(vrm0.meta, vrm0_extension.get("meta"))
-        self.load_vrm0_humanoid(vrm0.humanoid, vrm0_extension.get("humanoid"))
+        self.load_vrm0_humanoid(
+            vrm0.humanoid, vrm0_extension.get("humanoid"), vrm1.humanoid.human_bones
+        )
         setup_bones(self.context, armature)
         self.load_vrm0_first_person(
             vrm0.first_person, vrm0_extension.get("firstPerson")
@@ -787,7 +858,10 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                     meta.texture = self.images[image_index]
 
     def load_vrm0_humanoid(
-        self, humanoid: Vrm0HumanoidPropertyGroup, humanoid_dict: Json
+        self,
+        humanoid: Vrm0HumanoidPropertyGroup,
+        humanoid_dict: Json,
+        vrm1_human_bones: Vrm1HumanBonesPropertyGroup,
     ) -> None:
         if not isinstance(humanoid_dict, dict):
             return
@@ -821,8 +895,20 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                     logger.warning('Duplicated bone: "%s"', bone)
                 else:
                     human_bone = humanoid.human_bones.add()
-                human_bone.bone = bone
+                    human_bone.bone = bone
                 human_bone.node.bone_name = node_bone_name
+
+                vrm1_human_bone_specification = (
+                    Vrm1HumanBoneSpecifications.from_vrm0_name_str(bone)
+                )
+                if vrm1_human_bone_specification:
+                    vrm1_human_bone = (
+                        vrm1_human_bones.human_bone_name_to_human_bone().get(
+                            vrm1_human_bone_specification.name
+                        )
+                    )
+                    if vrm1_human_bone:
+                        vrm1_human_bone.node.bone_name = node_bone_name
 
                 use_default_values = human_bone_dict.get("useDefaultValues")
                 if isinstance(use_default_values, bool):
@@ -1301,7 +1387,7 @@ def setup_bones(context: Context, armature: Object) -> None:
     addon_extension = get_armature_extension(armature_data)
 
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-    Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+    Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
         context,
         armature_data.name,
         force=True,
@@ -1460,7 +1546,7 @@ def setup_bones(context: Context, armature: Object) -> None:
                 specification = HumanBoneSpecifications.get(searching_tip_bone_name)
                 if specification.requirement:
                     break
-                parent_specification = specification.parent()
+                parent_specification = specification.parent
                 if not parent_specification:
                     logger.error(
                         'logic error: "%s" has no parent', searching_tip_bone_name
@@ -1470,7 +1556,7 @@ def setup_bones(context: Context, armature: Object) -> None:
                 # Do nothing if there are already assigned bones in the parent's
                 # descendants
                 assigned_parent_descendant_found = False
-                for parent_descendant in parent_specification.descendants():
+                for parent_descendant in parent_specification.descendants:
                     parent_descendant_human_bone = human_bone_name_to_human_bone.get(
                         parent_descendant.name
                     )

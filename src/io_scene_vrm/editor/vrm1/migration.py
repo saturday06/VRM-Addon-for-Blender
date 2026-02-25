@@ -205,7 +205,9 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
     human_bones.pop("last_bone_names", None)
     human_bones.pop("last_bone_names_str", None)
     Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
-    Vrm1HumanBonesPropertyGroup.update_all_node_candidates(context, armature_data.name)
+    Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
+        context, armature_data.name
+    )
 
     if human_bones.initial_automatic_bone_assignment:
         human_bones.initial_automatic_bone_assignment = False
@@ -268,7 +270,29 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
                     morph_target_bind.node.mesh_object_name
                 )
 
-    Vrm1HumanBonesPropertyGroup.update_all_node_candidates(
+    if (
+        (ext := get_armature_extension(armature_data))
+        and tuple(ext.addon_version) < (3, 18)
+        and tuple(ext.addon_version) != ext.INITIAL_ADDON_VERSION
+    ):
+        expressions.initial_automatic_expression_assignment = False
+
+    if expressions.initial_automatic_expression_assignment:
+        expressions.initial_automatic_expression_assignment = False
+        ops.vrm.assign_vrm1_expressions_automatically(
+            armature_object_name=armature.name
+        )
+        expression_preset_and_expressions = (
+            expressions.preset.expression_preset_and_expressions()
+        )
+        if any(
+            preset.look_at and expression.morph_target_binds
+            for preset, expression in expression_preset_and_expressions
+        ):
+            look_at = get_armature_extension(armature_data).vrm1.look_at
+            look_at.type = look_at.TYPE_EXPRESSION.identifier
+
+    Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
         context,
         armature_data.name,
         force=True,

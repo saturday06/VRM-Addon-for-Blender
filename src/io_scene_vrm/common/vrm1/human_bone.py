@@ -5,6 +5,7 @@ import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum
+from functools import cached_property
 from typing import ClassVar, Optional
 
 from ..vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
@@ -194,32 +195,44 @@ class HumanBoneSpecification:
     requirement: bool
     parent_requirement: bool
     parent_name: Optional[HumanBoneName]
-    children_names: list[HumanBoneName]
+    children_names: tuple[HumanBoneName, ...]
     vrm0_name: Vrm0HumanBoneName
 
+    @cached_property
     def parent(self) -> Optional["HumanBoneSpecification"]:
         if self.parent_name is None:
             return None
         return HumanBoneSpecifications.get(self.parent_name)
 
-    def children(self) -> list["HumanBoneSpecification"]:
-        return list(map(HumanBoneSpecifications.get, self.children_names))
+    @cached_property
+    def children(self) -> tuple["HumanBoneSpecification", ...]:
+        return tuple(map(HumanBoneSpecifications.get, self.children_names))
 
-    def descendants(self) -> list["HumanBoneSpecification"]:
+    @cached_property
+    def required_children(self) -> tuple["HumanBoneSpecification", ...]:
+        required_children = list["HumanBoneSpecification"]()
+        for child in self.children:
+            if child.requirement:
+                required_children.append(child)
+            else:
+                required_children.extend(child.required_children)
+        return tuple(required_children)
+
+    @cached_property
+    def descendants(self) -> tuple["HumanBoneSpecification", ...]:
         result: list[HumanBoneSpecification] = []
-        searching_children = self.children()
+        searching_children = list(self.children)
         while searching_children:
             child = searching_children.pop()
             result.append(child)
-            searching_children.extend(child.children())
-        return result
+            searching_children.extend(child.children)
+        return tuple(result)
 
-    def connected(self) -> list["HumanBoneSpecification"]:
-        children = self.children()
-        parent = self.parent()
-        if parent is None:
-            return children
-        return [*children, parent]
+    @cached_property
+    def recursive_requirement_len(self) -> int:
+        return int(self.requirement) + sum(
+            int(descendant.requirement) for descendant in self.descendants
+        )
 
     @staticmethod
     def create(
@@ -278,13 +291,13 @@ class HumanBoneSpecification:
     def find_children_human_bone_names(
         human_bone_name: HumanBoneName,
         human_bone_structure: HumanBoneStructure,
-    ) -> list[HumanBoneName]:
+    ) -> tuple[HumanBoneName, ...]:
         for (
             next_human_bone_name,
             next_human_bone_structure,
         ) in human_bone_structure.items():
             if human_bone_name == next_human_bone_name:
-                return list(next_human_bone_structure.keys())
+                return tuple(next_human_bone_structure.keys())
 
             children = HumanBoneSpecification.find_children_human_bone_names(
                 human_bone_name, next_human_bone_structure
@@ -292,16 +305,16 @@ class HumanBoneSpecification:
             if children:
                 return children
 
-        return []
+        return ()
 
     def is_ancestor_of(
         self, human_bone_specification: "HumanBoneSpecification"
     ) -> bool:
-        parent = human_bone_specification.parent()
+        parent = human_bone_specification.parent
         while parent:
             if parent == self:
                 return True
-            parent = parent.parent()
+            parent = parent.parent
         return False
 
 
@@ -788,3 +801,22 @@ class HumanBoneSpecifications:
     @staticmethod
     def get(name: HumanBoneName) -> HumanBoneSpecification:
         return HumanBoneSpecifications.human_bone_name_to_human_bone[name]
+
+    @staticmethod
+    def from_name_str(name_str: str) -> Optional[HumanBoneSpecification]:
+        human_bone_name = HumanBoneName.from_str(name_str)
+        if human_bone_name is None:
+            return None
+        return HumanBoneSpecifications.get(human_bone_name)
+
+    @staticmethod
+    def from_vrm0_name_str(
+        vrm0_name_str: str,
+    ) -> Optional[HumanBoneSpecification]:
+        vrm0_name = Vrm0HumanBoneName.from_str(vrm0_name_str)
+        if vrm0_name is None:
+            return None
+        for human_bone in HumanBoneSpecifications.all_human_bones:
+            if human_bone.vrm0_name == vrm0_name:
+                return human_bone
+        return None

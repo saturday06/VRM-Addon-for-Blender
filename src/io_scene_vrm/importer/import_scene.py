@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import traceback
-from collections.abc import Set as AbstractSet
 from os import environ
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import bpy
 from bpy.app.translations import pgettext
@@ -66,7 +65,7 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
     bl_idname = "import_scene.vrm"
     bl_label = "Open"
     bl_description = "import VRM"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrm"
     filter_glob: StringProperty(  # type: ignore[valid-type]
@@ -85,7 +84,7 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
         default=False,
     )
     make_new_texture_folder: BoolProperty(  # type: ignore[valid-type]
-        name="Don't overwrite existing texture folder",
+        name="Don't overwrite existing texture image folder",
         update=import_vrm_update_addon_preferences,
         default=True,
     )
@@ -149,6 +148,19 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
 
         logger.warning(license_error.description())
 
+        thumbnail_image_name = None
+        try:
+            thumbnail_image_name = parse_vrm_json(
+                filepath,
+                license_validation=False,
+            ).load_thumbnail_image(context)
+        except Exception:
+            show_error_dialog(
+                pgettext("Failed to import VRM."),
+                traceback.format_exc(),
+            )
+            raise
+
         execution_context = "INVOKE_DEFAULT"
         import_anyway = False
         if environ.get("BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION") == "true":
@@ -160,6 +172,7 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
             import_anyway=import_anyway,
             license_confirmations=license_error.license_confirmations(),
             filepath=str(filepath),
+            thumbnail_image_name=thumbnail_image_name or "",
             **create_import_preferences_dict(self),
         )
 
@@ -195,7 +208,7 @@ class VRM_PT_import_file_browser_tool_props(Panel):
     bl_region_type = "TOOL_PROPS"
     bl_parent_id = "FILE_PT_operator"
     bl_label = ""
-    bl_options: AbstractSet[str] = {"HIDE_HEADER"}
+    bl_options: ClassVar = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:
@@ -223,7 +236,7 @@ class VRM_PT_import_unsupported_blender_version_warning(Panel):
     bl_region_type = "TOOL_PROPS"
     bl_parent_id = "FILE_PT_operator"
     bl_label = ""
-    bl_options: AbstractSet[str] = {"HIDE_HEADER"}
+    bl_options: ClassVar = {"HIDE_HEADER"}
 
     @classmethod
     def poll(cls, context: Context) -> bool:
@@ -252,7 +265,7 @@ class VRM_PT_import_unsupported_blender_version_warning(Panel):
 class WM_OT_vrm_license_confirmation(Operator):
     bl_label = "VRM License Confirmation"
     bl_idname = "wm.vrm_license_warning"
-    bl_options: AbstractSet[str] = {"REGISTER"}
+    bl_options: ClassVar = {"REGISTER"}
 
     filepath: StringProperty(  # type: ignore[valid-type]
         subtype="FILE_PATH",
@@ -262,6 +275,7 @@ class WM_OT_vrm_license_confirmation(Operator):
     import_anyway: BoolProperty(  # type: ignore[valid-type]
         name="Import Anyway",
     )
+    thumbnail_image_name: StringProperty()  # type: ignore[valid-type]
 
     extract_textures_into_folder: BoolProperty()  # type: ignore[valid-type]
     make_new_texture_folder: BoolProperty()  # type: ignore[valid-type]
@@ -272,7 +286,18 @@ class WM_OT_vrm_license_confirmation(Operator):
     set_armature_bone_shape_to_default: BoolProperty()  # type: ignore[valid-type]
     enable_mtoon_outline_preview: BoolProperty()  # type: ignore[valid-type]
 
+    def remove_thumbnail_image(self, context: Context) -> None:
+        thumbnail_image = context.blend_data.images.get(self.thumbnail_image_name)
+        if not thumbnail_image:
+            return
+
+        if thumbnail_image.users > 0:
+            return
+
+        context.blend_data.images.remove(thumbnail_image)
+
     def execute(self, context: Context) -> set[str]:
+        self.remove_thumbnail_image(context)
         try:
             filepath = Path(self.filepath)
             if not filepath.is_file():
@@ -292,12 +317,21 @@ class WM_OT_vrm_license_confirmation(Operator):
             )
             raise
 
+    def cancel(self, context: Context) -> None:
+        self.remove_thumbnail_image(context)
+
     def invoke(self, context: Context, _event: Event) -> set[str]:
         return context.window_manager.invoke_props_dialog(self, width=600)
 
-    def draw(self, _context: Context) -> None:
+    def draw(self, context: Context) -> None:
         layout = self.layout
         layout.label(text=self.filepath, translate=False)
+
+        thumbnail_image = context.blend_data.images.get(self.thumbnail_image_name)
+        if thumbnail_image:
+            icon_id = layout.icon(thumbnail_image)
+            layout.template_icon(icon_id, scale=5)
+
         for license_confirmation in self.license_confirmations:
             box = layout.box()
             for line in license_confirmation.message.split("\n"):
@@ -334,6 +368,7 @@ class WM_OT_vrm_license_confirmation(Operator):
             LicenseConfirmation
         ]
         import_anyway: bool  # type: ignore[no-redef]
+        thumbnail_image_name: str  # type: ignore[no-redef]
         extract_textures_into_folder: bool  # type: ignore[no-redef]
         make_new_texture_folder: bool  # type: ignore[no-redef]
         set_shading_type_to_material_on_import: bool  # type: ignore[no-redef]
@@ -388,7 +423,7 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
     bl_idname = "import_scene.vrma"
     bl_label = "Open"
     bl_description = "Import VRM Animation"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     filename_ext = ".vrma"
     filter_glob: StringProperty(  # type: ignore[valid-type]
@@ -464,7 +499,7 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
 class WM_OT_vrma_import_prerequisite(Operator):
     bl_label = "VRM Animation Import Prerequisite"
     bl_idname = "wm.vrma_import_prerequisite"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},

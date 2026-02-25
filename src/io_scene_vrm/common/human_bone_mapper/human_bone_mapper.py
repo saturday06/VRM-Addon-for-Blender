@@ -1,13 +1,14 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import re
 from collections.abc import Mapping
+from functools import cache
 from typing import Optional
 
 from bpy.types import Armature, Bone, Object
 
 from ..char import FULLWIDTH_ASCII_TO_ASCII_MAP
 from ..logger import get_logger
-from ..vrm1.human_bone import HumanBoneSpecification
+from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 from . import (
     biped_mapping,
     cats_blender_plugin_fix_model_mapping,
@@ -20,10 +21,12 @@ from . import (
     vrm_addon_mapping,
     vroid_mapping,
 )
+from .structure_based_mapping import create_structure_based_mapping
 
 logger = get_logger(__name__)
 
 
+@cache
 def canonicalize_bone_name(bone_name: str) -> str:
     bone_name = "".join(FULLWIDTH_ASCII_TO_ASCII_MAP.get(c, c) for c in bone_name)
     bone_name = re.sub(r"([a-z])([A-Z])", r"\1.\2", bone_name)
@@ -67,12 +70,12 @@ def match_count(
             continue
 
         parent_specification: Optional[HumanBoneSpecification] = None
-        search_parent_specification = specification.parent()
+        search_parent_specification = specification.parent
         while search_parent_specification:
             if search_parent_specification in mapping.values():
                 parent_specification = search_parent_specification
                 break
-            search_parent_specification = search_parent_specification.parent()
+            search_parent_specification = search_parent_specification.parent
 
         found = False
         bone: Optional[Bone] = bone.parent
@@ -173,7 +176,21 @@ def create_human_bone_mapping(
             ]
         ]
     )[-1]
+    result = {}
+    wanted_required_count = sum(
+        1 for spec in HumanBoneSpecifications.all_human_bones if spec.requirement
+    )
+    if required_count < wanted_required_count:
+        structure_based_mapping = create_structure_based_mapping(armature)
+        structure_base_mapping_required_count = sum(
+            1 for spec in structure_based_mapping.values() if spec.requirement
+        )
+        if required_count < structure_base_mapping_required_count:
+            mapping = structure_based_mapping
+            name = "Structure Based Auto Detected"
+            required_count = structure_base_mapping_required_count
     if required_count:
         logger.debug('Treat as "%s" bone mappings', name)
-        return sorted_required_first(armature_data, mapping)
-    return {}
+        result = sorted_required_first(armature_data, mapping)
+    canonicalize_bone_name.cache_clear()
+    return result

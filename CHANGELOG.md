@@ -1,6 +1,91 @@
 # Changelog
 
+## [3.20.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.5...v3.20.0) (2026-02-22)
+
+
+### 🚀 Features
+
+* auto-set renderQueueOffsetNumber in VRM0 MToon0 import using UniVRM migration logic ([9f61835](https://github.com/saturday06/VRM-Addon-for-Blender/commit/9f6183533fd77fcdd1750b51756cb79eadb225df))
+* hide make_new_texture_folder when extract_textures_into_folder is disabled ([13e9da9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/13e9da994f10ee0fb212a13c7b3ef9a80355d465))
+
+
+### 🐛 Bug Fixes
+
+* tweak Simplified Chinese translation ([adb530a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/adb530a58d74b5480c11d9e436a1e473724339bf))
+
+## [3.19.5](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.4...v3.19.5) (2026-02-21)
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug in edge cases during image filename generation ([8be2a88](https://github.com/saturday06/VRM-Addon-for-Blender/commit/8be2a881827fef4f7e2b5f11e3e3fba688de011a))
+* improve URI handling in read_accessor_as_bytes function ([b0279c8](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b0279c8c97d7c6444febf887c077fa430028dcc7))
+* update buffer alignment from 32 to 4 bytes in animation export functions ([d3348f1](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d3348f129c629dbd589c5da098b7a46159739a43))
+
+## [3.19.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.3...v3.19.4) (2026-02-09)
+
+
+### 🐛 Bug Fixes
+
+* fix a bug where VRM0's automatic bone assignment could sometimes fail ([37f687f](https://github.com/saturday06/VRM-Addon-for-Blender/commit/37f687f5f20aad07db07d2fb0f5303f3c2d0dece))
+
+## [3.19.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.2...v3.19.3) (2026-02-05)
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug that caused alpha clip node switching to fail ([b522389](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b5223899b9b13aca30cf1ff44f182e88e2315494))
+
+### 🧪 Experimental
+* KHR_character support code under development ([603fcea](https://github.com/saturday06/VRM-Addon-for-Blender/commit/603fceaf6d21b884f5aad817484794b92221e257))
+
+## [3.19.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.1...v3.19.2) (2026-01-23)
+
+
+### 🐛 Bug Fixes
+
+* remove unnecessary cache update on save blend file ([3212b90](https://github.com/saturday06/VRM-Addon-for-Blender/commit/3212b90f649e049d7f3ad4c5ba176b3f596db379))
+
+## [3.19.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.0...v3.19.1) (2026-01-19)
+
+
+### 🐛 Bug Fixes
+
+* corrected the generation order of MToon outlines ([9d0075c](https://github.com/saturday06/VRM-Addon-for-Blender/commit/9d0075ccf8292667e9794003da0f18e861c93514))
+
+## [3.19.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.18.1...v3.19.0) (2026-01-18)
+
+
+### 🚀 Features
+
+* structure-based human bone auto assignment ([32cb02b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/32cb02b1f89838115872f214b065d29218c769b1))
+
+## [3.18.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.18.0...v3.18.1) (2026-01-15)
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug that caused glTF alpha mask mode material output to fail ([53490f9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/53490f91d3ffa72a47f895b9b911809ee1618227))
+
+## [3.18.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.9...v3.18.0) (2026-01-09)
+
+
+### 🚀 Features
+
+* enhanced support for reading well-known models such as VRC, MMD, and RPM ([73a39c5](https://github.com/saturday06/VRM-Addon-for-Blender/commit/73a39c59d976dbcff463efa6c0ed6b12523d69b7))
+
+## [3.17.9](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.8...v3.17.9) (2026-01-07)
+
+
+### 🐛 Bug Fixes
+
+* optimize bone mapping generation performance ([188c5cf](https://github.com/saturday06/VRM-Addon-for-Blender/commit/188c5cf390943a351b5f63fdc59c61dc3ee01c4d))
+
 ## [3.17.8](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.17.7...v3.17.8) (2026-01-06)
+
+### 🚀 Improvements
+
+* improve expression animation performance ([e122b68](https://github.com/saturday06/VRM-Addon-for-Blender/commit/e122b68f693b9953f60f231847a3c2e4a2bf16a2))
 
 
 ### 🐛 Bug Fixes

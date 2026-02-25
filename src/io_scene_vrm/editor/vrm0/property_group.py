@@ -34,6 +34,10 @@ from ...common.vrm0.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
+from ...common.vrm1.expression_preset import (
+    VRM0_PRESET_UNKNOWN,
+    ExpressionPresets,
+)
 from ..property_group import (
     BonePropertyGroup,
     FloatPropertyGroup,
@@ -52,7 +56,7 @@ logger = get_logger(__name__)
 
 
 class Vrm0HumanoidBoneNodePropertyGroup(HumanoidStructureBonePropertyGroup):
-    def update_node_candidates(
+    def update_bone_name_candidates(
         self,
         armature_data: Armature,
         target: HumanBoneSpecification,
@@ -205,7 +209,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         return True
 
     @staticmethod
-    def update_all_node_candidates(
+    def update_all_bone_name_candidates(
         context: Context,
         armature_data_name: str,
         *,
@@ -235,7 +239,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
             return
         pointer_to_last_bone_names_str[pointer_key] = bone_names_str
 
-        HumanoidStructureBonePropertyGroup.update_all_vrm0_node_candidates(
+        HumanoidStructureBonePropertyGroup.update_all_vrm0_bone_name_candidates(
             armature_data
         )
 
@@ -463,12 +467,19 @@ class Vrm0FirstPersonPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L18-L30
 class Vrm0BlendShapeBindPropertyGroup(PropertyGroup):
+    def update_preview(self, context: Context) -> None:
+        if not isinstance(armature_data := self.id_data, Armature):
+            return
+        Vrm0BlendShapeGroupPropertyGroup.apply_previews(context, armature_data)
+
     mesh: PointerProperty(  # type: ignore[valid-type]
         name="Mesh",
         type=MeshObjectPropertyGroup,
+        update=update_preview,
     )
     index: StringProperty(  # type: ignore[valid-type]
-        name="Index"
+        name="Index",
+        update=update_preview,
     )
     weight: FloatProperty(  # type: ignore[valid-type]
         name="Weight",
@@ -476,6 +487,7 @@ class Vrm0BlendShapeBindPropertyGroup(PropertyGroup):
         default=1,
         max=1,
         subtype="FACTOR",
+        update=update_preview,
     )
 
     if TYPE_CHECKING:
@@ -522,24 +534,24 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
     )
 
     preset_name_enum, (PRESET_NAME_UNKNOWN, *__preset_names) = property_group_enum(
-        ("unknown", "Unknown", "", "SHAPEKEY_DATA", 0),
-        ("neutral", "Neutral", "", "VIEW_ORTHO", 1),
-        ("a", "A", "", "EVENT_A", 2),
-        ("i", "I", "", "EVENT_I", 3),
-        ("u", "U", "", "EVENT_U", 4),
-        ("e", "E", "", "EVENT_E", 5),
-        ("o", "O", "", "EVENT_O", 6),
-        ("blink", "Blink", "", "HIDE_ON", 7),
-        ("joy", "Joy", "", "HEART", 8),
-        ("angry", "Angry", "", "ORPHAN_DATA", 9),
-        ("sorrow", "Sorrow", "", "MOD_FLUIDSIM", 10),
-        ("fun", "Fun", "", "LIGHT_SUN", 11),
-        ("lookup", "Look Up", "", "ANCHOR_TOP", 12),
-        ("lookdown", "Look Down", "", "ANCHOR_BOTTOM", 13),
-        ("lookleft", "Look Left", "", "ANCHOR_RIGHT", 14),
-        ("lookright", "Look Right", "", "ANCHOR_LEFT", 15),
-        ("blink_l", "Blink_L", "", "HIDE_ON", 16),
-        ("blink_r", "Blink_R", "", "HIDE_ON", 17),
+        (VRM0_PRESET_UNKNOWN, "Unknown", "", "SHAPEKEY_DATA", 0),
+        (ExpressionPresets.NEUTRAL.vrm0_preset, "Neutral", "", "VIEW_ORTHO", 1),
+        (ExpressionPresets.AA.vrm0_preset, "A", "", "EVENT_A", 2),
+        (ExpressionPresets.IH.vrm0_preset, "I", "", "EVENT_I", 3),
+        (ExpressionPresets.OU.vrm0_preset, "U", "", "EVENT_U", 4),
+        (ExpressionPresets.EE.vrm0_preset, "E", "", "EVENT_E", 5),
+        (ExpressionPresets.OH.vrm0_preset, "O", "", "EVENT_O", 6),
+        (ExpressionPresets.BLINK.vrm0_preset, "Blink", "", "HIDE_ON", 7),
+        (ExpressionPresets.HAPPY.vrm0_preset, "Joy", "", "HEART", 8),
+        (ExpressionPresets.ANGRY.vrm0_preset, "Angry", "", "ORPHAN_DATA", 9),
+        (ExpressionPresets.SAD.vrm0_preset, "Sorrow", "", "MOD_FLUIDSIM", 10),
+        (ExpressionPresets.RELAXED.vrm0_preset, "Fun", "", "LIGHT_SUN", 11),
+        (ExpressionPresets.LOOK_UP.vrm0_preset, "Look Up", "", "ANCHOR_TOP", 12),
+        (ExpressionPresets.LOOK_DOWN.vrm0_preset, "Look Down", "", "ANCHOR_BOTTOM", 13),
+        (ExpressionPresets.LOOK_LEFT.vrm0_preset, "Look Left", "", "ANCHOR_RIGHT", 14),
+        (ExpressionPresets.LOOK_RIGHT.vrm0_preset, "Look Right", "", "ANCHOR_LEFT", 15),
+        (ExpressionPresets.BLINK_LEFT.vrm0_preset, "Blink_L", "", "HIDE_ON", 16),
+        (ExpressionPresets.BLINK_RIGHT.vrm0_preset, "Blink_R", "", "HIDE_ON", 17),
     )
 
     preset_name: EnumProperty(  # type: ignore[valid-type]
@@ -554,10 +566,6 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
     material_values: CollectionProperty(  # type: ignore[valid-type]
         type=Vrm0MaterialValueBindPropertyGroup,
         name="Material Values",
-    )
-    is_binary: BoolProperty(  # type: ignore[valid-type]
-        name="Is Binary",
-        description="Use binary change in the blendshape group",
     )
 
     # for UI
@@ -701,6 +709,12 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
         set=set_preview,
     )
 
+    is_binary: BoolProperty(  # type: ignore[valid-type]
+        name="Is Binary",
+        description="Use binary change in the blendshape group",
+        update=update_preview,
+    )
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
@@ -712,10 +726,10 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
         material_values: CollectionPropertyProtocol[  # type: ignore[no-redef]
             Vrm0MaterialValueBindPropertyGroup
         ]
-        is_binary: bool  # type: ignore[no-redef]
         active_bind_index: int  # type: ignore[no-redef]
         active_material_value_index: int  # type: ignore[no-redef]
         preview: float  # type: ignore[no-redef]
+        is_binary: bool  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L10-L18

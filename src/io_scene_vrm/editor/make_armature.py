@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from collections.abc import Set as AbstractSet
 from math import radians
 from sys import float_info
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 import bpy
 from bpy.props import BoolProperty, FloatProperty, StringProperty
@@ -26,7 +25,7 @@ class ICYP_OT_make_armature(Operator):
     bl_idname = "icyp.make_basic_armature"
     bl_label = "Add VRM Humanoid"
     bl_description = "make armature and simple setup for VRM export"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     skip_heavy_armature_setup: BoolProperty(  # type: ignore[valid-type]
         default=False,
@@ -690,9 +689,9 @@ def connect_parent_tail_and_child_head_if_very_close_position(
 
         children_by_distance = sorted(
             bone.children,
-            key=lambda child: (child.parent.tail - child.head).length_squared
-            if child.parent
-            else 0.0,
+            key=lambda child: (
+                (child.parent.tail - child.head).length_squared if child.parent else 0.0
+            ),
         )
         for child in children_by_distance:
             if (bone.tail - child.head).length < AUTO_BONE_CONNECTION_DISTANCE and (

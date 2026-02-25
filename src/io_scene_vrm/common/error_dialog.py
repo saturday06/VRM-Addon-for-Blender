@@ -7,9 +7,8 @@ import platform
 import sys
 import sysconfig
 from collections.abc import Sequence
-from collections.abc import Set as AbstractSet
 from pathlib import Path
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, ClassVar, Union
 
 import bpy
 from bpy.props import CollectionProperty, IntProperty, StringProperty
@@ -139,7 +138,7 @@ class VRM_OT_save_error_dialog_message(Operator, ExportHelper):
     bl_idname = "vrm.save_error_dialog_message"
     bl_label = "Save Error Message"
     bl_description = "Save Error Message"
-    bl_options: AbstractSet[str] = {"REGISTER"}
+    bl_options: ClassVar = {"REGISTER"}
 
     filename_ext = ".txt"
     filter_glob: StringProperty(  # type: ignore[valid-type]
@@ -190,7 +189,7 @@ class VRM_OT_save_error_dialog_message(Operator, ExportHelper):
 class WM_OT_vrm_error_dialog(Operator):
     bl_label = "Error"
     bl_idname = "wm.vrm_error_dialog"
-    bl_options: AbstractSet[str] = {"REGISTER"}
+    bl_options: ClassVar = {"REGISTER"}
 
     title: StringProperty(options={"HIDDEN"})  # type: ignore[valid-type]
     lines: CollectionProperty(  # type: ignore[valid-type]

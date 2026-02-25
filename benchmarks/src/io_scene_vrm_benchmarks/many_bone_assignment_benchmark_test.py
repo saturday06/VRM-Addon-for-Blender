@@ -3,14 +3,40 @@ from pathlib import Path
 
 import bpy
 import pytest
-from bpy.types import Armature, Context
-from mathutils import Vector
+from bpy.types import Armature, ArmatureEditBones, Context, EditBone
 from pytest_codspeed.plugin import BenchmarkFixture
 
 from io_scene_vrm.common.human_bone_mapper import human_bone_mapper
 from io_scene_vrm.editor.extension import (
     get_armature_extension,
 )
+
+
+def add_bones(
+    edit_bones: ArmatureEditBones, parent_edit_bone: EditBone, depth: int
+) -> None:
+    branch_counts = [1, 2, 3, 2, 3, 2, 2, 2, 3]
+    if depth >= len(branch_counts):
+        return
+    branch_count = branch_counts[depth]
+
+    for i in range(branch_count):
+        bone = edit_bones.new(f"{parent_edit_bone.name}{i}")
+
+        bone.head = (
+            (depth * 0.3 + i * 0.05) * (1 if (i + depth) % 2 == 0 else -1),
+            depth * 0.1 + i * 0.2,
+            0.5 + depth * 0.1 * (1 if depth % 2 == 0 else -1),
+        )
+
+        bone.tail = (
+            bone.head[0],
+            bone.head[1] + 0.2,
+            bone.head[2],
+        )
+
+        bone.parent = parent_edit_bone
+        add_bones(edit_bones, bone, depth + 1)
 
 
 def generate_many_bones(context: Context) -> None:
@@ -30,32 +56,11 @@ def generate_many_bones(context: Context) -> None:
     bpy.ops.object.mode_set(mode="EDIT")
 
     edit_bones = armature_data.edit_bones
-    root_bone_name = "root"
+    root_bone_name = "Bone"
     root_bone = edit_bones.new(root_bone_name)
-
-    for bone_x in range(6):
-        for bone_y in range(-2, 3):
-            parent_bone_name = root_bone.name
-            for bone_z in range(8):
-                parent_bone = edit_bones[parent_bone_name]
-                child_bone_name = f"mop_strand_x{bone_x}_y{bone_y}_z{bone_z}"
-                child_bone = edit_bones.new(child_bone_name)
-
-                # for cleanup, assign parent before error check
-                child_bone.parent = parent_bone
-
-                if child_bone.name != child_bone_name:
-                    raise ValueError(child_bone_name)
-
-                if parent_bone_name == root_bone.name:
-                    child_bone.head = Vector((bone_x / 8.0, bone_y / 8.0, 0.0))
-                else:
-                    child_bone.head = parent_bone.tail.copy()
-                child_bone.tail = Vector(
-                    (bone_x / 8.0 + 1 * bone_z / 4, bone_y / 8.0, 0.0)
-                )
-                child_bone.use_connect = False
-                parent_bone_name = child_bone_name
+    root_bone.head = (0, 0, 0)
+    root_bone.tail = (0, 0, 0.5)
+    add_bones(edit_bones, root_bone, 0)
 
     bpy.ops.object.mode_set(mode="OBJECT")
 

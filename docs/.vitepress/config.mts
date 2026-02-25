@@ -1,9 +1,14 @@
+import os from "node:os";
 import {
   Awaitable,
   defineConfig,
   HeadConfig,
+  PageData,
   TransformContext,
 } from "vitepress";
+
+const isPossiblyWsl = os.platform() === "linux" &&
+  os.release().split("-").some((part) => /^(microsoft|wsl)/i.test(part));
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -318,6 +323,16 @@ export default defineConfig({
     }],
   ],
 
+  transformPageData(pageData: PageData) {
+    const description = pageData.frontmatter?.description;
+    if (typeof description !== "string" || description.trim().length === 0) {
+      throw new Error(
+        `[docs] Missing description frontmatter: ${pageData.relativePath}`,
+      );
+    }
+    return pageData;
+  },
+
   transformHead(context: TransformContext): Awaitable<HeadConfig[]> {
     // Generate og:image path from article path
     // There is no good way to do this, and an issue has been raised
@@ -348,5 +363,13 @@ export default defineConfig({
     return [
       ["meta", { property: "og:image", content: ogImagePath }],
     ];
+  },
+  vite: {
+    server: {
+      strictPort: true,
+      watch: {
+        usePolling: isPossiblyWsl,
+      },
+    },
   },
 });

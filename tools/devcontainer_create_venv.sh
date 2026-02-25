@@ -6,7 +6,7 @@ set -eu -o pipefail
 cd "$(dirname "$0")/.."
 
 if [ -d .venv ]; then
-  sudo chown developer:developer .venv
+  sudo chown "$(id -un):$(id -gn)" .venv
   sudo chmod 700 .venv
 else
   sudo rm -fr .venv

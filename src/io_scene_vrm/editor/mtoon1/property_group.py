@@ -2,9 +2,9 @@
 import math
 import re
 import sys
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Callable, Final, Optional, Protocol, Union
+from typing import TYPE_CHECKING, Final, Optional, Protocol, Union
 
 import bpy
 from bpy.props import (
@@ -134,9 +134,8 @@ class PrincipledBsdfNodeSocketTarget(NodeSocketTarget):
         name = self.get_node_name(material)
         if name is None:
             return lambda _: False
-        return (
-            lambda node: isinstance(node, ShaderNodeBsdfPrincipled)
-            and node.name == name
+        return lambda node: (
+            isinstance(node, ShaderNodeBsdfPrincipled) and node.name == name
         )
 
 
@@ -153,9 +152,8 @@ class StaticNodeSocketTarget(NodeSocketTarget):
 
     def create_node_selector(self, material: Material) -> Callable[[Node], bool]:
         _ = material
-        return (
-            lambda node: isinstance(node, self.in_node_type)
-            and node.name == self.in_node_name
+        return lambda node: (
+            isinstance(node, self.in_node_type) and node.name == self.in_node_name
         )
 
 
@@ -3110,7 +3108,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         alpha_clip_input_node = node_tree.nodes.get(ALPHA_CLIP_INPUT_NODE_NAME)
         if (
             isinstance(alpha_clip_input_node, ShaderNodeMath)
-            and alpha_clip_input_node.operation == "MINIMUM"
+            and alpha_clip_input_node.operation == "LESS_THAN"
         ):
             inputs = alpha_clip_input_node.inputs
             if len(inputs) >= 2:

@@ -79,6 +79,19 @@ def append(
     set_fake: bool = False,
     use_recursive: bool = True,
 ) -> set[str]: ...
+def context_set_id(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    data_path: str = "",
+    value: str = "",
+) -> set[str]: ...
+def url_open(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    url: str = "",
+) -> set[str]: ...
 def read_homefile(
     execution_context: str = "EXEC_DEFAULT",
     /,

@@ -45,7 +45,7 @@ class AbstractBaseVrmExporter(ABC):
             raise TypeError(message)
 
     @abstractmethod
-    def export_vrm(self) -> Optional[bytes]:
+    def export(self) -> Optional[bytes]:
         pass
 
     @staticmethod

@@ -719,3 +719,27 @@ def active_object_is_vrm0_armature(context: Context) -> bool:
     if not isinstance(armature_data, Armature):
         return False
     return get_armature_extension(armature_data).is_vrm0()
+
+
+def active_object_is_vrm_armature(context: Context) -> bool:
+    active_object = context.active_object
+    if not active_object:
+        return False
+    if active_object.type != "ARMATURE":
+        return False
+    armature_data = active_object.data
+    if not isinstance(armature_data, Armature):
+        return False
+    return get_armature_extension(armature_data).is_vrm0()
+
+
+def active_object_is_khr_character_armature(context: Context) -> bool:
+    active_object = context.active_object
+    if not active_object:
+        return False
+    if active_object.type != "ARMATURE":
+        return False
+    armature_data = active_object.data
+    if not isinstance(armature_data, Armature):
+        return False
+    return get_armature_extension(armature_data).is_khr_character()

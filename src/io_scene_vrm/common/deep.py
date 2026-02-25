@@ -117,9 +117,6 @@ def diff(
             return [f'{path}: left is "{left}" but right is "{right}"']
         return []
 
-    if left is None and right is not None:
-        return [f"{path}: left is None but right is {type(right)}"]
-
     if isinstance(left, int) and isinstance(right, int):
         if left != right:
             return [f"{path}: left is {left} but right is {right}"]
@@ -141,6 +138,13 @@ def diff(
                 + f" but right is {float(right):20.17f}, error={error:19.17f}"
             ]
         return []
+
+    if left is None:
+        if right is None:
+            return []
+        return [f"{path}: left is None but right is {type(right)}"]
+    if right is None:
+        return [f"{path}: left is {type(left)} but right is None"]
 
     message = f"{path}: unexpected type left={type(left)} right={type(right)}"
     raise ValueError(message)

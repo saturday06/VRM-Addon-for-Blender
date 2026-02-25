@@ -55,7 +55,7 @@ class VRM_MT_bone_assignment(Menu):
         )
         row.menu(
             VRM_MT_bone_assignment.bl_idname,
-            text=bone_name if bone_name else " ",
+            text=bone_name or " ",
             icon=icon,
             translate=False,
         )

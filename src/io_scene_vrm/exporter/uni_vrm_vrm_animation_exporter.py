@@ -77,7 +77,7 @@ def connect_humanoid_node_dicts(
                 parent_node_dict["children"] = children
             children.append(node_index)
         parent_node_dict = current_node_dict
-    for child in human_bone_specification.children():
+    for child in human_bone_specification.children:
         connect_humanoid_node_dicts(
             child,
             human_bone_name_to_node_dict,
@@ -114,7 +114,7 @@ def create_node_dicts(
                     node_dicts,
                     bone_name_to_node_index,
                 )
-                for child in human_bone_specification.children()
+                for child in human_bone_specification.children
             ],
             list[int](),
         )
@@ -146,7 +146,7 @@ def create_node_dicts(
             create_node_dicts(
                 armature, human_bones, child, bone, node_dicts, bone_name_to_node_index
             )
-            for child in human_bone_specification.children()
+            for child in human_bone_specification.children
         ],
         list[int](),
     )
@@ -413,7 +413,7 @@ def create_look_at_animation(
     ]
     input_bytes = struct.pack("<" + "f" * len(input_floats), *input_floats)
     buffer0_bytearray.extend(input_bytes)
-    while len(buffer0_bytearray) % 32 != 0:  # TODO: Find the correct alignment
+    while len(buffer0_bytearray) % 4 != 0:
         buffer0_bytearray.append(0)
     input_buffer_view_index = len(buffer_view_dicts)
     input_buffer_view_dict: dict[str, Json] = {
@@ -438,7 +438,7 @@ def create_look_at_animation(
         "<" + "f" * len(translation_floats), *translation_floats
     )
     buffer0_bytearray.extend(translation_bytes)
-    while len(buffer0_bytearray) % 32 != 0:  # TODO: Find the correct alignment
+    while len(buffer0_bytearray) % 4 != 0:
         buffer0_bytearray.append(0)
     output_buffer_view_index = len(buffer_view_dicts)
     output_buffer_view_dict: dict[str, Json] = {
@@ -605,7 +605,7 @@ def create_expression_animation(
         ]
         input_bytes = struct.pack("<" + "f" * len(input_floats), *input_floats)
         buffer0_bytearray.extend(input_bytes)
-        while len(buffer0_bytearray) % 32 != 0:  # TODO: Find the correct alignment
+        while len(buffer0_bytearray) % 4 != 0:
             buffer0_bytearray.append(0)
         input_buffer_view_index = len(buffer_view_dicts)
         input_buffer_view_dict: dict[str, Json] = {
@@ -625,7 +625,7 @@ def create_expression_animation(
             *expression_translation_floats,
         )
         buffer0_bytearray.extend(translation_bytes)
-        while len(buffer0_bytearray) % 32 != 0:  # TODO: Find the correct alignment
+        while len(buffer0_bytearray) % 4 != 0:
             buffer0_bytearray.append(0)
         output_buffer_view_index = len(buffer_view_dicts)
         output_buffer_view_dict: dict[str, Json] = {
@@ -710,7 +710,7 @@ def set_frame_rotations(
 
     bone = armature.pose.bones.get(human_bone.node.bone_name)
     if not bone:
-        for child in human_bone_specification.children():
+        for child in human_bone_specification.children:
             set_frame_rotations(
                 armature,
                 human_bones,
@@ -730,7 +730,7 @@ def set_frame_rotations(
         bone_name_to_quaternions[bone.name] = quaternions
     quaternions.append(quaternion)
 
-    for child in human_bone_specification.children():
+    for child in human_bone_specification.children:
         set_frame_rotations(
             armature,
             human_bones,
@@ -819,7 +819,7 @@ def create_node_animation(
         ]
         input_bytes = struct.pack("<" + "f" * len(input_floats), *input_floats)
         buffer0_bytearray.extend(input_bytes)
-        while len(buffer0_bytearray) % 32 != 0:  # TODO: Find the correct alignment
+        while len(buffer0_bytearray) % 4 != 0:
             buffer0_bytearray.append(0)
         input_buffer_view_index = len(buffer_view_dicts)
         input_buffer_view_dict: dict[str, Json] = {
@@ -845,7 +845,7 @@ def create_node_animation(
             "<" + "f" * len(quaternion_floats), *quaternion_floats
         )
         buffer0_bytearray.extend(quaternion_bytes)
-        while len(buffer0_bytearray) % 32 != 0:  # TODO: Find the correct alignment
+        while len(buffer0_bytearray) % 4 != 0:
             buffer0_bytearray.append(0)
         output_buffer_view_index = len(buffer_view_dicts)
         output_buffer_view_dict: dict[str, Json] = {
@@ -922,7 +922,7 @@ def create_node_animation(
     ]
     input_bytes = struct.pack("<" + "f" * len(input_floats), *input_floats)
     buffer0_bytearray.extend(input_bytes)
-    while len(buffer0_bytearray) % 32 != 0:  # TODO: Find the correct alignment
+    while len(buffer0_bytearray) % 4 != 0:
         buffer0_bytearray.append(0)
     input_buffer_view_index = len(buffer_view_dicts)
     input_buffer_view_dict = {
@@ -947,7 +947,7 @@ def create_node_animation(
         "<" + "f" * len(translation_floats), *translation_floats
     )
     buffer0_bytearray.extend(translation_bytes)
-    while len(buffer0_bytearray) % 32 != 0:  # TODO: Find the correct alignment
+    while len(buffer0_bytearray) % 4 != 0:
         buffer0_bytearray.append(0)
     output_buffer_view_index = len(buffer_view_dicts)
     output_buffer_view_dict = {

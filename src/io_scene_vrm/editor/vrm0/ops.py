@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import uuid
 import warnings
-from collections.abc import Set as AbstractSet
-from typing import TYPE_CHECKING
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, ClassVar
 
 from bpy.app.translations import pgettext
 from bpy.props import IntProperty, StringProperty
-from bpy.types import Armature, Context, Event, Object, Operator, UILayout
+from bpy.types import Armature, Context, Event, Mesh, Object, Operator, UILayout
 
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
 from ...common.logger import get_logger
@@ -15,6 +15,7 @@ from ...common.vrm0.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
+from .. import search
 from ..extension import get_armature_extension
 from ..menu import VRM_MT_bone_assignment
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
@@ -28,7 +29,7 @@ class VRM_OT_add_vrm0_first_person_mesh_annotation(Operator):
     bl_idname = "vrm.add_vrm0_first_person_mesh_annotation"
     bl_label = "Add Mesh Annotation"
     bl_description = "Add VRM 0.x First Person Mesh Annotation"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -78,7 +79,7 @@ class VRM_OT_remove_vrm0_first_person_mesh_annotation(Operator):
     bl_idname = "vrm.remove_vrm0_first_person_mesh_annotation"
     bl_label = "Remove Mesh Annotation"
     bl_description = "Remove VRM 0.x First Person Mesh Annotation"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -137,7 +138,7 @@ class VRM_OT_move_up_vrm0_first_person_mesh_annotation(Operator):
     bl_idname = "vrm.move_up_vrm0_first_person_mesh_annotation"
     bl_label = "Move Up Mesh Annotation"
     bl_description = "Move Up VRM 0.x First Person Mesh Annotation"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -198,7 +199,7 @@ class VRM_OT_move_down_vrm0_first_person_mesh_annotation(Operator):
     bl_idname = "vrm.move_down_vrm0_first_person_mesh_annotation"
     bl_label = "Move Down Mesh Annotation"
     bl_description = "Move Down VRM 0.x First Person Mesh Annotation"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -257,7 +258,7 @@ class VRM_OT_add_vrm0_material_value_bind(Operator):
     bl_idname = "vrm.add_vrm0_material_value_bind"
     bl_label = "Add Material Value Bind"
     bl_description = "Add VRM 0.x Blend Shape Material Value Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -318,7 +319,7 @@ class VRM_OT_remove_vrm0_material_value_bind(Operator):
     bl_idname = "vrm.remove_vrm0_material_value_bind"
     bl_label = "Remove Material Value Bind"
     bl_description = "Remove VRM 0.x Blend Shape Material Value Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -387,7 +388,7 @@ class VRM_OT_move_up_vrm0_material_value_bind(Operator):
     bl_idname = "vrm.move_up_vrm0_material_value_bind"
     bl_label = "Move Up Material Value Bind"
     bl_description = "Move Up VRM 0.x Blend Shape Material Value Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -456,7 +457,7 @@ class VRM_OT_move_down_vrm0_material_value_bind(Operator):
     bl_idname = "vrm.move_down_vrm0_material_value_bind"
     bl_label = "Move Down Material Value Bind"
     bl_description = "Move Down VRM 0.x Blend Shape Material Value Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -525,7 +526,7 @@ class VRM_OT_add_vrm0_material_value_bind_target_value(Operator):
     bl_idname = "vrm.add_vrm0_material_value_bind_target_value"
     bl_label = "Add Value"
     bl_description = "Add VRM 0.x Blend Shape Material Value Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -592,7 +593,7 @@ class VRM_OT_remove_vrm0_material_value_bind_target_value(Operator):
     bl_idname = "vrm.remove_vrm0_material_value_bind_target_value"
     bl_label = "Remove Value"
     bl_description = "Remove VRM 0.x Blend Shape Material Value Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -667,7 +668,7 @@ class VRM_OT_add_vrm0_blend_shape_bind(Operator):
     bl_idname = "vrm.add_vrm0_blend_shape_bind"
     bl_label = "Add Blend Shape Bind"
     bl_description = "Add VRM 0.x Blend Shape Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -726,7 +727,7 @@ class VRM_OT_remove_vrm0_blend_shape_bind(Operator):
     bl_idname = "vrm.remove_vrm0_blend_shape_bind"
     bl_label = "Remove Blend Shape Bind"
     bl_description = "Remove VRM 0.x Blend Shape Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -795,7 +796,7 @@ class VRM_OT_move_up_vrm0_blend_shape_bind(Operator):
     bl_idname = "vrm.move_up_vrm0_blend_shape_bind"
     bl_label = "Move Up Blend Shape Bind"
     bl_description = "Move Up VRM 0.x Blend Shape Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -862,7 +863,7 @@ class VRM_OT_move_down_vrm0_blend_shape_bind(Operator):
     bl_idname = "vrm.move_down_vrm0_blend_shape_bind"
     bl_label = "Move Down Blend Shape Bind"
     bl_description = "Move Up VRM 0.x Blend Shape Bind"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -929,7 +930,7 @@ class VRM_OT_restore_vrm0_blend_shape_group_bind_object(Operator):
     bl_idname = "vrm.restore_vrm0_blend_shape_group_bind_object"
     bl_label = "Restore Shape Key Assignments"
     bl_description = "Restore VRM 0.x Blend Shape Group Bind Object Assignments"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -954,11 +955,73 @@ class VRM_OT_restore_vrm0_blend_shape_group_bind_object(Operator):
         armature_object_name: str  # type: ignore[no-redef]
 
 
+def add_shape_keys_to_vrm0_blend_shapes(
+    context: Context,
+    armature_object_name: str,
+    shape_key_mapping: Mapping[str, str],
+) -> set[str]:
+    armature = context.blend_data.objects.get(armature_object_name)
+    if armature is None or armature.type != "ARMATURE":
+        return {"CANCELLED"}
+    armature_data = armature.data
+    if not isinstance(armature_data, Armature):
+        return {"CANCELLED"}
+
+    blend_shape_master = get_armature_extension(armature_data).vrm0.blend_shape_master
+
+    for mesh_object_name, key_block_name in [
+        (obj.name, key_block.name)
+        for obj in search.export_objects(
+            context,
+            armature_object_name,
+            export_invisibles=True,
+            export_only_selections=False,
+            export_lights=False,
+        )
+        if isinstance(mesh_data := obj.data, Mesh)
+        and (shape_keys := mesh_data.shape_keys)
+        and (key_blocks := shape_keys.key_blocks)
+        for key_block in key_blocks
+    ]:
+        preset_name = shape_key_mapping.get(key_block_name)
+        if preset_name is None:
+            continue
+
+        blend_shape_group = None
+        for search_blend_shape_group in blend_shape_master.blend_shape_groups:
+            if search_blend_shape_group.preset_name == preset_name:
+                blend_shape_group = search_blend_shape_group
+                break
+        if blend_shape_group is None:
+            blend_shape_group = blend_shape_master.blend_shape_groups.add()
+            blend_shape_group.name = key_block_name
+            blend_shape_group.preset_name = preset_name
+
+        bind = next(
+            (
+                bind
+                for bind in blend_shape_group.binds
+                if bind.mesh.mesh_object_name == mesh_object_name
+            ),
+            None,
+        )
+        if bind:
+            if bind.index:
+                continue
+        else:
+            bind = blend_shape_group.binds.add()
+            bind.mesh.mesh_object_name = mesh_object_name
+        bind.index = key_block_name
+        bind.weight = 1.0
+
+    return {"FINISHED"}
+
+
 class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(Operator):
     bl_idname = "vrm.add_vrm0_secondary_animation_collider_group_collider"
     bl_label = "Add Collider"
     bl_description = "Add VRM 0.x Collider"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1041,7 +1104,7 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(Operator):
     bl_idname = "vrm.remove_vrm0_secondary_animation_collider_group_collider"
     bl_label = "Remove Collider"
     bl_description = "Remove VRM 0.x Collider"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1114,7 +1177,7 @@ class VRM_OT_move_up_vrm0_secondary_animation_collider_group_collider(Operator):
     bl_idname = "vrm.move_up_vrm0_secondary_animation_collider_group_coll"
     bl_label = "Move Up Collider"
     bl_description = "Move Up VRM 0.x Collider"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1181,7 +1244,7 @@ class VRM_OT_move_down_vrm0_secondary_animation_collider_group_collider(Operator
     bl_idname = "vrm.move_down_vrm0_secondary_animation_collider_group_coll"
     bl_label = "Move Down Collider"
     bl_description = "Move Down VRM 0.x Collider"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1248,7 +1311,7 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(Operator):
     bl_idname = "vrm.add_vrm0_secondary_animation_group_bone"
     bl_label = "Add Bone"
     bl_description = "Add VRM 0.x Secondary Animation Group Bone"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1307,7 +1370,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(Operator):
     bl_idname = "vrm.remove_vrm0_secondary_animation_group_bone"
     bl_label = "Remove Bone"
     bl_description = "Remove VRM 0.x Secondary Animation Group Bone"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1375,7 +1438,7 @@ class VRM_OT_move_up_vrm0_secondary_animation_group_bone(Operator):
     bl_idname = "vrm.move_up_vrm0_secondary_animation_group_bone"
     bl_label = "Move Up Bone"
     bl_description = "Move Up VRM 0.x Secondary Animation Group Bone"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1442,7 +1505,7 @@ class VRM_OT_move_down_vrm0_secondary_animation_group_bone(Operator):
     bl_idname = "vrm.move_down_vrm0_secondary_animation_group_bone"
     bl_label = "Move Down Bone"
     bl_description = "Move Down VRM 0.x Secondary Animation Group Bone"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1509,7 +1572,7 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(Operator):
     bl_idname = "vrm.add_vrm0_secondary_animation_group_collider_group"
     bl_label = "Add Collider Group"
     bl_description = "Add VRM 0.x Secondary Animation Group Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1569,7 +1632,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(Operator):
     bl_idname = "vrm.remove_vrm0_secondary_animation_group_collider_group"
     bl_label = "Remove Collider Group"
     bl_description = "Remove VRM 0.x Secondary Animation Group Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1638,7 +1701,7 @@ class VRM_OT_move_up_vrm0_secondary_animation_group_collider_group(Operator):
     bl_idname = "vrm.move_up_vrm0_secondary_animation_group_collider_group"
     bl_label = "Move Up Collider Group"
     bl_description = "Move Up VRM 0.x Secondary Animation Group Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1705,7 +1768,7 @@ class VRM_OT_move_down_vrm0_secondary_animation_group_collider_group(Operator):
     bl_idname = "vrm.move_down_vrm0_secondary_animation_group_collider_group"
     bl_label = "Move Down Collider Group"
     bl_description = "Move Down VRM 0.x Secondary Animation Group Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1772,7 +1835,7 @@ class VRM_OT_add_vrm0_blend_shape_group(Operator):
     bl_idname = "vrm.add_vrm0_blend_shape_group"
     bl_label = "Add Blend Shape Group"
     bl_description = "Add VRM 0.x Blend Shape Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1830,7 +1893,7 @@ class VRM_OT_remove_vrm0_blend_shape_group(Operator):
     bl_idname = "vrm.remove_vrm0_blend_shape_group"
     bl_label = "Remove Blend Shape Group"
     bl_description = "Remove VRM 0.x Blend Shape Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1891,7 +1954,7 @@ class VRM_OT_move_up_vrm0_blend_shape_group(Operator):
     bl_idname = "vrm.move_up_vrm0_blend_shape_group"
     bl_label = "Move Up Blend Shape Group"
     bl_description = "Move Up VRM 0.x Blend Shape Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -1954,7 +2017,7 @@ class VRM_OT_move_down_vrm0_blend_shape_group(Operator):
     bl_idname = "vrm.move_down_vrm0_blend_shape_group"
     bl_label = "Move Down Blend Shape Group"
     bl_description = "Move Down VRM 0.x Blend Shape Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -2017,7 +2080,7 @@ class VRM_OT_add_vrm0_secondary_animation_group(Operator):
     bl_idname = "vrm.add_vrm0_secondary_animation_group"
     bl_label = "Add Spring Bone"
     bl_description = "Add VRM 0.x Secondary Animation Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -2076,7 +2139,7 @@ class VRM_OT_remove_vrm0_secondary_animation_group(Operator):
     bl_idname = "vrm.remove_vrm0_secondary_animation_group"
     bl_label = "Remove Spring Bone"
     bl_description = "Remove VRM 0.x Secondary Animation Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -2137,7 +2200,7 @@ class VRM_OT_move_up_vrm0_secondary_animation_group(Operator):
     bl_idname = "vrm.move_up_vrm0_secondary_animation_group"
     bl_label = "Move Up Spring Bone"
     bl_description = "Move Up VRM 0.x Secondary Animation Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -2196,7 +2259,7 @@ class VRM_OT_move_down_vrm0_secondary_animation_group(Operator):
     bl_idname = "vrm.move_down_vrm0_secondary_animation_group"
     bl_label = "Move Down Spring Bone"
     bl_description = "Move Down VRM 0.x Secondary Animation Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -2255,7 +2318,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(Operator):
     bl_idname = "vrm.add_vrm0_secondary_animation_collider_group"
     bl_label = "Add Collider Group"
     bl_description = "Add VRM 0.x Secondary Animation Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -2308,7 +2371,7 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(Operator):
     bl_idname = "vrm.remove_vrm0_secondary_animation_collider_group"
     bl_label = "Remove Collider Group"
     bl_description = "Remove VRM 0.x Secondary Animation Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -2375,7 +2438,7 @@ class VRM_OT_move_up_vrm0_secondary_animation_collider_group(Operator):
     bl_idname = "vrm.move_up_vrm0_secondary_animation_collider_group"
     bl_label = "Move Up Collider Group"
     bl_description = "Move Up VRM 0.x Secondary Animation Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -2436,7 +2499,7 @@ class VRM_OT_move_down_vrm0_secondary_animation_collider_group(Operator):
     bl_idname = "vrm.move_down_vrm0_secondary_animation_collider_group"
     bl_label = "Move Down Collider Group"
     bl_description = "Move Down VRM 0.x Secondary Animation Collider Group"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -2497,7 +2560,7 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
     bl_idname = "vrm.assign_vrm0_humanoid_human_bones_automatically"
     bl_label = "Automatic Bone Assignment"
     bl_description = "Assign VRM 0.x Humanoid Human Bones"
-    bl_options: AbstractSet[str] = {"REGISTER", "UNDO"}
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
@@ -2533,10 +2596,38 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
         Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
         humanoid = get_armature_extension(armature_data).vrm0.humanoid
         bones = armature_data.bones
+
+        default_mapping = {
+            bone_name: HumanBoneSpecifications.get(human_bone_name)
+            for human_bone in humanoid.human_bones
+            if (bone_name := human_bone.node.bone_name)
+            and (human_bone_name := HumanBoneName.from_str(human_bone.bone))
+        }
+        default_requied_bone_count = sum(
+            1
+            for human_bone_specification in default_mapping.values()
+            if human_bone_specification.requirement
+        )
+
+        generated_mapping = create_human_bone_mapping(armature)
+        generated_required_bone_count = sum(
+            1
+            for vrm1_human_bone_specification in generated_mapping.values()
+            if HumanBoneSpecifications.get(
+                vrm1_human_bone_specification.vrm0_name
+            ).requirement
+        )
+
+        if default_requied_bone_count > generated_required_bone_count:
+            return {"CANCELLED"}
+
+        for human_bone in humanoid.human_bones:
+            human_bone.node.bone_name = ""
+
         for (
             bone_name,
             vrm1_specification,
-        ) in create_human_bone_mapping(armature).items():
+        ) in generated_mapping.items():
             bone = bones.get(bone_name)
             if not bone:
                 continue
@@ -2552,7 +2643,7 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
                 human_bone.node.bone_name = bone_name
                 break
 
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+        Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
             context, armature_data.name, force=True
         )
         return {"FINISHED"}
@@ -2743,7 +2834,7 @@ class VRM_OT_show_vrm0_bone_assignment_diagnostics(Operator):
                 HumanBoneSpecifications.get(human_bone_name)
             )
 
-        Vrm0HumanoidPropertyGroup.update_all_node_candidates(
+        Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
             context, armature_data.name
         )
         HumanoidStructureBonePropertyGroup.find_bone_candidates(
