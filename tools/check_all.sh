@@ -14,5 +14,9 @@ printf '### format (ruff format, ruff check --fix, shfmt, deno fmt) ###\n'
 printf '### lint (ruff, codespell, deno lint, pyright, vrm-validator) ###\n'
 ./tools/lint.sh
 
-printf '### tests (unittest discover) ###\n'
-./tools/test.sh
+if [[ "${SKIP_TESTS:-}" == "1" || "${SKIP_TESTS:-}" == "true" ]]; then
+  printf '### tests skipped (SKIP_TESTS=%s) ###\n' "${SKIP_TESTS}"
+else
+  printf '### tests (unittest discover) ###\n'
+  ./tools/test.sh
+fi
