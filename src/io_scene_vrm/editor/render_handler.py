@@ -33,7 +33,9 @@ def _ensure_render_layers_node(scene: Scene) -> None:
     render_layers_node = node_tree.nodes.new("CompositorNodeRLayers")
     cast("Any", render_layers_node)[_TEMP_RENDER_LAYERS_NODE_KEY] = True
     _temp_render_layers_scene_pointers.add(scene.as_pointer())
-    logger.info("Added temporary Render Layers node to ensure render handlers run.")
+    logger.info(
+        "Added temporary Render Layers node to ensure render handlers run."
+    )
 
 
 def _remove_temp_render_layers_node(scene: Scene) -> None:
