@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$root_dir"
+
+if [[ "${OS:-}" == "Windows_NT" || "${OSTYPE:-}" == msys* || "${OSTYPE:-}" == cygwin* ]]; then
+  cmd.exe /c tools\\check_all.bat
+else
+  ./tools/check_all.sh
+fi

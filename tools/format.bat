@@ -11,19 +11,33 @@ if "%1"=="/NoPause" set no_pause=1
 
 echo ### ruff format ###
 call uv run ruff format
+if %errorlevel% neq 0 goto :error
 
 echo ### ruff check --fix ###
 call uv run ruff check --fix
+if %errorlevel% neq 0 goto :error
 
 echo ### deno ###
-where deno
+where deno > nul
 if %errorlevel% neq 0 (
   echo *** Please install `deno` command ***
   goto :error
 )
 
+echo ### shfmt ###
+where shfmt > nul
+if %errorlevel% neq 0 (
+  echo *** Please install `shfmt` command ***
+  goto :error
+)
+for /f "tokens=* usebackq" %%f in (`git ls-files "*.sh"`) do (
+  call shfmt --write "%%f"
+  if !errorlevel! neq 0 goto :error
+)
+
 echo ### deno fmt ###
 call deno fmt
+if %errorlevel% neq 0 goto :error
 
 popd
 
