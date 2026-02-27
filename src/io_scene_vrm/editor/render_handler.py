@@ -10,6 +10,7 @@ from bpy.types import Scene
 
 from ..common import animation
 from ..common.logger import get_logger
+from ..common.preferences import is_development_mode_enabled
 from . import render_bake
 
 logger = get_logger(__name__)
@@ -54,6 +55,9 @@ def _remove_temp_render_layers_node(scene: Scene) -> None:
 
 @persistent
 def render_init(scene: Scene) -> None:
+    if not is_development_mode_enabled(bpy.context):
+        return
+
     logger.info(
         "Render init: frame=%s use_nodes=%s",
         scene.frame_current,
@@ -71,6 +75,9 @@ def render_init(scene: Scene) -> None:
 
 @persistent
 def render_complete(scene: Scene) -> None:
+    if not is_development_mode_enabled(bpy.context):
+        return
+
     logger.info("Render complete: frame=%s", scene.frame_current)
     animation.state.during_animation_playback = False
     _remove_temp_render_layers_node(scene)
@@ -81,6 +88,9 @@ def render_complete(scene: Scene) -> None:
 
 @persistent
 def render_cancel(scene: Scene) -> None:
+    if not is_development_mode_enabled(bpy.context):
+        return
+
     logger.info("Render cancel: frame=%s", scene.frame_current)
     animation.state.during_animation_playback = False
     _remove_temp_render_layers_node(scene)
