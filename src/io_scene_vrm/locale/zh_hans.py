@@ -81,9 +81,9 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         "Enable expression previews during timeline\n"
-        + "scrubbing and render-bake behavior.\n"
+        + "scrubbing.\n"
         + "Intended for development and testing.",
-    ): "启用时间轴拖动时的表情预览\n" + "和渲染烘焙行为。\n" + "仅供开发和测试。",
+    ): "启用时间轴拖动时的表情预览。\n" + "仅供开发和测试。",
     ("*", "Don't overwrite existing texture image folder"): "不要覆盖现有纹理文件夹",
     (
         "*",

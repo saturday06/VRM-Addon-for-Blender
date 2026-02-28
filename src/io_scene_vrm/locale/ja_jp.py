@@ -85,10 +85,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
     (
         "*",
         "Enable expression previews during timeline\n"
-        + "scrubbing and render-bake behavior.\n"
+        + "scrubbing.\n"
         + "Intended for development and testing.",
-    ): "タイムラインのスクラブ中に表情プレビューと\n"
-    + "レンダーベイクの動作を有効にします。\n"
+    ): "タイムラインのスクラブ中に表情プレビューを\n"
+    + "有効にします。\n"
     + "開発・検証用です。",
     (
         "*",

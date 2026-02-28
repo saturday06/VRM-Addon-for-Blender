@@ -339,7 +339,7 @@ class VrmAddonPreferences(AddonPreferences):
             developers_box,
             pgettext(
                 "Enable expression previews during timeline\n"
-                + "scrubbing and render-bake behavior.\n"
+                + "scrubbing.\n"
                 + "Intended for development and testing."
             ),
         )
