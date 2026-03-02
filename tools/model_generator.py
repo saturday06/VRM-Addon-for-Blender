@@ -7,6 +7,9 @@ import struct
 import sys
 from pathlib import Path
 
+import bpy
+
+from io_scene_vrm.common import ops
 from io_scene_vrm.common.deep import Json, make_json
 from io_scene_vrm.common.gl import GL_FLOAT
 from io_scene_vrm.common.gltf import pack_glb, parse_glb
@@ -219,7 +222,8 @@ def main(argv: list[str]) -> int:
 
     image_bytes = Path(__file__).with_name("model_generator_texture.png").read_bytes()
     padded_image_bytes = bytes(image_bytes)
-    while len(padded_image_bytes) % 16 == 0:
+    # Pad to 4-byte alignment for subsequent accessors.
+    while len(padded_image_bytes) % 4 != 0:
         padded_image_bytes += b"\x00"
     image_buffer_byte_offset = len(binary_chunk)
     binary_chunk += padded_image_bytes
@@ -481,6 +485,12 @@ def main(argv: list[str]) -> int:
         )
         morph_acc_index = len(accessor_dicts)
         morph_target_accessor_indices.append(morph_acc_index)
+        min_x = min(delta[0] for delta in deltas)
+        min_y = min(delta[1] for delta in deltas)
+        min_z = min(delta[2] for delta in deltas)
+        max_x = max(delta[0] for delta in deltas)
+        max_y = max(delta[1] for delta in deltas)
+        max_z = max(delta[2] for delta in deltas)
         accessor_dicts.append(
             {
                 "bufferView": morph_bv_index,
@@ -488,6 +498,8 @@ def main(argv: list[str]) -> int:
                 "type": "VEC3",
                 "componentType": GL_FLOAT,
                 "count": len(positions),
+                "min": [min_x, min_y, min_z],
+                "max": [max_x, max_y, max_z],
             }
         )
 
@@ -1400,6 +1412,17 @@ def main(argv: list[str]) -> int:
     vrm1_bytes = pack_glb(json_dict, binary_chunk)
     output_path.write_bytes(vrm1_bytes)
     logger.info("Generated VRM1 model at: %s", output_path)
+
+    bpy.ops.preferences.addon_enable(module="io_scene_vrm")
+    import_result = ops.import_scene.vrm(filepath=str(output_path))
+    if import_result != {"FINISHED"}:
+        logger.warning(
+            "Importing the generated model failed with result: %s",
+            import_result,
+        )
+        return 1
+
+    logger.info("Completed")
     return 0
 
 

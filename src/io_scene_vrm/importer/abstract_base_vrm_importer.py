@@ -143,9 +143,9 @@ class ParseResult:
         else:
             return None
 
-        with tempfile.NamedTemporaryFile(suffix=suffix) as temp_file:
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
             temp_file.write(image_bytes)
-            temp_file.flush()
+            temp_file.close()
             image = context.blend_data.images.load(temp_file.name)
             image.name = "vrm-thumbnail-" + uuid.uuid4().hex
             image.pack()

@@ -22,7 +22,7 @@ jobs:
         run: if sudo --non-interactive true; then sudo ./tools/install_ubuntu_packages.sh; fi
       - uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # v2.0.3
         with:
-          deno-version-file: .dvmrc
+          deno-version-file: .deno-version
       - uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
       - name: Install UV dependencies
         run: |
@@ -66,6 +66,6 @@ jobs:
           persist-credentials: false
       - uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # v2.0.3
         with:
-          deno-version-file: .dvmrc
+          deno-version-file: .deno-version
       - name: Build
         run: deno task docs:build

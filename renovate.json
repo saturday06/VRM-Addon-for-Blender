@@ -45,7 +45,7 @@
     },
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^.dvmrc$/"],
+      "managerFilePatterns": ["/^.deno-version$/"],
       "matchStrings": ["(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
       "datasourceTemplate": "github-releases",
       "depNameTemplate": "denoland/deno"

@@ -27,7 +27,7 @@ from bpy.types import (
 from mathutils import Vector
 
 from ...common import convert
-from ...common.animation import is_animation_playing
+from ...common.animation import defer_shape_key_update
 from ...common.logger import get_logger
 from ...common.vrm0.human_bone import (
     HumanBoneName,
@@ -603,7 +603,7 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
         if not isinstance(armature_data, Armature):
             return
 
-        if is_animation_playing(context):
+        if defer_shape_key_update(context):
             if (
                 armature_data.name
                 not in self.pending_preview_update_armature_data_names
@@ -1208,3 +1208,4 @@ def get_armature_vrm0_extension(armature: Armature) -> Vrm0PropertyGroup:
 
 def clear_global_variables() -> None:
     Vrm0HumanoidPropertyGroup.pointer_to_last_bone_names_str.clear()
+    Vrm0BlendShapeGroupPropertyGroup.pending_preview_update_armature_data_names.clear()

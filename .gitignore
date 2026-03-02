@@ -1,5 +1,6 @@
 *~
 *.blend1
+*.local.toml
 *.orig
 ci-super-linter-local-image.tar.gz
 .DS_Store

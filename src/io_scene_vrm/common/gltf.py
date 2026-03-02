@@ -28,16 +28,15 @@ FLOAT_NEGATIVE_MAX: Final = -FLOAT_POSITIVE_MAX
 def parse_glb(data: bytes) -> tuple[dict[str, Json], bytes]:
     with BytesIO(data) as glb:
         header_bytes = glb.read(12)
+        header_dump = "[" + ", ".join(f"0x{b:02x}" for b in header_bytes) + "]"
         if len(header_bytes) != 12:
-            message = "Failed to read VRM glTF header: " + ",".join(
-                chr(b) for b in header_bytes
-            )
+            message = f"Failed to read VRM glTF header: {header_dump}"
             raise ValueError(message)
 
         header: tuple[bytes, int, int] = struct.unpack("<4sII", header_bytes)
         magic, version, length = header
         if magic != b"glTF":
-            message = "Invalid VRM glTF magic bytes: " + ",".join(chr(b) for b in magic)
+            message = f"Invalid VRM glTF magic bytes: {header_dump}"
             raise ValueError(message)
 
         if version != 2:

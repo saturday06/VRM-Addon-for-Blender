@@ -110,19 +110,19 @@ jobs:
           curl --fail --show-error --location --retry 5 --retry-all-errors --output tests/temp/blender.dmg "$BLENDER_ARCHIVE_URL"
       - name: Install dependencies
         run: |
+          set -x
           for retry in $(seq 5 -1 0); do
             if [ "$retry" -eq 0 ]; then
               >&2 echo "Failed to install dependencies"
               exit 1
             fi
 
-            if brew update &&
-              perl \
-                -Mstrict \
-                -Mwarnings \
-                -e 'my $pid = fork(); if ($pid == 0) { exec(@ARGV); exit(1); } local $SIG{ALRM} = sub { kill(9, $pid); }; alarm(600); waitpid($pid, 0); exit($?);' \
-                -- \
-                brew install ffmpeg imagemagick; then
+            if perl \
+              -Mstrict \
+              -Mwarnings \
+              -e 'my $pid = fork(); if ($pid == 0) { exec(@ARGV); exit(1); } local $SIG{ALRM} = sub { kill(9, $pid); }; alarm(600); waitpid($pid, 0); exit($?);' \
+              -- \
+              sh -xc "brew update && brew install ffmpeg imagemagick"; then
               break
             fi
 

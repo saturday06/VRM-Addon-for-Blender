@@ -359,6 +359,7 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
     SPEC_VERSION_VRM0 = "0.0"
     SPEC_VERSION_VRM1 = "1.0"
     SPEC_VERSION_KHR_CHARACTER = "KHR_character"
+    SPEC_VERSION_DEFAULT = str(SPEC_VERSION_VRM1)
     spec_version_items = (
         (SPEC_VERSION_VRM0, "VRM 0.0", "", "NONE", 0),
         (SPEC_VERSION_VRM1, "VRM 1.0", "", "NONE", 1),
@@ -403,7 +404,7 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
         items=spec_version_items,
         name="Spec Version",
         update=update_spec_version,
-        default=SPEC_VERSION_VRM1,
+        default=SPEC_VERSION_DEFAULT,
     )
 
     def is_vrm0(self) -> bool:

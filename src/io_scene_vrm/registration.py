@@ -509,8 +509,10 @@ def register() -> None:
     bpy.app.handlers.save_pre.append(save_pre)
     bpy.app.handlers.save_pre.append(scene_watcher.save_pre)
     bpy.app.handlers.frame_change_pre.append(spring_bone1_handler.frame_change_pre)
+    bpy.app.handlers.frame_change_pre.append(animation.frame_change_pre)
     bpy.app.handlers.frame_change_post.append(vrm0_handler.frame_change_post)
     bpy.app.handlers.frame_change_post.append(vrm1_handler.frame_change_post)
+    bpy.app.handlers.frame_change_post.append(animation.frame_change_post)
     bpy.app.handlers.depsgraph_update_pre.append(
         spring_bone1_handler.depsgraph_update_pre
     )
@@ -546,8 +548,10 @@ def unregister() -> None:
     bpy.app.handlers.depsgraph_update_pre.remove(
         spring_bone1_handler.depsgraph_update_pre
     )
+    bpy.app.handlers.frame_change_post.remove(animation.frame_change_post)
     bpy.app.handlers.frame_change_post.remove(vrm1_handler.frame_change_post)
     bpy.app.handlers.frame_change_post.remove(vrm0_handler.frame_change_post)
+    bpy.app.handlers.frame_change_pre.remove(animation.frame_change_pre)
     bpy.app.handlers.frame_change_pre.remove(spring_bone1_handler.frame_change_pre)
     bpy.app.handlers.save_pre.remove(scene_watcher.save_pre)
     bpy.app.handlers.save_pre.remove(save_pre)

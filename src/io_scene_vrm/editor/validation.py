@@ -31,7 +31,11 @@ from ..common.preferences import get_preferences
 from ..common.vrm0 import human_bone as vrm0_human_bone
 from ..common.vrm1 import human_bone as vrm1_human_bone
 from . import migration, search
-from .extension import get_armature_extension, get_material_extension
+from .extension import (
+    VrmAddonArmatureExtensionPropertyGroup,
+    get_armature_extension,
+    get_material_extension,
+)
 from .property_group import CollectionPropertyProtocol
 
 logger = get_logger(__name__)
@@ -208,8 +212,6 @@ class WM_OT_vrm_validator(Operator):
         warning_messages: list[str] = []
         skippable_warning_messages: list[str] = []
         info_messages: list[str] = []
-        armature_count = 0
-        armature: Optional[Object] = None
         node_names: list[str] = []
 
         # export object seeking
@@ -240,13 +242,29 @@ class WM_OT_vrm_validator(Operator):
             else:
                 warning_messages.append(pgettext("There is no mesh to export."))
 
+        armature = context.blend_data.objects.get(armature_object_name)
+        if not armature:
+            armature = search.current_armature(context)
+        if armature and isinstance(armature_data := armature.data, Armature):
+            is_vrm0 = get_armature_extension(armature_data).is_vrm0()
+            is_vrm1 = get_armature_extension(armature_data).is_vrm1()
+        else:
+            armature_data = None
+            is_vrm0 = (
+                VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_DEFAULT
+                == VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM0
+            )
+            is_vrm1 = (
+                VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_DEFAULT
+                == VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1
+            )
+            info_messages.append(pgettext("No armature exists."))
+
         armature_count = len([True for obj in export_objects if obj.type == "ARMATURE"])
         if armature_count >= 2:  # only one armature
             error_messages.append(
                 pgettext("VRM exporter needs only one armature not some armatures.")
             )
-        if armature_count == 0:
-            info_messages.append(pgettext("No armature exists."))
 
         for obj in export_objects:
             if (parnet_obj := obj.parent) and obj.parent_type in ["VERTEX", "VERTEX_3"]:
@@ -268,11 +286,12 @@ class WM_OT_vrm_validator(Operator):
                     )
                 )
             if obj.type in search.MESH_CONVERTIBLE_OBJECT_TYPES:
-                if obj.name in node_names:
+                if is_vrm0 and obj.name in node_names:
                     error_messages.append(
                         pgettext(
-                            "glTF nodes (mesh, bone) cannot have duplicate names."
-                            + " {name} is duplicated."
+                            "The same name cannot be used"
+                            + " for a mesh object and a bone."
+                            + ' Rename either one whose name is "{name}".'
                         ).format(name=obj.name)
                     )
                 if obj.name not in node_names:
@@ -302,17 +321,17 @@ class WM_OT_vrm_validator(Operator):
                         + ", so shape keys may not be exported correctly."
                     ).format(name=obj.name)
                 )
-            if obj.type == "ARMATURE" and armature_count == 1:
-                armature = obj
-                armature_data = armature.data
-                if not isinstance(armature_data, Armature):
-                    logger.error("%s is not an Armature", type(armature_data))
-                    continue
+            if (
+                armature
+                and armature_data
+                and obj.type == "ARMATURE"
+                and obj.name == armature.name
+            ):
                 if execute_migration:
                     migration.migrate(context, armature.name)
                 bone: Optional[Bone] = None
                 for bone in armature_data.bones:
-                    if bone.name in node_names:  # nodes name is unique
+                    if is_vrm0 and bone.name in node_names:  # nodes name is unique
                         error_messages.append(
                             pgettext(
                                 "The same name cannot be used"
@@ -326,7 +345,7 @@ class WM_OT_vrm_validator(Operator):
                 # TODO: T_POSE,
                 all_required_bones_exist = True
                 armature_extension = get_armature_extension(armature_data)
-                if armature_extension.is_vrm1():
+                if is_vrm1:
                     _, _, constraint_warning_messages = search.export_constraints(
                         export_objects, armature
                     )
@@ -422,7 +441,7 @@ class WM_OT_vrm_validator(Operator):
                             )
                         )
 
-                elif armature_extension.is_vrm0():
+                elif is_vrm0:
                     humanoid = armature_extension.vrm0.humanoid
                     if humanoid.pose == humanoid.POSE_AUTO_POSE.identifier:
                         info_messages.append(
@@ -480,11 +499,7 @@ class WM_OT_vrm_validator(Operator):
                 # TODO: modifier applied, vertex weight Bone exist
                 # and vertex weight numbers.
 
-        if (
-            armature is not None
-            and isinstance(armature_data := armature.data, Armature)
-            and get_armature_extension(armature_data).is_vrm1()
-        ):
+        if is_vrm1 and armature_data:
             # meta URL validation
             meta1 = get_armature_extension(armature_data).vrm1.meta
             if not is_valid_url(meta1.other_license_url, allow_empty_str=True):
@@ -552,9 +567,7 @@ class WM_OT_vrm_validator(Operator):
         used_materials = search.export_materials(context, export_objects)
         used_images: list[Image] = []
         bones_names = []
-        if armature is not None and isinstance(
-            armature_data := armature.data, Armature
-        ):
+        if armature_data:
             bones_names = [b.name for b in armature_data.bones]
         vertex_error_count = 0
 
@@ -568,11 +581,7 @@ class WM_OT_vrm_validator(Operator):
                 if not v.groups and mesh.parent_bone == "":
                     if vertex_error_count > 5:
                         continue
-                    if (
-                        armature is not None
-                        and isinstance((armature_data := armature.data), Armature)
-                        and get_armature_extension(armature_data).is_vrm1()
-                    ):
+                    if is_vrm1:
                         continue
                     info_messages.append(
                         pgettext(
@@ -697,13 +706,7 @@ class WM_OT_vrm_validator(Operator):
             if not gltf.enabled:
                 continue
 
-            for texture in gltf.all_textures(
-                downgrade_to_mtoon0=(
-                    armature is None
-                    or not isinstance(armature_data := armature.data, Armature)
-                    or get_armature_extension(armature_data).is_vrm0()
-                )
-            ):
+            for texture in gltf.all_textures(downgrade_to_mtoon0=is_vrm0):
                 source = texture.get_connected_node_image()
                 if not source:
                     continue
@@ -729,12 +732,7 @@ class WM_OT_vrm_validator(Operator):
                 if source and source not in used_images:
                     used_images.append(source)
 
-                if (
-                    armature is None
-                    or not isinstance((armature_data := armature.data), Armature)
-                    or not get_armature_extension(armature_data).is_vrm0()
-                    or not source
-                ):
+                if not is_vrm0 or not source:
                     continue
 
                 base_color_texture = gltf.pbr_metallic_roughness.base_color_texture
@@ -776,11 +774,7 @@ class WM_OT_vrm_validator(Operator):
                         )
                     )
 
-        if (
-            armature is not None
-            and isinstance(armature_data := armature.data, Armature)
-            and get_armature_extension(armature_data).is_vrm0()
-        ):
+        if is_vrm0 and armature_data:
             # first_person
             first_person = get_armature_extension(armature_data).vrm0.first_person
             if not first_person.first_person_bone.bone_name:

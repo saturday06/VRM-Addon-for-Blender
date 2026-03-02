@@ -147,11 +147,6 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ): "「{url}」不是有效的 URL。",
     (
         "*",
-        "glTF nodes (mesh, bone) cannot have duplicate names."
-        + " {name} is duplicated.",
-    ): "glTF 节点元素(网格,骨骼)名称不得重复。" + "「{name}」是重复的。",
-    (
-        "*",
         "The same name cannot be used"
         + " for a mesh object and a bone."
         + ' Rename either one whose name is "{name}".',

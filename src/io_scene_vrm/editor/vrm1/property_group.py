@@ -30,7 +30,7 @@ from bpy.types import (
 from mathutils import Matrix, Quaternion, Vector
 
 from ...common import convert
-from ...common.animation import is_animation_playing
+from ...common.animation import defer_shape_key_update
 from ...common.char import DISABLE_TRANSLATION
 from ...common.logger import get_logger
 from ...common.rotation import set_rotation_without_mode_change
@@ -1102,7 +1102,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             logger.error("No armature for %s", self.name)
             return
 
-        if is_animation_playing(context):
+        if defer_shape_key_update(context):
             if (
                 armature_data.name
                 not in self.pending_preview_update_armature_data_names
@@ -1824,3 +1824,4 @@ def get_armature_vrm1_extension(armature: Armature) -> Vrm1PropertyGroup:
 
 def clear_global_variables() -> None:
     Vrm1HumanBonesPropertyGroup.pointer_to_last_bone_names_str.clear()
+    Vrm1ExpressionPropertyGroup.pending_preview_update_armature_data_names.clear()

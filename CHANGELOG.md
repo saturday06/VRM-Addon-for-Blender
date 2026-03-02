@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.21.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.21.0...v3.21.1) (2026-03-01)
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug where expression animations might not be reflected when manually moving the timeline ([b34eca5](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b34eca5eb4889d511e97ba810aa1536cf477ca8f))
+
+## [3.21.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.20.0...v3.21.0) (2026-02-28)
+
+
+### 🚀 Features
+
+* add thumbnail preview to VRM import license warning dialog ([236b290](https://github.com/saturday06/VRM-Addon-for-Blender/commit/236b2902aa0413d4816a76810f2f5befae85871e))
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug where vrm files sometimes failed to load on Windows ([c00a62b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/c00a62bd51bef1059c474230d4e41c9066a0a282))
+
 ## [3.20.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.19.5...v3.20.0) (2026-02-22)
 
 

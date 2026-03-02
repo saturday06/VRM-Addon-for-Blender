@@ -222,12 +222,6 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "VRMでは未対応です。",
     (
         "*",
-        "glTF nodes (mesh, bone) cannot have duplicate names."
-        + " {name} is duplicated.",
-    ): "glTFノード要素(メッシュ、ボーン)の名前は重複してはいけません。"
-    + "「{name}」が重複しています。",
-    (
-        "*",
         "The same name cannot be used"
         + " for a mesh object and a bone."
         + ' Rename either one whose name is "{name}".',
