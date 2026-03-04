@@ -13,7 +13,7 @@ from io_scene_vrm.common.scene_watcher import (
     SceneWatcherScheduler,
     create_fast_path_performance_test_scene,
 )
-from io_scene_vrm.common.test_helper import AddonTestCase, make_test_method_name
+from tests.util import AddonTestCase, make_test_method_name
 
 
 class __TestSceneWatcherBase(AddonTestCase):

@@ -10,21 +10,14 @@ import bpy
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.logger import get_logger
-from io_scene_vrm.common.test_helper import AddonTestCase, make_test_method_name
 from io_scene_vrm.importer.vrm_diff import vrm_diff
+from tests.util import RESOURCES_PATH, AddonTestCase, make_test_method_name
 
 logger = get_logger(__name__)
 
-repository_root_dir = Path(__file__).resolve(strict=True).parent.parent
-resources_dir = Path(
-    environ.get(
-        "BLENDER_VRM_TEST_RESOURCES_PATH",
-        str(repository_root_dir / "tests" / "resources"),
-    )
-)
 major_minor = f"{bpy.app.version[0]}.{bpy.app.version[1]}"
-vrm_dir = resources_dir / "vrm"
-blend_dir = resources_dir / "blend"
+vrm_dir = RESOURCES_PATH / "vrm"
+blend_dir = RESOURCES_PATH / "blend"
 
 
 class __TestVrmImportExportBase(AddonTestCase):

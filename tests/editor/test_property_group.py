@@ -9,7 +9,6 @@ from bpy.types import Armature, EditBone, Object
 from mathutils import Vector
 
 from io_scene_vrm.common import ops
-from io_scene_vrm.common.test_helper import AddonTestCase
 from io_scene_vrm.common.vrm0.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
@@ -18,6 +17,7 @@ from io_scene_vrm.editor.property_group import (
     BonePropertyGroup,
     HumanoidStructureBonePropertyGroup,
 )
+from tests.util import AddonTestCase
 
 Tree = Mapping[str, "Tree"]
 

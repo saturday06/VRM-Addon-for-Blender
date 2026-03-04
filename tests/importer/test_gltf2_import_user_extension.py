@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
-from io_scene_vrm.common.test_helper import AddonTestCase
 from io_scene_vrm.importer.gltf2_import_user_extension import (
     get_list_from_json_ld,
     get_string_from_json_ld_value,
 )
+from tests.util import AddonTestCase
 
 
 class TestGetListFromJsonLd(AddonTestCase):

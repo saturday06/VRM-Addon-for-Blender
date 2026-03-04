@@ -8,12 +8,12 @@ from mathutils import Vector
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.debug import assert_vector3_equals
-from io_scene_vrm.common.test_helper import AddonTestCase
 from io_scene_vrm.importer.vrm0_importer import (
     MaterialProperty,
     calculate_mtoon0_render_queue_offset_maps,
     setup_bones,
 )
+from tests.util import AddonTestCase
 
 
 class TestVrm0Importer(AddonTestCase):

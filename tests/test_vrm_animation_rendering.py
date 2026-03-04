@@ -5,11 +5,9 @@ import hashlib
 import math
 import os
 import platform
-import re
 import subprocess
-import sys
 from pathlib import Path
-from typing import Final, Optional
+from typing import Final
 from unittest import SkipTest
 
 import bpy
@@ -18,10 +16,10 @@ from mathutils import Color, Euler, Vector
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.logger import get_logger
-from io_scene_vrm.common.test_helper import AddonTestCase, make_test_method_name
 from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.search import current_armature
 from io_scene_vrm.editor.vrm1.property_group import Vrm1LookAtPropertyGroup
+from tests.util import AddonTestCase, compare_image, make_test_method_name
 
 RENDER_SUFFIX: str = ".render"
 
@@ -493,76 +491,3 @@ TestVrmAnimationLossyExport = type(
         if RENDER_SUFFIX not in path.stem
     },
 )
-
-
-def compare_image(image1_path: Path, image2_path: Path, diff_image_path: Path) -> float:
-    try:
-        subprocess.run(["ffmpeg", "-version"], check=True, capture_output=True)
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        message = "ffmpeg is required but could not be found"
-        if sys.platform == "win32":
-            raise SkipTest(message) from e
-        raise AssertionError(message) from e
-
-    compare_command: Optional[list[str]] = None
-    try:
-        subprocess.run(["magick", "-version"], check=True, capture_output=True)
-        compare_command = ["magick", "compare"]
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        pass
-    if compare_command is None:
-        try:
-            subprocess.run(["compare", "-version"], check=True, capture_output=True)
-            compare_command = ["compare"]
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            pass
-
-    if compare_command is None:
-        message = "ImageMagick is required but could not be found"
-        if sys.platform == "win32":
-            raise SkipTest(message)
-        raise AssertionError(message)
-
-    subprocess.run(
-        [
-            *compare_command,
-            str(image1_path),
-            str(image2_path),
-            str(diff_image_path),
-        ],
-        check=False,
-    )
-
-    compare_result = subprocess.run(
-        [
-            "ffmpeg",
-            "-hide_banner",
-            "-nostats",
-            "-i",
-            str(image1_path),
-            "-i",
-            str(image2_path),
-            "-filter_complex",
-            "ssim",
-            "-f",
-            "null",
-            "-",
-        ],
-        check=True,
-        capture_output=True,
-    )
-    pattern = r" SSIM .+\((\d+\.?\d*|inf)\)$"
-    for line in reversed(compare_result.stderr.decode().splitlines()):
-        ssim_match = re.search(pattern, line.strip())
-        if not ssim_match:
-            continue
-        ssim_str = ssim_match.group(1)
-        if ssim_str == "inf":
-            return math.inf
-        return float(ssim_str)
-
-    message = (
-        f"SSIM value not found in command output pattern={pattern}\n"
-        + compare_result.stderr.decode()
-    )
-    raise ValueError(message)

@@ -16,12 +16,12 @@ from io_scene_vrm.common.human_bone_mapper.structure_based_mapping import (
     create_structure_based_mapping,
     search_branch_from_json,
 )
-from io_scene_vrm.common.test_helper import AddonTestCase
 from io_scene_vrm.common.vrm1.human_bone import (
     HumanBoneName,
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
+from tests.util import AddonTestCase
 
 Tree = Mapping[
     tuple[

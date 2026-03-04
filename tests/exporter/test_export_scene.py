@@ -12,8 +12,8 @@ import bpy
 from io_scene_vrm.common import deep, ops
 from io_scene_vrm.common.logger import get_logger
 from io_scene_vrm.common.preferences import get_preferences
-from io_scene_vrm.common.test_helper import AddonTestCase, make_test_method_name
 from io_scene_vrm.importer.vrm_diff import vrm_diff
+from tests.util import AddonTestCase, make_test_method_name
 
 logger = get_logger(__name__)
 
