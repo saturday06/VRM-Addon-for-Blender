@@ -50,9 +50,6 @@ target-version = "py39" # It overrides 'project.requires-python = "== 3.10.*"'
 src = ["typings/src", "src"]
 
 [tool.ruff.lint]
-allowed-confusables = [
-  "\u30ce", # Katakana Letter No
-]
 select = ["ALL"]
 ignore = [
   # ----- fixing -----
