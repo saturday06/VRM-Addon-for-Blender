@@ -166,6 +166,12 @@ exclude = [
   # warning, so explicitly excluding them
   "tests/resources/unity",
 
+  # Suppress the following warning
+  # The exclude list is missing default excludes such as '.venv'. Consider
+  # adding them to avoid analyzing unnecessary files.
+  # Pylance(missingDefaultExcludes)
+  "**/.venv",
+
   # Re-setting default exclusion folder settings since they get lost
   # https://github.com/microsoft/pyright/blob/1.1.400/packages/pyright-internal/src/analyzer/service.ts#L793
   "**/node_modules",
