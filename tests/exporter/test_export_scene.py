@@ -13,20 +13,15 @@ from io_scene_vrm.common import deep, ops
 from io_scene_vrm.common.logger import get_logger
 from io_scene_vrm.common.preferences import get_preferences
 from io_scene_vrm.importer.vrm_diff import vrm_diff
-from tests.util import AddonTestCase, make_test_method_name
+from tests.util import (
+    BLENDER_MAJOR_MINOR_VERSION,
+    RESOURCES_BLEND_PATH,
+    RESOURCES_VRM_PATH,
+    AddonTestCase,
+    make_test_method_name,
+)
 
 logger = get_logger(__name__)
-
-repository_root_dir = Path(__file__).resolve(strict=True).parent.parent.parent
-resources_dir = Path(
-    environ.get(
-        "BLENDER_VRM_TEST_RESOURCES_PATH",
-        str(repository_root_dir / "tests" / "resources"),
-    )
-)
-major_minor = f"{bpy.app.version[0]}.{bpy.app.version[1]}"
-vrm_dir = resources_dir / "vrm"
-blend_dir = resources_dir / "blend"
 
 
 class __TestBlendExportBase(AddonTestCase):
@@ -60,13 +55,17 @@ class __TestBlendExportBase(AddonTestCase):
         if blend_path.name.endswith(".merge.blend"):
             blend_path = blend_path.with_suffix("").with_suffix(".blend")
         expected_path = (
-            vrm_dir / major_minor / "out" / "blend" / (blend_path.stem + ".vrm")
+            RESOURCES_VRM_PATH
+            / BLENDER_MAJOR_MINOR_VERSION
+            / "out"
+            / "blend"
+            / (blend_path.stem + ".vrm")
         )
 
         if Path(expected_path.with_suffix(expected_path.suffix + ".disabled")).exists():
             return
 
-        temp_vrm_dir = vrm_dir / major_minor / "temp"
+        temp_vrm_dir = RESOURCES_VRM_PATH / BLENDER_MAJOR_MINOR_VERSION / "temp"
         temp_vrm_dir.mkdir(parents=True, exist_ok=True)
 
         bpy.ops.wm.open_mainfile(filepath=str(blend_path))
@@ -191,8 +190,8 @@ TestBlendExport = type(
             __TestBlendExportBase.assert_blend_export, path
         )
         for path in sorted(
-            list(blend_dir.glob("*.blend"))
-            + list((blend_dir / major_minor).glob("*.blend"))
+            list(RESOURCES_BLEND_PATH.glob("*.blend"))
+            + list((RESOURCES_BLEND_PATH / BLENDER_MAJOR_MINOR_VERSION).glob("*.blend"))
         )
     },
 )

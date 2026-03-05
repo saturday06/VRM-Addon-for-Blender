@@ -13,25 +13,16 @@ from mathutils import Vector
 from io_scene_vrm.common import ops
 from io_scene_vrm.editor.make_armature import MIN_BONE_LENGTH
 from io_scene_vrm.importer.vrm_diff import vrm_diff
-from tests.util import AddonTestCase
+from tests.util import BLENDER_MAJOR_MINOR_VERSION, RESOURCES_VRM_PATH, AddonTestCase
 
 
 class TestMakeArmature(AddonTestCase):
     def test_make_basic_armature(self) -> None:
         environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
 
-        repository_root_dir = Path(__file__).resolve(strict=True).parent.parent.parent
-        vrm_dir = Path(
-            environ.get(
-                "BLENDER_VRM_TEST_RESOURCES_PATH",
-                str(repository_root_dir / "tests" / "resources"),
-            ),
-            "vrm",
-        )
-        major_minor = f"{bpy.app.version[0]}.{bpy.app.version[1]}"
         vrm = Path("basic_armature_vrm1.vrm")
-        expected_path = vrm_dir / major_minor / "out" / vrm
-        temp_dir_path = vrm_dir / major_minor / "temp"
+        expected_path = RESOURCES_VRM_PATH / BLENDER_MAJOR_MINOR_VERSION / "out" / vrm
+        temp_dir_path = RESOURCES_VRM_PATH / BLENDER_MAJOR_MINOR_VERSION / "temp"
         temp_dir_path.mkdir(parents=True, exist_ok=True)
 
         self.assertEqual(ops.icyp.make_basic_armature(), {"FINISHED"})

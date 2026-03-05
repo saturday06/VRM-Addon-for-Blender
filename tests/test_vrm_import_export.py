@@ -11,13 +11,14 @@ import bpy
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.logger import get_logger
 from io_scene_vrm.importer.vrm_diff import vrm_diff
-from tests.util import RESOURCES_PATH, AddonTestCase, make_test_method_name
+from tests.util import (
+    BLENDER_MAJOR_MINOR_VERSION,
+    RESOURCES_VRM_PATH,
+    AddonTestCase,
+    make_test_method_name,
+)
 
 logger = get_logger(__name__)
-
-major_minor = f"{bpy.app.version[0]}.{bpy.app.version[1]}"
-vrm_dir = RESOURCES_PATH / "vrm"
-blend_dir = RESOURCES_PATH / "blend"
 
 
 class __TestVrmImportExportBase(AddonTestCase):
@@ -29,13 +30,13 @@ class __TestVrmImportExportBase(AddonTestCase):
         environ["BLENDER_VRM_USE_TEST_EXPORTER_VERSION"] = "true"
         update_failed_vrm = environ.get("BLENDER_VRM_TEST_UPDATE_FAILED_VRM") == "true"
 
-        out_vrm_dir = vrm_dir / major_minor / "out"
-        temp_vrm_dir = vrm_dir / major_minor / "temp"
+        out_vrm_dir = RESOURCES_VRM_PATH / BLENDER_MAJOR_MINOR_VERSION / "out"
+        temp_vrm_dir = RESOURCES_VRM_PATH / BLENDER_MAJOR_MINOR_VERSION / "temp"
         temp_vrm_dir.mkdir(parents=True, exist_ok=True)
 
         # Some private test models have unstable output results
         # on specific Blender versions
-        if f"(unstable-{major_minor})" in in_path.name:
+        if f"(unstable-{BLENDER_MAJOR_MINOR_VERSION})" in in_path.name:
             logger.warning("Skipped: %s", in_path)
             return
 
@@ -121,7 +122,7 @@ TestVrmImportExport = type(
             path,
             extract_textures=extract_textures,
         )
-        for path in sorted((vrm_dir / "in").glob("*.vrm"))
+        for path in sorted((RESOURCES_VRM_PATH / "in").glob("*.vrm"))
         for extract_textures in [False, True]
     },
 )

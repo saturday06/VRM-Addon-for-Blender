@@ -10,20 +10,13 @@ import bpy
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.logger import get_logger
-from tests.util import AddonTestCase, make_test_method_name
+from tests.util import (
+    RESOURCES_VRM_PATH,
+    AddonTestCase,
+    make_test_method_name,
+)
 
 logger = get_logger(__name__)
-
-repository_root_dir = Path(__file__).resolve(strict=True).parent.parent.parent
-resources_dir = Path(
-    environ.get(
-        "BLENDER_VRM_TEST_RESOURCES_PATH",
-        str(repository_root_dir / "tests" / "resources"),
-    )
-)
-major_minor = f"{bpy.app.version[0]}.{bpy.app.version[1]}"
-vrm_dir = resources_dir / "vrm"
-blend_dir = resources_dir / "blend"
 
 
 class TestImportNonObjectMode(AddonTestCase):
@@ -32,13 +25,7 @@ class TestImportNonObjectMode(AddonTestCase):
         self.assertEqual(bpy.ops.object.posemode_toggle(), {"FINISHED"})
         self.assertEqual(
             ops.import_scene.vrm(
-                filepath=str(
-                    Path(__file__).parent.parent
-                    / "resources"
-                    / "vrm"
-                    / "in"
-                    / "triangle.vrm"
-                )
+                filepath=str(RESOURCES_VRM_PATH / "in" / "triangle.vrm")
             ),
             {"FINISHED"},
         )
@@ -83,7 +70,7 @@ TestImportSceneBrokenVrm = type(
         make_test_method_name(path.stem): functools.partialmethod(
             __TestImportSceneBrokenVrmBase.assert_broken_vrm, path
         )
-        for path in sorted((resources_dir / "vrm" / "broken").glob("*.vrm"))
+        for path in sorted((RESOURCES_VRM_PATH / "broken").glob("*.vrm"))
     },
 )
 
