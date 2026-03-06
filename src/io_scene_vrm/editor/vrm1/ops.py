@@ -2034,12 +2034,6 @@ class VRM_OT_move_down_vrm1_expression_texture_transform_bind(Operator):
         bind_index: int  # type: ignore[no-redef]
 
 
-vrm0_human_bone_name_to_vrm1_human_bone_name: dict[Vrm0HumanBoneName, HumanBoneName] = {
-    specification.vrm0_name: specification.name
-    for specification in HumanBoneSpecifications.all_human_bones
-}
-
-
 class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
     bl_idname = "vrm.assign_vrm1_humanoid_human_bones_automatically"
     bl_label = "Automatic Bone Assignment"
@@ -2088,6 +2082,10 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
         Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
             context, armature_data.name
         )
+        vrm0_human_bone_name_to_vrm1_human_bone_name = {
+            specification.vrm0_name: specification.name
+            for specification in HumanBoneSpecifications.all_human_bones
+        }
         vrm0_humanoid = get_armature_extension(armature_data).vrm0.humanoid
         if vrm0_humanoid.all_required_bones_are_assigned():
             for vrm0_human_bone in vrm0_humanoid.human_bones:
