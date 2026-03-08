@@ -41,6 +41,7 @@ from ..editor.mtoon1.property_group import (
     Mtoon1TextureInfoPropertyGroup,
     Mtoon1TexturePropertyGroup,
 )
+from ..editor.spring_bone1.ops import add_spring_bone1_collider, add_spring_bone1_spring
 from ..editor.spring_bone1.property_group import (
     SpringBone1ColliderPropertyGroup,
     SpringBone1SpringBonePropertyGroup,
@@ -1545,16 +1546,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             collider_dicts = []
 
         for collider_dict in collider_dicts:
-            # Since the reference from ColliderGroup to Collider is by index,
-            # create empty data even if the contents of collider_dict are invalid
-            if ops.vrm.add_spring_bone1_collider(
-                armature_object_name=armature.name
-            ) != {"FINISHED"}:
-                message = f'Failed to add spring bone 1.0 collider to "{armature.name}"'
-                raise ValueError(message)
-
-            collider = spring_bone.colliders[-1]
-
+            collider = add_spring_bone1_collider(self.context, armature, spring_bone)
             if not isinstance(collider_dict, dict):
                 collider.shape.sphere.radius = 0.0001
                 collider.shape.sphere.offset = (0, 0, -10000)
@@ -1661,12 +1653,10 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             spring_dicts = []
 
         for spring_dict in spring_dicts:
-            if ops.vrm.add_spring_bone1_spring(
-                armature_object_name=armature_object_name
-            ) != {"FINISHED"} or not isinstance(spring_dict, dict):
+            if not isinstance(spring_dict, dict):
                 continue
 
-            spring = spring_bone.springs[-1]
+            spring = add_spring_bone1_spring(self.context, spring_bone)
 
             name = spring_dict.get("name")
             if isinstance(name, str):

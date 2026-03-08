@@ -28,7 +28,7 @@ from bpy.types import (
     UILayout,
 )
 
-from ...common import ops, shader
+from ...common import shader
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
 from ...common.logger import get_logger
 from ...common.shape_key_mapper.arkit_mapping import (
@@ -554,7 +554,8 @@ class VRM_OT_add_vrm1_expressions_custom_expression(Operator):
         expressions.active_expression_ui_list_element_index = (
             len(expressions.preset.name_to_expression_dict()) + new_last_custom_index
         )
-        return ops.vrm.update_vrm1_expression_ui_list_elements()
+        update_vrm1_expression_ui_list_elements(context)
+        return {"FINISHED"}
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -614,7 +615,9 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(Operator):
                     expressions.active_expression_ui_list_element_index,
                     len(expressions.all_name_to_expression_dict()) - 1,
                 )
-                return ops.vrm.update_vrm1_expression_ui_list_elements()
+
+                update_vrm1_expression_ui_list_elements(context)
+                return {"FINISHED"}
         return {"CANCELLED"}
 
     if TYPE_CHECKING:
@@ -1332,7 +1335,8 @@ def add_shape_keys_to_vrm1_expressions(
                     morph_target_bind.index = key_block_name
                     morph_target_bind.weight = weight
 
-    return ops.vrm.update_vrm1_expression_ui_list_elements()
+    update_vrm1_expression_ui_list_elements(context)
+    return {"FINISHED"}
 
 
 class VRM_OT_assign_vrm1_expressions_automatically(Operator):
@@ -1520,7 +1524,8 @@ class VRM_OT_add_vrm1_arkit_custom_expressions(Operator):
             self.armature_object_name,
             VRM1_PRESET_TO_ARKIT_SHAPE_KEY_MAPPING,
         )
-        return ops.vrm.update_vrm1_expression_ui_list_elements()
+        update_vrm1_expression_ui_list_elements(context)
+        return {"FINISHED"}
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -2172,22 +2177,26 @@ class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):
     bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     def execute(self, context: Context) -> set[str]:
-        for armature in context.blend_data.armatures:
-            expressions = get_armature_extension(armature).vrm1.expressions
-
-            # Set the number of elements equal to the number of elements wanted to show
-            # in the UIList.
-            ui_len = len(expressions.expression_ui_list_elements)
-            all_len = len(expressions.all_name_to_expression_dict())
-            if ui_len == all_len:
-                continue
-            if ui_len > all_len:
-                for _ in range(ui_len - all_len):
-                    expressions.expression_ui_list_elements.remove(0)
-            if all_len > ui_len:
-                for _ in range(all_len - ui_len):
-                    expressions.expression_ui_list_elements.add()
+        update_vrm1_expression_ui_list_elements(context)
         return {"FINISHED"}
+
+
+def update_vrm1_expression_ui_list_elements(context: Context) -> None:
+    for armature in context.blend_data.armatures:
+        expressions = get_armature_extension(armature).vrm1.expressions
+
+        # Set the number of elements equal to the number of elements wanted to show
+        # in the UIList.
+        ui_len = len(expressions.expression_ui_list_elements)
+        all_len = len(expressions.all_name_to_expression_dict())
+        if ui_len == all_len:
+            continue
+        if ui_len > all_len:
+            for _ in range(ui_len - all_len):
+                expressions.expression_ui_list_elements.remove(0)
+        if all_len > ui_len:
+            for _ in range(all_len - ui_len):
+                expressions.expression_ui_list_elements.add()
 
 
 class TextureTransformBind(Protocol):

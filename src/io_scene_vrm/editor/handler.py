@@ -6,10 +6,10 @@ import bpy
 from bpy.app.handlers import persistent
 from bpy.types import Depsgraph, Scene
 
-from ..common import ops
 from ..common.logger import get_logger
 from . import migration
 from .extension import get_armature_extension, get_scene_extension
+from .vrm1.ops import update_vrm1_expression_ui_list_elements
 
 logger = get_logger(__name__)
 
@@ -64,7 +64,7 @@ def depsgraph_update_post(_scene: Scene, depsgraph: Depsgraph) -> None:
             ext = get_armature_extension(new_armature)
             expressions = ext.vrm1.expressions
             expressions.fill_missing_expression_names()
-            ops.vrm.update_vrm1_expression_ui_list_elements()
+        update_vrm1_expression_ui_list_elements(context)
 
 
 def clear_global_variables() -> None:
