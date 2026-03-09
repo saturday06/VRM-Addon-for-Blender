@@ -16,7 +16,6 @@ from bpy.types import (
 )
 from mathutils import Euler, Matrix, Quaternion, Vector
 
-from ..common import ops
 from ..common.logger import get_logger
 from ..common.rotation import (
     get_rotation_as_quaternion,
@@ -680,7 +679,7 @@ def setup_humanoid_t_pose(
                     set_rotation_without_mode_change(right_eye_bone, Quaternion())
 
         if pose == humanoid.POSE_AUTO_POSE.identifier:
-            ops.vrm.make_estimated_humanoid_t_pose(armature_object_name=armature.name)
+            set_estimated_humanoid_t_pose(context, armature)
         elif pose == humanoid.POSE_CUSTOM_POSE.identifier:
             if action and action.name in context.blend_data.actions:
                 pose_marker_frame = 0
@@ -695,9 +694,7 @@ def setup_humanoid_t_pose(
             else:
                 # TODO: It would be helpful to warn in advance if this is
                 # reached during export
-                ops.vrm.make_estimated_humanoid_t_pose(
-                    armature_object_name=armature.name
-                )
+                set_estimated_humanoid_t_pose(context, armature)
 
     context.view_layer.update()
 

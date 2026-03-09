@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import statistics
+import uuid
 from collections.abc import Callable, Sequence
 from sys import float_info
 from typing import TYPE_CHECKING, Optional
@@ -946,6 +947,11 @@ class SpringBone1ColliderReferencePropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/f2d8f158297fc883aef9c3071ca68fbe46b03f45/specification/0.0/schema/vrm.secondaryanimation.collidergroup.schema.json
 class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
+    def add_collider(self) -> SpringBone1ColliderReferencePropertyGroup:
+        collider = self.colliders.add()
+        self.active_collider_index = len(self.colliders) - 1
+        return collider
+
     def get_vrm_name(self) -> str:
         value = self.get("vrm_name", "")
         return value if isinstance(value, str) else str(value)
@@ -1153,6 +1159,16 @@ class SpringBone1SpringAnimationStatePropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.spring.schema.json
 class SpringBone1SpringPropertyGroup(PropertyGroup):
+    def add_joint(self) -> "SpringBone1JointPropertyGroup":
+        joint = self.joints.add()
+        self.active_joint_index = len(self.joints) - 1
+        return joint
+
+    def add_collider_group(self) -> "SpringBone1ColliderGroupReferencePropertyGroup":
+        collider_group = self.collider_groups.add()
+        self.active_collider_group_index = len(self.collider_groups) - 1
+        return collider_group
+
     vrm_name: StringProperty(  # type: ignore[valid-type]
         name="Name"
     )
@@ -1205,6 +1221,27 @@ class SpringBone1SpringPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.schema.json
 class SpringBone1SpringBonePropertyGroup(PropertyGroup):
+    def add_collider(
+        self, context: Context, armature: Object
+    ) -> SpringBone1ColliderPropertyGroup:
+        collider = self.colliders.add()
+        collider.uuid = uuid.uuid4().hex
+        collider.shape.sphere.radius = 0.125
+        collider.reset_bpy_object(context, armature)
+        self.active_collider_index = len(self.colliders) - 1
+        return collider
+
+    def add_collider_group(self) -> SpringBone1ColliderGroupPropertyGroup:
+        collider_group = self.collider_groups.add()
+        self.active_collider_group_index = len(self.collider_groups) - 1
+        return collider_group
+
+    def add_spring(self) -> SpringBone1SpringPropertyGroup:
+        spring = self.springs.add()
+        spring.vrm_name = "Spring"
+        self.active_spring_index = len(self.springs) - 1
+        return spring
+
     colliders: CollectionProperty(  # type: ignore[valid-type]
         type=SpringBone1ColliderPropertyGroup,
     )

@@ -5,17 +5,12 @@ from sys import float_info
 from typing import TYPE_CHECKING, ClassVar
 
 from bpy.props import BoolProperty, FloatProperty, IntProperty, StringProperty
-from bpy.types import Armature, Context, Object, Operator
+from bpy.types import Armature, Context, Operator
 
 from ...common import safe_removal
 from ...common.logger import get_logger
 from ..extension import get_armature_extension
 from .handler import reset_state, update_pose_bone_rotations
-from .property_group import (
-    SpringBone1ColliderPropertyGroup,
-    SpringBone1SpringBonePropertyGroup,
-    SpringBone1SpringPropertyGroup,
-)
 
 logger = get_logger(__name__)
 
@@ -57,7 +52,7 @@ class VRM_OT_add_spring_bone1_collider(Operator):
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         spring_bone1 = get_armature_extension(armature_data).spring_bone1
-        add_spring_bone1_collider(context, armature, spring_bone1)
+        spring_bone1.add_collider(context, armature)
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -65,17 +60,6 @@ class VRM_OT_add_spring_bone1_collider(Operator):
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
-
-
-def add_spring_bone1_collider(
-    context: Context, armature: Object, spring_bone1: SpringBone1SpringBonePropertyGroup
-) -> SpringBone1ColliderPropertyGroup:
-    collider = spring_bone1.colliders.add()
-    collider.uuid = uuid.uuid4().hex
-    collider.shape.sphere.radius = 0.125
-    collider.reset_bpy_object(context, armature)
-    spring_bone1.active_collider_index = len(spring_bone1.colliders) - 1
-    return collider
 
 
 class VRM_OT_remove_spring_bone1_collider(Operator):
@@ -321,7 +305,7 @@ class VRM_OT_add_spring_bone1_spring(Operator):
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         spring_bone1 = get_armature_extension(armature_data).spring_bone1
-        add_spring_bone1_spring(context, spring_bone1)
+        spring_bone1.add_spring()
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -329,15 +313,6 @@ class VRM_OT_add_spring_bone1_spring(Operator):
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
-
-
-def add_spring_bone1_spring(
-    _context: Context, spring_bone1: SpringBone1SpringBonePropertyGroup
-) -> SpringBone1SpringPropertyGroup:
-    spring = spring_bone1.springs.add()
-    spring.vrm_name = "Spring"
-    spring_bone1.active_spring_index = len(spring_bone1.springs) - 1
-    return spring
 
 
 class VRM_OT_remove_spring_bone1_spring(Operator):
@@ -552,10 +527,9 @@ class VRM_OT_add_spring_bone1_collider_group(Operator):
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         spring_bone = get_armature_extension(armature_data).spring_bone1
-        collider_group = spring_bone.collider_groups.add()
+        collider_group = spring_bone.add_collider_group()
         collider_group.uuid = uuid.uuid4().hex
         collider_group.vrm_name = "Collider Group"
-        spring_bone.active_collider_group_index = len(spring_bone.collider_groups) - 1
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -804,8 +778,7 @@ class VRM_OT_add_spring_bone1_collider_group_collider(Operator):
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
         collider_group = collider_groups[self.collider_group_index]
-        collider_group.colliders.add()
-        collider_group.active_collider_index = len(collider_group.colliders) - 1
+        collider_group.add_collider()
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -1060,8 +1033,7 @@ class VRM_OT_add_spring_bone1_spring_collider_group(Operator):
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         spring = springs[self.spring_index]
-        spring.collider_groups.add()
-        spring.active_collider_group_index = len(spring.collider_groups) - 1
+        spring.add_collider_group()
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -1322,8 +1294,7 @@ class VRM_OT_add_spring_bone1_joint(Operator):
         if len(springs) <= self.spring_index:
             return {"CANCELLED"}
         spring = springs[self.spring_index]
-        spring.joints.add()
-        spring.active_joint_index = len(spring.joints) - 1
+        spring.add_joint()
         if not self.guess_properties:
             return {"FINISHED"}
 

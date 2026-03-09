@@ -1350,23 +1350,29 @@ class VRM_OT_assign_vrm1_expressions_automatically(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        for mapping in [
-            VRM1_PRESET_TO_VRCHAT_SHAPE_KEY_MAPPING,
-            VRM1_PRESET_TO_MMD_SHAPE_KEY_MAPPING,
-            VRM1_PRESET_TO_READY_PLAYER_ME_SHAPE_KEY_MAPPING,
-            VRM1_PRESET_TO_ARKIT_SHAPE_KEY_MAPPING,
-        ]:
-            add_shape_keys_to_vrm1_expressions(
-                context,
-                self.armature_object_name,
-                mapping,
-            )
-        return {"FINISHED"}
+        return assign_vrm1_expressions_automatically(context, self.armature_object_name)
 
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
+
+
+def assign_vrm1_expressions_automatically(
+    context: Context, armature_object_name: str
+) -> set[str]:
+    for mapping in [
+        VRM1_PRESET_TO_VRCHAT_SHAPE_KEY_MAPPING,
+        VRM1_PRESET_TO_MMD_SHAPE_KEY_MAPPING,
+        VRM1_PRESET_TO_READY_PLAYER_ME_SHAPE_KEY_MAPPING,
+        VRM1_PRESET_TO_ARKIT_SHAPE_KEY_MAPPING,
+    ]:
+        add_shape_keys_to_vrm1_expressions(
+            context,
+            armature_object_name,
+            mapping,
+        )
+    return {"FINISHED"}
 
 
 class VRM_OT_assign_vrm1_vrchat_expressions(Operator):
@@ -2070,105 +2076,113 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
         if not self.armature_object_name and self.armature_name:
             self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
-        if armature is None or armature.type != "ARMATURE":
+        if armature is None:
             return {"CANCELLED"}
-        armature_data = armature.data
-        if not isinstance(armature_data, Armature):
-            return {"CANCELLED"}
-        Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
-        Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
-            context, armature_data.name
-        )
-        human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
-        human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
-        bones = armature_data.bones
-
-        Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-        Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
-            context, armature_data.name
-        )
-        vrm0_human_bone_name_to_vrm1_human_bone_name = {
-            specification.vrm0_name: specification.name
-            for specification in HumanBoneSpecifications.all_human_bones
-        }
-        vrm0_humanoid = get_armature_extension(armature_data).vrm0.humanoid
-        if vrm0_humanoid.all_required_bones_are_assigned():
-            for vrm0_human_bone in vrm0_humanoid.human_bones:
-                if (
-                    vrm0_human_bone.node.bone_name
-                    not in vrm0_human_bone.node.bone_name_candidates
-                ):
-                    continue
-                vrm0_name = Vrm0HumanBoneName.from_str(vrm0_human_bone.bone)
-                if not vrm0_name:
-                    logger.error("Invalid VRM0 bone name str: %s", vrm0_human_bone.bone)
-                    continue
-                vrm1_name = vrm0_human_bone_name_to_vrm1_human_bone_name.get(vrm0_name)
-                if vrm1_name is None:
-                    logger.error("Invalid VRM0 bone name: %s", vrm0_name)
-                    continue
-                human_bone = human_bone_name_to_human_bone.get(vrm1_name)
-                if not human_bone:
-                    continue
-                if (
-                    vrm0_human_bone.node.bone_name
-                    not in human_bone.node.bone_name_candidates
-                ):
-                    continue
-                human_bone.node.bone_name = vrm0_human_bone.node.bone_name
-
-        default_mapping = {
-            bone_name: HumanBoneSpecifications.get(human_bone_name)
-            for human_bone_name, human_bone in human_bone_name_to_human_bone.items()
-            if (bone_name := human_bone.node.bone_name)
-        }
-        default_requied_bone_count = sum(
-            1
-            for human_bone_specification in default_mapping.values()
-            if human_bone_specification.requirement
-        )
-
-        generated_mapping = create_human_bone_mapping(armature)
-        generated_required_bone_count = sum(
-            1
-            for human_bone_specification in generated_mapping.values()
-            if human_bone_specification.requirement
-        )
-
-        if default_requied_bone_count > generated_required_bone_count:
-            return {"CANCELLED"}
-
-        for human_bone in human_bone_name_to_human_bone.values():
-            human_bone.node.bone_name = ""
-
-        for (
-            bone_name,
-            specification,
-        ) in generated_mapping.items():
-            bone = bones.get(bone_name)
-            if not bone:
-                continue
-
-            for search_name, human_bone in human_bone_name_to_human_bone.items():
-                if (
-                    specification.name != search_name
-                    or human_bone.node.bone_name in human_bone.node.bone_name_candidates
-                    or bone_name not in human_bone.node.bone_name_candidates
-                ):
-                    continue
-                human_bone.node.bone_name = bone_name
-                break
-
-        Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
-            context, armature_data.name, force=True
-        )
-        return {"FINISHED"}
+        return assign_vrm1_humanoid_human_bones_automatically(context, armature)
 
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
+
+
+def assign_vrm1_humanoid_human_bones_automatically(
+    context: Context, armature: Object
+) -> set[str]:
+    if armature.type != "ARMATURE":
+        return {"CANCELLED"}
+    armature_data = armature.data
+    if not isinstance(armature_data, Armature):
+        return {"CANCELLED"}
+    Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
+    Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
+        context, armature_data.name
+    )
+    human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
+    human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
+    bones = armature_data.bones
+
+    Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
+    Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
+        context, armature_data.name
+    )
+    vrm0_human_bone_name_to_vrm1_human_bone_name = {
+        specification.vrm0_name: specification.name
+        for specification in HumanBoneSpecifications.all_human_bones
+    }
+    vrm0_humanoid = get_armature_extension(armature_data).vrm0.humanoid
+    if vrm0_humanoid.all_required_bones_are_assigned():
+        for vrm0_human_bone in vrm0_humanoid.human_bones:
+            if (
+                vrm0_human_bone.node.bone_name
+                not in vrm0_human_bone.node.bone_name_candidates
+            ):
+                continue
+            vrm0_name = Vrm0HumanBoneName.from_str(vrm0_human_bone.bone)
+            if not vrm0_name:
+                logger.error("Invalid VRM0 bone name str: %s", vrm0_human_bone.bone)
+                continue
+            vrm1_name = vrm0_human_bone_name_to_vrm1_human_bone_name.get(vrm0_name)
+            if vrm1_name is None:
+                logger.error("Invalid VRM0 bone name: %s", vrm0_name)
+                continue
+            human_bone = human_bone_name_to_human_bone.get(vrm1_name)
+            if not human_bone:
+                continue
+            if (
+                vrm0_human_bone.node.bone_name
+                not in human_bone.node.bone_name_candidates
+            ):
+                continue
+            human_bone.node.bone_name = vrm0_human_bone.node.bone_name
+
+    default_mapping = {
+        bone_name: HumanBoneSpecifications.get(human_bone_name)
+        for human_bone_name, human_bone in human_bone_name_to_human_bone.items()
+        if (bone_name := human_bone.node.bone_name)
+    }
+    default_requied_bone_count = sum(
+        1
+        for human_bone_specification in default_mapping.values()
+        if human_bone_specification.requirement
+    )
+
+    generated_mapping = create_human_bone_mapping(armature)
+    generated_required_bone_count = sum(
+        1
+        for human_bone_specification in generated_mapping.values()
+        if human_bone_specification.requirement
+    )
+
+    if default_requied_bone_count > generated_required_bone_count:
+        return {"CANCELLED"}
+
+    for human_bone in human_bone_name_to_human_bone.values():
+        human_bone.node.bone_name = ""
+
+    for (
+        bone_name,
+        specification,
+    ) in generated_mapping.items():
+        bone = bones.get(bone_name)
+        if not bone:
+            continue
+
+        for search_name, human_bone in human_bone_name_to_human_bone.items():
+            if (
+                specification.name != search_name
+                or human_bone.node.bone_name in human_bone.node.bone_name_candidates
+                or bone_name not in human_bone.node.bone_name_candidates
+            ):
+                continue
+            human_bone.node.bone_name = bone_name
+            break
+
+    Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
+        context, armature_data.name, force=True
+    )
+    return {"FINISHED"}
 
 
 class VRM_OT_update_vrm1_expression_ui_list_elements(Operator):

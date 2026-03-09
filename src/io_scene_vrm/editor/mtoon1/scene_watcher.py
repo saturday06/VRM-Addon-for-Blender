@@ -6,12 +6,12 @@ from typing import Final, Optional
 import bpy
 from bpy.types import Context, Material, Mesh, ShaderNodeGroup, ShaderNodeOutputMaterial
 
-from ...common import ops
 from ...common.logger import get_logger
 from ...common.scene_watcher import RunState, SceneWatcher
 from ...common.shader import MTOON1_AUTO_SETUP_GROUP_NODE_TREE_CUSTOM_KEY
 from ..extension import get_material_extension
 from .ops import VRM_OT_refresh_mtoon1_outline, generate_mtoon1_outline_material_name
+from .property_group import reset_shader_node_group
 
 logger = get_logger(__name__)
 
@@ -349,8 +349,11 @@ class MToon1AutoSetup(SceneWatcher):
 
                 mtoon1 = get_material_extension(material).mtoon1
                 if mtoon1.enabled:
-                    ops.vrm.reset_mtoon1_material_shader_node_group(
-                        material_name=material.name
+                    reset_shader_node_group(
+                        context,
+                        material,
+                        reset_material_node_tree=True,
+                        reset_node_groups=True,
                     )
                 else:
                     mtoon1.enabled = True

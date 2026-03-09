@@ -33,13 +33,17 @@ from ..editor.extension import get_armature_extension
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
 from ..editor.validation import VrmValidationError
+from ..editor.vrm0.ops import assign_vrm0_humanoid_human_bones_automatically
 from ..editor.vrm0.panel import (
     draw_vrm0_humanoid_operators_layout,
     draw_vrm0_humanoid_optional_bones_layout,
     draw_vrm0_humanoid_required_bones_layout,
 )
 from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
-from ..editor.vrm1.ops import VRM_OT_assign_vrm1_humanoid_human_bones_automatically
+from ..editor.vrm1.ops import (
+    VRM_OT_assign_vrm1_humanoid_human_bones_automatically,
+    assign_vrm1_humanoid_human_bones_automatically,
+)
 from ..editor.vrm1.panel import (
     draw_vrm1_humanoid_optional_bones_layout,
     draw_vrm1_humanoid_required_bones_layout,
@@ -177,9 +181,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                     b.node.bone_name not in b.node.bone_name_candidates
                     for b in humanoid.human_bones
                 ):
-                    ops.vrm.assign_vrm0_humanoid_human_bones_automatically(
-                        armature_object_name=armature.name
-                    )
+                    assign_vrm0_humanoid_human_bones_automatically(context, armature)
                 if not humanoid.all_required_bones_are_assigned():
                     return ops.wm.vrm_export_human_bones_assignment(
                         "INVOKE_DEFAULT",
@@ -200,9 +202,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                         human_bones.human_bone_name_to_human_bone().values()
                     )
                 ):
-                    ops.vrm.assign_vrm1_humanoid_human_bones_automatically(
-                        armature_object_name=armature.name
-                    )
+                    assign_vrm1_humanoid_human_bones_automatically(context, armature)
                 if (
                     not human_bones.all_required_bones_are_assigned()
                     and not human_bones.allow_non_humanoid_rig

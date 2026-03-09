@@ -3,8 +3,13 @@ from bpy.types import Armature, Context, Material, Object
 from idprop.types import IDPropertyGroup
 from mathutils import Vector
 
-from ...common import convert, ops, shader
+from ...common import convert, shader
 from ..extension import get_armature_extension
+from .ops import (
+    assign_vrm1_expressions_automatically,
+    assign_vrm1_humanoid_human_bones_automatically,
+    update_vrm1_expression_ui_list_elements,
+)
 from .property_group import (
     Vrm1ExpressionPropertyGroup,
     Vrm1ExpressionsPropertyGroup,
@@ -213,9 +218,7 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
         human_bones.initial_automatic_bone_assignment = False
         human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
         if all(not b.node.bone_name for b in human_bone_name_to_human_bone.values()):
-            ops.vrm.assign_vrm1_humanoid_human_bones_automatically(
-                armature_object_name=armature.name
-            )
+            assign_vrm1_humanoid_human_bones_automatically(context, armature)
 
     if tuple(get_armature_extension(armature_data).addon_version) <= (2, 14, 10):
         ext = get_armature_extension(armature_data)
@@ -279,9 +282,7 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
 
     if expressions.initial_automatic_expression_assignment:
         expressions.initial_automatic_expression_assignment = False
-        ops.vrm.assign_vrm1_expressions_automatically(
-            armature_object_name=armature.name
-        )
+        assign_vrm1_expressions_automatically(context, armature.name)
         expression_preset_and_expressions = (
             expressions.preset.expression_preset_and_expressions()
         )
@@ -297,4 +298,4 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
         armature_data.name,
         force=True,
     )
-    ops.vrm.update_vrm1_expression_ui_list_elements()
+    update_vrm1_expression_ui_list_elements(context)

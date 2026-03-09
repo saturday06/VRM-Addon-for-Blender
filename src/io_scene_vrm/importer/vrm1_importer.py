@@ -15,7 +15,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Vector
 
-from ..common import convert, ops, shader
+from ..common import convert, shader
 from ..common.convert import Json
 from ..common.logger import get_logger
 from ..common.preferences import get_preferences
@@ -41,7 +41,6 @@ from ..editor.mtoon1.property_group import (
     Mtoon1TextureInfoPropertyGroup,
     Mtoon1TexturePropertyGroup,
 )
-from ..editor.spring_bone1.ops import add_spring_bone1_collider, add_spring_bone1_spring
 from ..editor.spring_bone1.property_group import (
     SpringBone1ColliderPropertyGroup,
     SpringBone1SpringBonePropertyGroup,
@@ -1546,7 +1545,8 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             collider_dicts = []
 
         for collider_dict in collider_dicts:
-            collider = add_spring_bone1_collider(self.context, armature, spring_bone)
+            collider = spring_bone.add_collider(self.context, armature)
+
             if not isinstance(collider_dict, dict):
                 collider.shape.sphere.radius = 0.0001
                 collider.shape.sphere.offset = (0, 0, -10000)
@@ -1588,30 +1588,18 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
         spring_bone_dict: dict[str, Json],
-        armature_object_name: str,
     ) -> None:
         collider_group_dicts = spring_bone_dict.get("colliderGroups")
         if not isinstance(collider_group_dicts, list):
             collider_group_dicts = []
 
-        for collider_group_index, collider_group_dict in enumerate(
-            collider_group_dicts
-        ):
+        for collider_group_dict in collider_group_dicts:
             # Since the reference from Spring to ColliderGroup is by index,
             # create empty data even if the contents of collider_group_dict are invalid
-            if ops.vrm.add_spring_bone1_collider_group(
-                armature_object_name=armature_object_name
-            ) != {"FINISHED"}:
-                message = (
-                    "Failed to add spring bone 1.0 collider group"
-                    + f" to {armature_object_name}"
-                )
-                raise ValueError(message)
+            collider_group = spring_bone.add_collider_group()
 
             if not isinstance(collider_group_dict, dict):
                 continue
-
-            collider_group = spring_bone.collider_groups[-1]
 
             name = collider_group_dict.get("name")
             if isinstance(name, str):
@@ -1622,14 +1610,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 continue
 
             for collider_index in collider_indices:
-                if ops.vrm.add_spring_bone1_collider_group_collider(
-                    armature_object_name=armature_object_name,
-                    collider_group_index=collider_group_index,
-                ) != {"FINISHED"}:
-                    raise ValueError(
-                        "Failed to assign spring bone 1.0 collider to collider group "
-                        + f"{collider_group_index} in {armature_object_name}"
-                    )
+                collider_group.add_collider()
                 if not isinstance(collider_index, int):
                     continue
                 if not 0 <= collider_index < len(spring_bone.colliders):
@@ -1646,7 +1627,6 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         self,
         spring_bone: SpringBone1SpringBonePropertyGroup,
         spring_bone_dict: dict[str, Json],
-        armature_object_name: str,
     ) -> None:
         spring_dicts = spring_bone_dict.get("springs")
         if not isinstance(spring_dicts, list):
@@ -1656,7 +1636,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             if not isinstance(spring_dict, dict):
                 continue
 
-            spring = add_spring_bone1_spring(self.context, spring_bone)
+            spring = spring_bone.add_spring()
 
             name = spring_dict.get("name")
             if isinstance(name, str):
@@ -1672,15 +1652,10 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             if not isinstance(joint_dicts, list):
                 joint_dicts = []
             for joint_dict in joint_dicts:
-                if ops.vrm.add_spring_bone1_spring_joint(
-                    armature_object_name=armature_object_name,
-                    spring_index=len(spring_bone.springs) - 1,
-                ) != {"FINISHED"}:
-                    continue
+                joint = spring.add_joint()
+
                 if not isinstance(joint_dict, dict):
                     continue
-
-                joint = spring.joints[-1]
 
                 node_index = joint_dict.get("node")
                 if isinstance(node_index, int):
@@ -1719,11 +1694,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             if not isinstance(collider_group_indices, list):
                 collider_group_indices = []
             for collider_group_index in collider_group_indices:
-                if ops.vrm.add_spring_bone1_spring_collider_group(
-                    armature_object_name=armature_object_name,
-                    spring_index=len(spring_bone.springs) - 1,
-                ) != {"FINISHED"}:
-                    continue
+                collider_group_reference = spring.add_collider_group()
                 if not isinstance(collider_group_index, int):
                     continue
                 if not 0 <= collider_group_index < len(spring_bone.collider_groups):
@@ -1731,7 +1702,6 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 collider_group = spring_bone.collider_groups[collider_group_index]
                 if not collider_group:
                     continue
-                collider_group_reference = spring.collider_groups[-1]
                 collider_group_reference.collider_group_name = collider_group.name
             spring.active_collider_group_index = 0
         spring_bone.active_spring_index = 0
@@ -1753,13 +1723,11 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         self.load_spring_bone1_collider_groups(
             spring_bone,
             spring_bone_dict,
-            armature.name,
         )
 
         self.load_spring_bone1_springs(
             spring_bone,
             spring_bone_dict,
-            armature.name,
         )
 
     def get_object_or_bone_by_node_index(
