@@ -32,7 +32,7 @@ from ..editor import migration, search, validation
 from ..editor.extension_accessor import get_armature_extension
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
-from ..editor.validation import VrmValidationError
+from ..editor.validation import VrmValidationError, WM_OT_vrm_validator
 from ..editor.vrm0.ops import assign_vrm0_humanoid_human_bones_automatically
 from ..editor.vrm0.panel import (
     draw_vrm0_humanoid_operators_layout,
@@ -64,7 +64,7 @@ def export_vrm_update_addon_preferences(
     if export_op.use_addon_preferences:
         copy_export_preferences(source=export_op, destination=get_preferences(context))
 
-    validation.WM_OT_vrm_validator.detect_errors(
+    WM_OT_vrm_validator.detect_errors(
         context,
         export_op.errors,
         export_op.armature_object_name,
@@ -212,18 +212,17 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                         armature_object_name=self.armature_object_name,
                     )
 
-        if ops.vrm.model_validate(
-            "INVOKE_DEFAULT",
-            show_successful_message=False,
-            armature_object_name=self.armature_object_name,
-        ) != {"FINISHED"}:
-            return {"CANCELLED"}
-
-        validation.WM_OT_vrm_validator.detect_errors(
+        if WM_OT_vrm_validator.detect_errors(
             context,
             self.errors,
             self.armature_object_name,
-        )
+            execute_migration=True,
+        ):
+            return ops.vrm.model_validate(
+                "INVOKE_DEFAULT",
+                show_successful_message=False,
+                armature_object_name=self.armature_object_name,
+            )
         if not self.ignore_warning and any(
             error.severity <= 1 for error in self.errors
         ):
@@ -262,11 +261,12 @@ def export_vrm(
     *,
     armature_object_name: str,
 ) -> set[str]:
-    if ops.vrm.model_validate(
-        "INVOKE_DEFAULT",
-        show_successful_message=False,
+    if WM_OT_vrm_validator.detect_errors(
+        context,
+        error_collection=None,
         armature_object_name=armature_object_name,
-    ) != {"FINISHED"}:
+        execute_migration=True,
+    ):
         return {"CANCELLED"}
 
     armature_objects, export_objects = collect_export_objects(
@@ -393,7 +393,7 @@ class VRM_PT_export_file_browser_tool_props(Panel):
         )
 
         if operator.errors:
-            validation.WM_OT_vrm_validator.draw_errors(
+            WM_OT_vrm_validator.draw_errors(
                 layout.box(),
                 operator.errors,
                 show_successful_message=False,
@@ -661,7 +661,7 @@ class WM_OT_vrm_export_confirmation(Operator):
         return {"FINISHED"}
 
     def invoke(self, context: Context, _event: Event) -> set[str]:
-        validation.WM_OT_vrm_validator.detect_errors(
+        WM_OT_vrm_validator.detect_errors(
             context,
             self.errors,
             self.armature_object_name,

@@ -63,7 +63,7 @@ class WM_OT_vrm_validator(Operator):
     armature_object_name: StringProperty()  # type: ignore[valid-type]
 
     def execute(self, context: Context) -> set[str]:
-        self.detect_errors(
+        has_error = self.detect_errors(
             context,
             self.errors,
             self.armature_object_name,
@@ -89,20 +89,19 @@ class WM_OT_vrm_validator(Operator):
             logger.warning("  - %s", error.message)
             fatal_error_count += 1
 
-        if fatal_error_count > 0:
+        if has_error:
             return {"CANCELLED"}
 
         return {"FINISHED"}
 
     def invoke(self, context: Context, _event: Event) -> set[str]:
-        self.detect_errors(
-            context,
-            self.errors,
-            self.armature_object_name,
-            execute_migration=True,
-        )
         if (
-            not any(error.severity == 0 for error in self.errors)
+            not self.detect_errors(
+                context,
+                self.errors,
+                self.armature_object_name,
+                execute_migration=True,
+            )
             and not self.show_successful_message
         ):
             return {"FINISHED"}
@@ -202,11 +201,11 @@ class WM_OT_vrm_validator(Operator):
     @staticmethod
     def detect_errors(
         context: Context,
-        error_collection: CollectionPropertyProtocol[VrmValidationError],
+        error_collection: Optional[CollectionPropertyProtocol[VrmValidationError]],
         armature_object_name: str,
         *,
         execute_migration: bool = False,
-    ) -> None:
+    ) -> bool:
         error_messages: list[str] = []
         warning_messages: list[str] = []
         skippable_warning_messages: list[str] = []
@@ -861,31 +860,34 @@ class WM_OT_vrm_validator(Operator):
             )
         )
 
-        error_collection.clear()
+        if error_collection is not None:
+            error_collection.clear()
 
-        for message in error_messages:
-            error = error_collection.add()
-            error.name = f"VrmModelError{len(error_collection)}"
-            error.severity = 0
-            error.message = message
+            for message in error_messages:
+                error = error_collection.add()
+                error.name = f"VrmModelError{len(error_collection)}"
+                error.severity = 0
+                error.message = message
 
-        for message in warning_messages:
-            error = error_collection.add()
-            error.name = f"VrmModelError{len(error_collection)}"
-            error.severity = 1
-            error.message = message
+            for message in warning_messages:
+                error = error_collection.add()
+                error.name = f"VrmModelError{len(error_collection)}"
+                error.severity = 1
+                error.message = message
 
-        for message in skippable_warning_messages:
-            error = error_collection.add()
-            error.name = f"VrmModelError{len(error_collection)}"
-            error.severity = 2
-            error.message = message
+            for message in skippable_warning_messages:
+                error = error_collection.add()
+                error.name = f"VrmModelError{len(error_collection)}"
+                error.severity = 2
+                error.message = message
 
-        for message in info_messages:
-            error = error_collection.add()
-            error.name = f"VrmModelError{len(error_collection)}"
-            error.severity = 3
-            error.message = message
+            for message in info_messages:
+                error = error_collection.add()
+                error.name = f"VrmModelError{len(error_collection)}"
+                error.severity = 3
+                error.message = message
+
+        return bool(error_messages)
 
     @staticmethod
     def draw_errors(
