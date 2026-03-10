@@ -139,7 +139,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             texcoord: Optional[tuple[float, float]],
         ) -> IndexSearchKey:
             return (
-                # TODO: Format compatible with old exporter
                 blender_vertex_index,
                 normal,
                 texcoord,
