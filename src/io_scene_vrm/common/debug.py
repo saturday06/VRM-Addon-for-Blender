@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import math
+import sys
 from collections.abc import Sequence
 from typing import Union
 
@@ -50,8 +51,6 @@ def cleanse_modules() -> None:
     caution. See also:
     https://github.com/saturday06/VRM-Addon-for-Blender/issues/506#issuecomment-2183766778
     """
-    import sys
-
     all_modules = sys.modules
     all_modules = dict(sorted(all_modules.items(), key=lambda x: x[0]))  # sort them
 
