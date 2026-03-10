@@ -527,9 +527,7 @@ class VRM_OT_add_spring_bone1_collider_group(Operator):
         if not isinstance(armature_data, Armature):
             return {"CANCELLED"}
         spring_bone = get_armature_extension(armature_data).spring_bone1
-        collider_group = spring_bone.add_collider_group()
-        collider_group.uuid = uuid.uuid4().hex
-        collider_group.vrm_name = "Collider Group"
+        spring_bone.add_collider_group()
         return {"FINISHED"}
 
     if TYPE_CHECKING:

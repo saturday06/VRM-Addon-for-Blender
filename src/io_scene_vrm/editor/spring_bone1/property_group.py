@@ -1234,6 +1234,8 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
 
     def add_collider_group(self) -> SpringBone1ColliderGroupPropertyGroup:
         collider_group = self.collider_groups.add()
+        collider_group.uuid = uuid.uuid4().hex
+        collider_group.vrm_name = "Collider Group"
         self.active_collider_group_index = len(self.collider_groups) - 1
         return collider_group
 
