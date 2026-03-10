@@ -9,7 +9,7 @@ from bpy.types import Armature, Context, Operator
 
 from ...common import safe_removal
 from ...common.logger import get_logger
-from ..extension import get_armature_extension
+from ..extension_accessor import get_armature_extension
 from .handler import reset_state, update_pose_bone_rotations
 
 logger = get_logger(__name__)

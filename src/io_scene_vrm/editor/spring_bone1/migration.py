@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from bpy.types import Armature, Context, Object
 
-from ..extension import get_armature_extension
+from ..extension_accessor import get_armature_extension
 
 
 def migrate_blender_object(armature: Armature) -> None:

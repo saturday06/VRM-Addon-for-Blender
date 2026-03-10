@@ -4,7 +4,7 @@ from idprop.types import IDPropertyGroup
 from mathutils import Vector
 
 from ...common import convert, shader
-from ..extension import get_armature_extension
+from ..extension_accessor import get_armature_extension
 from .ops import (
     assign_vrm1_expressions_automatically,
     assign_vrm1_humanoid_human_bones_automatically,

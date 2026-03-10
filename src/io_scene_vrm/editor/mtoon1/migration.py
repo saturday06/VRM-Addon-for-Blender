@@ -19,7 +19,7 @@ from ...common.gl import GL_LINEAR, GL_NEAREST
 from ...common.logger import get_logger
 from ...common.progress import create_progress
 from .. import search
-from ..extension import get_material_extension
+from ..extension_accessor import get_material_extension
 from .property_group import (
     GL_LINEAR_IMAGE_INTERPOLATIONS,
     IMAGE_INTERPOLATION_CLOSEST,

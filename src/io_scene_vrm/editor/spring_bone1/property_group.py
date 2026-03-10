@@ -25,6 +25,7 @@ from ...common.rotation import (
     get_rotation_as_quaternion,
     set_rotation_without_mode_change,
 )
+from ..extension_accessor import get_armature_extension
 from ..property_group import BonePropertyGroup, property_group_enum
 
 if TYPE_CHECKING:
@@ -1306,8 +1307,6 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
 def get_armature_spring_bone1_extension(
     armature: Armature,
 ) -> SpringBone1SpringBonePropertyGroup:
-    from ..extension import get_armature_extension
-
     ext = get_armature_extension(armature)
     spring_bone1: SpringBone1SpringBonePropertyGroup = ext.spring_bone1
     return spring_bone1

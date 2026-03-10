@@ -26,7 +26,7 @@ from ..editor import make_armature, migration
 from ..editor.extension import (
     VrmAddonBoneExtensionPropertyGroup as BoneExtension,
 )
-from ..editor.extension import (
+from ..editor.extension_accessor import (
     get_armature_extension,
     get_bone_extension,
     get_material_extension,

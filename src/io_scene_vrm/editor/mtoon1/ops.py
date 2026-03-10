@@ -27,7 +27,7 @@ from ...common.logger import get_logger
 from ...common.preferences import get_preferences
 from ...common.shader import MmdMaterial
 from .. import search
-from ..extension import get_material_extension
+from ..extension_accessor import get_material_extension
 from .property_group import (
     Mtoon0ReceiveShadowTexturePropertyGroup,
     Mtoon0ShadingGradeTexturePropertyGroup,

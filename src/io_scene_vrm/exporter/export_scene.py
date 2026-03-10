@@ -29,7 +29,7 @@ from ..common.preferences import (
 )
 from ..common.workspace import save_workspace
 from ..editor import migration, search, validation
-from ..editor.extension import get_armature_extension
+from ..editor.extension_accessor import get_armature_extension
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
 from ..editor.validation import VrmValidationError

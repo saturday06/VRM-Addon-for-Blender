@@ -25,7 +25,7 @@ from ..common.rotation import (
 )
 from ..common.vrm1.human_bone import HumanBoneName
 from ..common.workspace import save_workspace
-from ..editor.extension import get_armature_extension
+from ..editor.extension_accessor import get_armature_extension
 from ..editor.t_pose import setup_humanoid_t_pose
 
 logger = get_logger(__name__)

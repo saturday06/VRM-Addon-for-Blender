@@ -5,7 +5,7 @@ from unittest import main
 import bpy
 from bpy.types import Mesh
 
-from io_scene_vrm.editor.extension import get_material_extension
+from io_scene_vrm.editor.extension_accessor import get_material_extension
 from io_scene_vrm.editor.mtoon1.scene_watcher import OutlineUpdater, RunState
 from tests.util import AddonTestCase
 

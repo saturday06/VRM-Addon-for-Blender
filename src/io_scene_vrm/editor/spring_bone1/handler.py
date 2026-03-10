@@ -14,7 +14,7 @@ from ...common.rotation import (
     get_rotation_as_quaternion,
     set_rotation_without_mode_change,
 )
-from ..extension import get_armature_extension
+from ..extension_accessor import get_armature_extension
 from ..property_group import CollectionPropertyProtocol
 from .property_group import (
     SpringBone1JointPropertyGroup,

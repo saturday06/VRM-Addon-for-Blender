@@ -28,7 +28,7 @@ from ..common.logger import get_logger
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..common.workspace import save_workspace
 from . import search
-from .extension import get_armature_extension
+from .extension_accessor import get_armature_extension
 from .property_group import BonePropertyGroup
 from .t_pose import set_estimated_humanoid_t_pose
 

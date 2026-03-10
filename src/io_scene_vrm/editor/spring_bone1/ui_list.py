@@ -2,7 +2,7 @@
 from bpy.types import Armature, Context, UILayout, UIList
 
 from ...common.logger import get_logger
-from ..extension import get_armature_extension
+from ..extension_accessor import get_armature_extension
 from .property_group import (
     SpringBone1ColliderGroupPropertyGroup,
     SpringBone1ColliderGroupReferencePropertyGroup,

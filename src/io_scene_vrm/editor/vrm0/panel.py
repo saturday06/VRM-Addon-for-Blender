@@ -15,7 +15,7 @@ from bpy.types import (
 
 from ...common.vrm0.human_bone import HumanBoneSpecifications
 from .. import ops, search
-from ..extension import (
+from ..extension_accessor import (
     get_armature_extension,
     get_material_extension,
     get_scene_extension,

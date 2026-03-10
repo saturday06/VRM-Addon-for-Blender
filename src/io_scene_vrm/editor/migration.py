@@ -13,8 +13,8 @@ from ..common.version import get_addon_version
 from .extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     VrmAddonSceneExtensionPropertyGroup,
-    get_armature_extension,
 )
+from .extension_accessor import get_armature_extension
 from .mtoon1 import migration as mtoon1_migration
 from .spring_bone1 import migration as spring_bone1_migration
 from .vrm0 import migration as vrm0_migration

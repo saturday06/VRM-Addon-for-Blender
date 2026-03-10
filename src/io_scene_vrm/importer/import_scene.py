@@ -29,7 +29,7 @@ from ..common.preferences import (
     get_preferences,
 )
 from ..editor import search
-from ..editor.extension import get_armature_extension
+from ..editor.extension_accessor import get_armature_extension
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol, StringPropertyGroup
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter, parse_vrm_json

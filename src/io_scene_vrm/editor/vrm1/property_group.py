@@ -43,6 +43,7 @@ from ...common.vrm1.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
+from ..extension_accessor import get_armature_extension
 from ..property_group import (
     HumanoidStructureBonePropertyGroup,
     MaterialPropertyGroup,
@@ -406,8 +407,6 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         *,
         force: bool = False,
     ) -> None:
-        from ..extension import get_armature_extension
-
         armature_data = context.blend_data.armatures.get(armature_data_name)
         if not isinstance(armature_data, Armature):
             return
@@ -1790,8 +1789,6 @@ class Vrm1PropertyGroup(PropertyGroup):
 
 
 def get_armature_vrm1_extension(armature: Armature) -> Vrm1PropertyGroup:
-    from ..extension import get_armature_extension
-
     vrm1: Vrm1PropertyGroup = get_armature_extension(armature).vrm1
     return vrm1
 

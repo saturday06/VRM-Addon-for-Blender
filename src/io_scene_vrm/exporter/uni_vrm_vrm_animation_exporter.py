@@ -29,7 +29,7 @@ from ..common.vrm1.human_bone import (
     HumanBoneSpecifications,
 )
 from ..common.workspace import save_workspace
-from ..editor.extension import get_armature_extension
+from ..editor.extension_accessor import get_armature_extension
 from ..editor.t_pose import setup_humanoid_t_pose
 from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup, Vrm1PropertyGroup
 

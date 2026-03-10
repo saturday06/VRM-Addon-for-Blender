@@ -15,7 +15,7 @@ from bpy.types import (
 
 from ...common.preferences import get_preferences
 from .. import search
-from ..extension import get_armature_extension
+from ..extension_accessor import get_armature_extension
 from ..panel import VRM_PT_vrm_armature_object_property
 from ..search import active_object_is_vrm1_armature
 from .property_group import NodeConstraint1NodeConstraintPropertyGroup

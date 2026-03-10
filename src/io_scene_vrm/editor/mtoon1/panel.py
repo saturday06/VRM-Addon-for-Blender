@@ -7,7 +7,7 @@ from bpy.types import Context, Panel, PropertyGroup, UILayout
 
 from ...common.logger import get_logger
 from .. import search
-from ..extension import get_material_extension
+from ..extension_accessor import get_material_extension
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
 from .ops import (
     VRM_OT_import_mtoon1_texture_image_file,

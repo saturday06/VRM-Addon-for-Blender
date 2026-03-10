@@ -50,7 +50,7 @@ from ...common.vrm1.human_bone import (
     HumanBoneSpecifications,
 )
 from .. import search
-from ..extension import get_armature_extension
+from ..extension_accessor import get_armature_extension
 from ..menu import VRM_MT_bone_assignment
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..property_group import HumanoidStructureBonePropertyGroup

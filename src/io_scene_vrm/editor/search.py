@@ -23,7 +23,7 @@ from bpy.types import (
 )
 
 from ..common.logger import get_logger
-from .extension import get_armature_extension
+from .extension_accessor import get_armature_extension
 
 logger = get_logger(__name__)
 

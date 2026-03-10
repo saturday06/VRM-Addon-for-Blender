@@ -24,7 +24,8 @@ from ..common.rotation import (
 from ..common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
 from ..common.vrm1.human_bone import HumanBoneName as Vrm1HumanBoneName
 from ..common.workspace import save_workspace
-from .extension import VrmAddonArmatureExtensionPropertyGroup, get_armature_extension
+from .extension import VrmAddonArmatureExtensionPropertyGroup
+from .extension_accessor import get_armature_extension
 from .vrm0.property_group import Vrm0HumanoidPropertyGroup
 from .vrm1.property_group import Vrm1HumanoidPropertyGroup
 

@@ -6,7 +6,8 @@ import bpy
 from bpy.types import Armature, Bone, Object
 
 from ..common.logger import get_logger
-from .extension import VrmAddonArmatureExtensionPropertyGroup, get_armature_extension
+from .extension import VrmAddonArmatureExtensionPropertyGroup
+from .extension_accessor import get_armature_extension
 from .migration import migrate_all_objects
 from .mtoon1 import ops as mtoon1_ops
 from .vrm0 import property_group as vrm0_property_group

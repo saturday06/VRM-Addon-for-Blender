@@ -49,7 +49,7 @@ from ..common.rotation import (
     set_rotation_without_mode_change,
 )
 from ..common.workspace import save_workspace
-from ..editor.extension import get_armature_extension
+from ..editor.extension_accessor import get_armature_extension
 from ..external.io_scene_gltf2_support import (
     ImportSceneGltfArguments,
     import_scene_gltf,

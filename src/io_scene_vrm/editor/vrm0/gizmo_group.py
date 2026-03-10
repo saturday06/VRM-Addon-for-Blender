@@ -4,7 +4,7 @@ from typing import ClassVar
 
 from bpy.types import Armature, Context, GizmoGroup
 
-from ..extension import get_armature_extension
+from ..extension_accessor import get_armature_extension
 
 
 # https://gist.github.com/FujiSunflower/09fdabc7ca991f8292657abc4ef001b0

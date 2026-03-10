@@ -10,7 +10,7 @@ from ...common import convert
 from ...common.convert import Json
 from ...common.deep import make_json
 from ...common.vrm0.human_bone import HumanBoneSpecifications
-from ..extension import get_armature_extension, get_bone_extension
+from ..extension_accessor import get_armature_extension, get_bone_extension
 from ..property_group import BonePropertyGroup
 from .ops import assign_vrm0_humanoid_human_bones_automatically
 from .property_group import (

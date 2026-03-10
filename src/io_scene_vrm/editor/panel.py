@@ -24,7 +24,7 @@ from bpy.types import (
 from ..common import version
 from ..common.preferences import get_preferences
 from . import make_armature, search, validation
-from .extension import get_armature_extension
+from .extension_accessor import get_armature_extension
 from .ops import layout_operator
 from .validation import is_valid_url
 

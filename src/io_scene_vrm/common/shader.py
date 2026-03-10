@@ -94,6 +94,7 @@ from bpy.types import (
 )
 from mathutils import Color, Euler, Vector
 
+from ..editor.extension_accessor import get_material_extension, get_node_tree_extension
 from . import convert
 from .char import INTERNAL_NAME_PREFIX
 from .gl import GL_CLAMP_TO_EDGE, GL_LINEAR, GL_NEAREST, GL_REPEAT
@@ -296,8 +297,6 @@ def load_mtoon1_node_group(
     *,
     reset_node_groups: bool,
 ) -> None:
-    from ..editor.extension import get_node_tree_extension
-
     start_time = time.perf_counter()
 
     if not blend_file_path.exists():
@@ -421,8 +420,6 @@ def load_mtoon1_shader(
     *,
     reset_node_groups: bool,
 ) -> None:
-    from ..editor.extension import get_material_extension
-
     if bpy.app.version < (5, 0, 0) and not material.use_nodes:
         material.use_nodes = True
 

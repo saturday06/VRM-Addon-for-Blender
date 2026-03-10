@@ -52,7 +52,7 @@ from ..common.version import get_addon_version
 from ..common.vrm0.human_bone import HumanBoneSpecifications
 from ..common.workspace import save_workspace
 from ..editor import search
-from ..editor.extension import get_armature_extension, get_material_extension
+from ..editor.extension_accessor import get_armature_extension, get_material_extension
 from ..editor.mtoon1.property_group import (
     Mtoon0TexturePropertyGroup,
     Mtoon1KhrTextureTransformPropertyGroup,

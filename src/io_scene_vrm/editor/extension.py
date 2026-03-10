@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import math
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Optional, TypeVar
+from typing import TYPE_CHECKING, Optional
 
 from bpy.props import (
     CollectionProperty,
@@ -12,18 +12,18 @@ from bpy.props import (
 )
 from bpy.types import (
     Armature,
-    Bone,
     Context,
-    Material,
-    NodeTree,
     Object,
     PropertyGroup,
-    Scene,
 )
 from mathutils import Matrix, Quaternion
 
 from ..common.logger import get_logger
 from ..common.preferences import VrmAddonPreferences
+from .extension_accessor import (
+    get_armature_extension,
+    get_scene_extension,
+)
 from .khr_character.property_group import KhrCharacterPropertyGroup
 from .mtoon1.property_group import Mtoon1MaterialPropertyGroup
 from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup
@@ -478,53 +478,3 @@ class VrmAddonNodeTreeExtensionPropertyGroup(PropertyGroup):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         addon_version: Sequence[int]  # type: ignore[no-redef]
-
-
-__Extension = TypeVar("__Extension")
-
-
-def get_vrm_addon_extension_or_raise(
-    obj: object, expected_type: type[__Extension]
-) -> __Extension:
-    extension = getattr(obj, "vrm_addon_extension", None)
-    if isinstance(extension, expected_type):
-        return extension
-
-    message = f"{extension} is not a {expected_type} but {type(extension)}"
-    raise TypeError(message)
-
-
-def get_material_extension(
-    material: Material,
-) -> VrmAddonMaterialExtensionPropertyGroup:
-    return get_vrm_addon_extension_or_raise(
-        material, VrmAddonMaterialExtensionPropertyGroup
-    )
-
-
-def get_armature_extension(
-    armature: Armature,
-) -> VrmAddonArmatureExtensionPropertyGroup:
-    return get_vrm_addon_extension_or_raise(
-        armature, VrmAddonArmatureExtensionPropertyGroup
-    )
-
-
-def get_node_tree_extension(
-    node_tree: NodeTree,
-) -> VrmAddonNodeTreeExtensionPropertyGroup:
-    return get_vrm_addon_extension_or_raise(
-        node_tree, VrmAddonNodeTreeExtensionPropertyGroup
-    )
-
-
-def get_scene_extension(scene: Scene) -> VrmAddonSceneExtensionPropertyGroup:
-    return get_vrm_addon_extension_or_raise(scene, VrmAddonSceneExtensionPropertyGroup)
-
-
-def get_bone_extension(bone: Bone) -> VrmAddonBoneExtensionPropertyGroup:
-    return get_vrm_addon_extension_or_raise(bone, VrmAddonBoneExtensionPropertyGroup)
-
-
-def get_object_extension(obj: Object) -> VrmAddonObjectExtensionPropertyGroup:
-    return get_vrm_addon_extension_or_raise(obj, VrmAddonObjectExtensionPropertyGroup)

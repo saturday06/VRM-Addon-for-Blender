@@ -4,7 +4,7 @@ from typing import ClassVar, Optional
 from bpy.types import Armature, Context, Object, Panel, UILayout
 
 from .. import search
-from ..extension import get_armature_extension
+from ..extension_accessor import get_armature_extension
 from ..menu import VRM_MT_bone_assignment
 from ..migration import defer_migrate
 from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list

@@ -2,7 +2,7 @@
 from bpy.types import Armature, Context, Mesh, UILayout, UIList
 
 from ...common.logger import get_logger
-from ..extension import get_armature_extension
+from ..extension_accessor import get_armature_extension
 from ..menu import VRM_MT_bone_assignment
 from ..property_group import BonePropertyGroup, StringPropertyGroup
 from .property_group import (

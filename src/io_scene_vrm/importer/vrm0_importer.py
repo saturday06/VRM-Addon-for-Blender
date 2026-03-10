@@ -29,7 +29,7 @@ from ..common.vrm1.human_bone import (
     HumanBoneSpecifications as Vrm1HumanBoneSpecifications,
 )
 from ..editor import make_armature, migration
-from ..editor.extension import get_armature_extension, get_material_extension
+from ..editor.extension_accessor import get_armature_extension, get_material_extension
 from ..editor.make_armature import (
     connect_parent_tail_and_child_head_if_very_close_position,
 )

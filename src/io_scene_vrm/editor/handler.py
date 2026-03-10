@@ -8,7 +8,7 @@ from bpy.types import Depsgraph, Scene
 
 from ..common.logger import get_logger
 from . import migration
-from .extension import get_armature_extension, get_scene_extension
+from .extension_accessor import get_armature_extension, get_scene_extension
 from .vrm1.ops import update_vrm1_expression_ui_list_elements
 
 logger = get_logger(__name__)

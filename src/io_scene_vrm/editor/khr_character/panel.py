@@ -6,7 +6,7 @@ from typing import ClassVar
 from bpy.types import Armature, Context, Panel
 
 from .. import search
-from ..extension import get_armature_extension
+from ..extension_accessor import get_armature_extension
 from ..khr_xmp_json_ld.panel import draw_khr_xmp_json_ld_packet_layout
 from ..panel import VRM_PT_vrm_armature_object_property
 

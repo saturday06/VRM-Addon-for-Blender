@@ -7,7 +7,7 @@ from mathutils import Vector
 from ...common import ops
 from ...common.logger import get_logger
 from ...common.scene_watcher import RunState, SceneWatcher
-from ..extension import get_armature_extension
+from ..extension_accessor import get_armature_extension
 from .property_group import Vrm1LookAtPropertyGroup
 
 logger = get_logger(__name__)

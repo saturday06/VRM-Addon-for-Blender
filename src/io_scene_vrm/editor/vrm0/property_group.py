@@ -38,6 +38,7 @@ from ...common.vrm1.expression_preset import (
     VRM0_PRESET_UNKNOWN,
     ExpressionPresets,
 )
+from ..extension_accessor import get_armature_extension
 from ..property_group import (
     BonePropertyGroup,
     FloatPropertyGroup,
@@ -215,8 +216,6 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         *,
         force: bool = False,
     ) -> None:
-        from ..extension import get_armature_extension
-
         armature_data = context.blend_data.armatures.get(armature_data_name)
         if not armature_data:
             return
@@ -245,8 +244,6 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
 
     @staticmethod
     def fixup_human_bones(obj: Object) -> None:
-        from ..extension import get_armature_extension
-
         armature_data = obj.data
         if not isinstance(armature_data, Armature):
             return
@@ -775,8 +772,6 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
     )
 
     def refresh(self, armature: Object) -> None:
-        from ..extension import get_armature_extension
-
         name = (
             str(self.node.bone_name) if self.node and self.node.bone_name else ""
         ) + f"#{self.uuid}"
@@ -906,8 +901,6 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
     active_collider_group_index: IntProperty(min=0)  # type: ignore[valid-type]
 
     def refresh(self, armature: Object) -> None:
-        from ..extension import get_armature_extension
-
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
@@ -1176,8 +1169,6 @@ class Vrm0PropertyGroup(PropertyGroup):
 
 
 def get_armature_vrm0_extension(armature: Armature) -> Vrm0PropertyGroup:
-    from ..extension import get_armature_extension
-
     vrm0: Vrm0PropertyGroup = get_armature_extension(armature).vrm0
     return vrm0
 

@@ -33,9 +33,8 @@ from ..common.vrm1 import human_bone as vrm1_human_bone
 from . import migration, search
 from .extension import (
     VrmAddonArmatureExtensionPropertyGroup,
-    get_armature_extension,
-    get_material_extension,
 )
+from .extension_accessor import get_armature_extension, get_material_extension
 from .property_group import CollectionPropertyProtocol
 
 logger = get_logger(__name__)

@@ -53,6 +53,7 @@ from ...common.gl import (
 from ...common.logger import get_logger
 from ...common.preferences import VrmAddonPreferences
 from ...common.version import get_addon_version
+from ..extension_accessor import get_material_extension
 from ..property_group import property_group_enum
 
 logger = get_logger(__name__)
@@ -3707,8 +3708,6 @@ def reset_shader_node_group(
 
 
 def get_material_mtoon1_extension(material: Material) -> Mtoon1MaterialPropertyGroup:
-    from ..extension import get_material_extension
-
     mtoon1: Mtoon1MaterialPropertyGroup = get_material_extension(material).mtoon1
     return mtoon1
 

@@ -11,7 +11,7 @@ from mathutils import Matrix, Vector
 from ..common.version import get_addon_version
 from ..common.workspace import save_workspace
 from . import migration
-from .extension import get_armature_extension
+from .extension_accessor import get_armature_extension
 from .vrm0.property_group import (
     Vrm0BlendShapeGroupPropertyGroup,
     Vrm0HumanoidPropertyGroup,

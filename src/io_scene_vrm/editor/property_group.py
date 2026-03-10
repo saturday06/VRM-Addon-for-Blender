@@ -23,6 +23,7 @@ from bpy.types import Armature, Bone, Context, Material, Object, PropertyGroup, 
 from ..common.logger import get_logger
 from ..common.vrm0 import human_bone as vrm0_human_bone
 from ..common.vrm1 import human_bone as vrm1_human_bone
+from .extension_accessor import get_armature_extension, get_bone_extension
 
 HumanBoneSpecification = TypeVar(
     "HumanBoneSpecification",
@@ -286,8 +287,6 @@ class BonePropertyGroup(PropertyGroup):
         armature: Union[Object, Armature],
     ) -> Iterator[tuple["BonePropertyGroup", BonePropertyGroupType]]:
         """Return (bone: BonePropertyGroup, is_vrm0: bool, is_vrm1: bool)."""
-        from .extension import get_armature_extension
-
         if isinstance(armature, Object):
             armature_data = armature.data
             if not isinstance(armature_data, Armature):
@@ -326,8 +325,6 @@ class BonePropertyGroup(PropertyGroup):
     ] = {}
 
     def get_bone_name(self) -> str:
-        from .extension import get_bone_extension
-
         if not self.bone_uuid:
             return ""
 
@@ -382,8 +379,6 @@ class BonePropertyGroup(PropertyGroup):
         raise AssertionError(message)
 
     def set_bone_name(self, value: str) -> None:
-        from .extension import get_armature_extension, get_bone_extension
-
         context = bpy.context
 
         armature_data = self.find_armature()
@@ -744,8 +739,6 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
 
     @staticmethod
     def update_all_vrm0_bone_name_candidates(armature_data: Armature) -> None:
-        from .extension import get_armature_extension
-
         ext = get_armature_extension(armature_data)
 
         bpy_bone_name_to_human_bone_specification: dict[
@@ -816,8 +809,6 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
 
     @staticmethod
     def update_all_vrm1_bone_name_candidates(armature_data: Armature) -> None:
-        from .extension import get_armature_extension
-
         ext = get_armature_extension(armature_data)
 
         human_bone_name_to_human_bone = (

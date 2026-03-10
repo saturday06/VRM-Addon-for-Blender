@@ -13,8 +13,8 @@ from ..common.deep import Json, make_json
 from ..common.logger import get_logger
 from ..editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
-    get_armature_extension,
 )
+from ..editor.extension_accessor import get_armature_extension
 from ..editor.khr_xmp_json_ld.property_group import (
     KhrXmpJsonLdKhrCharacterPacketPropertyGroup,
 )
