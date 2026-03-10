@@ -13,11 +13,12 @@ from bpy.types import (
     Event,
     Material,
     Mesh,
-    Node,
     NodesModifier,
     Object,
     Operator,
+    ShaderNodeGroup,
     ShaderNodeMapping,
+    ShaderNodeTexImage,
 )
 from bpy_extras.io_utils import ImportHelper
 from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
@@ -107,7 +108,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
 
     def convert_material_to_mtoon1(self, context: Context, material: Material) -> None:
         node, legacy_shader_name = search.legacy_shader_node(material)
-        if isinstance(node, Node) and legacy_shader_name == "MToon_unversioned":
+        if node and legacy_shader_name == "MToon_unversioned":
             self.convert_mtoon_unversioned_to_mtoon1(context, material, node)
             return
 
@@ -213,7 +214,7 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
         self,
         context: Context,
         material: Material,
-        node: Node,
+        node: ShaderNodeGroup,
     ) -> None:
         transparent_with_z_write = False
         alpha_cutoff: Optional[float] = 0.5
@@ -248,39 +249,37 @@ class VRM_OT_convert_material_to_mtoon1(Operator):
         uv_offset = (0.0, 0.0)
         uv_scale = (1.0, 1.0)
 
-        main_texture_socket = node.inputs.get("MainTexture")
-        if (
-            main_texture_socket
-            and main_texture_socket.links
-            and main_texture_socket.links[0]
-            and main_texture_socket.links[0].from_node
-            and main_texture_socket.links[0].from_node.inputs
-            and main_texture_socket.links[0].from_node.inputs[0]
-            and main_texture_socket.links[0].from_node.inputs[0].links
-            and main_texture_socket.links[0].from_node.inputs[0].links[0]
-            and main_texture_socket.links[0].from_node.inputs[0].links[0].from_node
-        ):
-            mapping_node = (
-                main_texture_socket.links[0].from_node.inputs[0].links[0].from_node
-            )
-            if isinstance(mapping_node, ShaderNodeMapping):
-                location_socket = mapping_node.inputs.get("Location")
-                if location_socket and isinstance(
-                    location_socket, shader.VECTOR_SOCKET_CLASSES
-                ):
-                    uv_offset = (
-                        float(location_socket.default_value[0]),
-                        float(location_socket.default_value[1]),
-                    )
+        main_texture_input_socket = node.inputs.get("MainTexture")
 
-                scale_socket = mapping_node.inputs.get("Scale")
-                if scale_socket and isinstance(
-                    scale_socket, shader.VECTOR_SOCKET_CLASSES
-                ):
-                    uv_scale = (
-                        float(scale_socket.default_value[0]),
-                        float(scale_socket.default_value[1]),
-                    )
+        if (
+            main_texture_input_socket
+            and (
+                tex_image_node := shader.search_input_node(
+                    main_texture_input_socket, ShaderNodeTexImage
+                )
+            )
+            and (vector_input_socket := tex_image_node.inputs.get("Vector"))
+            and (
+                mapping_node := shader.search_input_node(
+                    vector_input_socket, ShaderNodeMapping
+                )
+            )
+        ):
+            location_socket = mapping_node.inputs.get("Location")
+            if location_socket and isinstance(
+                location_socket, shader.VECTOR_SOCKET_CLASSES
+            ):
+                uv_offset = (
+                    float(location_socket.default_value[0]),
+                    float(location_socket.default_value[1]),
+                )
+
+            scale_socket = mapping_node.inputs.get("Scale")
+            if scale_socket and isinstance(scale_socket, shader.VECTOR_SOCKET_CLASSES):
+                uv_scale = (
+                    float(scale_socket.default_value[0]),
+                    float(scale_socket.default_value[1]),
+                )
 
         shade_color_factor = shader.get_rgb_value(node, "ShadeColor", 0.0, 1.0) or (
             0,
