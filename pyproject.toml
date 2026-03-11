@@ -181,6 +181,7 @@ exclude = [
 
 reportMissingModuleSource = false
 reportCallInDefaultInitializer = true
+reportUninitializedInstanceVariable = true
 
 [tool.pyrefly]
 search-path = [

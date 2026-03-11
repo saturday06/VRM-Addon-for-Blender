@@ -45,7 +45,7 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):
         gizmo.alpha_highlight = 0.5
         gizmo.scale_basis = 0.25
 
-        self.first_person_gizmo = gizmo
+        # self.first_person_gizmo = gizmo
 
     def refresh(self, context: Context) -> None:
         active_object = context.active_object
@@ -54,10 +54,10 @@ class Vrm0FirstPersonBoneOffsetGizmoGroup(GizmoGroup):
         armature_data = active_object.data
         if not isinstance(armature_data, Armature):
             return
-        ext = get_armature_extension(armature_data)
-        gizmo = self.first_person_gizmo
-        first_person = ext.vrm0.first_person
-        first_person_bone = armature_data.bones[
-            first_person.first_person_bone.bone_name
-        ]
-        gizmo.matrix_basis = first_person_bone.matrix_local
+        # ext = get_armature_extension(armature_data)
+        # gizmo = self.first_person_gizmo
+        # first_person = ext.vrm0.first_person
+        # first_person_bone = armature_data.bones[
+        #     first_person.first_person_bone.bone_name
+        # ]
+        # gizmo.matrix_basis = first_person_bone.matrix_local

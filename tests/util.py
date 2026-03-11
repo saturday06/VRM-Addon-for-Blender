@@ -5,7 +5,7 @@ import subprocess
 import sys
 from os import environ
 from pathlib import Path
-from typing import Final, Optional
+from typing import ClassVar, Final, Optional
 from unittest import SkipTest, TestCase
 
 import bpy
@@ -74,7 +74,7 @@ def make_test_method_name(text: str) -> str:
 
 
 class AddonTestCase(TestCase):
-    disabled_installed_module: Optional[str]
+    disabled_installed_module: ClassVar[Optional[str]] = None
 
     @classmethod
     def setUpClass(cls) -> None:
