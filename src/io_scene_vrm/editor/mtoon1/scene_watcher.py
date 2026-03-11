@@ -10,8 +10,11 @@ from ...common.logger import get_logger
 from ...common.scene_watcher import RunState, SceneWatcher
 from ...common.shader import MTOON1_AUTO_SETUP_GROUP_NODE_TREE_CUSTOM_KEY
 from ..extension_accessor import get_material_extension
-from .ops import VRM_OT_refresh_mtoon1_outline, generate_mtoon1_outline_material_name
-from .property_group import reset_shader_node_group
+from .property_group import (
+    generate_mtoon1_outline_material_name,
+    refresh_mtoon1_outline,
+    reset_shader_node_group,
+)
 
 logger = get_logger(__name__)
 
@@ -241,7 +244,7 @@ class OutlineUpdater(SceneWatcher):
         if not changed:
             return RunState.FINISH
 
-        VRM_OT_refresh_mtoon1_outline.refresh(context, create_modifier=create_modifier)
+        refresh_mtoon1_outline(context, create_modifier=create_modifier)
         return RunState.FINISH
 
     def create_fast_path_performance_test_objects(self, context: Context) -> None:

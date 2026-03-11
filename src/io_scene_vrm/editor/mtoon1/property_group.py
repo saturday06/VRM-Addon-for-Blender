@@ -22,14 +22,18 @@ from bpy.types import (
     FCurve,
     Image,
     Material,
+    Mesh,
     Node,
     NodeReroute,
+    NodesModifier,
     NodeSocketColor,
     NodeSocketFloat,
+    Object,
     PropertyGroup,
     ShaderNodeBsdfPrincipled,
     ShaderNodeEmission,
     ShaderNodeGroup,
+    ShaderNodeMapping,
     ShaderNodeMath,
     ShaderNodeNormalMap,
     ShaderNodeOutputMaterial,
@@ -38,7 +42,7 @@ from bpy.types import (
 from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 from mathutils import Vector
 
-from ...common import convert, ops, shader
+from ...common import convert, shader
 from ...common.gl import (
     GL_CLAMP_TO_EDGE,
     GL_LINEAR,
@@ -51,8 +55,10 @@ from ...common.gl import (
     GL_REPEAT,
 )
 from ...common.logger import get_logger
-from ...common.preferences import VrmAddonPreferences
+from ...common.preferences import VrmAddonPreferences, get_preferences
+from ...common.shader import MmdMaterial
 from ...common.version import get_addon_version
+from .. import search
 from ..extension_accessor import get_material_extension
 from ..property_group import property_group_enum
 
@@ -998,7 +1004,7 @@ class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
         if get_material_mtoon1_extension(material).is_outline_material:
             return
         self.set_texture_offset(offset)
-        ops.vrm.refresh_mtoon1_outline(material_name=material.name)
+        refresh_mtoon1_outline(material_name=material.name, create_modifier=False)
 
     def set_texture_scale_and_outline(self, value: object) -> None:
         scale = convert.float2_or_none(value)
@@ -1008,7 +1014,7 @@ class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
         if get_material_mtoon1_extension(material).is_outline_material:
             return
         self.set_texture_scale(scale)
-        ops.vrm.refresh_mtoon1_outline(material_name=material.name)
+        refresh_mtoon1_outline(material_name=material.name, create_modifier=False)
 
     offset: FloatVectorProperty(  # type: ignore[valid-type]
         name="Offset",
@@ -2652,9 +2658,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         material = self.find_material()
         if get_material_mtoon1_extension(material).is_outline_material:
             return
-        ops.vrm.refresh_mtoon1_outline(
-            material_name=material.name, create_modifier=True
-        )
+        refresh_mtoon1_outline(material_name=material.name, create_modifier=True)
 
     outline_width_mode: EnumProperty(  # type: ignore[valid-type]
         items=outline_width_mode_enum.items(),
@@ -2763,8 +2767,8 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     def update_enable_outline_preview(self, context: Context) -> None:
         material_name = self.find_material().name
-        ops.vrm.refresh_mtoon1_outline(
-            material_name=material_name, create_modifier=True
+        refresh_mtoon1_outline(
+            context, material_name=material_name, create_modifier=True
         )
         for material in context.blend_data.materials:
             if material.name == material_name:
@@ -3368,7 +3372,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             if self.get("enabled") and (
                 bpy.app.version >= (5, 0, 0) or material.use_nodes
             ):
-                ops.vrm.convert_mtoon1_to_bsdf_principled(material_name=material.name)
+                convert_mtoon1_to_bsdf_principled(material)
             self["enabled"] = False
             return
 
@@ -3377,7 +3381,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         if self.enabled:
             return
 
-        ops.vrm.convert_material_to_mtoon1(material_name=material.name)
+        convert_material_to_mtoon1(material)
         self["enabled"] = True
         self.setup_drivers()
 
@@ -3710,6 +3714,820 @@ def reset_shader_node_group(
 def get_material_mtoon1_extension(material: Material) -> Mtoon1MaterialPropertyGroup:
     mtoon1: Mtoon1MaterialPropertyGroup = get_material_extension(material).mtoon1
     return mtoon1
+
+
+@dataclass(frozen=True)
+class NodesModifierInputKey:
+    geometry_key: str
+    material_key: str
+    outline_material_key: str
+    outline_width_mode_key: str
+    outline_width_factor_key: str
+    outline_width_multiply_texture_key: str
+    outline_width_multiply_texture_exists_key: str
+    outline_width_multiply_texture_uv_key: str
+    outline_width_multiply_texture_uv_offset_x_key: str
+    outline_width_multiply_texture_uv_offset_y_key: str
+    outline_width_multiply_texture_uv_scale_x_key: str
+    outline_width_multiply_texture_uv_scale_y_key: str
+    extrude_mesh_individual_key: str
+    object_key: str
+    enabled_key: str
+
+    def outline_width_multiply_texture_uv_use_attribute_key(self) -> str:
+        return self.outline_width_multiply_texture_uv_key + "_use_attribute"
+
+    def outline_width_multiply_texture_uv_attribute_name_key(self) -> str:
+        return self.outline_width_multiply_texture_uv_key + "_attribute_name"
+
+
+def get_nodes_modifier_input_key(
+    modifier: NodesModifier,
+) -> Optional[NodesModifierInputKey]:
+    node_group = modifier.node_group
+    if not node_group:
+        return None
+    if bpy.app.version < (4, 0):
+        keys = [i.identifier for i in node_group.inputs]
+    else:
+        from bpy.types import NodeTreeInterfaceSocket
+
+        keys = [
+            item.identifier
+            for item in node_group.interface.items_tree
+            if item.item_type == "SOCKET"
+            and isinstance(item, NodeTreeInterfaceSocket)
+            and item.in_out == "INPUT"
+        ]
+
+    if len(keys) < 15:
+        return None
+    return NodesModifierInputKey(
+        geometry_key=keys[0],
+        material_key=keys[1],
+        outline_material_key=keys[2],
+        outline_width_mode_key=keys[3],
+        outline_width_factor_key=keys[4],
+        outline_width_multiply_texture_key=keys[5],
+        outline_width_multiply_texture_exists_key=keys[6],
+        outline_width_multiply_texture_uv_key=keys[7],
+        outline_width_multiply_texture_uv_offset_x_key=keys[8],
+        outline_width_multiply_texture_uv_offset_y_key=keys[9],
+        outline_width_multiply_texture_uv_scale_x_key=keys[10],
+        outline_width_multiply_texture_uv_scale_y_key=keys[11],
+        extrude_mesh_individual_key=keys[12],
+        object_key=keys[13],
+        enabled_key=keys[14],
+    )
+
+
+def generate_mtoon1_outline_material_name(material: Material) -> str:
+    return f"MToon Outline ({material.name})"
+
+
+def assign_mtoon_unversioned_image(
+    context: Context,
+    texture_info: Mtoon1TextureInfoPropertyGroup,
+    image_name_and_sampler_type: Optional[tuple[str, int, int]],
+    uv_offset: tuple[float, float],
+    uv_scale: tuple[float, float],
+) -> None:
+    texture_info.extensions.khr_texture_transform.offset = uv_offset
+    texture_info.extensions.khr_texture_transform.scale = uv_scale
+
+    if image_name_and_sampler_type is None:
+        return
+
+    image_name, wrap_number, filter_number = image_name_and_sampler_type
+    image = context.blend_data.images.get(image_name)
+    if not image:
+        return
+
+    texture_info.index.source = image
+
+    texture_info.index.sampler.mag_filter = (
+        Mtoon1SamplerPropertyGroup.mag_filter_enum.value_to_identifier(
+            filter_number, Mtoon1SamplerPropertyGroup.MAG_FILTER_DEFAULT.identifier
+        )
+    )
+    texture_info.index.sampler.min_filter = (
+        Mtoon1SamplerPropertyGroup.min_filter_enum.value_to_identifier(
+            filter_number, Mtoon1SamplerPropertyGroup.MIN_FILTER_DEFAULT.identifier
+        )
+    )
+
+    wrap = Mtoon1SamplerPropertyGroup.wrap_enum.value_to_identifier(
+        wrap_number, Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.identifier
+    )
+    texture_info.index.sampler.wrap_s = wrap
+    texture_info.index.sampler.wrap_t = wrap
+
+
+def convert_mtoon_unversioned_to_mtoon1(
+    context: Context,
+    material: Material,
+    node: ShaderNodeGroup,
+) -> None:
+    transparent_with_z_write = False
+    alpha_cutoff: Optional[float] = 0.5
+    if material.blend_method == "OPAQUE":
+        alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_OPAQUE.identifier
+    elif material.blend_method == "CLIP":
+        alpha_cutoff = shader.get_float_value(node, "CutoffRate", 0, sys.float_info.max)
+        if alpha_cutoff is None:
+            alpha_cutoff = 0.5
+        alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK.identifier
+    else:
+        alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND.identifier
+        transparent_with_z_write_float = shader.get_float_value(
+            node, "TransparentWithZWrite"
+        )
+        transparent_with_z_write = (
+            transparent_with_z_write_float is not None
+            and math.fabs(transparent_with_z_write_float) >= sys.float_info.epsilon
+        )
+
+    base_color_factor = shader.get_rgba_value(node, "DiffuseColor", 0.0, 1.0) or (
+        0,
+        0,
+        0,
+        1,
+    )
+    base_color_texture = shader.get_image_name_and_sampler_type(node, "MainTexture")
+
+    uv_offset = (0.0, 0.0)
+    uv_scale = (1.0, 1.0)
+
+    main_texture_input_socket = node.inputs.get("MainTexture")
+    if (
+        main_texture_input_socket
+        and (
+            tex_image_node := shader.search_input_node(
+                main_texture_input_socket, ShaderNodeTexImage
+            )
+        )
+        and (vector_input_socket := tex_image_node.inputs.get("Vector"))
+        and (
+            mapping_node := shader.search_input_node(
+                vector_input_socket, ShaderNodeMapping
+            )
+        )
+    ):
+        location_socket = mapping_node.inputs.get("Location")
+        if location_socket and isinstance(
+            location_socket, shader.VECTOR_SOCKET_CLASSES
+        ):
+            uv_offset = (
+                float(location_socket.default_value[0]),
+                float(location_socket.default_value[1]),
+            )
+
+        scale_socket = mapping_node.inputs.get("Scale")
+        if scale_socket and isinstance(scale_socket, shader.VECTOR_SOCKET_CLASSES):
+            uv_scale = (
+                float(scale_socket.default_value[0]),
+                float(scale_socket.default_value[1]),
+            )
+
+    shade_color_factor = shader.get_rgb_value(node, "ShadeColor", 0.0, 1.0) or (
+        0,
+        0,
+        0,
+    )
+    shade_multiply_texture = shader.get_image_name_and_sampler_type(
+        node, "ShadeTexture"
+    )
+    normal_texture = shader.get_image_name_and_sampler_type(node, "NormalmapTexture")
+    if not normal_texture:
+        normal_texture = shader.get_image_name_and_sampler_type(node, "NomalmapTexture")
+    normal_texture_scale = shader.get_float_value(node, "BumpScale")
+
+    shading_shift_0x = shader.get_float_value(node, "ShadeShift")
+    if shading_shift_0x is None:
+        shading_shift_0x = 0.0
+
+    shading_toony_0x = shader.get_float_value(node, "ShadeToony")
+    if shading_toony_0x is None:
+        shading_toony_0x = 0.0
+
+    shading_shift_factor = convert.mtoon_shading_shift_0_to_1(
+        shading_toony_0x, shading_shift_0x
+    )
+    shading_toony_factor = convert.mtoon_shading_toony_0_to_1(
+        shading_toony_0x, shading_shift_0x
+    )
+
+    gi_equalization_0x = shader.get_float_value(node, "IndirectLightIntensity")
+    gi_equalization_factor = None
+    if gi_equalization_0x is not None:
+        gi_equalization_factor = convert.mtoon_intensity_to_gi_equalization(
+            gi_equalization_0x
+        )
+
+    emissive_factor = shader.get_rgb_value(node, "EmissionColor", 0.0, 1.0) or (
+        0,
+        0,
+        0,
+    )
+    emissive_texture = shader.get_image_name_and_sampler_type(node, "Emission_Texture")
+    matcap_texture = shader.get_image_name_and_sampler_type(node, "SphereAddTexture")
+
+    parametric_rim_color_factor = shader.get_rgb_value(node, "RimColor", 0.0, 1.0)
+    parametric_rim_fresnel_power_factor = shader.get_float_value(
+        node, "RimFresnelPower", 0.0, sys.float_info.max
+    )
+    parametric_rim_lift_factor = shader.get_float_value(node, "RimLift")
+
+    rim_multiply_texture = shader.get_image_name_and_sampler_type(node, "RimTexture")
+
+    outline_width_mode_float = shader.get_float_value(node, "OutlineWidthMode")
+    outline_width = shader.get_float_value(node, "OutlineWidth")
+    if outline_width is None:
+        outline_width = 0.0
+    outline_width_multiply_texture = shader.get_image_name_and_sampler_type(
+        node, "OutlineWidthTexture"
+    )
+
+    outline_color_factor = shader.get_rgb_value(node, "OutlineColor", 0.0, 1.0) or (
+        0,
+        0,
+        0,
+    )
+
+    outline_color_mode = shader.get_float_value(node, "OutlineColorMode")
+    if outline_color_mode is not None:
+        outline_color_mode = round(outline_color_mode)
+    else:
+        outline_color_mode = 0
+
+    outline_lighting_mix_factor = 0.0
+    if outline_color_mode == 1:
+        outline_lighting_mix_factor = (
+            shader.get_float_value(node, "OutlineLightingMix") or 1.0
+        )
+
+    uv_animation_mask_texture = shader.get_image_name_and_sampler_type(
+        node, "UV_Animation_Mask_Texture"
+    )
+    uv_animation_rotation_speed_factor = shader.get_float_value(
+        node, "UV_Scroll_Rotation"
+    )
+    uv_animation_scroll_x_speed_factor = shader.get_float_value(node, "UV_Scroll_X")
+    uv_animation_scroll_y_speed_factor = shader.get_float_value(node, "UV_Scroll_Y")
+    if uv_animation_scroll_y_speed_factor is not None:
+        uv_animation_scroll_y_speed_factor *= -1
+
+    shader.load_mtoon1_shader(context, material, reset_node_groups=True)
+
+    gltf = get_material_extension(material).mtoon1
+    mtoon = gltf.extensions.vrmc_materials_mtoon
+
+    gltf.alpha_mode = alpha_mode
+    gltf.alpha_cutoff = alpha_cutoff
+    mtoon.transparent_with_z_write = transparent_with_z_write
+    gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
+    assign_mtoon_unversioned_image(
+        context,
+        gltf.pbr_metallic_roughness.base_color_texture,
+        base_color_texture,
+        uv_offset,
+        uv_scale,
+    )
+    mtoon.shade_color_factor = shade_color_factor
+    assign_mtoon_unversioned_image(
+        context,
+        mtoon.shade_multiply_texture,
+        shade_multiply_texture,
+        uv_offset,
+        uv_scale,
+    )
+    assign_mtoon_unversioned_image(
+        context, gltf.normal_texture, normal_texture, uv_offset, uv_scale
+    )
+    if normal_texture_scale is not None:
+        gltf.normal_texture.scale = normal_texture_scale
+
+    mtoon.shading_shift_factor = shading_shift_factor
+    mtoon.shading_toony_factor = shading_toony_factor
+
+    if gi_equalization_factor is not None:
+        mtoon.gi_equalization_factor = gi_equalization_factor
+
+    gltf.emissive_factor = emissive_factor
+    assign_mtoon_unversioned_image(
+        context, gltf.emissive_texture, emissive_texture, uv_offset, uv_scale
+    )
+    assign_mtoon_unversioned_image(
+        context, mtoon.matcap_texture, matcap_texture, (0, 0), (1, 1)
+    )
+
+    if parametric_rim_color_factor is not None:
+        mtoon.parametric_rim_color_factor = parametric_rim_color_factor
+    if parametric_rim_fresnel_power_factor is not None:
+        mtoon.parametric_rim_fresnel_power_factor = parametric_rim_fresnel_power_factor
+    if parametric_rim_lift_factor is not None:
+        mtoon.parametric_rim_lift_factor = parametric_rim_lift_factor
+
+    assign_mtoon_unversioned_image(
+        context, mtoon.rim_multiply_texture, rim_multiply_texture, uv_offset, uv_scale
+    )
+
+    mtoon.rim_lighting_mix_factor = 1.0
+    mtoon.enable_outline_preview = get_preferences(context).enable_mtoon_outline_preview
+
+    if outline_width_mode_float is not None:
+        outline_width_mode = round(outline_width_mode_float)
+    else:
+        outline_width_mode = 0
+
+    if outline_width_mode == 1:
+        mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_WORLD_COORDINATES.identifier
+        mtoon.outline_width_factor = max(0.0, outline_width * 0.01)
+    elif outline_width_mode == 2:
+        mtoon.outline_width_mode = (
+            mtoon.OUTLINE_WIDTH_MODE_SCREEN_COORDINATES.identifier
+        )
+        mtoon.outline_width_factor = max(0.0, outline_width * 0.01 * 0.5)
+    else:
+        mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_NONE.identifier
+
+    assign_mtoon_unversioned_image(
+        context,
+        mtoon.outline_width_multiply_texture,
+        outline_width_multiply_texture,
+        uv_offset,
+        uv_scale,
+    )
+
+    mtoon.outline_color_factor = outline_color_factor
+    mtoon.outline_lighting_mix_factor = 0.0
+    if outline_color_mode == 1:
+        mtoon.outline_lighting_mix_factor = outline_lighting_mix_factor
+
+    assign_mtoon_unversioned_image(
+        context,
+        mtoon.uv_animation_mask_texture,
+        uv_animation_mask_texture,
+        uv_offset,
+        uv_scale,
+    )
+
+    if uv_animation_rotation_speed_factor is not None:
+        mtoon.uv_animation_rotation_speed_factor = uv_animation_rotation_speed_factor
+    if uv_animation_scroll_x_speed_factor is not None:
+        mtoon.uv_animation_scroll_x_speed_factor = uv_animation_scroll_x_speed_factor
+    if uv_animation_scroll_y_speed_factor is not None:
+        mtoon.uv_animation_scroll_y_speed_factor = uv_animation_scroll_y_speed_factor
+
+
+def convert_material_to_mtoon1(
+    material: Material, context: Optional[Context] = None
+) -> None:
+    resolved_context = context or bpy.context
+
+    node, legacy_shader_name = search.legacy_shader_node(material)
+    if node and legacy_shader_name == "MToon_unversioned":
+        convert_mtoon_unversioned_to_mtoon1(resolved_context, material, node)
+        return
+
+    mmd_material = MmdMaterial.try_parse(material)
+    if mmd_material:
+        reset_shader_node_group(
+            resolved_context,
+            material,
+            reset_material_node_tree=True,
+            reset_node_groups=False,
+        )
+
+        gltf = get_material_extension(material).mtoon1
+        mtoon = gltf.extensions.vrmc_materials_mtoon
+        if texture := mmd_material.texture:
+            gltf.pbr_metallic_roughness.base_color_texture.index.source = texture
+            mtoon.shade_multiply_texture.index.source = texture
+            gltf.pbr_metallic_roughness.base_color_factor = (
+                0,
+                0,
+                0,
+                mmd_material.alpha,
+            )
+        else:
+            gltf.pbr_metallic_roughness.base_color_factor = (
+                mmd_material.diffuse_color[0],
+                mmd_material.diffuse_color[1],
+                mmd_material.diffuse_color[2],
+                mmd_material.alpha,
+            )
+        gltf.double_sided = mmd_material.double_sided
+        if mmd_material.alpha < 1.0:
+            gltf.alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND.identifier
+        return
+
+    principled_bsdf = PrincipledBSDFWrapper(material)
+    if not principled_bsdf.node_principled_bsdf:
+        reset_shader_node_group(
+            resolved_context,
+            material,
+            reset_material_node_tree=True,
+            reset_node_groups=False,
+        )
+        return
+
+    base_color_factor = (
+        principled_bsdf.base_color[0],
+        principled_bsdf.base_color[1],
+        principled_bsdf.base_color[2],
+        principled_bsdf.alpha,
+    )
+    base_color_texture_node = principled_bsdf.base_color_texture
+    base_color_texture_image = (
+        base_color_texture_node.image if base_color_texture_node else None
+    )
+
+    emissive_factor = principled_bsdf.emission_color
+    emission_color_texture_node = principled_bsdf.emission_color_texture
+    emissive_texture_image = (
+        emission_color_texture_node.image if emission_color_texture_node else None
+    )
+    emissive_strength = principled_bsdf.emission_strength
+
+    normalmap_texture_node = principled_bsdf.normalmap_texture
+    if normalmap_texture_node:
+        normal_texture_image = normalmap_texture_node.image
+        normal_texture_scale = principled_bsdf.normalmap_strength
+    else:
+        normal_texture_image = None
+        normal_texture_scale = None
+
+    reset_shader_node_group(
+        resolved_context,
+        material,
+        reset_material_node_tree=True,
+        reset_node_groups=False,
+    )
+
+    gltf = get_material_extension(material).mtoon1
+    gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
+    if base_color_texture_image:
+        gltf.pbr_metallic_roughness.base_color_texture.index.source = (
+            base_color_texture_image
+        )
+
+    gltf.emissive_factor = emissive_factor
+    gltf.extensions.khr_materials_emissive_strength.emissive_strength = (
+        emissive_strength
+    )
+    if emissive_texture_image:
+        gltf.emissive_texture.index.source = emissive_texture_image
+
+    if normal_texture_image:
+        gltf.normal_texture.index.source = normal_texture_image
+    if normal_texture_scale is not None:
+        gltf.normal_texture.scale = normal_texture_scale
+
+
+def convert_mtoon1_to_bsdf_principled(material: Material) -> None:
+    if bpy.app.version < (5, 0, 0) and not material.use_nodes:
+        material.use_nodes = True
+    shader.clear_node_tree(material.node_tree, clear_inputs_outputs=True)
+    if not material.node_tree:
+        logger.error("%s's node tree is None", material.name)
+        return
+
+    principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
+    gltf = get_material_extension(material).mtoon1
+
+    principled_bsdf.base_color = gltf.pbr_metallic_roughness.base_color_factor[:3]
+    base_color_texture_image = (
+        gltf.pbr_metallic_roughness.base_color_texture.index.source
+    )
+    if base_color_texture_image:
+        base_color_texture_node = principled_bsdf.base_color_texture
+        if base_color_texture_node:
+            base_color_texture_node.image = base_color_texture_image
+
+    principled_bsdf.alpha = gltf.pbr_metallic_roughness.base_color_factor[3]
+    principled_bsdf.emission_color = list(gltf.emissive_factor)
+    principled_bsdf.emission_strength = (
+        gltf.extensions.khr_materials_emissive_strength.emissive_strength
+    )
+    emissive_texture_image = gltf.emissive_texture.index.source
+    if emissive_texture_image:
+        emission_color_texture_node = principled_bsdf.emission_color_texture
+        if emission_color_texture_node:
+            emission_color_texture_node.image = emissive_texture_image
+
+    normal_texture_image = gltf.normal_texture.index.source
+    if normal_texture_image:
+        normalmap_texture_node = principled_bsdf.normalmap_texture
+        if normalmap_texture_node:
+            normalmap_texture_node.image = normal_texture_image
+    normal_scale = gltf.normal_texture.scale
+    if abs(normal_scale - 1) >= sys.float_info.epsilon:
+        principled_bsdf.normalmap_strength = gltf.normal_texture.scale
+
+
+def assign_mtoon1_outline(
+    context: Context,
+    material: Material,
+    obj: Object,
+    *,
+    create_modifier: bool,
+) -> None:
+    shader.load_mtoon1_outline_geometry_node_group(context, reset_node_groups=False)
+    node_group = context.blend_data.node_groups.get(shader.OUTLINE_GEOMETRY_GROUP_NAME)
+    if not node_group:
+        return
+    mtoon = get_material_extension(material).mtoon1.extensions.vrmc_materials_mtoon
+    outline_width_mode_value = mtoon.outline_width_mode_enum.identifier_to_value(
+        mtoon.outline_width_mode,
+        mtoon.OUTLINE_WIDTH_MODE_NONE.value,
+    )
+    no_outline = (
+        not mtoon.enable_outline_preview
+        or outline_width_mode_value == mtoon.OUTLINE_WIDTH_MODE_NONE.value
+        or mtoon.outline_width_factor < sys.float_info.epsilon
+    )
+    cleanup = no_outline
+    modifier = None
+
+    for search_modifier_name in list(obj.modifiers.keys()):
+        search_modifier = obj.modifiers.get(search_modifier_name)
+        if not search_modifier:
+            continue
+        if search_modifier.type != "NODES":
+            continue
+        if not isinstance(search_modifier, NodesModifier):
+            continue
+        if not search_modifier.node_group:
+            continue
+        if search_modifier.node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME:
+            continue
+        input_key = get_nodes_modifier_input_key(search_modifier)
+        if input_key is None:
+            continue
+        search_material = search_modifier.get(input_key.material_key)
+        if not isinstance(search_material, Material):
+            continue
+        if search_material.name != material.name:
+            continue
+        if cleanup:
+            obj.modifiers.remove(search_modifier)
+            continue
+        modifier = search_modifier
+        cleanup = True
+
+    if no_outline:
+        return
+
+    if not modifier and not create_modifier:
+        mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_NONE.identifier
+        return
+
+    outline_material_name = generate_mtoon1_outline_material_name(material)
+    modifier_name = f"MToon Outline ({material.name})"
+
+    outline_material = get_material_extension(material).mtoon1.outline_material
+    reset_outline_material = False
+    if not outline_material:
+        reset_outline_material = True
+        outline_material = context.blend_data.materials.new(name=outline_material_name)
+        if bpy.app.version < (5, 0, 0) and not outline_material.use_nodes:
+            outline_material.use_nodes = True
+        if outline_material.diffuse_color[3] != 0.25:
+            outline_material.diffuse_color[3] = 0.25
+        if outline_material.roughness != 0:
+            outline_material.roughness = 0
+        shader.load_mtoon1_shader(context, outline_material, reset_node_groups=False)
+        get_material_extension(outline_material).mtoon1.is_outline_material = True
+        get_material_extension(material).mtoon1.outline_material = outline_material
+    if outline_material.name != outline_material_name:
+        outline_material.name = outline_material_name
+    if bpy.app.version < (5, 0, 0) and not outline_material.use_nodes:
+        outline_material.use_nodes = True
+    if not get_material_extension(outline_material).mtoon1.is_outline_material:
+        get_material_extension(outline_material).mtoon1.is_outline_material = True
+    if (
+        get_material_extension(outline_material).mtoon1.alpha_cutoff
+        != get_material_extension(material).mtoon1.alpha_cutoff
+    ):
+        get_material_extension(
+            outline_material
+        ).mtoon1.alpha_cutoff = get_material_extension(material).mtoon1.alpha_cutoff
+    if (
+        get_material_extension(outline_material).mtoon1.alpha_mode
+        != get_material_extension(material).mtoon1.alpha_mode
+    ):
+        get_material_extension(
+            outline_material
+        ).mtoon1.alpha_mode = get_material_extension(material).mtoon1.alpha_mode
+    if bpy.app.version < (4, 3) and outline_material.shadow_method != "NONE":
+        outline_material.shadow_method = "NONE"
+    if not outline_material.use_backface_culling:
+        outline_material.use_backface_culling = True
+    if outline_material.show_transparent_back:
+        outline_material.show_transparent_back = False
+
+    if not modifier:
+        new_modifier = obj.modifiers.new(modifier_name, "NODES")
+        if not isinstance(new_modifier, NodesModifier):
+            message = f"{type(new_modifier)} is not a NodesModifier"
+            raise AssertionError(message)
+        modifier = new_modifier
+        modifier.show_expanded = False
+        modifier.show_in_editmode = False
+        if bpy.app.version >= (4, 0):
+            modifier.show_group_selector = False
+        if bpy.app.version >= (4, 2):
+            modifier.use_pin_to_last = True
+        if bpy.app.version >= (5, 0):
+            modifier.show_manage_panel = False
+
+    if modifier.name != modifier_name:
+        modifier.name = modifier_name
+    if modifier.node_group != node_group:
+        modifier.node_group = node_group
+
+    input_key = get_nodes_modifier_input_key(modifier)
+    if input_key is None:
+        return
+
+    modifier_input_changed = False
+    (
+        outline_width_multiply_texture_uv_offset_x,
+        outline_width_multiply_texture_uv_offset_y,
+    ) = mtoon.outline_width_multiply_texture.extensions.khr_texture_transform.offset
+    (
+        outline_width_multiply_texture_uv_scale_x,
+        outline_width_multiply_texture_uv_scale_y,
+    ) = mtoon.outline_width_multiply_texture.extensions.khr_texture_transform.scale
+
+    uv_layer_name = None
+    if isinstance((mesh_data := obj.data), Mesh):
+        uv_layer_name = next(
+            (
+                uv_layer.name
+                for uv_layer in mesh_data.uv_layers
+                if uv_layer and uv_layer.active_render
+            ),
+            None,
+        )
+    if uv_layer_name is None:
+        uv_layer_name = "UVMap"
+
+    has_auto_smooth = tuple(bpy.app.version) < (4, 1)
+    outline_width_multiply_texture_uv_use_attribute = (
+        True if tuple(bpy.app.version) >= (4, 2) else 1
+    )
+    for k, v in [
+        (input_key.material_key, material),
+        (input_key.outline_material_key, outline_material),
+        (input_key.outline_width_mode_key, outline_width_mode_value),
+        (input_key.outline_width_factor_key, mtoon.outline_width_factor),
+        (
+            input_key.outline_width_multiply_texture_key,
+            mtoon.outline_width_multiply_texture.index.source,
+        ),
+        (
+            input_key.outline_width_multiply_texture_exists_key,
+            bool(mtoon.outline_width_multiply_texture.index.source),
+        ),
+        (
+            input_key.outline_width_multiply_texture_uv_use_attribute_key(),
+            outline_width_multiply_texture_uv_use_attribute,
+        ),
+        (
+            input_key.outline_width_multiply_texture_uv_attribute_name_key(),
+            uv_layer_name,
+        ),
+        (
+            input_key.outline_width_multiply_texture_uv_offset_x_key,
+            outline_width_multiply_texture_uv_offset_x,
+        ),
+        (
+            input_key.outline_width_multiply_texture_uv_offset_y_key,
+            outline_width_multiply_texture_uv_offset_y,
+        ),
+        (
+            input_key.outline_width_multiply_texture_uv_scale_x_key,
+            outline_width_multiply_texture_uv_scale_x,
+        ),
+        (
+            input_key.outline_width_multiply_texture_uv_scale_y_key,
+            outline_width_multiply_texture_uv_scale_y,
+        ),
+        (
+            input_key.extrude_mesh_individual_key,
+            (
+                obj.type == "MESH"
+                and isinstance(mesh_data := obj.data, Mesh)
+                and not (has_auto_smooth and mesh_data.use_auto_smooth)
+                and not any(polygon.use_smooth for polygon in mesh_data.polygons)
+            ),
+        ),
+        (input_key.object_key, obj),
+        (
+            input_key.enabled_key,
+            obj.mode not in ["VERTEX_PAINT", "TEXTURE_PAINT", "WEIGHT_PAINT", "SCULPT"],
+        ),
+    ]:
+        if modifier.get(k) != v:
+            modifier[k] = v
+            modifier_input_changed = True
+
+    if modifier_input_changed:
+        modifier.show_viewport = not modifier.show_viewport
+        modifier.show_viewport = not modifier.show_viewport
+
+    if reset_outline_material:
+        reset_shader_node_group(
+            context,
+            material,
+            reset_material_node_tree=False,
+            reset_node_groups=False,
+        )
+
+
+def refresh_mtoon1_outline_object(context: Context, obj: Object) -> None:
+    if bpy.app.version < (3, 3):
+        return
+    for material_slot in obj.material_slots:
+        material_ref = material_slot.material
+        if not material_ref:
+            continue
+
+        material = context.blend_data.materials.get(material_ref.name)
+        if not material:
+            continue
+
+        mtoon1 = get_material_extension(material).mtoon1
+        if not mtoon1.enabled or mtoon1.is_outline_material:
+            continue
+
+        assign_mtoon1_outline(context, material, obj, create_modifier=False)
+
+
+def refresh_mtoon1_outline(
+    context: Optional[Context] = None,
+    material_name: Optional[str] = None,
+    *,
+    create_modifier: bool,
+) -> None:
+    resolved_context = context or bpy.context
+    if bpy.app.version < (3, 3):
+        return
+    for obj in resolved_context.blend_data.objects:
+        if obj.type != "MESH":
+            continue
+        outline_material_names: list[str] = []
+        for material_slot in obj.material_slots:
+            material_ref = material_slot.material
+            if not material_ref:
+                continue
+
+            if material_name is not None and material_name != material_ref.name:
+                continue
+
+            material = resolved_context.blend_data.materials.get(material_ref.name)
+            if not material:
+                continue
+
+            mtoon1 = get_material_extension(material).mtoon1
+            if not mtoon1.enabled or mtoon1.is_outline_material:
+                continue
+
+            assign_mtoon1_outline(
+                resolved_context,
+                material,
+                obj,
+                create_modifier=create_modifier,
+            )
+            outline_material_names.append(material.name)
+        if material_name is not None:
+            continue
+
+        for search_modifier_name in list(obj.modifiers.keys()):
+            search_modifier = obj.modifiers.get(search_modifier_name)
+            if not search_modifier:
+                continue
+            if search_modifier.type != "NODES":
+                continue
+            if not isinstance(search_modifier, NodesModifier):
+                continue
+            node_group = search_modifier.node_group
+            if not node_group:
+                continue
+            if node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME:
+                continue
+            input_key = get_nodes_modifier_input_key(search_modifier)
+            if input_key is None:
+                continue
+            search_material = search_modifier.get(input_key.material_key)
+            if (
+                isinstance(search_material, Material)
+                and search_material.name in outline_material_names
+            ):
+                continue
+            obj.modifiers.remove(search_modifier)
 
 
 def setup_drivers(context: Context) -> None:

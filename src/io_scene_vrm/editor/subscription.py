@@ -9,7 +9,7 @@ from ..common.logger import get_logger
 from .extension import VrmAddonArmatureExtensionPropertyGroup
 from .extension_accessor import get_armature_extension
 from .migration import migrate_all_objects
-from .mtoon1 import ops as mtoon1_ops
+from .mtoon1.property_group import refresh_mtoon1_outline_object
 from .vrm0 import property_group as vrm0_property_group
 from .vrm1 import property_group as vrm1_property_group
 
@@ -118,7 +118,7 @@ def on_change_bpy_object_mode() -> None:
     active_object = context.active_object
     if not active_object:
         return
-    mtoon1_ops.VRM_OT_refresh_mtoon1_outline.refresh_object(context, active_object)
+    refresh_mtoon1_outline_object(context, active_object)
 
 
 def on_change_bpy_object_location() -> None:
