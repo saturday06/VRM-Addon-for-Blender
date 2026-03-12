@@ -58,3 +58,12 @@ html {
 .vp-doc img.logo {
   border: 0;
 }
+
+.vp-doc h2 {
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+.VPContent .VPDoc {
+  padding-top: 0;
+}
