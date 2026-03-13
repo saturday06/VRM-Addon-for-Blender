@@ -19,6 +19,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   libsm6 \
   libxi6 \
   libxkbcommon0 \
+  lsb-release \
   moreutils \
   netcat-openbsd \
   nkf \
