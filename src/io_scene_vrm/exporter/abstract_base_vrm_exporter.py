@@ -55,15 +55,12 @@ class AbstractBaseVrmExporter(ABC):
     ) -> tuple[Sequence[float], Mapping[str, float], Mapping[str, Mapping[str, float]]]:
         saved_shape_key_values: dict[str, Mapping[str, float]] = {}
         for mesh in context.blend_data.meshes:
-            key_block_name_to_values: dict[str, float] = {}
             shape_keys = mesh.shape_keys
             if not shape_keys:
                 continue
-
-            for key_block in shape_keys.key_blocks:
-                key_block_name_to_values[key_block.name] = key_block.value
-
-            saved_shape_key_values[mesh.name] = key_block_name_to_values
+            saved_shape_key_values[mesh.name] = {
+                key_block.name: key_block.value for key_block in shape_keys.key_blocks
+            }
 
         ext = get_armature_extension(armature_data)
 
