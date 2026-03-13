@@ -68,5 +68,5 @@ EOF
     containerd.io \
     docker-buildx-plugin \
     docker-compose-plugin \
-    -y
+    -y --no-install-recommends
 fi
