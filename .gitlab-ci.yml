@@ -2,6 +2,8 @@ ci:
   image: buildpack-deps:noble
   services:
     - docker:dind
+  variables:
+    PATH: "${HOME}/.local/bin:${PATH}"
   before_script:
     - ./tools/install_ubuntu_packages.sh
     - ./tools/install_act.sh
