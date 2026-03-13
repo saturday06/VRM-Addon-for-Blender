@@ -259,8 +259,15 @@ class ActionPoseMarkers(bpy_prop_collection[TimelineMarker]): ...
 
 class Keyframe(bpy_struct):
     co: Vector
+    interpolation: str
 
-class FCurveKeyframePoints(bpy_prop_collection[Keyframe]): ...
+class FCurveKeyframePoints(bpy_prop_collection[Keyframe]):
+    def insert(
+        self,
+        frame: float,
+        value: float,
+        options: set[str] | None = None,
+    ) -> Keyframe: ...
 
 class FCurve(bpy_struct):
     array_index: int
@@ -278,7 +285,11 @@ class FCurve(bpy_struct):
 
     def evaluate(self, frame: int) -> float: ...
 
-class ActionFCurves(bpy_prop_collection[FCurve]): ...
+class ActionFCurves(bpy_prop_collection[FCurve]):
+    def new(self, data_path: str, *, index: int = 0) -> FCurve: ...
+    def find(self, data_path: str, *, index: int = 0) -> FCurve | None: ...
+    def remove(self, fcurve: FCurve) -> None: ...
+    def clear(self) -> None: ...
 
 class ActionChannelbagFCurves(bpy_prop_collection[FCurve]):
     def new(self, data_path: str, *, index: int = 0) -> FCurve: ...
@@ -813,6 +824,8 @@ class ShapeKey(bpy_struct):
     def normals_split_get(self) -> Sequence[float]: ...  # TODO: Correct type
 
 class Key(ID):
+    @property
+    def animation_data(self) -> AnimData | None: ...
     @property
     def key_blocks(self) -> bpy_prop_collection[ShapeKey]: ...
     @property
@@ -1937,6 +1950,7 @@ class Scene(ID):
     frame_start: int
     frame_current: int
     frame_end: int
+    frame_step: int
 
     def frame_set(self, frame: int, subframe: float = 0.0) -> None: ...
     @property
@@ -1956,6 +1970,8 @@ class Scene(ID):
 
     camera: Object | None
     world: World | None
+    node_tree: NodeTree | None
+    use_nodes: bool
 
 class AreaSpaces(bpy_prop_collection[Space]): ...
 
@@ -2209,6 +2225,13 @@ class BlendDataNodeTrees(bpy_prop_collection[NodeTree]):
 
 class BlendDataActions(bpy_prop_collection[Action]):
     def new(self, name: str) -> Action: ...
+    def remove(
+        self,
+        action: Action,
+        do_unlink: bool = True,
+        do_id_user: bool = True,
+        do_ui_user: bool = True,
+    ) -> None: ...
 
 class BlendDataScenes(bpy_prop_collection[Scene]):
     def new(self, name: str) -> Scene: ...

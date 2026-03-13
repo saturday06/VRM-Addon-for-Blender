@@ -79,6 +79,17 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Export Invisible Objects"): "非表示のオブジェクトも含める",
     ("*", "Export Only Selections"): "選択されたオブジェクトのみ",
     ("*", "Enable Advanced Options"): "高度なオプションを有効にする",
+    ("*", "Advanced"): "高度な設定",
+    ("*", "Experimental Features"): "実験的機能",
+    ("*", "Animation Timeline Scrubbing Support"): "タイムラインのスクラブ対応",
+    (
+        "*",
+        "Enable expression previews during timeline\n"
+        + "scrubbing.\n"
+        + "Intended for development and testing.",
+    ): "タイムラインのスクラブ中に表情プレビューを\n"
+    + "有効にします。\n"
+    + "開発・検証用です。",
     (
         "*",
         "Export All Bone Influences",

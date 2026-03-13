@@ -622,17 +622,28 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
         cls.pending_preview_update_armature_data_names.clear()
 
     @classmethod
-    def apply_previews(cls, context: Context, armature_data: Armature) -> None:
+    def collect_shapekey_values(
+        cls,
+        context: Context,
+        blend_shape_groups: (
+            "CollectionPropertyProtocol[Vrm0BlendShapeGroupPropertyGroup]"
+        ),
+        evaluated_blend_shape_groups: (
+            "CollectionPropertyProtocol[Vrm0BlendShapeGroupPropertyGroup]"
+        ),
+    ) -> dict[str, dict[str, float]]:
         mesh_object_name_to_key_block_name_to_value: dict[str, dict[str, float]] = {}
-        blend_shape_groups = get_armature_vrm0_extension(
-            armature_data
-        ).blend_shape_master.blend_shape_groups
-        for blend_shape_group in blend_shape_groups:
+        for index, blend_shape_group in enumerate(blend_shape_groups):
+            if index >= len(evaluated_blend_shape_groups):
+                evaluated_blend_shape_group = blend_shape_group
+            else:
+                evaluated_blend_shape_group = evaluated_blend_shape_groups[index]
+
             if blend_shape_group.is_binary:
                 # https://github.com/vrm-c/UniVRM/blob/38ccb92300c9ab41c72eb3d5b8dc8ce664a659d5/Assets/VRM/Runtime/BlendShape/BlendShapeMerger.cs#L89-L92
-                preview = 0.0 if blend_shape_group.preview < 0.5 else 1.0
+                preview = 0.0 if evaluated_blend_shape_group.preview < 0.5 else 1.0
             else:
-                preview = blend_shape_group.preview
+                preview = evaluated_blend_shape_group.preview
 
             for bind in blend_shape_group.binds:
                 mesh_object_name = bind.mesh.mesh_object_name
@@ -675,6 +686,19 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
                 key_block_name_to_total_value[key_block_name] = (
                     key_block_name_to_total_value.get(key_block_name, 0) + value
                 )
+
+        return mesh_data_name_to_key_block_name_to_total_value
+
+    @classmethod
+    def apply_previews(cls, context: Context, armature_data: Armature) -> None:
+        blend_shape_groups = get_armature_vrm0_extension(
+            armature_data
+        ).blend_shape_master.blend_shape_groups
+        mesh_data_name_to_key_block_name_to_total_value = cls.collect_shapekey_values(
+            context,
+            blend_shape_groups,
+            blend_shape_groups,
+        )
 
         for (
             mesh_data_name,

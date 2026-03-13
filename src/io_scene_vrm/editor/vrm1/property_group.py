@@ -1123,23 +1123,34 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         cls.pending_preview_update_armature_data_names.clear()
 
     @classmethod
-    def apply_previews(cls, context: Context, armature_data: Armature) -> None:
-        expressions = get_armature_vrm1_extension(armature_data).expressions
+    def collect_shapekey_values(
+        cls,
+        context: Context,
+        expressions: "Vrm1ExpressionsPropertyGroup",
+        evaluated_expressions: "Vrm1ExpressionsPropertyGroup",
+    ) -> dict[str, dict[str, float]]:
         name_to_expression_dict = expressions.all_name_to_expression_dict()
+        evaluated_name_to_expression_dict = (
+            evaluated_expressions.all_name_to_expression_dict()
+        )
 
         mouth_block_rate = 0.0
         blink_block_rate = 0.0
         look_at_block_rate = 0.0
-        for expression in name_to_expression_dict.values():
-            if expression.preview < float_info.epsilon:
+        for name, expression in name_to_expression_dict.items():
+            evaluated_expression = evaluated_name_to_expression_dict.get(
+                name, expression
+            )
+            preview_value = float(evaluated_expression.preview)
+            if preview_value < float_info.epsilon:
                 continue
 
             if expression.override_mouth == "blend":
-                mouth_block_rate += expression.preview
+                mouth_block_rate += preview_value
             if expression.override_blink == "blend":
-                blink_block_rate += expression.preview
+                blink_block_rate += preview_value
             if expression.override_look_at == "blend":
-                look_at_block_rate += expression.preview
+                look_at_block_rate += preview_value
 
             if expression.override_mouth == "block":
                 mouth_block_rate = 1.0
@@ -1154,11 +1165,15 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
 
         mesh_object_name_to_key_block_name_to_value: dict[str, dict[str, float]] = {}
         for name, expression in name_to_expression_dict.items():
+            evaluated_expression = evaluated_name_to_expression_dict.get(
+                name, expression
+            )
+            preview_value = float(evaluated_expression.preview)
             if expression.is_binary:
                 # https://github.com/vrm-c/vrm-specification/blob/5b1071b9da1d60bb1bab0b70754615127fc43e9e/specification/VRMC_vrm-1.0/expressions.md?plain=1#L46
-                preview = 1.0 if expression.preview > 0.5 else 0.0
+                preview = 1.0 if preview_value > 0.5 else 0.0
             else:
-                preview = expression.preview
+                preview = preview_value
 
             if expressions.preset.is_mouth_expression(name):
                 preview *= mouth_blend_factor
@@ -1219,6 +1234,17 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
                 key_block_name_to_total_value[key_block_name] = (
                     key_block_name_to_total_value.get(key_block_name, 0) + value
                 )
+
+        return mesh_data_name_to_key_block_name_to_total_value
+
+    @classmethod
+    def apply_previews(cls, context: Context, armature_data: Armature) -> None:
+        expressions = get_armature_vrm1_extension(armature_data).expressions
+        mesh_data_name_to_key_block_name_to_total_value = cls.collect_shapekey_values(
+            context,
+            expressions,
+            expressions,
+        )
 
         for (
             mesh_data_name,

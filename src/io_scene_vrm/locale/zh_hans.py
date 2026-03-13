@@ -75,6 +75,15 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Export Invisible Objects"): "包括隐藏对象",
     ("*", "Export Only Selections"): "仅选定对象",
     ("*", "Enable Advanced Options"): "启用高级选项",
+    ("*", "Advanced"): "高级",
+    ("*", "Experimental Features"): "实验性功能",
+    ("*", "Animation Timeline Scrubbing Support"): "时间轴拖动支持",
+    (
+        "*",
+        "Enable expression previews during timeline\n"
+        + "scrubbing.\n"
+        + "Intended for development and testing.",
+    ): "启用时间轴拖动时的表情预览。\n" + "仅供开发和测试。",
     ("*", "Don't overwrite existing texture image folder"): "不要覆盖现有纹理文件夹",
     (
         "*",

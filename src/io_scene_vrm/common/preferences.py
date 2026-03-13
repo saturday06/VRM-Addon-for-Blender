@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+from __future__ import annotations
+
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Protocol, TypedDict, Union
+from os import environ
+from typing import TYPE_CHECKING, Protocol, TypedDict
 
 from bpy.app.translations import pgettext
 from bpy.props import BoolProperty, IntVectorProperty
@@ -135,7 +138,7 @@ def copy_export_preferences(
 
 
 def draw_advanced_options_description(
-    preferences: Union[AddonPreferences, Operator],
+    preferences: AddonPreferences | Operator,
     property_name: str,
     layout: UILayout,
     description: str,
@@ -287,6 +290,10 @@ class VrmAddonPreferences(AddonPreferences):
     enable_advanced_preferences: BoolProperty(  # type: ignore[valid-type]
         name="Enable Advanced Options",
     )
+    enable_development_mode: BoolProperty(  # type: ignore[valid-type]
+        name="Animation Timeline Scrubbing Support",
+        default=False,
+    )
     export_all_influences: BoolProperty(  # type: ignore[valid-type]
         name="Export All Bone Influences",
     )
@@ -324,6 +331,19 @@ class VrmAddonPreferences(AddonPreferences):
         export_box.label(text="Export", icon="EXPORT")
         draw_export_preferences_layout(self, export_box, show_vrm1_options=True)
 
+        developers_box = layout.box()
+        developers_box.label(text="Experimental Features", icon="PREFERENCES")
+        draw_advanced_options_description(
+            self,
+            "enable_development_mode",
+            developers_box,
+            pgettext(
+                "Enable expression previews during timeline\n"
+                + "scrubbing.\n"
+                + "Intended for development and testing."
+            ),
+        )
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
@@ -340,6 +360,7 @@ class VrmAddonPreferences(AddonPreferences):
         export_invisibles: bool  # type: ignore[no-redef]
         export_only_selections: bool  # type: ignore[no-redef]
         enable_advanced_preferences: bool  # type: ignore[no-redef]
+        enable_development_mode: bool  # type: ignore[no-redef]
         export_all_influences: bool  # type: ignore[no-redef]
         export_lights: bool  # type: ignore[no-redef]
         export_gltf_animations: bool  # type: ignore[no-redef]
@@ -360,3 +381,15 @@ def get_preferences(context: Context) -> VrmAddonPreferences:
         )
 
     return preferences
+
+
+def is_development_mode_enabled(context: Context | None) -> bool:
+    if environ.get("BLENDER_VRM_DEVELOPMENT_MODE") == "yes":
+        return True
+    if not context:
+        return False
+    try:
+        preferences = get_preferences(context)
+    except (AssertionError, TypeError):
+        return False
+    return preferences.enable_development_mode
