@@ -46,3 +46,27 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   xz-utils \
   zopfli \
   -y --no-install-recommends
+
+# https://github.com/docker/docs/blob/eca493b8107b096369bac919367b0d74cfd32786/content/manuals/engine/install/ubuntu.md#install-using-the-apt-repository-install-using-the-repository
+if ! command -v docker; then
+  install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  chmod a+r /etc/apt/keyrings/docker.asc
+  ubuntu_codename=$(lsb_release --codename --short)
+  tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: ${ubuntu_codename}
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+  apt-get update -qq
+  DEBIAN_FRONTEND=noninteractive apt-get install \
+    docker-ce \
+    docker-ce-cli \
+    containerd.io \
+    docker-buildx-plugin \
+    docker-compose-plugin \
+    -y
+fi
