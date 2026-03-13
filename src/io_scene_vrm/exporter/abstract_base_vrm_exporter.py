@@ -8,7 +8,7 @@ from typing import Optional, Union
 
 import bmesh
 from bpy.types import Armature, Context, Mesh, NodesModifier, Object
-from mathutils import Matrix, Vector
+from mathutils import Vector
 
 from ..common import shader
 from ..common.convert import Json
@@ -53,12 +53,12 @@ class AbstractBaseVrmExporter(ABC):
         context: Context,
         armature_data: Armature,
     ) -> tuple[Sequence[float], Mapping[str, float], Mapping[str, Mapping[str, float]]]:
-        saved_shape_key_values: dict[str, Mapping[str, float]] = {}
+        saved_key_block_values: dict[str, Mapping[str, float]] = {}
         for mesh in context.blend_data.meshes:
             shape_keys = mesh.shape_keys
             if not shape_keys:
                 continue
-            saved_shape_key_values[mesh.name] = {
+            saved_key_block_values[mesh.name] = {
                 key_block.name: key_block.value for key_block in shape_keys.key_blocks
             }
 
@@ -77,7 +77,7 @@ class AbstractBaseVrmExporter(ABC):
             saved_vrm0_previews.append(blend_shape_group.preview)
             blend_shape_group.preview = 0
 
-        return saved_vrm0_previews, saved_vrm1_previews, saved_shape_key_values
+        return saved_vrm0_previews, saved_vrm1_previews, saved_key_block_values
 
     @staticmethod
     def leave_clear_blend_shape_proxy_previews(
@@ -85,7 +85,7 @@ class AbstractBaseVrmExporter(ABC):
         armature_data: Armature,
         saved_vrm0_previews: Sequence[float],
         saved_vrm1_previews: Mapping[str, float],
-        saved_shape_key_values: Mapping[str, Mapping[str, float]],
+        saved_key_block_values: Mapping[str, Mapping[str, float]],
     ) -> None:
         ext = get_armature_extension(armature_data)
 
@@ -102,7 +102,7 @@ class AbstractBaseVrmExporter(ABC):
             if expression_preview is not None:
                 expression.preview = expression_preview
 
-        for mesh_name, key_block_name_to_values in saved_shape_key_values.items():
+        for mesh_name, key_block_name_to_values in saved_key_block_values.items():
             mesh = context.blend_data.meshes.get(mesh_name)
             if not mesh:
                 continue
@@ -120,7 +120,7 @@ class AbstractBaseVrmExporter(ABC):
     def clear_blend_shape_proxy_previews(
         self, context: Context, armature_data: Armature
     ) -> Iterator[None]:
-        saved_vrm0_previews, saved_vrm1_previews, saved_shape_key_values = (
+        saved_vrm0_previews, saved_vrm1_previews, saved_key_block_values = (
             self.enter_clear_blend_shape_proxy_previews(context, armature_data)
         )
         try:
@@ -134,7 +134,7 @@ class AbstractBaseVrmExporter(ABC):
                 armature_data,
                 saved_vrm0_previews,
                 saved_vrm1_previews,
-                saved_shape_key_values,
+                saved_key_block_values,
             )
 
     def enter_enable_deform_for_all_referenced_bones(
@@ -334,81 +334,91 @@ def generate_evaluated_mesh(context: Context, obj: Object) -> Optional[Mesh]:
     return evaluated_mesh
 
 
-def force_apply_modifiers(
-    context: Context,
-    obj: Object,
-    *,
-    preserve_shape_keys: bool,
-    transform: Optional[Matrix] = None,
-) -> Optional[Mesh]:
+def force_apply_modifiers(context: Context, obj: Object) -> Optional[Mesh]:
     if obj.type not in MESH_CONVERTIBLE_OBJECT_TYPES:
         return None
 
-    evaluated_mesh = generate_evaluated_mesh(context, obj)
-    if evaluated_mesh is None:
-        return None
+    key_block_name_to_value: dict[str, float] = {}
+    if isinstance(mesh_data := obj.data, Mesh) and (shape_keys := mesh_data.shape_keys):
+        for key_block in shape_keys.key_blocks:
+            key_block_name_to_value[key_block.name] = key_block.value
+            key_block.value = 0
 
-    if transform:
-        evaluated_mesh.transform(transform)
-
-    if not preserve_shape_keys:
-        return evaluated_mesh
-
-    obj_data = obj.data
-    if obj_data is None:
-        return evaluated_mesh
-
-    if not isinstance(obj_data, Mesh):
-        return evaluated_mesh
-
-    shape_keys = obj_data.shape_keys
-    if not shape_keys:
-        return evaluated_mesh
-
-    evaluated_mesh_shape_keys = evaluated_mesh.shape_keys
-    if not evaluated_mesh_shape_keys:
-        return evaluated_mesh
-
-    # If the mesh has shape keys, reproduce them as much as possible
-    for shape_key in shape_keys.key_blocks:
-        evaluated_mesh_shape_key = evaluated_mesh_shape_keys.key_blocks.get(
-            shape_key.name
-        )
-        if not evaluated_mesh_shape_key:
-            continue
-
-        if shape_key.name == shape_keys.reference_key.name:
-            continue
-
-        shape_key.value = 1.0
         context.view_layer.update()
 
-        depsgraph = context.evaluated_depsgraph_get()
-        baked_shape_key_obj = obj.evaluated_get(depsgraph)
-        baked_shape_key_mesh = baked_shape_key_obj.to_mesh(
-            preserve_all_data_layers=True, depsgraph=depsgraph
-        )
-        if baked_shape_key_mesh:
-            if transform:
-                baked_shape_key_mesh.transform(transform)
+    evaluated_mesh_data: Optional[Mesh] = None
+    try:
+        evaluated_mesh_data = generate_evaluated_mesh(context, obj)
+        if evaluated_mesh_data is None:
+            return None
 
-            evaluated_mesh_shape_key_data = evaluated_mesh_shape_key.data
-            baked_shape_key_mesh_vertices = baked_shape_key_mesh.vertices
+        obj_data = obj.data
+        if obj_data is None:
+            return evaluated_mesh_data
 
-            # TODO: If the number of vertices is different, we should use advanced
-            # graph matching algorithm.
-            for i in range(
-                min(
-                    len(evaluated_mesh_shape_key_data),
-                    len(baked_shape_key_mesh_vertices),
-                )
-            ):
-                evaluated_mesh_shape_key_data[i].co = Vector(
-                    baked_shape_key_mesh_vertices[i].co
-                )
+        if not isinstance(obj_data, Mesh):
+            return evaluated_mesh_data
 
-            baked_shape_key_obj.to_mesh_clear()
-        shape_key.value = 0.0
+        shape_keys = obj_data.shape_keys
+        if not shape_keys:
+            return evaluated_mesh_data
 
-    context.view_layer.update()
-    return evaluated_mesh
+        evaluated_mesh_data_shape_keys = evaluated_mesh_data.shape_keys
+        if not evaluated_mesh_data_shape_keys:
+            return evaluated_mesh_data
+
+        # If the mesh has shape keys, reproduce them as much as possible
+        for key_block in shape_keys.key_blocks:
+            evaluated_key_block = evaluated_mesh_data_shape_keys.key_blocks.get(
+                key_block.name
+            )
+            if not evaluated_key_block:
+                continue
+
+            if key_block.name == shape_keys.reference_key.name:
+                continue
+
+            key_block.value = 1.0
+            context.view_layer.update()
+
+            depsgraph = context.evaluated_depsgraph_get()
+            baked_key_block_obj = obj.evaluated_get(depsgraph)
+            baked_key_block_mesh = baked_key_block_obj.to_mesh(
+                preserve_all_data_layers=True, depsgraph=depsgraph
+            )
+            if baked_key_block_mesh:
+                evaluated_key_block_data = evaluated_key_block.data
+                baked_key_block_mesh_vertices = baked_key_block_mesh.vertices
+
+                # TODO: If the number of vertices is different, we should use advanced
+                # graph matching algorithm.
+                for i in range(
+                    min(
+                        len(evaluated_key_block_data),
+                        len(baked_key_block_mesh_vertices),
+                    )
+                ):
+                    evaluated_key_block_data[i].co = Vector(
+                        baked_key_block_mesh_vertices[i].co
+                    )
+
+                baked_key_block_obj.to_mesh_clear()
+            key_block.value = 0.0
+
+        return evaluated_mesh_data
+    finally:
+        for mesh_data in [obj.data, evaluated_mesh_data]:
+            if not isinstance(mesh_data, Mesh):
+                continue
+
+            shape_keys = mesh_data.shape_keys
+            if not shape_keys:
+                continue
+
+            for shape_key_name, shape_key_value in key_block_name_to_value.items():
+                key_block = shape_keys.key_blocks.get(shape_key_name)
+                if key_block:
+                    key_block.value = shape_key_value
+        context.view_layer.update()
+
+    return evaluated_mesh_data

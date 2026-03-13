@@ -71,7 +71,7 @@ from ..external.io_scene_gltf2_support import (
 from .abstract_base_vrm_exporter import (
     AbstractBaseVrmExporter,
     assign_dict,
-    force_apply_modifiers,
+    generate_evaluated_mesh,
 )
 
 logger = get_logger(__name__)
@@ -2907,10 +2907,16 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         vertex_morph_target_collectors: dict[
             str, Vrm0Exporter.VertexMorphTargetCollector
         ] = {}
+        key_block_name_to_value: dict[str, float] = {}
         original_shape_keys: Optional[Key] = None
         if isinstance(original_mesh_convertible, Mesh):
             original_mesh_convertible.calc_loop_triangles()
             original_shape_keys = original_mesh_convertible.shape_keys
+            if original_shape_keys:
+                for key_block in original_shape_keys.key_blocks:
+                    key_block_name_to_value[key_block.name] = key_block.value
+                    key_block.value = 0
+                self.context.view_layer.update()
 
         with save_workspace(self.context):
             # TODO: Executing move for compatibility with old addon,
@@ -2922,14 +2928,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 )
             mesh_data_transform @= obj.matrix_world
 
-            main_mesh_data = force_apply_modifiers(
+            main_mesh_data = generate_evaluated_mesh(
                 self.context,
                 obj,
-                preserve_shape_keys=False,
-                transform=mesh_data_transform,
             )
             if main_mesh_data is None:
                 return scene_node_index
+            main_mesh_data.transform(mesh_data_transform)
 
             if bpy.app.version < (4, 1):
                 main_mesh_data.calc_normals_split()
@@ -3023,17 +3028,17 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
                     shape_key.value = 1.0
                     self.context.view_layer.update()
-                    shape_mesh_data = force_apply_modifiers(
+                    shape_mesh_data = generate_evaluated_mesh(
                         self.context,
                         obj,
-                        preserve_shape_keys=False,
-                        transform=mesh_data_transform,
                     )
                     shape_key.value = 0.0
                     self.context.view_layer.update()
 
                     if not shape_mesh_data:
                         continue
+
+                    shape_mesh_data.transform(mesh_data_transform)
 
                     if bpy.app.version < (4, 1):
                         shape_mesh_data.calc_normals_split()
@@ -3363,6 +3368,12 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 # https://github.com/KhronosGroup/glTF/blob/0251c5c0cce8daec69bd54f29f891e3d0cdb52c8/specification/2.0/Specification.adoc?plain=1#L1500-L1504
                 "targetNames": morph_target_names,
             }
+            morph_target_weights = [
+                min(key_block_name_to_value.get(morph_target_name, 0), 1)
+                for morph_target_name in vertex_morph_target_collectors
+            ]
+            if any(weight > 0 for weight in morph_target_weights):
+                mesh_dict["weights"] = make_json(morph_target_weights)
 
         mesh_dicts.append(mesh_dict)
         mesh_object_name_to_mesh_index[obj.name] = mesh_index
