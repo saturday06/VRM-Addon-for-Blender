@@ -2,6 +2,10 @@ ci:
   image: buildpack-deps:noble
   services:
     - docker:dind
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
   variables:
     PATH: "${HOME}/.local/bin:${PATH}"
   before_script:
