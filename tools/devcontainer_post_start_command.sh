@@ -5,6 +5,11 @@ set -eu -o pipefail
 
 cd "$(dirname "$0")/.."
 
+# In devcontainer, permission settings may be lost, so restore them.
+if [ -x pyproject.toml ] || [ ! -x tools/devcontainer_fixup_workspace.sh ]; then
+  /bin/bash ./tools/devcontainer_fixup_workspace.sh
+fi
+
 # Setup noVNC website
 novnc_public_folder_path="$(mktemp -d)/novnc_public"
 cp -fr /usr/share/novnc "$novnc_public_folder_path"
