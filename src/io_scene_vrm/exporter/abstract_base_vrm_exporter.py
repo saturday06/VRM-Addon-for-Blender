@@ -50,14 +50,22 @@ class AbstractBaseVrmExporter(ABC):
 
     @staticmethod
     def enter_clear_blend_shape_proxy_previews(
+        context: Context,
         armature_data: Armature,
-    ) -> tuple[Sequence[float], Mapping[str, float]]:
-        ext = get_armature_extension(armature_data)
+    ) -> tuple[Sequence[float], Mapping[str, float], Mapping[str, Mapping[str, float]]]:
+        saved_shape_key_values: dict[str, Mapping[str, float]] = {}
+        for mesh in context.blend_data.meshes:
+            key_block_name_to_values: dict[str, float] = {}
+            shape_keys = mesh.shape_keys
+            if not shape_keys:
+                continue
 
-        saved_vrm0_previews: list[float] = []
-        for blend_shape_group in ext.vrm0.blend_shape_master.blend_shape_groups:
-            saved_vrm0_previews.append(blend_shape_group.preview)
-            blend_shape_group.preview = 0
+            for key_block in shape_keys.key_blocks:
+                key_block_name_to_values[key_block.name] = key_block.value
+
+            saved_shape_key_values[mesh.name] = key_block_name_to_values
+
+        ext = get_armature_extension(armature_data)
 
         saved_vrm1_previews: dict[str, float] = {}
         for (
@@ -67,13 +75,20 @@ class AbstractBaseVrmExporter(ABC):
             saved_vrm1_previews[name] = expression.preview
             expression.preview = 0
 
-        return saved_vrm0_previews, saved_vrm1_previews
+        saved_vrm0_previews: list[float] = []
+        for blend_shape_group in ext.vrm0.blend_shape_master.blend_shape_groups:
+            saved_vrm0_previews.append(blend_shape_group.preview)
+            blend_shape_group.preview = 0
+
+        return saved_vrm0_previews, saved_vrm1_previews, saved_shape_key_values
 
     @staticmethod
     def leave_clear_blend_shape_proxy_previews(
+        context: Context,
         armature_data: Armature,
         saved_vrm0_previews: Sequence[float],
         saved_vrm1_previews: Mapping[str, float],
+        saved_shape_key_values: Mapping[str, Mapping[str, float]],
     ) -> None:
         ext = get_armature_extension(armature_data)
 
@@ -90,12 +105,26 @@ class AbstractBaseVrmExporter(ABC):
             if expression_preview is not None:
                 expression.preview = expression_preview
 
+        for mesh_name, key_block_name_to_values in saved_shape_key_values.items():
+            mesh = context.blend_data.meshes.get(mesh_name)
+            if not mesh:
+                continue
+
+            shape_keys = mesh.shape_keys
+            if not shape_keys:
+                continue
+
+            for key_block in shape_keys.key_blocks:
+                shape_key_value = key_block_name_to_values.get(key_block.name)
+                if shape_key_value is not None:
+                    key_block.value = shape_key_value
+
     @contextmanager
     def clear_blend_shape_proxy_previews(
-        self, armature_data: Armature
+        self, context: Context, armature_data: Armature
     ) -> Iterator[None]:
-        saved_vrm0_previews, saved_vrm1_previews = (
-            self.enter_clear_blend_shape_proxy_previews(armature_data)
+        saved_vrm0_previews, saved_vrm1_previews, saved_shape_key_values = (
+            self.enter_clear_blend_shape_proxy_previews(context, armature_data)
         )
         try:
             yield
@@ -104,7 +133,11 @@ class AbstractBaseVrmExporter(ABC):
             # be careful not to access potentially invalid native objects after yield
         finally:
             self.leave_clear_blend_shape_proxy_previews(
-                armature_data, saved_vrm0_previews, saved_vrm1_previews
+                context,
+                armature_data,
+                saved_vrm0_previews,
+                saved_vrm1_previews,
+                saved_shape_key_values,
             )
 
     def enter_enable_deform_for_all_referenced_bones(
