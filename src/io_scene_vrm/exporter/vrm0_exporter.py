@@ -5,8 +5,7 @@ import itertools
 import re
 import statistics
 import struct
-from collections.abc import Iterator, Mapping, MutableSequence, Sequence
-from contextlib import contextmanager
+from collections.abc import Mapping, MutableSequence, Sequence
 from dataclasses import dataclass, field
 from os import environ
 from sys import float_info
@@ -26,7 +25,6 @@ from bpy.types import (
     Object,
     PoseBone,
     ShaderNodeGroup,
-    ShapeKey,
 )
 from mathutils import Matrix, Vector
 
@@ -3489,63 +3487,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         return armature_data
-
-    @staticmethod
-    def enter_clear_shape_key_values(
-        context: Context, export_objects: Sequence[Object]
-    ) -> Mapping[tuple[str, str], float]:
-        mesh_name_and_shape_key_name_to_value: dict[tuple[str, str], float] = {}
-        mesh_objs = [obj for obj in export_objects if obj.type == "MESH"]
-        for mesh_obj in mesh_objs:
-            mesh = mesh_obj.data
-            if not isinstance(mesh, Mesh):
-                continue
-            shape_keys = mesh.shape_keys
-            if not shape_keys:
-                continue
-            key_block: Optional[ShapeKey] = None
-            for key_block in shape_keys.key_blocks:
-                mesh_name_and_shape_key_name_to_value[(mesh.name, key_block.name)] = (
-                    key_block.value
-                )
-                key_block.value = 0
-        context.view_layer.update()
-        return mesh_name_and_shape_key_name_to_value
-
-    @staticmethod
-    def leave_clear_shape_key_values(
-        context: Context,
-        mesh_name_and_shape_key_name_to_value: Mapping[tuple[str, str], float],
-    ) -> None:
-        for (
-            mesh_name,
-            shape_key_name,
-        ), value in mesh_name_and_shape_key_name_to_value.items():
-            mesh = context.blend_data.meshes.get(mesh_name)
-            if not mesh:
-                continue
-            shape_keys = mesh.shape_keys
-            if not shape_keys:
-                continue
-            key_block = shape_keys.key_blocks.get(shape_key_name)
-            if not key_block:
-                continue
-            key_block.value = value
-
-    @contextmanager
-    def clear_shape_key_values(self) -> Iterator[Mapping[tuple[str, str], float]]:
-        mesh_name_and_shape_key_name_to_value = self.enter_clear_shape_key_values(
-            self.context, self.export_objects
-        )
-        try:
-            yield mesh_name_and_shape_key_name_to_value
-            # After yield, bpy native objects may be deleted or frames may advance
-            # making them invalid. Accessing them in this state can cause crashes,
-            # so be careful not to access potentially invalid native objects after yield
-        finally:
-            self.leave_clear_shape_key_values(
-                self.context, mesh_name_and_shape_key_name_to_value
-            )
 
     def create_gltf2_io_texture(
         self,
