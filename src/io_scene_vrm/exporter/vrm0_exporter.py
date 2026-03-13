@@ -3100,6 +3100,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             self.context.blend_data.meshes.remove(main_mesh_data)
         main_mesh_data = None
 
+        if original_shape_keys:
+            for key_block_name, value in key_block_name_to_value.items():
+                key_block = original_shape_keys.key_blocks.get(key_block_name)
+                if key_block:
+                    key_block.value = value
+            self.context.view_layer.update()
+
         if not material_index_to_vertex_indices:
             return scene_node_index
 
