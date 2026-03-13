@@ -485,7 +485,7 @@ class VRM_PT_spring_bone1_ui(Panel):
     bl_translation_context = "VRM"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "VRM"
+    bl_category = "KHR Character / VRM"
     bl_options: ClassVar = {"DEFAULT_CLOSED"}
 
     @classmethod
