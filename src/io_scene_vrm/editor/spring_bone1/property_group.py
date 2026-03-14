@@ -912,6 +912,11 @@ class SpringBone1ColliderReferencePropertyGroup(PropertyGroup):
         return value if isinstance(value, str) else str(value)
 
     def set_collider_name(self, value: object) -> None:
+        """渡されたcollider_nameから、対応するColliderPropertyGroupのuuidを探して、collider_uuidにセットする.
+
+        同時に、表示用のnameプロパティも更新する
+        TODO: この実装は非常に邪悪なため、UUIDのみの実装へ強い意志でリファクタリングする
+        """
         armature = self.id_data
         if not isinstance(armature, Armature):
             message = (
@@ -964,6 +969,11 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
         self.fix_index()
 
     def fix_index(self) -> None:
+        """nameプロパティに、表示用と参照制御用のインデックス値を付与する.
+
+        VRM出力用の名前はvrm_nameプロパティに持つが、UI上は同名のColliderGroupが
+        複数存在する可能性があるため、UI上の識別のために1オリジンのインデックスを付与する。
+        """
         armature = self.id_data
         if not isinstance(armature, Armature):
             message = (
@@ -981,6 +991,8 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
             name = f"{self.vrm_name} #{index + 1}"
             self.name = name
 
+            # TODO: この参照張り替えの実装は非常に邪悪なため、
+            # UUIDのみの実装へ強い意志でリファクタリングする
             for spring in spring_bone.springs:
                 for collider_group_reference in spring.collider_groups:
                     if collider_group_reference.collider_group_uuid == self.uuid:
