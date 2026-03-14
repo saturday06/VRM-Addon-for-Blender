@@ -2,7 +2,9 @@
 from bpy.types import Armature, Context, Object
 
 from ..extension_accessor import get_armature_extension
-from .ops import assign_spring_bone1_from_vrm0
+from .ops import (
+    assign_spring_bone1_automatically,
+)
 from .property_group import SpringBone1SpringBonePropertyGroup
 
 
@@ -77,4 +79,4 @@ def migrate(context: Context, armature: Object) -> None:
 
     if spring_bone1.initial_automatic_spring_bone_assignment:
         spring_bone1.initial_automatic_spring_bone_assignment = False
-        assign_spring_bone1_from_vrm0(context, armature.name)
+        assign_spring_bone1_automatically(context, armature.name)

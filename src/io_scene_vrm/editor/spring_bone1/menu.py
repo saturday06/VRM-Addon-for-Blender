@@ -5,7 +5,11 @@ from typing import Final
 from bpy.types import Context, Menu, Object, UILayout
 
 from ..ops import layout_operator
-from .ops import VRM_OT_assign_spring_bone1_from_vrm0
+from .ops import (
+    VRM_OT_assign_spring_bone1_automatically,
+    VRM_OT_assign_spring_bone1_from_mmd,
+    VRM_OT_assign_spring_bone1_from_vrm0,
+)
 
 
 class VRM_MT_vrm1_spring_bone(Menu):
@@ -27,5 +31,13 @@ class VRM_MT_vrm1_spring_bone(Menu):
         if not isinstance(armature, Object):
             return
 
+        auto_detection_op = layout_operator(
+            layout, VRM_OT_assign_spring_bone1_automatically
+        )
+        auto_detection_op.armature_object_name = armature.name
+
         assign_op = layout_operator(layout, VRM_OT_assign_spring_bone1_from_vrm0)
         assign_op.armature_object_name = armature.name
+
+        assign_mmd_op = layout_operator(layout, VRM_OT_assign_spring_bone1_from_mmd)
+        assign_mmd_op.armature_object_name = armature.name

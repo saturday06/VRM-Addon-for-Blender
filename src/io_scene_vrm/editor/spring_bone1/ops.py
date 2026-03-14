@@ -3,12 +3,12 @@ import uuid
 import warnings
 from collections import deque
 from sys import float_info
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 from bpy.props import BoolProperty, FloatProperty, IntProperty, StringProperty
-from bpy.types import Armature, Bone, Context, Operator
+from bpy.types import Armature, Bone, ChildOfConstraint, Context, Object, Operator
 
-from ...common import safe_removal
+from ...common import convert, safe_removal
 from ...common.logger import get_logger
 from ..extension_accessor import get_armature_extension
 from .handler import reset_state, update_pose_bone_rotations
@@ -1747,6 +1747,242 @@ class VRM_OT_assign_spring_bone1_from_vrm0(Operator):
 
     def execute(self, context: Context) -> set[str]:
         return assign_spring_bone1_from_vrm0(context, self.armature_object_name)
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+
+
+def assign_spring_bone1_from_mmd(
+    context: Context,
+    armature_object_name: str,
+) -> set[str]:
+    armature = context.blend_data.objects.get(armature_object_name)
+    if armature is None or armature.type != "ARMATURE":
+        return {"CANCELLED"}
+
+    armature_data = armature.data
+    if not isinstance(armature_data, Armature):
+        return {"CANCELLED"}
+
+    ext = get_armature_extension(armature_data)
+    spring_bone1 = ext.spring_bone1
+    if spring_bone1.colliders or spring_bone1.springs:
+        return {"FINISHED"}
+
+    # Collect MMD rigid bodies associated with this armature.
+    # mmd_rigid.type: '0' = kinematic (collider), '1' or '2' = dynamic (springy bone).
+    # https://github.com/MMD-Blender/blender_mmd_tools/blob/v4.5.9/mmd_tools/core/rigid_body.py
+    # https://github.com/MMD-Blender/blender_mmd_tools/blob/v4.5.9/mmd_tools/properties/rigid_body.py
+    static_rigid_bone_name_to_obj: dict[str, Object] = {}
+    dynamic_rigid_bone_names: list[str] = []
+
+    for obj in context.blend_data.objects:
+        mmd_type: object = getattr(obj, "mmd_type", None)
+        if mmd_type != "RIGID_BODY":
+            continue
+
+        mmd_rigid: object = getattr(obj, "mmd_rigid", None)
+        if mmd_rigid is None:
+            continue
+
+        # The bone linkage is stored in a 'mmd_tools_rigid_parent' CHILD_OF constraint.
+        rigid_parent_constraint = obj.constraints.get("mmd_tools_rigid_parent")
+        if not isinstance(rigid_parent_constraint, ChildOfConstraint):
+            continue
+
+        if rigid_parent_constraint.target != armature:
+            continue
+
+        bone_name = rigid_parent_constraint.subtarget
+        if not bone_name:
+            continue
+
+        if bone_name not in armature_data.bones:
+            continue
+
+        rigid_type: object = getattr(mmd_rigid, "type", None)
+        if rigid_type == "0":
+            # MODE_STATIC
+            static_rigid_bone_name_to_obj[bone_name] = obj
+        elif rigid_type in ("1", "2") and bone_name not in dynamic_rigid_bone_names:
+            # MODE_DYNAMIC, MODE_DYNAMIC_BONE
+            dynamic_rigid_bone_names.append(bone_name)
+
+    if not dynamic_rigid_bone_names:
+        return {"FINISHED"}
+
+    # Create sphere colliders from kinematic (non-physics) rigid bodies.
+    static_rigid_bone_to_collider_group: dict[
+        str, SpringBone1ColliderGroupPropertyGroup
+    ] = {}
+    for bone_name, mmd_obj in static_rigid_bone_name_to_obj.items():
+        collider = spring_bone1.add_collider(context, armature)
+        collider.node.bone_name = bone_name
+
+        mmd_rigid = getattr(mmd_obj, "mmd_rigid", None)
+        shape: object = getattr(mmd_rigid, "shape", None)
+        # Estimate size from the object's bounding-box dimensions.
+        dimensions = convert.float3_or_none(getattr(mmd_obj, "dimensions", None))
+        if dimensions:
+            dim_x, dim_y, dim_z = dimensions
+        else:
+            dim_x, dim_y, dim_z = 0.25, 0.25, 0.25
+
+        if shape == "CAPSULE":
+            collider.shape_type = collider.SHAPE_TYPE_CAPSULE.identifier
+            radius = max(dim_x, dim_y) / 2
+            height = max(dim_z - radius * 2, 0.0)
+            collider.shape.capsule.radius = max(radius, 0.0001)
+            half_h = height / 2
+            collider.shape.capsule.offset = (0, 0, -half_h)
+            collider.shape.capsule.tail = (0, 0, half_h)
+        else:
+            collider.shape_type = collider.SHAPE_TYPE_SPHERE.identifier
+            radius = max(dim_x, dim_y, dim_z) / 2
+            collider.shape.sphere.radius = max(radius, 0.0001)
+
+        collider_bpy_object = collider.bpy_object
+        if collider_bpy_object:
+            collider_bpy_object.matrix_world = mmd_obj.matrix_world
+        collider.broadcast_bpy_object_name()
+
+        collider_group = spring_bone1.add_collider_group()
+        collider_group.vrm_name = bone_name + "-mmd-colliders"
+        collider_group_collider = collider_group.add_collider()
+        collider_group_collider.collider_name = collider.name
+        static_rigid_bone_to_collider_group[bone_name] = collider_group
+
+    # Build bone chains from physics bones.
+    # Root physics bones are those whose direct bone parent is NOT a physics bone.
+    root_physics_bones: list[Bone] = []
+    for bone_name in dynamic_rigid_bone_names:
+        bone = armature_data.bones.get(bone_name)
+        if not bone:
+            continue
+        parent = bone.parent
+        if parent is None or parent.name not in dynamic_rigid_bone_names:
+            root_physics_bones.append(bone)
+
+    assigned_bone_names: set[str] = set()
+    bone_chains: list[list[str]] = []
+
+    start_bones = deque[Bone](root_physics_bones)
+    while start_bones:
+        start_bone = start_bones.popleft()
+        if start_bone.name in assigned_bone_names:
+            continue
+        bone_chain = [start_bone.name]
+        child_bones = deque[Bone](
+            child
+            for child in start_bone.children
+            if child.name in dynamic_rigid_bone_names
+        )
+        while child_bones:
+            first_child_bone = child_bones.popleft()
+            bone_chain.append(first_child_bone.name)
+            start_bones.extend(child_bones)
+            child_bones = deque[Bone](
+                child
+                for child in first_child_bone.children
+                if child.name in dynamic_rigid_bone_names
+            )
+        bone_chains.append(bone_chain)
+        assigned_bone_names.update(bone_chain)
+
+    for bone_chain in bone_chains:
+        if not bone_chain:
+            continue
+        first_bone_name = bone_chain[0]
+
+        spring = spring_bone1.add_spring()
+
+        spring_vrm_name = ""
+        root_pose_bone = armature.pose.bones.get(first_bone_name)
+        if root_pose_bone is not None:
+            mmd_bone: object = getattr(root_pose_bone, "mmd_bone", None)
+            if mmd_bone is not None:
+                name_j = getattr(mmd_bone, "name_j", None)
+                if isinstance(name_j, str) and name_j:
+                    spring_vrm_name = name_j
+        if not spring_vrm_name:
+            spring_vrm_name = first_bone_name
+        spring.vrm_name = spring_vrm_name + "-" + uuid.uuid4().hex
+
+        for bone_name in bone_chain:
+            joint = spring.add_joint()
+            joint.node.bone_name = bone_name
+
+        # Associate collider groups whose bone is an ancestor of the root physics bone.
+        root_bone = armature_data.bones.get(first_bone_name)
+        if root_bone:
+            traversing: Optional[Bone] = root_bone.parent
+            while traversing:
+                collider_group = static_rigid_bone_to_collider_group.get(
+                    traversing.name
+                )
+                if collider_group:
+                    spring_collider_group = spring.add_collider_group()
+                    spring_collider_group.collider_group_name = collider_group.name
+                traversing = traversing.parent
+
+    return {"FINISHED"}
+
+
+class VRM_OT_assign_spring_bone1_from_mmd(Operator):
+    bl_idname = "vrm.assign_spring_bone1_from_mmd"
+    bl_label = "Copy MMD Spring Bone"
+    bl_description = "Copy MMD spring bone data to VRM 1.0 Spring Bone"
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        return assign_spring_bone1_from_mmd(context, self.armature_object_name)
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+
+
+def assign_spring_bone1_automatically(
+    context: Context, armature_object_name: str
+) -> set[str]:
+    armature = context.blend_data.objects.get(armature_object_name)
+    if armature is None or armature.type != "ARMATURE":
+        return {"CANCELLED"}
+    armature_data = armature.data
+    if not isinstance(armature_data, Armature):
+        return {"CANCELLED"}
+
+    ext = get_armature_extension(armature_data)
+    spring_bone1 = ext.spring_bone1
+
+    if spring_bone1.colliders or spring_bone1.springs:
+        return {"FINISHED"}
+
+    assign_spring_bone1_from_vrm0(context, armature_object_name)
+    assign_spring_bone1_from_mmd(context, armature_object_name)
+
+    return {"FINISHED"}
+
+
+class VRM_OT_assign_spring_bone1_automatically(Operator):
+    bl_idname = "vrm.assign_spring_bone1_automatically"
+    bl_label = "Assign Auto-Detected Spring Bones"
+    bl_description = "Assign Spring Bones automatically"
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        return assign_spring_bone1_automatically(context, self.armature_object_name)
 
     if TYPE_CHECKING:
         # This code is auto generated.

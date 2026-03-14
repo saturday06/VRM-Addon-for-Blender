@@ -400,6 +400,8 @@ classes: list[
     spring_bone1_ops.VRM_OT_reset_spring_bone1_animation_state,
     spring_bone1_ops.VRM_OT_update_spring_bone1_animation,
     spring_bone1_ops.VRM_OT_assign_spring_bone1_from_vrm0,
+    spring_bone1_ops.VRM_OT_assign_spring_bone1_from_mmd,
+    spring_bone1_ops.VRM_OT_assign_spring_bone1_automatically,
     mtoon1_ops.VRM_OT_convert_material_to_mtoon1,
     mtoon1_ops.VRM_OT_convert_mtoon1_to_bsdf_principled,
     mtoon1_ops.VRM_OT_reset_mtoon1_material_shader_node_tree,
