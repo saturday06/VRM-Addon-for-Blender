@@ -6,11 +6,10 @@ ci:
     max: 2
     when:
       - runner_system_failure
-  variables:
-    PATH: "${HOME}/.local/bin:${PATH}"
   before_script:
     - ./tools/install_ubuntu_packages.sh
     - ./tools/install_act.sh
+    - export PATH="${HOME}/.local/bin:${PATH}"
     - timeout 600 sh -c 'until docker info --format "{{ .OperatingSystem }}"; do sleep 1; done'
   script:
     - act
