@@ -64,6 +64,7 @@ from .editor.mtoon1 import property_group as mtoon1_property_group
 from .editor.node_constraint1 import panel as node_constraint1_panel
 from .editor.node_constraint1 import property_group as node_constraint1_property_group
 from .editor.spring_bone1 import handler as spring_bone1_handler
+from .editor.spring_bone1 import menu as spring_bone1_menu
 from .editor.spring_bone1 import ops as spring_bone1_ops
 from .editor.spring_bone1 import panel as spring_bone1_panel
 from .editor.spring_bone1 import property_group as spring_bone1_property_group
@@ -242,6 +243,7 @@ classes: list[
     panel.VRM_PT_controller,
     panel.VRM_PT_vrm_armature_object_property,
     vrm0_menu.VRM_MT_vrm0_blend_shape_master,
+    spring_bone1_menu.VRM_MT_vrm1_spring_bone,
     vrm0_ui_list.VRM_UL_vrm0_first_person_mesh_annotation,
     vrm0_ui_list.VRM_UL_vrm0_blend_shape_bind,
     vrm0_ui_list.VRM_UL_vrm0_blend_shape_group,
@@ -397,6 +399,7 @@ classes: list[
     spring_bone1_ops.VRM_OT_move_down_spring_bone1_joint,
     spring_bone1_ops.VRM_OT_reset_spring_bone1_animation_state,
     spring_bone1_ops.VRM_OT_update_spring_bone1_animation,
+    spring_bone1_ops.VRM_OT_assign_spring_bone1_from_vrm0,
     mtoon1_ops.VRM_OT_convert_material_to_mtoon1,
     mtoon1_ops.VRM_OT_convert_mtoon1_to_bsdf_principled,
     mtoon1_ops.VRM_OT_reset_mtoon1_material_shader_node_tree,

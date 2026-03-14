@@ -10,6 +10,7 @@ from ..migration import defer_migrate
 from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
 from ..search import active_object_is_vrm1_armature
 from . import ops
+from .menu import VRM_MT_vrm1_spring_bone
 from .property_group import (
     SpringBone1ColliderGroupPropertyGroup,
     SpringBone1ColliderPropertyGroup,
@@ -359,6 +360,10 @@ def draw_spring_bone1_springs_layout(
         ops.VRM_OT_remove_spring_bone1_spring,
         ops.VRM_OT_move_up_spring_bone1_spring,
         ops.VRM_OT_move_down_spring_bone1_spring,
+        menu_and_context_pointer_set_callback=(
+            VRM_MT_vrm1_spring_bone,
+            VRM_MT_vrm1_spring_bone.layout_context_pointer_set(armature),
+        ),
     )
 
     for spring_collection_op in spring_collection_ops:

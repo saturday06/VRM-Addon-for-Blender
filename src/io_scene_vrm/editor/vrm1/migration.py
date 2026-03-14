@@ -201,6 +201,13 @@ def migrate_auto_pose(_context: Context, armature_data: Armature) -> None:
         humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
 
 
+def is_unnecessary(vrm1: Vrm1PropertyGroup) -> bool:
+    return (
+        not vrm1.humanoid.human_bones.initial_automatic_bone_assignment
+        and not vrm1.expressions.initial_automatic_expression_assignment
+    )
+
+
 def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):

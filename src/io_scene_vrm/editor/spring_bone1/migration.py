@@ -2,6 +2,8 @@
 from bpy.types import Armature, Context, Object
 
 from ..extension_accessor import get_armature_extension
+from .ops import assign_spring_bone1_from_vrm0
+from .property_group import SpringBone1SpringBonePropertyGroup
 
 
 def migrate_blender_object(armature: Armature) -> None:
@@ -52,10 +54,27 @@ def fixup_collider_group_name(armature: Armature) -> None:
             collider_group.fix_index()
 
 
-def migrate(_context: Context, armature: Object) -> None:
+def is_unnecessary(spring_bone1: SpringBone1SpringBonePropertyGroup) -> bool:
+    return not spring_bone1.initial_automatic_spring_bone_assignment
+
+
+def migrate(context: Context, armature: Object) -> None:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
     migrate_blender_object(armature_data)
     fixup_gravity_dir(armature_data)
     fixup_collider_group_name(armature_data)
+
+    ext = get_armature_extension(armature_data)
+    spring_bone1 = ext.spring_bone1
+
+    if (
+        tuple(ext.addon_version) < (3, 21, 2)
+        and tuple(ext.addon_version) != ext.INITIAL_ADDON_VERSION
+    ):
+        spring_bone1.initial_automatic_spring_bone_assignment = False
+
+    if spring_bone1.initial_automatic_spring_bone_assignment:
+        spring_bone1.initial_automatic_spring_bone_assignment = False
+        assign_spring_bone1_from_vrm0(context, armature.name)

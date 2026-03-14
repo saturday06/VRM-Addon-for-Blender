@@ -1871,6 +1871,10 @@ class Constraint(bpy_struct):
     mute: bool
     influence: float
 
+class ChildOfConstraint(Constraint):
+    subtarget: str
+    target: Object | None
+
 class ObjectConstraints(bpy_prop_collection[Constraint]):
     def new(self, type: str) -> Constraint: ...
 

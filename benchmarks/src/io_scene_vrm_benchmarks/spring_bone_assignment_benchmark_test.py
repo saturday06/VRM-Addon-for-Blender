@@ -77,11 +77,7 @@ def generate_many_spring_bones() -> None:
 
         mop_strand_bone = root_mop_strand_bone
         while mop_strand_bone:
-            ops.vrm.add_spring_bone1_spring_joint(
-                armature_object_name=armature_object.name,
-                spring_index=spring_index,
-            )
-            joint = spring.joints[-1]
+            joint = spring.add_joint()
             joint.gravity_power = 1
             joint.drag_force = 1 / 512
             joint.stiffness = 1 / 1024

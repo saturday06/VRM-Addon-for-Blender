@@ -1,16 +1,18 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import uuid
 import warnings
+from collections import deque
 from sys import float_info
 from typing import TYPE_CHECKING, ClassVar
 
 from bpy.props import BoolProperty, FloatProperty, IntProperty, StringProperty
-from bpy.types import Armature, Context, Operator
+from bpy.types import Armature, Bone, Context, Operator
 
 from ...common import safe_removal
 from ...common.logger import get_logger
 from ..extension_accessor import get_armature_extension
 from .handler import reset_state, update_pose_bone_rotations
+from .property_group import SpringBone1ColliderGroupPropertyGroup
 
 logger = get_logger(__name__)
 
@@ -1588,121 +1590,153 @@ class VRM_OT_update_spring_bone1_animation(Operator):
         delta_time: float  # type: ignore[no-redef]
 
 
-def assign_vrm1_spring_bone_from_vrm0(
+def assign_spring_bone1_from_vrm0(
     context: Context,
     armature_object_name: str,
-) -> None:
+) -> set[str]:
     armature = context.blend_data.objects.get(armature_object_name)
     if armature is None or armature.type != "ARMATURE":
-        return
+        return {"CANCELLED"}
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
-        return
+        return {"CANCELLED"}
 
     ext = get_armature_extension(armature_data)
-    vrm0_secondary = ext.vrm0.secondary_animation
+    vrm0_secondary_animation = ext.vrm0.secondary_animation
     spring_bone1 = ext.spring_bone1
 
-    if not vrm0_secondary.collider_groups and not vrm0_secondary.bone_groups:
-        return
+    if (
+        not vrm0_secondary_animation.collider_groups
+        and not vrm0_secondary_animation.bone_groups
+    ):
+        return {"FINISHED"}
 
     if spring_bone1.colliders or spring_bone1.springs:
-        return
+        return {"FINISHED"}
 
-    # Map from VRM0 collider_group index to list of VRM1 collider indices
-    vrm0_collider_group_index_to_vrm1_collider_indices: dict[int, list[int]] = {}
-
-    for vrm0_cg_index, vrm0_cg in enumerate(vrm0_secondary.collider_groups):
-        vrm1_collider_indices: list[int] = []
-        for vrm0_collider in vrm0_cg.colliders:
-            if not vrm0_collider.bpy_object or not vrm0_collider.bpy_object.name:
+    vrm0_collider_group_uuid_to_collider_group: dict[
+        str, SpringBone1ColliderGroupPropertyGroup
+    ] = {}
+    for vrm0_collider_group in vrm0_secondary_animation.collider_groups:
+        if not vrm0_collider_group.uuid:
+            continue
+        collider_group = spring_bone1.add_collider_group()
+        collider_group_name = vrm0_collider_group.node.bone_name
+        if collider_group_name:
+            collider_group_name += "-"
+        collider_group_name += vrm0_collider_group.uuid
+        collider_group.vrm_name = collider_group_name
+        for vrm0_collider in vrm0_collider_group.colliders:
+            vrm0_collider_bpy_object = vrm0_collider.bpy_object
+            if not vrm0_collider_bpy_object:
                 continue
-            vrm0_bpy_obj = vrm0_collider.bpy_object
-            collider1 = spring_bone1.colliders.add()
-            collider1.uuid = uuid.uuid4().hex
-            collider1.node.bone_name = vrm0_cg.node.bone_name
-            collider1.reset_bpy_object(context, armature)
-            if collider1.bpy_object:
-                collider1.bpy_object.matrix_world = vrm0_bpy_obj.matrix_world
-                collider1.bpy_object.empty_display_size = (
-                    vrm0_bpy_obj.empty_display_size
-                )
-            collider1.shape.sphere.radius = vrm0_bpy_obj.empty_display_size
-            vrm1_collider_indices.append(len(spring_bone1.colliders) - 1)
-        vrm0_collider_group_index_to_vrm1_collider_indices[vrm0_cg_index] = (
-            vrm1_collider_indices
+
+            collider = spring_bone1.add_collider(context, armature)
+            collider.node.bone_name = vrm0_collider_group.node.bone_name
+            collider.shape_type = collider.SHAPE_TYPE_SPHERE.identifier
+            collider_bpy_object = collider.bpy_object
+            if collider_bpy_object:
+                collider_bpy_object.name = vrm0_collider_bpy_object.name + ".1"
+                collider_bpy_object.matrix_world = vrm0_collider_bpy_object.matrix_world
+            collider.broadcast_bpy_object_name()
+            vrm0_scale = vrm0_collider_bpy_object.scale
+            vrm0_mean_abs_scale = (
+                abs(vrm0_scale[0]) + abs(vrm0_scale[1]) + abs(vrm0_scale[2])
+            ) / 3.0
+            effective_radius = (
+                vrm0_collider_bpy_object.empty_display_size * vrm0_mean_abs_scale
+            )
+            collider.shape.sphere.radius = effective_radius
+
+            collider_group_collider = collider_group.add_collider()
+            collider_group_collider.collider_name = collider.name
+        vrm0_collider_group_uuid_to_collider_group[vrm0_collider_group.uuid] = (
+            collider_group
         )
 
-    # Create VRM1 collider groups from VRM0 collider groups
-    # Map from VRM0 collider_group index to VRM1 collider_group index
-    vrm0_cg_index_to_vrm1_cg_index: dict[int, int] = {}
-    for vrm0_cg_index, vrm0_cg in enumerate(vrm0_secondary.collider_groups):
-        collider_group1 = spring_bone1.collider_groups.add()
-        collider_group1.uuid = uuid.uuid4().hex
-        collider_group1.vrm_name = vrm0_cg.node.bone_name
-        vrm1_cg_index = len(spring_bone1.collider_groups) - 1
-        vrm0_cg_index_to_vrm1_cg_index[vrm0_cg_index] = vrm1_cg_index
+    assigned_bone_names: set[str] = set()
+    for vrm0_bone_group in vrm0_secondary_animation.bone_groups:
+        root_bones: list[Bone] = []
+        for vrm0_bone_group_bone in vrm0_bone_group.bones:
+            bone_name = vrm0_bone_group_bone.bone_name
+            if not bone_name:
+                continue
+            bone = armature_data.bones.get(bone_name)
+            if not bone:
+                continue
+            if bone.name in assigned_bone_names:
+                continue
+            traversing_bone = bone
+            while traversing_bone:
+                if traversing_bone in root_bones:
+                    break
+                traversing_bone = traversing_bone.parent
+            if traversing_bone:
+                continue
 
-        vrm1_collider_indices = vrm0_collider_group_index_to_vrm1_collider_indices.get(
-            vrm0_cg_index, []
+            children = list(bone.children)
+            while children:
+                child_bone = children.pop()
+                if child_bone in root_bones:
+                    root_bones.remove(child_bone)
+                children.extend(child_bone.children)
+
+            root_bones.append(bone)
+
+        bone_chains: list[list[str]] = []
+
+        start_bones = deque[Bone](root_bones)
+        while start_bones:
+            start_bone = start_bones.popleft()
+            bone_chain = [start_bone.name]
+            child_bones = deque[Bone](start_bone.children)
+            while child_bones:
+                first_child_bone = child_bones.popleft()
+                bone_chain.append(first_child_bone.name)
+                start_bones.extend(child_bones)
+                child_bones = deque[Bone](first_child_bone.children)
+            bone_chains.append(bone_chain)
+
+        assigned_bone_names.update(
+            bone_name for bone_chain in bone_chains for bone_name in bone_chain
         )
-        for vrm1_collider_index in vrm1_collider_indices:
-            if not 0 <= vrm1_collider_index < len(spring_bone1.colliders):
-                continue
-            collider1 = spring_bone1.colliders[vrm1_collider_index]
-            collider_ref = collider_group1.colliders.add()
-            collider_ref.collider_name = collider1.name
 
-    # Create VRM1 springs from VRM0 bone groups
-    for vrm0_bone_group in vrm0_secondary.bone_groups:
-        for root_bone_prop in vrm0_bone_group.bones:
-            root_bone_name = root_bone_prop.bone_name
-            if not root_bone_name:
-                continue
-            root_bone = armature_data.bones.get(root_bone_name)
-            if root_bone is None:
-                continue
+        for bone_chain in bone_chains:
+            spring = spring_bone1.add_spring()
+            spring_vrm_name = vrm0_bone_group.comment
+            if not spring_vrm_name:
+                spring_vrm_name = "Spring"
+            spring_vrm_name += "-" + uuid.uuid4().hex
+            spring.vrm_name = spring_vrm_name
+            spring.center.bone_name = vrm0_bone_group.center.bone_name
 
-            spring1 = spring_bone1.springs.add()
-            spring1.vrm_name = vrm0_bone_group.comment or root_bone_name
-            spring1.center.bone_name = vrm0_bone_group.center.bone_name
-
-            # Walk bone chain and add joints
-            bone = root_bone
-            while True:
-                joint = spring1.joints.add()
-                joint.node.bone_name = bone.name
+            for bone_name in bone_chain:
+                joint = spring.add_joint()
+                joint.node.bone_name = bone_name
                 joint.stiffness = vrm0_bone_group.stiffiness
                 joint.gravity_power = vrm0_bone_group.gravity_power
                 joint.gravity_dir = list(vrm0_bone_group.gravity_dir)
                 joint.drag_force = vrm0_bone_group.drag_force
                 joint.hit_radius = vrm0_bone_group.hit_radius
-                if bone.children:
-                    bone = bone.children[0]
-                else:
-                    break
 
-            # Add collider group references
-            for vrm0_cg_ref in vrm0_bone_group.collider_groups:
-                ref_name = vrm0_cg_ref.value
-                # Find the matching VRM0 collider group
-                for vrm0_cg_index, vrm0_cg in enumerate(vrm0_secondary.collider_groups):
-                    if vrm0_cg.name == ref_name:
-                        vrm1_cg_index = vrm0_cg_index_to_vrm1_cg_index.get(
-                            vrm0_cg_index
-                        )
-                        if vrm1_cg_index is not None and 0 <= vrm1_cg_index < len(
-                            spring_bone1.collider_groups
-                        ):
-                            cg_ref = spring1.collider_groups.add()
-                            cg_ref.collider_group_name = spring_bone1.collider_groups[
-                                vrm1_cg_index
-                            ].name
-                        break
+            for vrm0_bone_group_collider_group in vrm0_bone_group.collider_groups:
+                vrm0_collider_group_uuid = vrm0_bone_group_collider_group.value.split(
+                    "#"
+                )[-1]
+                if not vrm0_collider_group_uuid:
+                    continue
+                collider_group = vrm0_collider_group_uuid_to_collider_group.get(
+                    vrm0_collider_group_uuid
+                )
+                if not collider_group:
+                    continue
+                spring_collider_group = spring.add_collider_group()
+                spring_collider_group.collider_group_name = collider_group.name
+    return {"FINISHED"}
 
 
-class VRM_OT_assign_vrm1_spring_bone_from_vrm0(Operator):
-    bl_idname = "vrm.assign_vrm1_spring_bone_from_vrm0"
+class VRM_OT_assign_spring_bone1_from_vrm0(Operator):
+    bl_idname = "vrm.assign_spring_bone1_from_vrm0"
     bl_label = "Copy VRM 0.0 Spring Bone"
     bl_description = "Copy VRM 0.0 Spring Bone data to VRM 1.0 Spring Bone"
     bl_options: ClassVar = {"REGISTER", "UNDO"}
@@ -1712,8 +1746,7 @@ class VRM_OT_assign_vrm1_spring_bone_from_vrm0(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        assign_vrm1_spring_bone_from_vrm0(context, self.armature_object_name)
-        return {"FINISHED"}
+        return assign_spring_bone1_from_vrm0(context, self.armature_object_name)
 
     if TYPE_CHECKING:
         # This code is auto generated.

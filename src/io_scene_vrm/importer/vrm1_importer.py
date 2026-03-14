@@ -1610,7 +1610,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 continue
 
             for collider_index in collider_indices:
-                collider_group.add_collider()
+                collider_reference = collider_group.add_collider()
                 if not isinstance(collider_index, int):
                     continue
                 if not 0 <= collider_index < len(spring_bone.colliders):
@@ -1618,7 +1618,6 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 collider = spring_bone.colliders[collider_index]
                 if not collider:
                     continue
-                collider_reference = collider_group.colliders[-1]
                 collider_reference.collider_name = collider.name
             collider_group.active_collider_index = 0
         spring_bone.active_collider_group_index = 0
