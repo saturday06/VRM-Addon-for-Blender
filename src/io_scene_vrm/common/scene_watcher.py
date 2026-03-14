@@ -190,7 +190,7 @@ def create_fast_path_performance_test_scene(
     if (repository_root_path / ".git").exists() and (
         repository_root_path / "pyproject.toml"
     ).exists():
-        temp_path = repository_root_path / "tests" / "temp"
+        temp_path = repository_root_path / ".local" / "tmp"
     else:
         temp_path = Path(mkdtemp(prefix="vrm-format-"))
     cached_blend_path = temp_path / (

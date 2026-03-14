@@ -40,8 +40,8 @@ jobs:
         id: cache-archive
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
-          path: tests/temp
-          key: ${{ matrix.blender.archive_url_path }}-archive-11
+          path: .local/tmp/blender.zip
+          key: ${{ matrix.blender.archive_url_path }}-archive-12
       - name: Download archive
         if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
@@ -50,7 +50,7 @@ jobs:
           $retry = 10
           for (; $true; $retry--) {
             try {
-              Start-BitsTransfer tests\temp\blender.zip -Source $env:BLENDER_ARCHIVE_URL
+              Start-BitsTransfer .local\tmp\blender.zip -Source $env:BLENDER_ARCHIVE_URL
               break
             } catch {
               if ($retry -le 0) {
@@ -61,7 +61,7 @@ jobs:
           }
       - name: Test
         run: |
-          Expand-Archive -LiteralPath tests\temp\blender.zip -DestinationPath .github\blender
+          Expand-Archive -LiteralPath .local\tmp\blender.zip -DestinationPath .github\blender
           $env:BLENDER_VRM_TEST_BLENDER_PATH = (Get-ChildItem ".github\blender\*\blender.exe")[0].FullName
           & $env:BLENDER_VRM_TEST_BLENDER_PATH --background -noaudio --python-exit-code 1 --python tools\unittest_discover.py
       - name: Archive failed io test result
@@ -100,14 +100,14 @@ jobs:
         id: cache-archive
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
-          path: tests/temp
-          key: ${{ matrix.blender.archive_url_path }}-archive-11
+          path: .local/tmp/blender.dmg
+          key: ${{ matrix.blender.archive_url_path }}-archive-12
       - name: Download archive
         if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
           BLENDER_ARCHIVE_URL: ${{ env.BLENDER_ARCHIVE_BASE_URL }}/${{ matrix.blender.archive_url_path }}
         run: |
-          curl --fail --show-error --location --retry 5 --retry-all-errors --output tests/temp/blender.dmg "$BLENDER_ARCHIVE_URL"
+          curl --fail --show-error --location --retry 5 --retry-all-errors --output .local/tmp/blender.dmg "$BLENDER_ARCHIVE_URL"
       - name: Install dependencies
         run: |
           set -x
@@ -131,7 +131,7 @@ jobs:
       - name: Test
         run: |
           unpack_path=$(mktemp -d)
-          hdiutil attach tests/temp/blender.dmg -mountpoint "$unpack_path"
+          hdiutil attach .local/tmp/blender.dmg -mountpoint "$unpack_path"
           cp -fr "${unpack_path}/Blender.app" .github/Blender.app
           hdiutil detach "$unpack_path" || true
           ./.github/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
@@ -161,21 +161,21 @@ jobs:
         id: cache-archive
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
-          path: tests/temp
-          key: ${{ matrix.blender.archive_url_path }}-archive-11
+          path: .local/tmp/blender.tar.xz
+          key: ${{ matrix.blender.archive_url_path }}-archive-12
       - name: Download archive
         if: ${{ steps.cache-archive.outputs.cache-hit != 'true' }}
         env:
           BLENDER_ARCHIVE_URL: ${{ env.BLENDER_ARCHIVE_BASE_URL }}/${{ matrix.blender.archive_url_path }}
         run: |
-          curl --fail --show-error --location --retry 5 --retry-all-errors --output tests/temp/blender.tar.xz "$BLENDER_ARCHIVE_URL"
+          curl --fail --show-error --location --retry 5 --retry-all-errors --output .local/tmp/blender.tar.xz "$BLENDER_ARCHIVE_URL"
       - name: Install dependencies
         run: if sudo --non-interactive true; then sudo ./tools/install_ubuntu_packages.sh; fi
       - name: Test
         run: |
           blender_base_path="$PWD/.github/blender"
           mkdir -p "$blender_base_path"
-          tar -x --strip-components=1 -f tests/temp/blender.tar.xz -C "$blender_base_path"
+          tar -x --strip-components=1 -f .local/tmp/blender.tar.xz -C "$blender_base_path"
           "${blender_base_path}/blender" --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0

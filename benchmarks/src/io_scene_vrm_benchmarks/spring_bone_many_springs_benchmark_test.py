@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from pathlib import Path
 
 import bpy
 import pytest
@@ -12,6 +11,8 @@ from io_scene_vrm.editor.extension import (
     get_armature_extension,
 )
 from io_scene_vrm.editor.spring_bone1.handler import update_pose_bone_rotations
+
+from .util import TEMP_PATH
 
 
 def generate_many_springs(context: Context) -> None:
@@ -101,11 +102,7 @@ def test_spring_bone_many_springs(benchmark: BenchmarkFixture) -> None:
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     version_str = "_".join(map(str, tuple(bpy.app.version)))
-    path = (
-        Path(__file__).parent.parent.parent
-        / "temp"
-        / f"spring_bone_many_springs_{version_str}.blend"
-    )
+    path = TEMP_PATH / f"spring_bone_many_springs_{version_str}.blend"
     if not path.exists():
         bpy.ops.wm.read_homefile(use_empty=True)
         generate_many_springs(context)

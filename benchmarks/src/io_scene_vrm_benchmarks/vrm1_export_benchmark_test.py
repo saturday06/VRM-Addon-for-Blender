@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from os import environ
-from pathlib import Path
 
 import bpy
 import pytest
@@ -9,6 +8,8 @@ from pytest_codspeed.plugin import BenchmarkFixture
 
 from io_scene_vrm.common import ops
 
+from .util import TEMP_PATH
+
 
 def test_vrm1_export(benchmark: BenchmarkFixture) -> None:
     context = bpy.context
@@ -16,7 +17,7 @@ def test_vrm1_export(benchmark: BenchmarkFixture) -> None:
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     environ["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
-    blend_path = Path(__file__).parent.parent.parent / "temp" / "vrm1_export.blend"
+    blend_path = TEMP_PATH / "vrm1_export.blend"
     if not blend_path.exists():
         bpy.ops.wm.read_homefile(use_empty=True)
         url = "https://raw.githubusercontent.com/vrm-c/vrm-specification/c24d76d99a18738dd2c266be1c83f089064a7b5e/samples/Seed-san/vrm/Seed-san.vrm"

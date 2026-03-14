@@ -3,7 +3,8 @@
 
 set -eu -o pipefail
 
-mkdir -p ~/.local/bin
+cd "$(dirname "$0")/../.local"
+mkdir -p bin
 
 case "$(uname -m)" in
 "x86_64")
@@ -17,7 +18,8 @@ case "$(uname -m)" in
   ;;
 esac
 
-pushd "$(mktemp -d)"
+install_path="${PWD}/bin/"
+cd "$(mktemp -d)"
 
 curl \
   --fail \
@@ -29,6 +31,4 @@ curl \
   "$url"
 
 tar xf act.tar.gz
-mv act ~/.local/bin/act
-
-popd
+mv act "$install_path"

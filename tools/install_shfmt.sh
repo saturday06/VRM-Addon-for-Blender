@@ -3,7 +3,8 @@
 
 set -eu -o pipefail
 
-mkdir -p ~/.local/bin
+cd "$(dirname "$0")/../.local"
+mkdir -p bin
 
 case "$(uname -m)" in
 "x86_64")
@@ -19,15 +20,18 @@ case "$(uname -m)" in
   ;;
 esac
 
+install_path="${PWD}/bin/"
+cd "$(mktemp -d)"
+
 curl \
   --fail \
   --show-error \
   --location \
   --retry 20 \
   --retry-all-errors \
-  --output shfmt.tmp \
+  --output shfmt \
   "$url"
 
-test "$(sha256sum shfmt.tmp)" = "$sha256  shfmt.tmp"
-chmod 755 shfmt.tmp
-mv shfmt.tmp ~/.local/bin/shfmt
+test "$(sha256sum shfmt)" = "$sha256  shfmt"
+chmod 755 shfmt
+mv shfmt "$install_path"

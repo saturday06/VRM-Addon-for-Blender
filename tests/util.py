@@ -32,6 +32,7 @@ RESOURCES_PATH: Final = Path(
 BLENDER_MAJOR_MINOR_VERSION: Final = f"{bpy.app.version[0]}.{bpy.app.version[1]}"
 RESOURCES_VRM_PATH: Final = RESOURCES_PATH / "vrm"
 RESOURCES_BLEND_PATH: Final = RESOURCES_PATH / "blend"
+DEFAULT_TEMP_PATH: Final = REPOSITORY_ROOT_PATH / ".local" / "tmp"
 
 
 def make_test_method_name(text: str) -> str:

@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from pathlib import Path
 
 import bpy
 import pytest
@@ -7,6 +6,8 @@ import requests
 from pytest_codspeed.plugin import BenchmarkFixture
 
 from io_scene_vrm.common import ops
+
+from .util import TEMP_PATH
 
 
 def test_vrm1_import(benchmark: BenchmarkFixture) -> None:
@@ -16,7 +17,7 @@ def test_vrm1_import(benchmark: BenchmarkFixture) -> None:
     bpy.ops.wm.read_homefile(use_empty=True)
 
     url = "https://raw.githubusercontent.com/vrm-c/vrm-specification/c24d76d99a18738dd2c266be1c83f089064a7b5e/samples/Seed-san/vrm/Seed-san.vrm"
-    path = Path(__file__).parent.parent.parent / "temp" / "Seed-san.vrm"
+    path = TEMP_PATH / "Seed-san.vrm"
     if not path.exists():
         with requests.get(url, timeout=5 * 60) as response:
             assert response.ok

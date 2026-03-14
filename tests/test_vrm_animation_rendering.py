@@ -19,7 +19,12 @@ from io_scene_vrm.common.logger import get_logger
 from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.search import current_armature
 from io_scene_vrm.editor.vrm1.property_group import Vrm1LookAtPropertyGroup
-from tests.util import AddonTestCase, compare_image, make_test_method_name
+from tests.util import (
+    DEFAULT_TEMP_PATH,
+    AddonTestCase,
+    compare_image,
+    make_test_method_name,
+)
 
 RENDER_SUFFIX: str = ".render"
 
@@ -50,17 +55,13 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
             .rstrip(b"=")
             .decode()
         )
-        return (
-            Path(__file__).parent
-            / "temp"
-            / (
-                cls.__name__
-                + "-"
-                + "_".join(map(str, bpy.app.version))
-                + "-"
-                + class_source_hash
-                + ".blend"
-            )
+        return DEFAULT_TEMP_PATH / (
+            cls.__name__
+            + "-"
+            + "_".join(map(str, bpy.app.version))
+            + "-"
+            + class_source_hash
+            + ".blend"
         )
 
     @classmethod
@@ -313,15 +314,11 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
             {"FINISHED"},
         )
 
-        debug_blend_path = (
-            Path(__file__).parent
-            / "temp"
-            / (
-                input_vrm_path.stem
-                + "-"
-                + "_".join(map(str, bpy.app.version))
-                + ".vrm.blend"
-            )
+        debug_blend_path = DEFAULT_TEMP_PATH / (
+            input_vrm_path.stem
+            + "-"
+            + "_".join(map(str, bpy.app.version))
+            + ".vrm.blend"
         )
         debug_blend_path.unlink(missing_ok=True)
         bpy.ops.wm.save_as_mainfile(filepath=str(debug_blend_path))

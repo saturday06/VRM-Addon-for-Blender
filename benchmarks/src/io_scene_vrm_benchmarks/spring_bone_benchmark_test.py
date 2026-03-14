@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from pathlib import Path
 
 import bpy
 import pytest
@@ -14,6 +13,8 @@ from io_scene_vrm.editor.extension import (
 )
 from io_scene_vrm.editor.spring_bone1.handler import update_pose_bone_rotations
 
+from .util import TEMP_PATH
+
 
 def test_spring_bone(benchmark: BenchmarkFixture) -> None:
     context = bpy.context
@@ -22,11 +23,7 @@ def test_spring_bone(benchmark: BenchmarkFixture) -> None:
     bpy.ops.wm.read_homefile(use_empty=True)
 
     url = "https://raw.githubusercontent.com/vrm-c/vrm-specification/c24d76d99a18738dd2c266be1c83f089064a7b5e/samples/VRM1_Constraint_Twist_Sample/vrm/VRM1_Constraint_Twist_Sample.vrm"
-    path = (
-        Path(__file__).parent.parent.parent
-        / "temp"
-        / "VRM1_Constraint_Twist_Sample.vrm"
-    )
+    path = TEMP_PATH / "VRM1_Constraint_Twist_Sample.vrm"
     if not path.exists():
         with requests.get(url, timeout=5 * 60) as response:
             assert response.ok

@@ -9,7 +9,6 @@ ci:
   before_script:
     - ./tools/install_ubuntu_packages.sh
     - ./tools/install_act.sh
-    - export PATH="${HOME}/.local/bin:${PATH}"
     - timeout 600 sh -c 'until docker info --format "{{ .OperatingSystem }}"; do sleep 1; done'
   script:
-    - act
+    - ./.local/bin/act

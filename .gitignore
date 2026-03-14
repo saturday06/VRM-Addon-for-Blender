@@ -8,7 +8,6 @@ ci-super-linter-local-image.tar.gz
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
-/.cache/
 /.idea/
 /.venv/
 /.vscode/
@@ -17,11 +16,9 @@ ci-super-linter-local-image.tar.gz
 /node_modules/
 /benchmarks/.venv/
 /benchmarks/.codspeed/
-/benchmarks/temp/*
 /extension_output/
 /release_output/
 /super-linter-output/
-/tests/temp/*
 /tests/resources/unity/*/*.csproj
 /tests/resources/unity/*/*.DotSettings.user
 /tests/resources/unity/*/*.sln
@@ -52,8 +49,10 @@ ci-super-linter-local-image.tar.gz
 /tests/test_generated_*
 __pycache__/
 
-!/benchmarks/temp/.gitkeep
-!/tests/temp/.gitkeep
+/.local/**
+!/.local/tmp/
+/.local/tmp/**
+!/.local/tmp/.gitkeep
 
 /tests/resources/blend/*_animation/*/*_blender.png
 /tests/resources/blend/*_animation/*/*_blender_roundtrip.png

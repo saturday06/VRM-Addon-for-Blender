@@ -12,6 +12,8 @@ from io_scene_vrm.editor.extension import (
     get_armature_extension,
 )
 
+from .util import TEMP_PATH
+
 
 def generate_random_shape_keys(context: Context, armature_object: Object) -> None:
     if not isinstance(armature_data := armature_object.data, Armature):
@@ -99,22 +101,14 @@ def test_expression_preview(benchmark: BenchmarkFixture) -> None:
     bpy.ops.wm.read_homefile(use_empty=True)
 
     vrm_url = "https://raw.githubusercontent.com/vrm-c/vrm-specification/c24d76d99a18738dd2c266be1c83f089064a7b5e/samples/VRM1_Constraint_Twist_Sample/vrm/VRM1_Constraint_Twist_Sample.vrm"
-    vrm_path = (
-        Path(__file__).parent.parent.parent
-        / "temp"
-        / "VRM1_Constraint_Twist_Sample.vrm"
-    )
+    vrm_path = TEMP_PATH / "VRM1_Constraint_Twist_Sample.vrm"
     if not vrm_path.exists():
         with requests.get(vrm_url, timeout=5 * 60) as response:
             assert response.ok
             vrm_path.write_bytes(response.content)
 
     version_str = "_".join(map(str, tuple(bpy.app.version)))
-    blend_path = (
-        Path(__file__).parent.parent.parent
-        / "temp"
-        / (Path(__file__).stem + "_" + version_str + ".blend")
-    )
+    blend_path = TEMP_PATH / (Path(__file__).stem + "_" + version_str + ".blend")
     if not blend_path.exists():
         assert ops.import_scene.vrm(filepath=str(vrm_path)) == {"FINISHED"}
         armature = context.object

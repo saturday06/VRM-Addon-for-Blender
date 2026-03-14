@@ -182,14 +182,6 @@ class TestStructureBasedMapper(AddonTestCase):
         if not isinstance(armature_data := armature.data, Armature):
             raise TypeError
 
-        # bpy.ops.wm.save_as_mainfile(
-        #     filepath=str(
-        #         Path(__file__).parent.parent.parent
-        #         / "temp"
-        #         / f"structure_based_mapper_{what}.blend"
-        #     )
-        # )
-
         root_bones = [bone for bone in armature_data.bones if bone.parent is None]
         if not root_bones:
             message = "No root bones found in armature."

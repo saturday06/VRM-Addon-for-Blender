@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from pathlib import Path
 
 import bpy
 import pytest
@@ -10,6 +9,8 @@ from io_scene_vrm.common.human_bone_mapper import human_bone_mapper
 from io_scene_vrm.editor.extension import (
     get_armature_extension,
 )
+
+from .util import TEMP_PATH
 
 
 def add_bones(
@@ -71,11 +72,7 @@ def test_many_bone_assignment(benchmark: BenchmarkFixture) -> None:
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     version_str = "_".join(map(str, tuple(bpy.app.version)))
-    path = (
-        Path(__file__).parent.parent.parent
-        / "temp"
-        / f"many_bone_assignment_{version_str}.blend"
-    )
+    path = TEMP_PATH / f"many_bone_assignment_{version_str}.blend"
     if not path.exists():
         bpy.ops.wm.read_homefile(use_empty=True)
         generate_many_bones(context)

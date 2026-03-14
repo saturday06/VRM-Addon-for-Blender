@@ -60,7 +60,7 @@ git ls-files -z "*.sh" | xargs -0 shellcheck
 git ls-files -z "*.py" "*.pyi" | xargs -0 uv run ruff check
 uv run codespell
 git ls-files -z "*.sh" | xargs -0 shfmt -d
-git ls-files -z "*/Dockerfile" "*.dockerfile" | xargs -0 hadolint
+git ls-files -z "*/Dockerfile" "*.dockerfile" | xargs -0 ./.local/bin/hadolint
 deno lint
 deno task pyright
 deno task vrm-validator

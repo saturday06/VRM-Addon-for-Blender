@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from os import environ
-from pathlib import Path
 
 import bpy
 import pytest
@@ -10,6 +9,8 @@ from pytest_codspeed.plugin import BenchmarkFixture
 
 from io_scene_vrm.common import ops
 
+from .util import TEMP_PATH
+
 
 def test_vrm0_export(benchmark: BenchmarkFixture) -> None:
     context = bpy.context
@@ -17,7 +18,7 @@ def test_vrm0_export(benchmark: BenchmarkFixture) -> None:
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     environ["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
-    blend_path = Path(__file__).parent.parent.parent / "temp" / "vrm0_export.blend"
+    blend_path = TEMP_PATH / "vrm0_export.blend"
     if not blend_path.exists():
         bpy.ops.wm.read_homefile(use_empty=True)
         url = "https://raw.githubusercontent.com/pixiv/three-vrm/v0.6.11/packages/three-vrm/examples/models/three-vrm-girl.vrm"

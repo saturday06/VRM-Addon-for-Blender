@@ -3,7 +3,8 @@
 
 set -eu -o pipefail
 
-mkdir -p ~/.local/bin
+cd "$(dirname "$0")/../.local"
+mkdir -p bin
 
 case "$(uname -m)" in
 "x86_64")
@@ -19,15 +20,18 @@ case "$(uname -m)" in
   ;;
 esac
 
+install_path="${PWD}/bin/"
+cd "$(mktemp -d)"
+
 curl \
   --fail \
   --show-error \
   --location \
   --retry 20 \
   --retry-all-errors \
-  --output hadolint.tmp \
+  --output hadolint \
   "$url"
 
-test "$(md5sum hadolint.tmp)" = "$md5  hadolint.tmp"
-chmod 755 hadolint.tmp
-mv hadolint.tmp ~/.local/bin/hadolint
+test "$(md5sum hadolint)" = "$md5  hadolint"
+chmod 755 hadolint
+mv hadolint "$install_path"

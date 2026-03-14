@@ -3,7 +3,8 @@
 
 set -eu -o pipefail
 
-mkdir -p ~/.local/bin
+cd "$(dirname "$0")/../.local"
+mkdir -p bin
 
 case "$(uname -m)" in
 "x86_64")
@@ -21,16 +22,19 @@ case "$(uname -m)" in
   ;;
 esac
 
+install_path="${PWD}/bin/editorconfig-checker"
+cd "$(mktemp -d)"
+
 curl \
   --fail \
   --show-error \
   --location \
   --retry 20 \
   --retry-all-errors \
-  --output "${HOME}/editorconfig-checker.tar.gz" \
+  --output "editorconfig-checker.tar.gz" \
   "$url"
 
-test "$(md5sum ~/editorconfig-checker.tar.gz)" = "${md5}  ${HOME}/editorconfig-checker.tar.gz"
-tar -x --strip-components=1 -f ~/editorconfig-checker.tar.gz
-mv "$bin_name" ~/.local/bin/editorconfig-checker
-chmod 755 ~/.local/bin/editorconfig-checker
+test "$(md5sum editorconfig-checker.tar.gz)" = "${md5}  editorconfig-checker.tar.gz"
+tar -x --strip-components=1 -f editorconfig-checker.tar.gz
+chmod 755 "$bin_name"
+mv "$bin_name" "$install_path"

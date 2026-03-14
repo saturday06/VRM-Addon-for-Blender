@@ -70,6 +70,16 @@ end_of_line = crlf
 indent_size = 4
 insert_final_newline = unset
 
+[/.local/**]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+indent_size = unset
+indent_style = unset
+tab_width = unset
+trim_trailing_whitespace = unset
+generated_code = true
+
 [/tests/resources/unity/*/{Library,Logs,Temp,UserSettings,obj,.idea,.vscode,.vs}/**]
 charset = unset
 end_of_line = unset

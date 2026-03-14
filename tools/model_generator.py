@@ -27,7 +27,7 @@ def main(argv: list[str]) -> int:
             },
         }
         binary_chunk = b""
-        output_path = Path(__file__).parent.parent / "tests" / "temp" / "generated.vrm"
+        output_path = Path(__file__).parent.parent / ".local" / "tmp" / "generated.vrm"
     else:
         input_path = Path(argv[1])
         read_bytes = input_path.read_bytes()
