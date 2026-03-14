@@ -79,11 +79,21 @@ class VRM_MT_bone_assignment(Menu):
             )
             if bone_name != bone_property_group.bone_name
         ]
-        all_items_count = len(bone_names)
+        # Include the search row in the total item count for column calculation
+        all_items_count = len(bone_names) + 1
 
         row = layout.row()
         column = row.column()
-        base_item_index = 0
+        column.prop_search(
+            bone_property_group,
+            "bone_name",
+            armature_data,
+            "bones",
+            text="",
+            translate=False,
+            icon="VIEWZOOM",
+        )
+        base_item_index = 1
         if bone_property_group.bone_name:
             unassign_op = layout_operator(
                 column,
@@ -95,7 +105,7 @@ class VRM_MT_bone_assignment(Menu):
             unassign_op.armature_data_name = armature_data.name
             unassign_op.bone_property_group_path = bone_property_group_path
             all_items_count += 1
-            base_item_index = 1
+            base_item_index = 2
 
         if all_items_count <= 15:
             column_items_count = all_items_count
