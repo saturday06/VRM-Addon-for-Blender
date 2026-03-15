@@ -2645,15 +2645,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if not isinstance(mesh, Mesh):
                 continue
 
-            vertex_group_names_sequence: Sequence[set[str]] = [
-                {
-                    mesh_object.vertex_groups[group.group].name
-                    for group in vertex.groups
-                    if group.weight > 0
-                    and 0 <= group.group < len(mesh_object.vertex_groups)
-                }
-                for vertex in mesh.vertices
-            ]
+            vertex_group_names_set: Optional[set[tuple[str, ...]]] = None
 
             for modifier in mesh_object.modifiers:
                 if modifier.type != "ARMATURE":
@@ -2679,7 +2671,29 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         deform_bone_names
                     )
 
-                for vertex_group_names in vertex_group_names_sequence:
+                if vertex_group_names_set is None:
+                    vertex_groups = mesh_object.vertex_groups
+                    vertex_group_names_set = {
+                        tuple(
+                            vertex_groups[vertex_group_index].name
+                            for vertex_group_index in vertex_group_indices
+                            if 0 <= vertex_group_index < len(vertex_groups)
+                        )
+                        for vertex_group_indices in {
+                            tuple(
+                                sorted(
+                                    {
+                                        group.group
+                                        for group in vertex.groups
+                                        if group.weight > 0
+                                    }
+                                )
+                            )
+                            for vertex in mesh.vertices
+                        }
+                    }
+
+                for vertex_group_names in vertex_group_names_set:
                     if all(
                         vertex_group_name not in deform_bone_names
                         for vertex_group_name in vertex_group_names
