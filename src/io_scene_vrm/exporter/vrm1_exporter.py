@@ -3344,11 +3344,14 @@ def force_apply_modifiers_to_object(
     armature_modifier_name_to_show_render_and_show_viewport: dict[
         str, tuple[bool, bool]
     ] = {}
+    need_apply_modifiers = False
     for modifier in list(mesh_object.modifiers):
         if (
             not isinstance(modifier, ArmatureModifier)
             or modifier.object != armature_object
         ):
+            if modifier.show_render or modifier.show_viewport:
+                need_apply_modifiers = True
             continue
         armature_modifier_name_to_show_render_and_show_viewport[modifier.name] = (
             modifier.show_render,
@@ -3358,6 +3361,9 @@ def force_apply_modifiers_to_object(
         modifier.show_viewport = False
 
     try:
+        if not need_apply_modifiers:
+            return
+
         mesh_data_name = original_mesh_data.name
         original_mesh_data.name = "Backup-Apply-Data-" + uuid4().hex
 
