@@ -64,6 +64,10 @@ html {
   padding-top: 16px;
 }
 
+.vp-doc h2 .header-anchor {
+  top: 16px;
+}
+
 .VPContent .VPDoc {
   padding-top: 0;
 }
