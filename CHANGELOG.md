@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.22.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.21.1...v3.22.0) (2026-03-16)
+
+
+### 🚀 Features
+
+* bone eyedropper submenu ([4e871cb](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4e871cbda1723d52a70804f2ec278e0854e66776))
+* springbone migration from VRM 0.0 to VRM 1.0 ([a4896ce](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a4896ce9b1673d2d5579b9d312815f2764449153))
+* support blender 5.1 ([a73d13a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a73d13aa39a23b228897ee9acba0f7f92e65937f))
+
+
+### 🐛 Bug Fixes
+
+* fix shape key values being lost during VRM export ([6f02137](https://github.com/saturday06/VRM-Addon-for-Blender/commit/6f0213756491e94f60f5b34a137cbfb4816b2015))
+* fixed a bug where unregistered shape keys were accidentally baked ([dc0b659](https://github.com/saturday06/VRM-Addon-for-Blender/commit/dc0b659be78b5c759bf5980321cd1293a2e3058c))
+
 ## [3.21.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.21.0...v3.21.1) (2026-03-01)
 
 
