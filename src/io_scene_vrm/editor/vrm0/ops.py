@@ -2415,10 +2415,8 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(Operator):
             return {"CANCELLED"}
         secondary_animation.collider_groups.remove(self.collider_group_index)
 
-        for bone_group in get_armature_extension(
-            armature_data
-        ).vrm0.secondary_animation.bone_groups:
-            bone_group.refresh(armature)
+        for bone_group in secondary_animation.bone_groups:
+            bone_group.refresh()
 
         secondary_animation.active_collider_group_index = min(
             secondary_animation.active_collider_group_index,

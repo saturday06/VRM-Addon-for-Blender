@@ -1231,7 +1231,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             bone_group = secondary_animation.bone_groups.add()
 
             if not isinstance(bone_group_dict, dict):
-                bone_group.refresh(armature)
+                bone_group.refresh()
                 continue
 
             comment = bone_group_dict.get("comment")
@@ -1295,7 +1295,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                     collider_group_uuid.value = collider_group.uuid
 
         for bone_group in secondary_animation.bone_groups:
-            bone_group.refresh(armature)
+            bone_group.refresh()
 
         collider_object_names = [
             collider_bpy_object.name

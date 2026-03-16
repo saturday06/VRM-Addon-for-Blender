@@ -441,7 +441,7 @@ def migrate_vrm0_secondary_animation(
                 break
 
     for bone_group in secondary_animation.bone_groups:
-        bone_group.refresh(armature)
+        bone_group.refresh()
 
 
 def migrate_legacy_custom_properties(
@@ -699,7 +699,7 @@ def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None
     for collider_group in vrm0.secondary_animation.collider_groups:
         collider_group.refresh(armature)
     for bone_group in vrm0.secondary_animation.bone_groups:
-        bone_group.refresh(armature)
+        bone_group.refresh()
 
     if not vrm0.first_person.first_person_bone.bone_name:
         for human_bone in vrm0.humanoid.human_bones:

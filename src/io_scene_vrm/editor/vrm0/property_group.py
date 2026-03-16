@@ -304,7 +304,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         for collider_group in secondary_animation.collider_groups:
             collider_group.refresh(obj)
         for bone_group in secondary_animation.bone_groups:
-            bone_group.refresh(obj)
+            bone_group.refresh()
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -794,7 +794,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
         for bone_group in get_armature_extension(
             armature_data
         ).vrm0.secondary_animation.bone_groups:
-            bone_group.refresh(armature)
+            bone_group.refresh()
 
     # for UI
     show_expanded: BoolProperty()  # type: ignore[valid-type]
@@ -900,8 +900,8 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
     active_bone_index: IntProperty(min=0)  # type: ignore[valid-type]
     active_collider_group_index: IntProperty(min=0)  # type: ignore[valid-type]
 
-    def refresh(self, armature: Object) -> None:
-        armature_data = armature.data
+    def refresh(self) -> None:
+        armature_data = self.id_data
         if not isinstance(armature_data, Armature):
             return
         ext = get_armature_extension(armature_data)
