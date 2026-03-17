@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.22.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.22.0...v3.22.1) (2026-03-17)
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug where exporting VRM 0 models in Blender 5.1 had become extremely slow ([682528f](https://github.com/saturday06/VRM-Addon-for-Blender/commit/682528f39ab7d1f0e5c4f20c3ebebb45e42d2a21))
+
 ## [3.22.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.21.1...v3.22.0) (2026-03-16)
 
 
