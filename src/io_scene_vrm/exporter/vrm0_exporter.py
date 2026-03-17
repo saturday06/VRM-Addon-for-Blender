@@ -20,7 +20,6 @@ from bpy.types import (
     Key,
     Material,
     Mesh,
-    MeshUVLoopLayer,
     Node,
     Object,
     PoseBone,
@@ -2595,31 +2594,23 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         obj: Object,
         main_mesh_data: Mesh,
         vertex_index: int,
-        uv_layer: Optional[MeshUVLoopLayer],
-        loop_index: int,
+        texcoord: Optional[tuple[float, float]],
+        normal: tuple[float, float, float],
         vertex_group_index_to_joint: Mapping[int, int],
         bone_name_to_node_index: Mapping[str, int],
         skin_joints: Sequence[int],
         vertex_attributes_collector: VertexAttributesCollector,
+        vertex_index_to_weights_and_joints: dict[
+            int,
+            tuple[tuple[float, float, float, float], tuple[int, int, int, int]],
+        ],
         *,
         have_skin: bool,
     ) -> int:
-        texcoord = None
-        if uv_layer:
-            texcoord_u, texcoord_v = uv_layer.data[loop_index].uv
-            texcoord = (texcoord_u, 1 - texcoord_v)
-
-        # Use loop normals instead of vertex normals. This may lose something,
-        # but it's judged safer to keep it the same as the glTF 2.0 addon.
-        # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1127
-        # TODO: This implementation should really average the three normals
-        # from the loop
-        normal = main_mesh_data.loops[loop_index].normal
-
         already_added_vertex_index = (
             vertex_attributes_collector.find_added_vertex_index(
                 blender_vertex_index=vertex_index,
-                normal=convert.axis_blender_to_gltf(normal),
+                normal=normal,
                 texcoord=texcoord,
             )
         )
@@ -2632,98 +2623,106 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         joints: Optional[tuple[int, int, int, int]] = None
         weights: Optional[tuple[float, float, float, float]] = None
         if have_skin:
-            weight_and_joint_list: list[tuple[float, int]] = [
-                (weight, joint)
-                for vertex_group_element in vertex.groups
-                if (
-                    (
-                        joint := vertex_group_index_to_joint.get(
-                            vertex_group_element.group
-                        )
-                    )
-                    is not None
-                )
-                # Set joint to zero when weight is zero
-                # https://github.com/KhronosGroup/glTF/tree/f33f90ad9439a228bf90cde8319d851a52a3f470/specification/2.0#skinned-mesh-attributes
-                and not ((weight := vertex_group_element.weight) < float_info.epsilon)
-            ]
-            weight_and_joint_list.sort(reverse=True)
-            while len(weight_and_joint_list) < 4:
-                weight_and_joint_list.append((0.0, 0))
-
-            weights = (
-                weight_and_joint_list[0][0],
-                weight_and_joint_list[1][0],
-                weight_and_joint_list[2][0],
-                weight_and_joint_list[3][0],
-            )
-            joints = (
-                weight_and_joint_list[0][1],
-                weight_and_joint_list[1][1],
-                weight_and_joint_list[2][1],
-                weight_and_joint_list[3][1],
-            )
-
-            total_weight = sum(weights)
-            if total_weight < float_info.epsilon:
-                logger.debug(
-                    "No weight on vertex index=%d mesh=%s",
-                    vertex_index,
-                    main_mesh_data.name,
-                )
-
-                # Attach near bone
-                joint = None
-                mesh_parent: Optional[Object] = obj
-                while mesh_parent:
-                    if mesh_parent.parent_type == "BONE":
-                        if (
-                            mesh_parent.parent == self.armature
-                            and (
-                                bone_index := bone_name_to_node_index.get(
-                                    mesh_parent.parent_bone
-                                )
-                            )
-                            is not None
-                            and bone_index in skin_joints
-                        ):
-                            joint = skin_joints.index(bone_index)
-                        break
-                    if mesh_parent.parent_type == "OBJECT":
-                        mesh_parent = mesh_parent.parent
-                    else:
-                        break
-
-                if joint is None:
-                    # TODO: Probably better to use root bone traced from hips
-                    # rather than hips itself
-                    ext = get_armature_extension(self.armature_data)
-                    for human_bone in ext.vrm0.humanoid.human_bones:
-                        if human_bone.bone != "hips":
-                            continue
-                        if (
-                            bone_index := bone_name_to_node_index.get(
-                                human_bone.node.bone_name
-                            )
-                        ) is not None and bone_index in skin_joints:
-                            joint = skin_joints.index(bone_index)
-
-                if joint is None:
-                    message = "No fallback bone index found"
-                    if not skin_joints:
-                        raise ValueError(message)
-                    logger.error(message)
-                    joint = skin_joints[0]
-
-                weights = (1.0, 0, 0, 0)
-                joints = (joint, 0, 0, 0)
+            weights_and_joints = vertex_index_to_weights_and_joints.get(vertex_index)
+            if weights_and_joints is not None:
+                weights, joints = weights_and_joints
             else:
+                weight_and_joint_list: list[tuple[float, int]] = [
+                    (weight, joint)
+                    for vertex_group_element in vertex.groups
+                    if (
+                        (
+                            joint := vertex_group_index_to_joint.get(
+                                vertex_group_element.group
+                            )
+                        )
+                        is not None
+                    )
+                    # Set joint to zero when weight is zero
+                    # https://github.com/KhronosGroup/glTF/tree/f33f90ad9439a228bf90cde8319d851a52a3f470/specification/2.0#skinned-mesh-attributes
+                    and not (
+                        (weight := vertex_group_element.weight) < float_info.epsilon
+                    )
+                ]
+                weight_and_joint_list.sort(reverse=True)
+                while len(weight_and_joint_list) < 4:
+                    weight_and_joint_list.append((0.0, 0))
+
                 weights = (
-                    weights[0] / total_weight,
-                    weights[1] / total_weight,
-                    weights[2] / total_weight,
-                    weights[3] / total_weight,
+                    weight_and_joint_list[0][0],
+                    weight_and_joint_list[1][0],
+                    weight_and_joint_list[2][0],
+                    weight_and_joint_list[3][0],
                 )
+                joints = (
+                    weight_and_joint_list[0][1],
+                    weight_and_joint_list[1][1],
+                    weight_and_joint_list[2][1],
+                    weight_and_joint_list[3][1],
+                )
+
+                total_weight = sum(weights)
+                if total_weight < float_info.epsilon:
+                    logger.debug(
+                        "No weight on vertex index=%d mesh=%s",
+                        vertex_index,
+                        main_mesh_data.name,
+                    )
+
+                    # Attach near bone
+                    joint = None
+                    mesh_parent: Optional[Object] = obj
+                    while mesh_parent:
+                        if mesh_parent.parent_type == "BONE":
+                            if (
+                                mesh_parent.parent == self.armature
+                                and (
+                                    bone_index := bone_name_to_node_index.get(
+                                        mesh_parent.parent_bone
+                                    )
+                                )
+                                is not None
+                                and bone_index in skin_joints
+                            ):
+                                joint = skin_joints.index(bone_index)
+                            break
+                        if mesh_parent.parent_type == "OBJECT":
+                            mesh_parent = mesh_parent.parent
+                        else:
+                            break
+
+                    if joint is None:
+                        # TODO: Probably better to use root bone traced from hips
+                        # rather than hips itself
+                        ext = get_armature_extension(self.armature_data)
+                        for human_bone in ext.vrm0.humanoid.human_bones:
+                            if human_bone.bone != "hips":
+                                continue
+                            if (
+                                bone_index := bone_name_to_node_index.get(
+                                    human_bone.node.bone_name
+                                )
+                            ) is not None and bone_index in skin_joints:
+                                joint = skin_joints.index(bone_index)
+
+                    if joint is None:
+                        message = "No fallback bone index found"
+                        if not skin_joints:
+                            raise ValueError(message)
+                        logger.error(message)
+                        joint = skin_joints[0]
+
+                    weights = (1.0, 0, 0, 0)
+                    joints = (joint, 0, 0, 0)
+                else:
+                    weights = (
+                        weights[0] / total_weight,
+                        weights[1] / total_weight,
+                        weights[2] / total_weight,
+                        weights[3] / total_weight,
+                    )
+
+                vertex_index_to_weights_and_joints[vertex_index] = (weights, joints)
 
         return vertex_attributes_collector.add_vertex(
             blender_vertex_index=vertex_index,
@@ -2734,7 +2733,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     position_z,
                 )
             ),
-            normal=convert.axis_blender_to_gltf(normal),
+            normal=normal,
             texcoord=texcoord,
             joints=joints,
             weights=weights,
@@ -2744,26 +2743,12 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         self,
         main_mesh_data: Mesh,
         shape_key_mesh_data: Mesh,
+        gltf_vertex_index: int,
         vertex_index: int,
-        uv_layer: Optional[MeshUVLoopLayer],
-        loop_index: int,
-        vertex_attributes_collector: VertexAttributesCollector,
         vertex_morph_target_collector: VertexMorphTargetCollector,
         vertex_index_to_morph_normal_diffs: Sequence[tuple[float, float, float]],
     ) -> None:
-        texcoord = None
-        if uv_layer:
-            texcoord_u, texcoord_v = uv_layer.data[loop_index].uv
-            texcoord = (texcoord_u, 1 - texcoord_v)
-
-        gltf_vertex_index = vertex_attributes_collector.find_added_vertex_index(
-            blender_vertex_index=vertex_index,
-            normal=convert.axis_blender_to_gltf(
-                main_mesh_data.loops[loop_index].normal
-            ),
-            texcoord=texcoord,
-        )
-        if gltf_vertex_index is None:
+        if gltf_vertex_index < 0:
             return
 
         main_mesh_data_vertices = main_mesh_data.vertices
@@ -2962,6 +2947,21 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             uv_layers = main_mesh_data.uv_layers
             uv_layer = uv_layers.active
             main_mesh_data.calc_loop_triangles()
+
+            loop_index_to_texcoord: list[Optional[tuple[float, float]]] = []
+            if uv_layer:
+                loop_index_to_texcoord.extend(
+                    (uv_data.uv[0], 1 - uv_data.uv[1]) for uv_data in uv_layer.data
+                )
+            else:
+                loop_index_to_texcoord.extend(None for _ in main_mesh_data.loops)
+            loop_index_to_gltf_vertex_index: list[Optional[int]] = [None] * len(
+                main_mesh_data.loops
+            )
+            vertex_index_to_weights_and_joints: dict[
+                int,
+                tuple[tuple[float, float, float, float], tuple[int, int, int, int]],
+            ] = {}
             for loop_triangle in main_mesh_data.loop_triangles:
                 material_slot_index = loop_triangle.material_index
                 material_name = material_slot_index_to_material_name.get(
@@ -2983,18 +2983,30 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 for loop_index in loop_triangle.loops:
                     loop = main_mesh_data.loops[loop_index]
                     original_vertex_index = loop.vertex_index
+                    texcoord = loop_index_to_texcoord[loop_index]
+
+                    # Use loop normals instead of vertex normals. This may lose
+                    # something, but it's judged safer to keep it the same as the glTF
+                    # 2.0 addon.
+                    # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1127
+                    # TODO: This implementation should really average the three normals
+                    # from the loop
+                    normal = convert.axis_blender_to_gltf(loop.normal)
+
                     vertex_index = self.collect_vertex(
                         obj,
                         main_mesh_data,
                         original_vertex_index,
-                        uv_layer,
-                        loop_index,
+                        texcoord,
+                        normal,
                         vertex_group_index_to_joint,
                         bone_name_to_node_index,
                         skin_joints,
                         vertex_attributes_collector,
+                        vertex_index_to_weights_and_joints,
                         have_skin=have_skin,
                     )
+                    loop_index_to_gltf_vertex_index[loop_index] = vertex_index
                     vertex_indices.extend(vertex_indices_struct.pack(vertex_index))
 
             if original_shape_keys:
@@ -3067,13 +3079,16 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         for loop_index in loop_triangle.loops:
                             loop = main_mesh_data.loops[loop_index]
                             original_vertex_index = loop.vertex_index
+                            gltf_vertex_index = loop_index_to_gltf_vertex_index[
+                                loop_index
+                            ]
+                            if gltf_vertex_index is None:
+                                continue
                             self.collect_morph_target(
                                 main_mesh_data,
                                 shape_mesh_data,
+                                gltf_vertex_index,
                                 original_vertex_index,
-                                uv_layer,
-                                loop_index,
-                                vertex_attributes_collector,
                                 vertex_morph_target_collector,
                                 vertex_index_to_morph_normal_diffs,
                             )
