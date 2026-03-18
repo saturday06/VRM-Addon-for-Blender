@@ -613,6 +613,7 @@ class WM_OT_vrm_validator(Operator):
             if (
                 not (mat_node_tree := mat.node_tree)
                 or get_material_extension(mat).mtoon1.enabled
+                or shader.MmdMaterial.try_parse(mat)
             ):
                 continue
             for node in mat_node_tree.nodes:

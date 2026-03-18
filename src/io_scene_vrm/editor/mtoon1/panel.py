@@ -6,6 +6,7 @@ from bpy.app.translations import pgettext
 from bpy.types import Context, Panel, PropertyGroup, UILayout
 
 from ...common.logger import get_logger
+from ...common.shader import MmdMaterial
 from .. import search
 from ..extension_accessor import get_material_extension
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
@@ -409,6 +410,8 @@ def draw_material(context: Context, layout: UILayout) -> None:
         layout.prop(ext.mtoon1, "export_shape_key_normals")
         return
     if node and legacy_shader_name in ["TRANSPARENT_ZWRITE", "GLTF"]:
+        return
+    if MmdMaterial.try_parse(material):
         return
 
     help_column = layout.box().column(align=True)
