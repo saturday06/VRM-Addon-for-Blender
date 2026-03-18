@@ -802,7 +802,6 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
     active_collider_index: IntProperty(min=0)  # type: ignore[valid-type]
 
     # for reference from Vrm0SecondaryAnimationGroupPropertyGroup
-    name: StringProperty()  # type: ignore[valid-type]
     uuid: StringProperty()  # type: ignore[valid-type]
 
     if TYPE_CHECKING:
