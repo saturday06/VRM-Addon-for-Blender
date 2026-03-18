@@ -1535,8 +1535,8 @@ class TestAssignSpringBone1FromVrm0(AddonTestCase):
         vrm0_root_bone_ref = vrm0_bone_group.bones.add()
         vrm0_root_bone_ref.bone_name = "root"
         vrm0_collider_group_reference = vrm0_bone_group.collider_groups.add()
-        vrm0_collider_group_reference.value = vrm0_collider_group.name
-        vrm0_collider_group.refresh(armature)
+        vrm0_collider_group_reference.collider_group_uuid = vrm0_collider_group.uuid
+        vrm0_collider_group.fixup(armature)
 
         result = assign_spring_bone1_from_vrm0(context, armature.name)
         self.assertEqual(result, {"FINISHED"})

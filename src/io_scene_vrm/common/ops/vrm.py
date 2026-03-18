@@ -671,6 +671,40 @@ def add_vrm0_secondary_animation_group_collider_group(
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
+def assign_vrm0_secondary_animation_group_collider_group(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_data_name: str = "",
+    collider_group_reference_path: str = "",
+    collider_group_uuid: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.assign_vrm0_secondary_animation_group_collider_group(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_data_name=armature_data_name,
+        collider_group_reference_path=collider_group_reference_path,
+        collider_group_uuid=collider_group_uuid,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def unassign_vrm0_secondary_animation_group_collider_group(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_data_name: str = "",
+    collider_group_reference_path: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.unassign_vrm0_secondary_animation_group_collider_group(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_data_name=armature_data_name,
+        collider_group_reference_path=collider_group_reference_path,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_vrm0_secondary_animation_group_collider_group(
     execution_context: str = "EXEC_DEFAULT",
     /,

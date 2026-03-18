@@ -416,7 +416,7 @@ class BonePropertyGroup(PropertyGroup):
         ]:
             for collider_group in ext.vrm0.secondary_animation.collider_groups:
                 for armature_object in armature_objects:
-                    collider_group.refresh(armature_object)
+                    collider_group.fixup(armature_object)
 
         if bone_property_group_type == BonePropertyGroupType.SPRING_BONE1_COLLIDER:
             for collider in ext.spring_bone1.colliders:

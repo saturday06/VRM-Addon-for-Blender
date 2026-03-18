@@ -1158,7 +1158,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         for collider_group_dict in collider_group_dicts:
             collider_group = secondary_animation.collider_groups.add()
             collider_group.uuid = uuid.uuid4().hex
-            collider_group.refresh(armature)
+            collider_group.fixup(armature)
 
             if not isinstance(collider_group_dict, dict):
                 continue
@@ -1221,7 +1221,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 colliders_collection.objects.link(collider_obj)
 
         for collider_group in secondary_animation.collider_groups:
-            collider_group.refresh(armature)
+            collider_group.fixup(armature)
 
         bone_group_dicts = secondary_animation_dict.get("boneGroups")
         if not isinstance(bone_group_dicts, list):
@@ -1231,7 +1231,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             bone_group = secondary_animation.bone_groups.add()
 
             if not isinstance(bone_group_dict, dict):
-                bone_group.refresh()
+                bone_group.fixup()
                 continue
 
             comment = bone_group_dict.get("comment")
@@ -1288,14 +1288,14 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                         < len(secondary_animation.collider_groups)
                     ):
                         continue
-                    collider_group_uuid = bone_group.collider_groups.add()
                     collider_group = secondary_animation.collider_groups[
                         collider_group_index
                     ]
-                    collider_group_uuid.value = collider_group.uuid
+                    collider_group_reference = bone_group.collider_groups.add()
+                    collider_group_reference.collider_group_uuid = collider_group.uuid
 
         for bone_group in secondary_animation.bone_groups:
-            bone_group.refresh()
+            bone_group.fixup()
 
         collider_object_names = [
             collider_bpy_object.name

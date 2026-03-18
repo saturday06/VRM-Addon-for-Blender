@@ -20,7 +20,10 @@ from ..extension_accessor import get_armature_extension
 from ..menu import VRM_MT_bone_assignment
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..property_group import HumanoidStructureBonePropertyGroup
-from .property_group import Vrm0HumanoidPropertyGroup
+from .property_group import (
+    Vrm0HumanoidPropertyGroup,
+    Vrm0SecondaryAnimationColliderGroupReferencePropertyGroup,
+)
 
 logger = get_logger(__name__)
 
@@ -1615,8 +1618,7 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(Operator):
         if len(bone_groups) <= self.bone_group_index:
             return {"CANCELLED"}
         bone_group = bone_groups[self.bone_group_index]
-        collider_group = bone_group.collider_groups.add()
-        collider_group.value = ""
+        bone_group.collider_groups.add()
         bone_group.active_collider_group_index = len(bone_group.collider_groups) - 1
         return {"FINISHED"}
 
@@ -1626,6 +1628,97 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(Operator):
         armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_assign_vrm0_secondary_animation_group_collider_group(Operator):
+    bl_idname = "vrm.assign_vrm0_secondary_animation_group_collider_group"
+    bl_label = "Assign Collider Group"
+    bl_description = "Assign VRM 0.x Secondary Animation Group Collider Group"
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_data_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+    collider_group_reference_path: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+    collider_group_uuid: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        armature_data = context.blend_data.armatures.get(self.armature_data_name)
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+
+        collider_group_reference = armature_data.path_resolve(
+            self.collider_group_reference_path,
+            False,
+        )
+        if not isinstance(
+            collider_group_reference,
+            Vrm0SecondaryAnimationColliderGroupReferencePropertyGroup,
+        ):
+            return {"CANCELLED"}
+
+        if not self.collider_group_uuid:
+            collider_group_reference.collider_group_uuid = ""
+            return {"FINISHED"}
+
+        vrm0 = get_armature_extension(armature_data).vrm0
+        secondary_animation = vrm0.secondary_animation
+        for collider_group in secondary_animation.collider_groups:
+            if collider_group.uuid != self.collider_group_uuid:
+                continue
+            collider_group_reference.collider_group_uuid = collider_group.uuid
+            return {"FINISHED"}
+
+        return {"CANCELLED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_data_name: str  # type: ignore[no-redef]
+        collider_group_reference_path: str  # type: ignore[no-redef]
+        collider_group_uuid: str  # type: ignore[no-redef]
+
+
+class VRM_OT_unassign_vrm0_secondary_animation_group_collider_group(Operator):
+    bl_idname = "vrm.unassign_vrm0_secondary_animation_group_collider_group"
+    bl_label = "Unassign Collider Group"
+    bl_description = "Unassign VRM 0.x Secondary Animation Group Collider Group"
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_data_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+    collider_group_reference_path: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        armature_data = context.blend_data.armatures.get(self.armature_data_name)
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+
+        collider_group_reference = armature_data.path_resolve(
+            self.collider_group_reference_path,
+            False,
+        )
+        if not isinstance(
+            collider_group_reference,
+            Vrm0SecondaryAnimationColliderGroupReferencePropertyGroup,
+        ):
+            return {"CANCELLED"}
+
+        collider_group_reference.collider_group_uuid = ""
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_data_name: str  # type: ignore[no-redef]
+        collider_group_reference_path: str  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(Operator):
@@ -2354,7 +2447,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(Operator):
         secondary_animation = ext.vrm0.secondary_animation
         collider_group = secondary_animation.collider_groups.add()
         collider_group.uuid = uuid.uuid4().hex
-        collider_group.refresh(armature)
+        collider_group.fixup(armature)
         secondary_animation.active_collider_group_index = (
             len(secondary_animation.collider_groups) - 1
         )
@@ -2416,7 +2509,7 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(Operator):
         secondary_animation.collider_groups.remove(self.collider_group_index)
 
         for bone_group in secondary_animation.bone_groups:
-            bone_group.refresh()
+            bone_group.fixup()
 
         secondary_animation.active_collider_group_index = min(
             secondary_animation.active_collider_group_index,

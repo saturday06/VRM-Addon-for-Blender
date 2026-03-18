@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+import uuid
 from collections.abc import Sequence
 from sys import float_info
 from typing import TYPE_CHECKING, ClassVar, Optional
@@ -44,7 +45,6 @@ from ..property_group import (
     FloatPropertyGroup,
     HumanoidStructureBonePropertyGroup,
     MeshObjectPropertyGroup,
-    StringPropertyGroup,
     property_group_enum,
 )
 from ..vrm1.property_group import Vrm1HumanoidPropertyGroup
@@ -301,10 +301,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         secondary_animation = get_armature_extension(
             armature_data
         ).vrm0.secondary_animation
-        for collider_group in secondary_animation.collider_groups:
-            collider_group.refresh(obj)
-        for bone_group in secondary_animation.bone_groups:
-            bone_group.refresh()
+        secondary_animation.fixup(obj)
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -735,7 +732,7 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
         type=Object
     )
 
-    def refresh(self, armature: Object, bone_name: str) -> None:
+    def fixup(self, armature: Object, bone_name: str) -> None:
         if not self.bpy_object or not self.bpy_object.name:
             return
 
@@ -771,13 +768,16 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
         type=Vrm0SecondaryAnimationColliderPropertyGroup,
     )
 
-    def refresh(self, armature: Object) -> None:
-        name = (
-            str(self.node.bone_name) if self.node and self.node.bone_name else ""
-        ) + f"#{self.uuid}"
+    @property
+    def display_name(self) -> str:
+        if not self.uuid:
+            return ""
+        node = self.node
+        return (node.bone_name if node and node.bone_name else "") + f"#{self.uuid}"
 
-        if self.name != name:
-            self.name = name
+    def fixup(self, armature: Object) -> None:
+        if not self.uuid:
+            self.uuid = uuid.uuid4().hex
 
         for index, collider in reversed(
             tuple((index, collider) for index, collider in enumerate(self.colliders))
@@ -785,16 +785,15 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
             if not collider.bpy_object or not collider.bpy_object.name:
                 self.colliders.remove(index)
             else:
-                collider.refresh(armature, self.node.bone_name)
+                collider.fixup(armature, self.node.bone_name)
 
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
 
-        for bone_group in get_armature_extension(
-            armature_data
-        ).vrm0.secondary_animation.bone_groups:
-            bone_group.refresh()
+        vrm0 = get_armature_extension(armature_data).vrm0
+        for bone_group in vrm0.secondary_animation.bone_groups:
+            bone_group.fixup()
 
     # for UI
     show_expanded: BoolProperty()  # type: ignore[valid-type]
@@ -813,8 +812,48 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
         ]
         show_expanded: bool  # type: ignore[no-redef]
         active_collider_index: int  # type: ignore[no-redef]
-        name: str  # type: ignore[no-redef]
         uuid: str  # type: ignore[no-redef]
+
+
+class Vrm0SecondaryAnimationColliderGroupReferencePropertyGroup(PropertyGroup):
+    @property
+    def collider_group_display_name(self) -> str:
+        armature_data = self.id_data
+        if not isinstance(armature_data, Armature):
+            return ""
+        if not self.collider_group_uuid:
+            return ""
+
+        secondary_animation = get_armature_extension(
+            armature_data
+        ).vrm0.secondary_animation
+        for collider_group in secondary_animation.collider_groups:
+            if collider_group.uuid == self.collider_group_uuid:
+                return collider_group.display_name
+        return ""
+
+    def update_collider_group_uuid(self, _context: Context) -> None:
+        if not self.collider_group_uuid:
+            return
+
+        armature_data = self.id_data
+        if not isinstance(armature_data, Armature):
+            return
+
+        vrm0 = get_armature_extension(armature_data).vrm0
+        secondary_animation = vrm0.secondary_animation
+        for collider_group in secondary_animation.collider_groups:
+            if self.collider_group_uuid == collider_group.uuid:
+                return
+
+        self.collider_group_uuid = ""
+
+    collider_group_uuid: StringProperty(update=update_collider_group_uuid)  # type: ignore[valid-type]
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        collider_group_uuid: str  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L32-L67
@@ -883,7 +922,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
     )
     collider_groups: CollectionProperty(  # type: ignore[valid-type]
         name="Collider Group",
-        type=StringPropertyGroup,
+        type=Vrm0SecondaryAnimationColliderGroupReferencePropertyGroup,
         description="Enabled collider Groups of springs",
     )
 
@@ -899,28 +938,21 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
     active_bone_index: IntProperty(min=0)  # type: ignore[valid-type]
     active_collider_group_index: IntProperty(min=0)  # type: ignore[valid-type]
 
-    def refresh(self) -> None:
+    def fixup(self) -> None:
         armature_data = self.id_data
         if not isinstance(armature_data, Armature):
             return
         ext = get_armature_extension(armature_data)
-        collider_group_uuid_to_name = {
-            collider_group.uuid: collider_group.name
+        collider_group_uuids = {
+            collider_group.uuid
             for collider_group in ext.vrm0.secondary_animation.collider_groups
         }
-        for index, collider_group in reversed(list(enumerate(self.collider_groups))):
-            uuid_str = collider_group.value.split("#")[-1]
-            if not uuid_str:
-                self.collider_groups.remove(index)
+        for collider_group_reference in self.collider_groups:
+            uuid_str = collider_group_reference.collider_group_uuid
+            if uuid_str and uuid_str in collider_group_uuids:
+                collider_group_uuids.remove(uuid_str)
                 continue
-
-            name = collider_group_uuid_to_name.get(uuid_str)
-            if not name:
-                self.collider_groups.remove(index)
-                continue
-
-            if collider_group.value != name:
-                collider_group.value = name
+            collider_group_reference.collider_group_uuid = ""
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -936,7 +968,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
             BonePropertyGroup
         ]
         collider_groups: CollectionPropertyProtocol[  # type: ignore[no-redef]
-            StringPropertyGroup
+            Vrm0SecondaryAnimationColliderGroupReferencePropertyGroup
         ]
         show_expanded: bool  # type: ignore[no-redef]
         show_expanded_bones: bool  # type: ignore[no-redef]
@@ -1117,6 +1149,20 @@ class Vrm0SecondaryAnimationPropertyGroup(PropertyGroup):
 
     active_bone_group_index: IntProperty(min=0)  # type: ignore[valid-type]
     active_collider_group_index: IntProperty(min=0)  # type: ignore[valid-type]
+
+    def fixup(self, armature_object: Object) -> None:
+        found_uuids = set[str]()
+        for collider_group in self.collider_groups:
+            if collider_group.uuid and collider_group.uuid not in found_uuids:
+                found_uuids.add(collider_group.uuid)
+                continue
+            collider_group.uuid = uuid.uuid4().hex
+
+        for collider_group in self.collider_groups:
+            collider_group.fixup(armature_object)
+
+        for bone_group in self.bone_groups:
+            bone_group.fixup()
 
     if TYPE_CHECKING:
         # This code is auto generated.

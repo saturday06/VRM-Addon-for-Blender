@@ -375,7 +375,7 @@ def migrate_vrm0_secondary_animation(
             collider_prop.bpy_object = collider_object
 
     for collider_group in secondary_animation.collider_groups:
-        collider_group.refresh(armature)
+        collider_group.fixup(armature)
 
     if not isinstance(bone_group_dicts, list):
         bone_group_dicts = []
@@ -436,12 +436,12 @@ def migrate_vrm0_secondary_animation(
             for collider_group in secondary_animation.collider_groups:
                 if collider_group.node.bone_name != collider_group_node_name:
                     continue
-                collider_group_name = bone_group.collider_groups.add()
-                collider_group_name.value = collider_group.name
+                collider_group_reference = bone_group.collider_groups.add()
+                collider_group_reference.collider_group_uuid = collider_group.uuid
                 break
 
     for bone_group in secondary_animation.bone_groups:
-        bone_group.refresh()
+        bone_group.fixup()
 
 
 def migrate_legacy_custom_properties(
@@ -676,6 +676,23 @@ def migrate_saved_mesh_object_name_to_restore(
             bind.mesh.saved_mesh_object_name_to_restore = bind.mesh.name
 
 
+def migrate_collider_group_references_to_uuid(
+    vrm0: Vrm0PropertyGroup,
+) -> None:
+    for bone_group in vrm0.secondary_animation.bone_groups:
+        collider_group_references = bone_group.collider_groups
+        for collider_group_reference in collider_group_references:
+            if collider_group_reference.collider_group_uuid:
+                continue
+            old_collider_group_name = collider_group_reference.pop("value", None)
+            if not isinstance(old_collider_group_name, str):
+                continue
+            collider_group_uuid = old_collider_group_name.split("#")[-1]
+            if not collider_group_uuid:
+                continue
+            collider_group_reference.collider_group_uuid = collider_group_uuid
+
+
 def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
     if vrm0.humanoid.initial_automatic_bone_assignment:
         return False
@@ -696,10 +713,8 @@ def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None
     migrate_link_to_bone_object(context, armature, armature_data)
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
 
-    for collider_group in vrm0.secondary_animation.collider_groups:
-        collider_group.refresh(armature)
-    for bone_group in vrm0.secondary_animation.bone_groups:
-        bone_group.refresh()
+    migrate_collider_group_references_to_uuid(vrm0)
+    vrm0.secondary_animation.fixup(armature)
 
     if not vrm0.first_person.first_person_bone.bone_name:
         for human_bone in vrm0.humanoid.human_bones:

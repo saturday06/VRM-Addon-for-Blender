@@ -1077,7 +1077,7 @@ def draw_vrm0_secondary_animation_collider_groups_layout(
         return
 
     column = box.column()
-    column.label(text=collider_group.name)
+    column.label(text=collider_group.display_name)
     VRM_MT_bone_assignment.draw_input_layout(
         column,
         collider_group.node,

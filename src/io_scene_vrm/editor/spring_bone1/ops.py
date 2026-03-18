@@ -1720,9 +1720,9 @@ def assign_spring_bone1_from_vrm0(
                 joint.hit_radius = vrm0_bone_group.hit_radius
 
             for vrm0_bone_group_collider_group in vrm0_bone_group.collider_groups:
-                vrm0_collider_group_uuid = vrm0_bone_group_collider_group.value.split(
-                    "#"
-                )[-1]
+                vrm0_collider_group_uuid = (
+                    vrm0_bone_group_collider_group.collider_group_uuid
+                )
                 if not vrm0_collider_group_uuid:
                     continue
                 collider_group = vrm0_collider_group_uuid_to_collider_group.get(

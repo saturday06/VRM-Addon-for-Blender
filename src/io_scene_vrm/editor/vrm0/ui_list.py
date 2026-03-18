@@ -2,9 +2,9 @@
 from bpy.types import Armature, Context, Mesh, UILayout, UIList
 
 from ...common.logger import get_logger
-from ..extension_accessor import get_armature_extension
 from ..menu import VRM_MT_bone_assignment
-from ..property_group import BonePropertyGroup, StringPropertyGroup
+from ..property_group import BonePropertyGroup
+from .menu import VRM_MT_vrm0_secondary_animation_group_collider_group
 from .property_group import (
     Vrm0BlendShapeBindPropertyGroup,
     Vrm0BlendShapeGroupPropertyGroup,
@@ -12,6 +12,7 @@ from .property_group import (
     Vrm0MaterialValueBindPropertyGroup,
     Vrm0MeshAnnotationPropertyGroup,
     Vrm0SecondaryAnimationColliderGroupPropertyGroup,
+    Vrm0SecondaryAnimationColliderGroupReferencePropertyGroup,
     Vrm0SecondaryAnimationColliderPropertyGroup,
     Vrm0SecondaryAnimationGroupPropertyGroup,
 )
@@ -175,17 +176,15 @@ class VRM_UL_vrm0_secondary_animation_group_collider_group(UIList):
     ) -> None:
         if not isinstance(bone_group, Vrm0SecondaryAnimationGroupPropertyGroup):
             return
-        if not isinstance(collider_group, StringPropertyGroup):
+        if not isinstance(
+            collider_group, Vrm0SecondaryAnimationColliderGroupReferencePropertyGroup
+        ):
             return
 
         armature_data = bone_group.id_data
         if not isinstance(armature_data, Armature):
             logger.error("Failed to find armature")
             return
-
-        secondary_animation = get_armature_extension(
-            armature_data
-        ).vrm0.secondary_animation
 
         icon = "PIVOT_INDIVIDUAL"
 
@@ -198,17 +197,17 @@ class VRM_UL_vrm0_secondary_animation_group_collider_group(UIList):
             return
 
         if index == bone_group.active_collider_group_index:
-            layout.prop_search(
+            VRM_MT_vrm0_secondary_animation_group_collider_group.draw_input_layout(
+                layout,
                 collider_group,
-                "value",
-                secondary_animation,
-                "collider_groups",
-                text="",
-                translate=False,
                 icon=icon,
             )
         else:
-            layout.label(text=collider_group.value, translate=False, icon=icon)
+            layout.label(
+                text=collider_group.collider_group_display_name,
+                translate=False,
+                icon=icon,
+            )
 
 
 class VRM_UL_vrm0_secondary_animation_collider_group(UIList):
@@ -241,7 +240,7 @@ class VRM_UL_vrm0_secondary_animation_collider_group(UIList):
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
             return
 
-        layout.label(text=collider_group.name, translate=False, icon=icon)
+        layout.label(text=collider_group.display_name, translate=False, icon=icon)
 
 
 class VRM_UL_vrm0_secondary_animation_collider_group_collider(UIList):

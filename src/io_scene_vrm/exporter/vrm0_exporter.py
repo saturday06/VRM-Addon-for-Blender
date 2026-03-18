@@ -592,9 +592,11 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             self.armature_data
         ).vrm0.secondary_animation
 
-        collider_group_name_to_index: dict[str, int] = {}
+        collider_group_uuid_to_index: dict[str, int] = {}
 
         for collider_group in secondary_animation.collider_groups:
+            if not collider_group.uuid:
+                continue
             node_index = bone_name_to_node_index.get(collider_group.node.bone_name)
             if node_index is None:
                 continue
@@ -603,7 +605,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             collider_dicts: list[Json] = []
             collider_group_dict["colliders"] = collider_dicts
 
-            collider_group_name_to_index[collider_group.name] = len(
+            collider_group_uuid_to_index[collider_group.uuid] = len(
                 collider_group_dicts
             )
             collider_group_dicts.append(collider_group_dict)
@@ -670,13 +672,16 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 ],
             }
             collider_group_indices: list[Json] = []
-            for collider_group_name in bone_group.collider_groups:
-                collider_group_index = collider_group_name_to_index.get(
-                    collider_group_name.value
+            for collider_group_reference in bone_group.collider_groups:
+                if not collider_group_reference.collider_group_uuid:
+                    continue
+                collider_group_index = collider_group_uuid_to_index.get(
+                    collider_group_reference.collider_group_uuid
                 )
                 if collider_group_index is None:
                     continue
-                collider_group_indices.append(collider_group_index)
+                if collider_group_index not in collider_group_indices:
+                    collider_group_indices.append(collider_group_index)
 
             bone_group_dict["colliderGroups"] = collider_group_indices
             bone_group_dicts.append(bone_group_dict)
