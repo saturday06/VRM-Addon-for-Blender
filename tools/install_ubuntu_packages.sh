@@ -7,6 +7,7 @@ apt-get update -qq
 DEBIAN_FRONTEND=noninteractive apt-get install \
   advancecomp \
   blender \
+  build-essential \
   curl \
   dbus-x11 \
   diffutils \

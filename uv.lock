@@ -265,6 +265,10 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'arm64' and sys_platform == 'darwin'", specifier = "==5.1.*", index = "https://download.blender.org/pypi/" },
+    { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'linux'", specifier = "==5.1.*", index = "https://download.blender.org/pypi/" },
+    { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'win32'", specifier = "==5.1.*", index = "https://download.blender.org/pypi/" },
+    { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'ARM64' and sys_platform == 'win32'", specifier = "==5.1.*", index = "https://download.blender.org/pypi/" },
     { name = "io-scene-vrm", editable = "." },
     { name = "pytest" },
     { name = "pytest-benchmark" },

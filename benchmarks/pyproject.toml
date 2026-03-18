@@ -8,6 +8,11 @@ dependencies = [
   "pytest",
   "pytest-benchmark",
   "pytest-codspeed",
+
+  "bpy ==5.1.*; python_version == '3.13.*' and platform_machine == 'arm64' and sys_platform == 'darwin'",
+  "bpy ==5.1.*; python_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'linux'",
+  "bpy ==5.1.*; python_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'win32'",
+  "bpy ==5.1.*; python_version == '3.13.*' and platform_machine == 'ARM64' and sys_platform == 'win32'",
 ]
 
 [tool.uv.sources]

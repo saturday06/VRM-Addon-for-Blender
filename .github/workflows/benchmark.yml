@@ -6,12 +6,11 @@ on:
   push:
     branches:
       - main
-      - ci-benchmark
   pull_request:
   workflow_dispatch:
 
 jobs:
-  prepare-benchmark:
+  benchmark:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -21,26 +20,20 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: ./.github/actions/prepare-benchmark
-
-  benchmark:
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-    needs: prepare-benchmark
-    timeout-minutes: 720
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-      - uses: ./.github/actions/prepare-benchmark
-        id: prepare-benchmark
-        with:
-          require-cache: true
-      - uses: CodSpeedHQ/action@2ac572851726409c88c02a307f1ea2632a9ea59b # v4.11.0
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         env:
-          PYTHONPATH: "${{ github.workspace }}/src:${{ steps.prepare-benchmark.outputs.PYTHONPATH }}"
+          BENCHMARK_PYTHON_VERSION: "3.13" # Set as environment variable to prevent automatic updates by renovate
+        with:
+          # For reasons unknown, flamegraphs cannot be generated with Codspeed unless Python is installed via
+          # actions/setup-python.
+          python-version: ${{ env.BENCHMARK_PYTHON_VERSION }}
+      # CodSpeed can only generate flamegraphs with Python 3.12 or later
+      - run: git ls-files pyproject.toml "**/pyproject.toml" | xargs sed -i~ 's/^requires-python = "==3\.10\.\*" /requires-python = "==3.13.*" /'
+      - uses: astral-sh/setup-uv@5a095e7a2014a4212f075830d4f7277575a9d098 # v7.3.1
+      - run: uv sync --no-managed-python
+      - run: git diff
+      - uses: CodSpeedHQ/action@2ac572851726409c88c02a307f1ea2632a9ea59b # v4.11.0
         with:
           mode: simulation
-          run: pytest src/ --codspeed || true
+          run: uv run pytest src/ --codspeed
           working-directory: benchmarks
