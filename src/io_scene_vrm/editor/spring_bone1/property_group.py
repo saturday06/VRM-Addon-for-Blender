@@ -684,7 +684,10 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
                 if collider_reference.collider_name != self.name:
                     collider_reference.collider_name = self.name
 
-    node: PointerProperty(type=BonePropertyGroup)  # type: ignore[valid-type]
+    node: PointerProperty(  # type: ignore[valid-type]
+        type=BonePropertyGroup,
+        name="Bone",
+    )
     shape: PointerProperty(type=SpringBone1ColliderShapePropertyGroup)  # type: ignore[valid-type]
     extensions: PointerProperty(type=SpringBone1ColliderExtensionsPropertyGroup)  # type: ignore[valid-type]
 
@@ -1048,7 +1051,10 @@ class SpringBone1JointAnimationStatePropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.joint.schema.json
 class SpringBone1JointPropertyGroup(PropertyGroup):
-    node: PointerProperty(type=BonePropertyGroup)  # type: ignore[valid-type]
+    node: PointerProperty(  # type: ignore[valid-type]
+        type=BonePropertyGroup,
+        name="Bone",
+    )
 
     hit_radius: FloatProperty(  # type: ignore[valid-type]
         name="Joint Radius",

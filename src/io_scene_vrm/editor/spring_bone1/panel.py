@@ -32,7 +32,7 @@ def draw_spring_bone1_collider_sphere_layout(
     layout: UILayout,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
-    VRM_MT_bone_assignment.draw_input_layout(layout, collider.node)
+    VRM_MT_bone_assignment.draw_input_layout(layout, collider.node, simple=True)
     layout.prop(collider, "ui_collider_type")
     bpy_object = collider.bpy_object
     if bpy_object:
@@ -47,7 +47,7 @@ def draw_spring_bone1_collider_capsule_layout(
     layout: UILayout,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
-    VRM_MT_bone_assignment.draw_input_layout(layout, collider.node)
+    VRM_MT_bone_assignment.draw_input_layout(layout, collider.node, simple=True)
     layout.prop(collider, "ui_collider_type")
     bpy_object = collider.bpy_object
     if bpy_object:
@@ -93,7 +93,7 @@ def draw_spring_bone1_collider_extended_sphere_layout(
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
     extended = collider.extensions.vrmc_spring_bone_extended_collider
-    VRM_MT_bone_assignment.draw_input_layout(layout, collider.node)
+    VRM_MT_bone_assignment.draw_input_layout(layout, collider.node, simple=True)
     layout.prop(collider, "ui_collider_type")
     bpy_object = collider.bpy_object
     if bpy_object:
@@ -114,7 +114,7 @@ def draw_spring_bone1_collider_extended_capsule_layout(
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
     extended = collider.extensions.vrmc_spring_bone_extended_collider
-    VRM_MT_bone_assignment.draw_input_layout(layout, collider.node)
+    VRM_MT_bone_assignment.draw_input_layout(layout, collider.node, simple=True)
     layout.prop(collider, "ui_collider_type")
     bpy_object = collider.bpy_object
     if bpy_object:
@@ -144,7 +144,7 @@ def draw_spring_bone1_collider_extended_plane_layout(
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
     extended = collider.extensions.vrmc_spring_bone_extended_collider
-    VRM_MT_bone_assignment.draw_input_layout(layout, collider.node)
+    VRM_MT_bone_assignment.draw_input_layout(layout, collider.node, simple=True)
     layout.prop(collider, "ui_collider_type")
     bpy_object = collider.bpy_object
     if bpy_object:
@@ -381,7 +381,10 @@ def draw_spring_bone1_springs_layout(
         "vrm_name",
     )
     VRM_MT_bone_assignment.draw_input_layout(
-        spring_column, spring.center, text="Center"
+        spring_column,
+        spring.center,
+        text="Center",
+        simple=True,
     )
 
     joints_box = spring_column.box()
@@ -416,7 +419,7 @@ def draw_spring_bone1_springs_layout(
     add_joint_op.guess_properties = True
 
     if isinstance(joint, SpringBone1JointPropertyGroup):
-        VRM_MT_bone_assignment.draw_input_layout(joints_column, joint.node)
+        VRM_MT_bone_assignment.draw_input_layout(joints_column, joint.node, simple=True)
         joints_column.prop(joint, "stiffness", slider=True)
         joints_column.prop(joint, "gravity_power", slider=True)
         joints_column.prop(joint, "gravity_dir")

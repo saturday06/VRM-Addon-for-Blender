@@ -30,6 +30,7 @@ class VRM_MT_bone_assignment(Menu):
         *,
         text: Optional[str] = None,
         icon: str = "BONE_DATA",
+        simple: bool = False,
     ) -> UILayout:
         bone_name = bone_property_group.bone_name
         if (
@@ -45,6 +46,20 @@ class VRM_MT_bone_assignment(Menu):
             and isinstance(pointer_property, PointerProperty)
         ):
             text = pointer_property.name
+
+        if simple:
+            label = pgettext(text) if text is not None else ""
+            row = layout.row(align=True)
+            row.prop_search(
+                bone_property_group,
+                "bone_name",
+                bone_property_group.find_armature(),
+                "bones",
+                text=label,
+                icon=icon,
+                translate=False,
+            )
+            return row
 
         row = layout.row(align=True)
         if text:

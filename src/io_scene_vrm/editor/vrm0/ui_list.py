@@ -148,7 +148,12 @@ class VRM_UL_vrm0_secondary_animation_group_bone(UIList):
             return
 
         if index == bone_group.active_bone_index:
-            VRM_MT_bone_assignment.draw_input_layout(layout, bone, icon=icon)
+            VRM_MT_bone_assignment.draw_input_layout(
+                layout,
+                bone,
+                icon=icon,
+                simple=True,
+            )
         else:
             layout.label(text=bone.bone_name, translate=False, icon=icon)
 

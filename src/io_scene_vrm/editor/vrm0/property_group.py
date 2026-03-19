@@ -393,13 +393,13 @@ class Vrm0MeshAnnotationPropertyGroup(PropertyGroup):
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L50-L91
 class Vrm0FirstPersonPropertyGroup(PropertyGroup):
     first_person_bone: PointerProperty(  # type: ignore[valid-type]
-        name="First Person Bone",
+        name="Bone",
         type=BonePropertyGroup,
         description="Bone to follow the first person camera",
     )
     first_person_bone_offset: FloatVectorProperty(  # type: ignore[valid-type]
         size=3,
-        name="First Person Bone Offset",
+        name="Bone Offset",
         description=(
             "Offset from the first person bone to follow the first person camera"
         ),
@@ -423,7 +423,7 @@ class Vrm0FirstPersonPropertyGroup(PropertyGroup):
     )
     look_at_type_name: EnumProperty(  # type: ignore[valid-type]
         items=look_at_type_name_enum.items(),
-        name="Look At Type Name",
+        name="Look At Type",
         description="How to eye movement",
     )
     look_at_horizontal_inner: PointerProperty(  # type: ignore[valid-type]
@@ -762,7 +762,7 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_SecondaryAnimation.cs#L21-L29
 class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
     node: PointerProperty(  # type: ignore[valid-type]
-        name="Node",
+        name="Bone",
         type=BonePropertyGroup,
     )
     # Use the collider's own data for offset and radius

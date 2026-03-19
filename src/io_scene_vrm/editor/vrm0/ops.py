@@ -2682,7 +2682,10 @@ def draw_bone_prop_search(
         return
 
     row = VRM_MT_bone_assignment.draw_input_layout(
-        layout, props.node, text="", icon=human_bone_specification.icon
+        layout,
+        props.node,
+        text="",
+        icon=human_bone_specification.icon,
     )
 
     if not show_diagnostics:

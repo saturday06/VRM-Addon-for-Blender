@@ -488,7 +488,11 @@ def draw_vrm0_first_person_layout(
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
-    VRM_MT_bone_assignment.draw_input_layout(layout, first_person.first_person_bone)
+    VRM_MT_bone_assignment.draw_input_layout(
+        layout,
+        first_person.first_person_bone,
+        simple=True,
+    )
     layout.prop(first_person, "first_person_bone_offset", icon="BONE_DATA")
     layout.prop(first_person, "look_at_type_name")
     layout.label(text="Mesh Annotations", icon="RESTRICT_RENDER_OFF")
@@ -952,7 +956,11 @@ def draw_vrm0_secondary_animation_bone_groups_layout(
     column.prop(bone_group, "gravity_dir", icon="OUTLINER_OB_FORCE_FIELD")
     column.separator()
     VRM_MT_bone_assignment.draw_input_layout(
-        column, bone_group.center, icon="PIVOT_MEDIAN", text="Center Bone"
+        column,
+        bone_group.center,
+        icon="PIVOT_MEDIAN",
+        text="Center Bone",
+        simple=True,
     )
     column.prop(
         bone_group,
@@ -1070,7 +1078,11 @@ def draw_vrm0_secondary_animation_collider_groups_layout(
 
     column = box.column()
     column.label(text=collider_group.name)
-    VRM_MT_bone_assignment.draw_input_layout(column, collider_group.node)
+    VRM_MT_bone_assignment.draw_input_layout(
+        column,
+        collider_group.node,
+        simple=True,
+    )
     column.label(text="Colliders:")
 
     (
