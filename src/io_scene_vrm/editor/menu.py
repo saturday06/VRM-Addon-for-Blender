@@ -107,14 +107,13 @@ class VRM_MT_bone_assignment(Menu):
             all_items_count += 1
             base_item_index = 2
 
-        if all_items_count <= 15:
-            column_items_count = all_items_count
-        elif all_items_count <= 30:
-            column_items_count = math.ceil(all_items_count / 2.0)
-        elif all_items_count <= 45:
-            column_items_count = math.ceil(all_items_count / 3.0)
-        else:
-            column_items_count = math.ceil(all_items_count / 4.0)
+        column_count_limit = 7
+        column_items_count_soft_limit = 15
+        column_count = min(
+            math.ceil(all_items_count / column_items_count_soft_limit),
+            column_count_limit,
+        )
+        column_items_count = math.ceil(all_items_count / column_count)
 
         for bone_index, bone_name in enumerate(bone_names):
             item_index = base_item_index + bone_index
