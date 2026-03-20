@@ -1,5 +1,5 @@
 ci:
-  image: buildpack-deps:noble@sha256:f9316c98dd22c69ebfc8ff437381504bf654d9ce1f18d2b637b5af7dd05cde55
+  image: buildpack-deps:noble@sha256:00a94711183f6a20bc2ed06e90f98250961cb99aff7068ceda34ab1f88e161f7
   services:
     - docker:29.3.0-dind@sha256:1ba18449911d01f477a3fc104123c85d677addc60701b14b3fcb5381f9c4a537
   retry:
