@@ -642,8 +642,6 @@ class ICYP_OT_make_armature(Operator):
         vrm0.first_person.look_at_horizontal_outer.y_range = 12
         vrm0.meta.author = "undefined"
         vrm0.meta.contact_information = "undefined"
-        vrm0.meta.other_license_url = "undefined"
-        vrm0.meta.other_permission_url = "undefined"
         vrm0.meta.reference = "undefined"
         vrm0.meta.title = "undefined"
         vrm0.meta.version = "undefined"
