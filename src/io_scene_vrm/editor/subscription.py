@@ -18,7 +18,6 @@ logger = get_logger(__name__)
 
 @dataclass
 class Subscription:
-    object_name_subscription_owner = object()
     object_mode_subscription_owner = object()
     object_location_subscription_owner = object()
     bone_name_subscription_owner = object()
@@ -39,14 +38,6 @@ def setup_subscription(*, load_post: bool) -> None:
             return
 
     subscription.setup_once = True
-
-    object_name_subscribe_to = (Object, "name")
-    bpy.msgbus.subscribe_rna(
-        key=object_name_subscribe_to,
-        owner=subscription.object_name_subscription_owner,
-        args=(),
-        notify=on_change_bpy_object_name,
-    )
 
     object_mode_subscribe_to = (Object, "mode")
     bpy.msgbus.subscribe_rna(
@@ -80,7 +71,6 @@ def setup_subscription(*, load_post: bool) -> None:
         notify=on_change_bpy_armature_name,
     )
 
-    bpy.msgbus.publish_rna(key=object_name_subscribe_to)
     bpy.msgbus.publish_rna(key=object_mode_subscribe_to)
     bpy.msgbus.publish_rna(key=object_location_subscribe_to)
     bpy.msgbus.publish_rna(key=bone_name_subscribe_to)
@@ -93,23 +83,6 @@ def teardown_subscription() -> None:
     bpy.msgbus.clear_by_owner(subscription.bone_name_subscription_owner)
     bpy.msgbus.clear_by_owner(subscription.object_location_subscription_owner)
     bpy.msgbus.clear_by_owner(subscription.object_mode_subscription_owner)
-    bpy.msgbus.clear_by_owner(subscription.object_name_subscription_owner)
-
-
-def on_change_bpy_object_name() -> None:
-    context = bpy.context
-
-    for armature in context.blend_data.armatures:
-        ext = get_armature_extension(armature)
-        if (
-            tuple(ext.addon_version)
-            == VrmAddonArmatureExtensionPropertyGroup.INITIAL_ADDON_VERSION
-        ):
-            continue
-
-        # TODO: Needs optimization!
-        for collider in ext.spring_bone1.colliders:
-            collider.broadcast_bpy_object_name()
 
 
 def on_change_bpy_object_mode() -> None:

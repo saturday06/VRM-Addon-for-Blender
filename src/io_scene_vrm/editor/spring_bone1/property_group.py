@@ -67,7 +67,8 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
         armature, collider = self.find_armature_and_collider(context)
         if not collider.bpy_object:
             logger.error(
-                'Failed to get bpy object of "%s" in sphere.get_offset()', collider.name
+                'Failed to get bpy object of "%s" in sphere.get_offset()',
+                collider.uuid or "unknown",
             )
             return (0, 0, 0)
         bone = armature.pose.bones.get(collider.node.bone_name)
@@ -107,7 +108,8 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
         _, collider = self.find_armature_and_collider(context)
         if not collider.bpy_object:
             logger.error(
-                'Failed to get bpy object of "%s" in sphere.get_radius()', collider.name
+                'Failed to get bpy object of "%s" in sphere.get_radius()',
+                collider.uuid or "unknown",
             )
             return 0.0
         mean_scale = statistics.mean(
@@ -124,7 +126,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
         if not collider.bpy_object:
             logger.error(
                 'Failed to reset bpy object of "%s" in sphere.set_radius()',
-                collider.name,
+                collider.uuid or "unknown",
             )
             return
         location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
@@ -199,7 +201,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         if not collider.bpy_object:
             logger.error(
                 'Failed to get bpy object of "%s" in capsule.get_offset()',
-                collider.name,
+                collider.uuid or "unknown",
             )
             return (0, 0, 0)
         bone = armature.pose.bones.get(collider.node.bone_name)
@@ -237,9 +239,16 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         context = bpy.context
 
         armature, collider = self.find_armature_and_collider(context)
-        if not collider.bpy_object or not collider.bpy_object.children:
+        if not collider.bpy_object:
             logger.error(
-                'Failed to get bpy object of "%s" in capsule.get_tail()', collider.name
+                'Failed to get bpy object of "%s" in capsule.get_tail()',
+                collider.uuid or "unknown",
+            )
+            return (0, 0, 0)
+        if not collider.bpy_object.children:
+            logger.error(
+                'Failed to get bpy object children of "%s" in capsule.get_tail()',
+                collider.display_name,
             )
             return (0, 0, 0)
         bone = armature.pose.bones.get(collider.node.bone_name)
@@ -273,7 +282,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
                 logger.error(
                     'Failed to set tail bpy object matrix of "%s"'
                     " in capsule.set_tail()",
-                    collider.name,
+                    collider.display_name,
                 )
                 return
             collider.bpy_object.children[0].matrix_world = (
@@ -290,7 +299,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         if not collider.bpy_object:
             logger.error(
                 'Failed to get bpy object of "%s" in capsule.get_radius()',
-                collider.name,
+                collider.uuid or "unknown",
             )
             return 0.0
         mean_scale: float = statistics.mean(
@@ -307,7 +316,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         if not collider.bpy_object:
             logger.error(
                 'Failed to reset bpy object of "%s" in capsule.set_radius()',
-                collider.name,
+                collider.uuid or "unknown",
             )
             return
         location, rotation, _ = collider.bpy_object.matrix_basis.decompose()
@@ -318,7 +327,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         if not collider.bpy_object.children:
             logger.error(
                 'Failed to set tail bpy object size of "%s" in capsule.set_radius()',
-                collider.name,
+                collider.display_name,
             )
             return
         collider.bpy_object.children[0].empty_display_size = v
@@ -461,7 +470,7 @@ class SpringBone1ExtendedColliderShapePlanePropertyGroup(PropertyGroup):
         if not collider.bpy_object:
             logger.error(
                 'Failed to get bpy object of "%s" in extended_collider.get_offset()',
-                collider.name,
+                collider.uuid or "unknown",
             )
             return (0, 0, 0)
         bone = armature.pose.bones.get(collider.node.bone_name)
@@ -660,29 +669,12 @@ class SpringBone1ColliderExtensionsPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.collider.schema.json
 class SpringBone1ColliderPropertyGroup(PropertyGroup):
-    def broadcast_bpy_object_name(self) -> None:
-        armature = self.id_data
-        if not isinstance(armature, Armature):
-            message = (
-                f"{type(self)}/{self}.id_data is not a {Armature}"
-                + f" but {type(armature)}/{armature}"
-            )
-            raise TypeError(message)
-
-        if not self.bpy_object or not self.bpy_object.name:
-            self.name = ""
-            return
-        if self.name == self.bpy_object.name:
-            return
-        self.name = self.bpy_object.name
-
-        spring_bone = get_armature_extension(armature).spring_bone1
-        for collider_group in spring_bone.collider_groups:
-            for collider_reference in collider_group.colliders:
-                if self.uuid != collider_reference.collider_uuid:
-                    continue
-                if collider_reference.collider_name != self.name:
-                    collider_reference.collider_name = self.name
+    @property
+    def display_name(self) -> str:
+        bpy_object = self.bpy_object
+        if not bpy_object:
+            return ""
+        return bpy_object.name
 
     node: PointerProperty(  # type: ignore[valid-type]
         type=BonePropertyGroup,
@@ -894,8 +886,6 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
             if self.bpy_object.parent_bone:
                 self.bpy_object.parent_bone = ""
 
-        self.broadcast_bpy_object_name()
-
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
@@ -910,47 +900,37 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
 
 
 class SpringBone1ColliderReferencePropertyGroup(PropertyGroup):
-    def get_collider_name(self) -> str:
-        value = self.get("collider_name", "")
-        return value if isinstance(value, str) else str(value)
-
-    def set_collider_name(self, value: object) -> None:
-        """渡されたcollider_nameから、対応するColliderPropertyGroupのuuidを探して、collider_uuidにセットする.
-
-        同時に、表示用のnameプロパティも更新する
-        TODO: この実装は非常に邪悪なため、UUIDのみの実装へ強い意志でリファクタリングする
-        """
+    @property
+    def collider_display_name(self) -> str:
         armature = self.id_data
         if not isinstance(armature, Armature):
-            message = (
-                f"{type(self)}/{self}.id_data is not a {Armature}"
-                + f" but {type(armature)}/{armature}"
-            )
-            raise TypeError(message)
-
-        if not isinstance(value, str):
-            value = str(value)
-        self.name = value
-        if self.get("collider_name") == value:
-            return
-        self["collider_name"] = value
+            return ""
+        if not self.collider_uuid:
+            return ""
 
         spring_bone = get_armature_extension(armature).spring_bone1
         for collider in spring_bone.colliders:
-            if collider.name != value:
-                continue
-            if self.collider_uuid != collider.uuid:
-                self.collider_uuid = collider.uuid
+            if collider.uuid == self.collider_uuid:
+                return collider.display_name
+        return ""
 
-    collider_name: StringProperty(  # type: ignore[valid-type]
-        get=get_collider_name, set=set_collider_name
-    )
-    collider_uuid: StringProperty()  # type: ignore[valid-type]
+    def update_collider_uuid(self, _context: Context) -> None:
+        if not self.collider_uuid:
+            return
+        armature_data = self.id_data
+        if not isinstance(armature_data, Armature):
+            return
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
+        for collider in spring_bone1.colliders:
+            if self.collider_uuid == collider.uuid:
+                return
+        self.collider_uuid = ""
+
+    collider_uuid: StringProperty(update=update_collider_uuid)  # type: ignore[valid-type]
 
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
-        collider_name: str  # type: ignore[no-redef]
         collider_uuid: str  # type: ignore[no-redef]
 
 

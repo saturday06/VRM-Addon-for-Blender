@@ -214,6 +214,8 @@ def calculate_object_pose_bone_rotations(
         ],
     ] = {}
     for collider in spring_bone1.colliders:
+        if not collider.uuid:
+            continue
         pose_bone = obj.pose.bones.get(collider.node.bone_name)
         if not pose_bone:
             continue

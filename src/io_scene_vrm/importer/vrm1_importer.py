@@ -1618,7 +1618,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 collider = spring_bone.colliders[collider_index]
                 if not collider:
                     continue
-                collider_reference.collider_name = collider.name
+                collider_reference.collider_uuid = collider.uuid
             collider_group.active_collider_index = 0
         spring_bone.active_collider_group_index = 0
 

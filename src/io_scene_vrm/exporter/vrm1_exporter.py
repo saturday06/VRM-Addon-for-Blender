@@ -702,6 +702,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         collider_dicts: list[Json] = []
         collider_uuid_to_index_dict: dict[str, int] = {}
         for collider in spring_bone.colliders:
+            if not collider.uuid:
+                continue
             collider_dict: dict[str, Json] = {}
             node_index = bone_name_to_index_dict.get(collider.node.bone_name)
             if not isinstance(node_index, int):
@@ -831,8 +833,11 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 collider_index = collider_uuid_to_index_dict.get(
                     collider_reference.collider_uuid
                 )
-                if isinstance(collider_index, int):
-                    collider_indices.append(collider_index)
+                if not isinstance(collider_index, int):
+                    continue
+                if collider_index in collider_indices:
+                    continue
+                collider_indices.append(collider_index)
             if not collider_indices:
                 continue
             collider_group_dict["colliders"] = collider_indices

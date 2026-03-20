@@ -12,7 +12,10 @@ from ...common import convert, safe_removal
 from ...common.logger import get_logger
 from ..extension_accessor import get_armature_extension
 from .handler import reset_state, update_pose_bone_rotations
-from .property_group import SpringBone1ColliderGroupPropertyGroup
+from .property_group import (
+    SpringBone1ColliderGroupPropertyGroup,
+    SpringBone1ColliderReferencePropertyGroup,
+)
 
 logger = get_logger(__name__)
 
@@ -787,6 +790,94 @@ class VRM_OT_add_spring_bone1_collider_group_collider(Operator):
         armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_assign_spring_bone1_collider_group_collider(Operator):
+    bl_idname = "vrm.assign_spring_bone1_collider_group_collider"
+    bl_label = "Assign Collider"
+    bl_description = "Assign VRM 1.0 Spring Bone Collider Group Collider"
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_data_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+    collider_reference_path: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+    collider_uuid: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        armature_data = context.blend_data.armatures.get(self.armature_data_name)
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+
+        collider_reference = armature_data.path_resolve(
+            self.collider_reference_path,
+            False,
+        )
+        if not isinstance(
+            collider_reference, SpringBone1ColliderReferencePropertyGroup
+        ):
+            return {"CANCELLED"}
+
+        if not self.collider_uuid:
+            collider_reference.collider_uuid = ""
+            return {"FINISHED"}
+
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
+        for collider in spring_bone1.colliders:
+            if collider.uuid != self.collider_uuid:
+                continue
+            collider_reference.collider_uuid = collider.uuid
+            return {"FINISHED"}
+
+        return {"CANCELLED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_data_name: str  # type: ignore[no-redef]
+        collider_reference_path: str  # type: ignore[no-redef]
+        collider_uuid: str  # type: ignore[no-redef]
+
+
+class VRM_OT_unassign_spring_bone1_collider_group_collider(Operator):
+    bl_idname = "vrm.unassign_spring_bone1_collider_group_collider"
+    bl_label = "Unassign Collider"
+    bl_description = "Unassign VRM 1.0 Spring Bone Collider Group Collider"
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_data_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+    collider_reference_path: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        armature_data = context.blend_data.armatures.get(self.armature_data_name)
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+
+        collider_reference = armature_data.path_resolve(
+            self.collider_reference_path,
+            False,
+        )
+        if not isinstance(
+            collider_reference, SpringBone1ColliderReferencePropertyGroup
+        ):
+            return {"CANCELLED"}
+
+        collider_reference.collider_uuid = ""
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_data_name: str  # type: ignore[no-redef]
+        collider_reference_path: str  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_spring_bone1_collider_group_collider(Operator):
@@ -1638,7 +1729,6 @@ def assign_spring_bone1_from_vrm0(
             if collider_bpy_object:
                 collider_bpy_object.name = vrm0_collider_bpy_object.name + ".1"
                 collider_bpy_object.matrix_world = vrm0_collider_bpy_object.matrix_world
-            collider.broadcast_bpy_object_name()
             vrm0_scale = vrm0_collider_bpy_object.scale
             vrm0_mean_abs_scale = (
                 abs(vrm0_scale[0]) + abs(vrm0_scale[1]) + abs(vrm0_scale[2])
@@ -1649,7 +1739,7 @@ def assign_spring_bone1_from_vrm0(
             collider.shape.sphere.radius = effective_radius
 
             collider_group_collider = collider_group.add_collider()
-            collider_group_collider.collider_name = collider.name
+            collider_group_collider.collider_uuid = collider.uuid
         vrm0_collider_group_uuid_to_collider_group[vrm0_collider_group.uuid] = (
             collider_group
         )
@@ -1846,12 +1936,11 @@ def assign_spring_bone1_from_mmd(
         collider_bpy_object = collider.bpy_object
         if collider_bpy_object:
             collider_bpy_object.matrix_world = mmd_obj.matrix_world
-        collider.broadcast_bpy_object_name()
 
         collider_group = spring_bone1.add_collider_group()
         collider_group.vrm_name = bone_name + "-mmd-colliders"
         collider_group_collider = collider_group.add_collider()
-        collider_group_collider.collider_name = collider.name
+        collider_group_collider.collider_uuid = collider.uuid
         static_rigid_bone_to_collider_group[bone_name] = collider_group
 
     # Build bone chains from physics bones.

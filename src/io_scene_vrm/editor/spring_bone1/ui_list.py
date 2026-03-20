@@ -3,6 +3,7 @@ from bpy.types import Armature, Context, UILayout, UIList
 
 from ...common.logger import get_logger
 from ..extension_accessor import get_armature_extension
+from .menu import VRM_MT_spring_bone1_collider_group_collider
 from .property_group import (
     SpringBone1ColliderGroupPropertyGroup,
     SpringBone1ColliderGroupReferencePropertyGroup,
@@ -114,20 +115,17 @@ class VRM_UL_spring_bone1_collider_group_collider(UIList):
         if not isinstance(armature_data, Armature):
             logger.error("Failed to find armature")
             return
-        spring_bone = get_armature_extension(armature_data).spring_bone1
 
         if index == collider_group.active_collider_index:
-            layout.prop_search(
+            VRM_MT_spring_bone1_collider_group_collider.draw_input_layout(
+                layout,
                 collider,
-                "collider_name",
-                spring_bone,
-                "colliders",
-                text="",
-                translate=False,
                 icon=icon,
             )
         else:
-            layout.label(text=collider.collider_name, translate=False, icon=icon)
+            layout.label(
+                text=collider.collider_display_name, translate=False, icon=icon
+            )
 
 
 class VRM_UL_spring_bone1_spring(UIList):

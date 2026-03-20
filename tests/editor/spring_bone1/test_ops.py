@@ -1559,7 +1559,10 @@ class TestAssignSpringBone1FromVrm0(AddonTestCase):
 
         # The collider group should reference the collider
         self.assertEqual(len(collider_group.colliders), 1)
-        self.assertEqual(collider_group.colliders[0].collider_name, collider.name)
+        self.assertEqual(collider_group.colliders[0].collider_uuid, collider.uuid)
+        self.assertEqual(
+            collider_group.colliders[0].collider_display_name, collider.display_name
+        )
 
         # Verify springs were created
         self.assertGreater(len(spring_bone1.springs), 0)
