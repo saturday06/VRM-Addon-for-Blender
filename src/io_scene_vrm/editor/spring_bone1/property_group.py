@@ -44,7 +44,7 @@ def find_armature_and_collider(
         armature_data = obj.data
         if not isinstance(armature_data, Armature):
             continue
-        for collider in get_armature_spring_bone1_extension(armature_data).colliders:
+        for collider in get_armature_extension(armature_data).spring_bone1.colliders:
             if match_collider(collider):
                 return (obj, collider)
     message = "No armature"
@@ -676,7 +676,7 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
             return
         self.name = self.bpy_object.name
 
-        spring_bone = get_armature_spring_bone1_extension(armature)
+        spring_bone = get_armature_extension(armature).spring_bone1
         for collider_group in spring_bone.collider_groups:
             for collider_reference in collider_group.colliders:
                 if self.uuid != collider_reference.collider_uuid:
@@ -935,7 +935,7 @@ class SpringBone1ColliderReferencePropertyGroup(PropertyGroup):
             return
         self["collider_name"] = value
 
-        spring_bone = get_armature_spring_bone1_extension(armature)
+        spring_bone = get_armature_extension(armature).spring_bone1
         for collider in spring_bone.colliders:
             if collider.name != value:
                 continue
@@ -985,8 +985,7 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
             )
             raise TypeError(message)
 
-        spring_bone = get_armature_spring_bone1_extension(armature)
-
+        spring_bone = get_armature_extension(armature).spring_bone1
         for index, collider_group in enumerate(spring_bone.collider_groups):
             if collider_group.path_from_id() != self.path_from_id():
                 continue
@@ -1144,7 +1143,7 @@ class SpringBone1ColliderGroupReferencePropertyGroup(PropertyGroup):
         if self.get("collider_group_name") != value:
             self["collider_group_name"] = value
 
-        spring_bone = get_armature_spring_bone1_extension(armature)
+        spring_bone = get_armature_extension(armature).spring_bone1
         for collider_group in spring_bone.collider_groups:
             if collider_group.name != value:
                 continue
@@ -1322,11 +1321,3 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
         active_collider_index: int  # type: ignore[no-redef]
         active_collider_group_index: int  # type: ignore[no-redef]
         active_spring_index: int  # type: ignore[no-redef]
-
-
-def get_armature_spring_bone1_extension(
-    armature: Armature,
-) -> SpringBone1SpringBonePropertyGroup:
-    ext = get_armature_extension(armature)
-    spring_bone1: SpringBone1SpringBonePropertyGroup = ext.spring_bone1
-    return spring_bone1

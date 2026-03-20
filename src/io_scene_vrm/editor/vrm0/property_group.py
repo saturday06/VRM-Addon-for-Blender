@@ -624,9 +624,9 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
     @classmethod
     def apply_previews(cls, context: Context, armature_data: Armature) -> None:
         mesh_object_name_to_key_block_name_to_value: dict[str, dict[str, float]] = {}
-        blend_shape_groups = get_armature_vrm0_extension(
+        blend_shape_groups = get_armature_extension(
             armature_data
-        ).blend_shape_master.blend_shape_groups
+        ).vrm0.blend_shape_master.blend_shape_groups
         for blend_shape_group in blend_shape_groups:
             if blend_shape_group.is_binary:
                 # https://github.com/vrm-c/UniVRM/blob/38ccb92300c9ab41c72eb3d5b8dc8ce664a659d5/Assets/VRM/Runtime/BlendShape/BlendShapeMerger.cs#L89-L92
@@ -1165,11 +1165,6 @@ class Vrm0PropertyGroup(PropertyGroup):
         secondary_animation: (  # type: ignore[no-redef]
             Vrm0SecondaryAnimationPropertyGroup
         )
-
-
-def get_armature_vrm0_extension(armature: Armature) -> Vrm0PropertyGroup:
-    vrm0: Vrm0PropertyGroup = get_armature_extension(armature).vrm0
-    return vrm0
 
 
 def clear_global_variables() -> None:

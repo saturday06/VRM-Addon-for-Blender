@@ -234,9 +234,9 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
     def find_outline_property_group(
         self, material: Material
     ) -> Optional["MaterialTraceablePropertyGroup"]:
-        if get_material_mtoon1_extension(material).is_outline_material:
+        if get_material_extension(material).mtoon1.is_outline_material:
             return None
-        outline_material = get_material_mtoon1_extension(material).outline_material
+        outline_material = get_material_extension(material).mtoon1.outline_material
         if not outline_material:
             return None
         if material.name == outline_material.name:
@@ -1001,7 +1001,7 @@ class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
         if offset is None:
             return
         material = self.find_material()
-        if get_material_mtoon1_extension(material).is_outline_material:
+        if get_material_extension(material).mtoon1.is_outline_material:
             return
         self.set_texture_offset(offset)
         refresh_mtoon1_outline(material_name=material.name, create_modifier=False)
@@ -1011,7 +1011,7 @@ class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
         if scale is None:
             return
         material = self.find_material()
-        if get_material_mtoon1_extension(material).is_outline_material:
+        if get_material_extension(material).mtoon1.is_outline_material:
             return
         self.set_texture_scale(scale)
         refresh_mtoon1_outline(material_name=material.name, create_modifier=False)
@@ -1545,7 +1545,7 @@ class Mtoon1BaseColorTexturePropertyGroup(Mtoon1TexturePropertyGroup):
     def update_image(self, image: Optional[Image]) -> None:
         super().update_image(image)
         material = self.find_material()
-        mtoon1 = get_material_mtoon1_extension(material)
+        mtoon1 = get_material_extension(material).mtoon1
         mtoon1.update_alpha_nodes(
             material,
             mtoon1.get_alpha_mode(),
@@ -1653,7 +1653,7 @@ class Mtoon1OutlineWidthMultiplyTexturePropertyGroup(Mtoon1TexturePropertyGroup)
     colorspace = "Non-Color"
 
     def update_source(self, context: Context) -> None:
-        mtoon1 = get_material_mtoon1_extension(self.find_material())
+        mtoon1 = get_material_extension(self.find_material()).mtoon1
         mtoon1.extensions.vrmc_materials_mtoon.update_outline_geometry()
         super().update_source(context)
 
@@ -1769,7 +1769,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
     show_expanded: BoolProperty()  # type: ignore[valid-type]
 
     def setup_drivers(self, material: Material) -> None:
-        mtoon1 = get_material_mtoon1_extension(material)
+        mtoon1 = get_material_extension(material).mtoon1
         if not mtoon1.enabled:
             return
         node_tree = material.node_tree
@@ -1976,7 +1976,7 @@ class Mtoon1NormalTextureInfoPropertyGroup(Mtoon1TextureInfoPropertyGroup):
         principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
         principled_bsdf.normalmap_strength = self.scale
 
-        mtoon1 = get_material_mtoon1_extension(material)
+        mtoon1 = get_material_extension(material).mtoon1
         if mtoon1.is_outline_material:
             return
         outline_material = mtoon1.outline_material
@@ -2301,7 +2301,7 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
             color[1],
             color[2],
         )
-        mtoon1 = get_material_mtoon1_extension(material)
+        mtoon1 = get_material_extension(material).mtoon1
         alpha_mode_value = mtoon1.get_alpha_mode()
         mtoon1.update_alpha_nodes(material, alpha_mode_value)
 
@@ -2310,7 +2310,7 @@ class Mtoon1PbrMetallicRoughnessPropertyGroup(MaterialTraceablePropertyGroup):
         outline_material = mtoon1.outline_material
         if not outline_material:
             return
-        outline_mtoon1 = get_material_mtoon1_extension(outline_material)
+        outline_mtoon1 = get_material_extension(outline_material).mtoon1
         outline_mtoon1.update_alpha_nodes(outline_material, alpha_mode_value)
 
     base_color_factor: FloatVectorProperty(  # type: ignore[valid-type]
@@ -2354,7 +2354,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
             value,
         )
 
-        mtoon1 = get_material_mtoon1_extension(self.find_material())
+        mtoon1 = get_material_extension(self.find_material()).mtoon1
         mtoon1.set_mtoon0_render_queue_and_clamp(mtoon1.mtoon0_render_queue)
 
     transparent_with_z_write: BoolProperty(  # type: ignore[valid-type]
@@ -2656,7 +2656,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
 
     def update_outline_geometry(self) -> None:
         material = self.find_material()
-        if get_material_mtoon1_extension(material).is_outline_material:
+        if get_material_extension(material).mtoon1.is_outline_material:
             return
         refresh_mtoon1_outline(material_name=material.name, create_modifier=True)
 
@@ -2712,7 +2712,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         self.update_outline_geometry()
 
         material = self.find_material()
-        mtoon1 = get_material_mtoon1_extension(material)
+        mtoon1 = get_material_extension(material).mtoon1
         if mtoon1.is_outline_material:
             return
         outline_material = mtoon1.outline_material
@@ -2773,7 +2773,7 @@ class Mtoon1VrmcMaterialsMtoonPropertyGroup(MaterialTraceablePropertyGroup):
         for material in context.blend_data.materials:
             if material.name == material_name:
                 continue
-            ext = get_material_mtoon1_extension(material)
+            ext = get_material_extension(material).mtoon1
             if not ext.enabled:
                 continue
             mtoon = ext.extensions.vrmc_materials_mtoon
@@ -2917,7 +2917,7 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
             if isinstance(socket, NodeSocketFloat):
                 socket.default_value = self.emissive_strength
 
-        mtoon1 = get_material_mtoon1_extension(material)
+        mtoon1 = get_material_extension(material).mtoon1
         if mtoon1.is_outline_material:
             return
         outline_material = mtoon1.outline_material
@@ -3015,7 +3015,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
 
         # Align with glTF nodes
         # https://docs.blender.org/manual/en/4.2/addons/import_export/scene_gltf2.html#alpha-modes
-        mtoon1 = get_material_mtoon1_extension(material)
+        mtoon1 = get_material_extension(material).mtoon1
         texture = mtoon1.pbr_metallic_roughness.base_color_texture.index
         tex_image_node_name = texture.get_image_texture_node_name()
 
@@ -3193,7 +3193,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         outline_material = self.outline_material
         if not outline_material:
             return
-        get_material_mtoon1_extension(outline_material).set_alpha_mode(value)
+        get_material_extension(outline_material).mtoon1.set_alpha_mode(value)
 
     alpha_mode: EnumProperty(  # type: ignore[valid-type]
         items=alpha_mode_enum.items(),
@@ -3211,12 +3211,13 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         self.set_bool(
             shader.OUTPUT_GROUP_NAME, shader.OUTPUT_GROUP_DOUBLE_SIDED_LABEL, value
         )
-        if get_material_mtoon1_extension(material).is_outline_material:
+        mtoon1 = get_material_extension(material).mtoon1
+        if mtoon1.is_outline_material:
             return
-        outline_material = get_material_mtoon1_extension(material).outline_material
+        outline_material = mtoon1.outline_material
         if not outline_material:
             return
-        get_material_mtoon1_extension(outline_material).double_sided = False
+        get_material_extension(outline_material).mtoon1.double_sided = False
 
     double_sided: BoolProperty(  # type: ignore[valid-type]
         name=shader.OUTPUT_GROUP_DOUBLE_SIDED_LABEL,
@@ -3248,7 +3249,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         outline_material = self.outline_material
         if not outline_material:
             return
-        get_material_mtoon1_extension(outline_material).set_alpha_cutoff(value)
+        get_material_extension(outline_material).mtoon1.set_alpha_cutoff(value)
 
     alpha_cutoff: FloatProperty(  # type: ignore[valid-type]
         name="Cutoff",
@@ -3300,7 +3301,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
                     1,
                 )
 
-        mtoon1 = get_material_mtoon1_extension(material)
+        mtoon1 = get_material_extension(material).mtoon1
         if mtoon1.is_outline_material:
             return
         outline_material = mtoon1.outline_material
@@ -3601,7 +3602,7 @@ def reset_shader_node_group(
     reset_material_node_tree: bool,
     reset_node_groups: bool,
 ) -> None:
-    gltf = get_material_mtoon1_extension(material)
+    gltf = get_material_extension(material).mtoon1
     mtoon = gltf.extensions.vrmc_materials_mtoon
 
     base_color_factor = list(gltf.pbr_metallic_roughness.base_color_factor)
@@ -3663,7 +3664,7 @@ def reset_shader_node_group(
     gltf.is_outline_material = False
     outline_material = gltf.outline_material
     if outline_material:
-        get_material_mtoon1_extension(outline_material).is_outline_material = True
+        get_material_extension(outline_material).mtoon1.is_outline_material = True
 
     gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
     gltf.pbr_metallic_roughness.base_color_texture.restore(base_color_texture)
@@ -3709,11 +3710,6 @@ def reset_shader_node_group(
 
     gltf.setup_drivers()
     gltf.addon_version = get_addon_version()
-
-
-def get_material_mtoon1_extension(material: Material) -> Mtoon1MaterialPropertyGroup:
-    mtoon1: Mtoon1MaterialPropertyGroup = get_material_extension(material).mtoon1
-    return mtoon1
 
 
 @dataclass(frozen=True)
@@ -4532,7 +4528,7 @@ def refresh_mtoon1_outline(
 
 def setup_drivers(context: Context) -> None:
     for material in context.blend_data.materials:
-        get_material_mtoon1_extension(material).setup_drivers()
+        get_material_extension(material).mtoon1.setup_drivers()
     shader.setup_frame_count_driver(context)
 
 

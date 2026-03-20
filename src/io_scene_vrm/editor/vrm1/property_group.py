@@ -383,7 +383,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         if obj.type != "ARMATURE" or not isinstance(armature_data, Armature):
             return
 
-        human_bones = get_armature_vrm1_extension(armature_data).humanoid.human_bones
+        human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
 
         # If the same Blender bone is set in multiple bone maps, delete one of them
         fixup = True
@@ -648,7 +648,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
             armature_data = armature_object.data
             if not isinstance(armature_data, Armature):
                 continue
-            look_at = get_armature_vrm1_extension(armature_data).look_at
+            look_at = get_armature_extension(armature_data).vrm1.look_at
             look_at.update_preview(context, armature_object, armature_data)
 
     def update_preview(
@@ -657,7 +657,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
         armature_object: Object,
         armature_data: Armature,
     ) -> None:
-        vrm1 = get_armature_vrm1_extension(armature_data)
+        vrm1 = get_armature_extension(armature_data).vrm1
         preview_target_bpy_object = self.preview_target_bpy_object
         if not preview_target_bpy_object:
             return
@@ -1124,7 +1124,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
 
     @classmethod
     def apply_previews(cls, context: Context, armature_data: Armature) -> None:
-        expressions = get_armature_vrm1_extension(armature_data).expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         name_to_expression_dict = expressions.all_name_to_expression_dict()
 
         mouth_block_rate = 0.0
@@ -1309,7 +1309,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
     @classmethod
     def update_materials(cls, context: Context) -> None:
         for armature in context.blend_data.armatures:
-            ext = get_armature_vrm1_extension(armature)
+            ext = get_armature_extension(armature).vrm1
             expressions = ext.expressions
             for expression in expressions.all_name_to_expression_dict().values():
                 materials_to_update = expression.materials_to_update
@@ -1375,7 +1375,7 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
             logger.error("No armature for %s", self)
             return
 
-        expressions = get_armature_vrm1_extension(armature_data).expressions
+        expressions = get_armature_extension(armature_data).vrm1.expressions
         all_expression_names = expressions.all_name_to_expression_dict().keys()
         custom_name = value
         for index in range(sys.maxsize):
@@ -1786,11 +1786,6 @@ class Vrm1PropertyGroup(PropertyGroup):
         first_person: Vrm1FirstPersonPropertyGroup  # type: ignore[no-redef]
         look_at: Vrm1LookAtPropertyGroup  # type: ignore[no-redef]
         expressions: Vrm1ExpressionsPropertyGroup  # type: ignore[no-redef]
-
-
-def get_armature_vrm1_extension(armature: Armature) -> Vrm1PropertyGroup:
-    vrm1: Vrm1PropertyGroup = get_armature_extension(armature).vrm1
-    return vrm1
 
 
 def clear_global_variables() -> None:
