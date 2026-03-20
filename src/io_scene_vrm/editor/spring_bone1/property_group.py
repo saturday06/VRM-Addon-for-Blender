@@ -961,6 +961,17 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
         type=SpringBone1ColliderReferencePropertyGroup,
     )
 
+    def fixup(self) -> None:
+        if not isinstance(armature_data := self.id_data, Armature):
+            return
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
+        uuids = {collider.uuid for collider in spring_bone1.colliders if collider.uuid}
+        for collider_reference in self.colliders:
+            if collider_reference.collider_uuid in uuids:
+                uuids.remove(collider_reference.collider_uuid)
+                continue
+            collider_reference.collider_uuid = ""
+
     # for UI
     show_expanded: BoolProperty()  # type: ignore[valid-type]
     active_collider_index: IntProperty(min=0)  # type: ignore[valid-type]
@@ -1145,6 +1156,17 @@ class SpringBone1SpringPropertyGroup(PropertyGroup):
         type=BonePropertyGroup,
     )
 
+    def fixup(self) -> None:
+        if not isinstance(armature_data := self.id_data, Armature):
+            return
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
+        uuids = {cg.uuid for cg in spring_bone1.collider_groups if cg.uuid}
+        for collider_group_reference in self.collider_groups:
+            if collider_group_reference.collider_group_uuid in uuids:
+                uuids.remove(collider_group_reference.collider_group_uuid)
+                continue
+            collider_group_reference.collider_group_uuid = ""
+
     # for UI
     show_expanded: BoolProperty()  # type: ignore[valid-type]
     show_expanded_bones: BoolProperty(  # type: ignore[valid-type]
@@ -1226,6 +1248,27 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
         name="Enable Animation",
         update=update_enable_animation,
     )
+
+    def fixup(self) -> None:
+        found_collider_uuids = set[str]()
+        for collider in self.colliders:
+            if not collider.uuid:
+                collider.uuid = uuid.uuid4().hex
+            if collider.uuid in found_collider_uuids:
+                collider.uuid = uuid.uuid4().hex
+            found_collider_uuids.add(collider.uuid)
+
+        found_collider_group_uuids = set[str]()
+        for collider_group in self.collider_groups:
+            if not collider_group.uuid:
+                collider_group.uuid = uuid.uuid4().hex
+            if collider_group.uuid in found_collider_group_uuids:
+                collider_group.uuid = uuid.uuid4().hex
+            found_collider_group_uuids.add(collider_group.uuid)
+            collider_group.fixup()
+
+        for spring in self.springs:
+            spring.fixup()
 
     initial_automatic_spring_bone_assignment: BoolProperty(  # type: ignore[valid-type]
         default=True,

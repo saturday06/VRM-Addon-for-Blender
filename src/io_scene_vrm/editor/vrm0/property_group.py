@@ -732,11 +732,11 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
         type=Object
     )
 
-    def fixup(self, armature: Object, bone_name: str) -> None:
+    def fixup(self, armature: Optional[Object], bone_name: str) -> None:
         if not self.bpy_object or not self.bpy_object.name:
             return
 
-        if self.bpy_object.parent != armature:
+        if armature and self.bpy_object.parent != armature:
             self.bpy_object.parent = armature
         if self.bpy_object.empty_display_type != "SPHERE":
             self.bpy_object.empty_display_type = "SPHERE"
@@ -775,7 +775,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
         node = self.node
         return (node.bone_name if node and node.bone_name else "") + f"#{self.uuid}"
 
-    def fixup(self, armature: Object) -> None:
+    def fixup(self, armature: Optional[Object]) -> None:
         if not self.uuid:
             self.uuid = uuid.uuid4().hex
 
@@ -787,7 +787,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
             else:
                 collider.fixup(armature, self.node.bone_name)
 
-        armature_data = armature.data
+        armature_data = self.id_data
         if not isinstance(armature_data, Armature):
             return
 
@@ -1150,7 +1150,7 @@ class Vrm0SecondaryAnimationPropertyGroup(PropertyGroup):
     active_bone_group_index: IntProperty(min=0)  # type: ignore[valid-type]
     active_collider_group_index: IntProperty(min=0)  # type: ignore[valid-type]
 
-    def fixup(self, armature_object: Object) -> None:
+    def fixup(self, armature_object: Optional[Object]) -> None:
         found_uuids = set[str]()
         for collider_group in self.collider_groups:
             if collider_group.uuid and collider_group.uuid not in found_uuids:

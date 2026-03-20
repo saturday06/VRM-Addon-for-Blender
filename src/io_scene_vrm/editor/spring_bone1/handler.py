@@ -852,3 +852,11 @@ def sort_spring_bone_joints(
             chains.append([(joint, joint_bone)])
 
     return chains
+
+
+@persistent
+def save_pre(_unused: object) -> None:
+    context = bpy.context
+    for armature_data in context.blend_data.armatures:
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
+        spring_bone1.fixup()
