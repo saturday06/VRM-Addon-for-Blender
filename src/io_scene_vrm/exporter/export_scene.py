@@ -51,9 +51,9 @@ from ..editor.vrm1.panel import (
 from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
 from .abstract_base_vrm_exporter import AbstractBaseVrmExporter
 from .khr_character_exporter import KhrCharacterExporter
-from .uni_vrm_vrm_animation_exporter import UniVrmVrmAnimationExporter
 from .vrm0_exporter import Vrm0Exporter
 from .vrm1_exporter import Vrm1Exporter
+from .vrm_animation_exporter import VrmAnimationExporter
 
 logger = get_logger(__name__)
 
@@ -463,9 +463,7 @@ class EXPORT_SCENE_OT_vrma(Operator, ExportHelper):
                 armature = context.blend_data.objects.get(self.armature_object_name)
             if not armature:
                 return {"CANCELLED"}
-            return UniVrmVrmAnimationExporter.execute(
-                context, Path(self.filepath), armature
-            )
+            return VrmAnimationExporter.execute(context, Path(self.filepath), armature)
         except Exception:
             show_error_dialog(
                 pgettext("Failed to export VRM Animation."),

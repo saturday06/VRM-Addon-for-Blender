@@ -31,12 +31,7 @@ from ..editor.t_pose import setup_humanoid_t_pose
 logger = get_logger(__name__)
 
 
-class UniVrmVrmAnimationImporter:
-    """Import VRM animation. The import result is the same as UniVRM.
-
-    https://github.com/vrm-c/UniVRM
-    """
-
+class VrmAnimationImporter:
     @staticmethod
     def execute(context: Context, path: Path, armature: Object) -> set[str]:
         armature_data = armature.data

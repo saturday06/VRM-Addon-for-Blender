@@ -36,12 +36,7 @@ from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup, Vrm1Proper
 logger = get_logger(__name__)
 
 
-class UniVrmVrmAnimationExporter:
-    """Export VRM animation. The export result is the same as UniVRM.
-
-    https://github.com/vrm-c/UniVRM
-    """
-
+class VrmAnimationExporter:
     @staticmethod
     def execute(context: Context, path: Path, armature: Object) -> set[str]:
         armature_data = armature.data
