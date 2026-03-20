@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.23.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.22.1...v3.23.0) (2026-03-20)
+
+
+### 🚀 Features
+
+* revert general bone selector to default behaviour ([354e76c](https://github.com/saturday06/VRM-Addon-for-Blender/commit/354e76c647e80fb26d9090b9c95cc8a26b2ce439))
+
 ## [3.22.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.22.0...v3.22.1) (2026-03-17)
 
 
