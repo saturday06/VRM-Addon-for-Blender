@@ -1655,6 +1655,40 @@ def add_spring_bone1_collider_group_collider(
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
+def assign_spring_bone1_collider_group_collider(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_data_name: str = "",
+    collider_reference_path: str = "",
+    collider_uuid: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.assign_spring_bone1_collider_group_collider(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_data_name=armature_data_name,
+        collider_reference_path=collider_reference_path,
+        collider_uuid=collider_uuid,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def unassign_spring_bone1_collider_group_collider(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_data_name: str = "",
+    collider_reference_path: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.unassign_spring_bone1_collider_group_collider(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_data_name=armature_data_name,
+        collider_reference_path=collider_reference_path,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def remove_spring_bone1_collider_group_collider(
     execution_context: str = "EXEC_DEFAULT",
     /,
@@ -1782,6 +1816,40 @@ def add_spring_bone1_spring_collider_group(
         execution_context,
         armature_object_name=armature_object_name,
         spring_index=spring_index,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def assign_spring_bone1_spring_collider_group(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_data_name: str = "",
+    collider_group_reference_path: str = "",
+    collider_group_uuid: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.assign_spring_bone1_spring_collider_group(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_data_name=armature_data_name,
+        collider_group_reference_path=collider_group_reference_path,
+        collider_group_uuid=collider_group_uuid,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def unassign_spring_bone1_spring_collider_group(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_data_name: str = "",
+    collider_group_reference_path: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.unassign_spring_bone1_spring_collider_group(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_data_name=armature_data_name,
+        collider_group_reference_path=collider_group_reference_path,
     )
 
 

@@ -48,14 +48,6 @@ def fixup_gravity_dir(armature: Armature) -> None:
                 joint.gravity_dir = gravity_dir
 
 
-def fixup_collider_group_name(armature: Armature) -> None:
-    ext = get_armature_extension(armature)
-    if tuple(ext.addon_version) <= (2, 20, 38):
-        spring_bone = get_armature_extension(armature).spring_bone1
-        for collider_group in spring_bone.collider_groups:
-            collider_group.fix_index()
-
-
 def is_unnecessary(spring_bone1: SpringBone1SpringBonePropertyGroup) -> bool:
     return not spring_bone1.initial_automatic_spring_bone_assignment
 
@@ -66,7 +58,6 @@ def migrate(context: Context, armature: Object) -> None:
         return
     migrate_blender_object(armature_data)
     fixup_gravity_dir(armature_data)
-    fixup_collider_group_name(armature_data)
 
     ext = get_armature_extension(armature_data)
     spring_bone1 = ext.spring_bone1

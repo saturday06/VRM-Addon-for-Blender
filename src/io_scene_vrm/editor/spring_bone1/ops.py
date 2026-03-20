@@ -14,6 +14,7 @@ from ..extension_accessor import get_armature_extension
 from .handler import reset_state, update_pose_bone_rotations
 from .property_group import (
     SpringBone1ColliderGroupPropertyGroup,
+    SpringBone1ColliderGroupReferencePropertyGroup,
     SpringBone1ColliderReferencePropertyGroup,
 )
 
@@ -202,8 +203,6 @@ class VRM_OT_move_up_spring_bone1_collider_group(Operator):
         new_index = (self.collider_group_index - 1) % len(spring_bone.collider_groups)
         spring_bone.collider_groups.move(self.collider_group_index, new_index)
         spring_bone.active_collider_group_index = new_index
-        for collider_group in spring_bone.collider_groups:
-            collider_group.fix_index()
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -261,8 +260,6 @@ class VRM_OT_move_down_spring_bone1_collider_group(Operator):
         new_index = (self.collider_group_index + 1) % len(spring_bone.collider_groups)
         spring_bone.collider_groups.move(self.collider_group_index, new_index)
         spring_bone.active_collider_group_index = new_index
-        for collider_group in spring_bone.collider_groups:
-            collider_group.fix_index()
         return {"FINISHED"}
 
     if TYPE_CHECKING:
@@ -600,8 +597,6 @@ class VRM_OT_remove_spring_bone1_collider_group(Operator):
                     break
                 if not removed:
                     break
-        for collider_group in collider_groups:
-            collider_group.fix_index()
 
         spring_bone.active_collider_group_index = min(
             spring_bone.active_collider_group_index,
@@ -1133,6 +1128,96 @@ class VRM_OT_add_spring_bone1_spring_collider_group(Operator):
         armature_object_name: str  # type: ignore[no-redef]
         armature_name: str  # type: ignore[no-redef]
         spring_index: int  # type: ignore[no-redef]
+
+
+class VRM_OT_assign_spring_bone1_spring_collider_group(Operator):
+    bl_idname = "vrm.assign_spring_bone1_spring_collider_group"
+    bl_label = "Assign Collider Group"
+    bl_description = "Assign VRM 1.0 Spring Bone Spring Collider Group"
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_data_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+    collider_group_reference_path: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+    collider_group_uuid: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        armature_data = context.blend_data.armatures.get(self.armature_data_name)
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+
+        collider_group_reference = armature_data.path_resolve(
+            self.collider_group_reference_path,
+            False,
+        )
+        if not isinstance(
+            collider_group_reference,
+            SpringBone1ColliderGroupReferencePropertyGroup,
+        ):
+            return {"CANCELLED"}
+
+        if not self.collider_group_uuid:
+            collider_group_reference.collider_group_uuid = ""
+            return {"FINISHED"}
+
+        spring_bone1 = get_armature_extension(armature_data).spring_bone1
+        for collider_group in spring_bone1.collider_groups:
+            if collider_group.uuid != self.collider_group_uuid:
+                continue
+            collider_group_reference.collider_group_uuid = collider_group.uuid
+            return {"FINISHED"}
+
+        return {"CANCELLED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_data_name: str  # type: ignore[no-redef]
+        collider_group_reference_path: str  # type: ignore[no-redef]
+        collider_group_uuid: str  # type: ignore[no-redef]
+
+
+class VRM_OT_unassign_spring_bone1_spring_collider_group(Operator):
+    bl_idname = "vrm.unassign_spring_bone1_spring_collider_group"
+    bl_label = "Unassign Collider Group"
+    bl_description = "Unassign VRM 1.0 Spring Bone Spring Collider Group"
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_data_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+    collider_group_reference_path: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        armature_data = context.blend_data.armatures.get(self.armature_data_name)
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+
+        collider_group_reference = armature_data.path_resolve(
+            self.collider_group_reference_path,
+            False,
+        )
+        if not isinstance(
+            collider_group_reference,
+            SpringBone1ColliderGroupReferencePropertyGroup,
+        ):
+            return {"CANCELLED"}
+
+        collider_group_reference.collider_group_uuid = ""
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_data_name: str  # type: ignore[no-redef]
+        collider_group_reference_path: str  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_spring_bone1_spring_collider_group(Operator):
@@ -1821,7 +1906,7 @@ def assign_spring_bone1_from_vrm0(
                 if not collider_group:
                     continue
                 spring_collider_group = spring.add_collider_group()
-                spring_collider_group.collider_group_name = collider_group.name
+                spring_collider_group.collider_group_uuid = collider_group.uuid
     return {"FINISHED"}
 
 
@@ -2013,7 +2098,7 @@ def assign_spring_bone1_from_mmd(
                 )
                 if collider_group:
                     spring_collider_group = spring.add_collider_group()
-                    spring_collider_group.collider_group_name = collider_group.name
+                    spring_collider_group.collider_group_uuid = collider_group.uuid
                 traversing = traversing.parent
 
     return {"FINISHED"}

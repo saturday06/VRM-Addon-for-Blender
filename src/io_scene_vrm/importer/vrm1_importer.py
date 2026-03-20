@@ -1701,7 +1701,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 collider_group = spring_bone.collider_groups[collider_group_index]
                 if not collider_group:
                     continue
-                collider_group_reference.collider_group_name = collider_group.name
+                collider_group_reference.collider_group_uuid = collider_group.uuid
             spring.active_collider_group_index = 0
         spring_bone.active_spring_index = 0
 

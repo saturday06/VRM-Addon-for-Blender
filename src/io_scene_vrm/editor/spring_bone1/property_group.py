@@ -949,38 +949,6 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
         if not isinstance(vrm_name, str):
             vrm_name = str(vrm_name)
         self["vrm_name"] = vrm_name
-        self.fix_index()
-
-    def fix_index(self) -> None:
-        """nameプロパティに、表示用と参照制御用のインデックス値を付与する.
-
-        VRM出力用の名前はvrm_nameプロパティに持つが、UI上は同名のColliderGroupが
-        複数存在する可能性があるため、UI上の識別のために1オリジンのインデックスを付与する。
-        """
-        armature = self.id_data
-        if not isinstance(armature, Armature):
-            message = (
-                f"{type(self)}/{self}.id_data is not a {Armature}"
-                + f" but {type(armature)}/{armature}"
-            )
-            raise TypeError(message)
-
-        spring_bone = get_armature_extension(armature).spring_bone1
-        for index, collider_group in enumerate(spring_bone.collider_groups):
-            if collider_group.path_from_id() != self.path_from_id():
-                continue
-
-            name = f"{self.vrm_name} #{index + 1}"
-            self.name = name
-
-            # TODO: この参照張り替えの実装は非常に邪悪なため、
-            # UUIDのみの実装へ強い意志でリファクタリングする
-            for spring in spring_bone.springs:
-                for collider_group_reference in spring.collider_groups:
-                    if collider_group_reference.collider_group_uuid == self.uuid:
-                        collider_group_reference.collider_group_name = name
-
-            return
 
     vrm_name: StringProperty(  # type: ignore[valid-type]
         name="Name",
@@ -1104,42 +1072,39 @@ class SpringBone1JointPropertyGroup(PropertyGroup):
 
 
 class SpringBone1ColliderGroupReferencePropertyGroup(PropertyGroup):
-    def get_collider_group_name(self) -> str:
-        value = self.get("collider_group_name", "")
-        return value if isinstance(value, str) else str(value)
-
-    def set_collider_group_name(self, value: object) -> None:
+    @property
+    def collider_group_display_name(self) -> str:
         armature = self.id_data
         if not isinstance(armature, Armature):
-            message = (
-                f"{type(self)}/{self}.id_data is not a {Armature}"
-                + f" but {type(armature)}/{armature}"
-            )
-            raise TypeError(message)
-
-        if not isinstance(value, str):
-            value = str(value)
-        self.name = value
-        if self.get("collider_group_name") != value:
-            self["collider_group_name"] = value
+            return ""
+        if not self.collider_group_uuid:
+            return ""
 
         spring_bone = get_armature_extension(armature).spring_bone1
         for collider_group in spring_bone.collider_groups:
-            if collider_group.name != value:
-                continue
-            if self.collider_group_uuid != collider_group.uuid:
-                self.collider_group_uuid = collider_group.uuid
-            break
+            if collider_group.uuid == self.collider_group_uuid:
+                return collider_group.vrm_name
+        return ""
 
-    collider_group_name: StringProperty(  # type: ignore[valid-type]
-        get=get_collider_group_name, set=set_collider_group_name
-    )
-    collider_group_uuid: StringProperty()  # type: ignore[valid-type]
+    def update_collider_group_uuid(self, _context: Context) -> None:
+        if not self.collider_group_uuid:
+            return
+        armature = self.id_data
+        if not isinstance(armature, Armature):
+            return
+
+        spring_bone = get_armature_extension(armature).spring_bone1
+        for collider_group in spring_bone.collider_groups:
+            if self.collider_group_uuid == collider_group.uuid:
+                return
+
+        self.collider_group_uuid = ""
+
+    collider_group_uuid: StringProperty(update=update_collider_group_uuid)  # type: ignore[valid-type]
 
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
-        collider_group_name: str  # type: ignore[no-redef]
         collider_group_uuid: str  # type: ignore[no-redef]
 
 

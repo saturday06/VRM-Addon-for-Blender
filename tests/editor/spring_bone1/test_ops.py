@@ -14,6 +14,9 @@ from io_scene_vrm.editor.extension import (
     get_armature_extension,
 )
 from io_scene_vrm.editor.spring_bone1.ops import assign_spring_bone1_from_vrm0
+from io_scene_vrm.editor.spring_bone1.property_group import (
+    SpringBone1ColliderGroupReferencePropertyGroup,
+)
 from tests.util import AddonTestCase
 
 addon_version = version.get_addon_version()
@@ -1522,7 +1525,6 @@ class TestAssignSpringBone1FromVrm0(AddonTestCase):
         vrm0_collider_obj.empty_display_size = 0.05
         vrm0_collider_obj.empty_display_type = "SPHERE"
         vrm0_collider = vrm0_collider_group.colliders.add()
-        vrm0_collider.name = "root_collider_0"
         vrm0_collider.bpy_object = vrm0_collider_obj
 
         # Set up a bone group referencing the collider group
@@ -1583,7 +1585,7 @@ class TestAssignSpringBone1FromVrm0(AddonTestCase):
         # Verify the spring references the collider group
         self.assertEqual(len(spring.collider_groups), 1)
         self.assertEqual(
-            spring.collider_groups[0].collider_group_name, collider_group.name
+            spring.collider_groups[0].collider_group_uuid, collider_group.uuid
         )
 
     def test_no_vrm0_data_returns_finished(self) -> None:
@@ -1639,6 +1641,141 @@ class TestAssignSpringBone1FromVrm0(AddonTestCase):
         # Existing spring should still be there and no new springs added
         self.assertEqual(len(spring_bone1.springs), 1)
         self.assertEqual(spring_bone1.springs[0].vrm_name, "Existing")
+
+
+class TestAssignUnassignSpringColliderGroup(AddonTestCase):
+    """Tests for VRM_OT_assign/unassign_spring_bone1_spring_collider_group operators."""
+
+    def setup_armature_with_spring_and_collider_group(
+        self,
+    ) -> tuple[Armature, SpringBone1ColliderGroupReferencePropertyGroup, str]:
+        """Set up an armature with one spring and one collider group.
+
+        Returns (armature_data, collider_group_reference, collider_group_uuid).
+        """
+        context = bpy.context
+
+        bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
+        armature = context.object
+        if not armature or not isinstance(armature.data, Armature):
+            raise AssertionError
+
+        ext = get_armature_extension(armature.data)
+        ext.addon_version = addon_version
+        ext.spec_version = spec_version
+
+        spring_bone1 = ext.spring_bone1
+
+        # Add a collider group with a known UUID
+        collider_group = spring_bone1.add_collider_group()
+        collider_group_uuid = collider_group.uuid
+
+        # Add a spring with one collider group reference slot
+        spring = spring_bone1.add_spring()
+        collider_group_reference = spring.add_collider_group()
+
+        return armature.data, collider_group_reference, collider_group_uuid
+
+    def test_assign_spring_collider_group_sets_uuid(self) -> None:
+        """Assigning a valid collider group UUID sets collider_group_uuid."""
+        armature_data, collider_group_reference, collider_group_uuid = (
+            self.setup_armature_with_spring_and_collider_group()
+        )
+
+        reference_path = collider_group_reference.path_from_id()
+
+        result = ops.vrm.assign_spring_bone1_spring_collider_group(
+            armature_data_name=armature_data.name,
+            collider_group_reference_path=reference_path,
+            collider_group_uuid=collider_group_uuid,
+        )
+        self.assertEqual(result, {"FINISHED"})
+        self.assertEqual(
+            collider_group_reference.collider_group_uuid, collider_group_uuid
+        )
+
+    def test_assign_spring_collider_group_empty_uuid_clears(self) -> None:
+        """Assigning an empty UUID clears collider_group_uuid."""
+        armature_data, collider_group_reference, collider_group_uuid = (
+            self.setup_armature_with_spring_and_collider_group()
+        )
+
+        reference_path = collider_group_reference.path_from_id()
+
+        # First assign a valid UUID, then clear it
+        collider_group_reference.collider_group_uuid = collider_group_uuid
+
+        result = ops.vrm.assign_spring_bone1_spring_collider_group(
+            armature_data_name=armature_data.name,
+            collider_group_reference_path=reference_path,
+            collider_group_uuid="",
+        )
+        self.assertEqual(result, {"FINISHED"})
+        self.assertEqual(collider_group_reference.collider_group_uuid, "")
+
+    def test_assign_spring_collider_group_unknown_uuid_cancels(self) -> None:
+        """Assigning an unknown UUID returns CANCELLED and leaves uuid unchanged."""
+        armature_data, collider_group_reference, _collider_group_uuid = (
+            self.setup_armature_with_spring_and_collider_group()
+        )
+
+        reference_path = collider_group_reference.path_from_id()
+        unknown_uuid = uuid.uuid4().hex
+
+        result = ops.vrm.assign_spring_bone1_spring_collider_group(
+            armature_data_name=armature_data.name,
+            collider_group_reference_path=reference_path,
+            collider_group_uuid=unknown_uuid,
+        )
+        self.assertEqual(result, {"CANCELLED"})
+        self.assertEqual(collider_group_reference.collider_group_uuid, "")
+
+    def test_assign_spring_collider_group_invalid_armature_cancels(self) -> None:
+        """Assigning with a non-existent armature data name returns CANCELLED."""
+        _armature_data, collider_group_reference, collider_group_uuid = (
+            self.setup_armature_with_spring_and_collider_group()
+        )
+
+        reference_path = collider_group_reference.path_from_id()
+
+        result = ops.vrm.assign_spring_bone1_spring_collider_group(
+            armature_data_name="__nonexistent_armature__",
+            collider_group_reference_path=reference_path,
+            collider_group_uuid=collider_group_uuid,
+        )
+        self.assertEqual(result, {"CANCELLED"})
+
+    def test_unassign_spring_collider_group_clears_uuid(self) -> None:
+        """Unassigning a collider group clears collider_group_uuid."""
+        armature_data, collider_group_reference, collider_group_uuid = (
+            self.setup_armature_with_spring_and_collider_group()
+        )
+
+        reference_path = collider_group_reference.path_from_id()
+
+        # First assign a valid UUID
+        collider_group_reference.collider_group_uuid = collider_group_uuid
+
+        result = ops.vrm.unassign_spring_bone1_spring_collider_group(
+            armature_data_name=armature_data.name,
+            collider_group_reference_path=reference_path,
+        )
+        self.assertEqual(result, {"FINISHED"})
+        self.assertEqual(collider_group_reference.collider_group_uuid, "")
+
+    def test_unassign_spring_collider_group_invalid_armature_cancels(self) -> None:
+        """Unassigning with a non-existent armature data name returns CANCELLED."""
+        _armature_data, collider_group_reference, _collider_group_uuid = (
+            self.setup_armature_with_spring_and_collider_group()
+        )
+
+        reference_path = collider_group_reference.path_from_id()
+
+        result = ops.vrm.unassign_spring_bone1_spring_collider_group(
+            armature_data_name="__nonexistent_armature__",
+            collider_group_reference_path=reference_path,
+        )
+        self.assertEqual(result, {"CANCELLED"})
 
 
 if __name__ == "__main__":
