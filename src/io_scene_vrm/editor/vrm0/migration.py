@@ -677,8 +677,12 @@ def migrate_saved_mesh_object_name_to_restore(
 
 
 def migrate_collider_group_references_to_uuid(
-    vrm0: Vrm0PropertyGroup,
+    armature_data: Armature,
 ) -> None:
+    ext = get_armature_extension(armature_data)
+    if tuple(ext.addon_version) > (3, 23, 0):
+        return
+    vrm0 = ext.vrm0
     for bone_group in vrm0.secondary_animation.bone_groups:
         collider_group_references = bone_group.collider_groups
         for collider_group_reference in collider_group_references:
@@ -713,7 +717,7 @@ def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None
     migrate_link_to_bone_object(context, armature, armature_data)
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
 
-    migrate_collider_group_references_to_uuid(vrm0)
+    migrate_collider_group_references_to_uuid(armature_data)
     vrm0.secondary_animation.fixup(armature)
 
     if not vrm0.first_person.first_person_bone.bone_name:
