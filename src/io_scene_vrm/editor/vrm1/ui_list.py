@@ -385,7 +385,7 @@ class VRM_UL_vrm1_morph_target_bind(UIList):
 
 
 class VRM_UL_vrm1_material_color_bind(UIList):
-    bl_idname = "VRM_UL_vrm0_material_color_bind"
+    bl_idname = "VRM_UL_vrm1_material_color_bind"
 
     def format_label_text(
         self, material_color_bind: Vrm1MaterialColorBindPropertyGroup

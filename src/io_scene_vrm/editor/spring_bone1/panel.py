@@ -457,7 +457,7 @@ def _draw_spring_bone1_springs_layout(
 
 
 class VRM_PT_spring_bone1_armature_object_property(Panel):
-    bl_idname = "VRM_PT_vrm1_spring_bone_armature_object_property"
+    bl_idname = "VRM_PT_spring_bone1_armature_object_property"
     bl_label = "Spring Bone"
     bl_translation_context = "VRM"
     bl_space_type = "PROPERTIES"
@@ -488,7 +488,7 @@ class VRM_PT_spring_bone1_armature_object_property(Panel):
 
 
 class VRM_PT_spring_bone1_ui(Panel):
-    bl_idname = "VRM_PT_vrm1_spring_bone_ui"
+    bl_idname = "VRM_PT_spring_bone1_ui"
     bl_label = "Spring Bone"
     bl_translation_context = "VRM"
     bl_space_type = "VIEW_3D"
