@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import uuid
-import warnings
 from collections.abc import Iterable, Iterator, Mapping, Sequence, ValuesView
 from dataclasses import dataclass
 from enum import Enum
@@ -181,34 +180,6 @@ class MeshObjectPropertyGroup(PropertyGroup):
 
     saved_mesh_object_name_to_restore: StringProperty()  # type: ignore[valid-type]
 
-    def _get_value(self) -> str:
-        message = (
-            "`MeshObjectPropertyGroup.value` is deprecated and will be removed in the"
-            " next major release. Please use `MeshObjectPropertyGroup.mesh_object_name`"
-            " instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-        return str(self.mesh_object_name)
-
-    def _set_value(self, value: str) -> None:
-        message = (
-            "`MeshObjectPropertyGroup.value` is deprecated and will be removed in the"
-            " next major release. Please use `MeshObjectPropertyGroup.mesh_object_name`"
-            " instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-        self.mesh_object_name = value
-
-    value: StringProperty(  # type: ignore[valid-type]
-        get=_get_value,
-        set=_set_value,
-    )
-    """`value` is deprecated and will be removed in the next
-    major release. Please use `mesh_object_name` instead.
-    """
-
     def _poll_bpy_object(self, obj: object) -> bool:
         return isinstance(obj, Object) and obj.type == "MESH"
 
@@ -235,7 +206,6 @@ class MeshObjectPropertyGroup(PropertyGroup):
         # To regenerate, run the `uv run tools/property_typing.py` command.
         mesh_object_name: str  # type: ignore[no-redef]
         saved_mesh_object_name_to_restore: str  # type: ignore[no-redef]
-        value: str  # type: ignore[no-redef]
         bpy_object: Optional[Object]  # type: ignore[no-redef]
 
 
@@ -438,33 +408,6 @@ class BonePropertyGroup(PropertyGroup):
         set=_set_bone_name,
     )
 
-    def _get_value(self) -> str:
-        message = (
-            "`BonePropertyGroup.value` is deprecated and will be removed in the"
-            " next major release. Please use `BonePropertyGroup.bone_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-        return str(self.bone_name)
-
-    def _set_value(self, value: str) -> None:
-        message = (
-            "`BonePropertyGroup.value` is deprecated and will be removed in the"
-            " next major release. Please use `BonePropertyGroup.bone_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-        self.bone_name = value
-
-    value: StringProperty(  # type: ignore[valid-type]
-        name="Bone",
-        get=_get_value,
-        set=_set_value,
-    )
-    """`value` is deprecated and will be removed in the next major
-    release. Please use `bone_name` instead."
-    """
-
     def filter_bone_names(self, bone_names: Iterable[str]) -> Sequence[str]:
         return list(bone_names)
 
@@ -474,7 +417,6 @@ class BonePropertyGroup(PropertyGroup):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         bone_name: str  # type: ignore[no-redef]
-        value: str  # type: ignore[no-redef]
         bone_uuid: str  # type: ignore[no-redef]
 
 

@@ -2,7 +2,6 @@
 # SPDX-FileCopyrightText: 2018 iCyP
 # SPDX-FileCopyrightText: 2024 saturday06
 import json
-import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, Optional, TypeVar, cast
 from urllib.parse import urlsplit
@@ -45,30 +44,11 @@ class VRM_OT_simplify_vroid_bones(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     @staticmethod
     def vroid_bones_exist(armature: Armature) -> bool:
         return any(map(FULL_PATTERN.search, armature.bones.keys()))
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -86,7 +66,6 @@ class VRM_OT_simplify_vroid_bones(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_save_human_bone_mappings(Operator, ExportHelper):
@@ -367,26 +346,7 @@ class VRM_OT_make_estimated_humanoid_t_pose(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -398,7 +358,6 @@ class VRM_OT_make_estimated_humanoid_t_pose(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_assign_bone_to_bone_property_group(Operator):
