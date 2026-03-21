@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+from bpy.app.translations import pgettext
 from bpy.types import Context, Mesh, UILayout, UIList
 
 from ...common import convert
@@ -402,7 +403,7 @@ class VRM_UL_vrm1_material_color_bind(UIList):
                 None,
             )
             if type_name:
-                text += " / " + type_name
+                text += " / " + pgettext(type_name)
         return text
 
     def filter_items(
