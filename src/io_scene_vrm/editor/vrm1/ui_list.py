@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from bpy.types import Context, Mesh, UILayout, UIList
 
+from ...common import convert
 from ...common.logger import get_logger
 from ..property_group import StringPropertyGroup
 from .property_group import (
@@ -18,6 +19,33 @@ logger = get_logger(__name__)
 
 class VRM_UL_vrm1_meta_author(UIList):
     bl_idname = "VRM_UL_vrm1_meta_author"
+
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, StringPropertyGroup)
+                and filter_name in item.value.casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
 
     def draw_item(
         self,
@@ -55,6 +83,33 @@ class VRM_UL_vrm1_meta_author(UIList):
 class VRM_UL_vrm1_meta_reference(UIList):
     bl_idname = "VRM_UL_vrm1_meta_reference"
 
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, StringPropertyGroup)
+                and filter_name in item.value.casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
+
     def draw_item(
         self,
         _context: Context,
@@ -90,6 +145,33 @@ class VRM_UL_vrm1_meta_reference(UIList):
 
 class VRM_UL_vrm1_first_person_mesh_annotation(UIList):
     bl_idname = "VRM_UL_vrm1_first_person_mesh_annotation"
+
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, Vrm1MeshAnnotationPropertyGroup)
+                and filter_name in item.node.mesh_object_name.casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
 
     def draw_item(
         self,
@@ -154,11 +236,9 @@ class VRM_UL_vrm1_expression(UIList):
         )
         flt_neworder: list[int] = []
 
-        filter_name: str = self.filter_name
+        filter_name: str = self.filter_name.casefold()
         if not filter_name:
             return (flt_flags, flt_neworder)
-
-        filter_name = filter_name.casefold()
 
         preset_expression_items = list(
             expressions.preset.name_to_expression_dict().items()
@@ -229,6 +309,50 @@ class VRM_UL_vrm1_expression(UIList):
 class VRM_UL_vrm1_morph_target_bind(UIList):
     bl_idname = "VRM_UL_vrm1_morph_target_bind"
 
+    def format_label_text(
+        self, context: Context, morph_target_bind: Vrm1MorphTargetBindPropertyGroup
+    ) -> str:
+        text = morph_target_bind.node.mesh_object_name
+        mesh_object = context.blend_data.objects.get(
+            morph_target_bind.node.mesh_object_name
+        )
+        if mesh_object:
+            mesh_data = mesh_object.data
+            if isinstance(mesh_data, Mesh):
+                shape_keys = mesh_data.shape_keys
+                if shape_keys:
+                    keys = shape_keys.key_blocks.keys()
+                    if morph_target_bind.index in keys:
+                        text += " / " + morph_target_bind.index
+        return text
+
+    def filter_items(
+        self,
+        context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, Vrm1MorphTargetBindPropertyGroup)
+                and filter_name in self.format_label_text(context, item).casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
+
     def draw_item(
         self,
         context: Context,
@@ -241,7 +365,6 @@ class VRM_UL_vrm1_morph_target_bind(UIList):
         _index: int,
         _flt_flag: int,
     ) -> None:
-        blend_data = context.blend_data
         if not isinstance(morph_target_bind, Vrm1MorphTargetBindPropertyGroup):
             return
 
@@ -253,21 +376,61 @@ class VRM_UL_vrm1_morph_target_bind(UIList):
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
             return
 
-        name = morph_target_bind.node.mesh_object_name
-        mesh_object = blend_data.objects.get(morph_target_bind.node.mesh_object_name)
-        if mesh_object:
-            mesh_data = mesh_object.data
-            if isinstance(mesh_data, Mesh):
-                shape_keys = mesh_data.shape_keys
-                if shape_keys:
-                    keys = shape_keys.key_blocks.keys()
-                    if morph_target_bind.index in keys:
-                        name += " / " + morph_target_bind.index
-        layout.label(text=name, translate=False, icon="MESH_DATA")
+        layout.label(
+            text=self.format_label_text(context, morph_target_bind),
+            translate=False,
+            icon="MESH_DATA",
+        )
 
 
 class VRM_UL_vrm1_material_color_bind(UIList):
     bl_idname = "VRM_UL_vrm0_material_color_bind"
+
+    def format_label_text(
+        self, material_color_bind: Vrm1MaterialColorBindPropertyGroup
+    ) -> str:
+        text = ""
+        material = material_color_bind.material
+        if material:
+            text = material.name
+            type_name = next(
+                (
+                    enum.name
+                    for enum in Vrm1MaterialColorBindPropertyGroup.type_enum
+                    if enum.identifier == material_color_bind.type
+                ),
+                None,
+            )
+            if type_name:
+                text += " / " + type_name
+        return text
+
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, Vrm1MaterialColorBindPropertyGroup)
+                and filter_name in self.format_label_text(item).casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
 
     def draw_item(
         self,
@@ -292,25 +455,50 @@ class VRM_UL_vrm1_material_color_bind(UIList):
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
             return
 
-        name = ""
-        material = material_color_bind.material
-        if material:
-            name = material.name
-            type_name = next(
-                (
-                    enum.name
-                    for enum in Vrm1MaterialColorBindPropertyGroup.type_enum
-                    if enum.identifier == material_color_bind.type
-                ),
-                None,
-            )
-            if type_name:
-                name += " / " + type_name
-        layout.label(text=name, translate=False, icon="MATERIAL")
+        layout.label(
+            text=self.format_label_text(material_color_bind),
+            translate=False,
+            icon="MATERIAL",
+        )
 
 
 class VRM_UL_vrm1_texture_transform_bind(UIList):
     bl_idname = "VRM_UL_vrm1_texture_transform_bind"
+
+    def format_label_text(
+        self, texture_transform_bind: Vrm1TextureTransformBindPropertyGroup
+    ) -> str:
+        material = texture_transform_bind.material
+        if not material:
+            return ""
+        return material.name
+
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, Vrm1TextureTransformBindPropertyGroup)
+                and filter_name in self.format_label_text(item).casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
 
     def draw_item(
         self,
@@ -337,8 +525,8 @@ class VRM_UL_vrm1_texture_transform_bind(UIList):
         if self.layout_type not in {"DEFAULT", "COMPACT"}:
             return
 
-        name = ""
-        material = texture_transform_bind.material
-        if material:
-            name = material.name
-        layout.label(text=name, translate=False, icon="MATERIAL")
+        layout.label(
+            text=self.format_label_text(texture_transform_bind),
+            translate=False,
+            icon="MATERIAL",
+        )

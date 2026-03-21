@@ -22,7 +22,7 @@ from bpy.types import (
 )
 from bpy_extras.io_utils import ExportHelper
 
-from ..common import ops
+from ..common import convert, ops
 from ..common.logger import get_logger
 from ..common.version import get_addon_version
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
@@ -114,6 +114,33 @@ class VrmErrorDialogMessageLine(PropertyGroup):
 
 class VRM_UL_vrm_error_dialog_message(UIList):
     bl_idname = "VRM_UL_vrm_error_dialog_message"
+
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, VrmErrorDialogMessageLine)
+                and filter_name in item.line.casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
 
     def draw_item(
         self,

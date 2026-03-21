@@ -1616,6 +1616,7 @@ class UIList(bpy_struct):
     bl_idname: str
     filter_name: str
     layout_type: str
+    use_filter_show: bool
 
 class NodeLink(bpy_struct):
     @property

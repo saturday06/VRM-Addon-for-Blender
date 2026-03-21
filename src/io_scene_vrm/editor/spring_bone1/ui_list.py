@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from bpy.types import Armature, Context, UILayout, UIList
 
+from ...common import convert
 from ...common.logger import get_logger
 from .menu import (
     VRM_MT_spring_bone1_collider_group_collider,
@@ -20,6 +21,34 @@ logger = get_logger(__name__)
 
 class VRM_UL_spring_bone1_collider(UIList):
     bl_idname = "VRM_UL_spring_bone1_collider"
+
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, SpringBone1ColliderPropertyGroup)
+                and (bpy_object := item.bpy_object)
+                and filter_name in bpy_object.name.casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
 
     def draw_item(
         self,
@@ -56,6 +85,33 @@ class VRM_UL_spring_bone1_collider(UIList):
 class VRM_UL_spring_bone1_collider_group(UIList):
     bl_idname = "VRM_UL_spring_bone1_collider_group"
 
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, SpringBone1ColliderGroupPropertyGroup)
+                and filter_name in item.vrm_name.casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
+
     def draw_item(
         self,
         _context: Context,
@@ -86,6 +142,33 @@ class VRM_UL_spring_bone1_collider_group(UIList):
 
 class VRM_UL_spring_bone1_collider_group_collider(UIList):
     bl_idname = "VRM_UL_spring_bone1_collider_group_collider"
+
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, SpringBone1ColliderReferencePropertyGroup)
+                and filter_name in item.collider_display_name.casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
 
     def draw_item(
         self,
@@ -133,6 +216,33 @@ class VRM_UL_spring_bone1_collider_group_collider(UIList):
 class VRM_UL_spring_bone1_spring(UIList):
     bl_idname = "VRM_UL_spring_bone1_spring"
 
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, SpringBone1SpringPropertyGroup)
+                and filter_name in item.vrm_name.casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
+
     def draw_item(
         self,
         _context: Context,
@@ -164,6 +274,33 @@ class VRM_UL_spring_bone1_spring(UIList):
 class VRM_UL_spring_bone1_joint(UIList):
     bl_idname = "VRM_UL_spring_bone1_joint"
 
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, SpringBone1JointPropertyGroup)
+                and filter_name in item.node.bone_name.casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
+
     def draw_item(
         self,
         _context: Context,
@@ -194,6 +331,33 @@ class VRM_UL_spring_bone1_joint(UIList):
 
 class VRM_UL_spring_bone1_spring_collider_group(UIList):
     bl_idname = "VRM_UL_spring_bone1_spring_collider_group"
+
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, SpringBone1ColliderGroupReferencePropertyGroup)
+                and filter_name in item.collider_group_display_name.casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
 
     def draw_item(
         self,

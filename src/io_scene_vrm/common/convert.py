@@ -33,9 +33,6 @@ def iterator_or_none(v: object) -> Optional[Iterator[object]]:
 def sequence_or_none(
     sequence_object: object,
 ) -> Optional[Sequence[object]]:
-    sequence = sequence_object
-    if not isinstance(sequence, Sequence):
-        return None
     iterator = iterator_or_none(sequence_object)
     if iterator is None:
         return None

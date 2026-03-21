@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from bpy.types import Context, UILayout, UIList
 
+from ...common import convert
 from ...common.logger import get_logger
 from ..property_group import StringPropertyGroup
 from .property_group import KhrXmpJsonLdKhrCharacterPacketPropertyGroup
@@ -10,6 +11,33 @@ logger = get_logger(__name__)
 
 class VRM_UL_khr_xmp_json_ld_packet_dc_creator(UIList):
     bl_idname = "VRM_UL_khr_xmp_json_ld_packet_dc_creator"
+
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, StringPropertyGroup)
+                and filter_name in item.value.casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
 
     def draw_item(
         self,
@@ -47,6 +75,33 @@ class VRM_UL_khr_xmp_json_ld_packet_dc_creator(UIList):
 class VRM_UL_khr_xmp_json_ld_packet_dc_license(UIList):
     bl_idname = "VRM_UL_khr_xmp_json_ld_packet_dc_license"
 
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, StringPropertyGroup)
+                and filter_name in item.value.casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
+
     def draw_item(
         self,
         _context: Context,
@@ -82,6 +137,33 @@ class VRM_UL_khr_xmp_json_ld_packet_dc_license(UIList):
 
 class VRM_UL_khr_xmp_json_ld_packet_dc_subject(UIList):
     bl_idname = "VRM_UL_khr_xmp_json_ld_packet_dc_subject"
+
+    def filter_items(
+        self,
+        _context: Context,
+        data: object,
+        propname: str,
+    ) -> tuple[list[int], list[int]]:
+        items = convert.sequence_or_none(getattr(data, propname, None))
+        if items is None:
+            return ([], [])
+
+        flt_flags: list[int] = [self.bitflag_filter_item] * len(items)
+        flt_neworder: list[int] = []
+
+        filter_name: str = self.filter_name.casefold()
+        if not filter_name:
+            return (flt_flags, flt_neworder)
+
+        for index, item in enumerate(items):
+            if (
+                isinstance(item, StringPropertyGroup)
+                and filter_name in item.value.casefold()
+            ):
+                continue
+            flt_flags[index] = 0
+
+        return (flt_flags, flt_neworder)
 
     def draw_item(
         self,
