@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import uuid
-import warnings
 from typing import TYPE_CHECKING, ClassVar
 
 from bpy.app.translations import pgettext
@@ -23,7 +22,7 @@ from .property_group import (
     Vrm0SecondaryAnimationColliderGroupReferencePropertyGroup,
 )
 
-_logger = get_logger(__name__)
+logger = get_logger(__name__)
 
 
 class VRM_OT_add_vrm0_first_person_mesh_annotation(Operator):
@@ -36,26 +35,7 @@ class VRM_OT_add_vrm0_first_person_mesh_annotation(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -73,7 +53,6 @@ class VRM_OT_add_vrm0_first_person_mesh_annotation(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm0_first_person_mesh_annotation(Operator):
@@ -86,31 +65,12 @@ class VRM_OT_remove_vrm0_first_person_mesh_annotation(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     mesh_annotation_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -131,7 +91,6 @@ class VRM_OT_remove_vrm0_first_person_mesh_annotation(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         mesh_annotation_index: int  # type: ignore[no-redef]
 
 
@@ -145,31 +104,12 @@ class VRM_OT_move_up_vrm0_first_person_mesh_annotation(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     mesh_annotation_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -192,7 +132,6 @@ class VRM_OT_move_up_vrm0_first_person_mesh_annotation(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         mesh_annotation_index: int  # type: ignore[no-redef]
 
 
@@ -206,31 +145,12 @@ class VRM_OT_move_down_vrm0_first_person_mesh_annotation(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     mesh_annotation_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -251,7 +171,6 @@ class VRM_OT_move_down_vrm0_first_person_mesh_annotation(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         mesh_annotation_index: int  # type: ignore[no-redef]
 
 
@@ -265,31 +184,12 @@ class VRM_OT_add_vrm0_material_value_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -312,7 +212,6 @@ class VRM_OT_add_vrm0_material_value_bind(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
 
 
@@ -326,23 +225,6 @@ class VRM_OT_remove_vrm0_material_value_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -353,8 +235,6 @@ class VRM_OT_remove_vrm0_material_value_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -380,7 +260,6 @@ class VRM_OT_remove_vrm0_material_value_bind(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
         material_value_index: int  # type: ignore[no-redef]
 
@@ -395,23 +274,6 @@ class VRM_OT_move_up_vrm0_material_value_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -422,8 +284,6 @@ class VRM_OT_move_up_vrm0_material_value_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -449,7 +309,6 @@ class VRM_OT_move_up_vrm0_material_value_bind(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
         material_value_index: int  # type: ignore[no-redef]
 
@@ -464,23 +323,6 @@ class VRM_OT_move_down_vrm0_material_value_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -491,8 +333,6 @@ class VRM_OT_move_down_vrm0_material_value_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -518,7 +358,6 @@ class VRM_OT_move_down_vrm0_material_value_bind(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
         material_value_index: int  # type: ignore[no-redef]
 
@@ -533,23 +372,6 @@ class VRM_OT_add_vrm0_material_value_bind_target_value(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -560,8 +382,6 @@ class VRM_OT_add_vrm0_material_value_bind_target_value(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -585,7 +405,6 @@ class VRM_OT_add_vrm0_material_value_bind_target_value(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
         material_value_index: int  # type: ignore[no-redef]
 
@@ -599,23 +418,6 @@ class VRM_OT_remove_vrm0_material_value_bind_target_value(Operator):
     armature_object_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
     )
-
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
 
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -631,8 +433,6 @@ class VRM_OT_remove_vrm0_material_value_bind_target_value(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -659,7 +459,6 @@ class VRM_OT_remove_vrm0_material_value_bind_target_value(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
         material_value_index: int  # type: ignore[no-redef]
         target_value_index: int  # type: ignore[no-redef]
@@ -675,31 +474,12 @@ class VRM_OT_add_vrm0_blend_shape_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -720,7 +500,6 @@ class VRM_OT_add_vrm0_blend_shape_bind(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
 
 
@@ -734,23 +513,6 @@ class VRM_OT_remove_vrm0_blend_shape_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -761,8 +523,6 @@ class VRM_OT_remove_vrm0_blend_shape_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -788,7 +548,6 @@ class VRM_OT_remove_vrm0_blend_shape_bind(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
 
@@ -803,23 +562,6 @@ class VRM_OT_move_up_vrm0_blend_shape_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -830,8 +572,6 @@ class VRM_OT_move_up_vrm0_blend_shape_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -855,7 +595,6 @@ class VRM_OT_move_up_vrm0_blend_shape_bind(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
 
@@ -870,23 +609,6 @@ class VRM_OT_move_down_vrm0_blend_shape_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -897,8 +619,6 @@ class VRM_OT_move_down_vrm0_blend_shape_bind(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -922,7 +642,6 @@ class VRM_OT_move_down_vrm0_blend_shape_bind(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
         bind_index: int  # type: ignore[no-redef]
 
@@ -966,23 +685,6 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     collider_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -992,8 +694,6 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1034,7 +734,6 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group_collider(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
         bone_name: str  # type: ignore[no-redef]
 
@@ -1049,23 +748,6 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     collider_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -1076,8 +758,6 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1107,7 +787,6 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group_collider(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
         collider_index: int  # type: ignore[no-redef]
 
@@ -1122,23 +801,6 @@ class VRM_OT_move_up_vrm0_secondary_animation_collider_group_collider(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     collider_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -1149,8 +811,6 @@ class VRM_OT_move_up_vrm0_secondary_animation_collider_group_collider(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1174,7 +834,6 @@ class VRM_OT_move_up_vrm0_secondary_animation_collider_group_collider(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
         collider_index: int  # type: ignore[no-redef]
 
@@ -1189,23 +848,6 @@ class VRM_OT_move_down_vrm0_secondary_animation_collider_group_collider(Operator
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     collider_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -1216,8 +858,6 @@ class VRM_OT_move_down_vrm0_secondary_animation_collider_group_collider(Operator
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1241,7 +881,6 @@ class VRM_OT_move_down_vrm0_secondary_animation_collider_group_collider(Operator
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
         collider_index: int  # type: ignore[no-redef]
 
@@ -1256,31 +895,12 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1301,7 +921,6 @@ class VRM_OT_add_vrm0_secondary_animation_group_bone(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
 
 
@@ -1315,23 +934,6 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -1342,8 +944,6 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1368,7 +968,6 @@ class VRM_OT_remove_vrm0_secondary_animation_group_bone(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
         bone_index: int  # type: ignore[no-redef]
 
@@ -1383,23 +982,6 @@ class VRM_OT_move_up_vrm0_secondary_animation_group_bone(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -1410,8 +992,6 @@ class VRM_OT_move_up_vrm0_secondary_animation_group_bone(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1435,7 +1015,6 @@ class VRM_OT_move_up_vrm0_secondary_animation_group_bone(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
         bone_index: int  # type: ignore[no-redef]
 
@@ -1450,23 +1029,6 @@ class VRM_OT_move_down_vrm0_secondary_animation_group_bone(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -1477,8 +1039,6 @@ class VRM_OT_move_down_vrm0_secondary_animation_group_bone(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1502,7 +1062,6 @@ class VRM_OT_move_down_vrm0_secondary_animation_group_bone(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
         bone_index: int  # type: ignore[no-redef]
 
@@ -1517,31 +1076,12 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1562,7 +1102,6 @@ class VRM_OT_add_vrm0_secondary_animation_group_collider_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
 
 
@@ -1667,23 +1206,6 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -1694,8 +1216,6 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1721,7 +1241,6 @@ class VRM_OT_remove_vrm0_secondary_animation_group_collider_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
 
@@ -1736,23 +1255,6 @@ class VRM_OT_move_up_vrm0_secondary_animation_group_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -1763,8 +1265,6 @@ class VRM_OT_move_up_vrm0_secondary_animation_group_collider_group(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1788,7 +1288,6 @@ class VRM_OT_move_up_vrm0_secondary_animation_group_collider_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
 
@@ -1803,23 +1302,6 @@ class VRM_OT_move_down_vrm0_secondary_animation_group_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
@@ -1830,8 +1312,6 @@ class VRM_OT_move_down_vrm0_secondary_animation_group_collider_group(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1855,7 +1335,6 @@ class VRM_OT_move_down_vrm0_secondary_animation_group_collider_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
 
@@ -1870,30 +1349,11 @@ class VRM_OT_add_vrm0_blend_shape_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"}
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1914,7 +1374,6 @@ class VRM_OT_add_vrm0_blend_shape_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         name: str  # type: ignore[no-redef]
 
 
@@ -1928,31 +1387,12 @@ class VRM_OT_remove_vrm0_blend_shape_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -1975,7 +1415,6 @@ class VRM_OT_remove_vrm0_blend_shape_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
 
 
@@ -1989,31 +1428,12 @@ class VRM_OT_move_up_vrm0_blend_shape_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -2038,7 +1458,6 @@ class VRM_OT_move_up_vrm0_blend_shape_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
 
 
@@ -2052,31 +1471,12 @@ class VRM_OT_move_down_vrm0_blend_shape_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -2101,7 +1501,6 @@ class VRM_OT_move_down_vrm0_blend_shape_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
 
 
@@ -2115,23 +1514,6 @@ class VRM_OT_add_vrm0_secondary_animation_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     # Unnecessary property. Please do not use.
     blend_shape_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
@@ -2139,8 +1521,6 @@ class VRM_OT_add_vrm0_secondary_animation_group(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -2160,7 +1540,6 @@ class VRM_OT_add_vrm0_secondary_animation_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         blend_shape_group_index: int  # type: ignore[no-redef]
 
 
@@ -2174,31 +1553,12 @@ class VRM_OT_remove_vrm0_secondary_animation_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -2221,7 +1581,6 @@ class VRM_OT_remove_vrm0_secondary_animation_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
 
 
@@ -2235,31 +1594,12 @@ class VRM_OT_move_up_vrm0_secondary_animation_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -2280,7 +1620,6 @@ class VRM_OT_move_up_vrm0_secondary_animation_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
 
 
@@ -2294,31 +1633,12 @@ class VRM_OT_move_down_vrm0_secondary_animation_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     bone_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -2339,7 +1659,6 @@ class VRM_OT_move_down_vrm0_secondary_animation_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         bone_group_index: int  # type: ignore[no-redef]
 
 
@@ -2353,26 +1672,7 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -2393,7 +1693,6 @@ class VRM_OT_add_vrm0_secondary_animation_collider_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_remove_vrm0_secondary_animation_collider_group(Operator):
@@ -2406,31 +1705,12 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     collider_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -2457,7 +1737,6 @@ class VRM_OT_remove_vrm0_secondary_animation_collider_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
 
 
@@ -2471,31 +1750,12 @@ class VRM_OT_move_up_vrm0_secondary_animation_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     collider_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -2518,7 +1778,6 @@ class VRM_OT_move_up_vrm0_secondary_animation_collider_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
 
 
@@ -2532,31 +1791,12 @@ class VRM_OT_move_down_vrm0_secondary_animation_collider_group(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     collider_group_index: IntProperty(  # type: ignore[valid-type]
         min=0,
         options={"HIDDEN"},
     )
 
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if armature is None or armature.type != "ARMATURE":
             return {"CANCELLED"}
@@ -2579,7 +1819,6 @@ class VRM_OT_move_down_vrm0_secondary_animation_collider_group(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
         collider_group_index: int  # type: ignore[no-redef]
 
 
@@ -2593,26 +1832,7 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
         options={"HIDDEN"},
     )
 
-    def _update_armature_name(self, _context: Context) -> None:
-        message = (
-            f"`{type(self).__qualname__}.armature_name` is deprecated"
-            + " and will be removed in the next major release."
-            + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
-        )
-        _logger.warning(message)
-        warnings.warn(message, DeprecationWarning, stacklevel=5)
-
-    armature_name: StringProperty(  # type: ignore[valid-type]
-        options={"HIDDEN"},
-        update=_update_armature_name,
-    )
-    """`armature_name` is deprecated and will be removed in the next major release.
-    Please use `armature_object_name` instead.
-    """
-
     def execute(self, context: Context) -> set[str]:
-        if not self.armature_object_name and self.armature_name:
-            self.armature_object_name = self.armature_name
         armature = context.blend_data.objects.get(self.armature_object_name)
         if not armature:
             return {"CANCELLED"}
@@ -2622,7 +1842,6 @@ class VRM_OT_assign_vrm0_humanoid_human_bones_automatically(Operator):
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
         armature_object_name: str  # type: ignore[no-redef]
-        armature_name: str  # type: ignore[no-redef]
 
 
 def assign_vrm0_humanoid_human_bones_automatically(
@@ -2634,9 +1853,6 @@ def assign_vrm0_humanoid_human_bones_automatically(
     if not isinstance(armature_data, Armature):
         return {"CANCELLED"}
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-    Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
-        context, armature_data.name
-    )
     humanoid = get_armature_extension(armature_data).vrm0.humanoid
     bones = armature_data.bones
 
