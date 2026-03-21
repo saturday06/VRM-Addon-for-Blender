@@ -20,6 +20,8 @@ TEST_METHOD_NAME_SPECIAL_REPLACEMENTS: Final = {
     " ": "\N{MODIFIER LETTER LOW MACRON}",
     ".": "\N{MODIFIER LETTER LOW VERTICAL LINE}",
     "-": "\N{MODIFIER LETTER HALF TRIANGULAR COLON}",
+    "(": "\N{MODIFIER LETTER SMALL R}",
+    ")": "\N{MODIFIER LETTER SMALL TURNED R}",
 }
 REPOSITORY_ROOT_PATH: Final = Path(__file__).resolve(strict=True).parent.parent
 RESOURCES_PATH: Final = Path(
@@ -42,6 +44,9 @@ def make_test_method_name(text: str) -> str:
     ]
     if not all(char.isidentifier() for char in special_chars):
         message = f"{special_chars} contains non identifier"
+        raise AssertionError(message)
+    if len(set(special_chars)) != len(special_chars):
+        message = f"{special_chars} contains duplicates"
         raise AssertionError(message)
 
     test_method_name = "test_"
