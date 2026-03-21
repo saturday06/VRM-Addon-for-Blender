@@ -772,8 +772,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
     def display_name(self) -> str:
         if not self.uuid:
             return ""
-        node = self.node
-        return (node.bone_name if node and node.bone_name else "") + f"#{self.uuid}"
+        return f"{self.node.bone_name}#{self.uuid}"
 
     def fixup(self, armature: Optional[Object]) -> None:
         if not self.uuid:
