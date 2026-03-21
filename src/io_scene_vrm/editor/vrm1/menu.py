@@ -7,11 +7,11 @@ from bpy.types import Context, Menu, Object, UILayout
 from ...common.logger import get_logger
 from ..ops import layout_operator
 from .ops import (
-    VRM_OT_add_vrm1_arkit_custom_expressions,
     VRM_OT_assign_vrm1_expressions_automatically,
-    VRM_OT_assign_vrm1_mmd_expressions,
-    VRM_OT_assign_vrm1_ready_player_me_expressions,
-    VRM_OT_assign_vrm1_vrchat_expressions,
+    VRM_OT_assign_vrm1_expressions_from_arkit,
+    VRM_OT_assign_vrm1_expressions_from_mmd,
+    VRM_OT_assign_vrm1_expressions_from_ready_player_me,
+    VRM_OT_assign_vrm1_expressions_from_vrchat,
     VRM_OT_restore_vrm1_expression_morph_target_bind_object,
 )
 
@@ -49,22 +49,22 @@ class VRM_MT_vrm1_expression(Menu):
         )
         auto_detection_op.armature_object_name = armature.name
 
-        add_vrchat_expressions_op = layout_operator(
-            layout, VRM_OT_assign_vrm1_vrchat_expressions
+        vrchat_expressions_op = layout_operator(
+            layout, VRM_OT_assign_vrm1_expressions_from_vrchat
         )
-        add_vrchat_expressions_op.armature_object_name = armature.name
+        vrchat_expressions_op.armature_object_name = armature.name
 
-        add_mmd_expressions_op = layout_operator(
-            layout, VRM_OT_assign_vrm1_mmd_expressions
+        mmd_expressions_op = layout_operator(
+            layout, VRM_OT_assign_vrm1_expressions_from_mmd
         )
-        add_mmd_expressions_op.armature_object_name = armature.name
+        mmd_expressions_op.armature_object_name = armature.name
 
-        add_ready_player_me_expressions_op = layout_operator(
-            layout, VRM_OT_assign_vrm1_ready_player_me_expressions
+        ready_player_me_expressions_op = layout_operator(
+            layout, VRM_OT_assign_vrm1_expressions_from_ready_player_me
         )
-        add_ready_player_me_expressions_op.armature_object_name = armature.name
+        ready_player_me_expressions_op.armature_object_name = armature.name
 
-        add_arkit_expressions_op = layout_operator(
-            layout, VRM_OT_add_vrm1_arkit_custom_expressions
+        arkit_expressions_op = layout_operator(
+            layout, VRM_OT_assign_vrm1_expressions_from_arkit
         )
-        add_arkit_expressions_op.armature_object_name = armature.name
+        arkit_expressions_op.armature_object_name = armature.name

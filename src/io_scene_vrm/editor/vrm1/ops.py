@@ -28,7 +28,7 @@ from bpy.types import (
     UILayout,
 )
 
-from ...common import shader
+from ...common import ops, shader
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
 from ...common.logger import get_logger
 from ...common.shape_key_mapper.arkit_mapping import (
@@ -1376,9 +1376,35 @@ def assign_vrm1_expressions_automatically(
 
 
 class VRM_OT_assign_vrm1_vrchat_expressions(Operator):
+    """Deprecated. Use `vrm.assign_vrm1_expressions_from_vrchat` instead."""
+
     bl_idname = "vrm.assign_vrm1_vrchat_expressions"
     bl_label = "Assign VRChat Shape Keys"
     bl_description = "Assign VRChat shape keys as VRM 1.0 Expressions"
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        logger.warning(
+            "Deprecated. Use `vrm.assign_vrm1_expressions_from_vrchat` instead."
+        )
+        return ops.vrm.assign_vrm1_expressions_from_vrchat(
+            armature_object_name=self.armature_object_name
+        )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+
+
+class VRM_OT_assign_vrm1_expressions_from_vrchat(Operator):
+    bl_idname = "vrm.assign_vrm1_expressions_from_vrchat"
+    bl_label = "Assign VRChat Shape Keys"
+    bl_description = "Assign VRM 1.0 Expressions from VRChat Shape Keys"
     bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
@@ -1399,9 +1425,35 @@ class VRM_OT_assign_vrm1_vrchat_expressions(Operator):
 
 
 class VRM_OT_assign_vrm1_mmd_expressions(Operator):
+    """Deprecated. Use `vrm.assign_vrm1_expressions_from_mmd` instead."""
+
     bl_idname = "vrm.assign_vrm1_mmd_expressions"
     bl_label = "Assign MMD Shape Keys"
     bl_description = "Assign MMD shape keys as VRM 1.0 Expressions"
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        logger.warning(
+            "Deprecated. Use `vrm.assign_vrm1_expressions_from_mmd` instead."
+        )
+        return ops.vrm.assign_vrm1_expressions_from_mmd(
+            armature_object_name=self.armature_object_name
+        )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+
+
+class VRM_OT_assign_vrm1_expressions_from_mmd(Operator):
+    bl_idname = "vrm.assign_vrm1_expressions_from_mmd"
+    bl_label = "Assign MMD Shape Keys"
+    bl_description = "Assign VRM 1.0 Expressions from MMD Shape Keys"
     bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
@@ -1422,9 +1474,38 @@ class VRM_OT_assign_vrm1_mmd_expressions(Operator):
 
 
 class VRM_OT_assign_vrm1_ready_player_me_expressions(Operator):
+    """Deprecated. Use `vrm.assign_vrm1_expressions_from_ready_player_me` instead."""
+
     bl_idname = "vrm.assign_vrm1_ready_player_me_expressions"
     bl_label = "Assign Ready Player Me Shape Keys"
     bl_description = "Assign Ready Player Me (ARKit) shape keys as VRM 1.0 Expressions"
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        logger.warning(
+            "Deprecated."
+            " Use `vrm.assign_vrm1_expressions_from_ready_player_me` instead."
+        )
+        return ops.vrm.assign_vrm1_expressions_from_ready_player_me(
+            armature_object_name=self.armature_object_name
+        )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+
+
+class VRM_OT_assign_vrm1_expressions_from_ready_player_me(Operator):
+    bl_idname = "vrm.assign_vrm1_expressions_from_ready_player_me"
+    bl_label = "Assign Ready Player Me Shape Keys"
+    bl_description = (
+        "Assign VRM 1.0 Expressions from Ready Player Me (ARKit) Shape Keys"
+    )
     bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]
@@ -1450,11 +1531,37 @@ class VRM_OT_assign_vrm1_ready_player_me_expressions(Operator):
 
 
 class VRM_OT_add_vrm1_arkit_custom_expressions(Operator):
+    """Deprecated. Use `vrm.assign_vrm1_expressions_from_arkit` instead."""
+
     bl_idname = "vrm.add_vrm1_arkit_custom_expressions"
     bl_label = "Add ARkit / PerfectSync Custom Expressions"
     bl_description = (
         "Add Apple ARKit (Perfect Sync) shape keys as VRM 1.0 Custom Expressions"
     )
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, _context: Context) -> set[str]:
+        logger.warning(
+            "Deprecated. Use `vrm.assign_vrm1_expressions_from_arkit` instead."
+        )
+        return ops.vrm.assign_vrm1_expressions_from_arkit(
+            armature_object_name=self.armature_object_name
+        )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+
+
+class VRM_OT_assign_vrm1_expressions_from_arkit(Operator):
+    bl_idname = "vrm.assign_vrm1_expressions_from_arkit"
+    bl_label = "Add ARkit / PerfectSync Custom Expressions"
+    bl_description = "Assign VRM 1.0 Expressions from ARkit / PerfectSync"
     bl_options: ClassVar = {"REGISTER", "UNDO"}
 
     armature_object_name: StringProperty(  # type: ignore[valid-type]

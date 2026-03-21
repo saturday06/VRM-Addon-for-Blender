@@ -1243,6 +1243,62 @@ def assign_vrm1_vrchat_expressions(
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
+def assign_vrm1_expressions_from_mmd(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.assign_vrm1_expressions_from_mmd(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def assign_vrm1_expressions_from_ready_player_me(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.assign_vrm1_expressions_from_ready_player_me(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def assign_vrm1_expressions_from_vrchat(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.assign_vrm1_expressions_from_vrchat(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
+def assign_vrm1_expressions_from_arkit(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.assign_vrm1_expressions_from_arkit(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def assign_vrm1_expressions_automatically(
     execution_context: str = "EXEC_DEFAULT",
     /,
