@@ -327,7 +327,7 @@ def _export_vrm(
 
 
 class VRM_PT_export_file_browser_tool_props(Panel):
-    bl_idname = "VRM_IMPORTER_PT_export_error_messages"
+    bl_idname = "VRM_PT_export_file_browser_tool_props"
     bl_space_type = "FILE_BROWSER"
     bl_region_type = "TOOL_PROPS"
     bl_parent_id = "FILE_PT_operator"
