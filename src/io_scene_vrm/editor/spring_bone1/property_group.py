@@ -970,6 +970,12 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
             if collider_reference.collider_uuid in uuids:
                 uuids.remove(collider_reference.collider_uuid)
                 continue
+            logger.error(
+                'Collider reference with uuid "%s" not found or duplicated for'
+                ' collider group "%s". Clearing collider UUID.',
+                collider_reference.collider_uuid,
+                self.vrm_name,
+            )
             collider_reference.collider_uuid = ""
 
     # for UI
@@ -1165,6 +1171,12 @@ class SpringBone1SpringPropertyGroup(PropertyGroup):
             if collider_group_reference.collider_group_uuid in uuids:
                 uuids.remove(collider_group_reference.collider_group_uuid)
                 continue
+            logger.error(
+                'Collider group reference with uuid "%s" not found or duplicated for'
+                ' spring "%s". Clearing collider group UUID.',
+                collider_group_reference.collider_group_uuid,
+                self.vrm_name,
+            )
             collider_group_reference.collider_group_uuid = ""
 
     # for UI
@@ -1253,17 +1265,37 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
         found_collider_uuids = set[str]()
         for collider in self.colliders:
             if not collider.uuid:
-                collider.uuid = uuid.uuid4().hex
+                new_uuid = uuid.uuid4().hex
+                logger.error(
+                    "Collider without uuid found. Generating a new uuid %s.", new_uuid
+                )
+                collider.uuid = new_uuid
             if collider.uuid in found_collider_uuids:
-                collider.uuid = uuid.uuid4().hex
+                new_uuid = uuid.uuid4().hex
+                logger.error(
+                    "Collider with duplicated uuid found. Generating a new uuid %s.",
+                    new_uuid,
+                )
+                collider.uuid = new_uuid
             found_collider_uuids.add(collider.uuid)
 
         found_collider_group_uuids = set[str]()
         for collider_group in self.collider_groups:
             if not collider_group.uuid:
-                collider_group.uuid = uuid.uuid4().hex
+                new_uuid = uuid.uuid4().hex
+                logger.error(
+                    "Collider group without uuid found. Generating a new uuid %s.",
+                    new_uuid,
+                )
+                collider_group.uuid = new_uuid
             if collider_group.uuid in found_collider_group_uuids:
-                collider_group.uuid = uuid.uuid4().hex
+                new_uuid = uuid.uuid4().hex
+                logger.error(
+                    "Collider group with duplicated uuid found."
+                    " Generating a new uuid %s.",
+                    new_uuid,
+                )
+                collider_group.uuid = new_uuid
             found_collider_group_uuids.add(collider_group.uuid)
             collider_group.fixup()
 

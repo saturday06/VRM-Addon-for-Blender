@@ -733,21 +733,51 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
     )
 
     def fixup(self, armature: Optional[Object], bone_name: str) -> None:
-        if not self.bpy_object or not self.bpy_object.name:
+        bpy_object = self.bpy_object
+        if not bpy_object or not bpy_object.name:
             return
 
-        if armature and self.bpy_object.parent != armature:
-            self.bpy_object.parent = armature
-        if self.bpy_object.empty_display_type != "SPHERE":
-            self.bpy_object.empty_display_type = "SPHERE"
+        if armature and bpy_object.parent != armature:
+            logger.warning(
+                "Collider %s is not parented to the armature."
+                " Parenting to the armature %s.",
+                self.path_from_id(),
+                armature.name,
+            )
+            bpy_object.parent = armature
+
+        if bpy_object.empty_display_type != "SPHERE":
+            logger.warning(
+                "Collider %s has empty display type %s. Setting to SPHERE.",
+                self.path_from_id(),
+                bpy_object.empty_display_type,
+            )
+            bpy_object.empty_display_type = "SPHERE"
 
         if bone_name:
-            if self.bpy_object.parent_type != "BONE":
-                self.bpy_object.parent_type = "BONE"
-            if self.bpy_object.parent_bone != bone_name:
-                self.bpy_object.parent_bone = bone_name
-        elif self.bpy_object.parent_type != "OBJECT":
-            self.bpy_object.parent_type = "OBJECT"
+            if bpy_object.parent_type != "BONE":
+                logger.warning(
+                    "Collider %s is not parented to a bone. Parenting to the bone %s.",
+                    self.path_from_id(),
+                    bone_name,
+                )
+                bpy_object.parent_type = "BONE"
+            if bpy_object.parent_bone != bone_name:
+                logger.warning(
+                    "Collider %s is parented to a different bone %s."
+                    " Changing to the bone %s.",
+                    self.path_from_id(),
+                    bpy_object.parent_bone,
+                    bone_name,
+                )
+                bpy_object.parent_bone = bone_name
+        elif bpy_object.parent_type != "OBJECT":
+            logger.warning(
+                "Collider %s is parented to a bone but no bone is assigned."
+                " Changing to object parenting.",
+                self.path_from_id(),
+            )
+            bpy_object.parent_type = "OBJECT"
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -776,12 +806,23 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
 
     def fixup(self, armature: Optional[Object]) -> None:
         if not self.uuid:
-            self.uuid = uuid.uuid4().hex
+            new_uuid = uuid.uuid4().hex
+            logger.error(
+                "Collider group %s has no UUID. Assigning a new UUID %s.",
+                self.path_from_id(),
+                new_uuid,
+            )
+            self.uuid = new_uuid
 
         for index, collider in reversed(
             tuple((index, collider) for index, collider in enumerate(self.colliders))
         ):
             if not collider.bpy_object or not collider.bpy_object.name:
+                logger.warning(
+                    "Collider %s in group %s has no valid object. Removing.",
+                    collider.path_from_id(),
+                    self.display_name,
+                )
                 self.colliders.remove(index)
             else:
                 collider.fixup(armature, self.node.bone_name)
@@ -951,6 +992,13 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
             if uuid_str and uuid_str in collider_group_uuids:
                 collider_group_uuids.remove(uuid_str)
                 continue
+            logger.error(
+                "Collider group reference %s in spring group %s has invalid or"
+                " duplicated UUID %s. Clearing.",
+                collider_group_reference.path_from_id(),
+                self.path_from_id(),
+                uuid_str,
+            )
             collider_group_reference.collider_group_uuid = ""
 
     if TYPE_CHECKING:
@@ -1155,7 +1203,14 @@ class Vrm0SecondaryAnimationPropertyGroup(PropertyGroup):
             if collider_group.uuid and collider_group.uuid not in found_uuids:
                 found_uuids.add(collider_group.uuid)
                 continue
-            collider_group.uuid = uuid.uuid4().hex
+            new_uuid = uuid.uuid4().hex
+            logger.error(
+                "Collider group %s in secondary animation has no UUID or duplicated"
+                " UUID. Assigning a new UUID %s.",
+                collider_group.path_from_id(),
+                new_uuid,
+            )
+            collider_group.uuid = new_uuid
 
         for collider_group in self.collider_groups:
             collider_group.fixup(armature_object)
