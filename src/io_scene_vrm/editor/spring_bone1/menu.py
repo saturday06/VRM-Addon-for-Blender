@@ -16,8 +16,10 @@ from .ops import (
     VRM_OT_unassign_spring_bone1_spring_collider_group,
 )
 from .property_group import (
+    SpringBone1ColliderGroupPropertyGroup,
     SpringBone1ColliderGroupReferencePropertyGroup,
     SpringBone1ColliderReferencePropertyGroup,
+    SpringBone1SpringPropertyGroup,
 )
 
 
@@ -56,17 +58,23 @@ class VRM_MT_spring_bone1_collider_group_collider(Menu):
     bl_label = "Collider Assignment Menu"
     bl_idname = "VRM_MT_spring_bone1_collider_group_collider"
 
+    CONTEXT_POINTER_COLLIDER_GROUP: Final = bl_idname + "_collider_group"
     CONTEXT_POINTER_COLLIDER_REFERENCE: Final = bl_idname + "_collider_reference"
 
     @classmethod
     def draw_input_layout(
         cls,
         layout: UILayout,
+        collider_group: SpringBone1ColliderGroupPropertyGroup,
         collider_reference: SpringBone1ColliderReferencePropertyGroup,
         *,
         icon: str = "SPHERE",
     ) -> UILayout:
         row = layout.row(align=True)
+        row.context_pointer_set(
+            cls.CONTEXT_POINTER_COLLIDER_GROUP,
+            collider_group,
+        )
         row.context_pointer_set(
             cls.CONTEXT_POINTER_COLLIDER_REFERENCE,
             collider_reference,
@@ -82,6 +90,10 @@ class VRM_MT_spring_bone1_collider_group_collider(Menu):
     def draw(self, context: Context) -> None:
         layout = self.layout
 
+        collider_group = getattr(context, self.CONTEXT_POINTER_COLLIDER_GROUP, None)
+        if not isinstance(collider_group, SpringBone1ColliderGroupPropertyGroup):
+            return
+
         collider_reference = getattr(
             context, self.CONTEXT_POINTER_COLLIDER_REFERENCE, None
         )
@@ -93,6 +105,15 @@ class VRM_MT_spring_bone1_collider_group_collider(Menu):
         armature_data = collider_reference.id_data
         if not isinstance(armature_data, Armature):
             return
+
+        if collider_group.id_data != armature_data:
+            return
+
+        assigned_collider_uuids: set[str] = {
+            collider_reference.collider_uuid
+            for collider_reference in collider_group.colliders
+            if collider_reference.collider_uuid
+        }
 
         spring_bone1 = get_armature_extension(armature_data).spring_bone1
         collider_reference_path = collider_reference.path_from_id()
@@ -111,7 +132,7 @@ class VRM_MT_spring_bone1_collider_group_collider(Menu):
         for collider in spring_bone1.colliders:
             if not collider.uuid:
                 continue
-            if collider.uuid == collider_reference.collider_uuid:
+            if collider.uuid in assigned_collider_uuids:
                 continue
 
             assign_op = layout_operator(
@@ -130,6 +151,7 @@ class VRM_MT_spring_bone1_spring_collider_group(Menu):
     bl_label = "Collider Group Assignment Menu"
     bl_idname = "VRM_MT_spring_bone1_spring_collider_group"
 
+    CONTEXT_POINTER_SPRING: Final = bl_idname + "_spring"
     CONTEXT_POINTER_COLLIDER_GROUP_REFERENCE: Final = (
         bl_idname + "_collider_group_reference"
     )
@@ -138,11 +160,16 @@ class VRM_MT_spring_bone1_spring_collider_group(Menu):
     def draw_input_layout(
         cls,
         layout: UILayout,
+        spring: SpringBone1SpringPropertyGroup,
         collider_group_reference: SpringBone1ColliderGroupReferencePropertyGroup,
         *,
         icon: str = "PIVOT_INDIVIDUAL",
     ) -> UILayout:
         row = layout.row(align=True)
+        row.context_pointer_set(
+            cls.CONTEXT_POINTER_SPRING,
+            spring,
+        )
         row.context_pointer_set(
             cls.CONTEXT_POINTER_COLLIDER_GROUP_REFERENCE,
             collider_group_reference,
@@ -158,6 +185,13 @@ class VRM_MT_spring_bone1_spring_collider_group(Menu):
     def draw(self, context: Context) -> None:
         layout = self.layout
 
+        spring = getattr(context, self.CONTEXT_POINTER_SPRING, None)
+        if not isinstance(
+            spring,
+            SpringBone1SpringPropertyGroup,
+        ):
+            return
+
         collider_group_reference = getattr(
             context, self.CONTEXT_POINTER_COLLIDER_GROUP_REFERENCE, None
         )
@@ -170,6 +204,15 @@ class VRM_MT_spring_bone1_spring_collider_group(Menu):
         armature_data = collider_group_reference.id_data
         if not isinstance(armature_data, Armature):
             return
+
+        if spring.id_data != armature_data:
+            return
+
+        assigned_collider_group_uuids: set[str] = {
+            collider_group_reference.collider_group_uuid
+            for collider_group_reference in spring.collider_groups
+            if collider_group_reference.collider_group_uuid
+        }
 
         spring_bone1 = get_armature_extension(armature_data).spring_bone1
         collider_group_reference_path = collider_group_reference.path_from_id()
@@ -188,7 +231,7 @@ class VRM_MT_spring_bone1_spring_collider_group(Menu):
         for index, collider_group in enumerate(spring_bone1.collider_groups):
             if not collider_group.uuid:
                 continue
-            if collider_group.uuid == collider_group_reference.collider_group_uuid:
+            if collider_group.uuid in assigned_collider_group_uuids:
                 continue
 
             assign_op = layout_operator(

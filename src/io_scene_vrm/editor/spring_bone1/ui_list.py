@@ -204,6 +204,7 @@ class VRM_UL_spring_bone1_collider_group_collider(UIList):
         if index == collider_group.active_collider_index:
             VRM_MT_spring_bone1_collider_group_collider.draw_input_layout(
                 layout,
+                collider_group,
                 collider,
                 icon=icon,
             )
@@ -395,6 +396,7 @@ class VRM_UL_spring_bone1_spring_collider_group(UIList):
         if index == spring.active_collider_group_index:
             VRM_MT_spring_bone1_spring_collider_group.draw_input_layout(
                 layout,
+                spring,
                 collider_group,
                 icon=icon,
             )

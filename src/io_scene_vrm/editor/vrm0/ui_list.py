@@ -316,6 +316,7 @@ class VRM_UL_vrm0_secondary_animation_group_collider_group(UIList):
         if index == bone_group.active_collider_group_index:
             VRM_MT_vrm0_secondary_animation_group_collider_group.draw_input_layout(
                 layout,
+                bone_group,
                 collider_group,
                 icon=icon,
             )
