@@ -988,16 +988,17 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
             for collider_group in ext.vrm0.secondary_animation.collider_groups
         }
         for collider_group_reference in self.collider_groups:
-            uuid_str = collider_group_reference.collider_group_uuid
-            if uuid_str and uuid_str in collider_group_uuids:
-                collider_group_uuids.remove(uuid_str)
+            collider_group_uuid = collider_group_reference.collider_group_uuid
+            if not collider_group_uuid:
+                continue
+            if collider_group_uuid in collider_group_uuids:
+                collider_group_uuids.remove(collider_group_uuid)
                 continue
             logger.error(
-                "Collider group reference %s in spring group %s has invalid or"
-                " duplicated UUID %s. Clearing.",
+                'Collider group with uuid "%s" not found or duplicated for'
+                ' "%s". Clearing UUID.',
+                collider_group_uuid,
                 collider_group_reference.path_from_id(),
-                self.path_from_id(),
-                uuid_str,
             )
             collider_group_reference.collider_group_uuid = ""
 

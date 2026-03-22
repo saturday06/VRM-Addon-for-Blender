@@ -965,16 +965,21 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
         if not isinstance(armature_data := self.id_data, Armature):
             return
         spring_bone1 = get_armature_extension(armature_data).spring_bone1
-        uuids = {collider.uuid for collider in spring_bone1.colliders if collider.uuid}
+        collider_uuids = {
+            collider.uuid for collider in spring_bone1.colliders if collider.uuid
+        }
         for collider_reference in self.colliders:
-            if collider_reference.collider_uuid in uuids:
-                uuids.remove(collider_reference.collider_uuid)
+            collider_uuid = collider_reference.collider_uuid
+            if not collider_uuid:
+                continue
+            if collider_uuid in collider_uuids:
+                collider_uuids.remove(collider_uuid)
                 continue
             logger.error(
-                'Collider reference with uuid "%s" not found or duplicated for'
-                ' collider group "%s". Clearing collider UUID.',
-                collider_reference.collider_uuid,
-                self.vrm_name,
+                'Collider with uuid "%s" not found or duplicated for'
+                ' "%s". Clearing UUID.',
+                collider_uuid,
+                collider_reference.path_from_id(),
             )
             collider_reference.collider_uuid = ""
 
@@ -1166,16 +1171,23 @@ class SpringBone1SpringPropertyGroup(PropertyGroup):
         if not isinstance(armature_data := self.id_data, Armature):
             return
         spring_bone1 = get_armature_extension(armature_data).spring_bone1
-        uuids = {cg.uuid for cg in spring_bone1.collider_groups if cg.uuid}
+        collider_group_uuids = {
+            collider_group.uuid
+            for collider_group in spring_bone1.collider_groups
+            if collider_group.uuid
+        }
         for collider_group_reference in self.collider_groups:
-            if collider_group_reference.collider_group_uuid in uuids:
-                uuids.remove(collider_group_reference.collider_group_uuid)
+            collider_group_uuid = collider_group_reference.collider_group_uuid
+            if not collider_group_uuid:
+                continue
+            if collider_group_uuid in collider_group_uuids:
+                collider_group_uuids.remove(collider_group_uuid)
                 continue
             logger.error(
-                'Collider group reference with uuid "%s" not found or duplicated for'
-                ' spring "%s". Clearing collider group UUID.',
-                collider_group_reference.collider_group_uuid,
-                self.vrm_name,
+                'Collider group with uuid "%s" not found or duplicated for'
+                ' "%s". Clearing UUID.',
+                collider_group_uuid,
+                collider_group_reference.path_from_id(),
             )
             collider_group_reference.collider_group_uuid = ""
 
