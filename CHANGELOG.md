@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.24.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.23.0...v3.24.0) (2026-03-23)
+
+
+### 🚀 Features
+
+* implement ui list filters ([1af39e5](https://github.com/saturday06/VRM-Addon-for-Blender/commit/1af39e5ca713d26103e7e43def78dd5364458cbb))
+
 ## [3.23.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.22.1...v3.23.0) (2026-03-20)
 
 
