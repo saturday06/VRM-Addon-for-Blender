@@ -3160,7 +3160,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     "type": "SCALAR",
                     "componentType": GL_UNSIGNED_INT,
                     # TODO: Avoid division as it can lead to mistakes
-                    "count": int(len(vertex_indices) / 4),
+                    "count": len(vertex_indices) // vertex_indices_struct.size,
                 }
             )
             primitive_dicts.append(
