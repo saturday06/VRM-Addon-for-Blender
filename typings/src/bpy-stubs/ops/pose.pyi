@@ -5,3 +5,7 @@ def select_all(
     *,
     action: str = "TOGGLE",
 ) -> set[str]: ...
+def rigify_generate(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+) -> set[str]: ...

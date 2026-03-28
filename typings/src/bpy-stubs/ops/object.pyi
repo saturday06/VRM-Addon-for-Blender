@@ -115,3 +115,7 @@ def vertex_group_limit_total(
     group_select_mode: str = "",
     limit: int = 4,
 ) -> set[str]: ...
+def armature_basic_human_metarig_add(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+) -> set[str]: ...
