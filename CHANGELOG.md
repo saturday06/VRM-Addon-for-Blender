@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.25.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.24.0...v3.25.0) (2026-03-28)
+
+
+### 🚀 Features
+
+* the displayed armature is now selected by default ([6691a9d](https://github.com/saturday06/VRM-Addon-for-Blender/commit/6691a9d53ff6428377f3123cfba3a749118f8450))
+
 ## [3.24.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.23.0...v3.24.0) (2026-03-23)
 
 

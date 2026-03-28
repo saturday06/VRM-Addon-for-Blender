@@ -10,7 +10,7 @@ bl_info = {
     "author": "saturday06, iCyP",
     "version": (
         3,  # x-release-please-major
-        24,  # x-release-please-minor
+        25,  # x-release-please-minor
         0,  # x-release-please-patch
     ),
     "location": "File > Import-Export",
