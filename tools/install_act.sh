@@ -8,10 +8,10 @@ mkdir -p bin
 
 case "$(uname -m)" in
 "x86_64")
-  url="https://github.com/nektos/act/releases/download/v0.2.84/act_Linux_x86_64.tar.gz"
+  url="https://github.com/nektos/act/releases/download/v0.2.86/act_Linux_x86_64.tar.gz"
   ;;
 "aarch64")
-  url="https://github.com/nektos/act/releases/download/v0.2.84/act_Linux_arm64.tar.gz"
+  url="https://github.com/nektos/act/releases/download/v0.2.86/act_Linux_arm64.tar.gz"
   ;;
 *)
   exit 0

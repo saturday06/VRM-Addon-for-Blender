@@ -1,7 +1,7 @@
 ci:
   image: buildpack-deps:noble@sha256:48ed546e0c73411684342c477714cefb8e4ea5a9c506e4a17f602807c048aa54
   services:
-    - docker:29.3.0-dind@sha256:1ba18449911d01f477a3fc104123c85d677addc60701b14b3fcb5381f9c4a537
+    - docker:29.3.1-dind@sha256:4d90f1f6c400315c2dba96d3ec93c01e64198395cbba04f79d12adce4f737029
   retry:
     max: 2
     when:
