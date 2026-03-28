@@ -138,67 +138,73 @@ def shader_nodes_and_materials(
 
 
 def object_distance(
-    left: Object,
-    right: Object,
+    source: Object,
+    target: Object,
     collection_child_to_parent: dict[Collection, Optional[Collection]],
-) -> tuple[int, int, int, int]:
-    left_collection_path: list[Collection] = []
-    left_collections = [
+) -> tuple[int, int, int, int, int, int, int]:
+    if source == target:
+        return (0, 0, 0, 0, 0, 0, 0)
+
+    source_collection_path: list[Collection] = []
+    source_collections = [
         collection
-        for collection in left.users_collection
+        for collection in source.users_collection
         if collection in collection_child_to_parent
     ]
-    if left_collections:
-        left_collection: Optional[Collection] = left_collections[0]
-        while left_collection:
-            left_collection_path.insert(0, left_collection)
-            left_collection = collection_child_to_parent.get(left_collection)
+    if source_collections:
+        source_collection: Optional[Collection] = source_collections[0]
+        while source_collection:
+            source_collection_path.insert(0, source_collection)
+            source_collection = collection_child_to_parent.get(source_collection)
 
-    right_collection_path: list[Collection] = []
-    right_collections = [
+    target_collection_path: list[Collection] = []
+    target_collections = [
         collection
-        for collection in right.users_collection
+        for collection in target.users_collection
         if collection in collection_child_to_parent
     ]
-    if right_collections:
-        right_collection: Optional[Collection] = right_collections[0]
-        while right_collection:
-            right_collection_path.insert(0, right_collection)
-            right_collection = collection_child_to_parent.get(right_collection)
+    if target_collections:
+        target_collection: Optional[Collection] = target_collections[0]
+        while target_collection:
+            target_collection_path.insert(0, target_collection)
+            target_collection = collection_child_to_parent.get(target_collection)
 
     while (
-        left_collection_path
-        and right_collection_path
-        and left_collection_path[0] == right_collection_path[0]
+        source_collection_path
+        and target_collection_path
+        and source_collection_path[0] == target_collection_path[0]
     ):
-        left_collection_path.pop(0)
-        right_collection_path.pop(0)
+        source_collection_path.pop(0)
+        target_collection_path.pop(0)
 
-    left_parent_path: list[Object] = []
-    traversing_left: Optional[Object] = left
-    while traversing_left:
-        left_parent_path.insert(0, traversing_left)
-        traversing_left = traversing_left.parent
+    source_parent_path: list[Object] = []
+    traversing_source: Optional[Object] = source
+    while traversing_source:
+        source_parent_path.insert(0, traversing_source)
+        traversing_source = traversing_source.parent
 
-    right_parent_path: list[Object] = []
-    traversing_right: Optional[Object] = right
-    while traversing_right:
-        right_parent_path.insert(0, traversing_right)
-        traversing_right = traversing_right.parent
+    target_parent_path: list[Object] = []
+    traversing_target: Optional[Object] = target
+    while traversing_target:
+        target_parent_path.insert(0, traversing_target)
+        traversing_target = traversing_target.parent
 
     while (
-        left_parent_path
-        and right_parent_path
-        and left_parent_path[0] == right_parent_path[0]
+        source_parent_path
+        and target_parent_path
+        and source_parent_path[0] == target_parent_path[0]
     ):
-        left_parent_path.pop(0)
-        right_parent_path.pop(0)
+        source_parent_path.pop(0)
+        target_parent_path.pop(0)
 
     return (
-        len(left_parent_path),
-        len(right_parent_path),
-        len(left_collection_path),
-        len(right_collection_path),
+        abs(int(source.select_get()) - int(target.select_get())),
+        int(target.hide_get()),
+        len(source_parent_path),
+        len(target_parent_path),
+        len(source_collection_path),
+        len(target_collection_path),
+        int(target.hide_render),
     )
 
 
@@ -296,7 +302,7 @@ def current_armature(context: Context) -> Optional[Object]:
             collections.append(child)
             collection_child_to_parent[child] = parent
 
-    min_distance: Optional[tuple[int, int, int, int]] = None
+    min_distance: Optional[tuple[int, int, int, int, int, int, int]] = None
     nearest_object: Optional[Object] = None
     for obj in objects:
         distance = object_distance(active_object, obj, collection_child_to_parent)
