@@ -89,8 +89,10 @@ class AbstractBaseVrmExporter(ABC):
     ) -> None:
         ext = get_armature_extension(armature_data)
 
-        for blend_shape_group, blend_shape_preview in zip(
-            ext.vrm0.blend_shape_master.blend_shape_groups, saved_vrm0_previews
+        for blend_shape_group, blend_shape_preview in reversed(
+            list(
+                zip(ext.vrm0.blend_shape_master.blend_shape_groups, saved_vrm0_previews)
+            )
         ):
             blend_shape_group.preview = blend_shape_preview
 
@@ -102,7 +104,9 @@ class AbstractBaseVrmExporter(ABC):
             if expression_preview is not None:
                 expression.preview = expression_preview
 
-        for mesh_name, key_block_name_to_values in saved_key_block_values.items():
+        for mesh_name, key_block_name_to_values in reversed(
+            list(saved_key_block_values.items())
+        ):
             mesh = context.blend_data.meshes.get(mesh_name)
             if not mesh:
                 continue
@@ -163,7 +167,7 @@ class AbstractBaseVrmExporter(ABC):
     def leave_enable_deform_for_all_referenced_bones(
         self, armature_data: Armature, modified_non_deform_bone_names: list[str]
     ) -> None:
-        for modified_non_deform_bone_name in modified_non_deform_bone_names:
+        for modified_non_deform_bone_name in reversed(modified_non_deform_bone_names):
             bone = armature_data.bones.get(modified_non_deform_bone_name)
             if bone and bone.use_deform:
                 bone.use_deform = False
@@ -224,8 +228,8 @@ class AbstractBaseVrmExporter(ABC):
         context: Context,
         object_name_to_modifiers: dict[str, list[tuple[str, bool, bool]]],
     ) -> None:
-        for object_name, modifiers in object_name_to_modifiers.items():
-            for modifier_name, render, viewport in modifiers:
+        for object_name, modifiers in reversed(list(object_name_to_modifiers.items())):
+            for modifier_name, render, viewport in reversed(modifiers):
                 obj = context.blend_data.objects.get(object_name)
                 if not obj:
                     continue

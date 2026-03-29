@@ -149,7 +149,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         for object_name, (
             hidden,
             selection,
-        ) in object_visibility_and_selection.items():
+        ) in reversed(list(object_visibility_and_selection.items())):
             restore_obj = context.blend_data.objects.get(object_name)
             if restore_obj:
                 restore_obj.hide_set(hidden)
@@ -281,7 +281,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         removing_object_datum: list[ID] = []
 
         # Delete export objects
-        for original_obj_name in backup_obj_name_to_original_obj_name.values():
+        for original_obj_name in reversed(
+            list(backup_obj_name_to_original_obj_name.values())
+        ):
             restored_export_obj = context.blend_data.objects.get(original_obj_name)
             if not restored_export_obj:
                 continue
@@ -335,7 +337,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         for (
             backup_obj_name,
             original_obj_name,
-        ) in backup_obj_name_to_original_obj_name.items():
+        ) in reversed(list(backup_obj_name_to_original_obj_name.items())):
             restored_original_data_name = None
             restored_obj = context.blend_data.objects.get(backup_obj_name)
             if not restored_obj:
@@ -401,7 +403,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def leave_mount_skinned_mesh_parent(
         self, mounted_object_names: Sequence[str]
     ) -> None:
-        for mounted_object_name in mounted_object_names:
+        for mounted_object_name in reversed(mounted_object_names):
             restore_obj = self.context.blend_data.objects.get(mounted_object_name)
             if not restore_obj:
                 continue
@@ -2165,7 +2167,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def leave_disable_mtoon1_material_nodes(
         context: Context, disabled_material_names: Sequence[str]
     ) -> None:
-        for disabled_material_name in disabled_material_names:
+        for disabled_material_name in reversed(disabled_material_names):
             disabled_material = context.blend_data.materials.get(disabled_material_name)
             if not disabled_material:
                 continue
@@ -2418,7 +2420,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             ]
         )
 
-        for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
+        for human_bone_name, human_bone in reversed(
+            list(human_bone_name_to_human_bone.items())
+        ):
             bone_name = human_bone_name_to_bone_name.get(human_bone_name)
             if bone_name:
                 human_bone.node.bone_name = bone_name
@@ -2428,7 +2432,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             context, armature_data.name
         )
         with save_workspace(context, armature_object, mode="EDIT"):
-            for dummy_bone_name in dummy_bone_names:
+            for dummy_bone_name in reversed(dummy_bone_names):
                 dummy_edit_bone = armature_data.edit_bones.get(dummy_bone_name)
                 if dummy_edit_bone:
                     armature_data.edit_bones.remove(dummy_edit_bone)
@@ -2521,20 +2525,23 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     ) -> None:
         # Consider the possibility that Object or Constraint may have been
         # deleted, and retrieve them again
-        for object_name, constraint_name in object_name_and_constraint_name:
-            obj = context.blend_data.objects.get(object_name)
-            if not obj:
-                continue
-            constraint = obj.constraints.get(constraint_name)
-            if not constraint:
-                continue
-            constraint.mute = False
 
-        for bone_name, constraint_name in bone_name_and_constraint_name:
+        for bone_name, constraint_name in reversed(list(bone_name_and_constraint_name)):
             bone = armature.pose.bones.get(bone_name)
             if not bone:
                 continue
             constraint = bone.constraints.get(constraint_name)
+            if not constraint:
+                continue
+            constraint.mute = False
+
+        for object_name, constraint_name in reversed(
+            list(object_name_and_constraint_name)
+        ):
+            obj = context.blend_data.objects.get(object_name)
+            if not obj:
+                continue
+            constraint = obj.constraints.get(constraint_name)
             if not constraint:
                 continue
             constraint.mute = False
@@ -2586,14 +2593,14 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         if not isinstance(armature_data, Armature):
             return
 
-        for pose_bone in self.armature.pose.bones:
-            pose_bone.pop(self.extras_bone_name_key, None)
-        for bone in armature_data.bones:
+        for bone in reversed(armature_data.bones):
             bone.pop(self.extras_bone_name_key, None)
+        for pose_bone in reversed(self.armature.pose.bones):
+            pose_bone.pop(self.extras_bone_name_key, None)
 
-        for material in self.context.blend_data.materials:
+        for material in reversed(self.context.blend_data.materials):
             material.pop(self.extras_material_name_key, None)
-        for obj in self.context.blend_data.objects:
+        for obj in reversed(self.context.blend_data.objects):
             obj.pop(self.extras_object_name_key, None)
 
         self.armature.pop(self.extras_main_armature_key, None)

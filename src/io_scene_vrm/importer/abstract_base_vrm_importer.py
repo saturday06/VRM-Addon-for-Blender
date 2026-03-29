@@ -273,7 +273,9 @@ class AbstractBaseVrmImporter(ABC):
             raise TypeError(message)
         # Restore the world matrices of child objects of bones before editing
         context.view_layer.update()
-        for name, matrix_world in bone_child_object_world_matrices.items():
+        for name, matrix_world in reversed(
+            list(bone_child_object_world_matrices.items())
+        ):
             restore_obj = context.blend_data.objects.get(name)
             if (
                 restore_obj
