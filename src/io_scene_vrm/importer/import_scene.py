@@ -528,7 +528,7 @@ class WM_OT_vrma_import_prerequisite(Operator):
         ext = get_armature_extension(armature_data)
         if get_armature_extension(armature_data).is_vrm1():
             humanoid = ext.vrm1.humanoid
-            if not humanoid.human_bones.all_required_bones_are_assigned():
+            if not humanoid.human_bones.bones_are_correctly_assigned():
                 error_messages.append(pgettext("Please assign required human bones"))
         else:
             error_messages.append(pgettext("Please set the version of VRM to 1.0"))

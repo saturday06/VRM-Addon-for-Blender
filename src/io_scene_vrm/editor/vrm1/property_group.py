@@ -374,7 +374,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
 
         return messages
 
-    def all_required_bones_are_assigned(self) -> bool:
+    def bones_are_correctly_assigned(self) -> bool:
         return len(self.error_messages()) == 0
 
     @staticmethod

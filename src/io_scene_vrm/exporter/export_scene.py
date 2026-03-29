@@ -182,7 +182,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                     for b in humanoid.human_bones
                 ):
                     assign_vrm0_humanoid_human_bones_automatically(context, armature)
-                if not humanoid.all_required_bones_are_assigned():
+                if not humanoid.bones_are_correctly_assigned():
                     return ops.wm.vrm_export_human_bones_assignment(
                         "INVOKE_DEFAULT",
                         armature_object_name=self.armature_object_name,
@@ -204,7 +204,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                 ):
                     assign_vrm1_humanoid_human_bones_automatically(context, armature)
                 if (
-                    not human_bones.all_required_bones_are_assigned()
+                    not human_bones.bones_are_correctly_assigned()
                     and not human_bones.allow_non_humanoid_rig
                 ):
                     return ops.wm.vrm_export_human_bones_assignment(
@@ -519,7 +519,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
                 context, armature_data.name
             )
             humanoid = get_armature_extension(armature_data).vrm0.humanoid
-            if not humanoid.all_required_bones_are_assigned():
+            if not humanoid.bones_are_correctly_assigned():
                 return {"CANCELLED"}
         elif get_armature_extension(armature_data).is_vrm1():
             Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
@@ -530,7 +530,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
                 armature_data
             ).vrm1.humanoid.human_bones
             if (
-                not human_bones.all_required_bones_are_assigned()
+                not human_bones.bones_are_correctly_assigned()
                 and not human_bones.allow_non_humanoid_rig
             ):
                 return {"CANCELLED"}
@@ -567,7 +567,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
             return
 
         humanoid = get_armature_extension(armature_data).vrm0.humanoid
-        if humanoid.all_required_bones_are_assigned():
+        if humanoid.bones_are_correctly_assigned():
             alert_box = layout.box()
             alert_box.label(
                 text="All Required VRM Human Bones have been assigned.",
@@ -593,7 +593,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
             return
 
         human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
-        if human_bones.all_required_bones_are_assigned():
+        if human_bones.bones_are_correctly_assigned():
             alert_box = layout.box()
             alert_box.label(
                 text="All Required VRM Human Bones have been assigned.",
@@ -795,7 +795,7 @@ class WM_OT_vrma_export_prerequisite(Operator):
         ext = get_armature_extension(armature_data)
         if get_armature_extension(armature_data).is_vrm1():
             humanoid = ext.vrm1.humanoid
-            if not humanoid.human_bones.all_required_bones_are_assigned():
+            if not humanoid.human_bones.bones_are_correctly_assigned():
                 error_messages.append(pgettext("Please assign required human bones"))
         else:
             error_messages.append(pgettext("Please set the version of VRM to 1.0"))
@@ -856,7 +856,7 @@ class WM_OT_vrma_export_prerequisite(Operator):
                 ext = get_armature_extension(armature_data)
                 if get_armature_extension(armature_data).is_vrm1():
                     humanoid = ext.vrm1.humanoid
-                    if not humanoid.human_bones.all_required_bones_are_assigned():
+                    if not humanoid.human_bones.bones_are_correctly_assigned():
                         WM_OT_vrm_export_human_bones_assignment.draw_vrm1(
                             self.layout, armature
                         )

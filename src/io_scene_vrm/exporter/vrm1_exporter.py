@@ -2250,7 +2250,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             return None
         ext = get_armature_extension(armature_data)
         human_bones = ext.vrm1.humanoid.human_bones
-        if human_bones.all_required_bones_are_assigned():
+        if human_bones.bones_are_correctly_assigned():
             return None
 
         human_bone_name_to_bone_name: dict[HumanBoneName, str] = {}

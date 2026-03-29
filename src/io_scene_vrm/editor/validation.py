@@ -428,7 +428,7 @@ class WM_OT_vrm_validator(Operator):
                                     )
                                 )
                     if (
-                        not human_bones.all_required_bones_are_assigned()
+                        not human_bones.bones_are_correctly_assigned()
                         and human_bones.allow_non_humanoid_rig
                     ):
                         warning_messages.append(

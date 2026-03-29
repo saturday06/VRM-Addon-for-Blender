@@ -2219,7 +2219,7 @@ def assign_vrm1_humanoid_human_bones_automatically(
         for specification in HumanBoneSpecifications.all_human_bones
     }
     vrm0_humanoid = get_armature_extension(armature_data).vrm0.humanoid
-    if vrm0_humanoid.all_required_bones_are_assigned():
+    if vrm0_humanoid.bones_are_correctly_assigned():
         for vrm0_human_bone in vrm0_humanoid.human_bones:
             if (
                 vrm0_human_bone.node.bone_name

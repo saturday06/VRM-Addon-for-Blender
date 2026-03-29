@@ -275,11 +275,11 @@ def set_estimated_humanoid_t_pose(context: Context, armature: Object) -> bool:
 
     ext = get_armature_extension(armature_data)
     if ext.is_vrm0():
-        if not ext.vrm0.humanoid.all_required_bones_are_assigned():
+        if not ext.vrm0.humanoid.bones_are_correctly_assigned():
             return False
     else:
         human_bones = ext.vrm1.humanoid.human_bones
-        if not human_bones.all_required_bones_are_assigned():
+        if not human_bones.bones_are_correctly_assigned():
             return False
 
     for bone in armature.pose.bones:

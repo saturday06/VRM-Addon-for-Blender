@@ -40,7 +40,7 @@ class VrmAnimationImporter:
 
         ext = get_armature_extension(armature_data)
         humanoid = ext.vrm1.humanoid
-        if not humanoid.human_bones.all_required_bones_are_assigned():
+        if not humanoid.human_bones.bones_are_correctly_assigned():
             return {"CANCELLED"}
 
         with (
@@ -85,7 +85,7 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
     if not isinstance(armature_data, Armature):
         return {"CANCELLED"}
     humanoid = get_armature_extension(armature_data).vrm1.humanoid
-    if not humanoid.human_bones.all_required_bones_are_assigned():
+    if not humanoid.human_bones.bones_are_correctly_assigned():
         return {"CANCELLED"}
     look_at = get_armature_extension(armature_data).vrm1.look_at
 

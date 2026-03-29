@@ -197,7 +197,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         default=True
     )
 
-    def all_required_bones_are_assigned(self) -> bool:
+    def bones_are_correctly_assigned(self) -> bool:
         for name in HumanBoneSpecifications.required_names:
             for human_bone in self.human_bones:
                 if human_bone.bone != name:
