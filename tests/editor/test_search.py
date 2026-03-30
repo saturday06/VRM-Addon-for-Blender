@@ -67,19 +67,19 @@ class TestSearch(TestCase):
             object_distance(obj1, obj2, collection_child_to_parent),
             # left_parent_path: obj1, right_parent_path:
             # obj2->obj1 (pop obj1 -> obj2) => (0, 1)
-            (0, 0, 0, 1, 0, 1, 0),
+            (1, 0, 0, 1, 0, 1, 0),
         )
 
         # 3. Grandparent-child
         self.assertEqual(
             object_distance(obj1, obj3, collection_child_to_parent),
-            (0, 0, 0, 2, 0, 1, 0),
+            (1, 0, 0, 2, 0, 1, 0),
         )
 
         # 4. Siblings in same collection
         self.assertEqual(
             object_distance(obj2, obj3, collection_child_to_parent),
-            (0, 0, 0, 1, 0, 0, 0),
+            (1, 0, 0, 1, 0, 0, 0),
         )
 
         # 5. Across different collection hierarchies
@@ -90,14 +90,14 @@ class TestSearch(TestCase):
         # root->c. pop root -> [a,b], [c] -> len 2, 1
         self.assertEqual(
             object_distance(obj2, obj4, collection_child_to_parent),
-            (0, 0, 2, 1, 2, 1, 0),
+            (1, 0, 2, 1, 2, 1, 0),
         )
 
         # 6. Object not in collection mapping
         obj5 = bpy.data.objects.new("Obj5", None)
         self.assertEqual(
             object_distance(obj1, obj5, collection_child_to_parent),
-            (0, 0, 1, 1, 2, 0, 0),
+            (1, 0, 1, 1, 2, 0, 0),
         )
 
     def test_object_distance_includes_selection_and_visibility_priority(self) -> None:
@@ -138,7 +138,7 @@ class TestSearch(TestCase):
 
         self.assertEqual(
             object_distance(source, hidden_target, collection_child_to_parent),
-            (0, 1, 1, 1, 0, 0, 1),
+            (1, 1, 1, 1, 0, 0, 1),
         )
 
     def test_current_armature_prefers_visible_and_selection_matching_target(

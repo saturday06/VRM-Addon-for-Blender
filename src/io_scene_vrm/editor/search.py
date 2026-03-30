@@ -198,7 +198,7 @@ def object_distance(
         target_parent_path.pop(0)
 
     return (
-        abs(int(source.select_get()) - int(target.select_get())),
+        int(not target.select_get()),
         int(target.hide_get()),
         len(source_parent_path),
         len(target_parent_path),
