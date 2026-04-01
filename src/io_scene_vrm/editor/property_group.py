@@ -481,6 +481,15 @@ class BonePropertyGroup(PropertyGroup):
 class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
     pointer_to_bone_name_candidates: ClassVar[dict[int, set[str]]] = {}
 
+    @classmethod
+    def clear_bone_name_candidates_cache(
+        cls, humanoid_structure_bones: Iterable["HumanoidStructureBonePropertyGroup"]
+    ) -> None:
+        for humanoid_structure_bone in humanoid_structure_bones:
+            cls.pointer_to_bone_name_candidates.pop(
+                humanoid_structure_bone.as_pointer(), None
+            )
+
     @property
     def bone_name_candidates_or_none(self) -> Optional[set[str]]:
         pointer_key = self.as_pointer()

@@ -195,7 +195,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                 human_bones = get_armature_extension(
                     armature_data
                 ).vrm1.humanoid.human_bones
-                if all(
+                if human_bones.filter_by_human_bone_hierarchy and all(
                     human_bone.node.bone_name
                     not in human_bone.node.bone_name_candidates
                     for human_bone in (
@@ -203,10 +203,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                     )
                 ):
                     assign_vrm1_humanoid_human_bones_automatically(context, armature)
-                if (
-                    not human_bones.bones_are_correctly_assigned()
-                    and not human_bones.allow_non_humanoid_rig
-                ):
+                if not human_bones.bones_are_correctly_assigned():
                     return ops.wm.vrm_export_human_bones_assignment(
                         "INVOKE_DEFAULT",
                         armature_object_name=self.armature_object_name,
@@ -529,10 +526,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
             human_bones = get_armature_extension(
                 armature_data
             ).vrm1.humanoid.human_bones
-            if (
-                not human_bones.bones_are_correctly_assigned()
-                and not human_bones.allow_non_humanoid_rig
-            ):
+            if not human_bones.bones_are_correctly_assigned():
                 return {"CANCELLED"}
         else:
             return {"CANCELLED"}
@@ -567,7 +561,8 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
             return
 
         humanoid = get_armature_extension(armature_data).vrm0.humanoid
-        if humanoid.bones_are_correctly_assigned():
+        error_messages = humanoid.error_messages()
+        if not error_messages:
             alert_box = layout.box()
             alert_box.label(
                 text="All Required VRM Human Bones have been assigned.",
@@ -576,12 +571,11 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
         else:
             alert_box = layout.box()
             alert_box.alert = True
-            alert_box.label(
-                text="There are unassigned Required VRM Human Bones."
-                + " Please assign all.",
-                icon="ERROR",
-            )
+            alert_column = alert_box.column(align=True)
+            for error_message in error_messages:
+                alert_column.label(text=error_message, translate=False, icon="ERROR")
         draw_vrm0_humanoid_operators_layout(armature, layout)
+        layout.prop(humanoid, "filter_by_human_bone_hierarchy")
         row = layout.split(factor=0.5)
         draw_vrm0_humanoid_required_bones_layout(armature, row.column())
         draw_vrm0_humanoid_optional_bones_layout(armature, row.column())
@@ -593,18 +587,27 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
             return
 
         human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
+        if human_bones.allow_non_humanoid_rig:
+            layout.prop(human_bones, "allow_non_humanoid_rig")
+            non_humanoid_warnings_box = layout.box()
+            non_humanoid_warnings_column = non_humanoid_warnings_box.column(align=True)
+            text = pgettext(
+                "VRMs exported as Non-Humanoid\n"
+                + "Rigs can not have animations applied\n"
+                + "for humanoid avatars."
+            )
+            for index, message in enumerate(text.splitlines()):
+                non_humanoid_warnings_column.label(
+                    text=message,
+                    translate=False,
+                    icon="ERROR" if index == 0 else "NONE",
+                )
+            return
+
         if human_bones.bones_are_correctly_assigned():
             alert_box = layout.box()
             alert_box.label(
                 text="All Required VRM Human Bones have been assigned.",
-                icon="CHECKMARK",
-            )
-        elif human_bones.allow_non_humanoid_rig:
-            alert_box = layout.box()
-            alert_box.label(
-                text="This armature will be exported but not as a humanoid."
-                + " It cannot have animations applied"
-                + " for humanoid avatars.",
                 icon="CHECKMARK",
             )
         else:
@@ -620,12 +623,12 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
             icon="ARMATURE_DATA",
         ).armature_object_name = armature.name
 
+        layout.prop(human_bones, "filter_by_human_bone_hierarchy")
         row = layout.split(factor=0.5)
         draw_vrm1_humanoid_required_bones_layout(armature, row.column())
         draw_vrm1_humanoid_optional_bones_layout(armature, row.column())
 
-        non_humanoid_export_column = layout.column()
-        non_humanoid_export_column.prop(human_bones, "allow_non_humanoid_rig")
+        layout.prop(human_bones, "allow_non_humanoid_rig")
 
     if TYPE_CHECKING:
         # This code is auto generated.

@@ -396,6 +396,8 @@ def draw_vrm0_humanoid_layout(
         )
         simplify_vroid_bones_op.armature_object_name = armature.name
 
+    layout.prop(humanoid, "filter_by_human_bone_hierarchy")
+
     split_factor = 0.2
     draw_vrm0_humanoid_required_bones_layout(armature, armature_box.box(), split_factor)
     draw_vrm0_humanoid_optional_bones_layout(armature, armature_box.box(), split_factor)

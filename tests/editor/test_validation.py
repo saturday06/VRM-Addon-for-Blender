@@ -87,6 +87,41 @@ class TestValidation(AddonTestCase):
         right_little_distal_bone.node.bone_name = "little_distal.R"
         self.assertEqual(ops.vrm.model_validate(), {"FINISHED"})
 
+    def test_vrm0_duplicate_assignment_validation_in_flexible_mode(self) -> None:
+        context = bpy.context
+
+        ops.icyp.make_basic_armature()
+        armature = next(
+            obj for obj in context.blend_data.objects if obj.type == "ARMATURE"
+        )
+        if not isinstance(armature.data, Armature):
+            raise TypeError
+
+        ext = get_armature_extension(armature.data)
+        ext.spec_version = ext.SPEC_VERSION_VRM0
+        humanoid = ext.vrm0.humanoid
+        humanoid.filter_by_human_bone_hierarchy = False
+        spine_bone = next(b for b in humanoid.human_bones if b.bone == "spine")
+        spine_bone.node.bone_name = "hips"
+
+        self.assertEqual(ops.vrm.model_validate(), {"CANCELLED"})
+
+    def test_vrm1_duplicate_assignment_validation_in_flexible_mode(self) -> None:
+        context = bpy.context
+
+        ops.icyp.make_basic_armature()
+        armature = next(
+            obj for obj in context.blend_data.objects if obj.type == "ARMATURE"
+        )
+        if not isinstance(armature.data, Armature):
+            raise TypeError
+
+        human_bones = get_armature_extension(armature.data).vrm1.humanoid.human_bones
+        human_bones.filter_by_human_bone_hierarchy = False
+        human_bones.spine.node.bone_name = "hips"
+
+        self.assertEqual(ops.vrm.model_validate(), {"CANCELLED"})
+
 
 if __name__ == "__main__":
     main()

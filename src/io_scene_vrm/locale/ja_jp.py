@@ -303,7 +303,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         'VRM Human Bone "{child}" needs "{parent}".'
         + " Please confirm"
         + ' "VRM" Panel → "Humanoid"'
-        + ' → "Optional VRM Human Bones" → "{parent}".',
+        + ' → "Optional VRM Human Bones"'
+        + ' → "{parent}".',
     ): "VRMヒューマンボーン「{child}」は「{parent}」が必要です。"
     + "「VRM」パネルの「Humanoid」→「VRMオプションボーン」で"
     + "「{parent}」ボーンの設定をしてください。",
@@ -599,6 +600,10 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " for humanoid avatars.",
     ): "アーマチュアは人型では無いリグでエクスポートされます。"
     + "人型アバター用のアニメーションが適用されません。",
+    (
+        "*",
+        "Filter by VRM Human Bone Hierarchy",
+    ): "VRMヒューマンボーンの親子関係でフィルタ",
     (
         "Operator",
         "Blender 4.2 Material Upgrade Warning",

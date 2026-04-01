@@ -46,7 +46,11 @@ from ..common.rotation import (
 )
 from ..common.shader import MmdMaterial
 from ..common.version import get_addon_version
-from ..common.vrm1.human_bone import HumanBoneName
+from ..common.vrm1.human_bone import (
+    HumanBoneName,
+    HumanBoneSpecification,
+    HumanBoneSpecifications,
+)
 from ..common.workspace import save_workspace
 from ..editor import search
 from ..editor.extension_accessor import get_armature_extension, get_material_extension
@@ -79,6 +83,7 @@ from ..external.io_scene_gltf2_support import (
 )
 from .abstract_base_vrm_exporter import (
     AbstractBaseVrmExporter,
+    FlexibleHierarchyBoneSetup,
     assign_dict,
     force_apply_modifiers,
 )
@@ -2242,6 +2247,79 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     target_dict.pop("NORMAL", None)
 
     @staticmethod
+    def enter_setup_flexible_hierarchy_bones(
+        context: Context,
+        armature_object: Object,
+        export_objects: Sequence[Object],
+    ) -> Optional[FlexibleHierarchyBoneSetup]:
+        armature_data = armature_object.data
+        if not isinstance(armature_data, Armature):
+            return None
+        ext = get_armature_extension(armature_data)
+        human_bones = ext.vrm1.humanoid.human_bones
+        if human_bones.filter_by_human_bone_hierarchy:
+            return None
+
+        assigned_human_bone_specification_to_bone_name: dict[
+            HumanBoneSpecification, str
+        ] = {}
+        for (
+            human_bone_name,
+            human_bone,
+        ) in human_bones.human_bone_name_to_human_bone().items():
+            if not human_bone.node.bone_name:
+                continue
+            if human_bone.node.bone_name not in armature_data.bones:
+                continue
+            specification = HumanBoneSpecifications.get(human_bone_name)
+            assigned_human_bone_specification_to_bone_name[specification] = (
+                human_bone.node.bone_name
+            )
+
+        if not assigned_human_bone_specification_to_bone_name:
+            return None
+
+        child_bone_name_to_parent_bone_name = (
+            Vrm1Exporter.create_child_bone_name_to_parent_bone_name(
+                armature_data=armature_data,
+                assigned_human_bone_specification_to_bone_name=(
+                    assigned_human_bone_specification_to_bone_name
+                ),
+                all_human_bone_specifications=HumanBoneSpecifications.all_human_bones,
+            )
+        )
+        if not child_bone_name_to_parent_bone_name:
+            return None
+
+        bone_name_and_muted_constraint_name: list[tuple[str, str]] = []
+        _, bone_constraints, _ = search.export_constraints(
+            export_objects, armature_object
+        )
+        vrm_constraints = {
+            vrm_constraint for _, vrm_constraint in bone_constraints.all_constraints
+        }
+        for pose_bone in armature_object.pose.bones:
+            for constraint in pose_bone.constraints:
+                if constraint.mute:
+                    continue
+                if constraint in vrm_constraints:
+                    continue
+                bone_name_and_muted_constraint_name.append(
+                    (pose_bone.name, constraint.name)
+                )
+                constraint.mute = True
+
+        return FlexibleHierarchyBoneSetup(
+            original_bone_settings=Vrm1Exporter.reparent_edit_bones(
+                context,
+                armature_object,
+                assigned_human_bone_specification_to_bone_name,
+                child_bone_name_to_parent_bone_name,
+            ),
+            pose_bone_name_and_muted_constraint_name=bone_name_and_muted_constraint_name,
+        )
+
+    @staticmethod
     def enter_setup_dummy_human_bones(
         context: Context, armature_object: Object
     ) -> Optional[Mapping[HumanBoneName, str]]:
@@ -2250,14 +2328,31 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             return None
         ext = get_armature_extension(armature_data)
         human_bones = ext.vrm1.humanoid.human_bones
-        if human_bones.bones_are_correctly_assigned():
+
+        required_human_bones_are_assigned = True
+        human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
+        for human_bone_specification in HumanBoneSpecifications.all_human_bones:
+            if not human_bone_specification.requirement:
+                continue
+            human_bone = human_bone_name_to_human_bone.get(
+                human_bone_specification.name
+            )
+            if not human_bone:
+                required_human_bones_are_assigned = False
+                break
+            bone_name = human_bone.node.bone_name
+            if not bone_name or bone_name not in armature_data.bones:
+                required_human_bones_are_assigned = False
+                break
+
+        if (
+            human_bones.bones_are_correctly_assigned()
+            and required_human_bones_are_assigned
+        ):
             return None
 
         human_bone_name_to_bone_name: dict[HumanBoneName, str] = {}
-        for (
-            human_bone_name,
-            human_bone,
-        ) in human_bones.human_bone_name_to_human_bone().items():
+        for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
             if not human_bone.node.bone_name:
                 continue
             human_bone_name_to_bone_name[human_bone_name] = human_bone.node.bone_name
@@ -2726,6 +2821,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         with (
             save_workspace(self.context),
+            self.setup_flexible_hierarchy_bones(
+                self.context, self.armature, self.export_objects
+            ),
             self.setup_dummy_human_bones(self.context, self.armature),
             self.clear_blend_shape_proxy_previews(self.context, armature_data),
             self.enable_deform_for_all_referenced_bones(armature_data),

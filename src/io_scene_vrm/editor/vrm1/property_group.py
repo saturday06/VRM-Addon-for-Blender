@@ -269,6 +269,24 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         default=True
     )
 
+    def update_filter_by_human_bone_hierarchy(self, _context: Context) -> None:
+        if not isinstance(armature_data := self.id_data, Armature):
+            return
+        HumanoidStructureBonePropertyGroup.clear_bone_name_candidates_cache(
+            human_bone.node
+            for human_bone in self.human_bone_name_to_human_bone().values()
+        )
+        HumanoidStructureBonePropertyGroup.update_all_vrm1_bone_name_candidates(
+            armature_data
+        )
+
+    filter_by_human_bone_hierarchy: BoolProperty(  # type: ignore[valid-type]
+        name="Filter by VRM Human Bone Hierarchy",
+        description="Restrict selectable bones by VRM humanoid hierarchy",
+        default=True,
+        update=update_filter_by_human_bone_hierarchy,
+    )
+
     allow_non_humanoid_rig: BoolProperty(  # type: ignore[valid-type]
         name="Allow Non-Humanoid Rig",
     )
@@ -335,7 +353,12 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         }
 
     def error_messages(self) -> list[str]:
-        messages: list[str] = []
+        if self.allow_non_humanoid_rig:
+            return []
+
+        messages = [
+            message for _, message in self.human_bone_duplication_error_messages()
+        ]
         human_bone_name_to_human_bone = self.human_bone_name_to_human_bone()
 
         for name, human_bone in human_bone_name_to_human_bone.items():
@@ -376,6 +399,37 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
 
     def bones_are_correctly_assigned(self) -> bool:
         return len(self.error_messages()) == 0
+
+    def human_bone_duplication_error_messages(self) -> list[tuple[str, str]]:
+        messages: list[tuple[str, str]] = []
+        bone_name_to_human_bone_titles: dict[str, list[str]] = {}
+        for name, human_bone in self.human_bone_name_to_human_bone().items():
+            bone_name = human_bone.node.bone_name
+            if not bone_name:
+                continue
+
+            human_bone_titles = bone_name_to_human_bone_titles.get(bone_name)
+            if human_bone_titles is None:
+                human_bone_titles = []
+                bone_name_to_human_bone_titles[bone_name] = human_bone_titles
+            human_bone_titles.append(HumanBoneSpecifications.get(name).title)
+
+        for bone_name, human_bone_titles in bone_name_to_human_bone_titles.items():
+            if len(human_bone_titles) < 2:
+                continue
+            messages.append(
+                (
+                    bone_name,
+                    pgettext(
+                        'Bone "{bone_name}" is assigned to multiple VRM Human Bones:'
+                        + " {human_bone_names}."
+                    ).format(
+                        bone_name=bone_name,
+                        human_bone_names=", ".join(human_bone_titles),
+                    ),
+                )
+            )
+        return messages
 
     @staticmethod
     def fixup_human_bones(obj: Object) -> None:
@@ -492,6 +546,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         right_little_intermediate: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         right_little_distal: Vrm1HumanBonePropertyGroup  # type: ignore[no-redef]
         initial_automatic_bone_assignment: bool  # type: ignore[no-redef]
+        filter_by_human_bone_hierarchy: bool  # type: ignore[no-redef]
         allow_non_humanoid_rig: bool  # type: ignore[no-redef]
 
 

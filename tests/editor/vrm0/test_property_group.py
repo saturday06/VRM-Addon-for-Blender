@@ -75,6 +75,39 @@ class TestVrm0HumanoidPropertyGroup(AddonTestCase):
             set(original), {(str(b.node.bone_name), str(b.bone)) for b in human_bones}
         )
 
+    def test_duplicate_assignments_are_errors_in_flexible_mode(self) -> None:
+        context = bpy.context
+
+        ops.icyp.make_basic_armature()
+        armature = next(
+            obj for obj in context.blend_data.objects if obj.type == "ARMATURE"
+        )
+        if not isinstance(armature.data, Armature):
+            raise TypeError
+
+        humanoid = get_armature_extension(armature.data).vrm0.humanoid
+        humanoid.filter_by_human_bone_hierarchy = False
+        Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
+            context,
+            armature.data.name,
+            force=True,
+        )
+
+        hips = next(
+            human_bone
+            for human_bone in humanoid.human_bones
+            if human_bone.bone == HumanBoneName.HIPS.value
+        )
+        spine = next(
+            human_bone
+            for human_bone in humanoid.human_bones
+            if human_bone.bone == HumanBoneName.SPINE.value
+        )
+        spine.node.bone_name = hips.node.bone_name
+
+        self.assertFalse(humanoid.bones_are_correctly_assigned())
+        self.assertTrue(humanoid.human_bone_duplication_error_messages())
+
 
 if __name__ == "__main__":
     main()

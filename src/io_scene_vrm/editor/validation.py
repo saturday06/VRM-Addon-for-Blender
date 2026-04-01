@@ -125,6 +125,8 @@ class WM_OT_vrm_validator(Operator):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         humanoid = get_armature_extension(armature_data).vrm0.humanoid
+        if not humanoid.filter_by_human_bone_hierarchy:
+            return
         humanoid.update_all_bone_name_candidates(context, armature_data.name)
         for human_bone in humanoid.human_bones:
             if (
@@ -157,6 +159,8 @@ class WM_OT_vrm_validator(Operator):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
         human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
+        if not human_bones.filter_by_human_bone_hierarchy:
+            return
         human_bones.update_all_bone_name_candidates(context, armature_data.name)
         for (
             human_bone_name,
@@ -325,6 +329,28 @@ class WM_OT_vrm_validator(Operator):
                 and obj.type == "ARMATURE"
                 and obj.name == armature.name
             ):
+                armature_extension = get_armature_extension(armature_data)
+                if is_vrm0:
+                    humanoid = armature_extension.vrm0.humanoid
+                    error_messages.extend(
+                        [
+                            message
+                            for _, message in (
+                                humanoid.human_bone_duplication_error_messages()
+                            )
+                        ]
+                    )
+                elif is_vrm1:
+                    human_bones = armature_extension.vrm1.humanoid.human_bones
+                    if not human_bones.allow_non_humanoid_rig:
+                        error_messages.extend(
+                            [
+                                message
+                                for _, message in (
+                                    human_bones.human_bone_duplication_error_messages()
+                                )
+                            ]
+                        )
                 if execute_migration:
                     migration.migrate(context, armature.name)
                 bone: Optional[Bone] = None
@@ -342,7 +368,6 @@ class WM_OT_vrm_validator(Operator):
 
                 # TODO: T_POSE,
                 all_required_bones_exist = True
-                armature_extension = get_armature_extension(armature_data)
                 if is_vrm1:
                     _, _, constraint_warning_messages = search.export_constraints(
                         export_objects, armature
@@ -421,17 +446,15 @@ class WM_OT_vrm_validator(Operator):
                                         'VRM Human Bone "{child}" needs "{parent}".'
                                         + " Please confirm"
                                         + ' "VRM" Panel → "Humanoid"'
-                                        + ' → "Optional VRM Human Bones" → "{parent}".'
+                                        + ' → "Optional VRM Human Bones"'
+                                        + ' → "{parent}".'
                                     ).format(
                                         child=human_bone_specification.title,
                                         parent=parent.title,
                                     )
                                 )
-                    if (
-                        not human_bones.bones_are_correctly_assigned()
-                        and human_bones.allow_non_humanoid_rig
-                    ):
-                        warning_messages.append(
+                    if human_bones.allow_non_humanoid_rig:
+                        skippable_warning_messages.append(
                             pgettext(
                                 "This armature will be exported but not as a humanoid."
                                 + " It cannot have animations applied"

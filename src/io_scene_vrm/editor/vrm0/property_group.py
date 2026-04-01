@@ -5,6 +5,7 @@ from sys import float_info
 from typing import TYPE_CHECKING, ClassVar, Optional
 
 import bpy
+from bpy.app.translations import pgettext
 from bpy.props import (
     BoolProperty,
     CollectionProperty,
@@ -197,17 +198,92 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         default=True
     )
 
-    def bones_are_correctly_assigned(self) -> bool:
-        for name in HumanBoneSpecifications.required_names:
-            for human_bone in self.human_bones:
-                if human_bone.bone != name:
+    def update_filter_by_human_bone_hierarchy(self, _context: Context) -> None:
+        if not isinstance(armature_data := self.id_data, Armature):
+            return
+        HumanoidStructureBonePropertyGroup.clear_bone_name_candidates_cache(
+            human_bone.node for human_bone in self.human_bones
+        )
+        HumanoidStructureBonePropertyGroup.update_all_vrm0_bone_name_candidates(
+            armature_data
+        )
+
+    filter_by_human_bone_hierarchy: BoolProperty(  # type: ignore[valid-type]
+        name="Filter by VRM Human Bone Hierarchy",
+        description="Restrict selectable bones by VRM humanoid hierarchy",
+        default=True,
+        update=update_filter_by_human_bone_hierarchy,
+    )
+
+    def human_bone_duplication_error_messages(self) -> list[tuple[str, str]]:
+        messages: list[tuple[str, str]] = []
+        bone_name_to_human_bone_names: dict[str, list[str]] = {}
+        for human_bone in self.human_bones:
+            bone_name = human_bone.node.bone_name
+            if not bone_name:
+                continue
+
+            human_bone_names = bone_name_to_human_bone_names.get(bone_name)
+            if human_bone_names is None:
+                human_bone_names = []
+                bone_name_to_human_bone_names[bone_name] = human_bone_names
+
+            human_bone_name = HumanBoneName.from_str(human_bone.bone)
+            if human_bone_name is None:
+                human_bone_names.append(human_bone.bone)
+                continue
+            human_bone_names.append(HumanBoneSpecifications.get(human_bone_name).title)
+
+        for bone_name, human_bone_names in bone_name_to_human_bone_names.items():
+            if len(human_bone_names) < 2:
+                continue
+            messages.append(
+                (
+                    bone_name,
+                    pgettext(
+                        'Bone "{bone_name}" is assigned to multiple VRM Human Bones:'
+                        + " {human_bone_names}."
+                    ).format(
+                        bone_name=bone_name,
+                        human_bone_names=", ".join(human_bone_names),
+                    ),
+                )
+            )
+        return messages
+
+    def error_messages(self) -> list[str]:
+        if not isinstance(armature_data := self.id_data, Armature):
+            raise TypeError
+
+        messages = [
+            message for _, message in self.human_bone_duplication_error_messages()
+        ]
+
+        for human_bone_name, human_bone in [
+            (human_bone_name, human_bone)
+            for human_bone in self.human_bones
+            for name in HumanBoneSpecifications.required_names
+            if human_bone.bone == name
+            and (human_bone_name := HumanBoneName.from_str(name))
+        ]:
+            bone_name = human_bone.node.bone_name
+            if self.filter_by_human_bone_hierarchy:
+                if bone_name in human_bone.node.bone_name_candidates:
                     continue
-                if (
-                    human_bone.node.bone_name
-                    not in human_bone.node.bone_name_candidates
-                ):
-                    return False
-        return True
+            elif bone_name in armature_data.bones:
+                continue
+
+            bone_title = HumanBoneSpecifications.get(human_bone_name).title
+            messages.append(
+                pgettext('Please assign Required VRM Human Bone "{name}".').format(
+                    name=bone_title
+                )
+            )
+
+        return messages
+
+    def bones_are_correctly_assigned(self) -> bool:
+        return len(self.error_messages()) == 0
 
     @staticmethod
     def update_all_bone_name_candidates(
@@ -321,6 +397,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         pose_library: Optional[Action]  # type: ignore[no-redef]
         pose_marker_name: str  # type: ignore[no-redef]
         initial_automatic_bone_assignment: bool  # type: ignore[no-redef]
+        filter_by_human_bone_hierarchy: bool  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_FirstPerson.cs#L10-L22

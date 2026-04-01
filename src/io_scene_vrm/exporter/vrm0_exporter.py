@@ -46,7 +46,11 @@ from ..common.mtoon_unversioned import MtoonUnversioned
 from ..common.progress import Progress, create_progress
 from ..common.shader import MmdMaterial
 from ..common.version import get_addon_version
-from ..common.vrm0.human_bone import HumanBoneSpecifications
+from ..common.vrm0.human_bone import (
+    HumanBoneName,
+    HumanBoneSpecification,
+    HumanBoneSpecifications,
+)
 from ..common.workspace import save_workspace
 from ..editor import search
 from ..editor.extension_accessor import get_armature_extension, get_material_extension
@@ -67,6 +71,7 @@ from ..external.io_scene_gltf2_support import (
 )
 from .abstract_base_vrm_exporter import (
     AbstractBaseVrmExporter,
+    FlexibleHierarchyBoneSetup,
     assign_dict,
     generate_evaluated_mesh,
 )
@@ -250,6 +255,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         with (
             save_workspace(self.context),
+            self.setup_flexible_hierarchy_bones(
+                self.context, self.armature, self.export_objects
+            ),
             self.clear_blend_shape_proxy_previews(self.context, self.armature_data),
             self.enable_deform_for_all_referenced_bones(self.armature_data),
             setup_humanoid_t_pose(self.context, self.armature),
@@ -260,6 +268,70 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             buffer0 = bytearray()
             self.write_glb_structure(progress, json_dict, buffer0)
             return gltf.pack_glb(json_dict, buffer0)
+
+    @staticmethod
+    def enter_setup_flexible_hierarchy_bones(
+        context: Context,
+        armature_object: Object,
+        _export_objects: Sequence[Object],
+    ) -> Optional[FlexibleHierarchyBoneSetup]:
+        armature_data = armature_object.data
+        if not isinstance(armature_data, Armature):
+            return None
+        humanoid = get_armature_extension(armature_data).vrm0.humanoid
+        if humanoid.filter_by_human_bone_hierarchy:
+            return None
+
+        assigned_human_bone_specification_to_bone_name: dict[
+            HumanBoneSpecification, str
+        ] = {}
+        for human_bone in humanoid.human_bones:
+            human_bone_name = HumanBoneName.from_str(human_bone.bone)
+            if human_bone_name is None:
+                continue
+            if not human_bone.node.bone_name:
+                continue
+            if human_bone.node.bone_name not in armature_data.bones:
+                continue
+            specification = HumanBoneSpecifications.get(human_bone_name)
+            assigned_human_bone_specification_to_bone_name[specification] = (
+                human_bone.node.bone_name
+            )
+
+        if not assigned_human_bone_specification_to_bone_name:
+            return None
+
+        child_bone_name_to_parent_bone_name = (
+            Vrm0Exporter.create_child_bone_name_to_parent_bone_name(
+                armature_data=armature_data,
+                assigned_human_bone_specification_to_bone_name=(
+                    assigned_human_bone_specification_to_bone_name
+                ),
+                all_human_bone_specifications=HumanBoneSpecifications.all_human_bones,
+            )
+        )
+        if not child_bone_name_to_parent_bone_name:
+            return None
+
+        bone_name_and_muted_constraint_name: list[tuple[str, str]] = []
+        for pose_bone in armature_object.pose.bones:
+            for constraint in pose_bone.constraints:
+                if constraint.mute:
+                    continue
+                bone_name_and_muted_constraint_name.append(
+                    (pose_bone.name, constraint.name)
+                )
+                constraint.mute = True
+
+        return FlexibleHierarchyBoneSetup(
+            original_bone_settings=Vrm0Exporter.reparent_edit_bones(
+                context,
+                armature_object,
+                assigned_human_bone_specification_to_bone_name,
+                child_bone_name_to_parent_bone_name,
+            ),
+            pose_bone_name_and_muted_constraint_name=bone_name_and_muted_constraint_name,
+        )
 
     def write_glb_structure(
         self, progress: Progress, json_dict: dict[str, Json], buffer0: bytearray

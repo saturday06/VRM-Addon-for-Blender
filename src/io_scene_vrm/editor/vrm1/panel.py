@@ -347,12 +347,13 @@ def draw_vrm1_humanoid_layout(
                 translate=False,
             )
 
-    bone_operator_column = layout.column()
-    layout_operator(
-        bone_operator_column,
-        vrm1_ops.VRM_OT_assign_vrm1_humanoid_human_bones_automatically,
-        icon="ARMATURE_DATA",
-    ).armature_object_name = armature.name
+    if not human_bones.allow_non_humanoid_rig:
+        bone_operator_column = layout.column()
+        layout_operator(
+            bone_operator_column,
+            vrm1_ops.VRM_OT_assign_vrm1_humanoid_human_bones_automatically,
+            icon="ARMATURE_DATA",
+        ).armature_object_name = armature.name
 
     if ops.VRM_OT_simplify_vroid_bones.vroid_bones_exist(data):
         simplify_vroid_bones_op = layout_operator(
@@ -363,20 +364,21 @@ def draw_vrm1_humanoid_layout(
         )
         simplify_vroid_bones_op.armature_object_name = armature.name
 
-    draw_vrm1_humanoid_required_bones_layout(armature, armature_box.box())
-    draw_vrm1_humanoid_optional_bones_layout(armature, armature_box.box())
+    if not human_bones.allow_non_humanoid_rig:
+        layout.prop(human_bones, "filter_by_human_bone_hierarchy")
+        draw_vrm1_humanoid_required_bones_layout(armature, armature_box.box())
+        draw_vrm1_humanoid_optional_bones_layout(armature, armature_box.box())
 
-    non_humanoid_export_column = layout.column()
-    non_humanoid_export_column.prop(human_bones, "allow_non_humanoid_rig")
+    layout.prop(human_bones, "allow_non_humanoid_rig")
     if human_bones.allow_non_humanoid_rig:
-        non_humanoid_warnings_box = non_humanoid_export_column.box()
+        non_humanoid_warnings_box = layout.box()
         non_humanoid_warnings_column = non_humanoid_warnings_box.column(align=True)
         text = pgettext(
             "VRMs exported as Non-Humanoid\n"
             + "Rigs can not have animations applied\n"
             + "for humanoid avatars."
         )
-        for index, message in enumerate(pgettext(text).splitlines()):
+        for index, message in enumerate(text.splitlines()):
             non_humanoid_warnings_column.label(
                 text=message,
                 translate=False,

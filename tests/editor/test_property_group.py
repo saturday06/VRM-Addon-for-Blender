@@ -10,13 +10,19 @@ from mathutils import Vector
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.vrm0.human_bone import (
+    HumanBoneName as Vrm0HumanBoneName,
+)
+from io_scene_vrm.common.vrm0.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
+from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.property_group import (
     BonePropertyGroup,
     HumanoidStructureBonePropertyGroup,
 )
+from io_scene_vrm.editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
+from io_scene_vrm.editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
 from tests.util import AddonTestCase
 
 Tree = Mapping[str, "Tree"]
@@ -167,6 +173,63 @@ class TestBonePropertyGroup(AddonTestCase):
             },
             target=HumanBoneSpecifications.SPINE,
             expected={"spine", "chest"},
+        )
+
+    def test_vrm0_flexible_hierarchy_candidates(self) -> None:
+        context = bpy.context
+
+        ops.icyp.make_basic_armature()
+        armature = next(
+            obj for obj in context.blend_data.objects if obj.type == "ARMATURE"
+        )
+        if not isinstance(armature.data, Armature):
+            raise TypeError
+
+        armature_data = armature.data
+        ext = get_armature_extension(armature_data)
+        humanoid = ext.vrm0.humanoid
+        humanoid.filter_by_human_bone_hierarchy = False
+        humanoid_hips = next(
+            human_bone
+            for human_bone in humanoid.human_bones
+            if human_bone.bone == Vrm0HumanBoneName.HIPS.value
+        )
+
+        Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
+            context,
+            armature_data.name,
+            force=True,
+        )
+
+        self.assertEqual(
+            {"root", "hips"},
+            set(humanoid_hips.node.bone_name_candidates),
+        )
+
+    def test_vrm1_flexible_hierarchy_candidates(self) -> None:
+        context = bpy.context
+
+        ops.icyp.make_basic_armature()
+        armature = next(
+            obj for obj in context.blend_data.objects if obj.type == "ARMATURE"
+        )
+        if not isinstance(armature.data, Armature):
+            raise TypeError
+
+        armature_data = armature.data
+        ext = get_armature_extension(armature_data)
+        human_bones = ext.vrm1.humanoid.human_bones
+        human_bones.filter_by_human_bone_hierarchy = False
+
+        Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
+            context,
+            armature_data.name,
+            force=True,
+        )
+
+        self.assertEqual(
+            {"head"},
+            set(human_bones.head.node.bone_name_candidates),
         )
 
 

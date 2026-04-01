@@ -2972,7 +2972,8 @@ def draw_bone_prop_search(
     if not isinstance(armature_data, Armature):
         return
     ext = get_armature_extension(armature_data)
-    human_bone = ext.vrm1.humanoid.human_bones.human_bone_name_to_human_bone().get(
+    human_bones = ext.vrm1.humanoid.human_bones
+    human_bone = human_bones.human_bone_name_to_human_bone().get(
         human_bone_specification.name
     )
     if not human_bone:
@@ -2982,17 +2983,27 @@ def draw_bone_prop_search(
         human_bone.node,
         text="",
         icon=human_bone_specification.icon,
+        simple=not human_bones.filter_by_human_bone_hierarchy,
     )
 
     if not show_diagnostics:
         return
 
     bone_name = human_bone.node.bone_name
-    if bone_name and bone_name not in human_bone.node.bone_name_candidates:
+    if human_bones.filter_by_human_bone_hierarchy:
+        if bone_name and bone_name not in human_bone.node.bone_name_candidates:
+            icon = "ERROR"
+            row.alert = True
+        else:
+            icon = "VIEWZOOM"
+    elif bone_name and any(
+        it.node.bone_name == bone_name and it != human_bone
+        for it in human_bones.human_bone_name_to_human_bone().values()
+    ):
         icon = "ERROR"
         row.alert = True
     else:
-        icon = "VIEWZOOM"
+        return
 
     op = layout_operator(
         row,
@@ -3047,7 +3058,7 @@ class VRM_OT_show_vrm1_bone_assignment_diagnostics(Operator):
             return
         human_bone_specification = HumanBoneSpecifications.get(human_bone_name)
 
-        layout = self.layout
+        layout = self.layout.box()
         head_row = layout.row()
         head_row.alignment = "LEFT"
         head_row.label(
@@ -3071,11 +3082,31 @@ class VRM_OT_show_vrm1_bone_assignment_diagnostics(Operator):
 
         ext = get_armature_extension(armature_data)
         humanoid = ext.vrm1.humanoid
-        human_bone_name_to_human_bone = (
-            humanoid.human_bones.human_bone_name_to_human_bone()
-        )
+        human_bones = humanoid.human_bones
+        human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
         human_bone = human_bone_name_to_human_bone.get(human_bone_name)
         if not human_bone:
+            return
+
+        if not human_bones.filter_by_human_bone_hierarchy:
+            error_messages = human_bones.human_bone_duplication_error_messages()
+            for bone_name, line in error_messages:
+                if human_bone.node.bone_name == bone_name:
+                    layout.label(text=line, icon="ERROR", translate=False)
+            if not error_messages and human_bone.node.bone_name:
+                text = pgettext(
+                    'The bone "{bone_name}" of the armature "{armature_object_name}"'
+                    + ' can be assigned to the VRM Human Bone "{human_bone_name}".'
+                ).format(
+                    armature_object_name=self.armature_object_name,
+                    bone_name=human_bone.node.bone_name,
+                    human_bone_name=human_bone_specification.title,
+                )
+                layout.label(
+                    text=text,
+                    translate=False,
+                    icon="CHECKMARK",
+                )
             return
 
         bone_name = human_bone.node.bone_name

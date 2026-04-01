@@ -215,7 +215,8 @@ translation_dictionary: dict[tuple[str, str], str] = {
         'VRM Human Bone "{child}" needs "{parent}".'
         + " Please confirm"
         + ' "VRM" Panel → "Humanoid"'
-        + ' → "Optional VRM Human Bones" → "{parent}".',
+        + ' → "Optional VRM Human Bones"'
+        + ' → "{parent}".',
     ): "VRM骨骼「{child}」需要「{parent}」。"
     + "「VRM」面板「Humanoid」→「VRM可选的骨骼」中"
     + "「{parent}」骨骼设置。",
@@ -504,6 +505,7 @@ translation_dictionary: dict[tuple[str, str], str] = {
         + " It cannot have animations applied"
         + " for humanoid avatars.",
     ): "这个骨架会导出但是不是作为人形。" + "人形avatars的动画不适用。",
+    ("*", "Filter by VRM Human Bone Hierarchy"): "按VRM人形骨骼父子关系过滤",
     (
         "Operator",
         "Blender 4.2 Material Upgrade Warning",

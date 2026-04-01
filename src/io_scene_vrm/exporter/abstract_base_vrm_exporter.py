@@ -4,7 +4,8 @@ import string
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
-from typing import Optional, Union
+from dataclasses import dataclass
+from typing import Optional, TypeVar, Union
 
 import bmesh
 from bpy.types import Armature, Context, Mesh, NodesModifier, Object
@@ -14,12 +15,28 @@ from ..common import shader
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.logger import get_logger
+from ..common.vrm0 import human_bone as vrm0_human_bone
+from ..common.vrm1 import human_bone as vrm1_human_bone
+from ..common.workspace import save_workspace
 from ..editor.extension_accessor import get_armature_extension, get_material_extension
 from ..editor.property_group import BonePropertyGroup, BonePropertyGroupType
 from ..editor.search import MESH_CONVERTIBLE_OBJECT_TYPES
 from ..external import io_scene_gltf2_support
 
+HumanBoneSpecification = TypeVar(
+    "HumanBoneSpecification",
+    vrm0_human_bone.HumanBoneSpecification,
+    vrm1_human_bone.HumanBoneSpecification,
+)
+
+
 logger = get_logger(__name__)
+
+
+@dataclass(frozen=True)
+class FlexibleHierarchyBoneSetup:
+    original_bone_settings: Mapping[str, tuple[Optional[str], bool]]
+    pose_bone_name_and_muted_constraint_name: list[tuple[str, str]]
 
 
 class AbstractBaseVrmExporter(ABC):
@@ -266,6 +283,168 @@ class AbstractBaseVrmExporter(ABC):
             AbstractBaseVrmExporter.exit_hide_mtoon1_outline_geometry_nodes(
                 context, object_name_to_modifier_names
             )
+
+    @staticmethod
+    def create_child_bone_name_to_parent_bone_name(
+        armature_data: Armature,
+        assigned_human_bone_specification_to_bone_name: Mapping[
+            HumanBoneSpecification, str
+        ],
+        all_human_bone_specifications: Sequence[HumanBoneSpecification],
+    ) -> Mapping[str, str]:
+        assigned_bone_names = set(
+            assigned_human_bone_specification_to_bone_name.values()
+        )
+        child_bone_name_to_parent_bone_name: dict[str, str] = {}
+        for human_bone_specification in all_human_bone_specifications:
+            child_bone_name = assigned_human_bone_specification_to_bone_name.get(
+                human_bone_specification
+            )
+            if not child_bone_name:
+                continue
+            child_bone = armature_data.bones.get(child_bone_name)
+            if not child_bone:
+                continue
+            ancestor = human_bone_specification.parent
+            while ancestor:
+                ancestor_bone_name = assigned_human_bone_specification_to_bone_name.get(
+                    ancestor
+                )
+                if not ancestor_bone_name:
+                    if ancestor.requirement:
+                        break
+                    ancestor = ancestor.parent
+                    continue
+
+                search_bone = child_bone.parent
+                while search_bone:
+                    if search_bone.name in assigned_bone_names:
+                        break
+                    search_bone = search_bone.parent
+                if search_bone and search_bone.name == ancestor_bone_name:
+                    break
+
+                child_bone_name_to_parent_bone_name[child_bone_name] = (
+                    ancestor_bone_name
+                )
+                break
+
+        return child_bone_name_to_parent_bone_name
+
+    @staticmethod
+    def reparent_edit_bones(
+        context: Context,
+        armature_object: Object,
+        assigned_bone_names: Mapping[HumanBoneSpecification, str],
+        child_bone_name_to_parent_bone_name: Mapping[str, str],
+    ) -> Mapping[str, tuple[Optional[str], bool]]:
+        if not isinstance(armature_data := armature_object.data, Armature):
+            return {}
+        original_bone_settings: dict[str, tuple[Optional[str], bool]] = {}
+        with save_workspace(context, armature_object, mode="EDIT"):
+            for bone_name in assigned_bone_names.values():
+                edit_bone = armature_data.edit_bones.get(bone_name)
+                if not edit_bone:
+                    continue
+                original_bone_settings[bone_name] = (
+                    edit_bone.parent.name if edit_bone.parent else None,
+                    edit_bone.use_connect,
+                )
+                edit_bone.use_connect = False
+
+            for (
+                child_bone_name,
+                ancestor_bone_name,
+            ) in child_bone_name_to_parent_bone_name.items():
+                child_edit_bone = armature_data.edit_bones.get(child_bone_name)
+                parent_edit_bone = armature_data.edit_bones.get(ancestor_bone_name)
+                if not child_edit_bone or not parent_edit_bone:
+                    continue
+                child_edit_bone.parent = parent_edit_bone
+
+        return original_bone_settings
+
+    @staticmethod
+    def enter_setup_flexible_hierarchy_bones(
+        _context: Context,
+        _armature_object: Object,
+        _export_objects: Sequence[Object],
+    ) -> Optional[FlexibleHierarchyBoneSetup]:
+        """Build the flexible hierarchy setup when a subclass supports it.
+
+        Subclasses can override this to build the assigned-bone map and call
+        ``reparent_edit_bones``. The default returns ``None``.
+        """
+        return None
+
+    @staticmethod
+    def leave_setup_flexible_hierarchy_bones(
+        context: Context,
+        armature_object: Object,
+        flexible_hierarchy_bone_setup: FlexibleHierarchyBoneSetup,
+    ) -> None:
+        """Restore bone parents to the saved state.
+
+        Use the state recorded by ``enter_setup_flexible_hierarchy_bones``.
+        """
+        armature_data = armature_object.data
+        if not isinstance(armature_data, Armature):
+            return
+
+        with save_workspace(context, armature_object, mode="EDIT"):
+            for (
+                bone_name
+            ) in flexible_hierarchy_bone_setup.original_bone_settings.keys():
+                edit_bone = armature_data.edit_bones.get(bone_name)
+                if edit_bone:
+                    edit_bone.parent = None
+                    edit_bone.use_connect = False
+
+            for bone_name, (
+                parent_name,
+                use_connect,
+            ) in flexible_hierarchy_bone_setup.original_bone_settings.items():
+                edit_bone = armature_data.edit_bones.get(bone_name)
+                if not edit_bone:
+                    continue
+                if parent_name:
+                    parent_edit_bone = armature_data.edit_bones.get(parent_name)
+                    if parent_edit_bone:
+                        edit_bone.parent = parent_edit_bone
+                edit_bone.use_connect = use_connect
+
+        for pose_bone_name, muted_constraint_name in reversed(
+            flexible_hierarchy_bone_setup.pose_bone_name_and_muted_constraint_name
+        ):
+            pose_bone = armature_object.pose.bones.get(pose_bone_name)
+            if not pose_bone:
+                continue
+            constraint = pose_bone.constraints.get(muted_constraint_name)
+            if constraint and constraint.mute:
+                constraint.mute = False
+
+    @classmethod
+    @contextmanager
+    def setup_flexible_hierarchy_bones(
+        cls,
+        context: Context,
+        armature: Object,
+        export_objects: Sequence[Object],
+    ) -> Iterator[None]:
+        flexible_hierarchy_bone_setup = cls.enter_setup_flexible_hierarchy_bones(
+            context,
+            armature,
+            export_objects,
+        )
+        try:
+            yield
+        finally:
+            if flexible_hierarchy_bone_setup is not None:
+                cls.leave_setup_flexible_hierarchy_bones(
+                    context,
+                    armature,
+                    flexible_hierarchy_bone_setup,
+                )
 
     @staticmethod
     def setup_mtoon_gltf_fallback_nodes(context: Context, *, is_vrm0: bool) -> None:
