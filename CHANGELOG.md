@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.26.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.25.0...v3.26.0) (2026-04-03)
+
+
+### 🚀 Features
+
+* add mode to ignore Human Bone hierarchy constraints and reconstruct on export ([d8b9ef8](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d8b9ef8cdc37d8fb900a9365d3e229042acfc31c))
+
 ## [3.25.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.24.0...v3.25.0) (2026-03-28)
 
 
