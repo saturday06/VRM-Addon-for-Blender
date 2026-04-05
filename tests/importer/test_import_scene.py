@@ -49,7 +49,7 @@ class __TestImportSceneBrokenVrmBase(AddonTestCase):
         if (
             vrm_path.name == "empty.vrm"
             and bpy.app.binary_path
-            and (4, 5) <= bpy.app.version < (5,)
+            and (4, 5) <= bpy.app.version < (4, 5, 8)
         ):
             success = False
 
