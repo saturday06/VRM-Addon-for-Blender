@@ -831,30 +831,45 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
             )
             bpy_object.empty_display_type = "SPHERE"
 
-        if bone_name:
-            if bpy_object.parent_type != "BONE":
+        parent_obj = bpy_object.parent
+        if not parent_obj:
+            return
+
+        if parent_obj.type != "ARMATURE" or not bone_name:
+            if bpy_object.parent_type != "OBJECT":
                 logger.warning(
-                    "Collider %s is not parented to a bone. Parenting to the bone %s.",
+                    "Collider %s is parented to a bone but no bone is assigned."
+                    " Changing to object parenting.",
                     self.path_from_id(),
-                    bone_name,
                 )
-                bpy_object.parent_type = "BONE"
-            if bpy_object.parent_bone != bone_name:
-                logger.warning(
-                    "Collider %s is parented to a different bone %s."
-                    " Changing to the bone %s.",
-                    self.path_from_id(),
-                    bpy_object.parent_bone,
-                    bone_name,
-                )
-                bpy_object.parent_bone = bone_name
-        elif bpy_object.parent_type != "OBJECT":
+                bpy_object.parent_type = "OBJECT"
+                if bpy_object.parent_bone:
+                    logger.warning(
+                        "Collider %s has a stale parent bone %s while using object"
+                        " parenting. Clearing the parent bone.",
+                        self.path_from_id(),
+                        bpy_object.parent_bone,
+                    )
+                    bpy_object.parent_bone = ""
+            return
+
+        if bpy_object.parent_type != "BONE":
             logger.warning(
-                "Collider %s is parented to a bone but no bone is assigned."
-                " Changing to object parenting.",
+                "Collider %s is not parented to a bone. Parenting to the bone %s.",
                 self.path_from_id(),
+                bone_name,
             )
-            bpy_object.parent_type = "OBJECT"
+            bpy_object.parent_type = "BONE"
+
+        if bpy_object.parent_bone != bone_name:
+            logger.warning(
+                "Collider %s is parented to a different bone %s."
+                " Changing to the bone %s.",
+                self.path_from_id(),
+                bpy_object.parent_bone,
+                bone_name,
+            )
+            bpy_object.parent_bone = bone_name
 
     if TYPE_CHECKING:
         # This code is auto generated.
