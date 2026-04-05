@@ -2300,6 +2300,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         }
         for pose_bone in armature_object.pose.bones:
             for constraint in pose_bone.constraints:
+                if not isinstance(constraint, Constraint):
+                    continue
                 if constraint.mute:
                     continue
                 if constraint in vrm_constraints:
@@ -2626,7 +2628,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if not bone:
                 continue
             constraint = bone.constraints.get(constraint_name)
-            if not constraint:
+            if not isinstance(constraint, Constraint):
                 continue
             constraint.mute = False
 
@@ -2637,7 +2639,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if not obj:
                 continue
             constraint = obj.constraints.get(constraint_name)
-            if not constraint:
+            if not isinstance(constraint, Constraint):
                 continue
             constraint.mute = False
 

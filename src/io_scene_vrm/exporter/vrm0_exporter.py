@@ -14,6 +14,7 @@ from typing import Final, Optional, Union
 import bpy
 from bpy.types import (
     Armature,
+    Constraint,
     Context,
     Curve,
     Image,
@@ -316,6 +317,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         bone_name_and_muted_constraint_name: list[tuple[str, str]] = []
         for pose_bone in armature_object.pose.bones:
             for constraint in pose_bone.constraints:
+                if not isinstance(constraint, Constraint):
+                    continue
                 if constraint.mute:
                     continue
                 bone_name_and_muted_constraint_name.append(

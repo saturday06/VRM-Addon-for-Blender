@@ -510,6 +510,8 @@ def export_object_constraints(
 
     for obj in objs:
         for constraint in obj.constraints:
+            if not isinstance(constraint, Constraint):
+                continue
             roll_constraint = roll_constraint_or_none(constraint, objs, armature)
             if roll_constraint:
                 roll_constraints[obj.name] = roll_constraint
@@ -542,6 +544,8 @@ def export_bone_constraints(
 
     for bone in armature.pose.bones:
         for constraint in bone.constraints:
+            if not isinstance(constraint, Constraint):
+                continue
             roll_constraint = roll_constraint_or_none(constraint, objs, armature)
             if roll_constraint:
                 roll_constraints[bone.name] = roll_constraint

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Optional, TypeVar, Union
 
 import bmesh
-from bpy.types import Armature, Context, Mesh, NodesModifier, Object
+from bpy.types import Armature, Constraint, Context, Mesh, NodesModifier, Object
 from mathutils import Vector
 
 from ..common import shader
@@ -420,7 +420,7 @@ class AbstractBaseVrmExporter(ABC):
             if not pose_bone:
                 continue
             constraint = pose_bone.constraints.get(muted_constraint_name)
-            if constraint and constraint.mute:
+            if isinstance(constraint, Constraint) and constraint.mute:
                 constraint.mute = False
 
     @classmethod

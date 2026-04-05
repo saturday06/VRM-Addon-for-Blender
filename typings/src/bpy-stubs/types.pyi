@@ -544,7 +544,15 @@ class EditBone(bpy_struct):
         roll: bool = True,
     ) -> None: ...
 
-class PoseBoneConstraints(bpy_prop_collection["Constraint"]):
+class PoseBoneConstraints(
+    bpy_prop_collection[
+        Constraint
+        |
+        # Removed constraints such as the Null constraint from Blender 2.40 become
+        # UnknownType
+        UnknownType
+    ]
+):
     def new(self, type: str) -> Constraint: ...
 
 class PoseBone(bpy_struct, __CustomProperty):
@@ -1876,7 +1884,15 @@ class ChildOfConstraint(Constraint):
     subtarget: str
     target: Object | None
 
-class ObjectConstraints(bpy_prop_collection[Constraint]):
+class ObjectConstraints(
+    bpy_prop_collection[
+        Constraint
+        |
+        # Removed constraints such as the Null constraint from Blender 2.40 become
+        # UnknownType
+        UnknownType
+    ]
+):
     def new(self, type: str) -> Constraint: ...
 
 class DampedTrackConstraint(Constraint):
