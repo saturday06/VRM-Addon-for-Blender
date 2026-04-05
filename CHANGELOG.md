@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.26.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.0...v3.26.1) (2026-04-05)
+
+
+### 🐛 Bug Fixes
+
+* fix collider reparent error on save ([11d7675](https://github.com/saturday06/VRM-Addon-for-Blender/commit/11d7675b4f85ac4f226fd81b7528c5babf19c7b9))
+
 ## [3.26.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.25.0...v3.26.0) (2026-04-03)
 
 
