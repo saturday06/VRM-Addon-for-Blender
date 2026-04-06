@@ -641,7 +641,7 @@ def save_pre(_unused: object) -> None:
     writable_context.trigger_writable_context_becomes_available_once_handlers(
         context, load_post=False
     )
-    migration.migrate_all_objects(context)
+    migration.migrate_all_objects(context, heavy_migration=False)
 
 
 def setup_once_when_writable_context_becomes_available(
@@ -650,7 +650,7 @@ def setup_once_when_writable_context_becomes_available(
     """Execute setup process when a writable Context becomes available."""
     if preferences.get_preferences(context).add_mtoon_shader_node_group:
         shader.add_mtoon1_auto_setup_shader_node_group(context)
-    migration.migrate_all_objects(context, show_progress=True)
+    migration.migrate_all_objects(context, heavy_migration=False)
     mtoon1_property_group.setup_drivers(context)
     subscription.setup_subscription(load_post=load_post)
     spring_bone1_handler.reset_state(context)

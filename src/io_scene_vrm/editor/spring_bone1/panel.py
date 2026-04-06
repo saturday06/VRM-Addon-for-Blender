@@ -183,7 +183,7 @@ def draw_spring_bone1_spring_bone_layout(
     layout: UILayout,
     spring_bone: SpringBone1SpringBonePropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    defer_migrate(armature.name, heavy_migration=True)
 
     layout.prop(spring_bone, "enable_animation")
     # layout.operator(ops.VRM_OT_reset_spring_bone1_animation_state.bl_idname)

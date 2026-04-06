@@ -773,7 +773,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         self.load_vrm0_secondary_animation(
             vrm0.secondary_animation, vrm0_extension.get("secondaryAnimation")
         )
-        migration.migrate(self.context, armature.name)
+        migration.migrate(self.context, armature.name, heavy_migration=True)
 
     def load_vrm0_meta(self, meta: Vrm0MetaPropertyGroup, meta_dict: Json) -> None:
         if not isinstance(meta_dict, dict):

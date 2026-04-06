@@ -38,7 +38,7 @@ def draw_khr_xmp_json_ld_packet_layout(
     layout: UILayout,
     packet: KhrXmpJsonLdKhrCharacterPacketPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    defer_migrate(armature.name, heavy_migration=False)
 
     thumbnail_image_column = layout.column()
     thumbnail_image_column.label(text="Thumbnail Image:")

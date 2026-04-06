@@ -124,4 +124,4 @@ def on_change_bpy_bone_name() -> None:
 def on_change_bpy_armature_name() -> None:
     context = bpy.context
 
-    migrate_all_objects(context, skip_non_migrated_armatures=True)
+    migrate_all_objects(context, heavy_migration=False)

@@ -297,7 +297,7 @@ def export_vrm(
                 message = "Failed to generate temporary armature"
                 raise RuntimeError(message)
 
-        migration.migrate(context, armature_object.name)
+        migration.migrate(context, armature_object.name, heavy_migration=True)
 
         if is_khr_character:
             exporter: AbstractBaseVrmExporter = KhrCharacterExporter(

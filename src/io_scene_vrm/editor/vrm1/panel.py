@@ -309,7 +309,7 @@ def draw_vrm1_humanoid_layout(
     layout: UILayout,
     humanoid: Vrm1HumanoidPropertyGroup,
 ) -> None:
-    if defer_migrate(armature.name):
+    if defer_migrate(armature.name, heavy_migration=True):
         data = armature.data
         if not isinstance(data, Armature):
             return
@@ -457,7 +457,7 @@ def draw_vrm1_first_person_layout(
     layout: UILayout,
     first_person: Vrm1FirstPersonPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    defer_migrate(armature.name, heavy_migration=False)
     column = layout.column()
     column.label(text="Mesh Annotations", icon="FULLSCREEN_EXIT")
 
@@ -557,7 +557,7 @@ def draw_vrm1_look_at_layout(
     layout: UILayout,
     look_at: Vrm1LookAtPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    defer_migrate(armature.name, heavy_migration=False)
 
     layout.prop(look_at, "enable_preview")
 
@@ -792,7 +792,7 @@ def draw_vrm1_expressions_layout(
     layout: UILayout,
     expressions: Vrm1ExpressionsPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    defer_migrate(armature.name, heavy_migration=True)
 
     expression_preset_and_expressions = (
         expressions.preset.expression_preset_and_expressions()
@@ -1050,7 +1050,7 @@ def draw_vrm1_meta_layout(
     layout: UILayout,
     meta: Vrm1MetaPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    defer_migrate(armature.name, heavy_migration=False)
 
     thumbnail_column = layout.column()
     thumbnail_column.label(text="Thumbnail:")

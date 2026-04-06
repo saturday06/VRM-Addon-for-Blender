@@ -32,17 +32,20 @@ class State:
 state: Final = State()
 
 
-def is_unnecessary(armature_data: Armature) -> bool:
+def is_unnecessary(armature_data: Armature, *, heavy_migration: bool) -> bool:
     ext = get_armature_extension(armature_data)
     return (
         tuple(ext.addon_version) >= get_addon_version()
-        and vrm0_migration.is_unnecessary(ext.vrm0)
-        and vrm1_migration.is_unnecessary(ext.vrm1)
+        and vrm0_migration.is_unnecessary(ext.vrm0, heavy_migration=heavy_migration)
+        and vrm1_migration.is_unnecessary(ext.vrm1, heavy_migration=heavy_migration)
         and spring_bone1_migration.is_unnecessary(ext.spring_bone1)
     )
 
 
-def defer_migrate(armature_object_name: str) -> bool:
+deferred_migration_parameters: Final[set[tuple[str, bool]]] = set()
+
+
+def defer_migrate(armature_object_name: str, *, heavy_migration: bool) -> bool:
     context = bpy.context
 
     armature = context.blend_data.objects.get(armature_object_name)
@@ -51,24 +54,45 @@ def defer_migrate(armature_object_name: str) -> bool:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return False
-    if is_unnecessary(armature_data):
+    if is_unnecessary(armature_data, heavy_migration=heavy_migration):
         return True
-    bpy.app.timers.register(
-        functools.partial(
-            migrate_timer_callback,
-            armature_object_name,
-        )
-    )
+
+    parameter = (armature_object_name, heavy_migration)
+    light_parameter = (armature_object_name, False)
+    heavy_parameter = (armature_object_name, True)
+
+    if parameter in deferred_migration_parameters:
+        return False
+
+    if heavy_migration:
+        deferred_migration_parameters.add(parameter)
+        deferred_migration_parameters.discard(light_parameter)
+    elif heavy_parameter not in deferred_migration_parameters:
+        deferred_migration_parameters.add(parameter)
+    else:
+        return False
+
+    if not bpy.app.timers.is_registered(migrate_timer_callback):
+        bpy.app.timers.register(migrate_timer_callback)
     return False
 
 
-def migrate_timer_callback(armature_object_name: str) -> None:
+def migrate_timer_callback() -> None:
     """Match the type of migrate() to bpy.app.timers.register."""
     context = bpy.context  # Context cannot span frames, so get it anew
-    migrate(context, armature_object_name)
+
+    sorted_deferred_migration_parameters = sorted(deferred_migration_parameters)
+    deferred_migration_parameters.clear()
+    for armature_object_name, heavy_migration in sorted_deferred_migration_parameters:
+        migrate(context, armature_object_name, heavy_migration=heavy_migration)
 
 
-def migrate(context: Optional[Context], armature_object_name: str) -> bool:
+def migrate(
+    context: Optional[Context],
+    armature_object_name: str,
+    *,
+    heavy_migration: bool,
+) -> bool:
     if context is None:
         context = bpy.context
 
@@ -79,13 +103,13 @@ def migrate(context: Optional[Context], armature_object_name: str) -> bool:
     if not isinstance(armature_data, Armature):
         return False
 
-    if is_unnecessary(armature_data):
+    if is_unnecessary(armature_data, heavy_migration=heavy_migration):
         return True
 
     ext = get_armature_extension(armature_data)
 
-    vrm0_migration.migrate(context, ext.vrm0, armature)
-    vrm1_migration.migrate(context, ext.vrm1, armature)
+    vrm0_migration.migrate(context, ext.vrm0, armature, heavy_migration=heavy_migration)
+    vrm1_migration.migrate(context, ext.vrm1, armature, heavy_migration=heavy_migration)
     spring_bone1_migration.migrate(context, armature)
 
     if (
@@ -109,19 +133,12 @@ def migrate(context: Optional[Context], armature_object_name: str) -> bool:
 def migrate_all_objects(
     context: Context,
     *,
-    skip_non_migrated_armatures: bool = False,
+    heavy_migration: bool,
     show_progress: bool = False,
 ) -> None:
     for obj in context.blend_data.objects:
-        if obj.type == "ARMATURE" and isinstance(armature_data := obj.data, Armature):
-            if skip_non_migrated_armatures:
-                ext = get_armature_extension(armature_data)
-                if (
-                    tuple(ext.addon_version)
-                    == VrmAddonArmatureExtensionPropertyGroup.INITIAL_ADDON_VERSION
-                ):
-                    continue
-            migrate(context, obj.name)
+        if obj.type == "ARMATURE":
+            migrate(context, obj.name, heavy_migration=heavy_migration)
 
     VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(context)
     mtoon1_migration.migrate(context, show_progress=show_progress)

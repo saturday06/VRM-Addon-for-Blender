@@ -346,7 +346,7 @@ def draw_vrm0_humanoid_layout(
     layout: UILayout,
     humanoid: Vrm0HumanoidPropertyGroup,
 ) -> None:
-    if defer_migrate(armature.name):
+    if defer_migrate(armature.name, heavy_migration=True):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
@@ -486,7 +486,7 @@ def draw_vrm0_first_person_layout(
     layout: UILayout,
     first_person: Vrm0FirstPersonPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    defer_migrate(armature.name, heavy_migration=False)
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
@@ -614,7 +614,7 @@ def draw_vrm0_blend_shape_master_layout(
     layout: UILayout,
     blend_shape_master: Vrm0BlendShapeMasterPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    defer_migrate(armature.name, heavy_migration=False)
     blend_data = context.blend_data
 
     (
@@ -889,7 +889,7 @@ def draw_vrm0_secondary_animation_layout(
     layout: UILayout,
     secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    defer_migrate(armature.name, heavy_migration=False)
     draw_vrm0_secondary_animation_bone_groups_layout(
         armature, layout, secondary_animation
     )
@@ -1179,7 +1179,7 @@ def draw_vrm0_meta_layout(
     layout: UILayout,
     meta: Vrm0MetaPropertyGroup,
 ) -> None:
-    defer_migrate(armature.name)
+    defer_migrate(armature.name, heavy_migration=False)
 
     thumbnail_column = layout.column()
     thumbnail_column.label(text="Thumbnail:")

@@ -622,7 +622,7 @@ class ICYP_OT_make_armature(Operator):
             offset_from_head_bone=(-self.eye_depth, self.head_size() / 6, 0),
         )
         if not self.skip_heavy_armature_setup:
-            migration.migrate(context, armature.name)
+            migration.migrate(context, armature.name, heavy_migration=True)
 
     @classmethod
     def make_extension_setting_and_metas(

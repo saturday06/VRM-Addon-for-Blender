@@ -943,7 +943,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             )
 
         self.load_node_constraint1()
-        migration.migrate(self.context, armature.name)
+        migration.migrate(self.context, armature.name, heavy_migration=True)
 
     def load_vrm1_meta(self, meta: Vrm1MetaPropertyGroup, meta_dict: Json) -> None:
         if not isinstance(meta_dict, dict):

@@ -353,7 +353,7 @@ class WM_OT_vrm_validator(Operator):
                 )
 
         if execute_migration:
-            migration.migrate(context, armature.name)
+            migration.migrate(context, armature.name, heavy_migration=True)
 
         for bone in armature_data.bones:
             if is_vrm0 and bone.name in state.node_names:  # nodes name is unique

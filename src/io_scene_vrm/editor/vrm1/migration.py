@@ -201,14 +201,22 @@ def migrate_auto_pose(_context: Context, armature_data: Armature) -> None:
         humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
 
 
-def is_unnecessary(vrm1: Vrm1PropertyGroup) -> bool:
+def is_unnecessary(vrm1: Vrm1PropertyGroup, *, heavy_migration: bool) -> bool:
+    if not heavy_migration:
+        return True
     return (
         not vrm1.humanoid.human_bones.initial_automatic_bone_assignment
         and not vrm1.expressions.initial_automatic_expression_assignment
     )
 
 
-def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None:
+def migrate(
+    context: Context,
+    vrm1: Vrm1PropertyGroup,
+    armature: Object,
+    *,
+    heavy_migration: bool,
+) -> None:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
@@ -217,11 +225,12 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
     human_bones.pop("last_bone_names", None)
     human_bones.pop("last_bone_names_str", None)
     Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
-    Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
-        context, armature_data.name
-    )
+    if heavy_migration:
+        Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
+            context, armature_data.name
+        )
 
-    if human_bones.initial_automatic_bone_assignment:
+    if heavy_migration and human_bones.initial_automatic_bone_assignment:
         human_bones.initial_automatic_bone_assignment = False
         human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
         if all(not b.node.bone_name for b in human_bone_name_to_human_bone.values()):
@@ -300,9 +309,10 @@ def migrate(context: Context, vrm1: Vrm1PropertyGroup, armature: Object) -> None
             look_at = get_armature_extension(armature_data).vrm1.look_at
             look_at.type = look_at.TYPE_EXPRESSION.identifier
 
-    Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
-        context,
-        armature_data.name,
-        force=True,
-    )
+    if heavy_migration:
+        Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
+            context,
+            armature_data.name,
+            force=True,
+        )
     update_vrm1_expression_ui_list_elements(context)

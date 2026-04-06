@@ -697,8 +697,8 @@ def migrate_collider_group_references_to_uuid(
             collider_group_reference.collider_group_uuid = collider_group_uuid
 
 
-def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
-    if vrm0.humanoid.initial_automatic_bone_assignment:
+def is_unnecessary(vrm0: Vrm0PropertyGroup, *, heavy_migration: bool) -> bool:
+    if heavy_migration and vrm0.humanoid.initial_automatic_bone_assignment:
         return False
     if vrm0.first_person.first_person_bone.bone_name:
         return True
@@ -708,7 +708,13 @@ def is_unnecessary(vrm0: Vrm0PropertyGroup) -> bool:
     )
 
 
-def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None:
+def migrate(
+    context: Context,
+    vrm0: Vrm0PropertyGroup,
+    armature: Object,
+    *,
+    heavy_migration: bool,
+) -> None:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
@@ -737,15 +743,16 @@ def migrate(context: Context, vrm0: Vrm0PropertyGroup, armature: Object) -> None
     migrate_auto_pose(context, armature_data)
     migrate_saved_mesh_object_name_to_restore(context, armature_data)
 
-    Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
-        context,
-        armature_data.name,
-        force=True,
-    )
+    if heavy_migration:
+        Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
+            context,
+            armature_data.name,
+            force=True,
+        )
 
     vrm0.humanoid.pop("last_bone_names", None)
     vrm0.humanoid.pop("last_bone_names_str", None)
-    if vrm0.humanoid.initial_automatic_bone_assignment:
+    if heavy_migration and vrm0.humanoid.initial_automatic_bone_assignment:
         vrm0.humanoid.initial_automatic_bone_assignment = False
         if all(not b.node.bone_name for b in vrm0.humanoid.human_bones):
             assign_vrm0_humanoid_human_bones_automatically(context, armature)
