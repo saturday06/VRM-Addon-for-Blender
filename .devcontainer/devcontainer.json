@@ -150,6 +150,14 @@
                 {
                   "localRoot": "${workspaceFolder}/src/io_scene_vrm",
                   "remoteRoot": "/home/developer/.config/blender/5.0/extensions/user_default/vrm"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src/io_scene_vrm",
+                  "remoteRoot": "/home/developer/.config/blender/5.1/extensions/user_default/vrm"
+                },
+                {
+                  "localRoot": "${workspaceFolder}/src/io_scene_vrm",
+                  "remoteRoot": "/home/developer/.config/blender/5.2/extensions/user_default/vrm"
                 }
               ]
             }

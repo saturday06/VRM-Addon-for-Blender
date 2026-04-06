@@ -19,7 +19,7 @@ export default defineConfig({
       label: "English",
       description:
         "VRM format adds VRM import, export, and editing capabilities to Blender." +
-        " It supports Blender versions 2.93 to 5.0.",
+        " It supports Blender versions 2.93 to 5.1.",
       themeConfig: {
         nav: [
           {
@@ -114,7 +114,7 @@ export default defineConfig({
       label: "日本語",
       description:
         "VRMファイルのインポート・エクスポート・編集機能をBlenderに追加するアドオンです。" +
-        "Blender 2.93 から 5.0 をサポートしています。",
+        "Blender 2.93 から 5.1 をサポートしています。",
       themeConfig: {
         nav: [
           {
