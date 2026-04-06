@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.26.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.1...v3.26.2) (2026-04-06)
+
+
+### 🐛 Bug Fixes
+
+* fix export error when a Null Constraint is present in the file ([8fc941b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/8fc941b563ad06f6e6392d60d2f7559b4d89a968))
+
 ## [3.26.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.0...v3.26.1) (2026-04-05)
 
 
