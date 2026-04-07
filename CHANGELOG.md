@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.26.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.2...v3.26.3) (2026-04-07)
+
+
+### 🐛 Bug Fixes
+
+* fix a freeze that occurred when loading a blend file ([dacaf02](https://github.com/saturday06/VRM-Addon-for-Blender/commit/dacaf021d45d6c70a95a1e21ff83a6651802449a))
+
 ## [3.26.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.1...v3.26.2) (2026-04-06)
 
 
