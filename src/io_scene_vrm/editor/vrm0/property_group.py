@@ -251,10 +251,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
             )
         return messages
 
-    def error_messages(self) -> list[str]:
-        if not isinstance(armature_data := self.id_data, Armature):
-            raise TypeError
-
+    def error_messages(self) -> Sequence[str]:
         messages = [
             message for _, message in self.human_bone_duplication_error_messages()
         ]
@@ -266,19 +263,26 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
             if human_bone.bone == name
             and (human_bone_name := HumanBoneName.from_str(name))
         ]:
+            specification = HumanBoneSpecifications.get(human_bone_name)
             bone_name = human_bone.node.bone_name
-            if self.filter_by_human_bone_hierarchy:
-                if bone_name in human_bone.node.bone_name_candidates:
-                    continue
-            elif bone_name in armature_data.bones:
+            if not bone_name:
+                if specification.requirement:
+                    messages.append(
+                        pgettext(
+                            'Please assign Required VRM Human Bone "{human_bone_name}".'
+                        ).format(human_bone_name=specification.title)
+                    )
                 continue
-
-            bone_title = HumanBoneSpecifications.get(human_bone_name).title
-            messages.append(
-                pgettext('Please assign Required VRM Human Bone "{name}".').format(
-                    name=bone_title
+            if (
+                self.filter_by_human_bone_hierarchy
+                and bone_name not in human_bone.node.bone_name_candidates
+            ):
+                messages.append(
+                    pgettext(
+                        'Couldn\'t assign "{bone_name}" bone'
+                        + ' to VRM Human Bone "{human_bone_name}". '
+                    ).format(bone_name=bone_name, human_bone_name=specification.title)
                 )
-            )
 
         return messages
 

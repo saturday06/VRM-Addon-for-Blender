@@ -177,6 +177,11 @@ translation_dictionary: dict[tuple[str, str], str] = {
     + "「{humanoid_name}」如果层次结构有误。",
     (
         "*",
+        'Couldn\'t assign "{bone_name}" bone'
+        + ' to VRM Human Bone "{human_bone_name}". ',
+    ): "骨骼「{bone_name}」到 VRM 骨「{human_bone}」无法分配。",
+    (
+        "*",
         'Couldn\'t assign "{bone}" bone'
         + ' to VRM Human Bone "{human_bone}". '
         + 'Confirm hierarchy of "{bone}" and its children. '

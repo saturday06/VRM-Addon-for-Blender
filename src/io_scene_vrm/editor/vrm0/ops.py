@@ -2698,6 +2698,9 @@ def assign_vrm0_humanoid_human_bones_automatically(
     if not isinstance(armature_data, Armature):
         return {"CANCELLED"}
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
+    Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
+        context, armature_data.name
+    )
     humanoid = get_armature_extension(armature_data).vrm0.humanoid
     bones = armature_data.bones
 

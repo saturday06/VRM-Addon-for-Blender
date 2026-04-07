@@ -352,37 +352,48 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
             HumanBoneName.RIGHT_LITTLE_DISTAL: self.right_little_distal,
         }
 
-    def error_messages(self) -> list[str]:
+    def error_messages(self) -> Sequence[str]:
         if self.allow_non_humanoid_rig:
             return []
-
         messages = [
             message for _, message in self.human_bone_duplication_error_messages()
         ]
-        human_bone_name_to_human_bone = self.human_bone_name_to_human_bone()
 
-        for name, human_bone in human_bone_name_to_human_bone.items():
-            specification = HumanBoneSpecifications.get(name)
-            if not human_bone.node.bone_name:
+        human_bone_name_to_human_bone = self.human_bone_name_to_human_bone()
+        for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
+            specification = HumanBoneSpecifications.get(human_bone_name)
+            bone_name = human_bone.node.bone_name
+            if not bone_name:
                 if specification.requirement:
                     messages.append(
                         pgettext(
-                            'Please assign Required VRM Human Bone "{name}".'
-                        ).format(name=specification.title)
+                            'Please assign Required VRM Human Bone "{human_bone_name}".'
+                        ).format(human_bone_name=specification.title)
                     )
+                continue
+            if (
+                self.filter_by_human_bone_hierarchy
+                and bone_name not in human_bone.node.bone_name_candidates
+            ):
+                messages.append(
+                    pgettext(
+                        'Couldn\'t assign "{bone_name}" bone'
+                        + ' to VRM Human Bone "{human_bone_name}". '
+                    ).format(bone_name=bone_name, human_bone_name=specification.title)
+                )
                 continue
             if not specification.parent_requirement:
                 continue
             if not specification.parent_name:
-                logger.error("No parent for '%s' in spec", name)
+                logger.error("No parent for '%s' in spec", human_bone_name)
                 continue
             parent = human_bone_name_to_human_bone.get(specification.parent_name)
             if not parent:
-                logger.error("No parent for '%s' in dict", name)
+                logger.error("No parent for '%s' in dict", human_bone_name)
                 continue
             parent_specification = specification.parent
             if not parent_specification:
-                logger.error("No parent specification for '%s'", name)
+                logger.error("No parent specification for '%s'", human_bone_name)
                 continue
             if not parent.node.bone_name:
                 messages.append(

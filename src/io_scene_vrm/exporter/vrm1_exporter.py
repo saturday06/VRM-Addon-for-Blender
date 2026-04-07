@@ -2330,29 +2330,13 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             return None
         ext = get_armature_extension(armature_data)
         human_bones = ext.vrm1.humanoid.human_bones
-
-        required_human_bones_are_assigned = True
-        human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
-        for human_bone_specification in HumanBoneSpecifications.all_human_bones:
-            if not human_bone_specification.requirement:
-                continue
-            human_bone = human_bone_name_to_human_bone.get(
-                human_bone_specification.name
-            )
-            if not human_bone:
-                required_human_bones_are_assigned = False
-                break
-            bone_name = human_bone.node.bone_name
-            if not bone_name or bone_name not in armature_data.bones:
-                required_human_bones_are_assigned = False
-                break
-
         if (
-            human_bones.bones_are_correctly_assigned()
-            and required_human_bones_are_assigned
+            not human_bones.allow_non_humanoid_rig
+            and human_bones.bones_are_correctly_assigned()
         ):
             return None
 
+        human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
         human_bone_name_to_bone_name: dict[HumanBoneName, str] = {}
         for human_bone_name, human_bone in human_bone_name_to_human_bone.items():
             if not human_bone.node.bone_name:

@@ -262,6 +262,12 @@ translation_dictionary: dict[tuple[str, str], str] = {
     ("*", "Remove the bone assignment"): "ボーンの割り当てを解除します。",
     (
         "*",
+        'Couldn\'t assign "{bone_name}" bone'
+        + ' to VRM Human Bone "{human_bone_name}". ',
+    ): "ボーン「{bone_name}」をVRMヒューマンボーン「{human_bone}」に"
+    + "割り当てることができませんでした。",
+    (
+        "*",
         'Couldn\'t assign "{bone}" bone'
         + ' to VRM Human Bone "{human_bone}". '
         + 'Confirm hierarchy of "{bone}" and its children. '

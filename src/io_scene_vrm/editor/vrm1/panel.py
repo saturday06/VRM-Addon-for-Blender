@@ -322,32 +322,32 @@ def draw_vrm1_humanoid_layout(
 
     armature_box = layout
 
-    t_pose_box = armature_box.box()
-    column = t_pose_box.row().column()
-    column.label(text="VRM T-Pose", icon="OUTLINER_OB_ARMATURE")
-    column.prop(humanoid, "pose")
-    if humanoid.pose == humanoid.POSE_CUSTOM_POSE.identifier:
-        label = "Pose Library" if bpy.app.version < (3, 0) else "Pose Asset"
-        column.prop_search(
-            humanoid,
-            "pose_library",
-            context.blend_data,
-            "actions",
-            text=label,
-            translate=False,
-        )
-        pose_library = humanoid.pose_library
-        if pose_library and pose_library.pose_markers:
+    if not human_bones.allow_non_humanoid_rig:
+        t_pose_box = armature_box.box()
+        column = t_pose_box.row().column()
+        column.label(text="VRM T-Pose", icon="OUTLINER_OB_ARMATURE")
+        column.prop(humanoid, "pose")
+        if humanoid.pose == humanoid.POSE_CUSTOM_POSE.identifier:
+            label = "Pose Library" if bpy.app.version < (3, 0) else "Pose Asset"
             column.prop_search(
                 humanoid,
-                "pose_marker_name",
-                pose_library,
-                "pose_markers",
-                text="Pose",
+                "pose_library",
+                context.blend_data,
+                "actions",
+                text=label,
                 translate=False,
             )
+            pose_library = humanoid.pose_library
+            if pose_library and pose_library.pose_markers:
+                column.prop_search(
+                    humanoid,
+                    "pose_marker_name",
+                    pose_library,
+                    "pose_markers",
+                    text="Pose",
+                    translate=False,
+                )
 
-    if not human_bones.allow_non_humanoid_rig:
         bone_operator_column = layout.column()
         layout_operator(
             bone_operator_column,

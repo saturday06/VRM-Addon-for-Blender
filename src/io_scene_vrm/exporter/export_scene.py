@@ -170,44 +170,36 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
             armature = armatures[0]
             armature_data = armature.data
             if not isinstance(armature_data, Armature):
-                pass
-            elif get_armature_extension(armature_data).is_vrm0():
+                return {"CANCELLED"}
+            ext = get_armature_extension(armature_data)
+            if ext.is_vrm0():
                 Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
-                Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(
-                    context, armature_data.name
-                )
-                humanoid = get_armature_extension(armature_data).vrm0.humanoid
-                if all(
-                    b.node.bone_name not in b.node.bone_name_candidates
-                    for b in humanoid.human_bones
-                ):
-                    assign_vrm0_humanoid_human_bones_automatically(context, armature)
+                humanoid = ext.vrm0.humanoid
                 if not humanoid.bones_are_correctly_assigned():
-                    return ops.wm.vrm_export_human_bones_assignment(
-                        "INVOKE_DEFAULT",
-                        armature_object_name=self.armature_object_name,
-                    )
-            elif get_armature_extension(armature_data).is_vrm1():
+                    if humanoid.initial_automatic_bone_assignment:
+                        humanoid.initial_automatic_bone_assignment = False
+                        assign_vrm0_humanoid_human_bones_automatically(
+                            context, armature
+                        )
+                    if not humanoid.bones_are_correctly_assigned():
+                        return ops.wm.vrm_export_human_bones_assignment(
+                            "INVOKE_DEFAULT",
+                            armature_object_name=self.armature_object_name,
+                        )
+            elif ext.is_vrm1():
                 Vrm1HumanBonesPropertyGroup.fixup_human_bones(armature)
-                Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
-                    context, armature_data.name
-                )
-                human_bones = get_armature_extension(
-                    armature_data
-                ).vrm1.humanoid.human_bones
-                if human_bones.filter_by_human_bone_hierarchy and all(
-                    human_bone.node.bone_name
-                    not in human_bone.node.bone_name_candidates
-                    for human_bone in (
-                        human_bones.human_bone_name_to_human_bone().values()
-                    )
-                ):
-                    assign_vrm1_humanoid_human_bones_automatically(context, armature)
+                human_bones = ext.vrm1.humanoid.human_bones
                 if not human_bones.bones_are_correctly_assigned():
-                    return ops.wm.vrm_export_human_bones_assignment(
-                        "INVOKE_DEFAULT",
-                        armature_object_name=self.armature_object_name,
-                    )
+                    if human_bones.initial_automatic_bone_assignment:
+                        human_bones.initial_automatic_bone_assignment = False
+                        assign_vrm1_humanoid_human_bones_automatically(
+                            context, armature
+                        )
+                    if not human_bones.bones_are_correctly_assigned():
+                        return ops.wm.vrm_export_human_bones_assignment(
+                            "INVOKE_DEFAULT",
+                            armature_object_name=self.armature_object_name,
+                        )
 
         if WM_OT_vrm_validator.detect_errors(
             context,
