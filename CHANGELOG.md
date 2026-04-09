@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.26.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.3...v3.26.4) (2026-04-09)
+
+
+### 🐛 Bug Fixes
+
+* fix random crash on load or migrate armature ([adb9fa2](https://github.com/saturday06/VRM-Addon-for-Blender/commit/adb9fa2b4216dcfc6bfa98bd75b24f412bf0d51d))
+
 ## [3.26.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.2...v3.26.3) (2026-04-07)
 
 
