@@ -6,7 +6,7 @@
 # Do not create a new user as it runs with the super-linter user
 # checkov:skip=CKV_DOCKER_3: "Ensure that a user for the container has been created"
 
-FROM ghcr.io/super-linter/super-linter:v8.5.0@sha256:6831c0a801d353b510e4e468a3209a8a48bf0102e193d5c7e94e57667fdf64eb
+FROM ghcr.io/super-linter/super-linter:v8.6.0@sha256:35955a2af8395c8224c7072732b91350f7f02c2ae9ee751842776ef29092a6cc
 
 # https://github.com/super-linter/super-linter/blob/v7.3.0/README.md?plain=1#L297
 ENV LOG_LEVEL=WARN
