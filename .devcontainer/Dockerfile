@@ -1,8 +1,13 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-FROM ubuntu:24.04@sha256:186072bba1b2f436cbb91ef2567abca677337cfc786c86e107d25b7072feef0c
+FROM cimg/base:current-24.04@sha256:c7693014a5fe7f5c95ac54590b54e2b183995241e082eb20377761916477a3e4
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# cimg/base has PAGER=cat by default, but it is inconvenient in devcontainer, so change it to less.
+ENV PAGER=less
+
+USER root
 
 RUN --mount=type=bind,source=.,target=/root/src/tools <<'INSTALL_PACKAGES'
   set -eu
