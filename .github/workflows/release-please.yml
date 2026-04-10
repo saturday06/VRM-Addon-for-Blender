@@ -42,6 +42,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: release-please
     if: ${{ needs.release-please.result == 'success' && needs.release-please.outputs.release_release_created }}
+    environment: extensions-blender-org
     permissions:
       contents: write
     steps:
