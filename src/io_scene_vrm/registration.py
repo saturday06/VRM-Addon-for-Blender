@@ -667,4 +667,5 @@ def clear_global_variables() -> None:
     vrm1_property_group.clear_global_variables()
     property_group.clear_global_variables()
     mtoon1_migration.clear_global_variables()
+    migration.clear_global_variables()
     handler.clear_global_variables()

@@ -29,7 +29,7 @@ class State:
     blend_file_addon_compatibility_warning_shown: bool = False
 
 
-state: Final = State()
+_state: Final = State()
 
 
 def is_unnecessary(armature_data: Armature, *, heavy_migration: bool) -> bool:
@@ -193,8 +193,8 @@ def validate_blend_file_compatibility(context: Context) -> None:
         app_version_str,
     )
 
-    if not state.blend_file_compatibility_warning_shown:
-        state.blend_file_compatibility_warning_shown = True
+    if not _state.blend_file_compatibility_warning_shown:
+        _state.blend_file_compatibility_warning_shown = True
         # Use timer because dialog disappears automatically if not executed with
         # timer in Blender 4.2.0
         bpy.app.timers.register(
@@ -242,8 +242,8 @@ def validate_blend_file_addon_compatibility(context: Context) -> None:
         installed_addon_version_str,
     )
 
-    if not state.blend_file_compatibility_warning_shown:
-        state.blend_file_compatibility_warning_shown = True
+    if not _state.blend_file_compatibility_warning_shown:
+        _state.blend_file_compatibility_warning_shown = True
         # Use timer because dialog disappears automatically if not executed with
         # timer in Blender 4.2.0
         bpy.app.timers.register(
@@ -273,3 +273,8 @@ def have_vrm_model(context: Context) -> bool:
             context.blend_data.objects,
         )
     )
+
+
+def clear_global_variables() -> None:
+    _state.blend_file_compatibility_warning_shown = False
+    _state.blend_file_addon_compatibility_warning_shown = False

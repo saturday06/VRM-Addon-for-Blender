@@ -8,14 +8,13 @@ from bpy.app.handlers import persistent
 from bpy.types import Depsgraph, Scene
 
 from ..common.logger import get_logger
-from . import migration
 from .extension_accessor import get_armature_extension, get_scene_extension
 from .vrm1.ops import update_vrm1_expression_ui_list_elements
 
 _logger = get_logger(__name__)
 
 
-@dataclass(frozen=True)
+@dataclass
 class State:
     last_scene_names: list[str] = field(default_factory=list[str])
     last_armature_names: list[str] = field(default_factory=list[str])
@@ -82,6 +81,4 @@ def depsgraph_update_post(_scene: Scene, depsgraph: Depsgraph) -> None:
 
 
 def clear_global_variables() -> None:
-    migration.state.blend_file_compatibility_warning_shown = False
-    migration.state.blend_file_addon_compatibility_warning_shown = False
     _state.clear()
