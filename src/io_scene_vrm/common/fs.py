@@ -5,7 +5,7 @@ from typing import Optional
 
 def create_unique_indexed_directory_path(path: Path) -> Path:
     name = path.name
-    max_retry_count = 1000
+    max_retry_count = 100_000
     for count in range(max_retry_count):
         count_str = f".{count}" if count else ""
         path = path.with_name(name + count_str)
@@ -24,7 +24,7 @@ def create_unique_indexed_directory_path(path: Path) -> Path:
 def create_unique_indexed_file_path(path: Path, binary: Optional[bytes] = None) -> Path:
     suffix = path.suffix
     stem = path.stem
-    max_retry_count = 1000
+    max_retry_count = 100_000
     for count in range(max_retry_count):
         count_str = f".{count}" if count else ""
         path = path.with_name(stem + count_str + suffix)
