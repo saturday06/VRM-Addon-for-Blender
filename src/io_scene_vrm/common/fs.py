@@ -28,6 +28,14 @@ def create_unique_indexed_file_path(path: Path, binary: Optional[bytes] = None) 
     suffix = path.suffix
     stem = path.stem
     max_retry_count = 100_000
+
+    folder_path = path.parent
+    try:
+        folder_path.mkdir(parents=True, exist_ok=True)
+    except OSError as exception:
+        message = f"Failed to create parent directory for unique file path: {path}"
+        raise RuntimeError(message) from exception
+
     for count in range(max_retry_count):
         count_str = f".{count}" if count else ""
         path = path.with_name(stem + count_str + suffix)
