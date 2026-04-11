@@ -41,7 +41,7 @@ class State:
     material_blender_4_2_warning_shown: bool = False
 
 
-state: Final = State()
+_state: Final = State()
 
 
 def show_material_blender_4_2_warning_delay(material_name_lines: str) -> None:
@@ -73,8 +73,8 @@ def migrate(context: Context, *, show_progress: bool = False) -> None:
             bpy.app.version,
         )
 
-        if not state.material_blender_4_2_warning_shown:
-            state.material_blender_4_2_warning_shown = True
+        if not _state.material_blender_4_2_warning_shown:
+            _state.material_blender_4_2_warning_shown = True
             # In Blender 4.2.0, if you don't run it with a timer, the dialog will
             # disappear automatically.
             bpy.app.timers.register(
@@ -527,3 +527,7 @@ def migrate_sampler_filter_node(material: Material) -> None:
             and node.interpolation not in GL_LINEAR_IMAGE_INTERPOLATIONS
         ):
             node.interpolation = IMAGE_INTERPOLATION_LINEAR
+
+
+def clear_global_variables() -> None:
+    _state.material_blender_4_2_warning_shown = False

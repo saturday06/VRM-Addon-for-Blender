@@ -58,6 +58,7 @@ from .editor.khr_xmp_json_ld import ops as khr_xmp_json_ld_ops
 from .editor.khr_xmp_json_ld import property_group as khr_xmp_json_ld_property_group
 from .editor.khr_xmp_json_ld import ui_list as khr_xmp_json_ld_ui_list
 from .editor.mtoon1 import handler as mtoon1_handler
+from .editor.mtoon1 import migration as mtoon1_migration
 from .editor.mtoon1 import ops as mtoon1_ops
 from .editor.mtoon1 import panel as mtoon1_panel
 from .editor.mtoon1 import property_group as mtoon1_property_group
@@ -665,5 +666,5 @@ def clear_global_variables() -> None:
     vrm0_property_group.clear_global_variables()
     vrm1_property_group.clear_global_variables()
     property_group.clear_global_variables()
-    mtoon1_handler.clear_global_variables()
+    mtoon1_migration.clear_global_variables()
     handler.clear_global_variables()
