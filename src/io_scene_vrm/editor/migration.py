@@ -247,8 +247,8 @@ def validate_blend_file_addon_compatibility(context: Context) -> None:
         installed_addon_version_str,
     )
 
-    if not _state.blend_file_compatibility_warning_shown:
-        _state.blend_file_compatibility_warning_shown = True
+    if not _state.blend_file_addon_compatibility_warning_shown:
+        _state.blend_file_addon_compatibility_warning_shown = True
         # Use timer because dialog disappears automatically if not executed with
         # timer in Blender 4.2.0
         bpy.app.timers.register(
