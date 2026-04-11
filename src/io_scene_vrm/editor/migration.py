@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import functools
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Final, Optional
 
 import bpy
@@ -27,6 +27,14 @@ _logger = get_logger(__name__)
 class State:
     blend_file_compatibility_warning_shown: bool = False
     blend_file_addon_compatibility_warning_shown: bool = False
+    deferred_migration_parameters: set[tuple[str, bool]] = field(
+        default_factory=set[tuple[str, bool]]
+    )
+
+    def clear(self) -> None:
+        self.blend_file_compatibility_warning_shown = False
+        self.blend_file_addon_compatibility_warning_shown = False
+        self.deferred_migration_parameters.clear()
 
 
 _state: Final = State()
@@ -40,9 +48,6 @@ def is_unnecessary(armature_data: Armature, *, heavy_migration: bool) -> bool:
         and vrm1_migration.is_unnecessary(ext.vrm1, heavy_migration=heavy_migration)
         and spring_bone1_migration.is_unnecessary(ext.spring_bone1)
     )
-
-
-deferred_migration_parameters: Final[set[tuple[str, bool]]] = set()
 
 
 def defer_migrate(armature_object_name: str, *, heavy_migration: bool) -> bool:
@@ -61,14 +66,14 @@ def defer_migrate(armature_object_name: str, *, heavy_migration: bool) -> bool:
     light_parameter = (armature_object_name, False)
     heavy_parameter = (armature_object_name, True)
 
-    if parameter in deferred_migration_parameters:
+    if parameter in _state.deferred_migration_parameters:
         return False
 
     if heavy_migration:
-        deferred_migration_parameters.add(parameter)
-        deferred_migration_parameters.discard(light_parameter)
-    elif heavy_parameter not in deferred_migration_parameters:
-        deferred_migration_parameters.add(parameter)
+        _state.deferred_migration_parameters.add(parameter)
+        _state.deferred_migration_parameters.discard(light_parameter)
+    elif heavy_parameter not in _state.deferred_migration_parameters:
+        _state.deferred_migration_parameters.add(parameter)
     else:
         return False
 
@@ -81,8 +86,8 @@ def migrate_timer_callback() -> None:
     """Match the type of migrate() to bpy.app.timers.register."""
     context = bpy.context  # Context cannot span frames, so get it anew
 
-    sorted_deferred_migration_parameters = sorted(deferred_migration_parameters)
-    deferred_migration_parameters.clear()
+    sorted_deferred_migration_parameters = sorted(_state.deferred_migration_parameters)
+    _state.deferred_migration_parameters.clear()
     for armature_object_name, heavy_migration in sorted_deferred_migration_parameters:
         migrate(context, armature_object_name, heavy_migration=heavy_migration)
 
@@ -276,5 +281,7 @@ def have_vrm_model(context: Context) -> bool:
 
 
 def clear_global_variables() -> None:
-    _state.blend_file_compatibility_warning_shown = False
-    _state.blend_file_addon_compatibility_warning_shown = False
+    _state.clear()
+
+    if bpy.app.timers.is_registered(migrate_timer_callback):
+        bpy.app.timers.unregister(migrate_timer_callback)
