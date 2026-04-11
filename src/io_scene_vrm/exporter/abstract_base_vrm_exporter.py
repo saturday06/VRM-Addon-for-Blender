@@ -30,7 +30,7 @@ HumanBoneSpecification = TypeVar(
 )
 
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -501,7 +501,7 @@ def generate_evaluated_mesh(context: Context, obj: Object) -> Optional[Mesh]:
     if isinstance(obj_data, Mesh):
         evaluated_mesh = obj_data.copy()
     else:
-        logger.error(
+        _logger.error(
             "Unexpected object type: %s name=%s",
             type(obj_data),
             obj_data.name,

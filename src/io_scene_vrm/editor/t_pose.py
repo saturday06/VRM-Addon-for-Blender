@@ -29,7 +29,7 @@ from .extension_accessor import get_armature_extension
 from .vrm0.property_group import Vrm0HumanoidPropertyGroup
 from .vrm1.property_group import Vrm1HumanoidPropertyGroup
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 def set_bone_direction_to_align_child_bone(

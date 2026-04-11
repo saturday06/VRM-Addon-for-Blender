@@ -55,7 +55,7 @@ from .vrm0_exporter import Vrm0Exporter
 from .vrm1_exporter import Vrm1Exporter
 from .vrm_animation_exporter import VrmAnimationExporter
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 def export_vrm_update_addon_preferences(
@@ -321,7 +321,7 @@ def export_vrm(
     if armature_object_is_temporary and not safe_removal.remove_object(
         context, armature_object
     ):
-        logger.warning("Failed to remove temporary armature")
+        _logger.warning("Failed to remove temporary armature")
 
     return {"FINISHED"}
 

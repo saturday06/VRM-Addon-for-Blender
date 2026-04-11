@@ -51,7 +51,7 @@ from ..editor.vrm0.property_group import (
 from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -892,7 +892,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                     None,
                 )
                 if human_bone:
-                    logger.warning('Duplicated bone: "%s"', bone)
+                    _logger.warning('Duplicated bone: "%s"', bone)
                 else:
                     human_bone = humanoid.human_bones.add()
                     human_bone.bone = bone
@@ -1548,7 +1548,7 @@ def setup_bones(context: Context, armature: Object) -> None:
                     break
                 parent_specification = specification.parent
                 if not parent_specification:
-                    logger.error(
+                    _logger.error(
                         'logic error: "%s" has no parent', searching_tip_bone_name
                     )
                     break

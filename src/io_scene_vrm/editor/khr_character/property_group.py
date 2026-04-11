@@ -11,7 +11,7 @@ from bpy.types import PropertyGroup
 from ...common.logger import get_logger
 from ..khr_xmp_json_ld.property_group import KhrXmpJsonLdKhrCharacterPacketPropertyGroup
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class KhrCharacterPropertyGroup(PropertyGroup):

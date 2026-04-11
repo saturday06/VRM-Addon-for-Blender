@@ -17,7 +17,7 @@ from .property_group import (
     Vrm0SecondaryAnimationGroupPropertyGroup,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VRM_MT_vrm0_blend_shape_master(Menu):

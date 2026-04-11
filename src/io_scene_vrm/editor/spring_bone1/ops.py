@@ -17,7 +17,7 @@ from .property_group import (
     SpringBone1ColliderReferencePropertyGroup,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VRM_OT_add_spring_bone1_collider(Operator):
@@ -36,7 +36,7 @@ class VRM_OT_add_spring_bone1_collider(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -83,7 +83,7 @@ class VRM_OT_remove_spring_bone1_collider(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -118,7 +118,7 @@ class VRM_OT_remove_spring_bone1_collider(Operator):
             collider.bpy_object = None
             for unnecessary_object in [*bpy_object.children, bpy_object]:
                 if not safe_removal.remove_object(context, unnecessary_object):
-                    logger.warning(
+                    _logger.warning(
                         'Failed to remove "%s" with %d users'
                         " while removing spring bone collider object",
                         unnecessary_object.name,
@@ -171,7 +171,7 @@ class VRM_OT_move_up_spring_bone1_collider_group(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -228,7 +228,7 @@ class VRM_OT_move_down_spring_bone1_collider_group(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -285,7 +285,7 @@ class VRM_OT_add_spring_bone1_spring(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -332,7 +332,7 @@ class VRM_OT_remove_spring_bone1_spring(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -391,7 +391,7 @@ class VRM_OT_move_up_spring_bone1_spring(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -449,7 +449,7 @@ class VRM_OT_move_down_spring_bone1_spring(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -507,7 +507,7 @@ class VRM_OT_add_spring_bone1_collider_group(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -554,7 +554,7 @@ class VRM_OT_remove_spring_bone1_collider_group(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -628,7 +628,7 @@ class VRM_OT_move_up_spring_bone1_collider(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -686,7 +686,7 @@ class VRM_OT_move_down_spring_bone1_collider(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -744,7 +744,7 @@ class VRM_OT_add_spring_bone1_collider_group_collider(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -890,7 +890,7 @@ class VRM_OT_remove_spring_bone1_collider_group_collider(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -959,7 +959,7 @@ class VRM_OT_move_up_spring_bone1_collider_group_collider(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1024,7 +1024,7 @@ class VRM_OT_move_down_spring_bone1_collider_group_collider(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1089,7 +1089,7 @@ class VRM_OT_add_spring_bone1_spring_collider_group(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1235,7 +1235,7 @@ class VRM_OT_remove_spring_bone1_spring_collider_group(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1301,7 +1301,7 @@ class VRM_OT_move_up_spring_bone1_spring_collider_group(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1369,7 +1369,7 @@ class VRM_OT_move_down_spring_bone1_spring_collider_group(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1437,7 +1437,7 @@ class VRM_OT_add_spring_bone1_joint(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1511,7 +1511,7 @@ class VRM_OT_remove_spring_bone1_joint(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1577,7 +1577,7 @@ class VRM_OT_move_up_spring_bone1_joint(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1643,7 +1643,7 @@ class VRM_OT_move_down_spring_bone1_joint(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1709,7 +1709,7 @@ class VRM_OT_reset_spring_bone1_animation_state(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]

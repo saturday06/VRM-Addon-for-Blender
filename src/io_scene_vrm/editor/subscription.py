@@ -13,7 +13,7 @@ from .mtoon1.property_group import refresh_mtoon1_outline_object
 from .vrm0 import property_group as vrm0_property_group
 from .vrm1 import property_group as vrm1_property_group
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @dataclass

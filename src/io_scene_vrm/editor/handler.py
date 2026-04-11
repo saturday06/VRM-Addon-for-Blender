@@ -11,7 +11,7 @@ from . import migration
 from .extension_accessor import get_armature_extension, get_scene_extension
 from .vrm1.ops import update_vrm1_expression_ui_list_elements
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 last_scene_names: Final[list[str]] = []

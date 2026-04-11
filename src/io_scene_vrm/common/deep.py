@@ -8,7 +8,7 @@ from . import convert
 from .convert import Json
 from .logger import get_logger
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 def make_json(v: object) -> Json:
@@ -18,7 +18,7 @@ def make_json(v: object) -> Json:
         return v
     if isinstance(v, float):
         if not math.isfinite(v):
-            logger.warning("%s %s is non-finite value", v, type(v))
+            _logger.warning("%s %s is non-finite value", v, type(v))
             return 0.0
         return v
     if isinstance(v, bool):
@@ -33,14 +33,14 @@ def make_json(v: object) -> Json:
             if isinstance(key, str):
                 dict_result[key] = make_json(value)
                 continue
-            logger.warning("%s %s is unrecognized type for dict key", key, type(key))
+            _logger.warning("%s %s is unrecognized type for dict key", key, type(key))
         return dict_result
 
     iterator = convert.iterator_or_none(v)
     if iterator is not None:
         return [make_json(x) for x in iterator]
 
-    logger.warning("%s %s is unrecognized type", v, type(v))
+    _logger.warning("%s %s is unrecognized type", v, type(v))
     return None
 
 

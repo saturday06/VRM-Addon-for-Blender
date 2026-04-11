@@ -20,7 +20,7 @@ from .property_group import (
     Mtoon1TextureInfoPropertyGroup,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 def draw_texture_info(

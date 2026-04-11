@@ -10,7 +10,7 @@ from bpy.app.translations import pgettext
 from .blender_manifest import BlenderManifest
 from .logger import get_logger
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @dataclass
@@ -21,7 +21,7 @@ class Cache:
     initial_blender_manifest_content: bytes
 
 
-cache = Cache(
+_cache = Cache(
     use=False,
     last_blender_restart_required=False,
     last_blender_manifest_modification_time=0.0,
@@ -30,7 +30,7 @@ cache = Cache(
 
 
 def clear_addon_version_cache() -> Optional[float]:
-    cache.use = False
+    _cache.use = False
     return None
 
 
@@ -57,32 +57,32 @@ def blender_restart_required() -> bool:
     if tuple(bpy.app.version) >= (4, 2):
         return False
 
-    if cache.use:
-        return cache.last_blender_restart_required
+    if _cache.use:
+        return _cache.last_blender_restart_required
 
-    cache.use = True
+    _cache.use = True
 
-    if cache.last_blender_restart_required:
+    if _cache.last_blender_restart_required:
         return True
 
     blender_manifest_path = BlenderManifest.default_blender_manifest_path()
     blender_manifest_modification_time = blender_manifest_path.stat().st_mtime
     if (
         abs(
-            cache.last_blender_manifest_modification_time
+            _cache.last_blender_manifest_modification_time
             - blender_manifest_modification_time
         )
         < float_info.epsilon
     ):
         return False
 
-    cache.last_blender_manifest_modification_time = blender_manifest_modification_time
+    _cache.last_blender_manifest_modification_time = blender_manifest_modification_time
 
     blender_manifest_content = blender_manifest_path.read_bytes()
-    if blender_manifest_content == cache.initial_blender_manifest_content:
+    if blender_manifest_content == _cache.initial_blender_manifest_content:
         return False
 
-    cache.last_blender_restart_required = True
+    _cache.last_blender_restart_required = True
     return True
 
 

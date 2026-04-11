@@ -18,7 +18,7 @@ from .property_group import (
     Vrm0SecondaryAnimationGroupPropertyGroup,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VRM_UL_vrm0_first_person_mesh_annotation(UIList):
@@ -300,7 +300,7 @@ class VRM_UL_vrm0_secondary_animation_group_collider_group(UIList):
 
         armature_data = bone_group.id_data
         if not isinstance(armature_data, Armature):
-            logger.error("Failed to find armature")
+            _logger.error("Failed to find armature")
             return
 
         icon = "PIVOT_INDIVIDUAL"

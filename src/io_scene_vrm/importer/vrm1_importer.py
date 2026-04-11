@@ -58,7 +58,7 @@ from ..editor.vrm1.property_group import (
 )
 from .abstract_base_vrm_importer import AbstractBaseVrmImporter
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class Vrm1Importer(AbstractBaseVrmImporter):
@@ -86,7 +86,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             else:
                 return
 
-        logger.error(
+        _logger.error(
             "image.colorspace_settings.name doesn't support %s:\n%s",
             colorspaces,
             "\n".join(map(str, exceptions)),
@@ -1080,7 +1080,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 None,
             )
             if vrm0_human_bone:
-                logger.warning('Duplicated VRM0 bone: "%s"', vrm0_human_bone_name)
+                _logger.warning('Duplicated VRM0 bone: "%s"', vrm0_human_bone_name)
             else:
                 vrm0_human_bone = vrm0_humanoid.human_bones.add()
                 vrm0_human_bone.bone = vrm0_human_bone_name.value
@@ -1783,7 +1783,9 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             if isinstance(roll_dict, dict):
                 constraint = object_or_bone.constraints.new(type="COPY_ROTATION")
                 if not isinstance(constraint, CopyRotationConstraint):
-                    logger.error("%s is not a CopyRotationConstraint", type(constraint))
+                    _logger.error(
+                        "%s is not a CopyRotationConstraint", type(constraint)
+                    )
                     continue
                 constraint.mix_mode = "ADD"
                 constraint.owner_space = "LOCAL"
@@ -1810,7 +1812,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             elif isinstance(aim_dict, dict):
                 constraint = object_or_bone.constraints.new(type="DAMPED_TRACK")
                 if not isinstance(constraint, DampedTrackConstraint):
-                    logger.error("%s is not a CopyRotationConstraint", type(constraint))
+                    _logger.error("%s is not a DampedTrackConstraint", type(constraint))
                     continue
                 aim_axis = aim_dict.get("aimAxis")
                 if isinstance(aim_axis, str) and isinstance(object_or_bone, PoseBone):
@@ -1829,7 +1831,9 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             elif isinstance(rotation_dict, dict):
                 constraint = object_or_bone.constraints.new(type="COPY_ROTATION")
                 if not isinstance(constraint, CopyRotationConstraint):
-                    logger.error("%s is not a CopyRotationConstraint", type(constraint))
+                    _logger.error(
+                        "%s is not a CopyRotationConstraint", type(constraint)
+                    )
                     continue
                 constraint.mix_mode = "ADD"
                 constraint.owner_space = "LOCAL"

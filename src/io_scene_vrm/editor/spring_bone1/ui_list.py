@@ -16,7 +16,7 @@ from .property_group import (
     SpringBone1SpringPropertyGroup,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VRM_UL_spring_bone1_collider(UIList):
@@ -198,7 +198,7 @@ class VRM_UL_spring_bone1_collider_group_collider(UIList):
 
         armature_data = collider_group.id_data
         if not isinstance(armature_data, Armature):
-            logger.error("Failed to find armature")
+            _logger.error("Failed to find armature")
             return
 
         if index == collider_group.active_collider_index:
@@ -391,7 +391,7 @@ class VRM_UL_spring_bone1_spring_collider_group(UIList):
 
         armature_data = spring.id_data
         if not isinstance(armature_data, Armature):
-            logger.error("Failed to find armature")
+            _logger.error("Failed to find armature")
             return
         if index == spring.active_collider_group_index:
             VRM_MT_spring_bone1_spring_collider_group.draw_input_layout(

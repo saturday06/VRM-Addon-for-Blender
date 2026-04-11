@@ -9,7 +9,7 @@ from ...common.scene_watcher import trigger_scene_watcher
 from . import migration
 from .scene_watcher import MToon1AutoSetup, OutlineUpdater
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @persistent

@@ -28,7 +28,7 @@ from ..common.version import get_addon_version
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 def show_error_dialog(

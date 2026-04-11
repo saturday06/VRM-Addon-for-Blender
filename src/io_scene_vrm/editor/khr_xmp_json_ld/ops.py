@@ -11,7 +11,7 @@ from bpy.types import (
 from ...common.logger import get_logger
 from ..extension_accessor import get_armature_extension
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VRM_OT_add_khr_xmp_json_ld_packet_dc_creator(Operator):

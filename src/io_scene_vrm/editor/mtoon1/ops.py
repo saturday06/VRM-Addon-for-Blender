@@ -32,7 +32,7 @@ from .property_group import (
     reset_shader_node_group,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VRM_OT_convert_material_to_mtoon1(Operator):

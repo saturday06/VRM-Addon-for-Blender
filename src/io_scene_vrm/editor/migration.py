@@ -20,7 +20,7 @@ from .spring_bone1 import migration as spring_bone1_migration
 from .vrm0 import migration as vrm0_migration
 from .vrm1 import migration as vrm1_migration
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @dataclass
@@ -120,7 +120,7 @@ def migrate(
         ext.spec_version = ext.SPEC_VERSION_VRM0
 
     updated_addon_version = get_addon_version()
-    logger.info(
+    _logger.info(
         "Upgrade armature %s %s to %s",
         armature_object_name,
         tuple(ext.addon_version),
@@ -149,7 +149,7 @@ def migrate_all_objects(
 
     updated_addon_version = get_addon_version()
     if tuple(preferences.addon_version) != updated_addon_version:
-        logger.debug(
+        _logger.debug(
             "Upgrade preferences %s to %s",
             tuple(preferences.addon_version),
             updated_addon_version,
@@ -187,7 +187,7 @@ def validate_blend_file_compatibility(context: Context) -> None:
     file_version_str = ".".join(map(str, blend_file_major_minor_version))
     app_version_str = ".".join(map(str, current_major_minor_version))
 
-    logger.error(
+    _logger.error(
         "Opening incompatible file: file_blender_version=%s running_blender_version=%s",
         file_version_str,
         app_version_str,
@@ -236,7 +236,7 @@ def validate_blend_file_addon_compatibility(context: Context) -> None:
     file_addon_version_str = ".".join(map(str, file_addon_version))
     installed_addon_version_str = ".".join(map(str, installed_addon_version))
 
-    logger.error(
+    _logger.error(
         "Opening incompatible VRM add-on version: file=%s installed=%s",
         file_addon_version_str,
         installed_addon_version_str,

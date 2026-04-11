@@ -28,7 +28,7 @@ from ..common.workspace import save_workspace
 from ..editor.extension_accessor import get_armature_extension
 from ..editor.t_pose import setup_humanoid_t_pose
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VrmAnimationImporter:
@@ -333,7 +333,7 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
     first_timestamp = timestamps[0]
     last_timestamp = timestamps[-1]
 
-    logger.debug(
+    _logger.debug(
         "first_timestamp=%s ... last_timestamp=%s",
         first_timestamp,
         last_timestamp,
@@ -707,20 +707,22 @@ def assign_humanoid_keyframe(
         ).copy()
 
         if rotation_keyframes:
-            logger.debug(
+            _logger.debug(
                 "================= %s =================", human_bone_name.value
             )
-            logger.debug("humanoid world matrix = %s", dump(humanoid_rest_world_matrix))
-            logger.debug("rest_local_matrix     = %s", dump(rest_local_matrix))
-            logger.debug("pose_local_matrix     = %s", dump(pose_local_matrix))
-            logger.debug("rest_world_matrix     = %s", dump(rest_world_matrix))
-            logger.debug("pose_world_matrix     = %s", dump(pose_world_matrix))
-            logger.debug("rest_to_pose_matrix  = %s", dump(rest_to_pose_matrix))
-            logger.debug(
+            _logger.debug(
+                "humanoid world matrix = %s", dump(humanoid_rest_world_matrix)
+            )
+            _logger.debug("rest_local_matrix     = %s", dump(rest_local_matrix))
+            _logger.debug("pose_local_matrix     = %s", dump(pose_local_matrix))
+            _logger.debug("rest_world_matrix     = %s", dump(rest_world_matrix))
+            _logger.debug("pose_world_matrix     = %s", dump(pose_world_matrix))
+            _logger.debug("rest_to_pose_matrix  = %s", dump(rest_to_pose_matrix))
+            _logger.debug(
                 "rest_to_pose_world_rotation = %s",
                 dump(rest_to_pose_world_rotation),
             )
-            logger.debug(
+            _logger.debug(
                 "rest_to_pose_target_local_rotation = %s",
                 dump(rest_to_pose_target_local_rotation),
             )
@@ -728,8 +730,10 @@ def assign_humanoid_keyframe(
             backup_rotation_quaternion = get_rotation_as_quaternion(bone)
 
             # logger.debug("parent bone matrix  = %s", dump(parent_matrix))
-            logger.debug("       bone matrix  = %s", dump(bone.matrix))
-            logger.debug("current bone rotation = %s", dump(backup_rotation_quaternion))
+            _logger.debug("       bone matrix  = %s", dump(bone.matrix))
+            _logger.debug(
+                "current bone rotation = %s", dump(backup_rotation_quaternion)
+            )
 
             set_rotation_without_mode_change(
                 bone, backup_rotation_quaternion @ rest_to_pose_target_local_rotation

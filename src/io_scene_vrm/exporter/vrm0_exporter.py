@@ -77,7 +77,7 @@ from .abstract_base_vrm_exporter import (
     generate_evaluated_mesh,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class Vrm0Exporter(AbstractBaseVrmExporter):
@@ -225,7 +225,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             target_normal: tuple[float, float, float],
         ) -> None:
             if not (0 <= vertex_index < self.count):
-                logger.error(
+                _logger.error(
                     "invalid vertex_index: %d, count %d", vertex_index, self.count
                 )
                 return
@@ -2308,7 +2308,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 if pbr_metallic_roughness_dict:
                     material_dict["pbrMetallicRoughness"] = pbr_metallic_roughness_dict
         except Exception:
-            logger.exception("Failed to generate glTF Material using glTF 2.0 add-on")
+            _logger.exception("Failed to generate glTF Material using glTF 2.0 add-on")
 
     def write_material(
         self,
@@ -2485,7 +2485,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         bones = [bone for bone in self.armature.pose.bones if not bone.parent]
         root_node_index = len(node_dicts)
         if not bones:
-            logger.error("No bones")
+            _logger.error("No bones")
             node_dicts.append(
                 {
                     "name": self.armature.name,
@@ -2541,7 +2541,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     traversing_bones.extend(traversing_bone.children)
 
         if humanoid_root_bone is None or humanoid_root_bone_index is None:
-            logger.error("No human bone")
+            _logger.error("No human bone")
             return [root_node_index], {}, []
 
         while len(buffer0) % 4:
@@ -2743,7 +2743,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
                 total_weight = sum(weights)
                 if total_weight < float_info.epsilon:
-                    logger.debug(
+                    _logger.debug(
                         "No weight on vertex index=%d mesh=%s",
                         vertex_index,
                         main_mesh_data.name,
@@ -2789,7 +2789,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         message = "No fallback bone index found"
                         if not skin_joints:
                             raise ValueError(message)
-                        logger.error(message)
+                        _logger.error(message)
                         joint = skin_joints[0]
 
                     weights = (1.0, 0, 0, 0)
@@ -2959,7 +2959,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         original_mesh_convertible = obj.data
         if not isinstance(original_mesh_convertible, (Curve, Mesh)):
-            logger.error(
+            _logger.error(
                 "Unexpected mesh convertible object type: %s",
                 type(original_mesh_convertible),
             )
@@ -3174,7 +3174,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                             )
 
                     if shape_mesh_data.users:
-                        logger.warning(
+                        _logger.warning(
                             'Failed to remove "%s" with %d users while exporting'
                             " shape key meshes",
                             shape_mesh_data.name,
@@ -3184,7 +3184,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         self.context.blend_data.meshes.remove(shape_mesh_data)
 
         if main_mesh_data.users:
-            logger.warning(
+            _logger.warning(
                 'Failed to remove "%s" with %d users while exporting meshes',
                 main_mesh_data.name,
                 main_mesh_data.users,

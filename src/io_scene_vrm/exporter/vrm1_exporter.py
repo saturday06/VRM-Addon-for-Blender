@@ -88,7 +88,7 @@ from .abstract_base_vrm_exporter import (
     force_apply_modifiers,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class Vrm1Exporter(AbstractBaseVrmExporter):
@@ -306,7 +306,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             # confusion with the original object
             restored_export_obj.name = "Export-" + uuid4().hex
             if not safe_removal.remove_object(context, restored_export_obj):
-                logger.warning(
+                _logger.warning(
                     'Failed to remove "%s" with %d users (temp object for "%s")',
                     restored_export_obj.name,
                     restored_export_obj.users,
@@ -320,7 +320,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             removing_object_data.name = "Export-Data-" + uuid4().hex
 
             if removing_object_data.users:
-                logger.warning(
+                _logger.warning(
                     'Failed to remove "%s" with %d users',
                     removing_object_data.name,
                     removing_object_data.users,
@@ -332,7 +332,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             elif isinstance(removing_object_data, VectorFont):
                 context.blend_data.fonts.remove(removing_object_data)
             else:
-                logger.warning(
+                _logger.warning(
                     'Failed to remove "%s" with %d users. Not implemented.',
                     removing_object_data.name,
                     removing_object_data.users,
@@ -866,7 +866,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         spring_dicts: list[Json] = []
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
-            logger.error("%s is not an Armature", type(armature_data))
+            _logger.error("%s is not an Armature", type(armature_data))
             return []
         sorted_spring_and_joints: list[
             tuple[
@@ -1088,7 +1088,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if 0 <= image_index < len(image_dicts):
                 # Image already exists, return its index without duplicating data
                 return image_index
-            logger.error(
+            _logger.error(
                 "Bug: not 0 <= %d < len(images)) for %s", image_index, image.name
             )
             image_index = None
@@ -2868,7 +2868,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             vrm_bytes = self.add_vrm_extension_to_glb(extra_name_assigned_glb)
             if vrm_bytes is None:
                 return None
-            logger.info("Generated VRM size: %s bytes", len(vrm_bytes))
+            _logger.info("Generated VRM size: %s bytes", len(vrm_bytes))
         return vrm_bytes
 
     def remove_exported_armature_object_before_4_2(
@@ -3094,7 +3094,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 continue
             node_dict = node_dicts[node_index]
             if not isinstance(node_dict, dict):
-                logger.error(
+                _logger.error(
                     "gltf.nodes[%d] is invalid value: %s", node_index, node_dict
                 )
                 node_dict = {}
@@ -3120,7 +3120,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 continue
             node_dict = node_dicts[node_index]
             if not isinstance(node_dict, dict):
-                logger.error(
+                _logger.error(
                     "gltf.nodes[%d] is invalid value: %s", node_index, node_dict
                 )
                 node_dict = {}
@@ -3434,7 +3434,7 @@ def force_apply_modifiers_to_object(
         with save_workspace(context, mesh_compatible_object):
             convert_result = bpy.ops.object.convert(target="MESH")
             if convert_result != {"FINISHED"}:
-                logger.warning(
+                _logger.warning(
                     "Failed to convert %s to MESH: %s",
                     mesh_compatible_object.name,
                     convert_result,
@@ -3483,7 +3483,7 @@ def force_apply_modifiers_to_object(
 
         original_mesh_data.user_remap(mesh_data)
         if original_mesh_data.users:
-            logger.warning(
+            _logger.warning(
                 'Failed to remove "%s" with %d users while applying modifiers',
                 original_mesh_data.name,
                 original_mesh_data.users,

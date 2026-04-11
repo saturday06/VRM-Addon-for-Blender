@@ -8,7 +8,7 @@ from bpy.types import Context
 
 from .logger import get_logger
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @dataclass

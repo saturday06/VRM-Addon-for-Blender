@@ -1,7 +1,11 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-locale_key = "ja_JP"
 
-translation_dictionary: dict[tuple[str, str], str] = {
+from collections.abc import Mapping
+from typing import Final
+
+LOCALE_KEY = "ja_JP"
+
+TRANSLATION_DICTIONARY: Final[Mapping[tuple[str, str], str]] = {
     (
         "*",
         "The installed VRM add-on is not compatible with Blender {blender_version}."

@@ -32,7 +32,7 @@ from .extension_accessor import get_armature_extension
 from .property_group import BonePropertyGroup
 from .t_pose import set_estimated_humanoid_t_pose
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VRM_OT_simplify_vroid_bones(Operator):
@@ -51,7 +51,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -373,7 +373,7 @@ class VRM_OT_make_estimated_humanoid_t_pose(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]

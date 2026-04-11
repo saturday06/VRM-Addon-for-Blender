@@ -26,7 +26,7 @@ else:
 
 KHR_CHARACTER_SUPPORTED: Final[bool] = bpy.app.version >= (100000,)
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 def get_list_from_json_ld(v: Json) -> list[str]:
@@ -177,7 +177,7 @@ class Gltf2ImportUserExtensionVrmKhrCharacter(Gltf2ImportUserExtensionVrm):
         # Find armature objects: prefer tracked ones, fall back to vnodes
         armature_objects = self.armature_objects
         if not armature_objects:
-            logger.warning(
+            _logger.warning(
                 "gather_import_scene_after_nodes_hook:"
                 " no armature found for KHR_character import"
             )

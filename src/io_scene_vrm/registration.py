@@ -84,9 +84,9 @@ from .editor.vrm1 import ui_list as vrm1_ui_list
 from .exporter import export_scene
 from .external import io_scene_gltf2_support
 from .importer import import_scene
-from .locale.translation_dictionary import translation_dictionary
+from .locale.translation_dictionary import build_translation_dictionary
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 classes: list[
     Union[
@@ -477,13 +477,13 @@ if bpy.app.version >= (4, 1):
 
 def register() -> None:
     name = ".".join(__name__.split(".")[:-1])
-    logger.debug("Registering: %s", name)
+    _logger.debug("Registering: %s", name)
 
     clear_global_variables()
 
     bpy.app.translations.register(
         preferences.addon_package_name,
-        translation_dictionary,
+        build_translation_dictionary(),
     )
 
     for cls in classes:
@@ -552,7 +552,7 @@ def register() -> None:
 
     io_scene_gltf2_support.init_extras_export()
 
-    logger.debug("Registered: %s", name)
+    _logger.debug("Registered: %s", name)
 
 
 def unregister() -> None:
@@ -613,7 +613,7 @@ def unregister() -> None:
         try:
             bpy.utils.unregister_class(cls)
         except RuntimeError:
-            logger.exception("Failed to unregister %s", cls)
+            _logger.exception("Failed to unregister %s", cls)
 
     bpy.app.translations.unregister(preferences.addon_package_name)
 

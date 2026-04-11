@@ -15,7 +15,7 @@ from .ops import (
     VRM_OT_restore_vrm1_expression_morph_target_bind_object,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VRM_MT_vrm1_expression(Menu):

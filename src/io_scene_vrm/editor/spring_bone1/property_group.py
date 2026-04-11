@@ -31,7 +31,7 @@ from ..property_group import BonePropertyGroup, property_group_enum
 if TYPE_CHECKING:
     from ..property_group import CollectionPropertyProtocol
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 def find_armature_and_collider(
@@ -66,7 +66,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
 
         armature, collider = self.find_armature_and_collider(context)
         if not collider.bpy_object:
-            logger.error(
+            _logger.error(
                 'Failed to get bpy object of "%s" in sphere.get_offset()',
                 collider.uuid or "unknown",
             )
@@ -107,7 +107,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
 
         _, collider = self.find_armature_and_collider(context)
         if not collider.bpy_object:
-            logger.error(
+            _logger.error(
                 'Failed to get bpy object of "%s" in sphere.get_radius()',
                 collider.uuid or "unknown",
             )
@@ -124,7 +124,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
         armature, collider = self.find_armature_and_collider(context)
         collider.reset_bpy_object(context, armature)
         if not collider.bpy_object:
-            logger.error(
+            _logger.error(
                 'Failed to reset bpy object of "%s" in sphere.set_radius()',
                 collider.uuid or "unknown",
             )
@@ -199,7 +199,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
 
         armature, collider = self.find_armature_and_collider(context)
         if not collider.bpy_object:
-            logger.error(
+            _logger.error(
                 'Failed to get bpy object of "%s" in capsule.get_offset()',
                 collider.uuid or "unknown",
             )
@@ -240,13 +240,13 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
 
         armature, collider = self.find_armature_and_collider(context)
         if not collider.bpy_object:
-            logger.error(
+            _logger.error(
                 'Failed to get bpy object of "%s" in capsule.get_tail()',
                 collider.uuid or "unknown",
             )
             return (0, 0, 0)
         if not collider.bpy_object.children:
-            logger.error(
+            _logger.error(
                 'Failed to get bpy object children of "%s" in capsule.get_tail()',
                 collider.display_name,
             )
@@ -279,7 +279,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
             return
         if collider.bpy_object:
             if not collider.bpy_object.children:
-                logger.error(
+                _logger.error(
                     'Failed to set tail bpy object matrix of "%s"'
                     " in capsule.set_tail()",
                     collider.display_name,
@@ -297,7 +297,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
 
         _, collider = self.find_armature_and_collider(context)
         if not collider.bpy_object:
-            logger.error(
+            _logger.error(
                 'Failed to get bpy object of "%s" in capsule.get_radius()',
                 collider.uuid or "unknown",
             )
@@ -314,7 +314,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         armature, collider = self.find_armature_and_collider(context)
         collider.reset_bpy_object(context, armature)
         if not collider.bpy_object:
-            logger.error(
+            _logger.error(
                 'Failed to reset bpy object of "%s" in capsule.set_radius()',
                 collider.uuid or "unknown",
             )
@@ -325,7 +325,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         )
         collider.bpy_object.empty_display_size = v
         if not collider.bpy_object.children:
-            logger.error(
+            _logger.error(
                 'Failed to set tail bpy object size of "%s" in capsule.set_radius()',
                 collider.display_name,
             )
@@ -468,7 +468,7 @@ class SpringBone1ExtendedColliderShapePlanePropertyGroup(PropertyGroup):
 
         armature, collider = self.find_armature_and_collider(context)
         if not collider.bpy_object:
-            logger.error(
+            _logger.error(
                 'Failed to get bpy object of "%s" in extended_collider.get_offset()',
                 collider.uuid or "unknown",
             )
@@ -837,7 +837,7 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
         ):
             for child in list(self.bpy_object.children):
                 if not safe_removal.remove_object(context, child):
-                    logger.warning(
+                    _logger.warning(
                         'Failed to remove "%s" with %d users'
                         " while changing spring bone collider type",
                         child.name,
@@ -975,7 +975,7 @@ class SpringBone1ColliderGroupPropertyGroup(PropertyGroup):
             if collider_uuid in collider_uuids:
                 collider_uuids.remove(collider_uuid)
                 continue
-            logger.error(
+            _logger.error(
                 'Collider with uuid "%s" not found or duplicated for'
                 ' "%s". Clearing UUID.',
                 collider_uuid,
@@ -1183,7 +1183,7 @@ class SpringBone1SpringPropertyGroup(PropertyGroup):
             if collider_group_uuid in collider_group_uuids:
                 collider_group_uuids.remove(collider_group_uuid)
                 continue
-            logger.error(
+            _logger.error(
                 'Collider group with uuid "%s" not found or duplicated for'
                 ' "%s". Clearing UUID.',
                 collider_group_uuid,
@@ -1278,13 +1278,13 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
         for collider in self.colliders:
             if not collider.uuid:
                 new_uuid = uuid.uuid4().hex
-                logger.error(
+                _logger.error(
                     "Collider without uuid found. Generating a new uuid %s.", new_uuid
                 )
                 collider.uuid = new_uuid
             if collider.uuid in found_collider_uuids:
                 new_uuid = uuid.uuid4().hex
-                logger.error(
+                _logger.error(
                     "Collider with duplicated uuid found. Generating a new uuid %s.",
                     new_uuid,
                 )
@@ -1295,14 +1295,14 @@ class SpringBone1SpringBonePropertyGroup(PropertyGroup):
         for collider_group in self.collider_groups:
             if not collider_group.uuid:
                 new_uuid = uuid.uuid4().hex
-                logger.error(
+                _logger.error(
                     "Collider group without uuid found. Generating a new uuid %s.",
                     new_uuid,
                 )
                 collider_group.uuid = new_uuid
             if collider_group.uuid in found_collider_group_uuids:
                 new_uuid = uuid.uuid4().hex
-                logger.error(
+                _logger.error(
                     "Collider group with duplicated uuid found."
                     " Generating a new uuid %s.",
                     new_uuid,

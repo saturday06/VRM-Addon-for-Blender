@@ -7,7 +7,7 @@ from bpy.types import Object
 from ..logger import get_logger
 from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 # Mapping table for MMD (MikuMikuDance) bone names to VRM human bone specifications.
 # These Japanese bone names are standard MMD naming conventions and should be preserved.

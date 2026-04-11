@@ -62,7 +62,7 @@ from .. import search
 from ..extension_accessor import get_material_extension
 from ..property_group import property_group_enum
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 MTOON1_OUTPUT_NODE_GROUP_NAME: Final = "Mtoon1Material.Mtoon1Output"
@@ -240,8 +240,9 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         if not outline_material:
             return None
         if material.name == outline_material.name:
-            logger.error(
-                "Base material and outline material are same. name={material.name}"
+            _logger.error(
+                "Base material and outline material are same. name=%s",
+                material.name,
             )
             return None
         path_from_id = self.path_from_id()
@@ -401,7 +402,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
             None,
         )
         if not node:
-            logger.warning('No group node "%s"', node_group_name)
+            _logger.warning('No group node "%s"', node_group_name)
             return
 
         socket = node.inputs.get(group_label)
@@ -412,7 +413,7 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
         elif isinstance(socket, shader.INT_SOCKET_CLASSES):
             socket.default_value = int(value)
         else:
-            logger.warning(
+            _logger.warning(
                 'No "%s" in shader node group "%s"', group_label, node_group_name
             )
 
@@ -465,12 +466,12 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
             None,
         )
         if not node:
-            logger.warning('No group node "%s"', node_group_name)
+            _logger.warning('No group node "%s"', node_group_name)
             return
 
         socket = node.inputs.get(group_label)
         if not isinstance(socket, shader.COLOR_SOCKET_CLASSES):
-            logger.warning(
+            _logger.warning(
                 'No "%s" in shader node group "%s"', group_label, node_group_name
             )
             return
@@ -510,12 +511,12 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
             None,
         )
         if not node:
-            logger.warning('No group node "%s"', node_group_name)
+            _logger.warning('No group node "%s"', node_group_name)
             return
 
         socket = node.inputs.get(group_label)
         if not isinstance(socket, shader.COLOR_SOCKET_CLASSES):
-            logger.warning(
+            _logger.warning(
                 'No "%s" in shader node group "%s"', group_label, node_group_name
             )
             return
@@ -603,11 +604,11 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
         # Search for output node and socket
         out_node = node_tree.nodes.get(out_node_name)
         if not isinstance(out_node, out_node_type):
-            logger.error("No output node: %s", out_node_name)
+            _logger.error("No output node: %s", out_node_name)
             return
         out_socket = out_node.outputs.get(out_node_socket_name)
         if not out_socket:
-            logger.error("No output node socket: %s", out_node_socket_name)
+            _logger.error("No output node socket: %s", out_node_socket_name)
             return
         traversing_sockets = [out_socket]
         while traversing_sockets:
@@ -632,12 +633,12 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             None,
         )
         if not in_node:
-            logger.error("No input node")
+            _logger.error("No input node")
             return
 
         in_socket = in_node.inputs.get(in_socket_name)
         if not in_socket:
-            logger.error("No input socket: %s", in_socket_name)
+            _logger.error("No input socket: %s", in_socket_name)
             return
 
         node_tree.links.new(in_socket, out_socket)
@@ -711,7 +712,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
         node = node_tree.nodes.get(node_name)
         if not isinstance(node, ShaderNodeTexImage):
-            logger.warning('No shader node tex image "%s"', node_name)
+            _logger.warning('No shader node tex image "%s"', node_name)
             return
 
         node.image = image
@@ -790,7 +791,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             return default_value
         socket = node.inputs.get(name)
         if not socket:
-            logger.warning('No "%s" in shader node group "%s"', name, node_name)
+            _logger.warning('No "%s" in shader node group "%s"', name, node_name)
             return default_value
 
         if isinstance(socket, shader.FLOAT_SOCKET_CLASSES):
@@ -811,7 +812,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             return default_value
         socket = node.inputs.get(name)
         if not socket:
-            logger.warning('No "%s" in shader node group "%s"', name, node_name)
+            _logger.warning('No "%s" in shader node group "%s"', name, node_name)
             return default_value
 
         if isinstance(socket, shader.FLOAT_SOCKET_CLASSES):
@@ -832,7 +833,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
             return
         socket = node.inputs.get(name)
         if not socket:
-            logger.warning('No "%s" in shader node group "%s"', name, node_name)
+            _logger.warning('No "%s" in shader node group "%s"', name, node_name)
             return
 
         if isinstance(value, (float, int)):
@@ -875,7 +876,7 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
             return
         node = material.node_tree.nodes.get(node_name)
         if not isinstance(node, ShaderNodeTexImage):
-            logger.warning('No shader node tex image "%s"', node_name)
+            _logger.warning('No shader node tex image "%s"', node_name)
             return
         node.texture_mapping.translation = Vector((0, 0, 0))
 
@@ -911,7 +912,7 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
             return
         node = material.node_tree.nodes.get(node_name)
         if not isinstance(node, ShaderNodeTexImage):
-            logger.warning('No shader node tex image "%s"', node_name)
+            _logger.warning('No shader node tex image "%s"', node_name)
             return
         node.texture_mapping.scale = Vector((1, 1, 1))
 
@@ -1731,7 +1732,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
         ):
             self.index.sampler.mag_filter = backup.mag_filter
         elif backup.mag_filter is not None:
-            logger.warning("invalid mag filter: %s", backup.mag_filter)
+            _logger.warning("invalid mag filter: %s", backup.mag_filter)
             self.index.sampler.mag_filter = (
                 Mtoon1SamplerPropertyGroup.MAG_FILTER_DEFAULT.identifier
             )
@@ -1742,7 +1743,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
         ):
             self.index.sampler.min_filter = backup.min_filter
         elif backup.min_filter is not None:
-            logger.warning("invalid min filter: %s", backup.min_filter)
+            _logger.warning("invalid min filter: %s", backup.min_filter)
             self.index.sampler.min_filter = (
                 Mtoon1SamplerPropertyGroup.MIN_FILTER_DEFAULT.identifier
             )
@@ -1750,7 +1751,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
         if backup.wrap_s in Mtoon1SamplerPropertyGroup.wrap_enum.identifiers():
             self.index.sampler.wrap_s = backup.wrap_s
         else:
-            logger.warning("invalid wrap s: %s", backup.wrap_s)
+            _logger.warning("invalid wrap s: %s", backup.wrap_s)
             self.index.sampler.wrap_s = (
                 Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.identifier
             )
@@ -1758,7 +1759,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
         if backup.wrap_t in Mtoon1SamplerPropertyGroup.wrap_enum.identifiers():
             self.index.sampler.wrap_t = backup.wrap_t
         else:
-            logger.warning("invalid wrap t: %s", backup.wrap_t)
+            _logger.warning("invalid wrap t: %s", backup.wrap_t)
             self.index.sampler.wrap_t = (
                 Mtoon1SamplerPropertyGroup.WRAP_DEFAULT.identifier
             )
@@ -1779,14 +1780,14 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
         if not animation_data:
             animation_data = node_tree.animation_data_create()
             if not animation_data:
-                logger.error(
+                _logger.error(
                     'Failed to create anomation data for node tree "%s"', node_tree.name
                 )
                 return
         uv_node_name = self.index.get_image_texture_uv_node_name()
         uv_node = node_tree.nodes.get(uv_node_name)
         if not uv_node or not isinstance(uv_node, ShaderNodeGroup):
-            logger.error('Failed to get uv node "%s"', uv_node_name)
+            _logger.error('Failed to get uv node "%s"', uv_node_name)
             return
         image_node_name = self.index.get_image_texture_node_name()
         image_node = node_tree.nodes.get(image_node_name)
@@ -1806,7 +1807,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
                 None,
             )
             if uv_input_index is None:
-                logger.error('Failed to get uv input index for "%s"', uv_input_label)
+                _logger.error('Failed to get uv input index for "%s"', uv_input_label)
                 continue
             data_path = (
                 f'nodes["{uv_node_name}"]'
@@ -1827,7 +1828,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
                 except TypeError:
                     continue
             if not isinstance(fcurve, FCurve):
-                logger.error(
+                _logger.error(
                     'Failed to get fcurve "%s" for node tree "%s"',
                     data_path,
                     node_tree.name,
@@ -1837,7 +1838,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
                 fcurve.array_index = 0
             driver = fcurve.driver
             if not isinstance(driver, Driver):
-                logger.error('Failed to get driver for fcurve "%s"', data_path)
+                _logger.error('Failed to get driver for fcurve "%s"', data_path)
                 continue
             if driver.type != "SUM":
                 driver.type = "SUM"
@@ -1849,7 +1850,7 @@ class Mtoon1TextureInfoPropertyGroup(MaterialTraceablePropertyGroup):
             if variable.type != "SINGLE_PROP":
                 variable.type = "SINGLE_PROP"
             if not variable.targets:
-                logger.error(
+                _logger.error(
                     'No targets in variable for fcurve "%s" in node_tree "%s"',
                     data_path,
                     node_tree.name,
@@ -3123,7 +3124,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
                         mtoon1.pbr_metallic_roughness.base_color_factor[3]
                     )
                 else:
-                    logger.error(
+                    _logger.error(
                         "Unexpected alpha input node input type: %s", type(alpha_input)
                     )
 
@@ -3131,16 +3132,16 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
                 if isinstance(alpha_cutoff_input, shader.FLOAT_SOCKET_CLASSES):
                     alpha_cutoff_input.default_value = mtoon1.alpha_cutoff
                 else:
-                    logger.error(
+                    _logger.error(
                         "Unexpected alpha clip input node input type: %s",
                         type(alpha_cutoff_input),
                     )
             else:
-                logger.error(
+                _logger.error(
                     "Unexpected alpha clip input node input length: %s", len(inputs)
                 )
         else:
-            logger.error(
+            _logger.error(
                 "Unexpected alpha clip input node type: %s",
                 type(alpha_clip_input_node),
             )
@@ -3167,7 +3168,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
                 material.blend_method = "HASHED"
                 shadow_method = "HASHED"
             else:
-                logger.error("Unexpected alpha mode: {value}")
+                _logger.error("Unexpected alpha mode: %s", value)
                 material.blend_method = "OPAQUE"
                 shadow_method = "OPAQUE"
 
@@ -4186,7 +4187,7 @@ def convert_mtoon1_to_bsdf_principled(material: Material) -> None:
         material.use_nodes = True
     shader.clear_node_tree(material.node_tree, clear_inputs_outputs=True)
     if not material.node_tree:
-        logger.error("%s's node tree is None", material.name)
+        _logger.error("%s's node tree is None", material.name)
         return
 
     principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)

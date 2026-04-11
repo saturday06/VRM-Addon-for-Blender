@@ -56,7 +56,7 @@ if TYPE_CHECKING:
     from ..property_group import CollectionPropertyProtocol
 
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class Vrm1HumanBoneNodePropertyGroup(HumanoidStructureBonePropertyGroup):
@@ -385,15 +385,15 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
             if not specification.parent_requirement:
                 continue
             if not specification.parent_name:
-                logger.error("No parent for '%s' in spec", human_bone_name)
+                _logger.error("No parent for '%s' in spec", human_bone_name)
                 continue
             parent = human_bone_name_to_human_bone.get(specification.parent_name)
             if not parent:
-                logger.error("No parent for '%s' in dict", human_bone_name)
+                _logger.error("No parent for '%s' in dict", human_bone_name)
                 continue
             parent_specification = specification.parent
             if not parent_specification:
-                logger.error("No parent specification for '%s'", human_bone_name)
+                _logger.error("No parent specification for '%s'", human_bone_name)
                 continue
             if not parent.node.bone_name:
                 messages.append(
@@ -1158,13 +1158,13 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
 
     def update_preview(self, context: Context) -> None:
         if not self.name:
-            logger.debug("Unnamed expression: %s", type(self))
+            _logger.debug("Unnamed expression: %s", type(self))
             return
 
         armature_data = self.id_data
         if not isinstance(armature_data, Armature):
             # This is getting triggered after importing VRMA files
-            logger.error("No armature for %s", self.name)
+            _logger.error("No armature for %s", self.name)
             return
 
         if defer_shape_key_update(context):
@@ -1438,7 +1438,7 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
 
         armature_data = self.id_data
         if not isinstance(armature_data, Armature):
-            logger.error("No armature for %s", self)
+            _logger.error("No armature for %s", self)
             return
 
         expressions = get_armature_extension(armature_data).vrm1.expressions

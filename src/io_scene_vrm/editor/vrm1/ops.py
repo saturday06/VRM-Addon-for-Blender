@@ -60,7 +60,7 @@ from .property_group import (
     Vrm1HumanBonesPropertyGroup,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VRM_OT_add_vrm1_meta_author(Operator):
@@ -79,7 +79,7 @@ class VRM_OT_add_vrm1_meta_author(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -128,7 +128,7 @@ class VRM_OT_remove_vrm1_meta_author(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -187,7 +187,7 @@ class VRM_OT_move_up_vrm1_meta_author(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -244,7 +244,7 @@ class VRM_OT_move_down_vrm1_meta_author(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -301,7 +301,7 @@ class VRM_OT_add_vrm1_meta_reference(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -350,7 +350,7 @@ class VRM_OT_remove_vrm1_meta_reference(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -409,7 +409,7 @@ class VRM_OT_move_up_vrm1_meta_reference(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -466,7 +466,7 @@ class VRM_OT_move_down_vrm1_meta_reference(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -523,7 +523,7 @@ class VRM_OT_add_vrm1_expressions_custom_expression(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -581,7 +581,7 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -644,7 +644,7 @@ class VRM_OT_move_up_vrm1_expressions_custom_expression(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -710,7 +710,7 @@ class VRM_OT_move_down_vrm1_expressions_custom_expression(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -776,7 +776,7 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -826,7 +826,7 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -885,7 +885,7 @@ class VRM_OT_move_up_vrm1_first_person_mesh_annotation(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -944,7 +944,7 @@ class VRM_OT_move_down_vrm1_first_person_mesh_annotation(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1003,7 +1003,7 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1061,7 +1061,7 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1127,7 +1127,7 @@ class VRM_OT_move_up_vrm1_expression_morph_target_bind(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1191,7 +1191,7 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1388,7 +1388,7 @@ class VRM_OT_assign_vrm1_vrchat_expressions(Operator):
     )
 
     def execute(self, _context: Context) -> set[str]:
-        logger.warning(
+        _logger.warning(
             "Deprecated. Use `vrm.assign_vrm1_expressions_from_vrchat` instead."
         )
         return ops.vrm.assign_vrm1_expressions_from_vrchat(
@@ -1437,7 +1437,7 @@ class VRM_OT_assign_vrm1_mmd_expressions(Operator):
     )
 
     def execute(self, _context: Context) -> set[str]:
-        logger.warning(
+        _logger.warning(
             "Deprecated. Use `vrm.assign_vrm1_expressions_from_mmd` instead."
         )
         return ops.vrm.assign_vrm1_expressions_from_mmd(
@@ -1486,7 +1486,7 @@ class VRM_OT_assign_vrm1_ready_player_me_expressions(Operator):
     )
 
     def execute(self, _context: Context) -> set[str]:
-        logger.warning(
+        _logger.warning(
             "Deprecated."
             " Use `vrm.assign_vrm1_expressions_from_ready_player_me` instead."
         )
@@ -1545,7 +1545,7 @@ class VRM_OT_add_vrm1_arkit_custom_expressions(Operator):
     )
 
     def execute(self, _context: Context) -> set[str]:
-        logger.warning(
+        _logger.warning(
             "Deprecated. Use `vrm.assign_vrm1_expressions_from_arkit` instead."
         )
         return ops.vrm.assign_vrm1_expressions_from_arkit(
@@ -1662,7 +1662,7 @@ class VRM_OT_add_vrm1_expression_material_color_bind(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1722,7 +1722,7 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1788,7 +1788,7 @@ class VRM_OT_move_up_vrm1_expression_material_color_bind(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1852,7 +1852,7 @@ class VRM_OT_move_down_vrm1_expression_material_color_bind(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1916,7 +1916,7 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -1974,7 +1974,7 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -2040,7 +2040,7 @@ class VRM_OT_move_up_vrm1_expression_texture_transform_bind(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -2104,7 +2104,7 @@ class VRM_OT_move_down_vrm1_expression_texture_transform_bind(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -2168,7 +2168,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]
@@ -2228,11 +2228,11 @@ def assign_vrm1_humanoid_human_bones_automatically(
                 continue
             vrm0_name = Vrm0HumanBoneName.from_str(vrm0_human_bone.bone)
             if not vrm0_name:
-                logger.error("Invalid VRM0 bone name str: %s", vrm0_human_bone.bone)
+                _logger.error("Invalid VRM0 bone name str: %s", vrm0_human_bone.bone)
                 continue
             vrm1_name = vrm0_human_bone_name_to_vrm1_human_bone_name.get(vrm0_name)
             if vrm1_name is None:
-                logger.error("Invalid VRM0 bone name: %s", vrm0_name)
+                _logger.error("Invalid VRM0 bone name: %s", vrm0_name)
                 continue
             human_bone = human_bone_name_to_human_bone.get(vrm1_name)
             if not human_bone:
@@ -2342,7 +2342,7 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
             + " and will be removed in the next major release."
             + f" `Please use {type(self).__qualname__}.armature_object_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
 
     armature_name: StringProperty(  # type: ignore[valid-type]

@@ -15,7 +15,7 @@ from .property_group import (
     Vrm1TextureTransformBindPropertyGroup,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VRM_UL_vrm1_meta_author(UIList):
@@ -283,7 +283,7 @@ class VRM_UL_vrm1_expression(UIList):
             name, expression = preset_expression_items[index]
             icon = expressions.preset.get_icon(name)
             if not icon:
-                logger.error("Unknown preset expression: %s", name)
+                _logger.error("Unknown preset expression: %s", name)
                 icon = "SHAPEKEY_DATA"
         else:
             custom_expressions = expressions.custom

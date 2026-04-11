@@ -38,7 +38,7 @@ from .vrm0_importer import Vrm0Importer
 from .vrm1_importer import Vrm1Importer
 from .vrm_animation_importer import VrmAnimationImporter
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class LicenseConfirmation(PropertyGroup):
@@ -146,7 +146,7 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
             )
             raise
 
-        logger.warning(license_error.description())
+        _logger.warning(license_error.description())
 
         thumbnail_image_name = None
         try:
@@ -442,7 +442,7 @@ class IMPORT_SCENE_OT_vrma(Operator, ImportHelper):
             )
             if errors:
                 for error in errors:
-                    logger.error(error)
+                    _logger.error(error)
                 return {"CANCELLED"}
 
             filepath = Path(self.filepath)

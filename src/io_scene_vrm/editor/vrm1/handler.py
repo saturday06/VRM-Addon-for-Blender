@@ -9,7 +9,7 @@ from ...common.scene_watcher import trigger_scene_watcher
 from .property_group import Vrm1ExpressionPropertyGroup
 from .scene_watcher import LookAtPreviewUpdater
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @persistent

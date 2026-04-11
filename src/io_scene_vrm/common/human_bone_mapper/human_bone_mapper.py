@@ -23,7 +23,7 @@ from . import (
 )
 from .structure_based_mapping import create_structure_based_mapping
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @cache
@@ -190,7 +190,7 @@ def create_human_bone_mapping(
             name = "Structure Based Auto Detected"
             required_count = structure_base_mapping_required_count
     if required_count:
-        logger.debug('Treat as "%s" bone mappings', name)
+        _logger.debug('Treat as "%s" bone mappings', name)
         result = sorted_required_first(armature_data, mapping)
     canonicalize_bone_name.cache_clear()
     return result

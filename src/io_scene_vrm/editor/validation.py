@@ -38,7 +38,7 @@ from .extension import (
 from .extension_accessor import get_armature_extension, get_material_extension
 from .property_group import CollectionPropertyProtocol
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @dataclass
@@ -87,17 +87,17 @@ class WM_OT_vrm_validator(Operator):
                 continue
 
             if fatal_error_count > 10:
-                logger.warning("  (truncated)")
+                _logger.warning("  (truncated)")
                 break
 
             if not fatal_error_count:
-                logger.warning(
+                _logger.warning(
                     "Validating filepath=%s, changed=%s",
                     context.blend_data.filepath,
                     context.blend_data.is_dirty,
                 )
 
-            logger.warning("  - %s", error.message)
+            _logger.warning("  - %s", error.message)
             fatal_error_count += 1
 
         if has_error:
@@ -307,7 +307,7 @@ class WM_OT_vrm_validator(Operator):
             if obj.type == "MESH":
                 mesh_data = obj.data
                 if not isinstance(mesh_data, Mesh):
-                    logger.error("%s is not a Mesh", type(mesh_data))
+                    _logger.error("%s is not a Mesh", type(mesh_data))
                     continue
                 for poly in mesh_data.polygons:
                     if poly.loop_total > 3:  # polygons need all triangle

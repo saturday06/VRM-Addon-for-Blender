@@ -13,7 +13,7 @@ from .ops import (
 )
 from .property_group import BonePropertyGroup
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VRM_MT_bone_assignment(Menu):

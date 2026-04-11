@@ -18,7 +18,7 @@ from ..vrm1.human_bone import (
     HumanBoneSpecifications,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 CENTRAL_BONE_NAMES = frozenset(
@@ -526,20 +526,20 @@ def create_structure_based_mapping(
             if not changed:
                 continue
 
-            logger.warning("Structure search context:")
-            logger.warning("  Search Count Limit: %d", search_context.max_search_count)
-            logger.warning("  Recursion Limit: %d", search_context.max_recursion_depth)
-            logger.warning("  Skip Count: %d", skip_count)
-            logger.warning(
+            _logger.warning("Structure search context:")
+            _logger.warning("  Search Count Limit: %d", search_context.max_search_count)
+            _logger.warning("  Recursion Limit: %d", search_context.max_recursion_depth)
+            _logger.warning("  Skip Count: %d", skip_count)
+            _logger.warning(
                 "  Require Requirement: %d", search_context.require_requirement
             )
-            logger.warning("  Only Requirement: %d", search_context.only_requirement)
-            logger.warning(
+            _logger.warning("  Only Requirement: %d", search_context.only_requirement)
+            _logger.warning(
                 "Structure search: Total searches: %d, Cache hits: %d",
                 counter.count,
                 counter.cache_hit,
             )
-            logger.warning(
+            _logger.warning(
                 "Generated mappings:\n  %s",
                 "\n  ".join(
                     f"{spec.name.value}: {bone.name}"
@@ -547,7 +547,7 @@ def create_structure_based_mapping(
                 ),
             )
 
-    logger.warning(
+    _logger.warning(
         "Structure search completed:"
         " Total searches: %d (soft limit: %d), Cache hits: %d",
         counter.count,

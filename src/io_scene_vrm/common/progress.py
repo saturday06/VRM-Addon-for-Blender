@@ -10,7 +10,7 @@ from bpy.types import Context
 
 from .logger import get_logger
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class PartialProgress:
@@ -46,7 +46,7 @@ class Progress:
         ratio = min(max(0.0, ratio), 1.0)
         self.last_ratio = ratio
         if self.active_progress_uuid != self.uuid:
-            logger.error(
+            _logger.error(
                 "Progress.update() called from different progress active=%s self=%s",
                 self.active_progress_uuid,
                 self.uuid,

@@ -33,7 +33,7 @@ from ..editor.extension_accessor import get_armature_extension
 from ..editor.t_pose import setup_humanoid_t_pose
 from ..editor.vrm1.property_group import Vrm1HumanBonesPropertyGroup, Vrm1PropertyGroup
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VrmAnimationExporter:
@@ -94,7 +94,7 @@ def create_node_dicts(
         human_bone_specification.name
     )
     if not human_bone:
-        logger.error("Failed to find human bone %s", human_bone_specification.name)
+        _logger.error("Failed to find human bone %s", human_bone_specification.name)
         return []
 
     bone = armature.pose.bones.get(human_bone.node.bone_name)
@@ -700,7 +700,7 @@ def set_frame_rotations(
         human_bone_specification.name
     )
     if not human_bone:
-        logger.error("Failed to find human bone %s", human_bone_specification.name)
+        _logger.error("Failed to find human bone %s", human_bone_specification.name)
         return
 
     bone = armature.pose.bones.get(human_bone.node.bone_name)
@@ -765,7 +765,7 @@ def create_node_animation(
 
     hips_bone = human_bones.human_bone_name_to_human_bone().get(HumanBoneName.HIPS)
     if not hips_bone:
-        logger.error("Failed to find hips bone")
+        _logger.error("Failed to find hips bone")
         return
     hips_bone_name = hips_bone.node.bone_name
 
@@ -782,7 +782,7 @@ def create_node_animation(
         )
         hips_pose_bone = armature.pose.bones.get(hips_bone_name)
         if not hips_pose_bone:
-            logger.error("Failed to find hips bone %s", hips_bone_name)
+            _logger.error("Failed to find hips bone %s", hips_bone_name)
             continue
         hips_translations.append(hips_pose_bone.matrix.to_translation())
 
@@ -799,13 +799,13 @@ def create_node_animation(
             None,
         )
         if human_bone_name is None:
-            logger.error("Failed to find human bone name for bone %s", bone_name)
+            _logger.error("Failed to find human bone name for bone %s", bone_name)
             continue
         if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
             continue
         node_index = bone_name_to_node_index.get(bone_name)
         if not isinstance(node_index, int):
-            logger.error("Failed to find node index for bone %s", bone_name)
+            _logger.error("Failed to find node index for bone %s", bone_name)
             continue
 
         input_byte_offset = len(buffer0_bytearray)
@@ -904,7 +904,7 @@ def create_node_animation(
     # Export hips translation
     hips_node_index = bone_name_to_node_index.get(hips_bone_name)
     if hips_node_index is None:
-        logger.error("Failed to find node index for hips bone %s", hips_bone_name)
+        _logger.error("Failed to find node index for hips bone %s", hips_bone_name)
         return
     if all(
         hips_translation.length_squared == 0 for hips_translation in hips_translations

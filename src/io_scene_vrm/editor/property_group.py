@@ -31,7 +31,7 @@ HumanBoneSpecification = TypeVar(
     vrm1_human_bone.HumanBoneSpecification,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 # https://docs.blender.org/api/2.93/bpy.types.EnumPropertyItem.html#bpy.types.EnumPropertyItem
@@ -187,7 +187,7 @@ class MeshObjectPropertyGroup(PropertyGroup):
             " next major release. Please use `MeshObjectPropertyGroup.mesh_object_name`"
             " instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
         return str(self.mesh_object_name)
 
@@ -197,7 +197,7 @@ class MeshObjectPropertyGroup(PropertyGroup):
             " next major release. Please use `MeshObjectPropertyGroup.mesh_object_name`"
             " instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
         self.mesh_object_name = value
 
@@ -443,7 +443,7 @@ class BonePropertyGroup(PropertyGroup):
             "`BonePropertyGroup.value` is deprecated and will be removed in the"
             " next major release. Please use `BonePropertyGroup.bone_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
         return str(self.bone_name)
 
@@ -452,7 +452,7 @@ class BonePropertyGroup(PropertyGroup):
             "`BonePropertyGroup.value` is deprecated and will be removed in the"
             " next major release. Please use `BonePropertyGroup.bone_name` instead."
         )
-        logger.warning(message)
+        _logger.warning(message)
         warnings.warn(message, DeprecationWarning, stacklevel=5)
         self.bone_name = value
 

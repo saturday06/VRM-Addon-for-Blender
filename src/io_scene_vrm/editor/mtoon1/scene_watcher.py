@@ -16,7 +16,7 @@ from .property_group import (
     reset_shader_node_group,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 HAS_AUTO_SMOOTH: Final = tuple(bpy.app.version) < (4, 1)

@@ -12,7 +12,7 @@ from mathutils import Matrix
 
 from .logger import get_logger
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -204,7 +204,7 @@ def wm_append_without_library(
                 library.use_extra_user = False
             if library.users:
                 if bpy.app.version >= (3, 2):
-                    logger.warning(
+                    _logger.warning(
                         'Failed to remove "%s" with %d users'
                         " while appending blend file:"
                         ' filepath="%s" filename="%s" directory="%s"',

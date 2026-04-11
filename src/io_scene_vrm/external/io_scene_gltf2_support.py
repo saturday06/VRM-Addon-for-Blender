@@ -10,7 +10,7 @@ from io_scene_gltf2.io.com import gltf2_io
 
 from ..common.logger import get_logger
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class WM_OT_vrm_io_scene_gltf2_disabled_warning(Operator):
@@ -321,7 +321,7 @@ def export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
     # https://github.com/saturday06/VRM-Addon-for-Blender/issues/1033
     if arguments.export_armature_object_remove:
         arguments.export_armature_object_remove = False
-        logger.warning("retrying with `export_armature_object_remove = False`")
+        _logger.warning("retrying with `export_armature_object_remove = False`")
         try:
             return __invoke_export_scene_gltf(arguments)
         except RuntimeError as exception:
@@ -330,7 +330,7 @@ def export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
     # https://github.com/saturday06/VRM-Addon-for-Blender/commit/26f566d43b15c7a403c0f007b0290f9aef569114
     if arguments.export_animations:
         arguments.export_animations = False
-        logger.warning("retrying with `export_animations = False`")
+        _logger.warning("retrying with `export_animations = False`")
         try:
             return __invoke_export_scene_gltf(arguments)
         except RuntimeError as exception:

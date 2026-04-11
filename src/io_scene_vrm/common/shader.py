@@ -102,7 +102,7 @@ from .logger import get_logger
 from .version import get_addon_version
 from .workspace import wm_append_without_library
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 LAST_MODIFIED_VERSION: Final = (3, 18, 1)
 
@@ -300,7 +300,7 @@ def load_mtoon1_node_group(
     start_time = time.perf_counter()
 
     if not blend_file_path.exists():
-        logger.error("File not found: %s", blend_file_path)
+        _logger.error("File not found: %s", blend_file_path)
         return
 
     if not reset_node_groups:
@@ -325,7 +325,7 @@ def load_mtoon1_node_group(
         template_node_group_name
     )
     if old_template_node_group:
-        logger.error('Node Group "%s" already exists', template_node_group_name)
+        _logger.error('Node Group "%s" already exists', template_node_group_name)
         old_template_node_group.name = backup_name(
             old_template_node_group.name, backup_suffix
         )
@@ -363,7 +363,7 @@ def load_mtoon1_node_group(
     finally:
         if template_node_group:
             if template_node_group.users:
-                logger.warning(
+                _logger.warning(
                     'Failed to remove "%s" with %d users while loading mtoon shader',
                     template_node_group.name,
                     template_node_group.users,
@@ -379,7 +379,7 @@ def load_mtoon1_node_group(
             old_template_node_group.name = template_node_group_name
 
     end_time = time.perf_counter()
-    logger.debug(
+    _logger.debug(
         'Loaded NodeTree "%s": %.9f seconds', node_group_name, end_time - start_time
     )
 
@@ -437,7 +437,7 @@ def load_mtoon1_shader(
     template_material_name = template_name("VRM Add-on MToon 1.0")
     old_material = context.blend_data.materials.get(template_material_name)
     if old_material:
-        logger.error('Material "%s" already exists', template_material_name)
+        _logger.error('Material "%s" already exists', template_material_name)
         old_material.name = backup_name(old_material.name, backup_suffix)
 
     # When appending a Material, NodeTree is also appended simultaneously.
@@ -446,7 +446,7 @@ def load_mtoon1_shader(
         name = template_name(shader_node_group_name)
         old_template_group = context.blend_data.node_groups.get(name)
         if old_template_group:
-            logger.error('Node Group "%s" already exists', name)
+            _logger.error('Node Group "%s" already exists', name)
             old_template_group.name = backup_name(
                 old_template_group.name, backup_suffix
             )
@@ -475,15 +475,15 @@ def load_mtoon1_shader(
         template_material_node_tree = template_material.node_tree
         material_node_tree = material.node_tree
         if template_material_node_tree is None:
-            logger.error("MToon template material node tree is None")
+            _logger.error("MToon template material node tree is None")
         elif material_node_tree is None:
-            logger.error("MToon copy target material node tree is None")
+            _logger.error("MToon copy target material node tree is None")
         else:
             copy_node_tree(context, template_material_node_tree, material_node_tree)
     finally:
         if template_material:
             if template_material.users:
-                logger.warning(
+                _logger.warning(
                     'Failed to remove "%s" with %d users while loading mtoon shader',
                     template_material.name,
                     template_material.users,
@@ -499,7 +499,7 @@ def load_mtoon1_shader(
             )
             if template_group:
                 if template_group.users:
-                    logger.warning(
+                    _logger.warning(
                         'Failed to remove "%s" with %d users'
                         " while loading mtoon shader",
                         template_group.name,
@@ -528,7 +528,7 @@ def load_mtoon1_shader(
     ext.mtoon1.setup_drivers()
 
     end_time = time.perf_counter()
-    logger.debug(
+    _logger.debug(
         'Loaded Material "%s": %.9f seconds', material.name, end_time - start_time
     )
 
@@ -701,7 +701,7 @@ def copy_shader_node_group(
 ) -> None:
     node_tree = from_node.node_tree
     if not node_tree:
-        logger.error("No node_tree in ShaderNodeGroup: %s", from_node.name)
+        _logger.error("No node_tree in ShaderNodeGroup: %s", from_node.name)
         return
 
     for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
@@ -711,13 +711,13 @@ def copy_shader_node_group(
 
         group = context.blend_data.node_groups.get(shader_node_group_name)
         if not group:
-            logger.error('"%s" Not Found', shader_node_group_name)
+            _logger.error('"%s" Not Found', shader_node_group_name)
             continue
 
         to_node.node_tree = group
         return
 
-    logger.error(
+    _logger.error(
         "Importing ShaderNodeGroup doesn't be supported yet: %s", node_tree.name
     )
 
@@ -802,7 +802,7 @@ def copy_node(
         if to_node.text != from_node.text:
             to_node.text = from_node.text
     if isinstance(from_node, NodeGroup):
-        logger.error("Importing NodeGroup doesn't be supported yet")
+        _logger.error("Importing NodeGroup doesn't be supported yet")
     if isinstance(from_node, NodeGroupOutput) and isinstance(to_node, NodeGroupOutput):
         if to_node.is_active_output != from_node.is_active_output:
             to_node.is_active_output = from_node.is_active_output
@@ -1105,7 +1105,7 @@ def copy_node(
         to_node, ShaderNodeCustomGroup
     ):
         # to_node.node_tree = from_node.node_tree
-        logger.error("Importing ShaderNodeCustomGroup doesn't be supported yet")
+        _logger.error("Importing ShaderNodeCustomGroup doesn't be supported yet")
     if isinstance(from_node, ShaderNodeClamp) and isinstance(to_node, ShaderNodeClamp):
         if to_node.clamp_type != from_node.clamp_type:
             to_node.clamp_type = from_node.clamp_type
@@ -1527,7 +1527,7 @@ def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -
             continue
         from_socket_type = from_item.socket_type
         if not from_socket_type:
-            logger.error(
+            _logger.error(
                 'Socket source "%s" has empty socket_type. type=%s',
                 from_item.name,
                 type(from_item).__name__,
@@ -1562,7 +1562,7 @@ def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -
                 continue
 
             if not to_item.socket_type:
-                logger.error(
+                _logger.error(
                     'Socket destination "%s" has empty socket_type. type=%s',
                     to_item.name,
                     type(to_item).__name__,
@@ -1640,7 +1640,7 @@ def copy_node_tree(
         if input_node is None:
             continue
         if not 0 <= input_socket_index < len(input_node.inputs):
-            logger.error(
+            _logger.error(
                 "Input socket out of range: %d < %d",
                 input_socket_index,
                 len(input_node.inputs),
@@ -1648,7 +1648,7 @@ def copy_node_tree(
             continue
         input_socket = input_node.inputs[input_socket_index]
         if not input_socket:
-            logger.error("No input socket: %s", from_link.to_socket.name)
+            _logger.error("No input socket: %s", from_link.to_socket.name)
             continue
 
         output_socket_index = next(
@@ -1665,7 +1665,7 @@ def copy_node_tree(
         if output_node is None:
             continue
         if not 0 <= output_socket_index < len(output_node.outputs):
-            logger.error(
+            _logger.error(
                 "Output socket out of range: %d < %d",
                 output_socket_index,
                 len(output_node.outputs),
@@ -1673,7 +1673,7 @@ def copy_node_tree(
             continue
         output_socket = output_node.outputs[output_socket_index]
         if not output_socket:
-            logger.error("No output socket: %s", from_link.from_socket.name)
+            _logger.error("No output socket: %s", from_link.from_socket.name)
             continue
 
         to_node_tree.links.new(input_socket, output_socket)
@@ -1941,7 +1941,7 @@ def setup_frame_count_driver(context: Context) -> None:
     if not animation_data:
         animation_data = node_group.animation_data_create()
         if not animation_data:
-            logger.error(
+            _logger.error(
                 'Failed to create anomation data for node group "%s"', node_group.name
             )
             return
@@ -1986,7 +1986,7 @@ def setup_frame_count_driver(context: Context) -> None:
             except TypeError:
                 continue
         if not isinstance(fcurve, FCurve):
-            logger.error(
+            _logger.error(
                 'Failed to get fcurve "%s" for node tree "%s"',
                 data_path,
                 node_group.name,
@@ -1996,7 +1996,7 @@ def setup_frame_count_driver(context: Context) -> None:
             fcurve.array_index = 0
         driver = fcurve.driver
         if not isinstance(driver, Driver):
-            logger.error('Failed to get driver for fcurve "%s"', data_path)
+            _logger.error('Failed to get driver for fcurve "%s"', data_path)
             continue
         if driver.type != "SUM":
             driver.type = "SUM"
@@ -2006,7 +2006,7 @@ def setup_frame_count_driver(context: Context) -> None:
             driver.variables.remove(driver.variables[-1])
         variable = driver.variables[0]
         if not variable.targets:
-            logger.error(
+            _logger.error(
                 'No targets in variable for fcurve "%s" in node_tree "%s"',
                 data_path,
                 node_group.name,

@@ -6,7 +6,7 @@ from ...common.logger import get_logger
 from ..extension_accessor import get_armature_extension
 from .property_group import Vrm0BlendShapeGroupPropertyGroup
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @persistent

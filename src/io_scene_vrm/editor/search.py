@@ -25,7 +25,7 @@ from bpy.types import (
 from ..common.logger import get_logger
 from .extension_accessor import get_armature_extension
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 MESH_CONVERTIBLE_OBJECT_TYPES = [
     "CURVE",
@@ -52,7 +52,7 @@ def export_materials(context: Context, objects: Sequence[Object]) -> Sequence[Ma
                     continue
                 result.append(material)
         else:
-            logger.error(
+            _logger.error(
                 "Unexpected mesh convertible object type: %s", type(mesh_convertible)
             )
 

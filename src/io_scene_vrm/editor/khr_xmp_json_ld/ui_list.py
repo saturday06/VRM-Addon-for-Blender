@@ -6,7 +6,7 @@ from ...common.logger import get_logger
 from ..property_group import StringPropertyGroup
 from .property_group import KhrXmpJsonLdKhrCharacterPacketPropertyGroup
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VRM_UL_khr_xmp_json_ld_packet_dc_creator(UIList):

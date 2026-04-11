@@ -35,7 +35,7 @@ from .vrm1.property_group import Vrm1PropertyGroup
 if TYPE_CHECKING:
     from .property_group import CollectionPropertyProtocol
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):

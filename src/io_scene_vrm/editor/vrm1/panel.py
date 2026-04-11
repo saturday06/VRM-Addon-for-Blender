@@ -42,7 +42,7 @@ from .ui_list import (
     VRM_UL_vrm1_texture_transform_bind,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 def draw_vrm1_humanoid_required_bones_layout(

@@ -1,10 +1,14 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+
+from collections.abc import Mapping
+from typing import Final
+
 import bpy
 
 # https://projects.blender.org/blender/blender/commit/0ce02355c1d0fb676167b7070870c8b5ef6ce048
-locale_key = "zh_CN" if bpy.app.version < (4, 0) else "zh_HANS"
+LOCALE_KEY = "zh_CN" if bpy.app.version < (4, 0) else "zh_HANS"
 
-translation_dictionary: dict[tuple[str, str], str] = {
+TRANSLATION_DICTIONARY: Final[Mapping[tuple[str, str], str]] = {
     (
         "*",
         "The installed VRM add-on is not compatible with Blender {blender_version}."

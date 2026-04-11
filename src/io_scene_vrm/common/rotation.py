@@ -9,7 +9,7 @@ from mathutils import Quaternion
 
 from .logger import get_logger
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 ROTATION_MODE_QUATERNION: Final = "QUATERNION"
@@ -30,7 +30,7 @@ def get_rotation_as_quaternion(
     if object_or_pose_bone.rotation_mode in ROTATION_MODE_EULER:
         return object_or_pose_bone.rotation_euler.to_quaternion()
 
-    logger.error(
+    _logger.error(
         "Unexpected rotation mode for %s %s: %s",
         type(object_or_pose_bone),
         object_or_pose_bone.name,
@@ -58,7 +58,7 @@ def set_rotation_without_mode_change(
         )
         return
 
-    logger.error(
+    _logger.error(
         "Unexpected rotation mode for %s %s: %s",
         type(object_or_pose_bone),
         object_or_pose_bone.name,
@@ -76,7 +76,7 @@ def insert_rotation_keyframe(
     elif object_or_pose_bone.rotation_mode in ROTATION_MODE_EULER:
         data_path = "rotation_euler"
     else:
-        logger.error(
+        _logger.error(
             "Unexpected rotation mode for %s %s: %s",
             type(object_or_pose_bone),
             object_or_pose_bone.name,

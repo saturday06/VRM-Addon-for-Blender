@@ -156,13 +156,13 @@ class SceneWatcherScheduler:
             pass
 
 
-scene_watcher_scheduler = SceneWatcherScheduler()
+_scene_watcher_scheduler = SceneWatcherScheduler()
 
 
 def process_scene_watcher_scheduler() -> Optional[float]:
     context = bpy.context
 
-    scene_watcher_scheduler.process(context)
+    _scene_watcher_scheduler.process(context)
     return SceneWatcherScheduler.INTERVAL
 
 
@@ -210,11 +210,11 @@ def create_fast_path_performance_test_scene(
 
 
 def trigger_scene_watcher(scene_watcher_type: type[SceneWatcher]) -> None:
-    scene_watcher_scheduler.trigger(scene_watcher_type)
+    _scene_watcher_scheduler.trigger(scene_watcher_type)
 
 
 @persistent
 def save_pre(_unused: object) -> None:
     context = bpy.context
 
-    scene_watcher_scheduler.flush(context)
+    _scene_watcher_scheduler.flush(context)

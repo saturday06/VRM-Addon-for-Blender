@@ -57,7 +57,7 @@ from ..external.io_scene_gltf2_support import (
 from .gltf2_import_user_extension import glTF2ImportUserExtension
 from .license_validation import validate_license
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -326,7 +326,7 @@ class AbstractBaseVrmImporter(ABC):
 
         texture_dicts = self.parse_result.json_dict.get("textures", [])
         if not isinstance(texture_dicts, list):
-            logger.warning('json["textures"] is not list')
+            _logger.warning('json["textures"] is not list')
             return
 
         if not (0 <= thumbnail_texture_index < len(texture_dicts)):
@@ -365,7 +365,7 @@ class AbstractBaseVrmImporter(ABC):
         if node_tree:
             node_tree.nodes.new("ShaderNodeOutputMaterial")
         else:
-            logger.error("No node tree for material %s", material.name)
+            _logger.error("No node tree for material %s", material.name)
 
     def assign_packed_image_filepaths(self) -> None:
         # Assign image filepath for fbx export
@@ -441,7 +441,7 @@ class AbstractBaseVrmImporter(ABC):
             try:
                 image.unpack(method="WRITE_ORIGINAL")
             except RuntimeError:
-                logger.exception("Failed to unpack %s", image.name)
+                _logger.exception("Failed to unpack %s", image.name)
                 continue
 
             image_unpacked_path_str = image.filepath_from_user()
@@ -1061,7 +1061,7 @@ class AbstractBaseVrmImporter(ABC):
                 )
                 full_vrm_import_success = True
             except RuntimeError:
-                logger.exception(
+                _logger.exception(
                     'Failed to import "%s" generated from "%s" using glTF 2.0 Add-on',
                     indexed_vrm_filepath,
                     self.parse_result.filepath,
@@ -1087,7 +1087,7 @@ class AbstractBaseVrmImporter(ABC):
                         )
                     )
                 except RuntimeError:
-                    logger.exception(
+                    _logger.exception(
                         'Failed to import "%s" generated from "%s"'
                         " using glTF 2.0 Add-on without animations key",
                         indexed_vrm_filepath,
@@ -1253,7 +1253,7 @@ class AbstractBaseVrmImporter(ABC):
             if bpy.app.version >= (3, 2) and scene.use_extra_user:
                 scene.use_extra_user = False
             if scene.users:
-                logger.warning(
+                _logger.warning(
                     'Failed to remove "%s" with %d users while removing temp scenes',
                     scene.name,
                     scene.users,
@@ -1265,7 +1265,7 @@ class AbstractBaseVrmImporter(ABC):
             if not self.is_temp_object_name(obj.name):
                 continue
             if not safe_removal.remove_object(self.context, obj):
-                logger.warning(
+                _logger.warning(
                     'Failed to remove "%s" with %d users while removing temp objects',
                     obj.name,
                     obj.users,
@@ -1275,7 +1275,7 @@ class AbstractBaseVrmImporter(ABC):
             if not self.is_temp_object_name(mesh.name):
                 continue
             if mesh.users:
-                logger.warning(
+                _logger.warning(
                     'Failed to remove "%s" with %d users while removing temp meshes',
                     mesh.name,
                     mesh.users,
@@ -1287,7 +1287,7 @@ class AbstractBaseVrmImporter(ABC):
             if not self.is_temp_object_name(material.name):
                 continue
             if material.users:
-                logger.warning(
+                _logger.warning(
                     'Failed to remove "%s" with %d users while removing temp materials',
                     material.name,
                     material.users,
@@ -1296,7 +1296,7 @@ class AbstractBaseVrmImporter(ABC):
                 self.context.blend_data.materials.remove(material)
 
         if self.armature is None:
-            logger.warning("Failed to read VRM Humanoid")
+            _logger.warning("Failed to read VRM Humanoid")
 
     def cleanup_gltf2_with_indices(self) -> None:
         with save_workspace(self.context):
@@ -1352,7 +1352,7 @@ class AbstractBaseVrmImporter(ABC):
             try:
                 view_settings.view_transform = "Standard"
             except TypeError:
-                logger.exception(
+                _logger.exception(
                     'scene.view_settings.view_transform doesn\'t support "Standard".'
                 )
 

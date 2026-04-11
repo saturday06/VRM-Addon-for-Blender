@@ -29,7 +29,7 @@ from .ui_list import (
     VRM_UL_khr_xmp_json_ld_packet_dc_subject,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 def draw_khr_xmp_json_ld_packet_layout(

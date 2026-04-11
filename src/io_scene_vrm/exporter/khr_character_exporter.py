@@ -17,7 +17,7 @@ from .abstract_base_vrm_exporter import (
     AbstractBaseVrmExporter,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class KhrCharacterExporter(AbstractBaseVrmExporter):

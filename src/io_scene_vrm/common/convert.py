@@ -7,7 +7,7 @@ from typing import Optional, Union
 from . import convert_any
 from .logger import get_logger
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 Json = Union[
     None,
@@ -177,7 +177,7 @@ def float_or(
     if min_value <= default <= max_value:
         return default
 
-    logger.warning(
+    _logger.warning(
         "Default float value %s is out of range [%s, %s]", default, min_value, max_value
     )
 

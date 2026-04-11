@@ -54,7 +54,7 @@ if TYPE_CHECKING:
     from ..property_group import CollectionPropertyProtocol
 
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class Vrm0HumanoidBoneNodePropertyGroup(HumanoidStructureBonePropertyGroup):
@@ -819,7 +819,7 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
             return
 
         if armature and bpy_object.parent != armature:
-            logger.warning(
+            _logger.warning(
                 "Collider %s is not parented to the armature."
                 " Parenting to the armature %s.",
                 self.path_from_id(),
@@ -828,7 +828,7 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
             bpy_object.parent = armature
 
         if bpy_object.empty_display_type != "SPHERE":
-            logger.warning(
+            _logger.warning(
                 "Collider %s has empty display type %s. Setting to SPHERE.",
                 self.path_from_id(),
                 bpy_object.empty_display_type,
@@ -841,14 +841,14 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
 
         if parent_obj.type != "ARMATURE" or not bone_name:
             if bpy_object.parent_type != "OBJECT":
-                logger.warning(
+                _logger.warning(
                     "Collider %s is parented to a bone but no bone is assigned."
                     " Changing to object parenting.",
                     self.path_from_id(),
                 )
                 bpy_object.parent_type = "OBJECT"
                 if bpy_object.parent_bone:
-                    logger.warning(
+                    _logger.warning(
                         "Collider %s has a stale parent bone %s while using object"
                         " parenting. Clearing the parent bone.",
                         self.path_from_id(),
@@ -858,7 +858,7 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
             return
 
         if bpy_object.parent_type != "BONE":
-            logger.warning(
+            _logger.warning(
                 "Collider %s is not parented to a bone. Parenting to the bone %s.",
                 self.path_from_id(),
                 bone_name,
@@ -866,7 +866,7 @@ class Vrm0SecondaryAnimationColliderPropertyGroup(PropertyGroup):
             bpy_object.parent_type = "BONE"
 
         if bpy_object.parent_bone != bone_name:
-            logger.warning(
+            _logger.warning(
                 "Collider %s is parented to a different bone %s."
                 " Changing to the bone %s.",
                 self.path_from_id(),
@@ -903,7 +903,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
     def fixup(self, armature: Optional[Object]) -> None:
         if not self.uuid:
             new_uuid = uuid.uuid4().hex
-            logger.error(
+            _logger.error(
                 "Collider group %s has no UUID. Assigning a new UUID %s.",
                 self.path_from_id(),
                 new_uuid,
@@ -914,7 +914,7 @@ class Vrm0SecondaryAnimationColliderGroupPropertyGroup(PropertyGroup):
             tuple((index, collider) for index, collider in enumerate(self.colliders))
         ):
             if not collider.bpy_object or not collider.bpy_object.name:
-                logger.warning(
+                _logger.warning(
                     "Collider %s in group %s has no valid object. Removing.",
                     collider.path_from_id(),
                     self.display_name,
@@ -1090,7 +1090,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
             if collider_group_uuid in collider_group_uuids:
                 collider_group_uuids.remove(collider_group_uuid)
                 continue
-            logger.error(
+            _logger.error(
                 'Collider group with uuid "%s" not found or duplicated for'
                 ' "%s". Clearing UUID.',
                 collider_group_uuid,
@@ -1301,7 +1301,7 @@ class Vrm0SecondaryAnimationPropertyGroup(PropertyGroup):
                 found_uuids.add(collider_group.uuid)
                 continue
             new_uuid = uuid.uuid4().hex
-            logger.error(
+            _logger.error(
                 "Collider group %s in secondary animation has no UUID or duplicated"
                 " UUID. Assigning a new UUID %s.",
                 collider_group.path_from_id(),

@@ -10,7 +10,7 @@ from ...common.scene_watcher import RunState, SceneWatcher
 from ..extension_accessor import get_armature_extension
 from .property_group import Vrm1LookAtPropertyGroup
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @dataclass

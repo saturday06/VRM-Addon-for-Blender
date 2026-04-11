@@ -33,7 +33,7 @@ from .property_group import (
 
 TextureInfoBackup = Mtoon1TextureInfoPropertyGroup.TextureInfoBackup
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 @dataclass
@@ -67,7 +67,7 @@ def migrate(context: Context, *, show_progress: bool = False) -> None:
         and tuple(context.blend_data.version) < (4, 2)
         and bpy.app.version >= (4, 2)
     ):
-        logger.warning(
+        _logger.warning(
             "Migrating Materials from blender version data=%s app=%s",
             context.blend_data.version,
             bpy.app.version,

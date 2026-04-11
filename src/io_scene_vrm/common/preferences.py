@@ -13,7 +13,7 @@ from .shader import (
     remove_mtoon1_auto_setup_shader_node_group,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 addon_package_name = ".".join(__name__.split(".")[:-2])
 

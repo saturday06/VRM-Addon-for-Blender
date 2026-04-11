@@ -6,9 +6,9 @@ from bpy.types import Object
 from ..logger import get_logger
 from ..vrm1.human_bone import HumanBoneSpecification, HumanBoneSpecifications
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
-biped_mapping = {
+_biped_mapping = {
     (None, "Pelvis"): HumanBoneSpecifications.HIPS,
     (None, "Spine"): HumanBoneSpecifications.SPINE,
     (None, "Spine2"): HumanBoneSpecifications.CHEST,
@@ -68,7 +68,7 @@ def create_config(
 ) -> tuple[str, Mapping[str, HumanBoneSpecification]]:
     mapping: dict[str, HumanBoneSpecification] = {}
     for bone in armature.pose.bones:
-        for (bone_lr, bone_suffix), specification in biped_mapping.items():
+        for (bone_lr, bone_suffix), specification in _biped_mapping.items():
             if (
                 bone.name.startswith("Bip001")
                 and bone.name.endswith(bone_suffix)
