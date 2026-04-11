@@ -36,11 +36,11 @@ class State:
         self.last_fps = Decimal(context.scene.render.fps)
 
 
-state: Final = State()
+_state: Final = State()
 
 
 def reset_state(context: Context) -> None:
-    state.reset(context)
+    _state.reset(context)
 
 
 @dataclass(frozen=True)
@@ -696,7 +696,7 @@ def calculate_joint_pair_head_pose_bone_rotations(
 def depsgraph_update_pre(_scene: Scene, _depsgraph: Depsgraph) -> None:
     context = bpy.context
 
-    state.reset(context)
+    _state.reset(context)
 
 
 @persistent
@@ -704,26 +704,26 @@ def frame_change_pre(_unused: object) -> None:
     context = bpy.context
 
     fps = Decimal(context.scene.render.fps)
-    last_fps = state.last_fps
+    last_fps = _state.last_fps
     fps_base = Decimal(context.scene.render.fps_base)
-    last_fps_base = state.last_fps_base
+    last_fps_base = _state.last_fps_base
     if (
         last_fps_base is None
         or (fps_base - last_fps_base).copy_abs() > 0.00001
         or fps != last_fps
     ):
-        state.reset(context)
+        _state.reset(context)
 
-    state.frame_count += 1
+    _state.frame_count += 1
 
     # If the current time is future than the next SpringBone calculation
     # time, move the SpringBone
     # To minimize floating-point rounding errors, multiply numerator by
     # common denominator to minimize decimal handling
-    frame_time_x_60_x_fps = state.frame_count * Decimal(60) * fps_base
+    frame_time_x_60_x_fps = _state.frame_count * Decimal(60) * fps_base
     while True:
         next_spring_bone_60_fps_update_count = (
-            state.spring_bone_60_fps_update_count + Decimal(1)
+            _state.spring_bone_60_fps_update_count + Decimal(1)
         )
 
         next_spring_bone_update_time_x_60_x_fps = (
@@ -738,14 +738,14 @@ def frame_change_pre(_unused: object) -> None:
             60
         )
         current_spring_bone_update_time = (
-            state.spring_bone_60_fps_update_count / Decimal(60)
+            _state.spring_bone_60_fps_update_count / Decimal(60)
         )
         delta_time = float(next_spring_bone_update_time) - float(
             current_spring_bone_update_time
         )
         update_pose_bone_rotations(context, delta_time)
 
-        state.spring_bone_60_fps_update_count += 1
+        _state.spring_bone_60_fps_update_count += 1
 
 
 def sort_spring_bone_joints(
