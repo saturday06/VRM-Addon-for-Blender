@@ -17,11 +17,11 @@ class State:
     during_frame_change: bool = False
 
 
-state: Final = State()
+_state: Final = State()
 
 
 def is_animation_playing(context: Context) -> bool:
-    if state.during_animation_playback:
+    if _state.during_animation_playback:
         return True
     screen = context.screen
     if not screen:
@@ -30,29 +30,29 @@ def is_animation_playing(context: Context) -> bool:
 
 
 def defer_shape_key_update(context: Context) -> bool:
-    return is_animation_playing(context) or state.during_frame_change
+    return is_animation_playing(context) or _state.during_frame_change
 
 
 @persistent
 def animation_playback_pre(_unused: object) -> None:
-    state.during_animation_playback = True
+    _state.during_animation_playback = True
 
 
 @persistent
 def animation_playback_post(_unused: object) -> None:
-    state.during_animation_playback = False
+    _state.during_animation_playback = False
 
 
 @persistent
 def frame_change_pre(_unused: object) -> None:
-    state.during_frame_change = True
+    _state.during_frame_change = True
 
 
 @persistent
 def frame_change_post(_unused: object) -> None:
-    state.during_frame_change = False
+    _state.during_frame_change = False
 
 
 def clear_global_variables() -> None:
-    state.during_animation_playback = False
-    state.during_frame_change = False
+    _state.during_animation_playback = False
+    _state.during_frame_change = False
