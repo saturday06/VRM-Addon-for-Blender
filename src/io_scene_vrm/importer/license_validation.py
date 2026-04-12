@@ -47,7 +47,7 @@ class LicenseConfirmationRequiredError(Exception):
         ]
 
 
-def validate_license_url(
+def _validate_license_url(
     url_str: str, json_key: str, props: list[LicenseConfirmationRequiredProp]
 ) -> None:
     if not url_str:
@@ -57,9 +57,9 @@ def validate_license_url(
         url = urlsplit(url_str)
     if url:
         query_dict = dict(parse_qsl(url.query))
-        if validate_vroid_hub_license_url(
+        if _validate_vroid_hub_license_url(
             url, query_dict, json_key, props
-        ) or validate_uni_virtual_license_url(url, query_dict, json_key, props):
+        ) or _validate_uni_virtual_license_url(url, query_dict, json_key, props):
             return
     props.append(
         LicenseConfirmationRequiredProp(
@@ -70,7 +70,7 @@ def validate_license_url(
     )
 
 
-def validate_vroid_hub_license_url(
+def _validate_vroid_hub_license_url(
     url: SplitResult,
     query_dict: dict[str, str],
     json_key: str,
@@ -92,7 +92,7 @@ def validate_vroid_hub_license_url(
     return True
 
 
-def validate_uni_virtual_license_url(
+def _validate_uni_virtual_license_url(
     url: SplitResult,
     query_dict: dict[str, str],
     json_key: str,
@@ -112,7 +112,7 @@ def validate_uni_virtual_license_url(
     return True
 
 
-def validate_vrm1_license(
+def _validate_vrm1_license(
     json_dict: dict[str, Json], _confirmations: list[LicenseConfirmationRequiredProp]
 ) -> None:
     extensions_dict = json_dict.get("extensions")
@@ -126,7 +126,7 @@ def validate_vrm1_license(
     return
 
 
-def validate_vrm0_license(
+def _validate_vrm0_license(
     json_dict: dict[str, Json], confirmations: list[LicenseConfirmationRequiredProp]
 ) -> None:
     extensions_dict = json_dict.get("extensions")
@@ -170,13 +170,13 @@ def validate_vrm0_license(
                 )
             )
         else:
-            validate_license_url(
+            _validate_license_url(
                 str(other_license_url), "otherLicenseUrl", confirmations
             )
 
     other_permission_url = meta_dict.get("otherPermissionUrl")
     if other_permission_url is not None:
-        validate_license_url(
+        _validate_license_url(
             str(other_permission_url),
             "otherPermissionUrl",
             confirmations,
@@ -190,9 +190,9 @@ def validate_license(
     confirmations: list[LicenseConfirmationRequiredProp] = []
 
     if tuple(spec_version_number) >= (1, 0):
-        validate_vrm1_license(json_dict, confirmations)
+        _validate_vrm1_license(json_dict, confirmations)
     else:
-        validate_vrm0_license(json_dict, confirmations)
+        _validate_vrm0_license(json_dict, confirmations)
 
     if confirmations:
         raise LicenseConfirmationRequiredError(confirmations)

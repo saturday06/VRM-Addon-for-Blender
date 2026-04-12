@@ -34,12 +34,12 @@ def register_writable_context_becomes_available_once_handler(
         _state.pending_handlers.append(handler)
 
     if not bpy.app.timers.is_registered(
-        writable_context_becomes_available_timer_callback
+        _writable_context_becomes_available_timer_callback
     ):
-        bpy.app.timers.register(writable_context_becomes_available_timer_callback)
+        bpy.app.timers.register(_writable_context_becomes_available_timer_callback)
 
 
-def writable_context_becomes_available_timer_callback() -> Optional[float]:
+def _writable_context_becomes_available_timer_callback() -> Optional[float]:
     context = bpy.context
     trigger_writable_context_becomes_available_once_handlers(context, load_post=False)
 
@@ -73,5 +73,5 @@ def depsgraph_update_pre(_unused: object) -> None:
 def clear_writable_context_becomes_available_once_handlers() -> None:
     _state.registered_handlers.clear()
     _state.pending_handlers.clear()
-    if bpy.app.timers.is_registered(writable_context_becomes_available_timer_callback):
-        bpy.app.timers.unregister(writable_context_becomes_available_timer_callback)
+    if bpy.app.timers.is_registered(_writable_context_becomes_available_timer_callback):
+        bpy.app.timers.unregister(_writable_context_becomes_available_timer_callback)

@@ -86,14 +86,14 @@ def show_error_dialog(
         lines=[
             {
                 "name": f"error_line_{i}",
-                "line": mask_private_string(line),
+                "line": _mask_private_string(line),
             }
             for i, line in enumerate(lines)
         ],
     )
 
 
-def mask_private_string(message: str) -> str:
+def _mask_private_string(message: str) -> str:
     script_path = Path(__file__).parent.parent.parent.parent.parent
     if len(script_path.parts) > 3:
         message = message.replace(str(script_path), "<script path>")

@@ -13,7 +13,7 @@ from io_scene_vrm.editor.extension import (
 from .util import TEMP_PATH
 
 
-def add_bones(
+def _add_bones(
     edit_bones: ArmatureEditBones, parent_edit_bone: EditBone, depth: int
 ) -> None:
     branch_counts = [1, 2, 3, 2, 3, 2, 2, 2, 3]
@@ -37,10 +37,10 @@ def add_bones(
         )
 
         bone.parent = parent_edit_bone
-        add_bones(edit_bones, bone, depth + 1)
+        _add_bones(edit_bones, bone, depth + 1)
 
 
-def generate_many_bones(context: Context) -> None:
+def _generate_many_bones(context: Context) -> None:
     bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
     armature_object = context.object
     if not armature_object:
@@ -61,7 +61,7 @@ def generate_many_bones(context: Context) -> None:
     root_bone = edit_bones.new(root_bone_name)
     root_bone.head = (0, 0, 0)
     root_bone.tail = (0, 0, 0.5)
-    add_bones(edit_bones, root_bone, 0)
+    _add_bones(edit_bones, root_bone, 0)
 
     bpy.ops.object.mode_set(mode="OBJECT")
 
@@ -75,7 +75,7 @@ def test_many_bone_assignment(benchmark: BenchmarkFixture) -> None:
     path = TEMP_PATH / f"many_bone_assignment_{version_str}.blend"
     if not path.exists():
         bpy.ops.wm.read_homefile(use_empty=True)
-        generate_many_bones(context)
+        _generate_many_bones(context)
         context.view_layer.update()
         bpy.ops.wm.save_as_mainfile(filepath=str(path))
         bpy.ops.wm.read_homefile(use_empty=True)

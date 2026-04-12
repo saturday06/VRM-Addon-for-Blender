@@ -48,14 +48,14 @@ class VrmAnimationImporter:
             save_workspace(context, armature, mode="POSE"),
         ):
             bpy.ops.pose.select_all(action="DESELECT")
-            result = import_vrm_animation(context, path, armature)
+            result = _import_vrm_animation(context, path, armature)
             look_at_preview_enabled = ext.vrm1.look_at.enable_preview
 
         ext.vrm1.look_at.enable_preview = look_at_preview_enabled
         return result
 
 
-def find_root_node_index(
+def _find_root_node_index(
     node_dicts: list[Json], node_index: int, skip_node_indices: set[int]
 ) -> int:
     for parent_node_index, node_dict in enumerate(node_dicts):
@@ -72,13 +72,13 @@ def find_root_node_index(
             if child_node_index != node_index:
                 continue
             skip_node_indices.add(node_index)
-            return find_root_node_index(
+            return _find_root_node_index(
                 node_dicts, parent_node_index, skip_node_indices
             )
     return node_index
 
 
-def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[str]:
+def _import_vrm_animation(context: Context, path: Path, armature: Object) -> set[str]:
     if not path.exists():
         return {"CANCELLED"}
     armature_data = armature.data
@@ -171,7 +171,7 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
             continue
         node_index_to_human_bone_name[node_index] = human_bone_name
 
-    root_node_index = find_root_node_index(node_dicts, hips_node_index, set())
+    root_node_index = _find_root_node_index(node_dicts, hips_node_index, set())
     node_rest_pose_trees = NodeRestPoseTree.build(
         node_dicts, root_node_index, is_root=True
     )
@@ -390,7 +390,7 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
         )
         frame_count = zero_origin_frame_count + 1
 
-        assign_humanoid_keyframe(
+        _assign_humanoid_keyframe(
             armature,
             node_rest_pose_tree,
             node_index_to_human_bone_name,
@@ -403,7 +403,7 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
             intermediate_pose_local_matrix=Matrix(),
             parent_node_rest_pose_world_matrix=Matrix(),
         )
-        assign_expression_keyframe(
+        _assign_expression_keyframe(
             armature_data,
             expression_name_to_default_preview_value,
             expression_name_to_translation_keyframes,
@@ -411,7 +411,7 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
             timestamp,
         )
         if look_at_target_object and look_at_translation_keyframes:
-            assign_look_at_keyframe(
+            _assign_look_at_keyframe(
                 look_at_target_object,
                 look_at_translation_keyframes,
                 frame_count,
@@ -435,7 +435,7 @@ def import_vrm_animation(context: Context, path: Path, armature: Object) -> set[
     return {"FINISHED"}
 
 
-def assign_look_at_keyframe(
+def _assign_look_at_keyframe(
     look_at_target_object: Object,
     translation_keyframes: tuple[tuple[float, Vector], ...],
     frame_count: int,
@@ -470,7 +470,7 @@ def assign_look_at_keyframe(
     look_at_target_object.location = current_location
 
 
-def assign_expression_keyframe(
+def _assign_expression_keyframe(
     armature_data: Armature,
     expression_name_to_default_preview_value: dict[str, float],
     expression_name_to_translation_keyframes: dict[
@@ -601,7 +601,7 @@ class NodeRestPoseTree:
         ]
 
 
-def assign_humanoid_keyframe(
+def _assign_humanoid_keyframe(
     armature: Object,
     node_rest_pose_tree: NodeRestPoseTree,
     node_index_to_human_bone_name: dict[int, HumanBoneName],
@@ -774,7 +774,7 @@ def assign_humanoid_keyframe(
         pose_local_matrix = Matrix()
 
     for child in node_rest_pose_tree.children:
-        assign_humanoid_keyframe(
+        _assign_humanoid_keyframe(
             armature,
             child,
             node_index_to_human_bone_name,

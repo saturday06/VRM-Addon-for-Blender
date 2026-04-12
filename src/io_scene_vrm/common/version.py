@@ -29,7 +29,7 @@ _cache = Cache(
 )
 
 
-def clear_addon_version_cache() -> Optional[float]:
+def _clear_addon_version_cache() -> Optional[float]:
     _cache.use = False
     return None
 
@@ -37,12 +37,12 @@ def clear_addon_version_cache() -> Optional[float]:
 def trigger_clear_addon_version_cache() -> None:
     if tuple(bpy.app.version) >= (4, 2):
         return
-    if bpy.app.timers.is_registered(clear_addon_version_cache):
+    if bpy.app.timers.is_registered(_clear_addon_version_cache):
         return
-    bpy.app.timers.register(clear_addon_version_cache, first_interval=0.5)
+    bpy.app.timers.register(_clear_addon_version_cache, first_interval=0.5)
 
 
-def min_unsupported_blender_major_minor_version() -> Optional[tuple[int, int]]:
+def _min_unsupported_blender_major_minor_version() -> Optional[tuple[int, int]]:
     blender_version_max = BlenderManifest.read().blender_version_max
     if blender_version_max is None:
         return None
@@ -53,7 +53,7 @@ def get_addon_version() -> tuple[int, int, int]:
     return BlenderManifest.read().version
 
 
-def blender_restart_required() -> bool:
+def _blender_restart_required() -> bool:
     if tuple(bpy.app.version) >= (4, 2):
         return False
 
@@ -86,7 +86,7 @@ def blender_restart_required() -> bool:
     return True
 
 
-def stable_release() -> bool:
+def _stable_release() -> bool:
     if bpy.app.version_cycle == "release":
         return True
 
@@ -96,19 +96,19 @@ def stable_release() -> bool:
 
 
 def supported() -> bool:
-    v = min_unsupported_blender_major_minor_version()
+    v = _min_unsupported_blender_major_minor_version()
     if v is None:
         return True
     return bpy.app.version[:2] < v
 
 
 def preferences_warning_message() -> Optional[str]:
-    if blender_restart_required():
+    if _blender_restart_required():
         return pgettext(
             "The VRM add-on has been updated."
             + " Please restart Blender to apply the changes."
         )
-    if not stable_release():
+    if not _stable_release():
         return pgettext(
             "VRM add-on is not compatible with Blender {blender_version_cycle}."
         ).format(blender_version_cycle=bpy.app.version_cycle.capitalize())
@@ -121,13 +121,13 @@ def preferences_warning_message() -> Optional[str]:
 
 
 def panel_warning_message() -> Optional[str]:
-    if blender_restart_required():
+    if _blender_restart_required():
         return pgettext(
             "The VRM add-on has been\n"
             + "updated. Please restart Blender\n"
             + "to apply the changes."
         )
-    if not stable_release():
+    if not _stable_release():
         return pgettext(
             "VRM add-on is\n"
             + "not compatible with\n"
@@ -143,12 +143,12 @@ def panel_warning_message() -> Optional[str]:
 
 
 def validation_warning_message() -> Optional[str]:
-    if blender_restart_required():
+    if _blender_restart_required():
         return pgettext(
             "The VRM add-on has been updated."
             + " Please restart Blender to apply the changes."
         )
-    if not stable_release():
+    if not _stable_release():
         return pgettext(
             "VRM add-on is not compatible with Blender {blender_version_cycle}."
             + " The VRM may not be exported correctly.",

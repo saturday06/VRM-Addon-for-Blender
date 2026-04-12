@@ -29,7 +29,7 @@ KHR_CHARACTER_SUPPORTED: Final[bool] = bpy.app.version >= (100000,)
 _logger = get_logger(__name__)
 
 
-def get_list_from_json_ld(v: Json) -> list[str]:
+def _get_list_from_json_ld(v: Json) -> list[str]:
     """Extract a list of strings from a JSON-LD @list value or plain list."""
     if isinstance(v, dict):
         items = v.get("@list")
@@ -40,7 +40,7 @@ def get_list_from_json_ld(v: Json) -> list[str]:
     return []
 
 
-def get_string_from_json_ld_value(v: Json) -> str:
+def _get_string_from_json_ld_value(v: Json) -> str:
     """Return a string from a plain string or localized JSON-LD object.
 
     A localized value looks like ``{"en": "hello", "und": "hello"}``.
@@ -203,17 +203,17 @@ class Gltf2ImportUserExtensionVrmKhrCharacter(Gltf2ImportUserExtensionVrm):
     ) -> None:
         """Populate KhrXmpJsonLdKhrCharacterPacketPropertyGroup from XMP packet."""
         # dc:title - plain string or localized {"lang": "value"}
-        dc_title = get_string_from_json_ld_value(packet_dict.get("dc:title"))
+        dc_title = _get_string_from_json_ld_value(packet_dict.get("dc:title"))
         if dc_title:
             xmp.dc_title = dc_title
 
         # dc:creator - {"@list": [...]}
-        for creator in get_list_from_json_ld(packet_dict.get("dc:creator")):
+        for creator in _get_list_from_json_ld(packet_dict.get("dc:creator")):
             item = xmp.dc_creator.add()
             item.value = creator
 
         # dc:license - {"@list": [...]}
-        for license_url in get_list_from_json_ld(packet_dict.get("dc:license")):
+        for license_url in _get_list_from_json_ld(packet_dict.get("dc:license")):
             item = xmp.dc_license.add()
             item.value = license_url
 
@@ -223,7 +223,7 @@ class Gltf2ImportUserExtensionVrmKhrCharacter(Gltf2ImportUserExtensionVrm):
             xmp.dc_created = dc_created
 
         # dc:rights - plain string or localized
-        dc_rights = get_string_from_json_ld_value(packet_dict.get("dc:rights"))
+        dc_rights = _get_string_from_json_ld_value(packet_dict.get("dc:rights"))
         if dc_rights:
             xmp.dc_rights = dc_rights
 
@@ -233,14 +233,14 @@ class Gltf2ImportUserExtensionVrmKhrCharacter(Gltf2ImportUserExtensionVrm):
             xmp.dc_publisher = dc_publisher
 
         # dc:description - plain string or localized
-        dc_description = get_string_from_json_ld_value(
+        dc_description = _get_string_from_json_ld_value(
             packet_dict.get("dc:description")
         )
         if dc_description:
             xmp.dc_description = dc_description
 
         # dc:subject - {"@list": [...]}
-        for subject in get_list_from_json_ld(packet_dict.get("dc:subject")):
+        for subject in _get_list_from_json_ld(packet_dict.get("dc:subject")):
             item = xmp.dc_subject.add()
             item.value = subject
 

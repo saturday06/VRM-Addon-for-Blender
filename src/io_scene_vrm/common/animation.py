@@ -20,7 +20,7 @@ class State:
 _state: Final = State()
 
 
-def is_animation_playing(context: Context) -> bool:
+def _is_animation_playing(context: Context) -> bool:
     if _state.during_animation_playback:
         return True
     screen = context.screen
@@ -30,7 +30,7 @@ def is_animation_playing(context: Context) -> bool:
 
 
 def defer_shape_key_update(context: Context) -> bool:
-    return is_animation_playing(context) or _state.during_frame_change
+    return _is_animation_playing(context) or _state.during_frame_change
 
 
 @persistent

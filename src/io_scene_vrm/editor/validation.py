@@ -701,7 +701,7 @@ class WM_OT_vrm_validator(Operator):
             if legacy_shader_name == "MToon_unversioned":
                 for texture_val in MtoonUnversioned.texture_kind_exchange_dict.values():
                     suffix = "_alpha" if texture_val == "ReceiveShadow_Texture" else ""
-                    node_material_input_check(
+                    _node_material_input_check(
                         node,
                         material,
                         "TEX_IMAGE",
@@ -712,7 +712,7 @@ class WM_OT_vrm_validator(Operator):
                 for float_val in MtoonUnversioned.float_props_exchange_dict.values():
                     if float_val is None:
                         continue
-                    node_material_input_check(
+                    _node_material_input_check(
                         node,
                         material,
                         "VALUE",
@@ -721,7 +721,7 @@ class WM_OT_vrm_validator(Operator):
                         state.used_images,
                     )
                 for k in ["_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"]:
-                    node_material_input_check(
+                    _node_material_input_check(
                         node,
                         material,
                         "RGB",
@@ -732,7 +732,7 @@ class WM_OT_vrm_validator(Operator):
             # GLTF
             elif legacy_shader_name == "GLTF":
                 for k in TEXTURE_INPUT_NAMES:
-                    node_material_input_check(
+                    _node_material_input_check(
                         node,
                         material,
                         "TEX_IMAGE",
@@ -741,7 +741,7 @@ class WM_OT_vrm_validator(Operator):
                         state.used_images,
                     )
                 for k in VAL_INPUT_NAMES:
-                    node_material_input_check(
+                    _node_material_input_check(
                         node,
                         material,
                         "VALUE",
@@ -750,7 +750,7 @@ class WM_OT_vrm_validator(Operator):
                         state.used_images,
                     )
                 for k in RGBA_INPUT_NAMES:
-                    node_material_input_check(
+                    _node_material_input_check(
                         node,
                         material,
                         "RGB",
@@ -760,7 +760,7 @@ class WM_OT_vrm_validator(Operator):
                     )
             # Transparent_Zwrite
             elif legacy_shader_name == "TRANSPARENT_ZWRITE":
-                node_material_input_check(
+                _node_material_input_check(
                     node,
                     material,
                     "TEX_IMAGE",
@@ -1145,7 +1145,7 @@ class WM_OT_vrm_validator(Operator):
         armature_object_name: str  # type: ignore[no-redef]
 
 
-def node_material_input_check(
+def _node_material_input_check(
     node: ShaderNodeGroup,
     material: Material,
     expect_node_type: str,

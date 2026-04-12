@@ -39,7 +39,7 @@ class TestLicenseValidation(AddonTestCase):
                 confirmation_props: list[
                     license_validation.LicenseConfirmationRequiredProp
                 ] = []
-                license_validation.validate_license_url(url, "key", confirmation_props)
+                license_validation._validate_license_url(url, "key", confirmation_props)
                 if confirmation_required:
                     self.assertEqual(1, len(confirmation_props))
                 else:

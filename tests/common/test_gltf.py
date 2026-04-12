@@ -24,7 +24,7 @@ class TestGltf(TestCase):
                 ]
                 buffer_dicts: list[Json] = [{"uri": uri}]
 
-                result = gltf.read_accessor_as_bytes(
+                result = gltf._read_accessor_as_bytes(
                     accessor_dict,
                     buffer_view_dicts,
                     buffer_dicts,
@@ -47,7 +47,7 @@ class TestGltf(TestCase):
                     {"buffer": 0, "byteOffset": 0, "byteLength": 5}
                 ]
                 buffer_dicts: list[Json] = [{"uri": uri}]
-                result = gltf.read_accessor_as_bytes(
+                result = gltf._read_accessor_as_bytes(
                     accessor_dict, buffer_view_dicts, buffer_dicts, None
                 )
                 self.assertIsNone(result, f"Should have failed for URI: {uri}")

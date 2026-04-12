@@ -15,7 +15,7 @@ from io_scene_vrm.editor.extension import (
 from .util import TEMP_PATH
 
 
-def generate_random_shape_keys(context: Context, armature_object: Object) -> None:
+def _generate_random_shape_keys(context: Context, armature_object: Object) -> None:
     if not isinstance(armature_data := armature_object.data, Armature):
         raise TypeError
 
@@ -118,7 +118,7 @@ def test_expression_preview(benchmark: BenchmarkFixture) -> None:
             or not isinstance(armature_data, Armature)
         ):
             raise AssertionError
-        generate_random_shape_keys(context, armature)
+        _generate_random_shape_keys(context, armature)
         context.view_layer.update()
         bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
         bpy.ops.wm.read_homefile(use_empty=True)

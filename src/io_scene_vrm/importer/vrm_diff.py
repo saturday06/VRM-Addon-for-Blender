@@ -22,7 +22,7 @@ FIXED_ASSET_GENERATOR_VALUE: Final = (
 )
 
 
-def human_bone_sort_key(human_bone_dict: Json) -> int:
+def _human_bone_sort_key(human_bone_dict: Json) -> int:
     if not isinstance(human_bone_dict, dict):
         return -1
     node = human_bone_dict.get("node")
@@ -31,7 +31,7 @@ def human_bone_sort_key(human_bone_dict: Json) -> int:
     return node
 
 
-def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
+def _create_vrm_json_dict(data: bytes) -> dict[str, Json]:
     json_dict, buffer0_bytes = gltf.parse_glb(data)
     json_dict["__decoded_accessors"] = make_json(
         read_accessors(json_dict, buffer0_bytes)
@@ -152,7 +152,7 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
         vrm0_human_bone_dicts = vrm0_humanoid_dict.get("humanBones")
         if isinstance(vrm0_human_bone_dicts, list):
             vrm0_humanoid_dict["humanBones"] = sorted(
-                vrm0_human_bone_dicts, key=human_bone_sort_key
+                vrm0_human_bone_dicts, key=_human_bone_sort_key
             )
 
             vrm0_first_person_bone = vrm0_first_person_dict.get("firstPersonBone")
@@ -306,5 +306,5 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
 
 def vrm_diff(before: bytes, after: bytes, float_tolerance: float) -> list[str]:
     return deep.diff(
-        create_vrm_json_dict(before), create_vrm_json_dict(after), float_tolerance
+        _create_vrm_json_dict(before), _create_vrm_json_dict(after), float_tolerance
     )

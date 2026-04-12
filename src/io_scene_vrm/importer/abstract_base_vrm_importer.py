@@ -1430,7 +1430,7 @@ def parse_vrm_json(filepath: Path, *, license_validation: bool) -> ParseResult:
             spec_version_str,
             spec_version_is_stable,
             hips_node_index,
-        ) = read_vrm1_extension(vrm1_extension_dict)
+        ) = _read_vrm1_extension(vrm1_extension_dict)
         vrm0_extension_dict = {}
     elif isinstance(vrm0_extension_dict, dict):
         (
@@ -1438,7 +1438,7 @@ def parse_vrm_json(filepath: Path, *, license_validation: bool) -> ParseResult:
             spec_version_str,
             spec_version_is_stable,
             hips_node_index,
-        ) = read_vrm0_extension(vrm0_extension_dict)
+        ) = _read_vrm0_extension(vrm0_extension_dict)
         vrm1_extension_dict = {}
     else:
         spec_version_number = (0, 0)
@@ -1464,7 +1464,7 @@ def parse_vrm_json(filepath: Path, *, license_validation: bool) -> ParseResult:
     )
 
 
-def read_vrm0_extension(
+def _read_vrm0_extension(
     vrm0_dict: dict[str, Json],
 ) -> tuple[tuple[int, int], str, bool, Optional[int]]:
     spec_version_number = (0, 0)
@@ -1497,7 +1497,7 @@ def read_vrm0_extension(
     )
 
 
-def read_vrm1_extension(
+def _read_vrm1_extension(
     vrm1_dict: dict[str, Json],
 ) -> tuple[tuple[int, int], str, bool, Optional[int]]:
     spec_version_number = (1, 0)

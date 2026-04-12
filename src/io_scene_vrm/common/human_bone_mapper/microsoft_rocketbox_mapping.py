@@ -61,9 +61,9 @@ MAPPING_TEMPLATE: Final[Mapping[str, HumanBoneSpecification]] = {
 }
 
 
-def prefixed_mapping(key_prefix: str) -> dict[str, HumanBoneSpecification]:
+def _prefixed_mapping(key_prefix: str) -> dict[str, HumanBoneSpecification]:
     return {key_prefix + k: v for k, v in MAPPING_TEMPLATE.items()}
 
 
-CONFIG_BIP01: Final = ("Microsoft Rocketbox (Bip01)", prefixed_mapping("Bip01 "))
-CONFIG_BIP02: Final = ("Microsoft Rocketbox (Bip02)", prefixed_mapping("Bip02 "))
+CONFIG_BIP01: Final = ("Microsoft Rocketbox (Bip01)", _prefixed_mapping("Bip01 "))
+CONFIG_BIP02: Final = ("Microsoft Rocketbox (Bip02)", _prefixed_mapping("Bip02 "))

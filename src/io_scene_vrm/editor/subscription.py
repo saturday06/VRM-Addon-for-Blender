@@ -44,7 +44,7 @@ def setup_subscription(*, load_post: bool) -> None:
         key=object_mode_subscribe_to,
         owner=_subscription.object_mode_subscription_owner,
         args=(),
-        notify=on_change_bpy_object_mode,
+        notify=_on_change_bpy_object_mode,
     )
 
     object_location_subscribe_to = (Object, "location")
@@ -52,7 +52,7 @@ def setup_subscription(*, load_post: bool) -> None:
         key=object_location_subscribe_to,
         owner=_subscription.object_location_subscription_owner,
         args=(),
-        notify=on_change_bpy_object_location,
+        notify=_on_change_bpy_object_location,
     )
 
     bone_name_subscribe_to = (Bone, "name")
@@ -60,7 +60,7 @@ def setup_subscription(*, load_post: bool) -> None:
         key=bone_name_subscribe_to,
         owner=_subscription.bone_name_subscription_owner,
         args=(),
-        notify=on_change_bpy_bone_name,
+        notify=_on_change_bpy_bone_name,
     )
 
     armature_name_subscribe_to = (Armature, "name")
@@ -68,7 +68,7 @@ def setup_subscription(*, load_post: bool) -> None:
         key=armature_name_subscribe_to,
         owner=_subscription.armature_name_subscription_owner,
         args=(),
-        notify=on_change_bpy_armature_name,
+        notify=_on_change_bpy_armature_name,
     )
 
     bpy.msgbus.publish_rna(key=object_mode_subscribe_to)
@@ -85,7 +85,7 @@ def teardown_subscription() -> None:
     bpy.msgbus.clear_by_owner(_subscription.object_mode_subscription_owner)
 
 
-def on_change_bpy_object_mode() -> None:
+def _on_change_bpy_object_mode() -> None:
     context = bpy.context
 
     active_object = context.active_object
@@ -94,7 +94,7 @@ def on_change_bpy_object_mode() -> None:
     refresh_mtoon1_outline_object(context, active_object)
 
 
-def on_change_bpy_object_location() -> None:
+def _on_change_bpy_object_location() -> None:
     context = bpy.context
     active_object = context.active_object
     if not active_object:
@@ -102,7 +102,7 @@ def on_change_bpy_object_location() -> None:
     vrm1_property_group.Vrm1LookAtPropertyGroup.update_all_previews(context)
 
 
-def on_change_bpy_bone_name() -> None:
+def _on_change_bpy_bone_name() -> None:
     context = bpy.context
 
     for armature in context.blend_data.armatures:
@@ -121,7 +121,7 @@ def on_change_bpy_bone_name() -> None:
         )
 
 
-def on_change_bpy_armature_name() -> None:
+def _on_change_bpy_armature_name() -> None:
     context = bpy.context
 
     migrate_all_objects(context, heavy_migration=False)

@@ -84,7 +84,7 @@ def create_armature(
     return armature_object, mapping
 
 
-def create_normalized_bone(
+def _create_normalized_bone(
     name: str,
     x: float,
     y: float,
@@ -104,9 +104,9 @@ def create_normalized_bone(
 
 class TestSearchBranchJson(TestCase):
     def test_roundtrip_assigned_branch(self) -> None:
-        hips_bone = create_normalized_bone("hips", 0.0, 0.0, 1.0)
-        spine_bone = create_normalized_bone("spine", 0.0, 0.0, 2.0)
-        head_bone = create_normalized_bone("head", 0.0, 0.0, 3.0)
+        hips_bone = _create_normalized_bone("hips", 0.0, 0.0, 1.0)
+        spine_bone = _create_normalized_bone("spine", 0.0, 0.0, 2.0)
+        head_bone = _create_normalized_bone("head", 0.0, 0.0, 3.0)
 
         head_branch = AssignedSearchBranch(
             depth=3,
@@ -136,8 +136,8 @@ class TestSearchBranchJson(TestCase):
         self.assertEqual(hips_branch, restored)
 
     def test_roundtrip_unassigned_branch(self) -> None:
-        hips_bone = create_normalized_bone("hips", 0.0, 0.0, 1.0)
-        spine_bone = create_normalized_bone("spine", 0.0, 0.0, 2.0)
+        hips_bone = _create_normalized_bone("hips", 0.0, 0.0, 1.0)
+        spine_bone = _create_normalized_bone("spine", 0.0, 0.0, 2.0)
 
         spine_branch = AssignedSearchBranch(
             depth=2,

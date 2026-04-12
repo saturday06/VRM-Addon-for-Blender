@@ -25,7 +25,7 @@ class SavedWorkspace:
     active_object_hide_viewport: bool
 
 
-def enter_save_workspace(
+def _enter_save_workspace(
     context: Context, obj: Optional[Object] = None, *, mode: str = "OBJECT"
 ) -> SavedWorkspace:
     # Save the position of the 3D cursor
@@ -82,7 +82,7 @@ def enter_save_workspace(
     )
 
 
-def exit_save_workspace(context: Context, saved_workspace: SavedWorkspace) -> None:
+def _exit_save_workspace(context: Context, saved_workspace: SavedWorkspace) -> None:
     cursor_matrix = saved_workspace.cursor_matrix
     previous_object_name = saved_workspace.previous_object_name
     previous_object_mode = saved_workspace.previous_object_mode
@@ -147,7 +147,7 @@ def exit_save_workspace(context: Context, saved_workspace: SavedWorkspace) -> No
 def save_workspace(
     context: Context, obj: Optional[Object] = None, *, mode: str = "OBJECT"
 ) -> Iterator[None]:
-    saved_workspace = enter_save_workspace(context, obj, mode=mode)
+    saved_workspace = _enter_save_workspace(context, obj, mode=mode)
     try:
         yield
         # After yield, bpy native objects may be deleted or become invalid
@@ -155,7 +155,7 @@ def save_workspace(
         # so be careful not to access potentially invalid native objects
         # after yield
     finally:
-        exit_save_workspace(context, saved_workspace)
+        _exit_save_workspace(context, saved_workspace)
 
 
 def wm_append_without_library(

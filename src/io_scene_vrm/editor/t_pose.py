@@ -32,7 +32,7 @@ from .vrm1.property_group import Vrm1HumanoidPropertyGroup
 _logger = get_logger(__name__)
 
 
-def set_bone_direction_to_align_child_bone(
+def _set_bone_direction_to_align_child_bone(
     context: Context,
     armature: Object,
     direction: Vector,
@@ -72,7 +72,7 @@ def set_bone_direction_to_align_child_bone(
     context.view_layer.update()
 
 
-def set_bone_direction_to_align_z_world_location(
+def _set_bone_direction_to_align_z_world_location(
     context: Context,
     armature: Object,
     direction: Vector,
@@ -168,7 +168,7 @@ class ChainSingleChild:
             searching_bone = searching_bone.parent
 
         for bone, child_bone in zip(chained_bones, chained_bones[1:]):
-            set_bone_direction_to_align_child_bone(
+            _set_bone_direction_to_align_child_bone(
                 context, armature, self.direction, bone, child_bone
             )
 
@@ -232,12 +232,12 @@ class ChainHorizontalMultipleChildren:
         if not parent_bone:
             return
 
-        set_bone_direction_to_align_z_world_location(
+        _set_bone_direction_to_align_z_world_location(
             context, armature, self.direction, parent_bone, world_location
         )
 
 
-def reset_root_to_human_bone_translation(
+def _reset_root_to_human_bone_translation(
     pose: Pose, ext: VrmAddonArmatureExtensionPropertyGroup
 ) -> None:
     # Reset positions from root bone to any Human bone
@@ -285,7 +285,7 @@ def set_estimated_humanoid_t_pose(context: Context, armature: Object) -> bool:
     for bone in armature.pose.bones:
         set_rotation_without_mode_change(bone, Quaternion())
 
-    reset_root_to_human_bone_translation(armature.pose, ext)
+    _reset_root_to_human_bone_translation(armature.pose, ext)
 
     context.view_layer.update()
 
@@ -576,7 +576,7 @@ class PoseBonePose:
         context.view_layer.update()
 
 
-def leave_setup_humanoid_t_pose(
+def _leave_setup_humanoid_t_pose(
     context: Context,
     armature: Object,
     saved_pose_bone_pose: Mapping[str, PoseBonePose],
@@ -705,7 +705,7 @@ def setup_humanoid_t_pose(
         # making them invalid. Accessing them in this state can cause crashes,
         # so be careful not to access potentially invalid native objects after yield
     finally:
-        leave_setup_humanoid_t_pose(
+        _leave_setup_humanoid_t_pose(
             context,
             armature,
             saved_pose_bone_pose,

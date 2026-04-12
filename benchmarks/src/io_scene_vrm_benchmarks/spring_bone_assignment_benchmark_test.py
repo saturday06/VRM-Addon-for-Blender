@@ -11,7 +11,7 @@ from io_scene_vrm.editor.extension import (
 )
 
 
-def generate_many_spring_bones() -> None:
+def _generate_many_spring_bones() -> None:
     context = bpy.context
     bpy.ops.wm.read_homefile(use_empty=True)
     ops.icyp.make_basic_armature()
@@ -93,7 +93,7 @@ def test_spring_bone_assignment(benchmark: BenchmarkFixture) -> None:
 
     @benchmark
     def _() -> None:
-        generate_many_spring_bones()
+        _generate_many_spring_bones()
 
 
 if __name__ == "__main__":

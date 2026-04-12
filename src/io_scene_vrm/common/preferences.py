@@ -134,7 +134,7 @@ def copy_export_preferences(
     )
 
 
-def draw_advanced_options_description(
+def _draw_advanced_options_description(
     preferences: Union[AddonPreferences, Operator],
     property_name: str,
     layout: UILayout,
@@ -171,7 +171,7 @@ def draw_export_preferences_layout(
 
     # UniVRM 0.115.0 doesn't support `export_try_sparse_sk`
     # https://github.com/saturday06/VRM-Addon-for-Blender/issues/381#issuecomment-1838365762
-    draw_advanced_options_description(
+    _draw_advanced_options_description(
         preferences,
         "export_try_sparse_sk",
         advanced_options_column,
@@ -185,7 +185,7 @@ def draw_export_preferences_layout(
 
     # The upstream says that Models may appear incorrectly in many viewers.
     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/356b3dda976303d3ecce8b3bd1591245e576db38/addons/io_scene_gltf2/__init__.py#L760
-    draw_advanced_options_description(
+    _draw_advanced_options_description(
         preferences,
         "export_all_influences",
         advanced_options_column,
@@ -197,7 +197,7 @@ def draw_export_preferences_layout(
         ),
     )
 
-    draw_advanced_options_description(
+    _draw_advanced_options_description(
         preferences,
         "export_lights",
         advanced_options_column,
@@ -209,7 +209,7 @@ def draw_export_preferences_layout(
         ),
     )
 
-    draw_advanced_options_description(
+    _draw_advanced_options_description(
         preferences,
         "export_gltf_animations",
         advanced_options_column,

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
 from io_scene_vrm.importer.gltf2_import_user_extension import (
-    get_list_from_json_ld,
-    get_string_from_json_ld_value,
+    _get_list_from_json_ld,
+    _get_string_from_json_ld_value,
 )
 from tests.util import AddonTestCase
 
@@ -10,68 +10,68 @@ from tests.util import AddonTestCase
 class TestGetListFromJsonLd(AddonTestCase):
     def test_at_list_dict(self) -> None:
         self.assertEqual(
-            get_list_from_json_ld({"@list": ["a", "b", "c"]}),
+            _get_list_from_json_ld({"@list": ["a", "b", "c"]}),
             ["a", "b", "c"],
         )
 
     def test_at_list_dict_filters_non_strings(self) -> None:
         self.assertEqual(
-            get_list_from_json_ld({"@list": ["a", 1, None, "b"]}),
+            _get_list_from_json_ld({"@list": ["a", 1, None, "b"]}),
             ["a", "b"],
         )
 
     def test_plain_list(self) -> None:
         self.assertEqual(
-            get_list_from_json_ld(["x", "y"]),
+            _get_list_from_json_ld(["x", "y"]),
             ["x", "y"],
         )
 
     def test_plain_list_filters_non_strings(self) -> None:
         self.assertEqual(
-            get_list_from_json_ld(["x", 42, True, "y"]),
+            _get_list_from_json_ld(["x", 42, True, "y"]),
             ["x", "y"],
         )
 
     def test_empty_list(self) -> None:
-        self.assertEqual(get_list_from_json_ld([]), [])
+        self.assertEqual(_get_list_from_json_ld([]), [])
 
     def test_empty_at_list(self) -> None:
-        self.assertEqual(get_list_from_json_ld({"@list": []}), [])
+        self.assertEqual(_get_list_from_json_ld({"@list": []}), [])
 
     def test_none(self) -> None:
-        self.assertEqual(get_list_from_json_ld(None), [])
+        self.assertEqual(_get_list_from_json_ld(None), [])
 
     def test_string(self) -> None:
-        self.assertEqual(get_list_from_json_ld("not a list"), [])
+        self.assertEqual(_get_list_from_json_ld("not a list"), [])
 
     def test_integer(self) -> None:
-        self.assertEqual(get_list_from_json_ld(42), [])
+        self.assertEqual(_get_list_from_json_ld(42), [])
 
     def test_dict_without_at_list(self) -> None:
-        self.assertEqual(get_list_from_json_ld({"key": "value"}), [])
+        self.assertEqual(_get_list_from_json_ld({"key": "value"}), [])
 
 
 class TestGetStringFromJsonLdValue(AddonTestCase):
     def test_plain_string(self) -> None:
-        self.assertEqual(get_string_from_json_ld_value("hello"), "hello")
+        self.assertEqual(_get_string_from_json_ld_value("hello"), "hello")
 
     def test_localized_dict(self) -> None:
-        result = get_string_from_json_ld_value({"und": "world"})
+        result = _get_string_from_json_ld_value({"und": "world"})
         self.assertEqual(result, "world")
 
     def test_localized_dict_multiple_languages(self) -> None:
         # dict iteration is deterministic in Python 3.7+; "en" is inserted first
-        result = get_string_from_json_ld_value({"en": "hello", "ja": "こんにちは"})
+        result = _get_string_from_json_ld_value({"en": "hello", "ja": "こんにちは"})
         self.assertEqual(result, "hello")
 
     def test_none(self) -> None:
-        self.assertEqual(get_string_from_json_ld_value(None), "")
+        self.assertEqual(_get_string_from_json_ld_value(None), "")
 
     def test_integer(self) -> None:
-        self.assertEqual(get_string_from_json_ld_value(42), "")
+        self.assertEqual(_get_string_from_json_ld_value(42), "")
 
     def test_empty_string(self) -> None:
-        self.assertEqual(get_string_from_json_ld_value(""), "")
+        self.assertEqual(_get_string_from_json_ld_value(""), "")
 
     def test_empty_dict(self) -> None:
-        self.assertEqual(get_string_from_json_ld_value({}), "")
+        self.assertEqual(_get_string_from_json_ld_value({}), "")

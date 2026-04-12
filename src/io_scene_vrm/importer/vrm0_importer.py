@@ -169,7 +169,7 @@ class MaterialProperty:
         )
 
 
-def calculate_mtoon0_render_queue_offset_maps(
+def _calculate_mtoon0_render_queue_offset_maps(
     material_properties: Sequence[MaterialProperty],
 ) -> tuple[Mapping[int, int], Mapping[int, int]]:
     """Build render queue offset maps for MToon0 materials.
@@ -218,7 +218,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         ]
 
         transparent_queue_map, transparent_z_write_queue_map = (
-            calculate_mtoon0_render_queue_offset_maps(material_properties)
+            _calculate_mtoon0_render_queue_offset_maps(material_properties)
         )
 
         shader_to_assignment_method: Mapping[
@@ -763,7 +763,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         self.load_vrm0_humanoid(
             vrm0.humanoid, vrm0_extension.get("humanoid"), vrm1.humanoid.human_bones
         )
-        setup_bones(self.context, armature)
+        _setup_bones(self.context, armature)
         self.load_vrm0_first_person(
             vrm0.first_person, vrm0_extension.get("firstPerson")
         )
@@ -1368,7 +1368,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         )
 
 
-def setup_bones(context: Context, armature: Object) -> None:
+def _setup_bones(context: Context, armature: Object) -> None:
     """Set the direction and length of Human Bones.
 
     VRM0 does not have bone direction and length, so currently FORTUNE's

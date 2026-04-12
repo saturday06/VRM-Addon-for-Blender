@@ -157,7 +157,7 @@ def pack_glb(
     return bytes(glb)
 
 
-def read_accessor_as_bytes(
+def _read_accessor_as_bytes(
     accessor_dict: dict[str, Json],
     buffer_view_dicts: list[Json],
     buffer_dicts: list[Json],
@@ -220,7 +220,7 @@ def read_accessor_as_bytes(
     return buffer_bytes[byte_offset : byte_offset + byte_length]
 
 
-def unpack_component(
+def _unpack_component(
     component_type: int, unpack_count: int, buffer_bytes: bytes
 ) -> Optional[Union[tuple[int, ...], tuple[float, ...]]]:
     for search_component_type, component_count, unpack_symbol in [
@@ -242,7 +242,7 @@ def unpack_component(
     return None
 
 
-def unpack_accessor_as_scalar_components(
+def _unpack_accessor_as_scalar_components(
     accessor_dict: dict[str, Json],
     buffer_view_dicts: list[Json],
     buffer_dicts: list[Json],
@@ -253,7 +253,7 @@ def unpack_accessor_as_scalar_components(
     if not isinstance(component_type, int):
         return None
 
-    raw_bytes = read_accessor_as_bytes(
+    raw_bytes = _read_accessor_as_bytes(
         accessor_dict,
         buffer_view_dicts,
         buffer_dicts,
@@ -262,10 +262,10 @@ def unpack_accessor_as_scalar_components(
     if not raw_bytes:
         return None
 
-    return unpack_component(component_type, unpack_count, raw_bytes)
+    return _unpack_component(component_type, unpack_count, raw_bytes)
 
 
-def read_scalar_accessor(
+def _read_scalar_accessor(
     accessor_dict: dict[str, Json],
     buffer_view_dicts: list[Json],
     buffer_dicts: list[Json],
@@ -277,7 +277,7 @@ def read_scalar_accessor(
     count = accessor_dict.get("count")
     if not isinstance(count, int):
         return None
-    return unpack_accessor_as_scalar_components(
+    return _unpack_accessor_as_scalar_components(
         accessor_dict,
         buffer_view_dicts,
         buffer_dicts,
@@ -286,7 +286,7 @@ def read_scalar_accessor(
     )
 
 
-def read_vec2_accessor(
+def _read_vec2_accessor(
     accessor_dict: dict[str, Json],
     buffer_view_dicts: list[Json],
     buffer_dicts: list[Json],
@@ -298,7 +298,7 @@ def read_vec2_accessor(
     count = accessor_dict.get("count")
     if not isinstance(count, int):
         return None
-    components = unpack_accessor_as_scalar_components(
+    components = _unpack_accessor_as_scalar_components(
         accessor_dict,
         buffer_view_dicts,
         buffer_dicts,
@@ -316,7 +316,7 @@ def read_vec2_accessor(
     )
 
 
-def read_vec3_accessor(
+def _read_vec3_accessor(
     accessor_dict: dict[str, Json],
     buffer_view_dicts: list[Json],
     buffer_dicts: list[Json],
@@ -330,7 +330,7 @@ def read_vec3_accessor(
     count = accessor_dict.get("count")
     if not isinstance(count, int):
         return None
-    components = unpack_accessor_as_scalar_components(
+    components = _unpack_accessor_as_scalar_components(
         accessor_dict,
         buffer_view_dicts,
         buffer_dicts,
@@ -349,7 +349,7 @@ def read_vec3_accessor(
     )
 
 
-def read_vec4_accessor(
+def _read_vec4_accessor(
     accessor_dict: dict[str, Json],
     buffer_view_dicts: list[Json],
     buffer_dicts: list[Json],
@@ -365,7 +365,7 @@ def read_vec4_accessor(
     count = accessor_dict.get("count")
     if not isinstance(count, int):
         return None
-    components = unpack_accessor_as_scalar_components(
+    components = _unpack_accessor_as_scalar_components(
         accessor_dict,
         buffer_view_dicts,
         buffer_dicts,
@@ -385,7 +385,7 @@ def read_vec4_accessor(
     )
 
 
-def read_mat4_accessor(
+def _read_mat4_accessor(
     accessor_dict: dict[str, Json],
     buffer_view_dicts: list[Json],
     buffer_dicts: list[Json],
@@ -417,7 +417,7 @@ def read_mat4_accessor(
     count = accessor_dict.get("count")
     if not isinstance(count, int):
         return None
-    components = unpack_accessor_as_scalar_components(
+    components = _unpack_accessor_as_scalar_components(
         accessor_dict,
         buffer_view_dicts,
         buffer_dicts,
@@ -457,7 +457,7 @@ def read_mat4_accessor(
     )
 
 
-def read_accessor(
+def _read_accessor(
     accessor_dict: dict[str, Json],
     buffer_view_dicts: list[Json],
     buffer_dicts: list[Json],
@@ -493,23 +493,23 @@ def read_accessor(
 ]:
     accessor_type = accessor_dict.get("type")
     if accessor_type == "SCALAR":
-        return read_scalar_accessor(
+        return _read_scalar_accessor(
             accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
         )
     if accessor_type == "VEC2":
-        return read_vec2_accessor(
+        return _read_vec2_accessor(
             accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
         )
     if accessor_type == "VEC3":
-        return read_vec3_accessor(
+        return _read_vec3_accessor(
             accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
         )
     if accessor_type == "VEC4":
-        return read_vec4_accessor(
+        return _read_vec4_accessor(
             accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
         )
     if accessor_type == "MAT4":
-        return read_mat4_accessor(
+        return _read_mat4_accessor(
             accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
         )
     return None
@@ -563,7 +563,7 @@ def read_accessors(
         buffer_dicts = []
 
     return tuple(
-        read_accessor(accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes)
+        _read_accessor(accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes)
         for accessor_dict in accessor_dicts
         if isinstance(accessor_dict, dict)
     )
@@ -575,7 +575,7 @@ def read_accessor_as_animation_sampler_input(
     buffer_dicts: list[Json],
     buffer0_bytes: bytes,
 ) -> Optional[list[float]]:
-    scalar_accessor = read_scalar_accessor(
+    scalar_accessor = _read_scalar_accessor(
         accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
     )
     if scalar_accessor is None:
@@ -589,7 +589,7 @@ def read_accessor_as_animation_sampler_translation_output(
     buffer_dicts: list[Json],
     buffer0_bytes: bytes,
 ) -> Optional[list[Vector]]:
-    vec3_accessor = read_vec3_accessor(
+    vec3_accessor = _read_vec3_accessor(
         accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
     )
     if vec3_accessor is None:
@@ -603,7 +603,7 @@ def read_accessor_as_animation_sampler_rotation_output(
     buffer_dicts: list[Json],
     buffer0_bytes: bytes,
 ) -> Optional[list[Quaternion]]:
-    vec4_accessor = read_vec4_accessor(
+    vec4_accessor = _read_vec4_accessor(
         accessor_dict, buffer_view_dicts, buffer_dicts, buffer0_bytes
     )
     if vec4_accessor is None:

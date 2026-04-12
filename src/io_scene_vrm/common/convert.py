@@ -119,7 +119,7 @@ def mtoon_gi_equalization_to_intensity(gi_equalization: float) -> float:
 def mtoon_shading_toony_0_to_1(
     shading_toony_0x: float, shading_shift_0x: float
 ) -> float:
-    (range_min, range_max) = get_shading_range_0x(shading_toony_0x, shading_shift_0x)
+    (range_min, range_max) = _get_shading_range_0x(shading_toony_0x, shading_shift_0x)
     return max(0, min(1.0, (2.0 - (range_max - range_min)) * 0.5))
 
 
@@ -127,7 +127,7 @@ def mtoon_shading_toony_0_to_1(
 def mtoon_shading_shift_0_to_1(
     shading_toony_0x: float, shading_shift_0x: float
 ) -> float:
-    (range_min, range_max) = get_shading_range_0x(shading_toony_0x, shading_shift_0x)
+    (range_min, range_max) = _get_shading_range_0x(shading_toony_0x, shading_shift_0x)
     return max(-1, min(1.0, ((range_max + range_min) * 0.5 * -1)))
 
 
@@ -137,7 +137,7 @@ def mtoon_intensity_to_gi_equalization(gi_intensity_0x: float) -> float:
 
 
 # https://github.com/vrm-c/UniVRM/blob/f3479190c330ec6ecd2b40be919285aa93a53aff/Assets/VRMShaders/VRM10/MToon10/Runtime/MToon10Migrator.cs#L40-L46
-def get_shading_range_0x(
+def _get_shading_range_0x(
     shading_toony_0x: float, shading_shift_0x: float
 ) -> tuple[float, float]:
     range_min = shading_shift_0x
@@ -249,17 +249,6 @@ def float2_or_none(value2: object) -> Optional[tuple[float, float]]:
     if len(result) != 2:
         return None
     return (result[0], result[1])
-
-
-def float2_or(value2: object, default: tuple[float, float]) -> tuple[float, float]:
-    float2 = float2_or_none(value2)
-    return float2 if float2 is not None else default
-
-
-def str_or(v: object, default: str) -> str:
-    if isinstance(v, str):
-        return v
-    return default
 
 
 def axis_blender_to_gltf(vector3: Sequence[float]) -> tuple[float, float, float]:

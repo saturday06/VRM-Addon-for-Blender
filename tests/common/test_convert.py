@@ -149,9 +149,9 @@ class TestConvert(TestCase):
         self.assertEqual(convert.mtoon_intensity_to_gi_equalization(1.0), 0.0)
 
     def test_get_shading_range_0x(self) -> None:
-        self.assertEqual(convert.get_shading_range_0x(0.5, 0.0), (0.0, 0.5))
-        self.assertEqual(convert.get_shading_range_0x(1.0, 0.0), (0.0, 0.0))
-        self.assertEqual(convert.get_shading_range_0x(0.0, 0.5), (0.5, 1.0))
+        self.assertEqual(convert._get_shading_range_0x(0.5, 0.0), (0.0, 0.5))
+        self.assertEqual(convert._get_shading_range_0x(1.0, 0.0), (0.0, 0.0))
+        self.assertEqual(convert._get_shading_range_0x(0.0, 0.5), (0.5, 1.0))
 
     def test_float_or_none(self) -> None:
         self.assertEqual(convert.float_or_none(1.5), 1.5)
@@ -206,15 +206,6 @@ class TestConvert(TestCase):
         self.assertIsNone(convert.float2_or_none([1]))
         self.assertIsNone(convert.float2_or_none([1, 2, 3]))
         self.assertIsNone(convert.float2_or_none([1, "a"]))
-
-    def test_float2_or(self) -> None:
-        self.assertEqual(convert.float2_or([1, 2], (0.0, 0.0)), (1.0, 2.0))
-        self.assertEqual(convert.float2_or(None, (1.0, 2.0)), (1.0, 2.0))
-
-    def test_str_or(self) -> None:
-        self.assertEqual(convert.str_or("abc", "def"), "abc")
-        self.assertEqual(convert.str_or(None, "def"), "def")
-        self.assertEqual(convert.str_or(1, "def"), "def")
 
     def test_axis_blender_to_gltf(self) -> None:
         self.assertEqual(convert.axis_blender_to_gltf([1, 2, 3]), (-1.0, 3.0, 2.0))

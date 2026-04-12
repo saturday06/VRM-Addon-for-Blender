@@ -15,7 +15,7 @@ from io_scene_vrm.editor.spring_bone1.handler import update_pose_bone_rotations
 from .util import TEMP_PATH
 
 
-def generate_many_springs(context: Context) -> None:
+def _generate_many_springs(context: Context) -> None:
     ops.icyp.make_basic_armature()
 
     armature_object = context.object
@@ -101,7 +101,7 @@ def test_spring_bone_many_springs(benchmark: BenchmarkFixture) -> None:
     path = TEMP_PATH / f"spring_bone_many_springs_{version_str}.blend"
     if not path.exists():
         bpy.ops.wm.read_homefile(use_empty=True)
-        generate_many_springs(context)
+        _generate_many_springs(context)
         context.view_layer.update()
         bpy.ops.wm.save_as_mainfile(filepath=str(path))
         bpy.ops.wm.read_homefile(use_empty=True)
