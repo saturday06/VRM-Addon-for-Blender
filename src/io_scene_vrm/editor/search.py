@@ -27,13 +27,13 @@ from .extension_accessor import get_armature_extension
 
 _logger = get_logger(__name__)
 
-MESH_CONVERTIBLE_OBJECT_TYPES = [
+MESH_CONVERTIBLE_OBJECT_TYPES: Final[tuple[str, ...]] = (
     "CURVE",
     "FONT",
     "MESH",
     # "META",  # Disable until the glTF 2.0 add-on supports it
     "SURFACE",
-]
+)
 
 
 def export_materials(context: Context, objects: Sequence[Object]) -> Sequence[Material]:

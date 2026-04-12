@@ -2,12 +2,26 @@
 import math
 from collections.abc import Iterator, Mapping, Sequence
 from sys import float_info
-from typing import Optional, Union
+from typing import Final, Optional, Union
 
 from . import convert_any
 from .logger import get_logger
 
 _logger = get_logger(__name__)
+
+BPY_TRACK_AXIS_TO_VRM_AIM_AXIS: Final[Mapping[str, str]] = {
+    "TRACK_X": "PositiveX",
+    "TRACK_Y": "PositiveY",
+    "TRACK_Z": "PositiveZ",
+    "TRACK_NEGATIVE_X": "NegativeX",
+    "TRACK_NEGATIVE_Y": "NegativeY",
+    "TRACK_NEGATIVE_Z": "NegativeZ",
+}
+
+VRM_AIM_AXIS_TO_BPY_TRACK_AXIS: Final[Mapping[str, str]] = {
+    v: k for k, v in BPY_TRACK_AXIS_TO_VRM_AIM_AXIS.items()
+}
+
 
 Json = Union[
     None,
@@ -83,20 +97,6 @@ def vrm_json_array_to_float_vector(
         output_values.append(input_value)
 
     return output_values
-
-
-BPY_TRACK_AXIS_TO_VRM_AIM_AXIS = {
-    "TRACK_X": "PositiveX",
-    "TRACK_Y": "PositiveY",
-    "TRACK_Z": "PositiveZ",
-    "TRACK_NEGATIVE_X": "NegativeX",
-    "TRACK_NEGATIVE_Y": "NegativeY",
-    "TRACK_NEGATIVE_Z": "NegativeZ",
-}
-
-VRM_AIM_AXIS_TO_BPY_TRACK_AXIS = {
-    v: k for k, v in BPY_TRACK_AXIS_TO_VRM_AIM_AXIS.items()
-}
 
 
 def mtoon_shading_toony_1_to_0(shading_toony: float, shading_shift: float) -> float:

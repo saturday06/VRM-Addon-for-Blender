@@ -6,7 +6,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Optional
+from typing import ClassVar, Final, Optional
 
 from ..vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
 from ..vrm0.human_bone import HumanBoneSpecification as Vrm0HumanBoneSpecification
@@ -89,8 +89,8 @@ class HumanBoneName(Enum):
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/humanoid.md#humanoid-bone-parent-child-relationship
-HumanBoneStructure = dict[HumanBoneName, "HumanBoneStructure"]
-HUMAN_BONE_STRUCTURE: HumanBoneStructure = {
+HumanBoneStructure = Mapping[HumanBoneName, "HumanBoneStructure"]
+HUMAN_BONE_STRUCTURE: Final[HumanBoneStructure] = {
     HumanBoneName.HIPS: {
         HumanBoneName.SPINE: {
             HumanBoneName.CHEST: {
