@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Protocol, TypedDict, Union
+from typing import TYPE_CHECKING, Final, Protocol, TypedDict, Union
 
 from bpy.app.translations import pgettext
 from bpy.props import BoolProperty, IntVectorProperty
@@ -15,7 +15,7 @@ from .shader import (
 
 _logger = get_logger(__name__)
 
-addon_package_name = ".".join(__name__.split(".")[:-2])
+ADDON_PACKAGE_NAME: Final[str] = ".".join(__name__.split(".")[:-2])
 
 
 class ImportPreferencesProtocol(Protocol):
@@ -223,7 +223,7 @@ def draw_export_preferences_layout(
 
 
 class VrmAddonPreferences(AddonPreferences):
-    bl_idname = addon_package_name
+    bl_idname = ADDON_PACKAGE_NAME
 
     INITIAL_ADDON_VERSION: tuple[int, int, int] = (0, 0, 0)
 
@@ -347,15 +347,15 @@ class VrmAddonPreferences(AddonPreferences):
 
 
 def get_preferences(context: Context) -> VrmAddonPreferences:
-    addon = context.preferences.addons.get(addon_package_name)
+    addon = context.preferences.addons.get(ADDON_PACKAGE_NAME)
     if not addon:
-        message = f"No add-on preferences for {addon_package_name}"
+        message = f"No add-on preferences for {ADDON_PACKAGE_NAME}"
         raise AssertionError(message)
 
     preferences = addon.preferences
     if not isinstance(preferences, VrmAddonPreferences):
         raise TypeError(
-            f"Add-on preferences for {addon_package_name} is not a VrmAddonPreferences"
+            f"Add-on preferences for {ADDON_PACKAGE_NAME} is not a VrmAddonPreferences"
             + f" but {type(preferences)}"
         )
 

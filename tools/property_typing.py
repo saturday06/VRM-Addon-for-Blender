@@ -17,8 +17,8 @@ from bpy.types import (
 from io_scene_vrm import registration
 from io_scene_vrm.common import convert, convert_any
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+_logger = logging.getLogger(__name__)
+_logger.setLevel(logging.INFO)
 
 
 def write_property_typing(
@@ -31,7 +31,7 @@ def write_property_typing(
     arg_type = None
     arg_default: object = None
 
-    logger.info("  ==> prop=%s", property_name)
+    _logger.info("  ==> prop=%s", property_name)
     ruff_line_len = 88
     comment = "  # type: ignore[no-redef]"
     if property_name == "stiffiness" or property_name.endswith("_ussage_name"):
@@ -138,10 +138,10 @@ def update_property_typing(
     more: bool,
 ) -> None:
     if not typing_code:
-        logger.info(" ==> NO CODE")
+        _logger.info(" ==> NO CODE")
         return
 
-    logger.info(
+    _logger.info(
         "------------------------------------------\n%s\n%s",
         current_class,
         typing_code,
@@ -153,7 +153,7 @@ def update_property_typing(
         message = f"Unexpected module: {current_class.__module__}"
         raise AssertionError(message)
     if modules[0] != "io_scene_vrm":
-        logger.info("Skipping module: %s", modules[0])
+        _logger.info("Skipping module: %s", modules[0])
         return
 
     relative_path = Path(*modules).with_suffix(".py")
@@ -161,7 +161,7 @@ def update_property_typing(
     output_path = output_folder_path / relative_path
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info("%s -> %s", input_path, output_path)
+    _logger.info("%s -> %s", input_path, output_path)
 
     # Find the definition location of the corresponding class
     lines = input_path.read_text(encoding="UTF-8").splitlines()
@@ -176,7 +176,7 @@ def update_property_typing(
             # Find class definition
             pattern = "^class " + current_class.__name__ + "[^a-zA-Z0-9_]"
             if re.search(pattern, line):
-                logger.info("class def found %s", class_def_index)
+                _logger.info("class def found %s", class_def_index)
                 class_def_index = line_index
             else:
                 continue
@@ -184,7 +184,7 @@ def update_property_typing(
         if class_def_colon_index is None:
             # Find colon
             if ":" in line.split("#")[0]:
-                logger.info("class colon def found %s", class_def_colon_index)
+                _logger.info("class colon def found %s", class_def_colon_index)
                 class_def_colon_index = line_index
                 continue
             continue
@@ -210,7 +210,7 @@ def update_property_typing(
         another_def_start_index = len(lines) + 1
 
     if class_type_checking_index is not None:
-        logger.info(
+        _logger.info(
             "REMOVE: %s - %s", another_def_start_index, class_type_checking_index
         )
         for _ in range(another_def_start_index - class_type_checking_index - 1):
@@ -241,25 +241,25 @@ def update_property_typing(
 def generate_property_typing_code(output_folder_path: Path, *, more: bool) -> int:
     ops_folder_path = output_folder_path / "io_scene_vrm" / "common" / "ops"
 
-    classes = list(registration.classes)
-    searching_classes = list(registration.classes)
+    classes = list(registration.CLASSES)
+    searching_classes = list(registration.CLASSES)
     while searching_classes:
         current_class = searching_classes.pop()
-        logger.info("Searching %s", current_class)
+        _logger.info("Searching %s", current_class)
         for base_class in current_class.__bases__:
-            logger.info("++ Searching %s", base_class)
+            _logger.info("++ Searching %s", base_class)
             if base_class not in classes and base_class not in searching_classes:
                 searching_classes.append(base_class)
         if current_class not in classes:
             classes.append(current_class)
     for current_class in classes:
-        logger.info("##### %s #####", current_class)
+        _logger.info("##### %s #####", current_class)
         ops_path = None
         ops_code = ""
         ops_code_sep = False
         bl_idname: object = ""
         if issubclass(current_class, Operator):
-            logger.info("##### ops #####")
+            _logger.info("##### ops #####")
             bl_idname = convert_any.to_object(getattr(current_class, "bl_idname", None))
             if isinstance(bl_idname, str):
                 modules = bl_idname.split(".")
@@ -268,7 +268,7 @@ def generate_property_typing_code(output_folder_path: Path, *, more: bool) -> in
                     raise AssertionError(message)
                 method = modules.pop()
                 ops_path = ops_folder_path / Path(*modules).with_suffix(".py")
-                logger.info("%s", ops_path)
+                _logger.info("%s", ops_path)
                 ops_code = (
                     "# This code is auto generated.\n"
                     + "# To regenerate, run the"
@@ -345,7 +345,7 @@ def generate_property_typing_code(output_folder_path: Path, *, more: bool) -> in
             for param in ops_params:
                 ops_code += f"        {param},\n"
             ops_code += "    )\n\n\n"
-            logger.info("%s", ops_code)
+            _logger.info("%s", ops_code)
             if not ops_path.exists():
                 ops_path.parent.mkdir(parents=True, exist_ok=True)
                 ops_code = (

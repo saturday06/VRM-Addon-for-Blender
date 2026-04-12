@@ -18,8 +18,8 @@ from bpy.types import (
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.workspace import save_workspace
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+_logger = logging.getLogger(__name__)
+_logger.setLevel(logging.INFO)
 
 
 class TestConstraint(Enum):

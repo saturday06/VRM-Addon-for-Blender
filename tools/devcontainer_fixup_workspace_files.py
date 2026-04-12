@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 else:
     tqdm: TypeAlias = type_checking_tqdm.tqdm  # noqa: PYI042
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 def fixup_directory_owner_and_permission(
@@ -201,9 +201,9 @@ def main() -> None:
         )
     for index, warning_message in enumerate(warning_messages):
         if index > 5:
-            logger.warning("...")
+            _logger.warning("...")
             break
-        logger.warning(warning_message)
+        _logger.warning(warning_message)
 
 
 if __name__ == "__main__":

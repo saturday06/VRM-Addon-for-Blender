@@ -16,7 +16,7 @@ from tests.util import (
     make_test_method_name,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class TestImportNonObjectMode(AddonTestCase):

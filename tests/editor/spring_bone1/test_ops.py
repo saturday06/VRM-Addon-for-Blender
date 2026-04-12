@@ -19,8 +19,8 @@ from io_scene_vrm.editor.spring_bone1.property_group import (
 )
 from tests.util import AddonTestCase
 
-addon_version = version.get_addon_version()
-spec_version = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1
+ADDON_VERSION = version.get_addon_version()
+SPEC_VERSION = VrmAddonArmatureExtensionPropertyGroup.SPEC_VERSION_VRM1
 
 
 def assert_vector3_equals(
@@ -51,8 +51,8 @@ class TestSpringBone1(AddonTestCase):
         if not armature or not isinstance(armature.data, Armature):
             raise AssertionError
 
-        get_armature_extension(armature.data).addon_version = addon_version
-        get_armature_extension(armature.data).spec_version = spec_version
+        get_armature_extension(armature.data).addon_version = ADDON_VERSION
+        get_armature_extension(armature.data).spec_version = SPEC_VERSION
         get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -139,8 +139,8 @@ class TestSpringBone1(AddonTestCase):
         if not armature or not isinstance(armature.data, Armature):
             raise AssertionError
 
-        get_armature_extension(armature.data).addon_version = addon_version
-        get_armature_extension(armature.data).spec_version = spec_version
+        get_armature_extension(armature.data).addon_version = ADDON_VERSION
+        get_armature_extension(armature.data).spec_version = SPEC_VERSION
         get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -231,8 +231,8 @@ class TestSpringBone1(AddonTestCase):
         if not armature or not isinstance(armature.data, Armature):
             raise AssertionError
 
-        get_armature_extension(armature.data).addon_version = addon_version
-        get_armature_extension(armature.data).spec_version = spec_version
+        get_armature_extension(armature.data).addon_version = ADDON_VERSION
+        get_armature_extension(armature.data).spec_version = SPEC_VERSION
         get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -321,8 +321,8 @@ class TestSpringBone1(AddonTestCase):
         if not armature or not isinstance(armature.data, Armature):
             raise AssertionError
 
-        get_armature_extension(armature.data).addon_version = addon_version
-        get_armature_extension(armature.data).spec_version = spec_version
+        get_armature_extension(armature.data).addon_version = ADDON_VERSION
+        get_armature_extension(armature.data).spec_version = SPEC_VERSION
         get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -437,8 +437,8 @@ class TestSpringBone1(AddonTestCase):
         if not armature or not isinstance(armature.data, Armature):
             raise AssertionError
 
-        get_armature_extension(armature.data).addon_version = addon_version
-        get_armature_extension(armature.data).spec_version = spec_version
+        get_armature_extension(armature.data).addon_version = ADDON_VERSION
+        get_armature_extension(armature.data).spec_version = SPEC_VERSION
         get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -556,8 +556,8 @@ class TestSpringBone1(AddonTestCase):
         if not armature or not isinstance(armature.data, Armature):
             raise AssertionError
 
-        get_armature_extension(armature.data).addon_version = addon_version
-        get_armature_extension(armature.data).spec_version = spec_version
+        get_armature_extension(armature.data).addon_version = ADDON_VERSION
+        get_armature_extension(armature.data).spec_version = SPEC_VERSION
         get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -676,8 +676,8 @@ class TestSpringBone1(AddonTestCase):
         if not armature or not isinstance(armature.data, Armature):
             raise AssertionError
 
-        get_armature_extension(armature.data).addon_version = addon_version
-        get_armature_extension(armature.data).spec_version = spec_version
+        get_armature_extension(armature.data).addon_version = ADDON_VERSION
+        get_armature_extension(armature.data).spec_version = SPEC_VERSION
         get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -798,8 +798,8 @@ class TestSpringBone1(AddonTestCase):
         if not armature or not isinstance(armature.data, Armature):
             raise AssertionError
 
-        get_armature_extension(armature.data).addon_version = addon_version
-        get_armature_extension(armature.data).spec_version = spec_version
+        get_armature_extension(armature.data).addon_version = ADDON_VERSION
+        get_armature_extension(armature.data).spec_version = SPEC_VERSION
         get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -902,8 +902,8 @@ class TestSpringBone1(AddonTestCase):
         if not armature or not isinstance(armature.data, Armature):
             raise AssertionError
 
-        get_armature_extension(armature.data).addon_version = addon_version
-        get_armature_extension(armature.data).spec_version = spec_version
+        get_armature_extension(armature.data).addon_version = ADDON_VERSION
+        get_armature_extension(armature.data).spec_version = SPEC_VERSION
         get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -974,8 +974,8 @@ class TestSpringBone1(AddonTestCase):
         if not armature or not isinstance(armature.data, Armature):
             raise AssertionError
 
-        get_armature_extension(armature.data).addon_version = addon_version
-        get_armature_extension(armature.data).spec_version = spec_version
+        get_armature_extension(armature.data).addon_version = ADDON_VERSION
+        get_armature_extension(armature.data).spec_version = SPEC_VERSION
         get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -1078,8 +1078,8 @@ class TestSpringBone1(AddonTestCase):
         if not armature or not isinstance(armature.data, Armature):
             raise AssertionError
 
-        get_armature_extension(armature.data).addon_version = addon_version
-        get_armature_extension(armature.data).spec_version = spec_version
+        get_armature_extension(armature.data).addon_version = ADDON_VERSION
+        get_armature_extension(armature.data).spec_version = SPEC_VERSION
         get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -1214,8 +1214,8 @@ class TestSpringBone1(AddonTestCase):
         if not armature or not isinstance(armature.data, Armature):
             raise AssertionError
 
-        get_armature_extension(armature.data).addon_version = addon_version
-        get_armature_extension(armature.data).spec_version = spec_version
+        get_armature_extension(armature.data).addon_version = ADDON_VERSION
+        get_armature_extension(armature.data).spec_version = SPEC_VERSION
         get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -1297,8 +1297,8 @@ class TestSpringBone1(AddonTestCase):
         if not armature or not isinstance(armature.data, Armature):
             raise AssertionError
 
-        get_armature_extension(armature.data).addon_version = addon_version
-        get_armature_extension(armature.data).spec_version = spec_version
+        get_armature_extension(armature.data).addon_version = ADDON_VERSION
+        get_armature_extension(armature.data).spec_version = SPEC_VERSION
         get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -1397,8 +1397,8 @@ class TestSpringBone1(AddonTestCase):
         if not armature or not isinstance(armature.data, Armature):
             raise AssertionError
 
-        get_armature_extension(armature.data).addon_version = addon_version
-        get_armature_extension(armature.data).spec_version = spec_version
+        get_armature_extension(armature.data).addon_version = ADDON_VERSION
+        get_armature_extension(armature.data).spec_version = SPEC_VERSION
         get_armature_extension(armature.data).spring_bone1.enable_animation = True
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -1498,7 +1498,7 @@ class TestAssignSpringBone1FromVrm0(AddonTestCase):
             raise AssertionError
 
         ext = get_armature_extension(armature.data)
-        ext.addon_version = addon_version
+        ext.addon_version = ADDON_VERSION
 
         bpy.ops.object.mode_set(mode="EDIT")
         root_bone = armature.data.edit_bones.new("root")
@@ -1597,7 +1597,7 @@ class TestAssignSpringBone1FromVrm0(AddonTestCase):
             raise AssertionError
 
         ext = get_armature_extension(armature.data)
-        ext.addon_version = addon_version
+        ext.addon_version = ADDON_VERSION
 
         # No VRM0 secondary animation data
         result = assign_spring_bone1_from_vrm0(context, armature.name)
@@ -1616,7 +1616,7 @@ class TestAssignSpringBone1FromVrm0(AddonTestCase):
             raise AssertionError
 
         ext = get_armature_extension(armature.data)
-        ext.addon_version = addon_version
+        ext.addon_version = ADDON_VERSION
 
         bpy.ops.object.mode_set(mode="EDIT")
         root_bone = armature.data.edit_bones.new("root")
@@ -1661,8 +1661,8 @@ class TestAssignUnassignSpringColliderGroup(AddonTestCase):
             raise AssertionError
 
         ext = get_armature_extension(armature.data)
-        ext.addon_version = addon_version
-        ext.spec_version = spec_version
+        ext.addon_version = ADDON_VERSION
+        ext.spec_version = SPEC_VERSION
 
         spring_bone1 = ext.spring_bone1
 

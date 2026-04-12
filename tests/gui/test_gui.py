@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from io_scene_vrm.common.logger import get_logger
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class TestGui(TestCase):

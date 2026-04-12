@@ -29,7 +29,7 @@ from tests.util import (
 RENDER_SUFFIX: str = ".render"
 
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class __TestVrmAnimationRenderingBase(AddonTestCase):
@@ -262,7 +262,7 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
                     message = f"No unity render result file: {unity_image_path}"
                     if os.getenv("CI") == "true":
                         raise AssertionError(message)
-                    logger.warning(message)
+                    _logger.warning(message)
                     continue
 
                 diff_image_path = image_path.with_stem(

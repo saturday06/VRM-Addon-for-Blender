@@ -79,47 +79,47 @@ def create_armature(
     return armature_object, mapping
 
 
-tree: Tree = {
-    ("root", (0, 0, 0)): {
-        (HumanBoneName.HIPS, (0, 0, 1)): {
-            (HumanBoneName.SPINE, (0, 0, 2)): {
-                (HumanBoneName.CHEST, (0, 0, 3)): {
-                    (HumanBoneName.NECK, (0, 0, 4)): {
-                        (HumanBoneName.HEAD, (0, 0, 5)): {},
-                    },
-                    (HumanBoneName.LEFT_UPPER_ARM, (1, 0, 3)): {
-                        (HumanBoneName.LEFT_LOWER_ARM, (2, 0, 3)): {
-                            (HumanBoneName.LEFT_HAND, (3, 0, 3)): {}
-                        }
-                    },
-                    (HumanBoneName.RIGHT_UPPER_ARM, (-1, 0, 3)): {
-                        (HumanBoneName.RIGHT_LOWER_ARM, (-2, 0, 3)): {
-                            (HumanBoneName.RIGHT_HAND, (-3, 0, 3)): {}
-                        }
-                    },
-                },
-            },
-            (HumanBoneName.LEFT_UPPER_LEG, (1, 0, 2)): {
-                (HumanBoneName.LEFT_LOWER_LEG, (1, 0, 1)): {
-                    (HumanBoneName.LEFT_FOOT, (1, 0, 0)): {}
-                }
-            },
-            (HumanBoneName.RIGHT_UPPER_LEG, (-1, 0, 2)): {
-                (HumanBoneName.RIGHT_LOWER_LEG, (-1, 0, 1)): {
-                    (HumanBoneName.RIGHT_FOOT, (-1, 0, 0)): {}
-                }
-            },
-        },
-    },
-}
-
-
 def test_structure_based_mapper(benchmark: BenchmarkFixture) -> None:
     context = bpy.context
 
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
 
     context = bpy.context
+
+    tree: Tree = {
+        ("root", (0, 0, 0)): {
+            (HumanBoneName.HIPS, (0, 0, 1)): {
+                (HumanBoneName.SPINE, (0, 0, 2)): {
+                    (HumanBoneName.CHEST, (0, 0, 3)): {
+                        (HumanBoneName.NECK, (0, 0, 4)): {
+                            (HumanBoneName.HEAD, (0, 0, 5)): {},
+                        },
+                        (HumanBoneName.LEFT_UPPER_ARM, (1, 0, 3)): {
+                            (HumanBoneName.LEFT_LOWER_ARM, (2, 0, 3)): {
+                                (HumanBoneName.LEFT_HAND, (3, 0, 3)): {}
+                            }
+                        },
+                        (HumanBoneName.RIGHT_UPPER_ARM, (-1, 0, 3)): {
+                            (HumanBoneName.RIGHT_LOWER_ARM, (-2, 0, 3)): {
+                                (HumanBoneName.RIGHT_HAND, (-3, 0, 3)): {}
+                            }
+                        },
+                    },
+                },
+                (HumanBoneName.LEFT_UPPER_LEG, (1, 0, 2)): {
+                    (HumanBoneName.LEFT_LOWER_LEG, (1, 0, 1)): {
+                        (HumanBoneName.LEFT_FOOT, (1, 0, 0)): {}
+                    }
+                },
+                (HumanBoneName.RIGHT_UPPER_LEG, (-1, 0, 2)): {
+                    (HumanBoneName.RIGHT_LOWER_LEG, (-1, 0, 1)): {
+                        (HumanBoneName.RIGHT_FOOT, (-1, 0, 0)): {}
+                    }
+                },
+            },
+        },
+    }
+
     armature, expected_mapping = create_armature(context, tree)
     if not isinstance(armature_data := armature.data, Armature):
         raise TypeError

@@ -18,7 +18,7 @@ from tests.util import (
     make_test_method_name,
 )
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
 
 class __TestVrmImportExportBase(AddonTestCase):
@@ -37,7 +37,7 @@ class __TestVrmImportExportBase(AddonTestCase):
         # Some private test models have unstable output results
         # on specific Blender versions
         if f"(unstable-{BLENDER_MAJOR_MINOR_VERSION})" in in_path.name:
-            logger.warning("Skipped: %s", in_path)
+            _logger.warning("Skipped: %s", in_path)
             return
 
         ops.import_scene.vrm(

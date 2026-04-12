@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2018 iCyP
 
 import os
-from typing import Union
+from typing import Final, Union
 
 import bpy
 from bpy.app.handlers import persistent
@@ -89,18 +89,20 @@ from .locale.translation_dictionary import build_translation_dictionary
 
 _logger = get_logger(__name__)
 
-classes: list[
-    Union[
-        type[Panel],
-        type[UIList],
-        type[Menu],
-        type[Header],
-        type[Operator],
-        type[KeyingSetInfo],
-        type[RenderEngine],
-        type[AddonPreferences],
-        type[PropertyGroup],
-        type["bpy.types.FileHandler"],  # bpy.app.version >= (4, 1, 0)
+CLASSES: Final[
+    list[
+        Union[
+            type[Panel],
+            type[UIList],
+            type[Menu],
+            type[Header],
+            type[Operator],
+            type[KeyingSetInfo],
+            type[RenderEngine],
+            type[AddonPreferences],
+            type[PropertyGroup],
+            type["bpy.types.FileHandler"],  # bpy.app.version >= (4, 1, 0)
+        ]
     ]
 ] = [
     io_scene_gltf2_support.WM_OT_vrm_io_scene_gltf2_disabled_warning,
@@ -468,7 +470,7 @@ classes: list[
 if bpy.app.version >= (4, 1):
     from .importer import file_handler
 
-    classes.extend(
+    CLASSES.extend(
         [
             file_handler.VRM_FH_vrm_import,
             file_handler.VRM_FH_vrma_import,
@@ -483,11 +485,11 @@ def register() -> None:
     clear_global_variables()
 
     bpy.app.translations.register(
-        preferences.addon_package_name,
+        preferences.ADDON_PACKAGE_NAME,
         build_translation_dictionary(),
     )
 
-    for cls in classes:
+    for cls in CLASSES:
         bpy.utils.register_class(cls)
 
     NodeTree.vrm_addon_extension = PointerProperty(  # type: ignore[attr-defined, assignment, unused-ignore]
@@ -610,13 +612,13 @@ def unregister() -> None:
     if hasattr(NodeTree, "vrm_addon_extension"):
         del NodeTree.vrm_addon_extension  # pyright: ignore [reportAttributeAccessIssue]
 
-    for cls in reversed(classes):
+    for cls in reversed(CLASSES):
         try:
             bpy.utils.unregister_class(cls)
         except RuntimeError:
             _logger.exception("Failed to unregister %s", cls)
 
-    bpy.app.translations.unregister(preferences.addon_package_name)
+    bpy.app.translations.unregister(preferences.ADDON_PACKAGE_NAME)
 
     clear_global_variables()
 

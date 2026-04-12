@@ -2,6 +2,7 @@
 import math
 import re
 from sys import float_info
+from typing import Final
 
 from mathutils import Quaternion
 
@@ -9,6 +10,16 @@ from ..common import deep, gltf
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.gltf import read_accessors
+
+ASSET_GENERATOR_PATTERN: Final = (
+    r"\AVRM Add-on for Blender v999\.999\.999"
+    + r" with Khronos glTF Blender I/O v[0-9]+\.[0-9]+\.[0-9]+\Z"
+)
+
+FIXED_ASSET_GENERATOR_VALUE: Final = (
+    "VRM Add-on for Blender v999.999.999"
+    + " with Khronos glTF Blender I/O v999.999.999"
+)
 
 
 def human_bone_sort_key(human_bone_dict: Json) -> int:
@@ -18,17 +29,6 @@ def human_bone_sort_key(human_bone_dict: Json) -> int:
     if not isinstance(node, int):
         return -1
     return node
-
-
-asset_generator_pattern = (
-    r"\AVRM Add-on for Blender v999\.999\.999"
-    + r" with Khronos glTF Blender I/O v[0-9]+\.[0-9]+\.[0-9]+\Z"
-)
-
-fixed_asset_generator_value = (
-    "VRM Add-on for Blender v999.999.999"
-    + " with Khronos glTF Blender I/O v999.999.999"
-)
 
 
 def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
@@ -48,8 +48,8 @@ def create_vrm_json_dict(data: bytes) -> dict[str, Json]:
         asset_generator = asset_dict.get("generator")
         if isinstance(asset_generator, str):
             asset_dict["generator"] = re.sub(
-                asset_generator_pattern,
-                fixed_asset_generator_value,
+                ASSET_GENERATOR_PATTERN,
+                FIXED_ASSET_GENERATOR_VALUE,
                 asset_generator,
             )
 

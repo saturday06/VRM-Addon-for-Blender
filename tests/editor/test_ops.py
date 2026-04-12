@@ -17,7 +17,7 @@ from io_scene_vrm.editor.extension import (
 )
 from tests.util import AddonTestCase
 
-addon_version = version.get_addon_version()
+ADDON_VERSION = version.get_addon_version()
 
 
 class TestSimplifyVroidBones(AddonTestCase):
@@ -165,7 +165,7 @@ class TestMakeEstimatedHumanoidTPose(AddonTestCase):
             raise AssertionError
 
         ext = get_armature_extension(armature.data)
-        ext.addon_version = addon_version
+        ext.addon_version = ADDON_VERSION
         ext.spec_version = self.spec_version
 
         bpy.ops.object.mode_set(mode="EDIT")
@@ -194,7 +194,7 @@ class TestMakeEstimatedHumanoidTPose(AddonTestCase):
             raise AssertionError
 
         ext = get_armature_extension(armature.data)
-        ext.addon_version = addon_version
+        ext.addon_version = ADDON_VERSION
         ext.spec_version = self.spec_version
 
         bpy.ops.object.mode_set(mode="EDIT")

@@ -15,7 +15,7 @@ from io_scene_vrm.common.gl import GL_FLOAT
 from io_scene_vrm.common.gltf import pack_glb, parse_glb
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 def main(argv: list[str]) -> int:
@@ -1411,18 +1411,18 @@ def main(argv: list[str]) -> int:
 
     vrm1_bytes = pack_glb(json_dict, binary_chunk)
     output_path.write_bytes(vrm1_bytes)
-    logger.info("Generated VRM1 model at: %s", output_path)
+    _logger.info("Generated VRM1 model at: %s", output_path)
 
     bpy.ops.preferences.addon_enable(module="io_scene_vrm")
     import_result = ops.import_scene.vrm(filepath=str(output_path))
     if import_result != {"FINISHED"}:
-        logger.warning(
+        _logger.warning(
             "Importing the generated model failed with result: %s",
             import_result,
         )
         return 1
 
-    logger.info("Completed")
+    _logger.info("Completed")
     return 0
 
 
