@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Final
 
 import bpy
@@ -18,10 +18,10 @@ _logger = get_logger(__name__)
 
 @dataclass
 class Subscription:
-    object_mode_subscription_owner = object()
-    object_location_subscription_owner = object()
-    bone_name_subscription_owner = object()
-    armature_name_subscription_owner = object()
+    object_mode_subscription_owner: Final[object] = field(default_factory=object)
+    object_location_subscription_owner: Final[object] = field(default_factory=object)
+    bone_name_subscription_owner: Final[object] = field(default_factory=object)
+    armature_name_subscription_owner: Final[object] = field(default_factory=object)
     setup_once: bool = False
 
 

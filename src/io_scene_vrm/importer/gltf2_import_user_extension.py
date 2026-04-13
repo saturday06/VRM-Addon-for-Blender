@@ -57,19 +57,19 @@ def _get_string_from_json_ld_value(v: Json) -> str:
 
 
 class Gltf2ImportUserExtensionVrm:
-    current_import_id: ClassVar[Optional[str]] = None
+    _current_import_id: ClassVar[Optional[str]] = None
 
     @classmethod
     def update_current_import_id(cls) -> str:
         import_id = "BlenderVrmAddonImport" + (
             "".join(secrets.choice(string.digits) for _ in range(10))
         )
-        cls.current_import_id = import_id
+        cls._current_import_id = import_id
         return import_id
 
     @classmethod
     def clear_current_import_id(cls) -> None:
-        cls.current_import_id = None
+        cls._current_import_id = None
 
     # https://github.com/KhronosGroup/glTF-Blender-IO/blob/6f9d0d9fc1bb30e2b0bb019342ffe86bd67358fc/addons/io_scene_gltf2/blender/imp/gltf2_blender_image.py#L51
     def gather_import_image_after_hook(
@@ -78,7 +78,7 @@ class Gltf2ImportUserExtensionVrm:
         blender_image: Image,
         gltf: glTFImporter,
     ) -> None:
-        current_import_id = self.current_import_id
+        current_import_id = self._current_import_id
         if current_import_id is None:
             return
 

@@ -80,19 +80,19 @@ def make_test_method_name(text: str) -> str:
 
 
 class AddonTestCase(TestCase):
-    disabled_installed_module: ClassVar[Optional[str]] = None
+    _disabled_installed_module: ClassVar[Optional[str]] = None
 
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
 
-        cls.disabled_installed_module = None
+        cls._disabled_installed_module = None
         for addon in bpy.context.preferences.addons:
             module = addon.module
             if not module.endswith("." + MANIFEST_ID):
                 continue
             bpy.ops.preferences.addon_disable(module=module)
-            cls.disabled_installed_module = module
+            cls._disabled_installed_module = module
 
     def setUp(self) -> None:
         super().setUp()
@@ -107,11 +107,11 @@ class AddonTestCase(TestCase):
     def tearDownClass(cls) -> None:
         super().tearDownClass()
 
-        disabled_installed_module = cls.disabled_installed_module
+        disabled_installed_module = cls._disabled_installed_module
         if disabled_installed_module is not None:
             bpy.ops.preferences.addon_enable(module=disabled_installed_module)
 
-        cls.disabled_installed_module = None
+        cls._disabled_installed_module = None
 
 
 def compare_image(image1_path: Path, image2_path: Path, diff_image_path: Path) -> float:

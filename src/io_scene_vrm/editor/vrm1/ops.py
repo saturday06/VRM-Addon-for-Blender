@@ -2357,7 +2357,7 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         options={"HIDDEN"}
     )
 
-    preset_name_mapping: ClassVar[dict[str, str]] = {
+    _preset_name_mapping: Mapping[str, str] = {
         "neutral": "neutral",
         "aa": "aa",
         "ih": "ih",
@@ -2419,7 +2419,7 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         expressions = ext.vrm1.expressions
 
         all_expressions: list[tuple[Vrm1ExpressionPropertyGroup, str, str]] = []
-        for preset_name in self.preset_name_mapping.values():
+        for preset_name in self._preset_name_mapping.values():
             preset_expr = getattr(expressions.preset, preset_name, None)
             if preset_expr:
                 all_expressions.append((preset_expr, "preset", preset_name))
