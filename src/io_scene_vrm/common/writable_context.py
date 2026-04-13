@@ -14,10 +14,10 @@ class WritableContextBecomesAvailableOnceHandler(Protocol):
 
 @dataclass
 class State:
-    registered_handlers: list[WritableContextBecomesAvailableOnceHandler] = field(
-        default_factory=list[WritableContextBecomesAvailableOnceHandler]
+    registered_handlers: Final[list[WritableContextBecomesAvailableOnceHandler]] = (
+        field(default_factory=list[WritableContextBecomesAvailableOnceHandler])
     )
-    pending_handlers: list[WritableContextBecomesAvailableOnceHandler] = field(
+    pending_handlers: Final[list[WritableContextBecomesAvailableOnceHandler]] = field(
         default_factory=list[WritableContextBecomesAvailableOnceHandler]
     )
 

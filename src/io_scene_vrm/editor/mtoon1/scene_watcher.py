@@ -30,17 +30,17 @@ class ComparisonMaterial:
 @dataclass
 class ComparisonObject:
     use_auto_smooth: Optional[bool] = None
-    comparison_materials: list[Optional[ComparisonMaterial]] = field(
+    comparison_materials: Final[list[Optional[ComparisonMaterial]]] = field(
         default_factory=list[Optional[ComparisonMaterial]]
     )
 
 
 @dataclass
 class OutlineUpdater(SceneWatcher):
-    comparison_objects: list[ComparisonObject] = field(
+    comparison_objects: Final[list[ComparisonObject]] = field(
         default_factory=list[ComparisonObject]
     )
-    outline_material_key_to_material_name: dict[int, str] = field(
+    outline_material_key_to_material_name: Final[dict[int, str]] = field(
         default_factory=dict[int, str]
     )
 

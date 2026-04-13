@@ -16,8 +16,8 @@ _logger = get_logger(__name__)
 
 @dataclass
 class State:
-    last_scene_names: list[str] = field(default_factory=list[str])
-    last_armature_names: list[str] = field(default_factory=list[str])
+    last_scene_names: Final[list[str]] = field(default_factory=list[str])
+    last_armature_names: Final[list[str]] = field(default_factory=list[str])
 
     def clear(self) -> None:
         self.last_scene_names.clear()

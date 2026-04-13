@@ -92,7 +92,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
     class PrimitiveTarget:
         name: str
 
-        position: bytearray = field(default_factory=bytearray)
+        position: Final[bytearray] = field(default_factory=bytearray)
         position_max_x = FLOAT_NEGATIVE_MAX
         position_min_x = FLOAT_POSITIVE_MAX
         position_max_y = FLOAT_NEGATIVE_MAX
@@ -100,7 +100,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         position_max_z = FLOAT_NEGATIVE_MAX
         position_min_z = FLOAT_POSITIVE_MAX
 
-        normal: bytearray = field(default_factory=bytearray)
+        normal: Final[bytearray] = field(default_factory=bytearray)
 
     class VertexAttributesCollector:
         POSITION_STRUCT: Final = struct.Struct("<fff")

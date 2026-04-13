@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-import dataclasses
 import datetime
 import logging
+from dataclasses import dataclass
 from typing import ClassVar, Optional
 
 import bpy
@@ -163,7 +163,7 @@ def create_export_settings() -> dict[str, object]:
     return export_settings
 
 
-@dataclasses.dataclass
+@dataclass
 class ImportSceneGltfArguments:
     filepath: str
     import_pack_images: bool
@@ -201,7 +201,7 @@ def import_scene_gltf(arguments: ImportSceneGltfArguments) -> set[str]:
     )
 
 
-@dataclasses.dataclass
+@dataclass
 class ExportSceneGltfArguments:
     filepath: str
     check_existing: bool

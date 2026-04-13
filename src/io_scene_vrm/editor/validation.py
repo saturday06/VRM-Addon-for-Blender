@@ -2,7 +2,7 @@
 from dataclasses import dataclass, field
 from pathlib import Path
 from sys import float_info
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Final, Optional
 from urllib.parse import urlsplit
 
 from bpy.app.translations import pgettext
@@ -43,12 +43,12 @@ _logger = get_logger(__name__)
 
 @dataclass
 class ValidationState:
-    error_messages: list[str] = field(default_factory=list[str])
-    warning_messages: list[str] = field(default_factory=list[str])
-    skippable_warning_messages: list[str] = field(default_factory=list[str])
-    info_messages: list[str] = field(default_factory=list[str])
-    node_names: list[str] = field(default_factory=list[str])
-    used_images: list[Image] = field(default_factory=list[Image])
+    error_messages: Final[list[str]] = field(default_factory=list[str])
+    warning_messages: Final[list[str]] = field(default_factory=list[str])
+    skippable_warning_messages: Final[list[str]] = field(default_factory=list[str])
+    info_messages: Final[list[str]] = field(default_factory=list[str])
+    node_names: Final[list[str]] = field(default_factory=list[str])
+    used_images: Final[list[Image]] = field(default_factory=list[Image])
 
 
 class VrmValidationError(PropertyGroup):

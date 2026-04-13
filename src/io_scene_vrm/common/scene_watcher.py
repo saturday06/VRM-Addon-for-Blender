@@ -58,7 +58,7 @@ class SceneWatcher(Protocol):
 class SceneWatcherSchedule:
     """Holds SceneWatcher and its operation status."""
 
-    scene_watcher: SceneWatcher
+    scene_watcher: Final[SceneWatcher]
     requires_run_once_more: bool = False
     finished: bool = False
 
@@ -73,10 +73,10 @@ class SceneWatcherScheduler:
 
     INTERVAL: Final[float] = 0.2
     scene_watcher_schedule_index: int = 0
-    scene_watcher_type_to_schedule: dict[type[SceneWatcher], SceneWatcherSchedule] = (
-        field(default_factory=dict[type[SceneWatcher], SceneWatcherSchedule])
-    )
-    scene_watcher_schedules: list[SceneWatcherSchedule] = field(
+    scene_watcher_type_to_schedule: Final[
+        dict[type[SceneWatcher], SceneWatcherSchedule]
+    ] = field(default_factory=dict[type[SceneWatcher], SceneWatcherSchedule])
+    scene_watcher_schedules: Final[list[SceneWatcherSchedule]] = field(
         default_factory=list[SceneWatcherSchedule]
     )
 
@@ -156,7 +156,7 @@ class SceneWatcherScheduler:
             pass
 
 
-_scene_watcher_scheduler = SceneWatcherScheduler()
+_scene_watcher_scheduler: Final = SceneWatcherScheduler()
 
 
 def process_scene_watcher_scheduler() -> Optional[float]:

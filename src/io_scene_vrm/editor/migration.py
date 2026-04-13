@@ -27,7 +27,7 @@ _logger = get_logger(__name__)
 class State:
     blend_file_compatibility_warning_shown: bool = False
     blend_file_addon_compatibility_warning_shown: bool = False
-    deferred_migration_parameters: set[tuple[str, bool]] = field(
+    deferred_migration_parameters: Final[set[tuple[str, bool]]] = field(
         default_factory=set[tuple[str, bool]]
     )
 
