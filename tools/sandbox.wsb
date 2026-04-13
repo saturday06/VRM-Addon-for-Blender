@@ -1,6 +1,10 @@
 <!-- SPDX-License-Identifier: MIT OR GPL-3.0-or-later -->
 <Configuration>
   <vGpu>Enable</vGpu>
+  <AudioInput>Disable</AudioInput>
+  <VideoInput>Disable</VideoInput>
+  <PrinterRedirection>Disable</PrinterRedirection>
+  <ClipboardRedirection>Disable</ClipboardRedirection>
   <LogonCommand>
     <Command>cmd /c start powershell -c "$blenderUrl = 'https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.3-windows-x64.msi'; Write-Output URL=$blenderUrl; Start-Process 'https://vrm-addon-for-blender.info'; Start-BitsTransfer output.msi -Source $blenderUrl; Start-Process msiexec -ArgumentList /i,output.msi,/passive -Wait; pause"</Command>
   </LogonCommand>
