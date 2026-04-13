@@ -102,6 +102,12 @@ ignore = [
   "TID252", # Relative imports from parent modules are banned
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+  "S603", # `subprocess` call: check for execution of untrusted input
+  "S607", # Starting a process with a partial executable path
+]
+
 [tool.ruff.lint.pep8-naming]
 extend-ignore-names = [
   "glTF2ExportUserExtension",
