@@ -112,11 +112,6 @@ jobs:
         run: |
           set -x
           for retry in $(seq 5 -1 0); do
-            if [ "$retry" -eq 0 ]; then
-              >&2 echo "Failed to install dependencies"
-              exit 1
-            fi
-
             if perl \
               -Mstrict \
               -Mwarnings \
@@ -124,6 +119,11 @@ jobs:
               -- \
               sh -xc "brew update && brew install ffmpeg imagemagick"; then
               break
+            fi
+
+            if [ "$retry" -eq 0 ]; then
+              >&2 echo "Failed to install dependencies"
+              exit 1
             fi
 
             sleep 300
