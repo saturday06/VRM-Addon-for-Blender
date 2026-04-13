@@ -22,15 +22,12 @@ dev = [
   "codespell",
   "io-scene-vrm-benchmarks",
   "pygit2",
-  "pyrefly",
   "requests",
   "ruff",
   "starry-bpy-typings",
   "tqdm",
-  "ty",
   "types-pygit2",
   "types-tqdm",
-  "vncdotool",
 ]
 
 [tool.uv.workspace]
@@ -148,13 +145,6 @@ extend_skip_glob = ["*"] # Please use Ruff instead.
 [tool.pylint.main]
 ignore-paths = "." # Please use Ruff instead.
 
-[tool.ty.rules]
-unused-type-ignore-comment = "ignore"
-
-[tool.ty.environment]
-python-version = "3.9" # It overrides 'project.requires-python = "== 3.10.*"'
-extra-paths = ["typings/src"]
-
 [tool.pyright]
 pythonVersion = "3.9" # It overrides 'project.requires-python = "== 3.10.*"'
 pythonPlatform = "All"
@@ -182,21 +172,6 @@ exclude = [
 reportMissingModuleSource = false
 reportCallInDefaultInitializer = true
 reportUninitializedInstanceVariable = true
-
-[tool.pyrefly]
-search-path = [
-  "typings/src",
-  "src",
-]
-project-excludes = [
-  "node_modules/**",
-
-  # Re-setting default exclusion settings since they get lost
-  # https://github.com/facebook/pyrefly/blob/0.20.2/website/docs/configuration.mdx?plain=1#L129
-  "**/.[!/.]*",
-  "**/*venv/**",
-]
-python-version = "3.9.0" # It overrides 'project.requires-python = "== 3.10.*"'
 
 [build-system]
 requires = ["uv_build>=0.11.2,<0.12.0"]
