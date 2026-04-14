@@ -10,6 +10,7 @@ cd "$(dirname "$0")/.."
 
 # Docker images are aggressively cached and packages often remain outdated, so we update here
 sudo ./tools/install_ubuntu_packages.sh
+sudo ./tools/install_ubuntu_vnc_packages.sh
 
 ./tools/install_act.sh
 ./tools/install_hadolint.sh

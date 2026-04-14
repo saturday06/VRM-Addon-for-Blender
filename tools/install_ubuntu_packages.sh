@@ -7,10 +7,7 @@ install_ubuntu_packages() (
   timeout 5m apt-get update -qq || exit 1
   DEBIAN_FRONTEND=noninteractive timeout 15m apt-get install \
     advancecomp \
-    blender \
-    build-essential \
     curl \
-    dbus-x11 \
     diffutils \
     ffmpeg \
     file \
@@ -19,14 +16,10 @@ install_ubuntu_packages() (
     imagemagick \
     less \
     libsm6 \
-    libxi6 \
-    libxkbcommon0 \
     lsb-release \
     moreutils \
     netcat-openbsd \
     nkf \
-    novnc \
-    openbox \
     patchutils \
     python3-debugpy \
     python3-numpy \
@@ -38,13 +31,8 @@ install_ubuntu_packages() (
     shellcheck \
     shfmt \
     sudo \
-    tigervnc-standalone-server \
-    tint2 \
     uchardet \
     unzip \
-    websockify \
-    xterm \
-    xvfb \
     xxd \
     xz-utils \
     zopfli \

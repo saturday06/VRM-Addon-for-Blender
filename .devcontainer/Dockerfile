@@ -13,6 +13,7 @@ RUN --mount=type=bind,source=.,target=/root/src/tools <<'INSTALL_PACKAGES'
   set -eu
 
   /root/src/tools/install_ubuntu_packages.sh
+  /root/src/tools/install_ubuntu_vnc_packages.sh
 
   # https://github.com/cli/cli/blob/v2.65.0/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt
   curl --fail --show-error --location --output /etc/apt/keyrings/githubcli-archive-keyring.gpg https://cli.github.com/packages/githubcli-archive-keyring.gpg
