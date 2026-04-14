@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import math
 import re
+import shutil
 import subprocess
 import sys
 from os import environ
@@ -115,28 +116,19 @@ class AddonTestCase(TestCase):
 
 
 def compare_image(image1_path: Path, image2_path: Path, diff_image_path: Path) -> float:
-    try:
-        subprocess.run(["ffmpeg", "-version"], check=True, capture_output=True)
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+    ffmpeg_path = shutil.which("ffmpeg")
+    if not ffmpeg_path:
         message = "ffmpeg is required but could not be found"
         if sys.platform == "win32":
-            raise SkipTest(message) from e
-        raise AssertionError(message) from e
+            raise SkipTest(message)
+        raise AssertionError(message)
 
     compare_command: Optional[list[str]] = None
-    try:
-        subprocess.run(["magick", "-version"], check=True, capture_output=True)
-        compare_command = ["magick", "compare"]
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        pass
-    if compare_command is None:
-        try:
-            subprocess.run(["compare", "-version"], check=True, capture_output=True)
-            compare_command = ["compare"]
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            pass
-
-    if compare_command is None:
+    if magick_path := shutil.which("magick"):
+        compare_command = [magick_path, "compare"]
+    elif compare_path := shutil.which("compare"):
+        compare_command = [compare_path]
+    else:
         message = "ImageMagick is required but could not be found"
         if sys.platform == "win32":
             raise SkipTest(message)
@@ -154,7 +146,7 @@ def compare_image(image1_path: Path, image2_path: Path, diff_image_path: Path) -
 
     compare_result = subprocess.run(
         [
-            "ffmpeg",
+            ffmpeg_path,
             "-hide_banner",
             "-nostats",
             "-i",
