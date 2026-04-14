@@ -1101,7 +1101,7 @@ class AbstractBaseVrmImporter(ABC):
         ]
 
         extras_node_index_key = self.import_id + "Nodes"
-        for obj in self.context.selectable_objects:
+        for obj in self.context.blend_data.objects:
             node_index = obj.pop(extras_node_index_key, None)
             if isinstance(node_index, int):
                 self.object_names[node_index] = obj.name

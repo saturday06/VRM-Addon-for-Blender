@@ -1198,19 +1198,12 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                     offset[axis] * inv for axis, inv in zip([0, 2, 1], [-1, -1, 1])
                 ]  # TODO: Y-axis inversion is matched to UniVRM serialization
 
-                # Since it's parented to the tail side of the bone, move it to the
-                # position from the root
                 obj.matrix_world = Matrix.Translation(
-                    [
-                        armature.matrix_world.to_translation()[i]
-                        + self.armature_data.bones[
-                            bone_name
-                        ].matrix_local.to_translation()[i]
-                        + fixed_offset[i]
-                        for i in range(3)
-                    ]
+                    (
+                        armature.matrix_world @ armature.pose.bones[bone_name].matrix
+                    ).to_translation()
+                    + Vector(fixed_offset)
                 )
-
                 obj.empty_display_size = radius
                 obj.empty_display_type = "SPHERE"
                 collider_objs.append(obj)
