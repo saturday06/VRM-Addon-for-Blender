@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.26.5](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.4...v3.26.5) (2026-04-15)
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug where VRM import would fail if the entire viewport's armature was hidden ([bac1256](https://github.com/saturday06/VRM-Addon-for-Blender/commit/bac12560ea8bf0ce8d16bbbb979f0aa249d900ac))
+* **io_scene_vrm:** potential denial of service via extremely large re ([5adffea](https://github.com/saturday06/VRM-Addon-for-Blender/commit/5adffea46328c7b96b7afef63e2e4f5839c0cb65))
+
 ## [3.26.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.3...v3.26.4) (2026-04-09)
 
 
