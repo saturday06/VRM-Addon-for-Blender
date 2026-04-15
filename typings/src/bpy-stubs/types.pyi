@@ -1886,14 +1886,13 @@ class NodesModifier(Modifier):
 class OperatorFileListElement(PropertyGroup): ...
 
 class Constraint(bpy_struct):
-    name: str
-    is_valid: bool
-    mute: bool
     influence: float
-
-class ChildOfConstraint(Constraint):
-    subtarget: str
-    target: Object | None
+    @property
+    def is_valid(self) -> bool: ...
+    mute: bool
+    name: str
+    owner_space: str
+    target_space: str
 
 class ObjectConstraints(
     bpy_prop_collection[
@@ -1906,6 +1905,10 @@ class ObjectConstraints(
 ):
     def new(self, type: str) -> Constraint: ...
 
+class ChildOfConstraint(Constraint):
+    subtarget: str
+    target: Object | None
+
 class DampedTrackConstraint(Constraint):
     head_tail: float
     subtarget: str
@@ -1914,17 +1917,15 @@ class DampedTrackConstraint(Constraint):
 
 class CopyRotationConstraint(Constraint):
     euler_order: str
-    target: Object | None
-    mix_mode: str
-    use_x: bool
-    use_y: bool
-    use_z: bool
     invert_x: bool
     invert_y: bool
     invert_z: bool
-    owner_space: str
-    target_space: str
+    mix_mode: str
     subtarget: str
+    target: Object | None
+    use_x: bool
+    use_y: bool
+    use_z: bool
 
 class ViewLayers(bpy_prop_collection[ViewLayer]):
     def update(self) -> None: ...  # TODO: Not mentioned in the document
