@@ -21,7 +21,9 @@
         "allow": [
           ".",
           "/tmp/devcontainercli-developer",
-          "/tmp/devcontainercli-developer/control-manifest.json"
+          "/tmp/devcontainercli-developer/control-manifest.json",
+          "/tmp/devcontainercli-runner",
+          "/tmp/devcontainercli-runner/control-manifest.json"
         ],
         "ignore": ["/"]
       },
