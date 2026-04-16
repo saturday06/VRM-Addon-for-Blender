@@ -28,7 +28,8 @@
       "write": {
         "allow": [
           ".",
-          "/tmp/devcontainercli-developer"
+          "/tmp/devcontainercli-developer",
+          "/tmp/devcontainercli-runner"
         ]
       },
       "net": [
