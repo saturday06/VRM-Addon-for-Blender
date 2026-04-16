@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import math
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from typing import Final, Optional
 from uuid import uuid4
@@ -73,7 +73,7 @@ class Progress:
 @contextmanager
 def create_progress(
     context: Context, *, show_progress: bool = True
-) -> Iterator[Progress]:
+) -> Generator[Progress]:
     saved_progress_uuid = Progress.active_progress_uuid
     try:
         if show_progress and Progress.active_progress_uuid is None:

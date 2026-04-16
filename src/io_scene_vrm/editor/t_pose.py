@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import math
-from collections.abc import Iterator, Mapping
+from collections.abc import Generator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from sys import float_info
@@ -606,7 +606,7 @@ def _leave_setup_humanoid_t_pose(
 def setup_humanoid_t_pose(
     context: Context,
     armature: Object,
-) -> Iterator[None]:
+) -> Generator[None]:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         raise TypeError

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import math
 import tempfile
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Generator, Mapping, Sequence
 from contextlib import contextmanager
 from copy import deepcopy
 from os import environ
@@ -161,7 +161,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 restore_obj.select_set(selection)
 
     @contextmanager
-    def overwrite_object_visibility_and_selection(self) -> Iterator[None]:
+    def overwrite_object_visibility_and_selection(self) -> Generator[None]:
         object_visibility_and_selection = (
             self.enter_overwrite_object_visibility_and_selection(
                 self.context, self.export_objects
@@ -362,7 +362,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             restored_obj_data.name = restored_original_data_name
 
     @contextmanager
-    def save_selected_mesh_compat_objects(self) -> Iterator[Sequence[str]]:
+    def save_selected_mesh_compat_objects(self) -> Generator[Sequence[str]]:
         (
             backup_obj_name_to_original_obj_name,
             backup_data_name_to_original_data_name,
@@ -417,7 +417,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             restore_obj.matrix_world = matrix_world
 
     @contextmanager
-    def mount_skinned_mesh_parent(self) -> Iterator[None]:
+    def mount_skinned_mesh_parent(self) -> Generator[None]:
         # The glTF 2.0 export processing of the addon included with Blender 3.1.2
         # outputs invalid glb with incorrect inverseBindMatrices when all of the
         # following conditions are met:
@@ -2180,7 +2180,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
     @classmethod
     @contextmanager
-    def disable_mtoon1_material_nodes(cls, context: Context) -> Iterator[None]:
+    def disable_mtoon1_material_nodes(cls, context: Context) -> Generator[None]:
         disabled_material_names = cls.enter_disable_mtoon1_material_nodes(context)
         try:
             yield
@@ -2524,7 +2524,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         cls,
         context: Context,
         armature: Object,
-    ) -> Iterator[None]:
+    ) -> Generator[None]:
         human_bone_name_to_bone_name = cls.enter_setup_dummy_human_bones(
             context,
             armature,
@@ -2628,7 +2628,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             constraint.mute = False
 
     @contextmanager
-    def disable_constraints(self, context: Context) -> Iterator[None]:
+    def disable_constraints(self, context: Context) -> Generator[None]:
         object_name_and_constraint_name, bone_name_and_constraint_name = (
             self.enter_disable_constraints(context, self.armature, self.export_objects)
         )
@@ -2687,7 +2687,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         self.armature.pop(self.extras_main_armature_key, None)
 
     @contextmanager
-    def assign_export_custom_properties(self) -> Iterator[None]:
+    def assign_export_custom_properties(self) -> Generator[None]:
         self.enter_assign_export_custom_properties()
         try:
             yield

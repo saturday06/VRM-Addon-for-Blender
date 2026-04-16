@@ -2,7 +2,7 @@
 import secrets
 import string
 from abc import ABC, abstractmethod
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Generator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Optional, TypeVar, Union
@@ -140,7 +140,7 @@ class AbstractBaseVrmExporter(ABC):
     @contextmanager
     def clear_blend_shape_proxy_previews(
         self, context: Context, armature_data: Armature
-    ) -> Iterator[None]:
+    ) -> Generator[None]:
         saved_vrm0_previews, saved_vrm1_previews, saved_key_block_values = (
             self.enter_clear_blend_shape_proxy_previews(context, armature_data)
         )
@@ -192,7 +192,7 @@ class AbstractBaseVrmExporter(ABC):
     @contextmanager
     def enable_deform_for_all_referenced_bones(
         self, armature_data: Armature
-    ) -> Iterator[None]:
+    ) -> Generator[None]:
         modified_non_deform_bone_names = (
             self.enter_enable_deform_for_all_referenced_bones(armature_data)
         )
@@ -270,7 +270,7 @@ class AbstractBaseVrmExporter(ABC):
 
     @staticmethod
     @contextmanager
-    def hide_mtoon1_outline_geometry_nodes(context: Context) -> Iterator[None]:
+    def hide_mtoon1_outline_geometry_nodes(context: Context) -> Generator[None]:
         object_name_to_modifier_names = (
             AbstractBaseVrmExporter.enter_hide_mtoon1_outline_geometry_nodes(context)
         )
@@ -430,7 +430,7 @@ class AbstractBaseVrmExporter(ABC):
         context: Context,
         armature: Object,
         export_objects: Sequence[Object],
-    ) -> Iterator[None]:
+    ) -> Generator[None]:
         flexible_hierarchy_bone_setup = cls.enter_setup_flexible_hierarchy_bones(
             context,
             armature,

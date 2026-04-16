@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import sys
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -146,7 +146,7 @@ def _exit_save_workspace(context: Context, saved_workspace: SavedWorkspace) -> N
 @contextmanager
 def save_workspace(
     context: Context, obj: Optional[Object] = None, *, mode: str = "OBJECT"
-) -> Iterator[None]:
+) -> Generator[None]:
     saved_workspace = _enter_save_workspace(context, obj, mode=mode)
     try:
         yield

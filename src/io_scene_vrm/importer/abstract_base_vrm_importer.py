@@ -5,7 +5,6 @@ import base64
 import contextlib
 import functools
 import math
-import operator
 import os
 import re
 import secrets
@@ -14,7 +13,7 @@ import struct
 import tempfile
 import uuid
 from abc import ABC, abstractmethod
-from collections.abc import Iterator, Mapping
+from collections.abc import Generator, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -290,7 +289,7 @@ class AbstractBaseVrmImporter(ABC):
     @contextlib.contextmanager
     def save_bone_child_object_transforms(
         context: Context, armature: Object
-    ) -> Iterator[Armature]:
+    ) -> Generator[Armature]:
         bone_child_object_world_matrices = (
             AbstractBaseVrmImporter.enter_save_bone_child_object_transforms(
                 context, armature
@@ -574,7 +573,7 @@ class AbstractBaseVrmImporter(ABC):
         # treat that mesh node as a bone too
         bone_node_indices.extend(
             functools.reduce(
-                operator.iconcat,
+                lambda left, right: left + right,
                 [
                     self.find_middle_bone_indices(
                         node_dicts, bone_node_indices, bone_node_index, []
