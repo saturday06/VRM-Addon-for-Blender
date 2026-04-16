@@ -1,6 +1,7 @@
 {
   "version": "5",
   "specifiers": {
+    "npm:@devcontainers/cli@0.86": "0.86.0",
     "npm:@octokit/rest@22.0.1": "22.0.1",
     "npm:@octokit/types@16.0.0": "16.0.0",
     "npm:@types/node@25.6.0": "25.6.0",
@@ -170,6 +171,10 @@
         "@babel/helper-string-parser",
         "@babel/helper-validator-identifier"
       ]
+    },
+    "@devcontainers/cli@0.86.0": {
+      "integrity": "sha512-xfc1pc1wYrPkRpFi3bsYKz2F8VGiPVwISe11I6Tl2o0gqDB2LCMI6yT5mmZ+8v2e5ff+x/lbHIVCEThoLJJS8Q==",
+      "bin": true
     },
     "@docsearch/css@3.8.2": {
       "integrity": "sha512-y05ayQFyUmCXze79+56v/4HpycYF3uFqB78pLPrSV5ZKAlDuIAAJNhaRi8tTdRNXh05yxX/TyNnzD6LwSM89vQ=="
@@ -1509,6 +1514,7 @@
   },
   "workspace": {
     "dependencies": [
+      "npm:@devcontainers/cli@0.86",
       "npm:@octokit/rest@22.0.1",
       "npm:@octokit/types@16.0.0",
       "npm:@types/node@25.6.0",

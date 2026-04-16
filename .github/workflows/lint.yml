@@ -56,6 +56,31 @@ jobs:
       - name: Super-Linter
         run: ./tools/super-linter.sh -e SAVE_SUPER_LINTER_SUMMARY=false
 
+  devcontainer:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Cache archive
+        id: cache-archive
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: .local/tmp/ci-devcontainer-cache
+          key: devcontainer-${{ hashFiles('.devcontainer/devcontainer.json', '.devcontainer/Dockerfile') }}-1
+      - uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 # v2.0.4
+        with:
+          deno-version-file: .deno-version
+      - run: |
+          mkdir -p .local/tmp/ci-devcontainer-cache
+          deno task devcontainer build \
+            --cache-from type=local,src=.local/tmp/ci-devcontainer-cache \
+            --cache-to type=local,dest=.local/tmp/ci-devcontainer-cache
+          deno task devcontainer up
+          deno task devcontainer exec echo ok
+
   docs:
     runs-on: ubuntu-24.04
     permissions:

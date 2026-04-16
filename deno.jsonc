@@ -5,6 +5,7 @@
     "CHANGELOG.md"
   ],
   "tasks": {
+    "devcontainer": "deno run --permission-set=devcontainer ./node_modules/.bin/devcontainer",
     "docs:build": "deno run --permission-set=docs:build vitepress build docs",
     "docs:dev": "deno run --permission-set=docs:dev vitepress dev docs",
     "pyright": "uv run -- deno run --permission-set=pyright --unstable-node-globals ./tools/pyright.cts --warnings",
@@ -12,6 +13,42 @@
     "vrm-validator": "deno run --permission-set=vrm-validator ./tools/vrm_validator.ts"
   },
   "permissions": {
+    "devcontainer": {
+      "env": {
+        "ignore": ["*"]
+      },
+      "read": {
+        "allow": [
+          ".",
+          "/tmp/devcontainercli-developer",
+          "/tmp/devcontainercli-developer/control-manifest.json"
+        ],
+        "ignore": ["/"]
+      },
+      "write": {
+        "allow": [
+          ".",
+          "/tmp/devcontainercli-developer"
+        ]
+      },
+      "net": [
+        "containers.dev:443",
+        "ghcr.io:443",
+        "pkg-containers.githubusercontent.com:443"
+      ],
+      "sys": [
+        "gid",
+        "homedir",
+        "userInfo",
+        "osRelease",
+        "uid"
+      ],
+      "run": {
+        "allow": [
+          "docker"
+        ]
+      }
+    },
     "docs:build": {
       "env": true,
       "ffi": true,
@@ -64,11 +101,15 @@
       "write": true
     },
     "update-changelog": {
-      "env": [
-        "GITHUB_TOKEN",
-        "GH_TOKEN",
-        "IGNORE_TEST_WIN32"
-      ],
+      "env": {
+        "allow": [
+          "GITHUB_TOKEN",
+          "GH_TOKEN"
+        ],
+        "ignore": [
+          "IGNORE_TEST_WIN32"
+        ]
+      },
       "net": [
         "api.github.com:443"
       ],
@@ -92,6 +133,7 @@
   // https://github.com/denoland/deno/issues/20609#issuecomment-2762970307
   "nodeModulesDir": "auto",
   "imports": {
+    "@devcontainers/cli": "npm:@devcontainers/cli@^0.86.0",
     "@octokit/rest": "npm:@octokit/rest@22.0.1",
     "@octokit/types": "npm:@octokit/types@16.0.0",
     "@types/node": "npm:@types/node@25.6.0",
