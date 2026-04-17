@@ -269,7 +269,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         default=True
     )
 
-    def update_filter_by_human_bone_hierarchy(self, _context: Context) -> None:
+    def _update_filter_by_human_bone_hierarchy(self, _context: Context) -> None:
         if not isinstance(armature_data := self.id_data, Armature):
             return
         HumanoidStructureBonePropertyGroup.clear_bone_name_candidates_cache(
@@ -284,7 +284,7 @@ class Vrm1HumanBonesPropertyGroup(PropertyGroup):
         name="Filter by VRM Human Bone Hierarchy",
         description="Restrict selectable bones by VRM humanoid hierarchy",
         default=True,
-        update=update_filter_by_human_bone_hierarchy,
+        update=_update_filter_by_human_bone_hierarchy,
     )
 
     allow_non_humanoid_rig: BoolProperty(  # type: ignore[valid-type]
@@ -566,7 +566,7 @@ class Vrm1HumanoidPropertyGroup(PropertyGroup):
     human_bones: PointerProperty(type=Vrm1HumanBonesPropertyGroup)  # type: ignore[valid-type]
 
     # for T-Pose
-    def update_pose_library(self, _context: Context) -> None:
+    def _update_pose_library(self, _context: Context) -> None:
         self.pose_marker_name = ""
 
     (
@@ -617,7 +617,7 @@ class Vrm1HumanoidPropertyGroup(PropertyGroup):
 
     pose_library: PointerProperty(  # type: ignore[valid-type]
         type=Action,
-        update=update_pose_library,
+        update=_update_pose_library,
     )
     pose_marker_name: StringProperty()  # type: ignore[valid-type]
 
@@ -1017,23 +1017,23 @@ class Vrm1FirstPersonPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.morphTargetBind.schema.json
 class Vrm1MorphTargetBindPropertyGroup(PropertyGroup):
-    def update_preview(self, context: Context) -> None:
+    def _update_preview(self, context: Context) -> None:
         if not isinstance(armature_data := self.id_data, Armature):
             return
         Vrm1ExpressionPropertyGroup.apply_previews(context, armature_data)
 
     node: PointerProperty(  # type: ignore[valid-type]
         type=MeshObjectPropertyGroup,
-        update=update_preview,
+        update=_update_preview,
     )
     index: StringProperty(  # type: ignore[valid-type]
-        update=update_preview,
+        update=_update_preview,
     )
     weight: FloatProperty(  # type: ignore[valid-type]
         min=0,
         default=1,
         max=1,
-        update=update_preview,
+        update=_update_preview,
     )
 
     if TYPE_CHECKING:
@@ -1071,14 +1071,14 @@ class Vrm1MaterialColorBindPropertyGroup(PropertyGroup):
         max=1,  # TODO: hdr emission color?
     )
 
-    def get_target_value_as_rgb(self) -> tuple[float, float, float]:
+    def _get_target_value_as_rgb(self) -> tuple[float, float, float]:
         return (
             self.target_value[0],
             self.target_value[1],
             self.target_value[2],
         )
 
-    def set_target_value_as_rgb(self, value: Sequence[float]) -> None:
+    def _set_target_value_as_rgb(self, value: Sequence[float]) -> None:
         if len(value) < 3:
             return
         self.target_value = (
@@ -1092,8 +1092,8 @@ class Vrm1MaterialColorBindPropertyGroup(PropertyGroup):
         name="Target Value",
         size=3,
         subtype="COLOR",
-        get=get_target_value_as_rgb,
-        set=set_target_value_as_rgb,
+        get=_get_target_value_as_rgb,
+        set=_set_target_value_as_rgb,
     )
 
     if TYPE_CHECKING:
@@ -1156,7 +1156,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
 
     pending_preview_update_armature_data_names: ClassVar[list[str]] = []
 
-    def update_preview(self, context: Context) -> None:
+    def _update_preview(self, context: Context) -> None:
         if not self.name:
             _logger.debug("Unnamed expression: %s", type(self))
             return
@@ -1309,22 +1309,22 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
 
     is_binary: BoolProperty(  # type: ignore[valid-type]
         name="Is Binary",
-        update=update_preview,
+        update=_update_preview,
     )
     override_blink: EnumProperty(  # type: ignore[valid-type]
         name="Override Blink",
         items=expression_override_type_enum.items(),
-        update=update_preview,
+        update=_update_preview,
     )
     override_look_at: EnumProperty(  # type: ignore[valid-type]
         name="Override Look At",
         items=expression_override_type_enum.items(),
-        update=update_preview,
+        update=_update_preview,
     )
     override_mouth: EnumProperty(  # type: ignore[valid-type]
         name="Override Mouth",
         items=expression_override_type_enum.items(),
-        update=update_preview,
+        update=_update_preview,
     )
 
     # for UI
@@ -1339,13 +1339,13 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         name="Texture Transform Binds"
     )
 
-    def get_preview(self) -> float:
+    def _get_preview(self) -> float:
         value = self.get("preview")
         if isinstance(value, (float, int)):
             return float(value)
         return 0.0
 
-    def set_preview(self, value_obj: object) -> None:
+    def _set_preview(self, value_obj: object) -> None:
         context = bpy.context
 
         value = convert.float_or_none(value_obj)
@@ -1361,15 +1361,15 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
 
         self["preview"] = value
 
-        self.update_preview(context)
+        self._update_preview(context)
 
     preview: FloatProperty(  # type: ignore[valid-type]
         name="Expression",
         min=0,
         max=1,
         subtype="FACTOR",
-        get=get_preview,
-        set=set_preview,
+        get=_get_preview,
+        set=_set_preview,
     )
 
     @classmethod
@@ -1429,10 +1429,10 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
 
 
 class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
-    def get_custom_name(self) -> str:
+    def _get_custom_name(self) -> str:
         return str(self.get("custom_name", ""))
 
-    def set_custom_name(self, value: str) -> None:
+    def _set_custom_name(self, value: str) -> None:
         if not value or self.get("custom_name") == value:
             return
 
@@ -1455,8 +1455,8 @@ class Vrm1CustomExpressionPropertyGroup(Vrm1ExpressionPropertyGroup):
 
     custom_name: StringProperty(  # type: ignore[valid-type]
         name="Name",
-        get=get_custom_name,
-        set=set_custom_name,
+        get=_get_custom_name,
+        set=_set_custom_name,
     )
 
     if TYPE_CHECKING:

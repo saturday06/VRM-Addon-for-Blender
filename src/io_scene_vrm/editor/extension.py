@@ -372,7 +372,7 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
         ),
     )
 
-    def update_spec_version(self, _context: Context) -> None:
+    def _update_spec_version(self, _context: Context) -> None:
         for blend_shape_group in self.vrm0.blend_shape_master.blend_shape_groups:
             blend_shape_group.preview = 0
 
@@ -403,7 +403,7 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
     spec_version: EnumProperty(  # type: ignore[valid-type]
         items=spec_version_items,
         name="Spec Version",
-        update=update_spec_version,
+        update=_update_spec_version,
         default=SPEC_VERSION_DEFAULT,
     )
 

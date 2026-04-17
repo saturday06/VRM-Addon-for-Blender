@@ -181,14 +181,14 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
     )
 
     # for T-Pose
-    def update_pose_library(self, _context: Context) -> None:
+    def _update_pose_library(self, _context: Context) -> None:
         self.pose_marker_name = ""
 
     pose_library: PointerProperty(  # type: ignore[valid-type]
         type=Action,
         name="Pose Library",
         description="Pose library for T Pose",
-        update=update_pose_library,
+        update=_update_pose_library,
     )
     pose_marker_name: StringProperty()  # type: ignore[valid-type]
 
@@ -198,7 +198,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         default=True
     )
 
-    def update_filter_by_human_bone_hierarchy(self, _context: Context) -> None:
+    def _update_filter_by_human_bone_hierarchy(self, _context: Context) -> None:
         if not isinstance(armature_data := self.id_data, Armature):
             return
         HumanoidStructureBonePropertyGroup.clear_bone_name_candidates_cache(
@@ -212,7 +212,7 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
         name="Filter by VRM Human Bone Hierarchy",
         description="Restrict selectable bones by VRM humanoid hierarchy",
         default=True,
-        update=update_filter_by_human_bone_hierarchy,
+        update=_update_filter_by_human_bone_hierarchy,
     )
 
     def human_bone_duplication_error_messages(self) -> list[tuple[str, str]]:
@@ -542,7 +542,7 @@ class Vrm0FirstPersonPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L18-L30
 class Vrm0BlendShapeBindPropertyGroup(PropertyGroup):
-    def update_preview(self, context: Context) -> None:
+    def _update_preview(self, context: Context) -> None:
         if not isinstance(armature_data := self.id_data, Armature):
             return
         Vrm0BlendShapeGroupPropertyGroup.apply_previews(context, armature_data)
@@ -550,11 +550,11 @@ class Vrm0BlendShapeBindPropertyGroup(PropertyGroup):
     mesh: PointerProperty(  # type: ignore[valid-type]
         name="Mesh",
         type=MeshObjectPropertyGroup,
-        update=update_preview,
+        update=_update_preview,
     )
     index: StringProperty(  # type: ignore[valid-type]
         name="Index",
-        update=update_preview,
+        update=_update_preview,
     )
     weight: FloatProperty(  # type: ignore[valid-type]
         name="Weight",
@@ -562,7 +562,7 @@ class Vrm0BlendShapeBindPropertyGroup(PropertyGroup):
         default=1,
         max=1,
         subtype="FACTOR",
-        update=update_preview,
+        update=_update_preview,
     )
 
     if TYPE_CHECKING:
@@ -647,13 +647,13 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
     active_bind_index: IntProperty(min=0)  # type: ignore[valid-type]
     active_material_value_index: IntProperty(min=0)  # type: ignore[valid-type]
 
-    def get_preview(self) -> float:
+    def _get_preview(self) -> float:
         value = self.get("preview")
         if isinstance(value, (float, int)):
             return float(value)
         return 0.0
 
-    def set_preview(self, value_obj: object) -> None:
+    def _set_preview(self, value_obj: object) -> None:
         context = bpy.context
 
         value = convert.float_or_none(value_obj)
@@ -669,11 +669,11 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
 
         self["preview"] = value
 
-        self.update_preview(context)
+        self._update_preview(context)
 
     pending_preview_update_armature_data_names: ClassVar[list[str]] = []
 
-    def update_preview(self, context: Context) -> None:
+    def _update_preview(self, context: Context) -> None:
         armature_data = self.id_data
         if not isinstance(armature_data, Armature):
             return
@@ -780,14 +780,14 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
         min=0,
         max=1,
         subtype="FACTOR",
-        get=get_preview,
-        set=set_preview,
+        get=_get_preview,
+        set=_set_preview,
     )
 
     is_binary: BoolProperty(  # type: ignore[valid-type]
         name="Is Binary",
         description="Use binary change in the blendshape group",
-        update=update_preview,
+        update=_update_preview,
     )
 
     if TYPE_CHECKING:
@@ -968,7 +968,7 @@ class Vrm0SecondaryAnimationColliderGroupReferencePropertyGroup(PropertyGroup):
                 return collider_group.display_name
         return ""
 
-    def update_collider_group_uuid(self, _context: Context) -> None:
+    def _update_collider_group_uuid(self, _context: Context) -> None:
         if not self.collider_group_uuid:
             return
 
@@ -984,7 +984,7 @@ class Vrm0SecondaryAnimationColliderGroupReferencePropertyGroup(PropertyGroup):
 
         self.collider_group_uuid = ""
 
-    collider_group_uuid: StringProperty(update=update_collider_group_uuid)  # type: ignore[valid-type]
+    collider_group_uuid: StringProperty(update=_update_collider_group_uuid)  # type: ignore[valid-type]
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -1017,7 +1017,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
         description="Gravity power of springs",
     )
 
-    def update_gravity_dir(self, _context: Context) -> None:
+    def _update_gravity_dir(self, _context: Context) -> None:
         gravity_dir = Vector(self.gravity_dir)
         normalized_gravity_dir = gravity_dir.normalized()
         if (gravity_dir - normalized_gravity_dir).length > 0.0001:
@@ -1030,7 +1030,7 @@ class Vrm0SecondaryAnimationGroupPropertyGroup(PropertyGroup):
         subtype="XYZ",
         name="Gravity Direction",
         description="Gravity direction of springs",
-        update=update_gravity_dir,
+        update=_update_gravity_dir,
     )
     drag_force: FloatProperty(  # type: ignore[valid-type]
         name="Drag Force",

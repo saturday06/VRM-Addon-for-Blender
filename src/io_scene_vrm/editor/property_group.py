@@ -108,20 +108,20 @@ def property_group_enum(
 
 
 class StringPropertyGroup(PropertyGroup):
-    def get_value(self) -> str:
+    def _get_value(self) -> str:
         value = self.get("value")
         if isinstance(value, str):
             return value
         return str(value)
 
-    def set_value(self, value: str) -> None:
+    def _set_value(self, value: str) -> None:
         self.name = value
         self["value"] = value
 
     value: StringProperty(  # type: ignore[valid-type]
         name="String Value",
-        get=get_value,
-        set=set_value,
+        get=_get_value,
+        set=_set_value,
     )
 
     if TYPE_CHECKING:
@@ -131,20 +131,20 @@ class StringPropertyGroup(PropertyGroup):
 
 
 class FloatPropertyGroup(PropertyGroup):
-    def get_value(self) -> float:
+    def _get_value(self) -> float:
         value = self.get("value")
         if isinstance(value, (float, int)):
             return float(value)
         return 0.0
 
-    def set_value(self, value: float) -> None:
+    def _set_value(self, value: float) -> None:
         self.name = str(value)
         self["value"] = value
 
     value: FloatProperty(  # type: ignore[valid-type]
         name="Float Value",
-        get=get_value,
-        set=set_value,
+        get=_get_value,
+        set=_set_value,
     )
 
     if TYPE_CHECKING:
@@ -154,13 +154,13 @@ class FloatPropertyGroup(PropertyGroup):
 
 
 class MeshObjectPropertyGroup(PropertyGroup):
-    def get_mesh_object_name(self) -> str:
+    def _get_mesh_object_name(self) -> str:
         bpy_object = self.bpy_object
         if not bpy_object or not bpy_object.name or bpy_object.type != "MESH":
             return ""
         return str(bpy_object.name)
 
-    def set_mesh_object_name(self, value: object) -> None:
+    def _set_mesh_object_name(self, value: object) -> None:
         context = bpy.context
 
         if (
@@ -176,12 +176,12 @@ class MeshObjectPropertyGroup(PropertyGroup):
             self.bpy_object = obj
 
     mesh_object_name: StringProperty(  # type: ignore[valid-type]
-        get=get_mesh_object_name, set=set_mesh_object_name
+        get=_get_mesh_object_name, set=_set_mesh_object_name
     )
 
     saved_mesh_object_name_to_restore: StringProperty()  # type: ignore[valid-type]
 
-    def get_value(self) -> str:
+    def _get_value(self) -> str:
         message = (
             "`MeshObjectPropertyGroup.value` is deprecated and will be removed in the"
             " next major release. Please use `MeshObjectPropertyGroup.mesh_object_name`"
@@ -191,7 +191,7 @@ class MeshObjectPropertyGroup(PropertyGroup):
         warnings.warn(message, DeprecationWarning, stacklevel=5)
         return str(self.mesh_object_name)
 
-    def set_value(self, value: str) -> None:
+    def _set_value(self, value: str) -> None:
         message = (
             "`MeshObjectPropertyGroup.value` is deprecated and will be removed in the"
             " next major release. Please use `MeshObjectPropertyGroup.mesh_object_name`"
@@ -202,8 +202,8 @@ class MeshObjectPropertyGroup(PropertyGroup):
         self.mesh_object_name = value
 
     value: StringProperty(  # type: ignore[valid-type]
-        get=get_value,
-        set=set_value,
+        get=_get_value,
+        set=_set_value,
     )
     """`value` is deprecated and will be removed in the next
     major release. Please use `mesh_object_name` instead.
@@ -212,14 +212,14 @@ class MeshObjectPropertyGroup(PropertyGroup):
     def poll_bpy_object(self, obj: object) -> bool:
         return isinstance(obj, Object) and obj.type == "MESH"
 
-    def update_bpy_object(self, _context: Context) -> None:
+    def _update_bpy_object(self, _context: Context) -> None:
         bpy_object = self.bpy_object
         self.saved_mesh_object_name_to_restore = bpy_object.name if bpy_object else ""
 
     bpy_object: PointerProperty(  # type: ignore[valid-type]
         type=Object,
         poll=poll_bpy_object,
-        update=update_bpy_object,
+        update=_update_bpy_object,
     )
 
     def restore_object_assignment(self, context: Context) -> None:
@@ -228,7 +228,7 @@ class MeshObjectPropertyGroup(PropertyGroup):
         obj = context.blend_data.objects.get(self.saved_mesh_object_name_to_restore)
         if not obj:
             return
-        self.set_mesh_object_name(obj.name)
+        self._set_mesh_object_name(obj.name)
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -324,7 +324,7 @@ class BonePropertyGroup(PropertyGroup):
         dict[tuple[str, str], str]
     ] = {}
 
-    def get_bone_name(self) -> str:
+    def _get_bone_name(self) -> str:
         if not self.bone_uuid:
             return ""
 
@@ -378,7 +378,7 @@ class BonePropertyGroup(PropertyGroup):
         )
         raise AssertionError(message)
 
-    def set_bone_name(self, value: str) -> None:
+    def _set_bone_name(self, value: str) -> None:
         context = bpy.context
 
         armature_data = self.find_armature()
@@ -434,11 +434,11 @@ class BonePropertyGroup(PropertyGroup):
 
     bone_name: StringProperty(  # type: ignore[valid-type]
         name="Bone",
-        get=get_bone_name,
-        set=set_bone_name,
+        get=_get_bone_name,
+        set=_set_bone_name,
     )
 
-    def get_value(self) -> str:
+    def _get_value(self) -> str:
         message = (
             "`BonePropertyGroup.value` is deprecated and will be removed in the"
             " next major release. Please use `BonePropertyGroup.bone_name` instead."
@@ -447,7 +447,7 @@ class BonePropertyGroup(PropertyGroup):
         warnings.warn(message, DeprecationWarning, stacklevel=5)
         return str(self.bone_name)
 
-    def set_value(self, value: str) -> None:
+    def _set_value(self, value: str) -> None:
         message = (
             "`BonePropertyGroup.value` is deprecated and will be removed in the"
             " next major release. Please use `BonePropertyGroup.bone_name` instead."
@@ -458,8 +458,8 @@ class BonePropertyGroup(PropertyGroup):
 
     value: StringProperty(  # type: ignore[valid-type]
         name="Bone",
-        get=get_value,
-        set=set_value,
+        get=_get_value,
+        set=_set_value,
     )
     """`value` is deprecated and will be removed in the next major
     release. Please use `bone_name` instead."

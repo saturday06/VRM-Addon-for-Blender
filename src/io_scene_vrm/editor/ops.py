@@ -45,7 +45,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -56,7 +56,7 @@ class VRM_OT_simplify_vroid_bones(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -367,7 +367,7 @@ class VRM_OT_make_estimated_humanoid_t_pose(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -378,7 +378,7 @@ class VRM_OT_make_estimated_humanoid_t_pose(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.

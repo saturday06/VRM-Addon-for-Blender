@@ -232,7 +232,7 @@ class VrmAddonPreferences(AddonPreferences):
         default=INITIAL_ADDON_VERSION,
     )
 
-    def update_add_mtoon_shader_node_group(self, context: Context) -> None:
+    def _update_add_mtoon_shader_node_group(self, context: Context) -> None:
         if self.add_mtoon_shader_node_group:
             add_mtoon1_auto_setup_shader_node_group(context)
         else:
@@ -241,7 +241,7 @@ class VrmAddonPreferences(AddonPreferences):
     add_mtoon_shader_node_group: BoolProperty(  # type: ignore[valid-type]
         name="Add MToon shader node group",
         default=True,
-        update=update_add_mtoon_shader_node_group,
+        update=_update_add_mtoon_shader_node_group,
     )
 
     extract_textures_into_folder: BoolProperty(  # type: ignore[valid-type]

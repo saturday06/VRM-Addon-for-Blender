@@ -73,7 +73,7 @@ class VRM_OT_add_vrm1_meta_author(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -84,7 +84,7 @@ class VRM_OT_add_vrm1_meta_author(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -122,7 +122,7 @@ class VRM_OT_remove_vrm1_meta_author(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -133,7 +133,7 @@ class VRM_OT_remove_vrm1_meta_author(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -181,7 +181,7 @@ class VRM_OT_move_up_vrm1_meta_author(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -192,7 +192,7 @@ class VRM_OT_move_up_vrm1_meta_author(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -238,7 +238,7 @@ class VRM_OT_move_down_vrm1_meta_author(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -249,7 +249,7 @@ class VRM_OT_move_down_vrm1_meta_author(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -295,7 +295,7 @@ class VRM_OT_add_vrm1_meta_reference(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -306,7 +306,7 @@ class VRM_OT_add_vrm1_meta_reference(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -344,7 +344,7 @@ class VRM_OT_remove_vrm1_meta_reference(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -355,7 +355,7 @@ class VRM_OT_remove_vrm1_meta_reference(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -403,7 +403,7 @@ class VRM_OT_move_up_vrm1_meta_reference(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -414,7 +414,7 @@ class VRM_OT_move_up_vrm1_meta_reference(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -460,7 +460,7 @@ class VRM_OT_move_down_vrm1_meta_reference(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -471,7 +471,7 @@ class VRM_OT_move_down_vrm1_meta_reference(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -517,7 +517,7 @@ class VRM_OT_add_vrm1_expressions_custom_expression(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -528,7 +528,7 @@ class VRM_OT_add_vrm1_expressions_custom_expression(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -575,7 +575,7 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -586,7 +586,7 @@ class VRM_OT_remove_vrm1_expressions_custom_expression(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -638,7 +638,7 @@ class VRM_OT_move_up_vrm1_expressions_custom_expression(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -649,7 +649,7 @@ class VRM_OT_move_up_vrm1_expressions_custom_expression(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -704,7 +704,7 @@ class VRM_OT_move_down_vrm1_expressions_custom_expression(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -715,7 +715,7 @@ class VRM_OT_move_down_vrm1_expressions_custom_expression(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -770,7 +770,7 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -781,7 +781,7 @@ class VRM_OT_add_vrm1_first_person_mesh_annotation(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -820,7 +820,7 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -831,7 +831,7 @@ class VRM_OT_remove_vrm1_first_person_mesh_annotation(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -879,7 +879,7 @@ class VRM_OT_move_up_vrm1_first_person_mesh_annotation(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -890,7 +890,7 @@ class VRM_OT_move_up_vrm1_first_person_mesh_annotation(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -938,7 +938,7 @@ class VRM_OT_move_down_vrm1_first_person_mesh_annotation(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -949,7 +949,7 @@ class VRM_OT_move_down_vrm1_first_person_mesh_annotation(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -997,7 +997,7 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -1008,7 +1008,7 @@ class VRM_OT_add_vrm1_expression_morph_target_bind(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -1055,7 +1055,7 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -1066,7 +1066,7 @@ class VRM_OT_remove_vrm1_expression_morph_target_bind(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -1121,7 +1121,7 @@ class VRM_OT_move_up_vrm1_expression_morph_target_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -1132,7 +1132,7 @@ class VRM_OT_move_up_vrm1_expression_morph_target_bind(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -1185,7 +1185,7 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -1196,7 +1196,7 @@ class VRM_OT_move_down_vrm1_expression_morph_target_bind(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -1656,7 +1656,7 @@ class VRM_OT_add_vrm1_expression_material_color_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -1667,7 +1667,7 @@ class VRM_OT_add_vrm1_expression_material_color_bind(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -1716,7 +1716,7 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -1727,7 +1727,7 @@ class VRM_OT_remove_vrm1_expression_material_color_bind(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -1782,7 +1782,7 @@ class VRM_OT_move_up_vrm1_expression_material_color_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -1793,7 +1793,7 @@ class VRM_OT_move_up_vrm1_expression_material_color_bind(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -1846,7 +1846,7 @@ class VRM_OT_move_down_vrm1_expression_material_color_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -1857,7 +1857,7 @@ class VRM_OT_move_down_vrm1_expression_material_color_bind(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -1910,7 +1910,7 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -1921,7 +1921,7 @@ class VRM_OT_add_vrm1_expression_texture_transform_bind(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -1968,7 +1968,7 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -1979,7 +1979,7 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -2034,7 +2034,7 @@ class VRM_OT_move_up_vrm1_expression_texture_transform_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -2045,7 +2045,7 @@ class VRM_OT_move_up_vrm1_expression_texture_transform_bind(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -2098,7 +2098,7 @@ class VRM_OT_move_down_vrm1_expression_texture_transform_bind(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -2109,7 +2109,7 @@ class VRM_OT_move_down_vrm1_expression_texture_transform_bind(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -2162,7 +2162,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -2173,7 +2173,7 @@ class VRM_OT_assign_vrm1_humanoid_human_bones_automatically(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.
@@ -2336,7 +2336,7 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         options={"HIDDEN"},
     )
 
-    def update_armature_name(self, _context: Context) -> None:
+    def _update_armature_name(self, _context: Context) -> None:
         message = (
             f"`{type(self).__qualname__}.armature_name` is deprecated"
             + " and will be removed in the next major release."
@@ -2347,7 +2347,7 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
 
     armature_name: StringProperty(  # type: ignore[valid-type]
         options={"HIDDEN"},
-        update=update_armature_name,
+        update=_update_armature_name,
     )
     """`armature_name` is deprecated and will be removed in the next major release.
     Please use `armature_object_name` instead.

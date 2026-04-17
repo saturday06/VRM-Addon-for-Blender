@@ -156,7 +156,7 @@ class OutlineUpdater(SceneWatcher):
                 if not (
                     (material := material_slot.material)
                     and (mtoon1 := get_material_extension(material).mtoon1)
-                    and mtoon1.get_enabled()
+                    and mtoon1.enabled
                 ):
                     # MToon of the material in the material slot is disabled
                     if comparison_material is None:
