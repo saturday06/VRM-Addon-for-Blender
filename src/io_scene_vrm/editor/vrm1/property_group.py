@@ -792,14 +792,14 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
             )
         )
         if vrm1.look_at.type == vrm1.look_at.TYPE_BONE.identifier:
-            self.apply_eye_bone_preview(
+            self._apply_eye_bone_preview(
                 vrm1,
                 yaw_degrees,
                 pitch_degrees,
                 armature_object,
                 HumanBoneName.RIGHT_EYE,
             )
-            self.apply_eye_bone_preview(
+            self._apply_eye_bone_preview(
                 vrm1,
                 yaw_degrees,
                 pitch_degrees,
@@ -807,10 +807,10 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
                 HumanBoneName.LEFT_EYE,
             )
         elif vrm1.look_at.type == vrm1.look_at.TYPE_EXPRESSION.identifier:
-            self.apply_expression_preview(vrm1, yaw_degrees, pitch_degrees)
+            self._apply_expression_preview(vrm1, yaw_degrees, pitch_degrees)
 
     # https://github.com/vrm-c/vrm-specification/blob/0861a66eb2f2b76835322d775678047d616536b3/specification/VRMC_vrm-1.0/lookAt.md?plain=1#L230
-    def apply_eye_bone_preview(
+    def _apply_eye_bone_preview(
         self,
         vrm1: "Vrm1PropertyGroup",
         yaw_degrees: float,
@@ -898,7 +898,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
         set_rotation_without_mode_change(pose_bone, rotation)
 
     # https://github.com/vrm-c/vrm-specification/blob/0861a66eb2f2b76835322d775678047d616536b3/specification/VRMC_vrm-1.0/lookAt.md?plain=1#L258
-    def apply_expression_preview(
+    def _apply_expression_preview(
         self,
         vrm1: "Vrm1PropertyGroup",
         yaw_degrees: float,

@@ -141,27 +141,27 @@ class ICYP_OT_make_armature(Operator):
 
     def execute(self, context: Context) -> set[str]:
         with save_workspace(context):
-            self.armature_obj, compare_dict = self.make_armature(context)
-            self.setup_as_vrm(context, self.armature_obj, compare_dict)
+            self.armature_obj, compare_dict = self._make_armature(context)
+            self._setup_as_vrm(context, self.armature_obj, compare_dict)
             if self.custom_property_name:
                 self.armature_obj[self.custom_property_name] = True
         context.view_layer.objects.active = self.armature_obj
         return {"FINISHED"}
 
-    def float_prop(self, name: str) -> float:
+    def _float_prop(self, name: str) -> float:
         prop = getattr(self, name)
         if not isinstance(prop, float):
             message = f"prop {name} is not float"
             raise TypeError(message)
         return prop
 
-    def head_size(self) -> float:
-        return self.float_prop("tall") / self.float_prop("head_ratio")
+    def _head_size(self) -> float:
+        return self._float_prop("tall") / self._float_prop("head_ratio")
 
-    def hand_size(self) -> float:
-        return self.head_size() * 0.75 * self.float_prop("hand_ratio")
+    def _hand_size(self) -> float:
+        return self._head_size() * 0.75 * self._float_prop("hand_ratio")
 
-    def make_armature(self, context: Context) -> tuple[Object, dict[str, str]]:
+    def _make_armature(self, context: Context) -> tuple[Object, dict[str, str]]:
         def bone_add(
             armature_data: Armature,
             name: str,
@@ -266,7 +266,7 @@ class ICYP_OT_make_armature(Operator):
                 proximal_pos,
                 x_add(proximal_pos, proximal_finger_len),
                 hands,
-                self.hand_size() / 18,
+                self._hand_size() / 18,
                 bone_type="arm",
             )
             intermediate_bones = x_mirror_bones_add(
@@ -275,7 +275,7 @@ class ICYP_OT_make_armature(Operator):
                 proximal_bones[0].tail,
                 x_add(proximal_bones[0].tail, intermediate_finger_len),
                 proximal_bones,
-                self.hand_size() / 18,
+                self._hand_size() / 18,
                 bone_type="arm",
             )
             distal_bones = x_mirror_bones_add(
@@ -284,7 +284,7 @@ class ICYP_OT_make_armature(Operator):
                 intermediate_bones[0].tail,
                 x_add(intermediate_bones[0].tail, distal_finger_len),
                 intermediate_bones,
-                self.hand_size() / 18,
+                self._hand_size() / 18,
                 bone_type="arm",
             )
             if self.nail_bone:
@@ -294,7 +294,7 @@ class ICYP_OT_make_armature(Operator):
                     distal_bones[0].tail,
                     x_add(distal_bones[0].tail, distal_finger_len),
                     distal_bones,
-                    self.hand_size() / 20,
+                    self._hand_size() / 20,
                     bone_type="arm",
                 )
             return proximal_bones, intermediate_bones, distal_bones
@@ -314,7 +314,7 @@ class ICYP_OT_make_armature(Operator):
 
         # bone_type = "leg" or "arm" for roll setting
 
-        head_size = self.head_size()
+        head_size = self._head_size()
         # down side (previously the lower leg ratio of upper leg/lower leg for
         # 8-head proportions, later linearly interpolated with age factor for
         # 4-head proportions)(breaks if upper leg is too high)
@@ -460,7 +460,7 @@ class ICYP_OT_make_armature(Operator):
             x_add(shoulder_parent.tail, shoulder_in_pos),
             x_add(shoulder_parent.tail, shoulder_in_pos + self.shoulder_width),
             (shoulder_parent, shoulder_parent),
-            radius=self.hand_size() * 0.4,
+            radius=self._hand_size() * 0.4,
             bone_type="arm",
         )
 
@@ -475,7 +475,7 @@ class ICYP_OT_make_armature(Operator):
             shoulders[0].tail,
             x_add(shoulders[0].tail, arm_length),
             shoulders,
-            radius=self.hand_size() * 0.4,
+            radius=self._hand_size() * 0.4,
             bone_type="arm",
         )
 
@@ -483,32 +483,32 @@ class ICYP_OT_make_armature(Operator):
         # When making a fist, the length of the forearm including the hand
         # is roughly the same as the length of the upper arm,
         # but it breaks down if the hand is too big.
-        forearm_length = max(arm_length - self.hand_size() / 2, arm_length * 0.8)
+        forearm_length = max(arm_length - self._hand_size() / 2, arm_length * 0.8)
         forearms = x_mirror_bones_add(
             armature_data,
             "lower_arm",
             arms[0].tail,
             x_add(arms[0].tail, forearm_length),
             arms,
-            radius=self.hand_size() * 0.4,
+            radius=self._hand_size() * 0.4,
             bone_type="arm",
         )
         hands = x_mirror_bones_add(
             armature_data,
             "hand",
             forearms[0].tail,
-            x_add(forearms[0].tail, self.hand_size() / 2),
+            x_add(forearms[0].tail, self._hand_size() / 2),
             forearms,
-            radius=self.hand_size() / 4,
+            radius=self._hand_size() / 4,
             bone_type="arm",
         )
 
-        finger_y_offset = -self.hand_size() / 16
+        finger_y_offset = -self._hand_size() / 16
         thumbs = fingers(
             armature_data,
             "thumb",
             y_add(hands[0].head, finger_y_offset * 3),
-            self.hand_size() / 2,
+            self._hand_size() / 2,
         )
 
         mats = tuple(
@@ -526,25 +526,25 @@ class ICYP_OT_make_armature(Operator):
             armature_data,
             "index",
             y_add(hands[0].tail, finger_y_offset * 3),
-            (self.hand_size() / 2) - (1 / 2.3125) * (self.hand_size() / 2) / 3,
+            (self._hand_size() / 2) - (1 / 2.3125) * (self._hand_size() / 2) / 3,
         )
         middle_fingers = fingers(
             armature_data,
             "middle",
             y_add(hands[0].tail, finger_y_offset),
-            self.hand_size() / 2,
+            self._hand_size() / 2,
         )
         ring_fingers = fingers(
             armature_data,
             "ring",
             y_add(hands[0].tail, -finger_y_offset),
-            (self.hand_size() / 2) - (1 / 2.3125) * (self.hand_size() / 2) / 3,
+            (self._hand_size() / 2) - (1 / 2.3125) * (self._hand_size() / 2) / 3,
         )
         little_fingers = fingers(
             armature_data,
             "little",
             y_add(hands[0].tail, -finger_y_offset * 3),
-            ((self.hand_size() / 2) - (1 / 2.3125) * (self.hand_size() / 2) / 3)
+            ((self._hand_size() / 2) - (1 / 2.3125) * (self._hand_size() / 2) / 3)
             * ((1 / 2.3125) + (1 / 2.3125) * 0.75),
         )
 
@@ -598,7 +598,7 @@ class ICYP_OT_make_armature(Operator):
         context.scene.view_layers.update()
         return armature, bone_name_all_dict
 
-    def setup_as_vrm(
+    def _setup_as_vrm(
         self, context: Context, armature: Object, compare_dict: dict[str, str]
     ) -> None:
         armature_data = armature.data
@@ -617,15 +617,15 @@ class ICYP_OT_make_armature(Operator):
                         break
         vrm0_humanoid.pose = vrm0_humanoid.POSE_REST_POSITION_POSE.identifier
         vrm1_humanoid.pose = vrm1_humanoid.POSE_REST_POSITION_POSE.identifier
-        self.make_extension_setting_and_metas(
+        self._make_extension_setting_and_metas(
             armature,
-            offset_from_head_bone=(-self.eye_depth, self.head_size() / 6, 0),
+            offset_from_head_bone=(-self.eye_depth, self._head_size() / 6, 0),
         )
         if not self.skip_heavy_armature_setup:
             migration.migrate(context, armature.name, heavy_migration=True)
 
     @classmethod
-    def make_extension_setting_and_metas(
+    def _make_extension_setting_and_metas(
         cls,
         armature: Object,
         offset_from_head_bone: tuple[float, float, float] = (0, 0, 0),

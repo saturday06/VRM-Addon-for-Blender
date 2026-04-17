@@ -209,7 +209,7 @@ class MeshObjectPropertyGroup(PropertyGroup):
     major release. Please use `mesh_object_name` instead.
     """
 
-    def poll_bpy_object(self, obj: object) -> bool:
+    def _poll_bpy_object(self, obj: object) -> bool:
         return isinstance(obj, Object) and obj.type == "MESH"
 
     def _update_bpy_object(self, _context: Context) -> None:
@@ -218,7 +218,7 @@ class MeshObjectPropertyGroup(PropertyGroup):
 
     bpy_object: PointerProperty(  # type: ignore[valid-type]
         type=Object,
-        poll=poll_bpy_object,
+        poll=_poll_bpy_object,
         update=_update_bpy_object,
     )
 
