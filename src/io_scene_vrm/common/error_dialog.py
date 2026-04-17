@@ -55,7 +55,7 @@ def show_error_dialog(
         platform_system, _, _ = platform.system_alias(
             platform.system(), platform.release(), platform.version()
         )
-        if sys.version_info >= (3, 10) and platform_system not in ["Windows", "Darwin"]:
+        if sys.version_info >= (3, 10) and platform_system not in ("Windows", "Darwin"):
             # https://github.com/python/cpython/blob/v3.10.18/Doc/library/platform.rst?plain=1#L271-L272
             with contextlib.suppress(OSError):
                 os_name = platform.freedesktop_os_release().get("PRETTY_NAME")

@@ -152,7 +152,7 @@ def migrate_material(
         blender_4_2_migrated_material_names.append(material.name)
         alpha_cutoff = material.alpha_threshold
         blend_method = material.blend_method
-        if blend_method in ["BLEND", "HASHED"]:
+        if blend_method in ("BLEND", "HASHED"):
             alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND.identifier
         elif blend_method == "CLIP":
             alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK.identifier
@@ -462,7 +462,7 @@ def migrate_sampler_filter_node(material: Material) -> None:
 
     mtoon1 = get_material_extension(material).mtoon1
 
-    for node_name, attrs in [
+    for node_name, attrs in (
         (
             "Mtoon1BaseColorTexture.Image",
             ("pbr_metallic_roughness", "base_color_texture"),
@@ -497,7 +497,7 @@ def migrate_sampler_filter_node(material: Material) -> None:
             "Mtoon1RimMultiplyTexture.Image",
             ("extensions", "vrmc_materials_mtoon", "rim_multiply_texture"),
         ),
-    ]:
+    ):
         sampler = functools.reduce(
             lambda prop, attr: getattr(prop, attr, None),
             (*attrs, "index", "sampler"),

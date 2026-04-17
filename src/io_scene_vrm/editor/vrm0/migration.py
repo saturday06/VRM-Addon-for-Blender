@@ -214,7 +214,7 @@ def migrate_vrm0_first_person(
     ):
         first_person.look_at_type_name = look_at_type_name
 
-    for look_at, look_at_dict in [
+    for look_at, look_at_dict in (
         (
             first_person.look_at_horizontal_inner,
             first_person_dict.get("lookAtHorizontalInner"),
@@ -231,7 +231,7 @@ def migrate_vrm0_first_person(
             first_person.look_at_vertical_up,
             first_person_dict.get("lookAtVerticalUp"),
         ),
-    ]:
+    ):
         if not isinstance(look_at_dict, dict):
             continue
 
@@ -352,14 +352,14 @@ def migrate_vrm0_secondary_animation(
     armature_data: Armature,
 ) -> None:
     bone_name_to_collider_objects: dict[str, list[Object]] = {}
-    for collider_object in [
+    for collider_object in (
         child
         for child in armature.children
         if child.type == "EMPTY"
         and child.empty_display_type == "SPHERE"
         and child.parent_type == "BONE"
         and child.parent_bone in armature_data.bones
-    ]:
+    ):
         if collider_object.parent_bone not in bone_name_to_collider_objects:
             bone_name_to_collider_objects[collider_object.parent_bone] = []
         bone_name_to_collider_objects[collider_object.parent_bone].append(

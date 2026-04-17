@@ -256,13 +256,13 @@ class Vrm0HumanoidPropertyGroup(PropertyGroup):
             message for _, message in self.human_bone_duplication_error_messages()
         ]
 
-        for human_bone_name, human_bone in [
+        for human_bone_name, human_bone in (
             (human_bone_name, human_bone)
             for human_bone in self.human_bones
             for name in HumanBoneSpecifications.required_names
             if human_bone.bone == name
             and (human_bone_name := HumanBoneName.from_str(name))
-        ]:
+        ):
             specification = HumanBoneSpecifications.get(human_bone_name)
             bone_name = human_bone.node.bone_name
             if not bone_name:

@@ -738,10 +738,10 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
     def _set_ui_collider_type(self, value: int) -> None:
         extended = self.extensions.vrmc_spring_bone_extended_collider
 
-        if value in [
+        if value in (
             self.UI_COLLIDER_TYPE_SPHERE.value,
             self.UI_COLLIDER_TYPE_SPHERE_INSIDE.value,
-        ]:
+        ):
             if self.shape_type != self.SHAPE_TYPE_SPHERE.identifier:
                 self.shape_type = self.SHAPE_TYPE_SPHERE.identifier
             if extended.shape_type != extended.SHAPE_TYPE_EXTENDED_SPHERE.identifier:
@@ -753,10 +753,10 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
                 extended.enabled = inside
             return
 
-        if value in [
+        if value in (
             self.UI_COLLIDER_TYPE_CAPSULE.value,
             self.UI_COLLIDER_TYPE_CAPSULE_INSIDE.value,
-        ]:
+        ):
             if self.shape_type != self.SHAPE_TYPE_CAPSULE.identifier:
                 self.shape_type = self.SHAPE_TYPE_CAPSULE.identifier
             if extended.shape_type != extended.SHAPE_TYPE_EXTENDED_CAPSULE.identifier:
@@ -830,10 +830,10 @@ class SpringBone1ColliderPropertyGroup(PropertyGroup):
         ) or (
             extended.enabled
             and extended.shape_type
-            in [
+            in (
                 extended.SHAPE_TYPE_EXTENDED_SPHERE.identifier,
                 extended.SHAPE_TYPE_EXTENDED_PLANE.identifier,
-            ]
+            )
         ):
             for child in list(self.bpy_object.children):
                 if not safe_removal.remove_object(context, child):

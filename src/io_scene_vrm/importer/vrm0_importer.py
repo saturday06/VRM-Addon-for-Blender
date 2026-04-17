@@ -664,11 +664,11 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             )
         )
         if main_texture_image:
-            for texture in [
+            for texture in (
                 gltf.pbr_metallic_roughness.base_color_texture,
                 gltf.emissive_texture,
                 mtoon.shade_multiply_texture,
-            ]:
+            ):
                 texture.index.source = main_texture_image
                 khr_texture_transform = texture.extensions.khr_texture_transform
                 khr_texture_transform.offset = (texture_offset_u, texture_offset_v)
@@ -1013,7 +1013,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         ):
             first_person.look_at_type_name = look_at_type_name
 
-        for look_at, look_at_dict in [
+        for look_at, look_at_dict in (
             (
                 first_person.look_at_horizontal_inner,
                 first_person_dict.get("lookAtHorizontalInner"),
@@ -1030,7 +1030,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 first_person.look_at_vertical_up,
                 first_person_dict.get("lookAtVerticalUp"),
             ),
-        ]:
+        ):
             if not isinstance(look_at_dict, dict):
                 continue
 
@@ -1432,7 +1432,7 @@ def _setup_bones(context: Context, armature: Object) -> None:
             #                    -- rightEye
             #
             # well, so we don't process leftEye and rightEye
-            if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
+            if human_bone_name in (HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE):
                 continue
 
             bone = armature_data.edit_bones.get(bone_name)
@@ -1445,39 +1445,39 @@ def _setup_bones(context: Context, armature: Object) -> None:
                     break
                 parent_human_bone_name = bone_name_to_human_bone_name.get(parent.name)
 
-                if parent_human_bone_name in [
+                if parent_human_bone_name in (
                     HumanBoneName.RIGHT_HAND,
                     HumanBoneName.LEFT_HAND,
-                ]:
+                ):
                     break
 
                 if (
                     parent_human_bone_name == HumanBoneName.UPPER_CHEST
                     and last_human_bone_name
-                    not in [HumanBoneName.HEAD, HumanBoneName.NECK]
+                    not in (HumanBoneName.HEAD, HumanBoneName.NECK)
                 ):
                     break
 
                 if (
                     parent_human_bone_name == HumanBoneName.CHEST
                     and last_human_bone_name
-                    not in [
+                    not in (
                         HumanBoneName.HEAD,
                         HumanBoneName.NECK,
                         HumanBoneName.UPPER_CHEST,
-                    ]
+                    )
                 ):
                     break
 
                 if (
                     parent_human_bone_name == HumanBoneName.SPINE
                     and last_human_bone_name
-                    not in [
+                    not in (
                         HumanBoneName.HEAD,
                         HumanBoneName.NECK,
                         HumanBoneName.UPPER_CHEST,
                         HumanBoneName.CHEST,
-                    ]
+                    )
                 ):
                     break
 
@@ -1509,7 +1509,7 @@ def _setup_bones(context: Context, armature: Object) -> None:
         # This results in a more natural direction than the default.
         # Since it might be a direction specification by the VRM creator,
         # do nothing when there is only one child.
-        for tip_bone_name in [
+        for tip_bone_name in (
             HumanBoneName.JAW,
             HumanBoneName.LEFT_THUMB_DISTAL,
             HumanBoneName.LEFT_INDEX_DISTAL,
@@ -1523,7 +1523,7 @@ def _setup_bones(context: Context, armature: Object) -> None:
             HumanBoneName.RIGHT_LITTLE_DISTAL,
             HumanBoneName.LEFT_TOES,
             HumanBoneName.RIGHT_TOES,
-        ]:
+        ):
             bone = None
             searching_tip_bone_name: Optional[HumanBoneName] = tip_bone_name
             while searching_tip_bone_name:
@@ -1581,10 +1581,10 @@ def _setup_bones(context: Context, armature: Object) -> None:
         # This results in a more natural direction than the default.
         # Since it might be a direction specification by the VRM creator,
         # do nothing when there is only one child.
-        for eye_human_bone in [
+        for eye_human_bone in (
             human_bone_name_to_human_bone.get(HumanBoneName.LEFT_EYE),
             human_bone_name_to_human_bone.get(HumanBoneName.RIGHT_EYE),
-        ]:
+        ):
             if not eye_human_bone or not eye_human_bone.node.bone_name:
                 continue
 
@@ -1610,7 +1610,7 @@ def _setup_bones(context: Context, armature: Object) -> None:
         # This results in a more natural direction than the default.
         # Since it might be a direction specification by the VRM creator,
         # do nothing when there is only one child.
-        for head_human_bone in [human_bone_name_to_human_bone.get(HumanBoneName.HEAD)]:
+        for head_human_bone in (human_bone_name_to_human_bone.get(HumanBoneName.HEAD),):
             if not head_human_bone or not head_human_bone.node.bone_name:
                 continue
 

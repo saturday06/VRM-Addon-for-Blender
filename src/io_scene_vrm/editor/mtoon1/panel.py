@@ -409,7 +409,7 @@ def draw_material(context: Context, layout: UILayout) -> None:
     if ext.mtoon1.enabled or (node and legacy_shader_name == "MToon_unversioned"):
         layout.prop(ext.mtoon1, "export_shape_key_normals")
         return
-    if node and legacy_shader_name in ["TRANSPARENT_ZWRITE", "GLTF"]:
+    if node and legacy_shader_name in ("TRANSPARENT_ZWRITE", "GLTF"):
         return
     if MmdMaterial.try_parse(material):
         return

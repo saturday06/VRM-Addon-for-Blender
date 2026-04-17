@@ -363,7 +363,7 @@ def export_objects(
             )
 
     for obj in selected_objects:
-        if obj.type in ["ARMATURE", "CAMERA"]:
+        if obj.type in ("ARMATURE", "CAMERA"):
             continue
         if obj.type == "LIGHT" and not export_lights:
             continue

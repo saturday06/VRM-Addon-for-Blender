@@ -123,6 +123,6 @@ TestVrmImportExport = type(
             extract_textures=extract_textures,
         )
         for path in sorted((RESOURCES_VRM_PATH / "in").glob("*.vrm"))
-        for extract_textures in [False, True]
+        for extract_textures in (False, True)
     },
 )

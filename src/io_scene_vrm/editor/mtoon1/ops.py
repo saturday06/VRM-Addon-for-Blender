@@ -187,7 +187,7 @@ class VRM_OT_import_mtoon1_texture_image_file(Operator, ImportHelper):
         gltf = get_material_extension(material).mtoon1
         mtoon = gltf.extensions.vrmc_materials_mtoon
 
-        for texture in [
+        for texture in (
             gltf.pbr_metallic_roughness.base_color_texture.index,
             mtoon.shade_multiply_texture.index,
             gltf.normal_texture.index,
@@ -199,7 +199,7 @@ class VRM_OT_import_mtoon1_texture_image_file(Operator, ImportHelper):
             mtoon.uv_animation_mask_texture.index,
             gltf.mtoon0_receive_shadow_texture,
             gltf.mtoon0_shading_grade_texture,
-        ]:
+        ):
             if self.target_texture != type(texture).__name__:
                 continue
             texture.source = image

@@ -142,11 +142,11 @@ def _validate_vrm0_license(
         return
 
     license_name = meta_dict.get("licenseName")
-    if license_name in [
+    if license_name in (
         # https://github.com/vrm-c/vrm-specification/blob/master/specification/0.0/schema/vrm.meta.schema.json#L56
         "CC_BY_ND",
         "CC_BY_NC_ND",
-    ]:
+    ):
         confirmations.append(
             LicenseConfirmationRequiredProp(
                 None,

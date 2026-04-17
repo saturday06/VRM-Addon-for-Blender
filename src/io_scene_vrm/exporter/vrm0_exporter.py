@@ -873,7 +873,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 }
             )
         first_person_dict["lookAtTypeName"] = first_person.look_at_type_name
-        for look_at, look_at_dict_key in [
+        for look_at, look_at_dict_key in (
             (
                 first_person.look_at_horizontal_inner,
                 "lookAtHorizontalInner",
@@ -890,7 +890,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 first_person.look_at_vertical_up,
                 "lookAtVerticalUp",
             ),
-        ]:
+        ):
             first_person_dict[look_at_dict_key] = {
                 "curve": list(look_at.curve),
                 "xRange": look_at.x_range,
@@ -2908,7 +2908,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             pass
         else:
             if (
-                obj.parent_type in ["ARMATURE", "OBJECT"]
+                obj.parent_type in ("ARMATURE", "OBJECT")
                 and (
                     parent := self.get_export_parent_object(
                         obj, mesh_convertible_objects

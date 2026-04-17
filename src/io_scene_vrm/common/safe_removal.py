@@ -4,10 +4,10 @@ from bpy.types import Context, Object
 
 
 def remove_object(context: Context, obj: Object) -> bool:
-    for collection in [
-        *[scene.collection for scene in context.blend_data.scenes],
+    for collection in (
+        *(scene.collection for scene in context.blend_data.scenes),
         *context.blend_data.collections,
-    ]:
+    ):
         for collection_object in collection.objects:
             if collection_object.parent != obj:
                 continue

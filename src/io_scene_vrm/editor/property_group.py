@@ -410,10 +410,10 @@ class BonePropertyGroup(PropertyGroup):
 
         ext = get_armature_extension(armature_data)
 
-        if bone_property_group_type in [
+        if bone_property_group_type in (
             BonePropertyGroupType.VRM0_COLLIDER_GROUP,
             BonePropertyGroupType.VRM0_BONE_GROUP,
-        ]:
+        ):
             for collider_group in ext.vrm0.secondary_animation.collider_groups:
                 for armature_object in armature_objects:
                     collider_group.fixup(armature_object)

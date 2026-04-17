@@ -1570,10 +1570,10 @@ def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -
                 if isinstance(to_item, NodeTreeInterfaceSocketFloatFactor):
                     to_item.socket_type = "NodeSocketFloat"
 
-            if to_item.socket_type not in [
+            if to_item.socket_type not in (
                 from_socket_type,
                 translated_from_socket_type,
-            ]:
+            ):
                 to_node_tree.interface.remove(to_item)
                 continue
 
@@ -1945,7 +1945,7 @@ def setup_frame_count_driver(context: Context) -> None:
                 'Failed to create anomation data for node group "%s"', node_group.name
             )
             return
-    for data_path, target_data_path, enabled in [
+    for data_path, target_data_path, enabled in (
         (
             f'nodes["{UV_ANIMATION_GROUP_FPS_BASE_NODE_NAME}"]'
             + ".outputs[0]"
@@ -1967,7 +1967,7 @@ def setup_frame_count_driver(context: Context) -> None:
             "frame_current",
             False,
         ),
-    ]:
+    ):
         fcurve: Optional[Union[FCurve, list[FCurve]]] = next(
             iter(
                 fcurve

@@ -69,7 +69,7 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
         scene = context.scene
 
         for obj in scene.collection.objects:
-            if obj.type in ["CAMERA", "LIGHT"]:
+            if obj.type in ("CAMERA", "LIGHT"):
                 obj.hide_render = True
                 obj.hide_viewport = True
 
@@ -195,11 +195,11 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
             ext.spring_bone1.enable_animation = True
             ext.vrm1.look_at.enable_preview = True
             look_at_target_obj = ext.vrm1.look_at.preview_target_bpy_object
-            for animation_data in [
+            for animation_data in (
                 obj.animation_data,
                 obj_data.animation_data,
                 look_at_target_obj.animation_data if look_at_target_obj else None,
-            ]:
+            ):
                 if not animation_data:
                     continue
                 action = animation_data.action

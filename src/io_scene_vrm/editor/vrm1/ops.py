@@ -1322,14 +1322,14 @@ def add_shape_keys_to_vrm1_expressions(
                 ):
                     continue
 
-                for mesh_object_name, key_block_name, weight in [
+                for mesh_object_name, key_block_name, weight in (
                     (mesh_object_name, key_block_name, weight)
                     for key_block_name, weight in key_block_name_to_weight.items()
                     for mesh_object_name, searching_key_block_name in (
                         mesh_object_name_and_key_block_names
                     )
                     if key_block_name == searching_key_block_name
-                ]:
+                ):
                     morph_target_bind = expression.morph_target_binds.add()
                     morph_target_bind.node.mesh_object_name = mesh_object_name
                     morph_target_bind.index = key_block_name
@@ -1361,12 +1361,12 @@ class VRM_OT_assign_vrm1_expressions_automatically(Operator):
 def assign_vrm1_expressions_automatically(
     context: Context, armature_object_name: str
 ) -> set[str]:
-    for mapping in [
+    for mapping in (
         VRM1_PRESET_TO_VRCHAT_SHAPE_KEY_MAPPING,
         VRM1_PRESET_TO_MMD_SHAPE_KEY_MAPPING,
         VRM1_PRESET_TO_READY_PLAYER_ME_SHAPE_KEY_MAPPING,
         VRM1_PRESET_TO_ARKIT_SHAPE_KEY_MAPPING,
-    ]:
+    ):
         add_shape_keys_to_vrm1_expressions(
             context,
             armature_object_name,
@@ -2567,10 +2567,10 @@ class VRM_OT_refresh_vrm1_expression_texture_transform_bind_preview(Operator):
         scale_input_socket.default_value = (0.0, 0.0, 0.0)
 
         for i, axis in enumerate(["X", "Y"]):
-            for input_name, property_name in [
+            for input_name, property_name in (
                 ("Location", "offset"),
                 ("Scale", "scale"),
-            ]:
+            ):
                 fcurve = mapping_node.inputs[input_name].driver_add("default_value", i)
                 if not isinstance(fcurve, FCurve):
                     raise TypeError

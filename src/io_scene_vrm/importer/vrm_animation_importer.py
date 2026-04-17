@@ -485,12 +485,12 @@ def _assign_expression_keyframe(
         expression_name,
         translation_keyframes,
     ) in expression_name_to_translation_keyframes.items():
-        if expression_name in [
+        if expression_name in {
             "lookUp",
             "lookDown",
             "lookLeft",
             "lookRight",
-        ]:
+        }:
             continue
         expression = expression_name_to_expression.get(expression_name)
         if not expression:
@@ -681,7 +681,7 @@ def _assign_humanoid_keyframe(
     human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
     if (
         human_bone_name
-        and human_bone_name not in [HumanBoneName.LEFT_EYE, HumanBoneName.RIGHT_EYE]
+        and human_bone_name not in (HumanBoneName.LEFT_EYE, HumanBoneName.RIGHT_EYE)
         and (
             human_bone := human_bones.human_bone_name_to_human_bone().get(
                 human_bone_name

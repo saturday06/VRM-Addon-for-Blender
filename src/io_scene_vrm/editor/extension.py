@@ -383,19 +383,19 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
         elif self.spec_version == self.SPEC_VERSION_VRM1:
             vrm1_hidden = False
 
-        for vrm0_collider in [
+        for vrm0_collider in (
             collider.bpy_object
             for collider_group in self.vrm0.secondary_animation.collider_groups
             for collider in collider_group.colliders
             if collider.bpy_object
-        ]:
+        ):
             vrm0_collider.hide_set(vrm0_hidden)
 
-        for vrm1_collider in [
+        for vrm1_collider in (
             collider.bpy_object
             for collider in self.spring_bone1.colliders
             if collider.bpy_object
-        ]:
+        ):
             vrm1_collider.hide_set(vrm1_hidden)
             for child in vrm1_collider.children:
                 child.hide_set(vrm1_hidden)

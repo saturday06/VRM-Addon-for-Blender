@@ -203,7 +203,7 @@ class TestVrm0Importer(AddonTestCase):
             raise AssertionError(message)
 
         bpy.ops.object.mode_set(mode="EDIT")
-        for name in [
+        for name in (
             "thumb_proximal.R",
             "thumb_intermediate.R",
             "thumb_distal.R",
@@ -219,7 +219,7 @@ class TestVrm0Importer(AddonTestCase):
             "little_proximal.R",
             "little_intermediate.R",
             "little_distal.R",
-        ]:
+        ):
             armature.data.edit_bones.remove(armature.data.edit_bones[name])
         right_hand = armature.data.edit_bones["hand.R"]
         right_hand.tail = Vector((-0.5, -0.5, 1))
@@ -271,7 +271,7 @@ class TestVrm0Importer(AddonTestCase):
             raise AssertionError(message)
 
         bpy.ops.object.mode_set(mode="EDIT")
-        for name in [
+        for name in (
             "thumb_proximal.R",
             "thumb_intermediate.R",
             "thumb_distal.R",
@@ -286,7 +286,7 @@ class TestVrm0Importer(AddonTestCase):
             "little_proximal.R",
             "little_intermediate.R",
             "little_distal.R",
-        ]:
+        ):
             armature.data.edit_bones.remove(armature.data.edit_bones[name])
         right_hand = armature.data.edit_bones["hand.R"]
         right_hand.tail = Vector((-0.5, -0.5, 1))

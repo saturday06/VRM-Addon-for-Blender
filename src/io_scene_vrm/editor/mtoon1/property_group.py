@@ -4386,7 +4386,7 @@ def assign_mtoon1_outline(
     outline_width_multiply_texture_uv_use_attribute = (
         True if tuple(bpy.app.version) >= (4, 2) else 1
     )
-    for k, v in [
+    for k, v in (
         (input_key.material_key, material),
         (input_key.outline_material_key, outline_material),
         (input_key.outline_width_mode_key, outline_width_mode_value),
@@ -4435,9 +4435,9 @@ def assign_mtoon1_outline(
         (input_key.object_key, obj),
         (
             input_key.enabled_key,
-            obj.mode not in ["VERTEX_PAINT", "TEXTURE_PAINT", "WEIGHT_PAINT", "SCULPT"],
+            obj.mode not in {"VERTEX_PAINT", "TEXTURE_PAINT", "WEIGHT_PAINT", "SCULPT"},
         ),
-    ]:
+    ):
         if modifier.get(k) != v:
             modifier[k] = v
             modifier_input_changed = True
@@ -4564,7 +4564,7 @@ def link_or_unlink_gltf_material_nodes(
     if output_group is None:
         return
 
-    for from_node_name, to_node_name in [
+    for from_node_name, to_node_name in (
         (
             "EeveeMaterialOutputSwitch",
             "EeveeMaterialOutput",
@@ -4573,7 +4573,7 @@ def link_or_unlink_gltf_material_nodes(
             "CyclesMaterialOutputSwitch",
             "CyclesMaterialOutput",
         ),
-    ]:
+    ):
         from_node = output_group.nodes.get(from_node_name)
         if not from_node or not isinstance(from_node, NodeReroute):
             continue

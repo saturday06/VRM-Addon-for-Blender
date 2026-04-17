@@ -37,7 +37,7 @@ def write_property_typing(
     if property_name == "stiffiness" or property_name.endswith("_ussage_name"):
         comment += "  # noqa: SC200"
 
-    if property_type in ["bpy.props.StringProperty", "bpy.props.EnumProperty"]:
+    if property_type in ("bpy.props.StringProperty", "bpy.props.EnumProperty"):
         line = f"        {property_name}: str{comment}"
         arg_type = "str"
         arg_default = '""'

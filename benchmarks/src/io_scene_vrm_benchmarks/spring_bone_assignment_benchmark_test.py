@@ -61,11 +61,11 @@ def _generate_many_spring_bones() -> None:
 
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    for root_mop_strand_bone in [
+    for root_mop_strand_bone in (
         b
         for b in armature_object.pose.bones
         if (p := b.parent) and p.name == root_bone_name
-    ]:
+    ):
         spring_index = len(spring_bone1.springs)
 
         r = ops.vrm.add_spring_bone1_spring(armature_object_name=armature_object.name)

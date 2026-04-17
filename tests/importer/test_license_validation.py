@@ -7,7 +7,7 @@ from tests.util import AddonTestCase
 
 class TestLicenseValidation(AddonTestCase):
     def test_validate_license_url(self) -> None:
-        for url, confirmation_required in [
+        for url, confirmation_required in (
             ("", False),
             ("test", True),
             ("https://example.com", True),
@@ -34,7 +34,7 @@ class TestLicenseValidation(AddonTestCase):
                 "https://uv-license.com/en/license?utf8=%E2%9C%93&pcu=true&remarks=true",
                 True,
             ),
-        ]:
+        ):
             with self.subTest(url):
                 confirmation_props: list[
                     license_validation.LicenseConfirmationRequiredProp

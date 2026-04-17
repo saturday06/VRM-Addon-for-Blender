@@ -157,24 +157,22 @@ def create_human_bone_mapping(
     if not isinstance(armature_data, Armature):
         raise TypeError
     ((required_count, _all_count), name, mapping) = sorted(
-        [
-            (match_counts(armature_data, mapping), name, mapping)
-            for name, mapping in [
-                mmd_mapping.create_config(armature),
-                biped_mapping.create_config(armature),
-                mixamo_mapping.CONFIG,
-                unreal_mapping.CONFIG,
-                ready_player_me_mapping.CONFIG,
-                cats_blender_plugin_fix_model_mapping.CONFIG,
-                microsoft_rocketbox_mapping.CONFIG_BIP01,
-                microsoft_rocketbox_mapping.CONFIG_BIP02,
-                rigify_meta_rig_mapping.CONFIG,
-                vroid_mapping.CONFIG,
-                vroid_mapping.CONFIG_SYMMETRICAL,
-                vrm_addon_mapping.CONFIG_VRM1,
-                vrm_addon_mapping.CONFIG_VRM0,
-            ]
-        ]
+        (match_counts(armature_data, mapping), name, mapping)
+        for name, mapping in (
+            mmd_mapping.create_config(armature),
+            biped_mapping.create_config(armature),
+            mixamo_mapping.CONFIG,
+            unreal_mapping.CONFIG,
+            ready_player_me_mapping.CONFIG,
+            cats_blender_plugin_fix_model_mapping.CONFIG,
+            microsoft_rocketbox_mapping.CONFIG_BIP01,
+            microsoft_rocketbox_mapping.CONFIG_BIP02,
+            rigify_meta_rig_mapping.CONFIG,
+            vroid_mapping.CONFIG,
+            vroid_mapping.CONFIG_SYMMETRICAL,
+            vrm_addon_mapping.CONFIG_VRM1,
+            vrm_addon_mapping.CONFIG_VRM0,
+        )
     )[-1]
     result = {}
     wanted_required_count = sum(

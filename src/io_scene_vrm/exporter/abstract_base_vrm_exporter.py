@@ -590,7 +590,7 @@ def force_apply_modifiers(context: Context, obj: Object) -> Optional[Mesh]:
 
         return evaluated_mesh_data
     finally:
-        for mesh_data in [obj.data, evaluated_mesh_data]:
+        for mesh_data in (obj.data, evaluated_mesh_data):
             if not isinstance(mesh_data, Mesh):
                 continue
 

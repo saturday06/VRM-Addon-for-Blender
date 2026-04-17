@@ -1055,7 +1055,7 @@ def main(argv: list[str]) -> int:
     if not isinstance(extensions_used, list):
         extensions_used = []
         json_dict["extensionsUsed"] = extensions_used
-    for extension_name in [
+    for extension_name in (
         "VRMC_vrm",
         "KHR_character",
         "KHR_xmp_json_ld",
@@ -1067,7 +1067,7 @@ def main(argv: list[str]) -> int:
         "KHR_character_expression_mapping",
         "KHR_character_reference_pose",
         "KHR_animation_pointer",
-    ]:
+    ):
         if extension_name not in extensions_used:
             extensions_used.append(extension_name)
 
@@ -1404,7 +1404,7 @@ def main(argv: list[str]) -> int:
 
     buffer0_dict["byteLength"] = len(binary_chunk)
 
-    for key in ["scenes", "nodes", "meshes", "buffers", "bufferViews", "accessors"]:
+    for key in ("scenes", "nodes", "meshes", "buffers", "bufferViews", "accessors"):
         root_dicts = json_dict.get(key)
         if isinstance(root_dicts, list) and not root_dicts:
             json_dict.pop(key)

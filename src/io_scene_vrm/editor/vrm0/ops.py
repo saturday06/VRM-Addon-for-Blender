@@ -972,7 +972,7 @@ def add_shape_keys_to_vrm0_blend_shapes(
 
     blend_shape_master = get_armature_extension(armature_data).vrm0.blend_shape_master
 
-    for mesh_object_name, key_block_name in [
+    for mesh_object_name, key_block_name in (
         (obj.name, key_block.name)
         for obj in search.export_objects(
             context,
@@ -985,7 +985,7 @@ def add_shape_keys_to_vrm0_blend_shapes(
         and (shape_keys := mesh_data.shape_keys)
         and (key_blocks := shape_keys.key_blocks)
         for key_block in key_blocks
-    ]:
+    ):
         preset_name = shape_key_mapping.get(key_block_name)
         if preset_name is None:
             continue

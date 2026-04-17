@@ -223,7 +223,7 @@ def _read_accessor_as_bytes(
 def _unpack_component(
     component_type: int, unpack_count: int, buffer_bytes: bytes
 ) -> Optional[Union[tuple[int, ...], tuple[float, ...]]]:
-    for search_component_type, component_count, unpack_symbol in [
+    for search_component_type, component_count, unpack_symbol in (
         (GL_BYTE, 1, "b"),
         (GL_UNSIGNED_BYTE, 1, "B"),
         (GL_SHORT, 2, "h"),
@@ -231,7 +231,7 @@ def _unpack_component(
         (GL_INT, 4, "i"),
         (GL_UNSIGNED_INT, 4, "I"),
         (GL_FLOAT, 4, "f"),
-    ]:
+    ):
         if search_component_type != component_type:
             continue
         if unpack_count == 0:

@@ -214,7 +214,7 @@ class VRM_OT_open_url_in_web_browser(Operator):
             url = urlsplit(url_str)
         except ValueError:
             return False
-        return url.scheme in ["http", "https"]
+        return url.scheme in ("http", "https")
 
     def execute(self, _context: Context) -> set[str]:
         url = self.url

@@ -140,14 +140,14 @@ class ChainSingleChild:
             human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
             bones = [
                 bone
-                for bone in [
+                for bone in (
                     armature.pose.bones.get(human_bone.node.bone_name)
-                    for human_bone in [
+                    for human_bone in (
                         human_bone_name_to_human_bone.get(human_bone_name)
                         for human_bone_name in self.vrm1_human_bone_names
-                    ]
+                    )
                     if human_bone
-                ]
+                )
                 if bone
             ]
 
@@ -206,14 +206,14 @@ class ChainHorizontalMultipleChildren:
             human_bone_name_to_human_bone = human_bones.human_bone_name_to_human_bone()
             bones = [
                 bone
-                for bone in [
+                for bone in (
                     armature.pose.bones.get(human_bone.node.bone_name)
-                    for human_bone in [
+                    for human_bone in (
                         human_bone_name_to_human_bone.get(human_bone_name)
                         for human_bone_name in self.vrm1_human_bone_names
-                    ]
+                    )
                     if human_bone
-                ]
+                )
                 if bone
             ]
             parent_human_bone = human_bone_name_to_human_bone.get(

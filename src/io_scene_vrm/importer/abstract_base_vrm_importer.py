@@ -622,7 +622,7 @@ class AbstractBaseVrmImporter(ABC):
     def import_gltf2_with_indices(self) -> None:
         json_dict, buffer0_bytes = parse_glb(self.parse_result.filepath.read_bytes())
 
-        for key in ["nodes", "materials", "meshes"]:
+        for key in ("nodes", "materials", "meshes"):
             if key not in json_dict or not isinstance(json_dict[key], list):
                 continue
             value_dicts = json_dict.get(key)
@@ -993,14 +993,14 @@ class AbstractBaseVrmImporter(ABC):
         # are included in "extensionsRequired"
         extensions_required = json_dict.get("extensionsRequired")
         if isinstance(extensions_required, list):
-            for supported_extension in [
+            for supported_extension in (
                 "VRM",
                 "VRMC_vrm",
                 "VRMC_springBone",
                 "VRMC_node_constraint",
                 "VRMC_materials_mtoon",
                 "VRMC_materials_hdr_emissiveMultiplier",
-            ]:
+            ):
                 while supported_extension in extensions_required:
                     extensions_required.remove(supported_extension)
 
@@ -1380,13 +1380,13 @@ class AbstractBaseVrmImporter(ABC):
         self.armature.animation_data.action = t_pose_action
 
         for bone in self.armature.pose.bones:
-            for data_path in [
+            for data_path in (
                 "location",
                 "rotation_quaternion",
                 "rotation_axis_angle",
                 "rotation_euler",
                 "scale",
-            ]:
+            ):
                 bone.keyframe_insert(data_path=data_path, frame=1)
 
         ext = get_armature_extension(self.armature_data)

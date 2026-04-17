@@ -117,14 +117,14 @@ def generate_constraint_vrm(
     source_axis_obj.parent_bone = source_bone_name
     source_axis_obj.location = (0, -source_bone.bone.length, 0)
 
-    if test_constraint in [
+    if test_constraint in (
         TestConstraint.AIM_CONSTRAINT_X,
         TestConstraint.AIM_CONSTRAINT_Y,
         TestConstraint.AIM_CONSTRAINT_Z,
         TestConstraint.AIM_CONSTRAINT_NEGATIVE_X,
         TestConstraint.AIM_CONSTRAINT_NEGATIVE_Y,
         TestConstraint.AIM_CONSTRAINT_NEGATIVE_Z,
-    ]:
+    ):
         constraint = source_bone.constraints.new(type="DAMPED_TRACK")
         if not isinstance(constraint, DampedTrackConstraint):
             raise TypeError
@@ -145,12 +145,12 @@ def generate_constraint_vrm(
             constraint.track_axis = "TRACK_NEGATIVE_Z"
         else:
             raise AssertionError
-    elif test_constraint in [
+    elif test_constraint in (
         TestConstraint.ROTATION_CONSTRAINT,
         TestConstraint.ROLL_CONSTRAINT_X,
         TestConstraint.ROLL_CONSTRAINT_Y,
         TestConstraint.ROLL_CONSTRAINT_Z,
-    ]:
+    ):
         constraint = source_bone.constraints.new(type="COPY_ROTATION")
         if not isinstance(constraint, CopyRotationConstraint):
             raise TypeError
@@ -258,29 +258,29 @@ def main() -> int:
             target_parent_roll,
             test_constraint,
         )
-        for base_bone_name in [
+        for base_bone_name in (
             # "parent",
             "child",
             "sibling",
-        ]
-        for roll, x, z in [
+        )
+        for roll, x, z in (
             (0, 0, 0),
             (0, 0.25, 0),
             (45, 0, 0.25),
             (45, 0.25, 0.25),
-        ]
-        for parent_roll, parent_x, parent_z in [
+        )
+        for parent_roll, parent_x, parent_z in (
             (0, 0, 0),
             (0, 0.25, 0),
             (45, 0, 0.25),
             (45, 0.25, 0.25),
-        ]
-        for target_roll, target_parent_roll in [
+        )
+        for target_roll, target_parent_roll in (
             (0, 0),
             (45, 0),
             (0, 60),
             (30, 45),
-        ]
+        )
         for test_constraint in TestConstraint
     ):
         bpy.ops.wm.read_homefile(use_empty=True)

@@ -529,12 +529,12 @@ def create_expression_animation(
         expression_name,
         expression,
     ) in vrm1.expressions.all_name_to_expression_dict().items():
-        if expression_name in [
+        if expression_name in {
             "lookUp",
             "lookDown",
             "lookLeft",
             "lookRight",
-        ]:
+        }:
             continue
         data_path_to_expression_name[expression.path_from_id("preview")] = (
             expression_name
@@ -652,23 +652,23 @@ def create_expression_animation(
                 "type": "VEC3",
                 "min": [
                     min(values)
-                    for values in [
-                        [
+                    for values in (
+                        (
                             gltf_translation[i]
                             for gltf_translation in expression_translations
-                        ]
+                        )
                         for i in range(3)
-                    ]
+                    )
                 ],
                 "max": [
                     max(values)
-                    for values in [
-                        [
+                    for values in (
+                        (
                             gltf_translation[i]
                             for gltf_translation in expression_translations
-                        ]
+                        )
                         for i in range(3)
-                    ]
+                    )
                 ],
             }
         )
@@ -801,7 +801,7 @@ def create_node_animation(
         if human_bone_name is None:
             _logger.error("Failed to find human bone name for bone %s", bone_name)
             continue
-        if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
+        if human_bone_name in (HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE):
             continue
         node_index = bone_name_to_node_index.get(bone_name)
         if not isinstance(node_index, int):
@@ -872,17 +872,17 @@ def create_node_animation(
                 "type": "VEC4",
                 "min": [
                     min(values)
-                    for values in [
-                        [gltf_quaternion[i] for gltf_quaternion in gltf_quaternions]
+                    for values in (
+                        (gltf_quaternion[i] for gltf_quaternion in gltf_quaternions)
                         for i in range(4)
-                    ]
+                    )
                 ],
                 "max": [
                     max(values)
-                    for values in [
-                        [gltf_quaternion[i] for gltf_quaternion in gltf_quaternions]
+                    for values in (
+                        (gltf_quaternion[i] for gltf_quaternion in gltf_quaternions)
                         for i in range(4)
-                    ]
+                    )
                 ],
             }
         )

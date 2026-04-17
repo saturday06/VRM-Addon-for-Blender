@@ -232,7 +232,7 @@ class WM_OT_vrm_validator(Operator):
             )
 
         for obj in export_objects:
-            if (parent_obj := obj.parent) and obj.parent_type in ["VERTEX", "VERTEX_3"]:
+            if (parent_obj := obj.parent) and obj.parent_type in ("VERTEX", "VERTEX_3"):
                 state.skippable_warning_messages.append(
                     pgettext(
                         'The vertex "{parent_name}" is set as the parent of "{name}",'
@@ -608,11 +608,11 @@ class WM_OT_vrm_validator(Operator):
         bones_names = [b.name for b in armature_data.bones] if armature_data else []
         vertex_error_count = 0
 
-        for mesh in [obj for obj in export_objects if obj.type == "MESH"]:
+        for mesh in (obj for obj in export_objects if obj.type == "MESH"):
             if not isinstance(mesh_data := mesh.data, Mesh):
                 continue
 
-            mesh_vertex_group_names = [g.name for g in mesh.vertex_groups]
+            mesh_vertex_group_names = tuple(g.name for g in mesh.vertex_groups)
 
             for v in mesh_data.vertices:
                 if not v.groups and mesh.parent_bone == "":
@@ -720,7 +720,7 @@ class WM_OT_vrm_validator(Operator):
                         state.error_messages,
                         state.used_images,
                     )
-                for k in ["_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"]:
+                for k in ("_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"):
                     _node_material_input_check(
                         node,
                         material,
@@ -863,10 +863,10 @@ class WM_OT_vrm_validator(Operator):
         meta0 = get_armature_extension(armature_data).vrm0.meta
         state.skippable_warning_messages.extend(
             pgettext('"{url}" is not a valid URL.').format(url=url_value)
-            for url_value in [
+            for url_value in (
                 meta0.other_permission_url,
                 meta0.other_license_url,
-            ]
+            )
             if not is_valid_url(url_value, allow_empty_str=True)
         )
 

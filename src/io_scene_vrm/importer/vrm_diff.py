@@ -129,7 +129,7 @@ def _create_vrm_json_dict(data: bytes) -> dict[str, Json]:
             scene_extras_dict = scene_dict.get("extras")
             if not isinstance(scene_extras_dict, dict):
                 continue
-            for k in ["show_mmd_tabs", "embed_textures", "ui_lang"]:
+            for k in ("show_mmd_tabs", "embed_textures", "ui_lang"):
                 scene_extras_dict.pop(k, None)
             if not scene_extras_dict:
                 scene_dict.pop("extras", None)
@@ -156,7 +156,7 @@ def _create_vrm_json_dict(data: bytes) -> dict[str, Json]:
             )
 
             vrm0_first_person_bone = vrm0_first_person_dict.get("firstPersonBone")
-            if vrm0_first_person_bone in [None, -1]:
+            if vrm0_first_person_bone in (None, -1):
                 for vrm0_human_bone_dict in vrm0_human_bone_dicts:
                     if not isinstance(vrm0_human_bone_dict, dict):
                         continue
@@ -167,12 +167,12 @@ def _create_vrm_json_dict(data: bytes) -> dict[str, Json]:
                         vrm0_first_person_dict["firstPersonBone"] = node
                         break
 
-    for look_at_key in [
+    for look_at_key in (
         "lookAtHorizontalInner",
         "lookAtHorizontalOuter",
         "lookAtVerticalDown",
         "lookAtVerticalUp",
-    ]:
+    ):
         if look_at_key not in vrm0_first_person_dict:
             vrm0_first_person_dict[look_at_key] = {}
         look_at_dict = vrm0_first_person_dict[look_at_key]

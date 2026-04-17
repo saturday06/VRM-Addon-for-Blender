@@ -559,7 +559,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 #                    -- rightEye
                 #
                 # well, so we don't process leftEye and rightEye
-                if human_bone_name in [HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE]:
+                if human_bone_name in (HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE):
                     continue
 
                 bone = armature_data.edit_bones.get(bone_name)
@@ -574,39 +574,39 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                         parent.name
                     )
 
-                    if parent_human_bone_name in [
+                    if parent_human_bone_name in (
                         HumanBoneName.RIGHT_HAND,
                         HumanBoneName.LEFT_HAND,
-                    ]:
+                    ):
                         break
 
                     if (
                         parent_human_bone_name == HumanBoneName.UPPER_CHEST
                         and last_human_bone_name
-                        not in [HumanBoneName.HEAD, HumanBoneName.NECK]
+                        not in (HumanBoneName.HEAD, HumanBoneName.NECK)
                     ):
                         break
 
                     if (
                         parent_human_bone_name == HumanBoneName.CHEST
                         and last_human_bone_name
-                        not in [
+                        not in (
                             HumanBoneName.HEAD,
                             HumanBoneName.NECK,
                             HumanBoneName.UPPER_CHEST,
-                        ]
+                        )
                     ):
                         break
 
                     if (
                         parent_human_bone_name == HumanBoneName.SPINE
                         and last_human_bone_name
-                        not in [
+                        not in (
                             HumanBoneName.HEAD,
                             HumanBoneName.NECK,
                             HumanBoneName.UPPER_CHEST,
                             HumanBoneName.CHEST,
-                        ]
+                        )
                     ):
                         break
 
@@ -783,12 +783,12 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                         BoneExtension.AXIS_TRANSLATION_NONE.identifier
                     )
                     continue
-                elif bone_name_to_human_bone_name.get(bone.name) in [
+                elif bone_name_to_human_bone_name.get(bone.name) in (
                     HumanBoneName.RIGHT_EYE,
                     HumanBoneName.LEFT_EYE,
                     HumanBoneName.RIGHT_FOOT,
                     HumanBoneName.LEFT_FOOT,
-                ]:
+                ):
                     target_vector = Vector((0, -1, 0))
                 else:
                     target_translation = (
@@ -1150,7 +1150,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         if type_ in look_at.type_enum.identifiers():
             look_at.type = type_
 
-        for range_map, range_map_dict in [
+        for range_map, range_map_dict in (
             (
                 look_at.range_map_horizontal_inner,
                 look_at_dict.get("rangeMapHorizontalInner"),
@@ -1167,7 +1167,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 look_at.range_map_vertical_up,
                 look_at_dict.get("rangeMapVerticalUp"),
             ),
-        ]:
+        ):
             if not isinstance(range_map_dict, dict):
                 continue
 

@@ -116,7 +116,7 @@ class VRM_OT_remove_spring_bone1_collider(Operator):
         bpy_object = collider.bpy_object
         if bpy_object:
             collider.bpy_object = None
-            for unnecessary_object in [*bpy_object.children, bpy_object]:
+            for unnecessary_object in (*bpy_object.children, bpy_object):
                 if not safe_removal.remove_object(context, unnecessary_object):
                     _logger.warning(
                         'Failed to remove "%s" with %d users'

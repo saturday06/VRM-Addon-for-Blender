@@ -511,12 +511,12 @@ class ICYP_OT_make_armature(Operator):
             self.hand_size() / 2,
         )
 
-        mats = [
+        mats = tuple(
             Matrix.Translation(vec)
-            for vec in [thumbs[0][i].matrix.translation for i in [0, 1]]
-        ]
+            for vec in (thumbs[0][i].matrix.translation for i in (0, 1))
+        )
         for j in range(3):
-            for n, angle in enumerate([-45, 45]):
+            for n, angle in enumerate((-45, 45)):
                 thumbs[j][n].transform(mats[n].inverted(), scale=False, roll=False)
                 thumbs[j][n].transform(Matrix.Rotation(radians(angle), 4, "Z"))
                 thumbs[j][n].transform(mats[n], scale=False, roll=False)
