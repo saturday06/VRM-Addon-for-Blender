@@ -320,7 +320,7 @@ class AbstractBaseVrmImporter(ABC):
     def use_fake_user_for_thumbnail(self) -> None:
         # The thumbnail is specified as an image index in the VRM specification,
         # but in UniVRM's implementation it's a texture index
-        # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterself.context.cs#L308
+        # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterContext.cs#L308
         meta_dict = self.parse_result.vrm0_extension_dict.get("meta")
         if not isinstance(meta_dict, dict):
             return
