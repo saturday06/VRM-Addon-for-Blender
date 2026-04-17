@@ -229,16 +229,16 @@ class HumanBoneSpecification:
             label=label,
             label_no_left_right=label_no_left_right,
             requirement=requirement,
-            parent_name=HumanBoneSpecification.find_parent_human_bone_name(
+            parent_name=HumanBoneSpecification._find_parent_human_bone_name(
                 human_bone_name, None, HUMAN_BONE_STRUCTURE
             ),
-            children_names=HumanBoneSpecification.find_children_human_bone_names(
+            children_names=HumanBoneSpecification._find_children_human_bone_names(
                 human_bone_name, HUMAN_BONE_STRUCTURE
             ),
         )
 
     @staticmethod
-    def find_parent_human_bone_name(
+    def _find_parent_human_bone_name(
         child_human_bone_name: HumanBoneName,
         parent_human_bone_name: Optional[HumanBoneName],
         human_bone_structure: HumanBoneStructure,
@@ -250,7 +250,7 @@ class HumanBoneSpecification:
             if child_human_bone_name == next_human_bone_name:
                 return parent_human_bone_name
 
-            name = HumanBoneSpecification.find_parent_human_bone_name(
+            name = HumanBoneSpecification._find_parent_human_bone_name(
                 child_human_bone_name, next_human_bone_name, next_human_bone_structure
             )
             if name:
@@ -259,7 +259,7 @@ class HumanBoneSpecification:
         return None
 
     @staticmethod
-    def find_children_human_bone_names(
+    def _find_children_human_bone_names(
         human_bone_name: HumanBoneName,
         human_bone_structure: HumanBoneStructure,
     ) -> tuple[HumanBoneName, ...]:
@@ -270,7 +270,7 @@ class HumanBoneSpecification:
             if human_bone_name == next_human_bone_name:
                 return tuple(next_human_bone_structure.keys())
 
-            children = HumanBoneSpecification.find_children_human_bone_names(
+            children = HumanBoneSpecification._find_children_human_bone_names(
                 human_bone_name, next_human_bone_structure
             )
             if children:

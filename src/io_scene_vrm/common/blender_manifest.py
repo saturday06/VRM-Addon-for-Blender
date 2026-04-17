@@ -17,7 +17,7 @@ class BlenderManifest:
         return Path(__file__).parent.parent / "blender_manifest.toml"
 
     @classmethod
-    def read_str(cls, blender_manifest: str, key: str) -> Optional[str]:
+    def _read_str(cls, blender_manifest: str, key: str) -> Optional[str]:
         # When the version of Python used by the minimum supported version of Blender
         # exceeds 3.11, it is rewritten in the tomli library.
         lines = [line.strip() for line in blender_manifest.splitlines()]
@@ -32,7 +32,7 @@ class BlenderManifest:
         return None
 
     @classmethod
-    def read_3_tuple_version(
+    def _read_3_tuple_version(
         cls, blender_manifest: str, key: str
     ) -> Optional[tuple[int, int, int]]:
         # When the version of Python used by the minimum supported version of Blender
@@ -55,17 +55,17 @@ class BlenderManifest:
                 encoding="UTF-8"
             )
 
-        addon_id = cls.read_str(blender_manifest, "id")
+        addon_id = cls._read_str(blender_manifest, "id")
         if addon_id is None:
             message = "'id' was not found in blender manifest"
             raise ValueError(message)
 
-        version = cls.read_3_tuple_version(blender_manifest, "version")
+        version = cls._read_3_tuple_version(blender_manifest, "version")
         if version is None:
             message = "'version' was not found in blender manifest"
             raise ValueError(message)
 
-        blender_version_min = cls.read_3_tuple_version(
+        blender_version_min = cls._read_3_tuple_version(
             blender_manifest, "blender_version_min"
         )
         if blender_version_min is None:
@@ -76,7 +76,7 @@ class BlenderManifest:
             id=addon_id,
             version=version,
             blender_version_min=blender_version_min,
-            blender_version_max=cls.read_3_tuple_version(
+            blender_version_max=cls._read_3_tuple_version(
                 blender_manifest, "blender_version_max"
             ),
         )

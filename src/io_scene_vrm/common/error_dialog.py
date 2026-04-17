@@ -178,7 +178,7 @@ class VRM_OT_save_error_dialog_message(Operator, ExportHelper):
         type=VrmErrorDialogMessageLine, options={"HIDDEN"}
     )
 
-    def restore_error_dialog(self) -> set[str]:
+    def _restore_error_dialog(self) -> set[str]:
         if bpy.app.version >= (4, 1):
             return {"FINISHED"}
 
@@ -189,12 +189,12 @@ class VRM_OT_save_error_dialog_message(Operator, ExportHelper):
         )
 
     def cancel(self, _context: Context) -> None:
-        self.restore_error_dialog()
+        self._restore_error_dialog()
 
     def execute(self, _context: Context) -> set[str]:
         message = "\n".join(output.line for output in self.lines)
         Path(self.filepath).write_bytes(message.encode())
-        return self.restore_error_dialog()
+        return self._restore_error_dialog()
 
     def invoke(self, context: Context, event: Event) -> set[str]:
         if not self.filepath:

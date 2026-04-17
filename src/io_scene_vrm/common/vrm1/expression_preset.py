@@ -39,10 +39,10 @@ class ExpressionPreset:
 
 
 class ExpressionPresets:
-    __expression_preset_generator: Final[list[ExpressionPreset]] = []
+    _expression_preset_generator: Final[list[ExpressionPreset]] = []
 
     HAPPY: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="happy",
         icon="HEART",
         mouth=False,
@@ -51,7 +51,7 @@ class ExpressionPresets:
         vrm0_preset="joy",
     )
     ANGRY: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="angry",
         icon="ORPHAN_DATA",
         mouth=False,
@@ -60,7 +60,7 @@ class ExpressionPresets:
         vrm0_preset="angry",
     )
     SAD: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="sad",
         icon="MOD_FLUIDSIM",
         mouth=False,
@@ -69,7 +69,7 @@ class ExpressionPresets:
         vrm0_preset="sorrow",
     )
     RELAXED: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="relaxed",
         icon="LIGHT_SUN",
         mouth=False,
@@ -78,7 +78,7 @@ class ExpressionPresets:
         vrm0_preset="fun",
     )
     SURPRISED: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="surprised",
         icon="LIGHT_SUN",
         mouth=False,
@@ -87,7 +87,7 @@ class ExpressionPresets:
         vrm0_preset=VRM0_PRESET_UNKNOWN,
     )
     NEUTRAL: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="neutral",
         icon="VIEW_ORTHO",
         mouth=False,
@@ -96,7 +96,7 @@ class ExpressionPresets:
         vrm0_preset="neutral",
     )
     AA: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="aa",
         icon="EVENT_A",
         mouth=True,
@@ -105,7 +105,7 @@ class ExpressionPresets:
         vrm0_preset="a",
     )
     IH: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="ih",
         icon="EVENT_I",
         mouth=True,
@@ -114,7 +114,7 @@ class ExpressionPresets:
         vrm0_preset="i",
     )
     OU: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="ou",
         icon="EVENT_U",
         mouth=True,
@@ -123,7 +123,7 @@ class ExpressionPresets:
         vrm0_preset="u",
     )
     EE: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="ee",
         icon="EVENT_E",
         mouth=True,
@@ -132,7 +132,7 @@ class ExpressionPresets:
         vrm0_preset="e",
     )
     OH: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="oh",
         icon="EVENT_O",
         mouth=True,
@@ -141,7 +141,7 @@ class ExpressionPresets:
         vrm0_preset="o",
     )
     BLINK: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="blink",
         icon="HIDE_ON",
         mouth=False,
@@ -150,7 +150,7 @@ class ExpressionPresets:
         vrm0_preset="blink",
     )
     BLINK_LEFT: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="blinkLeft",
         icon="HIDE_ON",
         mouth=False,
@@ -159,7 +159,7 @@ class ExpressionPresets:
         vrm0_preset="blink_l",
     )
     BLINK_RIGHT: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="blinkRight",
         icon="HIDE_ON",
         mouth=False,
@@ -168,7 +168,7 @@ class ExpressionPresets:
         vrm0_preset="blink_r",
     )
     LOOK_UP: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="lookUp",
         icon="ANCHOR_TOP",
         mouth=False,
@@ -177,7 +177,7 @@ class ExpressionPresets:
         vrm0_preset="lookup",
     )
     LOOK_DOWN: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="lookDown",
         icon="ANCHOR_BOTTOM",
         mouth=False,
@@ -186,7 +186,7 @@ class ExpressionPresets:
         vrm0_preset="lookdown",
     )
     LOOK_LEFT: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="lookLeft",
         icon="ANCHOR_RIGHT",
         mouth=False,
@@ -195,7 +195,7 @@ class ExpressionPresets:
         vrm0_preset="lookleft",
     )
     LOOK_RIGHT: Final[ExpressionPreset] = ExpressionPreset.create(
-        __expression_preset_generator,
+        _expression_preset_generator,
         name="lookRight",
         icon="ANCHOR_LEFT",
         mouth=False,
@@ -204,4 +204,4 @@ class ExpressionPresets:
         vrm0_preset="lookright",
     )
 
-    all: Final[tuple[ExpressionPreset, ...]] = tuple(__expression_preset_generator)
+    all: Final[tuple[ExpressionPreset, ...]] = tuple(_expression_preset_generator)
