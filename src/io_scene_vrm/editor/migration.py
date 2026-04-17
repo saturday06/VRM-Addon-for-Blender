@@ -77,12 +77,12 @@ def defer_migrate(armature_object_name: str, *, heavy_migration: bool) -> bool:
     else:
         return False
 
-    if not bpy.app.timers.is_registered(migrate_timer_callback):
-        bpy.app.timers.register(migrate_timer_callback)
+    if not bpy.app.timers.is_registered(_migrate_timer_callback):
+        bpy.app.timers.register(_migrate_timer_callback)
     return False
 
 
-def migrate_timer_callback() -> None:
+def _migrate_timer_callback() -> None:
     """Match the type of migrate() to bpy.app.timers.register."""
     context = bpy.context  # Context cannot span frames, so get it anew
 
@@ -147,8 +147,8 @@ def migrate_all_objects(
 
     VrmAddonSceneExtensionPropertyGroup.update_vrm0_material_property_names(context)
     mtoon1_migration.migrate(context, show_progress=show_progress)
-    validate_blend_file_compatibility(context)
-    validate_blend_file_addon_compatibility(context)
+    _validate_blend_file_compatibility(context)
+    _validate_blend_file_addon_compatibility(context)
 
     preferences = get_preferences(context)
 
@@ -169,7 +169,7 @@ def migrate_all_objects(
     preferences.addon_version = updated_addon_version
 
 
-def validate_blend_file_compatibility(context: Context) -> None:
+def _validate_blend_file_compatibility(context: Context) -> None:
     """Warn when attempting to edit a file created in newer Blender with older Blender.
 
     Due to add-on version support issues, there are often reports of users trying to
@@ -178,7 +178,7 @@ def validate_blend_file_compatibility(context: Context) -> None:
     """
     if not context.blend_data.filepath:
         return
-    if not have_vrm_model(context):
+    if not _have_vrm_model(context):
         return
 
     blend_file_major_minor_version = (
@@ -204,7 +204,7 @@ def validate_blend_file_compatibility(context: Context) -> None:
         # timer in Blender 4.2.0
         bpy.app.timers.register(
             functools.partial(
-                show_blend_file_compatibility_warning,
+                _show_blend_file_compatibility_warning,
                 file_version_str,
                 app_version_str,
             ),
@@ -212,7 +212,7 @@ def validate_blend_file_compatibility(context: Context) -> None:
         )
 
 
-def show_blend_file_compatibility_warning(file_version: str, app_version: str) -> None:
+def _show_blend_file_compatibility_warning(file_version: str, app_version: str) -> None:
     ops.vrm.show_blend_file_compatibility_warning(
         "INVOKE_DEFAULT",
         file_version=file_version,
@@ -220,7 +220,7 @@ def show_blend_file_compatibility_warning(file_version: str, app_version: str) -
     )
 
 
-def validate_blend_file_addon_compatibility(context: Context) -> None:
+def _validate_blend_file_addon_compatibility(context: Context) -> None:
     """Warn when attempting to edit a file created with a newer VRM add-on.
 
     This warning is for files using an older VRM add-on.
@@ -253,7 +253,7 @@ def validate_blend_file_addon_compatibility(context: Context) -> None:
         # timer in Blender 4.2.0
         bpy.app.timers.register(
             functools.partial(
-                show_blend_file_addon_compatibility_warning,
+                _show_blend_file_addon_compatibility_warning,
                 file_addon_version_str,
                 installed_addon_version_str,
             ),
@@ -261,7 +261,7 @@ def validate_blend_file_addon_compatibility(context: Context) -> None:
         )
 
 
-def show_blend_file_addon_compatibility_warning(
+def _show_blend_file_addon_compatibility_warning(
     file_addon_version: str, installed_addon_version: str
 ) -> None:
     ops.vrm.show_blend_file_addon_compatibility_warning(
@@ -271,7 +271,7 @@ def show_blend_file_addon_compatibility_warning(
     )
 
 
-def have_vrm_model(context: Context) -> bool:
+def _have_vrm_model(context: Context) -> bool:
     return any(
         map(
             VrmAddonArmatureExtensionPropertyGroup.has_vrm_model_metadata,
@@ -283,5 +283,5 @@ def have_vrm_model(context: Context) -> bool:
 def clear_global_variables() -> None:
     _state.clear()
 
-    if bpy.app.timers.is_registered(migrate_timer_callback):
-        bpy.app.timers.unregister(migrate_timer_callback)
+    if bpy.app.timers.is_registered(_migrate_timer_callback):
+        bpy.app.timers.unregister(_migrate_timer_callback)

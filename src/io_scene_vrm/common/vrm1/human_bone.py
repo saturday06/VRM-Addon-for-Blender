@@ -318,7 +318,7 @@ class HumanBoneSpecification:
         return False
 
 
-def create_and_append_human_bone_specification(
+def _create_and_append_human_bone_specification(
     human_bone_specifications: list[HumanBoneSpecification],
     human_bone_name: HumanBoneName,
     vrm0_human_bone_specification: Vrm0HumanBoneSpecification,
@@ -343,7 +343,7 @@ class HumanBoneSpecifications:
 
     # https://github.com/vrm-c/vrm-specification/blob/6a996eb151770149ea4534b1edb70d913bb4014e/specification/VRMC_vrm-1.0-beta/humanoid.md#list-of-humanoid-bones
     # Torso
-    HIPS = create_and_append_human_bone_specification(
+    HIPS = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.HIPS,
         Vrm0HumanBoneSpecifications.HIPS,
@@ -351,7 +351,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="USER",
     )
-    SPINE = create_and_append_human_bone_specification(
+    SPINE = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.SPINE,
         Vrm0HumanBoneSpecifications.SPINE,
@@ -359,7 +359,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="USER",
     )
-    CHEST = create_and_append_human_bone_specification(
+    CHEST = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.CHEST,
         Vrm0HumanBoneSpecifications.CHEST,
@@ -367,7 +367,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="USER",
     )
-    UPPER_CHEST = create_and_append_human_bone_specification(
+    UPPER_CHEST = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.UPPER_CHEST,
         Vrm0HumanBoneSpecifications.UPPER_CHEST,
@@ -375,7 +375,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="USER",
     )
-    NECK = create_and_append_human_bone_specification(
+    NECK = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.NECK,
         Vrm0HumanBoneSpecifications.NECK,
@@ -385,7 +385,7 @@ class HumanBoneSpecifications:
     )
 
     # Head
-    HEAD = create_and_append_human_bone_specification(
+    HEAD = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.HEAD,
         Vrm0HumanBoneSpecifications.HEAD,
@@ -393,7 +393,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="USER",
     )
-    LEFT_EYE = create_and_append_human_bone_specification(
+    LEFT_EYE = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_EYE,
         Vrm0HumanBoneSpecifications.LEFT_EYE,
@@ -401,7 +401,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="HIDE_OFF",
     )
-    RIGHT_EYE = create_and_append_human_bone_specification(
+    RIGHT_EYE = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_EYE,
         Vrm0HumanBoneSpecifications.RIGHT_EYE,
@@ -409,7 +409,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="HIDE_OFF",
     )
-    JAW = create_and_append_human_bone_specification(
+    JAW = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.JAW,
         Vrm0HumanBoneSpecifications.JAW,
@@ -419,7 +419,7 @@ class HumanBoneSpecifications:
     )
 
     # Leg
-    LEFT_UPPER_LEG = create_and_append_human_bone_specification(
+    LEFT_UPPER_LEG = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_UPPER_LEG,
         Vrm0HumanBoneSpecifications.LEFT_UPPER_LEG,
@@ -427,7 +427,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="MOD_DYNAMICPAINT",
     )
-    LEFT_LOWER_LEG = create_and_append_human_bone_specification(
+    LEFT_LOWER_LEG = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_LOWER_LEG,
         Vrm0HumanBoneSpecifications.LEFT_LOWER_LEG,
@@ -435,7 +435,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="MOD_DYNAMICPAINT",
     )
-    LEFT_FOOT = create_and_append_human_bone_specification(
+    LEFT_FOOT = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_FOOT,
         Vrm0HumanBoneSpecifications.LEFT_FOOT,
@@ -443,7 +443,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="MOD_DYNAMICPAINT",
     )
-    LEFT_TOES = create_and_append_human_bone_specification(
+    LEFT_TOES = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_TOES,
         Vrm0HumanBoneSpecifications.LEFT_TOES,
@@ -451,7 +451,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="MOD_DYNAMICPAINT",
     )
-    RIGHT_UPPER_LEG = create_and_append_human_bone_specification(
+    RIGHT_UPPER_LEG = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_UPPER_LEG,
         Vrm0HumanBoneSpecifications.RIGHT_UPPER_LEG,
@@ -459,7 +459,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="MOD_DYNAMICPAINT",
     )
-    RIGHT_LOWER_LEG = create_and_append_human_bone_specification(
+    RIGHT_LOWER_LEG = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_LOWER_LEG,
         Vrm0HumanBoneSpecifications.RIGHT_LOWER_LEG,
@@ -467,7 +467,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="MOD_DYNAMICPAINT",
     )
-    RIGHT_FOOT = create_and_append_human_bone_specification(
+    RIGHT_FOOT = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_FOOT,
         Vrm0HumanBoneSpecifications.RIGHT_FOOT,
@@ -475,7 +475,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="MOD_DYNAMICPAINT",
     )
-    RIGHT_TOES = create_and_append_human_bone_specification(
+    RIGHT_TOES = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_TOES,
         Vrm0HumanBoneSpecifications.RIGHT_TOES,
@@ -485,7 +485,7 @@ class HumanBoneSpecifications:
     )
 
     # Arm
-    LEFT_SHOULDER = create_and_append_human_bone_specification(
+    LEFT_SHOULDER = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_SHOULDER,
         Vrm0HumanBoneSpecifications.LEFT_SHOULDER,
@@ -493,7 +493,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    LEFT_UPPER_ARM = create_and_append_human_bone_specification(
+    LEFT_UPPER_ARM = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_UPPER_ARM,
         Vrm0HumanBoneSpecifications.LEFT_UPPER_ARM,
@@ -501,7 +501,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    LEFT_LOWER_ARM = create_and_append_human_bone_specification(
+    LEFT_LOWER_ARM = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_LOWER_ARM,
         Vrm0HumanBoneSpecifications.LEFT_LOWER_ARM,
@@ -509,7 +509,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    LEFT_HAND = create_and_append_human_bone_specification(
+    LEFT_HAND = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_HAND,
         Vrm0HumanBoneSpecifications.LEFT_HAND,
@@ -517,7 +517,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    RIGHT_SHOULDER = create_and_append_human_bone_specification(
+    RIGHT_SHOULDER = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_SHOULDER,
         Vrm0HumanBoneSpecifications.RIGHT_SHOULDER,
@@ -525,7 +525,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    RIGHT_UPPER_ARM = create_and_append_human_bone_specification(
+    RIGHT_UPPER_ARM = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_UPPER_ARM,
         Vrm0HumanBoneSpecifications.RIGHT_UPPER_ARM,
@@ -533,7 +533,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    RIGHT_LOWER_ARM = create_and_append_human_bone_specification(
+    RIGHT_LOWER_ARM = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_LOWER_ARM,
         Vrm0HumanBoneSpecifications.RIGHT_LOWER_ARM,
@@ -541,7 +541,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    RIGHT_HAND = create_and_append_human_bone_specification(
+    RIGHT_HAND = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_HAND,
         Vrm0HumanBoneSpecifications.RIGHT_HAND,
@@ -551,7 +551,7 @@ class HumanBoneSpecifications:
     )
 
     # Finger
-    LEFT_THUMB_METACARPAL = create_and_append_human_bone_specification(
+    LEFT_THUMB_METACARPAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_THUMB_METACARPAL,
         Vrm0HumanBoneSpecifications.LEFT_THUMB_PROXIMAL,
@@ -559,7 +559,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    LEFT_THUMB_PROXIMAL = create_and_append_human_bone_specification(
+    LEFT_THUMB_PROXIMAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_THUMB_PROXIMAL,
         Vrm0HumanBoneSpecifications.LEFT_THUMB_INTERMEDIATE,
@@ -567,7 +567,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    LEFT_THUMB_DISTAL = create_and_append_human_bone_specification(
+    LEFT_THUMB_DISTAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_THUMB_DISTAL,
         Vrm0HumanBoneSpecifications.LEFT_THUMB_DISTAL,
@@ -575,7 +575,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    LEFT_INDEX_PROXIMAL = create_and_append_human_bone_specification(
+    LEFT_INDEX_PROXIMAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_INDEX_PROXIMAL,
         Vrm0HumanBoneSpecifications.LEFT_INDEX_PROXIMAL,
@@ -583,7 +583,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    LEFT_INDEX_INTERMEDIATE = create_and_append_human_bone_specification(
+    LEFT_INDEX_INTERMEDIATE = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_INDEX_INTERMEDIATE,
         Vrm0HumanBoneSpecifications.LEFT_INDEX_INTERMEDIATE,
@@ -591,7 +591,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    LEFT_INDEX_DISTAL = create_and_append_human_bone_specification(
+    LEFT_INDEX_DISTAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_INDEX_DISTAL,
         Vrm0HumanBoneSpecifications.LEFT_INDEX_DISTAL,
@@ -599,7 +599,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    LEFT_MIDDLE_PROXIMAL = create_and_append_human_bone_specification(
+    LEFT_MIDDLE_PROXIMAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_MIDDLE_PROXIMAL,
         Vrm0HumanBoneSpecifications.LEFT_MIDDLE_PROXIMAL,
@@ -607,7 +607,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    LEFT_MIDDLE_INTERMEDIATE = create_and_append_human_bone_specification(
+    LEFT_MIDDLE_INTERMEDIATE = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_MIDDLE_INTERMEDIATE,
         Vrm0HumanBoneSpecifications.LEFT_MIDDLE_INTERMEDIATE,
@@ -615,7 +615,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    LEFT_MIDDLE_DISTAL = create_and_append_human_bone_specification(
+    LEFT_MIDDLE_DISTAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_MIDDLE_DISTAL,
         Vrm0HumanBoneSpecifications.LEFT_MIDDLE_DISTAL,
@@ -623,7 +623,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    LEFT_RING_PROXIMAL = create_and_append_human_bone_specification(
+    LEFT_RING_PROXIMAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_RING_PROXIMAL,
         Vrm0HumanBoneSpecifications.LEFT_RING_PROXIMAL,
@@ -631,7 +631,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    LEFT_RING_INTERMEDIATE = create_and_append_human_bone_specification(
+    LEFT_RING_INTERMEDIATE = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_RING_INTERMEDIATE,
         Vrm0HumanBoneSpecifications.LEFT_RING_INTERMEDIATE,
@@ -639,7 +639,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    LEFT_RING_DISTAL = create_and_append_human_bone_specification(
+    LEFT_RING_DISTAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_RING_DISTAL,
         Vrm0HumanBoneSpecifications.LEFT_RING_DISTAL,
@@ -647,7 +647,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    LEFT_LITTLE_PROXIMAL = create_and_append_human_bone_specification(
+    LEFT_LITTLE_PROXIMAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_LITTLE_PROXIMAL,
         Vrm0HumanBoneSpecifications.LEFT_LITTLE_PROXIMAL,
@@ -655,7 +655,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    LEFT_LITTLE_INTERMEDIATE = create_and_append_human_bone_specification(
+    LEFT_LITTLE_INTERMEDIATE = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_LITTLE_INTERMEDIATE,
         Vrm0HumanBoneSpecifications.LEFT_LITTLE_INTERMEDIATE,
@@ -663,7 +663,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    LEFT_LITTLE_DISTAL = create_and_append_human_bone_specification(
+    LEFT_LITTLE_DISTAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.LEFT_LITTLE_DISTAL,
         Vrm0HumanBoneSpecifications.LEFT_LITTLE_DISTAL,
@@ -671,7 +671,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    RIGHT_THUMB_METACARPAL = create_and_append_human_bone_specification(
+    RIGHT_THUMB_METACARPAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_THUMB_METACARPAL,
         Vrm0HumanBoneSpecifications.RIGHT_THUMB_PROXIMAL,
@@ -679,7 +679,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    RIGHT_THUMB_PROXIMAL = create_and_append_human_bone_specification(
+    RIGHT_THUMB_PROXIMAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_THUMB_PROXIMAL,
         Vrm0HumanBoneSpecifications.RIGHT_THUMB_INTERMEDIATE,
@@ -687,7 +687,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    RIGHT_THUMB_DISTAL = create_and_append_human_bone_specification(
+    RIGHT_THUMB_DISTAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_THUMB_DISTAL,
         Vrm0HumanBoneSpecifications.RIGHT_THUMB_DISTAL,
@@ -695,7 +695,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    RIGHT_INDEX_PROXIMAL = create_and_append_human_bone_specification(
+    RIGHT_INDEX_PROXIMAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_INDEX_PROXIMAL,
         Vrm0HumanBoneSpecifications.RIGHT_INDEX_PROXIMAL,
@@ -703,7 +703,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    RIGHT_INDEX_INTERMEDIATE = create_and_append_human_bone_specification(
+    RIGHT_INDEX_INTERMEDIATE = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_INDEX_INTERMEDIATE,
         Vrm0HumanBoneSpecifications.RIGHT_INDEX_INTERMEDIATE,
@@ -711,7 +711,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    RIGHT_INDEX_DISTAL = create_and_append_human_bone_specification(
+    RIGHT_INDEX_DISTAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_INDEX_DISTAL,
         Vrm0HumanBoneSpecifications.RIGHT_INDEX_DISTAL,
@@ -719,7 +719,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    RIGHT_MIDDLE_PROXIMAL = create_and_append_human_bone_specification(
+    RIGHT_MIDDLE_PROXIMAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_MIDDLE_PROXIMAL,
         Vrm0HumanBoneSpecifications.RIGHT_MIDDLE_PROXIMAL,
@@ -727,7 +727,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    RIGHT_MIDDLE_INTERMEDIATE = create_and_append_human_bone_specification(
+    RIGHT_MIDDLE_INTERMEDIATE = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_MIDDLE_INTERMEDIATE,
         Vrm0HumanBoneSpecifications.RIGHT_MIDDLE_INTERMEDIATE,
@@ -735,7 +735,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    RIGHT_MIDDLE_DISTAL = create_and_append_human_bone_specification(
+    RIGHT_MIDDLE_DISTAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_MIDDLE_DISTAL,
         Vrm0HumanBoneSpecifications.RIGHT_MIDDLE_DISTAL,
@@ -743,7 +743,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    RIGHT_RING_PROXIMAL = create_and_append_human_bone_specification(
+    RIGHT_RING_PROXIMAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_RING_PROXIMAL,
         Vrm0HumanBoneSpecifications.RIGHT_RING_PROXIMAL,
@@ -751,7 +751,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    RIGHT_RING_INTERMEDIATE = create_and_append_human_bone_specification(
+    RIGHT_RING_INTERMEDIATE = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_RING_INTERMEDIATE,
         Vrm0HumanBoneSpecifications.RIGHT_RING_INTERMEDIATE,
@@ -759,7 +759,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    RIGHT_RING_DISTAL = create_and_append_human_bone_specification(
+    RIGHT_RING_DISTAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_RING_DISTAL,
         Vrm0HumanBoneSpecifications.RIGHT_RING_DISTAL,
@@ -767,7 +767,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    RIGHT_LITTLE_PROXIMAL = create_and_append_human_bone_specification(
+    RIGHT_LITTLE_PROXIMAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_LITTLE_PROXIMAL,
         Vrm0HumanBoneSpecifications.RIGHT_LITTLE_PROXIMAL,
@@ -775,7 +775,7 @@ class HumanBoneSpecifications:
         parent_requirement=False,
         icon="VIEW_PAN",
     )
-    RIGHT_LITTLE_INTERMEDIATE = create_and_append_human_bone_specification(
+    RIGHT_LITTLE_INTERMEDIATE = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_LITTLE_INTERMEDIATE,
         Vrm0HumanBoneSpecifications.RIGHT_LITTLE_INTERMEDIATE,
@@ -783,7 +783,7 @@ class HumanBoneSpecifications:
         parent_requirement=True,
         icon="VIEW_PAN",
     )
-    RIGHT_LITTLE_DISTAL = create_and_append_human_bone_specification(
+    RIGHT_LITTLE_DISTAL = _create_and_append_human_bone_specification(
         all_human_bones,
         HumanBoneName.RIGHT_LITTLE_DISTAL,
         Vrm0HumanBoneSpecifications.RIGHT_LITTLE_DISTAL,

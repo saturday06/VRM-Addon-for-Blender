@@ -303,7 +303,7 @@ def draw_vrm1_humanoid_optional_bones_layout(
     )
 
 
-def draw_vrm1_humanoid_layout(
+def _draw_vrm1_humanoid_layout(
     context: Context,
     armature: Object,
     layout: UILayout,
@@ -412,7 +412,7 @@ class VRM_PT_vrm1_humanoid_armature_object_property(Panel):
         armature_data = active_object.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm1_humanoid_layout(
+        _draw_vrm1_humanoid_layout(
             context,
             active_object,
             self.layout,
@@ -443,7 +443,7 @@ class VRM_PT_vrm1_humanoid_ui(Panel):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm1_humanoid_layout(
+        _draw_vrm1_humanoid_layout(
             context,
             armature,
             self.layout,
@@ -451,7 +451,7 @@ class VRM_PT_vrm1_humanoid_ui(Panel):
         )
 
 
-def draw_vrm1_first_person_layout(
+def _draw_vrm1_first_person_layout(
     armature: Object,
     _context: Context,
     layout: UILayout,
@@ -512,7 +512,7 @@ class VRM_PT_vrm1_first_person_armature_object_property(Panel):
         armature_data = active_object.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm1_first_person_layout(
+        _draw_vrm1_first_person_layout(
             active_object,
             context,
             self.layout,
@@ -543,7 +543,7 @@ class VRM_PT_vrm1_first_person_ui(Panel):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm1_first_person_layout(
+        _draw_vrm1_first_person_layout(
             armature,
             context,
             self.layout,
@@ -551,7 +551,7 @@ class VRM_PT_vrm1_first_person_ui(Panel):
         )
 
 
-def draw_vrm1_look_at_layout(
+def _draw_vrm1_look_at_layout(
     armature: Object,
     _context: Context,
     layout: UILayout,
@@ -619,7 +619,7 @@ class VRM_PT_vrm1_look_at_armature_object_property(Panel):
         armature_data = active_object.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm1_look_at_layout(
+        _draw_vrm1_look_at_layout(
             active_object,
             context,
             self.layout,
@@ -650,7 +650,7 @@ class VRM_PT_vrm1_look_at_ui(Panel):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm1_look_at_layout(
+        _draw_vrm1_look_at_layout(
             armature,
             context,
             self.layout,
@@ -658,7 +658,7 @@ class VRM_PT_vrm1_look_at_ui(Panel):
         )
 
 
-def draw_vrm1_expressions_morph_target_bind_layout(
+def _draw_vrm1_expressions_morph_target_bind_layout(
     context: Context,
     layout: UILayout,
     bind: Vrm1MorphTargetBindPropertyGroup,
@@ -696,7 +696,7 @@ def draw_vrm1_expressions_morph_target_bind_layout(
     bind_column.prop(bind, "weight", slider=True)
 
 
-def draw_vrm1_expressions_material_color_bind_layout(
+def _draw_vrm1_expressions_material_color_bind_layout(
     context: Context,
     layout: UILayout,
     bind: Vrm1MaterialColorBindPropertyGroup,
@@ -714,7 +714,7 @@ def draw_vrm1_expressions_material_color_bind_layout(
         target_value_split.prop(bind, "target_value_as_rgb", text="", translate=False)
 
 
-def draw_vrm1_expressions_texture_transform_bind_layout(
+def _draw_vrm1_expressions_texture_transform_bind_layout(
     context: Context,
     layout: UILayout,
     bind: Vrm1TextureTransformBindPropertyGroup,
@@ -786,7 +786,7 @@ def draw_vrm1_expressions_texture_transform_bind_layout(
         bind_column.label(text="No texture transform bind for this expression")
 
 
-def draw_vrm1_expressions_layout(
+def _draw_vrm1_expressions_layout(
     armature: Object,
     context: Context,
     layout: UILayout,
@@ -893,7 +893,7 @@ def draw_vrm1_expressions_layout(
         morph_target_bind_collection_item_op.bind_index = morph_target_bind_index
 
     if isinstance(morph_target_bind, Vrm1MorphTargetBindPropertyGroup):
-        draw_vrm1_expressions_morph_target_bind_layout(
+        _draw_vrm1_expressions_morph_target_bind_layout(
             context,
             morph_target_binds_box,
             morph_target_bind,
@@ -932,7 +932,7 @@ def draw_vrm1_expressions_layout(
         material_color_bind_collection_item_op.bind_index = material_color_bind_index
 
     if isinstance(material_color_bind, Vrm1MaterialColorBindPropertyGroup):
-        draw_vrm1_expressions_material_color_bind_layout(
+        _draw_vrm1_expressions_material_color_bind_layout(
             context,
             material_color_binds_box,
             material_color_bind,
@@ -972,7 +972,7 @@ def draw_vrm1_expressions_layout(
         )
 
     if isinstance(texture_transform_bind, Vrm1TextureTransformBindPropertyGroup):
-        draw_vrm1_expressions_texture_transform_bind_layout(
+        _draw_vrm1_expressions_texture_transform_bind_layout(
             context,
             texture_transform_binds_box,
             texture_transform_bind,
@@ -1005,7 +1005,7 @@ class VRM_PT_vrm1_expressions_armature_object_property(Panel):
         armature_data = active_object.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm1_expressions_layout(
+        _draw_vrm1_expressions_layout(
             active_object,
             context,
             self.layout,
@@ -1036,7 +1036,7 @@ class VRM_PT_vrm1_expressions_ui(Panel):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm1_expressions_layout(
+        _draw_vrm1_expressions_layout(
             armature,
             context,
             self.layout,
@@ -1044,7 +1044,7 @@ class VRM_PT_vrm1_expressions_ui(Panel):
         )
 
 
-def draw_vrm1_meta_layout(
+def _draw_vrm1_meta_layout(
     armature: Object,
     _context: Context,
     layout: UILayout,
@@ -1161,7 +1161,7 @@ class VRM_PT_vrm1_meta_armature_object_property(Panel):
         if not isinstance(armature_data, Armature):
             return
         ext = get_armature_extension(armature_data)
-        draw_vrm1_meta_layout(active_object, context, self.layout, ext.vrm1.meta)
+        _draw_vrm1_meta_layout(active_object, context, self.layout, ext.vrm1.meta)
 
 
 class VRM_PT_vrm1_meta_ui(Panel):
@@ -1187,7 +1187,7 @@ class VRM_PT_vrm1_meta_ui(Panel):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm1_meta_layout(
+        _draw_vrm1_meta_layout(
             armature,
             context,
             self.layout,

@@ -23,7 +23,7 @@ from .property_group import (
 _logger = get_logger(__name__)
 
 
-def draw_texture_info(
+def _draw_texture_info(
     material_name: str,
     ext: Mtoon1MaterialPropertyGroup,
     parent_layout: UILayout,
@@ -129,7 +129,7 @@ def draw_texture_info(
     return input_layout
 
 
-def draw_mtoon0_texture(
+def _draw_mtoon0_texture(
     material_name: str,
     parent_layout: UILayout,
     base_property_group: PropertyGroup,
@@ -190,7 +190,7 @@ def draw_mtoon0_texture(
     return input_layout
 
 
-def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
+def _draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     material = context.material
     if not material:
         return
@@ -218,7 +218,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
 
     layout.label(text="Lighting", translate=False)
     lighting_box = layout.box().column()
-    draw_texture_info(
+    _draw_texture_info(
         material.name,
         ext.mtoon1,
         lighting_box,
@@ -227,7 +227,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         "base_color_factor",
         is_vrm0=is_vrm0,
     )
-    draw_texture_info(
+    _draw_texture_info(
         material.name,
         ext.mtoon1,
         lighting_box,
@@ -236,7 +236,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         "shade_color_factor",
         is_vrm0=is_vrm0,
     )
-    normal_texture_layout = draw_texture_info(
+    normal_texture_layout = _draw_texture_info(
         material.name,
         ext.mtoon1,
         lighting_box,
@@ -249,7 +249,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
 
     lighting_box.prop(mtoon, "shading_toony_factor", slider=True)
     lighting_box.prop(mtoon, "shading_shift_factor", slider=True)
-    shading_shift_texture_layout = draw_texture_info(
+    shading_shift_texture_layout = _draw_texture_info(
         material.name,
         ext.mtoon1,
         lighting_box,
@@ -276,7 +276,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
 
     layout.label(text="Emission", translate=False)
     emission_box = layout.box().column()
-    emissive_texture_layout = draw_texture_info(
+    emissive_texture_layout = _draw_texture_info(
         material.name,
         ext.mtoon1,
         emission_box,
@@ -293,7 +293,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
 
     layout.label(text="Rim Lighting", translate=False)
     rim_lighting_box = layout.box().column()
-    draw_texture_info(
+    _draw_texture_info(
         material.name,
         ext.mtoon1,
         rim_lighting_box,
@@ -302,7 +302,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         is_vrm0=is_vrm0,
     )
     rim_lighting_box.prop(mtoon, "rim_lighting_mix_factor", slider=True)
-    draw_texture_info(
+    _draw_texture_info(
         material.name,
         ext.mtoon1,
         rim_lighting_box,
@@ -337,7 +337,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
                 icon="BLANK1" if index else "INFO",
             )
     if mtoon.outline_width_mode != mtoon.OUTLINE_WIDTH_MODE_NONE.identifier:
-        outline_width_multiply_texture_layout = draw_texture_info(
+        outline_width_multiply_texture_layout = _draw_texture_info(
             material.name,
             ext.mtoon1,
             outline_box,
@@ -355,7 +355,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
 
     layout.label(text="UV Animation", translate=False)
     uv_animation_box = layout.box().column()
-    draw_texture_info(
+    _draw_texture_info(
         material.name,
         ext.mtoon1,
         uv_animation_box,
@@ -371,14 +371,14 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     if gltf.show_expanded_mtoon0:
         mtoon0_box = layout.box().column()
         mtoon0_box.prop(gltf, "mtoon0_front_cull_mode")
-        draw_mtoon0_texture(
+        _draw_mtoon0_texture(
             material.name,
             mtoon0_box,
             ext.mtoon1,
             "mtoon0_receive_shadow_texture",
             "mtoon0_receive_shadow_rate",
         )
-        draw_mtoon0_texture(
+        _draw_mtoon0_texture(
             material.name,
             mtoon0_box,
             ext.mtoon1,
@@ -394,7 +394,7 @@ def draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     reset_op.material_name = material.name
 
 
-def draw_material(context: Context, layout: UILayout) -> None:
+def _draw_material(context: Context, layout: UILayout) -> None:
     material = context.material
     if not material:
         return
@@ -403,7 +403,7 @@ def draw_material(context: Context, layout: UILayout) -> None:
         layout.box().label(icon="INFO", text="This is an MToon Outline material")
         return
 
-    draw_mtoon1_material(context, layout)
+    _draw_mtoon1_material(context, layout)
 
     node, legacy_shader_name = search.legacy_shader_node(material)
     if ext.mtoon1.enabled or (node and legacy_shader_name == "MToon_unversioned"):
@@ -447,4 +447,4 @@ class VRM_PT_vrm_material_property(Panel):
         return bool(context.material)
 
     def draw(self, context: Context) -> None:
-        draw_material(context, self.layout)
+        _draw_material(context, self.layout)

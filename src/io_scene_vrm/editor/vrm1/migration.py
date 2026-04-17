@@ -19,7 +19,7 @@ from .property_group import (
 )
 
 
-def migrate_old_expression_layout(
+def _migrate_old_expression_layout(
     old_expression: object, expression: Vrm1ExpressionPropertyGroup
 ) -> None:
     if not isinstance(old_expression, IDPropertyGroup):
@@ -146,7 +146,7 @@ def migrate_old_expression_layout(
         expression.override_mouth = old_override_mouth
 
 
-def migrate_old_expressions_layout(expressions: Vrm1ExpressionsPropertyGroup) -> None:
+def _migrate_old_expressions_layout(expressions: Vrm1ExpressionsPropertyGroup) -> None:
     for name, expression in expressions.preset.name_to_expression_dict().items():
         property_name = {
             "blinkLeft": "blink_left",
@@ -159,14 +159,14 @@ def migrate_old_expressions_layout(expressions: Vrm1ExpressionsPropertyGroup) ->
         if property_name is None:
             property_name = name
         old_expression = expressions.get(property_name)
-        migrate_old_expression_layout(old_expression, expression)
+        _migrate_old_expression_layout(old_expression, expression)
         expression.name = name
     for expression in expressions.custom:
         old_expression = expression.get("expression")
-        migrate_old_expression_layout(old_expression, expression)
+        _migrate_old_expression_layout(old_expression, expression)
 
 
-def migrate_pose(context: Context, armature: Object, armature_data: Armature) -> None:
+def _migrate_pose(context: Context, armature: Object, armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 20, 34):
         return
@@ -189,7 +189,7 @@ def migrate_pose(context: Context, armature: Object, armature_data: Armature) ->
         humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
 
 
-def migrate_auto_pose(_context: Context, armature_data: Armature) -> None:
+def _migrate_auto_pose(_context: Context, armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or tuple(
         ext.addon_version
@@ -264,7 +264,7 @@ def migrate(
         )
 
     if tuple(get_armature_extension(armature_data).addon_version) < (2, 18, 0):
-        migrate_old_expressions_layout(
+        _migrate_old_expressions_layout(
             get_armature_extension(armature_data).vrm1.expressions
         )
 
@@ -276,8 +276,8 @@ def migrate(
             -look_at.offset_from_head_bone[1],
         )
 
-    migrate_pose(context, armature, armature_data)
-    migrate_auto_pose(context, armature_data)
+    _migrate_pose(context, armature, armature_data)
+    _migrate_auto_pose(context, armature_data)
 
     expressions = get_armature_extension(armature_data).vrm1.expressions
     expressions.fill_missing_expression_names()

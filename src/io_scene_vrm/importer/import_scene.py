@@ -54,7 +54,7 @@ class LicenseConfirmation(PropertyGroup):
         json_key: str  # type: ignore[no-redef]
 
 
-def import_vrm_update_addon_preferences(
+def _import_vrm_update_addon_preferences(
     import_op: "IMPORT_SCENE_OT_vrm", context: Context
 ) -> None:
     if import_op.use_addon_preferences:
@@ -80,37 +80,37 @@ class IMPORT_SCENE_OT_vrm(Operator, ImportHelper):
 
     extract_textures_into_folder: BoolProperty(  # type: ignore[valid-type]
         name="Extract texture images into the folder",
-        update=import_vrm_update_addon_preferences,
+        update=_import_vrm_update_addon_preferences,
         default=False,
     )
     make_new_texture_folder: BoolProperty(  # type: ignore[valid-type]
         name="Don't overwrite existing texture image folder",
-        update=import_vrm_update_addon_preferences,
+        update=_import_vrm_update_addon_preferences,
         default=True,
     )
     set_shading_type_to_material_on_import: BoolProperty(  # type: ignore[valid-type]
         name='Set shading type to "Material"',
-        update=import_vrm_update_addon_preferences,
+        update=_import_vrm_update_addon_preferences,
         default=True,
     )
     set_view_transform_to_standard_on_import: BoolProperty(  # type: ignore[valid-type]
         name='Set view transform to "Standard"',
-        update=import_vrm_update_addon_preferences,
+        update=_import_vrm_update_addon_preferences,
         default=True,
     )
     set_armature_display_to_wire: BoolProperty(  # type: ignore[valid-type]
         name='Set an imported armature display to "Wire"',
-        update=import_vrm_update_addon_preferences,
+        update=_import_vrm_update_addon_preferences,
         default=True,
     )
     set_armature_display_to_show_in_front: BoolProperty(  # type: ignore[valid-type]
         name='Set an imported armature display to show "In-Front"',
-        update=import_vrm_update_addon_preferences,
+        update=_import_vrm_update_addon_preferences,
         default=True,
     )
     set_armature_bone_shape_to_default: BoolProperty(  # type: ignore[valid-type]
         name="Set an imported bone shape to default",
-        update=import_vrm_update_addon_preferences,
+        update=_import_vrm_update_addon_preferences,
         default=True,
     )
     enable_mtoon_outline_preview: BoolProperty(  # type: ignore[valid-type]

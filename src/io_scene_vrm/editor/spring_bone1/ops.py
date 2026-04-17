@@ -1765,7 +1765,7 @@ class VRM_OT_update_spring_bone1_animation(Operator):
         delta_time: float  # type: ignore[no-redef]
 
 
-def assign_spring_bone1_from_vrm0(
+def _assign_spring_bone1_from_vrm0(
     context: Context,
     armature_object_name: str,
 ) -> set[str]:
@@ -1920,7 +1920,7 @@ class VRM_OT_assign_spring_bone1_from_vrm0(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        return assign_spring_bone1_from_vrm0(context, self.armature_object_name)
+        return _assign_spring_bone1_from_vrm0(context, self.armature_object_name)
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -1928,7 +1928,7 @@ class VRM_OT_assign_spring_bone1_from_vrm0(Operator):
         armature_object_name: str  # type: ignore[no-redef]
 
 
-def assign_spring_bone1_from_mmd(
+def _assign_spring_bone1_from_mmd(
     context: Context,
     armature_object_name: str,
 ) -> set[str]:
@@ -2116,7 +2116,7 @@ class VRM_OT_assign_spring_bone1_from_mmd(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        return assign_spring_bone1_from_mmd(context, self.armature_object_name)
+        return _assign_spring_bone1_from_mmd(context, self.armature_object_name)
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -2140,8 +2140,8 @@ def assign_spring_bone1_automatically(
     if spring_bone1.colliders or spring_bone1.springs:
         return {"FINISHED"}
 
-    assign_spring_bone1_from_vrm0(context, armature_object_name)
-    assign_spring_bone1_from_mmd(context, armature_object_name)
+    _assign_spring_bone1_from_vrm0(context, armature_object_name)
+    _assign_spring_bone1_from_mmd(context, armature_object_name)
 
     return {"FINISHED"}
 

@@ -28,7 +28,7 @@ from .ui_list import (
 )
 
 
-def draw_spring_bone1_collider_sphere_layout(
+def _draw_spring_bone1_collider_sphere_layout(
     layout: UILayout,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
@@ -43,7 +43,7 @@ def draw_spring_bone1_collider_sphere_layout(
     layout.prop(collider.extensions.vrmc_spring_bone_extended_collider, "enabled")
 
 
-def draw_spring_bone1_collider_capsule_layout(
+def _draw_spring_bone1_collider_capsule_layout(
     layout: UILayout,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
@@ -67,7 +67,7 @@ def draw_spring_bone1_collider_capsule_layout(
     layout.prop(collider.extensions.vrmc_spring_bone_extended_collider, "enabled")
 
 
-def draw_spring_bone1_collider_extended_fallback_layout(
+def _draw_spring_bone1_collider_extended_fallback_layout(
     layout: UILayout,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
@@ -88,7 +88,7 @@ def draw_spring_bone1_collider_extended_fallback_layout(
         layout.prop(collider.shape.capsule, "fallback_tail")
 
 
-def draw_spring_bone1_collider_extended_sphere_layout(
+def _draw_spring_bone1_collider_extended_sphere_layout(
     layout: UILayout,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
@@ -103,13 +103,13 @@ def draw_spring_bone1_collider_extended_sphere_layout(
     layout.prop(extended.shape.sphere, "radius", slider=True)
     if not (extended.enabled and extended.shape.sphere.inside):
         layout.prop(extended, "enabled")
-    draw_spring_bone1_collider_extended_fallback_layout(
+    _draw_spring_bone1_collider_extended_fallback_layout(
         layout,
         collider,
     )
 
 
-def draw_spring_bone1_collider_extended_capsule_layout(
+def _draw_spring_bone1_collider_extended_capsule_layout(
     layout: UILayout,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
@@ -133,13 +133,13 @@ def draw_spring_bone1_collider_extended_capsule_layout(
     layout.prop(extended.shape.capsule, "tail", text="")
     if not (extended.enabled and extended.shape.capsule.inside):
         layout.prop(extended, "enabled")
-    draw_spring_bone1_collider_extended_fallback_layout(
+    _draw_spring_bone1_collider_extended_fallback_layout(
         layout,
         collider,
     )
 
 
-def draw_spring_bone1_collider_extended_plane_layout(
+def _draw_spring_bone1_collider_extended_plane_layout(
     layout: UILayout,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
@@ -153,32 +153,32 @@ def draw_spring_bone1_collider_extended_plane_layout(
     layout.separator(factor=0.5)
     layout.prop(extended.shape.plane, "normal")
 
-    draw_spring_bone1_collider_extended_fallback_layout(
+    _draw_spring_bone1_collider_extended_fallback_layout(
         layout,
         collider,
     )
 
 
-def draw_spring_bone1_collider_layout(
+def _draw_spring_bone1_collider_layout(
     layout: UILayout,
     collider: SpringBone1ColliderPropertyGroup,
 ) -> None:
     extended = collider.extensions.vrmc_spring_bone_extended_collider
     if extended.enabled:
         if extended.shape_type == extended.SHAPE_TYPE_EXTENDED_PLANE.identifier:
-            draw_spring_bone1_collider_extended_plane_layout(layout, collider)
+            _draw_spring_bone1_collider_extended_plane_layout(layout, collider)
         elif extended.shape_type == extended.SHAPE_TYPE_EXTENDED_SPHERE.identifier:
-            draw_spring_bone1_collider_extended_sphere_layout(layout, collider)
+            _draw_spring_bone1_collider_extended_sphere_layout(layout, collider)
         elif extended.shape_type == extended.SHAPE_TYPE_EXTENDED_CAPSULE.identifier:
-            draw_spring_bone1_collider_extended_capsule_layout(layout, collider)
+            _draw_spring_bone1_collider_extended_capsule_layout(layout, collider)
     elif collider.shape_type == collider.SHAPE_TYPE_SPHERE.identifier:
-        draw_spring_bone1_collider_sphere_layout(layout, collider)
+        _draw_spring_bone1_collider_sphere_layout(layout, collider)
     elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE.identifier:
-        draw_spring_bone1_collider_capsule_layout(layout, collider)
+        _draw_spring_bone1_collider_capsule_layout(layout, collider)
     layout.separator(factor=0.5)
 
 
-def draw_spring_bone1_spring_bone_layout(
+def _draw_spring_bone1_spring_bone_layout(
     armature: Object,
     layout: UILayout,
     spring_bone: SpringBone1SpringBonePropertyGroup,
@@ -188,12 +188,12 @@ def draw_spring_bone1_spring_bone_layout(
     layout.prop(spring_bone, "enable_animation")
     # layout.operator(ops.VRM_OT_reset_spring_bone1_animation_state.bl_idname)
 
-    draw_spring_bone1_colliders_layout(armature, layout, spring_bone)
-    draw_spring_bone1_collider_groups_layout(armature, layout, spring_bone)
-    draw_spring_bone1_springs_layout(armature, layout, spring_bone)
+    _draw_spring_bone1_colliders_layout(armature, layout, spring_bone)
+    _draw_spring_bone1_collider_groups_layout(armature, layout, spring_bone)
+    _draw_spring_bone1_springs_layout(armature, layout, spring_bone)
 
 
-def draw_spring_bone1_colliders_layout(
+def _draw_spring_bone1_colliders_layout(
     armature: Object,
     layout: UILayout,
     spring_bone: SpringBone1SpringBonePropertyGroup,
@@ -238,10 +238,10 @@ def draw_spring_bone1_colliders_layout(
     if not isinstance(collider, SpringBone1ColliderPropertyGroup):
         return
 
-    draw_spring_bone1_collider_layout(colliders_box.column(), collider)
+    _draw_spring_bone1_collider_layout(colliders_box.column(), collider)
 
 
-def draw_spring_bone1_collider_groups_layout(
+def _draw_spring_bone1_collider_groups_layout(
     armature: Object,
     layout: UILayout,
     spring_bone: SpringBone1SpringBonePropertyGroup,
@@ -322,7 +322,7 @@ def draw_spring_bone1_collider_groups_layout(
         collider_collection_item_op.collider_index = collider_index
 
 
-def draw_spring_bone1_springs_layout(
+def _draw_spring_bone1_springs_layout(
     armature: Object,
     layout: UILayout,
     spring_bone: SpringBone1SpringBonePropertyGroup,
@@ -480,7 +480,7 @@ class VRM_PT_spring_bone1_armature_object_property(Panel):
         armature_data = active_object.data
         if not isinstance(armature_data, Armature):
             return
-        draw_spring_bone1_spring_bone_layout(
+        _draw_spring_bone1_spring_bone_layout(
             active_object,
             self.layout,
             get_armature_extension(armature_data).spring_bone1,
@@ -510,7 +510,7 @@ class VRM_PT_spring_bone1_ui(Panel):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        draw_spring_bone1_spring_bone_layout(
+        _draw_spring_bone1_spring_bone_layout(
             armature,
             self.layout,
             get_armature_extension(armature_data).spring_bone1,
@@ -578,7 +578,7 @@ class VRM_PT_spring_bone1_collider_property(Panel):
         if not isinstance(armature_data, Armature):
             return
         if get_armature_extension(armature_data).is_vrm1():
-            draw_spring_bone1_collider_layout(self.layout.column(), collider)
+            _draw_spring_bone1_collider_layout(self.layout.column(), collider)
             return
 
         self.layout.label(text="This is a VRM 1.0 Spring Bone Collider", icon="INFO")

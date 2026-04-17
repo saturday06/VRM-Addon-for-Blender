@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 __Extension = TypeVar("__Extension")
 
 
-def get_vrm_addon_extension_or_raise(
+def _get_vrm_addon_extension_or_raise(
     obj: object, expected_type: type[__Extension]
 ) -> __Extension:
     extension = getattr(obj, "vrm_addon_extension", None)
@@ -32,7 +32,7 @@ def get_material_extension(
 ) -> "VrmAddonMaterialExtensionPropertyGroup":
     from .extension import VrmAddonMaterialExtensionPropertyGroup
 
-    return get_vrm_addon_extension_or_raise(
+    return _get_vrm_addon_extension_or_raise(
         material, VrmAddonMaterialExtensionPropertyGroup
     )
 
@@ -42,7 +42,7 @@ def get_armature_extension(
 ) -> "VrmAddonArmatureExtensionPropertyGroup":
     from .extension import VrmAddonArmatureExtensionPropertyGroup
 
-    return get_vrm_addon_extension_or_raise(
+    return _get_vrm_addon_extension_or_raise(
         armature, VrmAddonArmatureExtensionPropertyGroup
     )
 
@@ -52,7 +52,7 @@ def get_node_tree_extension(
 ) -> "VrmAddonNodeTreeExtensionPropertyGroup":
     from .extension import VrmAddonNodeTreeExtensionPropertyGroup
 
-    return get_vrm_addon_extension_or_raise(
+    return _get_vrm_addon_extension_or_raise(
         node_tree, VrmAddonNodeTreeExtensionPropertyGroup
     )
 
@@ -60,16 +60,16 @@ def get_node_tree_extension(
 def get_scene_extension(scene: Scene) -> "VrmAddonSceneExtensionPropertyGroup":
     from .extension import VrmAddonSceneExtensionPropertyGroup
 
-    return get_vrm_addon_extension_or_raise(scene, VrmAddonSceneExtensionPropertyGroup)
+    return _get_vrm_addon_extension_or_raise(scene, VrmAddonSceneExtensionPropertyGroup)
 
 
 def get_bone_extension(bone: Bone) -> "VrmAddonBoneExtensionPropertyGroup":
     from .extension import VrmAddonBoneExtensionPropertyGroup
 
-    return get_vrm_addon_extension_or_raise(bone, VrmAddonBoneExtensionPropertyGroup)
+    return _get_vrm_addon_extension_or_raise(bone, VrmAddonBoneExtensionPropertyGroup)
 
 
 def get_object_extension(obj: Object) -> "VrmAddonObjectExtensionPropertyGroup":
     from .extension import VrmAddonObjectExtensionPropertyGroup
 
-    return get_vrm_addon_extension_or_raise(obj, VrmAddonObjectExtensionPropertyGroup)
+    return _get_vrm_addon_extension_or_raise(obj, VrmAddonObjectExtensionPropertyGroup)

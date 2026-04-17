@@ -58,7 +58,7 @@ from .vrm_animation_exporter import VrmAnimationExporter
 _logger = get_logger(__name__)
 
 
-def export_vrm_update_addon_preferences(
+def _export_vrm_update_addon_preferences(
     export_op: "EXPORT_SCENE_OT_vrm", context: Context
 ) -> None:
     if export_op.use_addon_preferences:
@@ -89,31 +89,31 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
     )
     export_invisibles: BoolProperty(  # type: ignore[valid-type]
         name="Export Invisible Objects",
-        update=export_vrm_update_addon_preferences,
+        update=_export_vrm_update_addon_preferences,
     )
     export_only_selections: BoolProperty(  # type: ignore[valid-type]
         name="Export Only Selections",
-        update=export_vrm_update_addon_preferences,
+        update=_export_vrm_update_addon_preferences,
     )
     enable_advanced_preferences: BoolProperty(  # type: ignore[valid-type]
         name="Enable Advanced Options",
-        update=export_vrm_update_addon_preferences,
+        update=_export_vrm_update_addon_preferences,
     )
     export_all_influences: BoolProperty(  # type: ignore[valid-type]
         name="Export All Bone Influences",
-        update=export_vrm_update_addon_preferences,
+        update=_export_vrm_update_addon_preferences,
     )
     export_lights: BoolProperty(  # type: ignore[valid-type]
         name="Export Lights",
-        update=export_vrm_update_addon_preferences,
+        update=_export_vrm_update_addon_preferences,
     )
     export_gltf_animations: BoolProperty(  # type: ignore[valid-type]
         name="Export glTF Animations",
-        update=export_vrm_update_addon_preferences,
+        update=_export_vrm_update_addon_preferences,
     )
     export_try_sparse_sk: BoolProperty(  # type: ignore[valid-type]
         name="Use Sparse Accessors",
-        update=export_vrm_update_addon_preferences,
+        update=_export_vrm_update_addon_preferences,
     )
 
     errors: CollectionProperty(  # type: ignore[valid-type]
@@ -137,7 +137,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                     source=get_preferences(context), destination=self
                 )
 
-            return export_vrm(
+            return _export_vrm(
                 Path(self.filepath),
                 self,
                 context,
@@ -159,7 +159,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
                 "INVOKE_DEFAULT",
             )
 
-        armatures, _ = collect_export_objects(
+        armatures, _ = _collect_export_objects(
             context,
             self.armature_object_name,
             self,
@@ -243,7 +243,7 @@ class EXPORT_SCENE_OT_vrm(Operator, ExportHelper):
         ignore_warning: bool  # type: ignore[no-redef]
 
 
-def export_vrm(
+def _export_vrm(
     filepath: Path,
     export_preferences: ExportPreferencesProtocol,
     context: Context,
@@ -258,7 +258,7 @@ def export_vrm(
     ):
         return {"CANCELLED"}
 
-    armature_objects, export_objects = collect_export_objects(
+    armature_objects, export_objects = _collect_export_objects(
         context,
         armature_object_name,
         export_preferences,
@@ -364,7 +364,7 @@ class VRM_PT_export_file_browser_tool_props(Panel):
                 )
 
         show_vrm1_options = False
-        armature_objects, _ = collect_export_objects(
+        armature_objects, _ = _collect_export_objects(
             context, operator.armature_object_name, operator
         )
         if (
@@ -405,7 +405,7 @@ class VRM_PT_export_vrma_help(Panel):
         return space_data.active_operator.bl_idname == "EXPORT_SCENE_OT_vrma"
 
     def draw(self, _context: Context) -> None:
-        draw_help_message(self.layout)
+        _draw_help_message(self.layout)
 
 
 def menu_export(menu_op: Operator, _context: Context) -> None:
@@ -491,7 +491,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
 
     def execute(self, context: Context) -> set[str]:
         preferences = get_preferences(context)
-        armatures, _ = collect_export_objects(
+        armatures, _ = _collect_export_objects(
             context,
             self.armature_object_name,
             preferences,
@@ -531,7 +531,7 @@ class WM_OT_vrm_export_human_bones_assignment(Operator):
 
     def draw(self, context: Context) -> None:
         preferences = get_preferences(context)
-        armatures, _ = collect_export_objects(
+        armatures, _ = _collect_export_objects(
             context, self.armature_object_name, preferences
         )
         if not armatures:
@@ -856,7 +856,7 @@ class WM_OT_vrma_export_prerequisite(Operator):
                             self.layout, armature
                         )
 
-        draw_help_message(layout)
+        _draw_help_message(layout)
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -867,7 +867,7 @@ class WM_OT_vrma_export_prerequisite(Operator):
         ]
 
 
-def draw_help_message(layout: UILayout) -> None:
+def _draw_help_message(layout: UILayout) -> None:
     help_message = pgettext(
         "Animations to be exported\n"
         + "- Humanoid bone rotations\n"
@@ -893,7 +893,7 @@ def draw_help_message(layout: UILayout) -> None:
     open_op.url = pgettext("https://vrm-addon-for-blender.info/en-us/animation/")
 
 
-def collect_export_objects(
+def _collect_export_objects(
     context: Context,
     armature_object_name: str,
     export_preferences: ExportPreferencesProtocol,

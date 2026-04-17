@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 _logger = get_logger(__name__)
 
 
-def find_armature_and_collider(
+def _find_armature_and_collider(
     context: Context,
     match_collider: Callable[["SpringBone1ColliderPropertyGroup"], bool],
 ) -> tuple[Object, "SpringBone1ColliderPropertyGroup"]:
@@ -57,7 +57,7 @@ class SpringBone1ColliderShapeSpherePropertyGroup(PropertyGroup):
         self,
         context: Context,
     ) -> tuple[Object, "SpringBone1ColliderPropertyGroup"]:
-        return find_armature_and_collider(
+        return _find_armature_and_collider(
             context, lambda collider: collider.shape.sphere == self
         )
 
@@ -190,7 +190,7 @@ class SpringBone1ColliderShapeCapsulePropertyGroup(PropertyGroup):
         self,
         context: Context,
     ) -> tuple[Object, "SpringBone1ColliderPropertyGroup"]:
-        return find_armature_and_collider(
+        return _find_armature_and_collider(
             context, lambda collider: collider.shape.capsule == self
         )
 
@@ -409,7 +409,7 @@ class SpringBone1ExtendedColliderShapeSpherePropertyGroup(
         self,
         context: Context,
     ) -> tuple[Object, "SpringBone1ColliderPropertyGroup"]:
-        return find_armature_and_collider(
+        return _find_armature_and_collider(
             context,
             lambda collider: (
                 collider.extensions.vrmc_spring_bone_extended_collider.shape.sphere
@@ -433,7 +433,7 @@ class SpringBone1ExtendedColliderShapeCapsulePropertyGroup(
         self,
         context: Context,
     ) -> tuple[Object, "SpringBone1ColliderPropertyGroup"]:
-        return find_armature_and_collider(
+        return _find_armature_and_collider(
             context,
             lambda collider: (
                 collider.extensions.vrmc_spring_bone_extended_collider.shape.capsule
@@ -455,7 +455,7 @@ class SpringBone1ExtendedColliderShapePlanePropertyGroup(PropertyGroup):
         self,
         context: Context,
     ) -> tuple[Object, "SpringBone1ColliderPropertyGroup"]:
-        return find_armature_and_collider(
+        return _find_armature_and_collider(
             context,
             lambda collider: (
                 collider.extensions.vrmc_spring_bone_extended_collider.shape.plane
@@ -604,7 +604,7 @@ class SpringBone1ExtendedColliderShapePropertyGroup(PropertyGroup):
 # https://github.com/vrm-c/vrm-specification/blob/9e8c886a2043639a3c166eb7cc93526be6313147/specification/VRMC_springBone_extended_collider-1.0/schema/VRMC_springBone_extended_collider.schema.json
 class SpringBone1VrmcSpringBoneExtendedColliderPropertyGroup(PropertyGroup):
     def _update_shape_type(self, context: Context) -> None:
-        armature, collider = find_armature_and_collider(
+        armature, collider = _find_armature_and_collider(
             context,
             lambda collider: (
                 collider.extensions.vrmc_spring_bone_extended_collider == self

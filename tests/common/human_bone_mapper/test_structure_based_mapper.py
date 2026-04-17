@@ -13,8 +13,8 @@ from io_scene_vrm.common.human_bone_mapper.structure_based_mapping import (
     AssignedSearchBranch,
     NormalizedBone,
     UnassignedSearchBranch,
+    _search_branch_from_json,
     create_structure_based_mapping,
-    search_branch_from_json,
 )
 from io_scene_vrm.common.vrm1.human_bone import (
     HumanBoneName,
@@ -31,7 +31,7 @@ Tree = Mapping[
 ]
 
 
-def create_armature(
+def _create_armature(
     context: Context, tree_root: Tree
 ) -> tuple[Object, Mapping[str, HumanBoneSpecification]]:
     bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
@@ -131,7 +131,7 @@ class TestSearchBranchJson(TestCase):
         )
 
         json_str = hips_branch.to_json()
-        restored = search_branch_from_json(json_str)
+        restored = _search_branch_from_json(json_str)
 
         self.assertEqual(hips_branch, restored)
 
@@ -156,7 +156,7 @@ class TestSearchBranchJson(TestCase):
         unassigned = UnassignedSearchBranch(children=(hips_branch,))
 
         json_str = unassigned.to_json()
-        restored = search_branch_from_json(json_str)
+        restored = _search_branch_from_json(json_str)
 
         self.assertEqual(unassigned, restored)
 
@@ -164,7 +164,7 @@ class TestSearchBranchJson(TestCase):
         unassigned = UnassignedSearchBranch()
 
         json_str = unassigned.to_json()
-        restored = search_branch_from_json(json_str)
+        restored = _search_branch_from_json(json_str)
 
         self.assertEqual(unassigned, restored)
 
@@ -178,7 +178,7 @@ class TestStructureBasedMapper(AddonTestCase):
         max_search_count: int = DEFAULT_MAX_SEARCH_COUNT,
     ) -> None:
         context = bpy.context
-        armature, expected_mapping = create_armature(context, tree)
+        armature, expected_mapping = _create_armature(context, tree)
         if not isinstance(armature_data := armature.data, Armature):
             raise TypeError
 

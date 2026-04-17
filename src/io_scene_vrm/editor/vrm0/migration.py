@@ -24,7 +24,7 @@ from .property_group import (
 )
 
 
-def read_textblock_json(context: Context, armature: Object, armature_key: str) -> Json:
+def _read_textblock_json(context: Context, armature: Object, armature_key: str) -> Json:
     text_key = armature.get(armature_key)
     if isinstance(text_key, Text):
         textblock: Optional[Text] = text_key
@@ -40,7 +40,7 @@ def read_textblock_json(context: Context, armature: Object, armature_key: str) -
     return None
 
 
-def migrate_vrm0_meta(
+def _migrate_vrm0_meta(
     context: Context, meta: Vrm0MetaPropertyGroup, armature: Object
 ) -> None:
     allowed_user_name = armature.get("allowedUserName")
@@ -117,7 +117,7 @@ def migrate_vrm0_meta(
             meta.texture = texture_image
 
 
-def migrate_vrm0_humanoid(
+def _migrate_vrm0_humanoid(
     humanoid: Vrm0HumanoidPropertyGroup, humanoid_dict: Json
 ) -> None:
     if not isinstance(humanoid_dict, dict):
@@ -156,7 +156,7 @@ def migrate_vrm0_humanoid(
         humanoid.has_translation_dof = has_translation_dof
 
 
-def migrate_vrm0_first_person(
+def _migrate_vrm0_first_person(
     context: Context,
     first_person: Vrm0FirstPersonPropertyGroup,
     first_person_dict: Json,
@@ -248,7 +248,7 @@ def migrate_vrm0_first_person(
             look_at.y_range = y_range
 
 
-def migrate_vrm0_blend_shape_groups(
+def _migrate_vrm0_blend_shape_groups(
     context: Context,
     blend_shape_master: Vrm0BlendShapeMasterPropertyGroup,
     blend_shape_group_dicts: Json,
@@ -345,7 +345,7 @@ def migrate_vrm0_blend_shape_groups(
             blend_shape_group.is_binary = is_binary
 
 
-def migrate_vrm0_secondary_animation(
+def _migrate_vrm0_secondary_animation(
     secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
     bone_group_dicts: Json,
     armature: Object,
@@ -444,30 +444,30 @@ def migrate_vrm0_secondary_animation(
         bone_group.fixup()
 
 
-def migrate_legacy_custom_properties(
+def _migrate_legacy_custom_properties(
     context: Context, armature: Object, armature_data: Armature
 ) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 0, 1):
         return
 
-    migrate_vrm0_meta(context, ext.vrm0.meta, armature)
-    migrate_vrm0_blend_shape_groups(
+    _migrate_vrm0_meta(context, ext.vrm0.meta, armature)
+    _migrate_vrm0_blend_shape_groups(
         context,
         ext.vrm0.blend_shape_master,
-        read_textblock_json(context, armature, "blendshape_group"),
+        _read_textblock_json(context, armature, "blendshape_group"),
     )
-    migrate_vrm0_first_person(
+    _migrate_vrm0_first_person(
         context,
         ext.vrm0.first_person,
-        read_textblock_json(context, armature, "firstPerson_params"),
+        _read_textblock_json(context, armature, "firstPerson_params"),
     )
-    migrate_vrm0_humanoid(
-        ext.vrm0.humanoid, read_textblock_json(context, armature, "humanoid_params")
+    _migrate_vrm0_humanoid(
+        ext.vrm0.humanoid, _read_textblock_json(context, armature, "humanoid_params")
     )
-    migrate_vrm0_secondary_animation(
+    _migrate_vrm0_secondary_animation(
         ext.vrm0.secondary_animation,
-        read_textblock_json(context, armature, "spring_bone"),
+        _read_textblock_json(context, armature, "spring_bone"),
         armature,
         armature_data,
     )
@@ -489,7 +489,7 @@ def migrate_legacy_custom_properties(
                 break
 
 
-def migrate_blender_object(armature_data: Armature) -> None:
+def _migrate_blender_object(armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 3, 27):
         return
@@ -501,7 +501,7 @@ def migrate_blender_object(armature_data: Armature) -> None:
                 collider.bpy_object = bpy_object
 
 
-def migrate_link_to_bone_object(
+def _migrate_link_to_bone_object(
     context: Context, armature: Object, armature_data: Armature
 ) -> None:
     ext = get_armature_extension(armature_data)
@@ -550,7 +550,7 @@ def migrate_link_to_bone_object(
     )
 
 
-def migrate_link_to_mesh_object(armature_data: Armature) -> None:
+def _migrate_link_to_mesh_object(armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 3, 23):
         return
@@ -578,7 +578,7 @@ def migrate_link_to_mesh_object(armature_data: Armature) -> None:
         mesh.mesh_object_name = link_to_mesh.parent.name
 
 
-def remove_link_to_mesh_object(armature_data: Armature) -> None:
+def _remove_link_to_mesh_object(armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 3, 27):
         return
@@ -606,7 +606,7 @@ def remove_link_to_mesh_object(armature_data: Armature) -> None:
             link_to_mesh.parent = None
 
 
-def fixup_gravity_dir(armature_data: Armature) -> None:
+def _fixup_gravity_dir(armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 15, 4):
         return
@@ -617,7 +617,7 @@ def fixup_gravity_dir(armature_data: Armature) -> None:
         bone_group.gravity_dir = gravity_dir
 
 
-def fixup_humanoid_feet_spacing(armature_data: Armature) -> None:
+def _fixup_humanoid_feet_spacing(armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 18, 2):
         return
@@ -627,7 +627,7 @@ def fixup_humanoid_feet_spacing(armature_data: Armature) -> None:
         humanoid.feet_spacing = float(feet_spacing)
 
 
-def migrate_pose(context: Context, armature: Object, armature_data: Armature) -> None:
+def _migrate_pose(context: Context, armature: Object, armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 20, 34):
         return
@@ -650,7 +650,7 @@ def migrate_pose(context: Context, armature: Object, armature_data: Armature) ->
         humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
 
 
-def migrate_auto_pose(_context: Context, armature_data: Armature) -> None:
+def _migrate_auto_pose(_context: Context, armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or tuple(
         ext.addon_version
@@ -662,7 +662,7 @@ def migrate_auto_pose(_context: Context, armature_data: Armature) -> None:
         humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
 
 
-def migrate_saved_mesh_object_name_to_restore(
+def _migrate_saved_mesh_object_name_to_restore(
     _context: Context, armature_data: Armature
 ) -> None:
     ext = get_armature_extension(armature_data)
@@ -676,7 +676,7 @@ def migrate_saved_mesh_object_name_to_restore(
             bind.mesh.saved_mesh_object_name_to_restore = bind.mesh.name
 
 
-def migrate_collider_group_references_to_uuid(
+def _migrate_collider_group_references_to_uuid(
     armature_data: Armature,
 ) -> None:
     ext = get_armature_extension(armature_data)
@@ -719,11 +719,11 @@ def migrate(
     if not isinstance(armature_data, Armature):
         return
 
-    migrate_blender_object(armature_data)
-    migrate_link_to_bone_object(context, armature, armature_data)
+    _migrate_blender_object(armature_data)
+    _migrate_link_to_bone_object(context, armature, armature_data)
     Vrm0HumanoidPropertyGroup.fixup_human_bones(armature)
 
-    migrate_collider_group_references_to_uuid(armature_data)
+    _migrate_collider_group_references_to_uuid(armature_data)
     vrm0.secondary_animation.fixup(armature)
 
     if not vrm0.first_person.first_person_bone.bone_name:
@@ -734,14 +734,14 @@ def migrate(
                 )
                 break
 
-    migrate_legacy_custom_properties(context, armature, armature_data)
-    migrate_link_to_mesh_object(armature_data)
-    remove_link_to_mesh_object(armature_data)
-    fixup_gravity_dir(armature_data)
-    fixup_humanoid_feet_spacing(armature_data)
-    migrate_pose(context, armature, armature_data)
-    migrate_auto_pose(context, armature_data)
-    migrate_saved_mesh_object_name_to_restore(context, armature_data)
+    _migrate_legacy_custom_properties(context, armature, armature_data)
+    _migrate_link_to_mesh_object(armature_data)
+    _remove_link_to_mesh_object(armature_data)
+    _fixup_gravity_dir(armature_data)
+    _fixup_humanoid_feet_spacing(armature_data)
+    _migrate_pose(context, armature, armature_data)
+    _migrate_auto_pose(context, armature_data)
+    _migrate_saved_mesh_object_name_to_restore(context, armature_data)
 
     if heavy_migration:
         Vrm0HumanoidPropertyGroup.update_all_bone_name_candidates(

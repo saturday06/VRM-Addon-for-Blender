@@ -47,13 +47,13 @@ class VrmAnimationExporter:
             setup_humanoid_t_pose(context, armature),
             save_workspace(context, armature, mode="POSE"),
         ):
-            output_bytes = export_vrm_animation(context, armature)
+            output_bytes = _export_vrm_animation(context, armature)
 
         path.write_bytes(output_bytes)
         return {"FINISHED"}
 
 
-def connect_humanoid_node_dicts(
+def _connect_humanoid_node_dicts(
     human_bone_specification: HumanBoneSpecification,
     human_bone_name_to_node_dict: dict[HumanBoneName, dict[str, Json]],
     parent_node_dict: Optional[dict[str, Json]],
@@ -73,7 +73,7 @@ def connect_humanoid_node_dicts(
             children.append(node_index)
         parent_node_dict = current_node_dict
     for child in human_bone_specification.children:
-        connect_humanoid_node_dicts(
+        _connect_humanoid_node_dicts(
             child,
             human_bone_name_to_node_dict,
             parent_node_dict,
@@ -82,7 +82,7 @@ def connect_humanoid_node_dicts(
         )
 
 
-def create_node_dicts(
+def _create_node_dicts(
     armature: Object,
     human_bones: Vrm1HumanBonesPropertyGroup,
     human_bone_specification: HumanBoneSpecification,
@@ -101,7 +101,7 @@ def create_node_dicts(
     if not bone:
         return sum(
             [
-                create_node_dicts(
+                _create_node_dicts(
                     armature,
                     human_bones,
                     child,
@@ -138,7 +138,7 @@ def create_node_dicts(
     ]
     children = sum(
         [
-            create_node_dicts(
+            _create_node_dicts(
                 armature, human_bones, child, bone, node_dicts, bone_name_to_node_index
             )
             for child in human_bone_specification.children
@@ -151,7 +151,7 @@ def create_node_dicts(
     return [node_index]
 
 
-def export_vrm_animation(context: Context, armature: Object) -> bytes:
+def _export_vrm_animation(context: Context, armature: Object) -> bytes:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         message = "Armature data is not an Armature"
@@ -190,7 +190,7 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
     node_dicts.append(root_node_dict)
 
     root_node_dict["children"] = make_json(
-        create_node_dicts(
+        _create_node_dicts(
             armature,
             human_bones,
             HumanBoneSpecifications.HIPS,
@@ -219,7 +219,7 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
     frame_start = context.scene.frame_start
     frame_end = context.scene.frame_end
 
-    create_expression_animation(
+    _create_expression_animation(
         vrm1,
         frame_start=frame_start,
         frame_end=frame_end,
@@ -236,7 +236,7 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
         custom_expression_dict=custom_expression_dict,
     )
 
-    create_node_animation(
+    _create_node_animation(
         context=context,
         frame_start=frame_start,
         frame_end=frame_end,
@@ -251,7 +251,7 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
         animation_sampler_dicts=animation_sampler_dicts,
     )
 
-    look_at_target_node_index = create_look_at_animation(
+    look_at_target_node_index = _create_look_at_animation(
         vrm1,
         frame_start=frame_start,
         frame_end=frame_end,
@@ -332,7 +332,7 @@ def export_vrm_animation(context: Context, armature: Object) -> bytes:
     return pack_glb(vrma_dict, buffer0_bytearray)
 
 
-def create_look_at_animation(
+def _create_look_at_animation(
     vrm1: Vrm1PropertyGroup,
     *,
     frame_start: int,
@@ -359,7 +359,7 @@ def create_look_at_animation(
 
     look_at_translation_offsets: list[Vector] = []
     data_path = look_at_target_object.path_from_id("location")
-    for fcurve in get_action_fcurves(action):
+    for fcurve in _get_action_fcurves(action):
         if fcurve.mute:
             continue
         if not fcurve.is_valid:
@@ -499,7 +499,7 @@ def create_look_at_animation(
     return look_at_target_node_index
 
 
-def create_expression_animation(
+def _create_expression_animation(
     vrm1: Vrm1PropertyGroup,
     *,
     frame_start: int,
@@ -545,7 +545,7 @@ def create_expression_animation(
     ] = {}
 
     expression_export_index = 0
-    for fcurve in get_action_fcurves(action):
+    for fcurve in _get_action_fcurves(action):
         if fcurve.mute:
             continue
         if not fcurve.is_valid:
@@ -688,7 +688,7 @@ def create_expression_animation(
         )
 
 
-def set_frame_rotations(
+def _set_frame_rotations(
     armature: Object,
     human_bones: Vrm1HumanBonesPropertyGroup,
     human_bone_specification: HumanBoneSpecification,
@@ -706,7 +706,7 @@ def set_frame_rotations(
     bone = armature.pose.bones.get(human_bone.node.bone_name)
     if not bone:
         for child in human_bone_specification.children:
-            set_frame_rotations(
+            _set_frame_rotations(
                 armature,
                 human_bones,
                 child,
@@ -726,7 +726,7 @@ def set_frame_rotations(
     quaternions.append(quaternion)
 
     for child in human_bone_specification.children:
-        set_frame_rotations(
+        _set_frame_rotations(
             armature,
             human_bones,
             child,
@@ -736,7 +736,7 @@ def set_frame_rotations(
         )
 
 
-def create_node_animation(
+def _create_node_animation(
     context: Context,
     frame_start: int,
     frame_end: int,
@@ -772,7 +772,7 @@ def create_node_animation(
     for frame in range(frame_start, frame_end + 1):
         armature.pose.apply_pose_from_action(action, evaluation_time=frame)
         context.view_layer.update()
-        set_frame_rotations(
+        _set_frame_rotations(
             armature,
             human_bones,
             HumanBoneSpecifications.HIPS,
@@ -1003,7 +1003,7 @@ def create_node_animation(
     )
 
 
-def get_action_fcurves(action: Action) -> Sequence[FCurve]:
+def _get_action_fcurves(action: Action) -> Sequence[FCurve]:
     if bpy.app.version < (4, 4):
         return list(action.fcurves)
 

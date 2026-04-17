@@ -170,7 +170,7 @@ def update_pose_bone_rotations(context: Context, delta_time: float) -> None:
     pose_bone_and_rotations: list[tuple[PoseBone, Quaternion]] = []
 
     for obj in context.blend_data.objects:
-        calculate_object_pose_bone_rotations(delta_time, obj, pose_bone_and_rotations)
+        _calculate_object_pose_bone_rotations(delta_time, obj, pose_bone_and_rotations)
 
     for pose_bone, pose_bone_rotation in pose_bone_and_rotations:
         # Assigning rotation to pose_bone is expensive, so avoid it as much as possible
@@ -182,7 +182,7 @@ def update_pose_bone_rotations(context: Context, delta_time: float) -> None:
         set_rotation_without_mode_change(pose_bone, pose_bone_rotation)
 
 
-def calculate_object_pose_bone_rotations(
+def _calculate_object_pose_bone_rotations(
     delta_time: float,
     obj: Object,
     pose_bone_and_rotations: list[tuple[PoseBone, Quaternion]],
@@ -363,7 +363,7 @@ def calculate_object_pose_bone_rotations(
         if not joints:
             continue
 
-        calculate_spring_pose_bone_rotations(
+        _calculate_spring_pose_bone_rotations(
             delta_time,
             obj,
             obj_matrix_world,
@@ -375,7 +375,7 @@ def calculate_object_pose_bone_rotations(
         )
 
 
-def calculate_spring_pose_bone_rotations(
+def _calculate_spring_pose_bone_rotations(
     delta_time: float,
     obj: Object,
     obj_matrix_world: Matrix,
@@ -492,7 +492,7 @@ def calculate_spring_pose_bone_rotations(
             (
                 head_pose_bone_rotation,
                 next_head_pose_bone_before_rotation_matrix,
-            ) = calculate_joint_pair_head_pose_bone_rotations(
+            ) = _calculate_joint_pair_head_pose_bone_rotations(
                 delta_time,
                 obj_matrix_world,
                 obj_matrix_world_inverted,
@@ -516,7 +516,7 @@ def calculate_spring_pose_bone_rotations(
     )
 
 
-def calculate_joint_pair_head_pose_bone_rotations(
+def _calculate_joint_pair_head_pose_bone_rotations(
     delta_time: float,
     obj_matrix_world: Matrix,
     obj_matrix_world_inverted: Matrix,

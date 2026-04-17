@@ -44,7 +44,7 @@ class State:
 _state: Final = State()
 
 
-def show_material_blender_4_2_warning_delay(material_name_lines: str) -> None:
+def _show_material_blender_4_2_warning_delay(material_name_lines: str) -> None:
     ops.vrm.show_material_blender_4_2_warning(
         "INVOKE_DEFAULT",
         material_name_lines=material_name_lines,
@@ -58,7 +58,7 @@ def migrate(context: Context, *, show_progress: bool = False) -> None:
         for material_index, material in enumerate(context.blend_data.materials):
             if not material:
                 continue
-            migrate_material(context, material, blender_4_2_migrated_material_names)
+            _migrate_material(context, material, blender_4_2_migrated_material_names)
             progress.update(float(material_index) / len(context.blend_data.materials))
         progress.update(1)
 
@@ -79,14 +79,14 @@ def migrate(context: Context, *, show_progress: bool = False) -> None:
             # disappear automatically.
             bpy.app.timers.register(
                 functools.partial(
-                    show_material_blender_4_2_warning_delay,
+                    _show_material_blender_4_2_warning_delay,
                     "\n".join(blender_4_2_migrated_material_names),
                 ),
                 first_interval=0.1,
             )
 
 
-def migrate_material(
+def _migrate_material(
     context: Context,
     material: Material,
     blender_4_2_migrated_material_names: list[str],
@@ -144,7 +144,7 @@ def migrate_material(
             return
 
     if addon_version < (2, 20, 50):
-        migrate_sampler_filter_node(material)
+        _migrate_sampler_filter_node(material)
 
     alpha_mode: Optional[str] = None
     alpha_cutoff: Optional[float] = None
@@ -197,14 +197,14 @@ def migrate_material(
         base_color_factor = convert.float4_or_none(
             pbr_metallic_roughness.get("base_color_factor")
         )
-        base_color_texture_backup = backup_texture_info(
+        base_color_texture_backup = _backup_texture_info(
             pbr_metallic_roughness.base_color_texture
         )
         normal_texture = mtoon1.normal_texture
-        normal_texture_backup = backup_texture_info(normal_texture)
+        normal_texture_backup = _backup_texture_info(normal_texture)
         normal_texture_scale = convert.float_or_none(normal_texture.get("scale"))
         emissive_factor = convert.float3_or_none(mtoon1.get("emissive_factor"))
-        emissive_texture_backup = backup_texture_info(mtoon1.emissive_texture)
+        emissive_texture_backup = _backup_texture_info(mtoon1.emissive_texture)
         emissive_strength = convert.float_or_none(
             mtoon1.extensions.khr_materials_emissive_strength.get("emissive_strength")
         )
@@ -221,7 +221,7 @@ def migrate_material(
         if isinstance(render_queue_offset_number_object, int):
             render_queue_offset_number = render_queue_offset_number_object
 
-        shade_multiply_texture_backup = backup_texture_info(
+        shade_multiply_texture_backup = _backup_texture_info(
             vrmc_materials_mtoon.shade_multiply_texture
         )
         shade_color_factor = convert.float3_or_none(
@@ -229,7 +229,7 @@ def migrate_material(
         )
 
         shading_shift_texture = vrmc_materials_mtoon.shading_shift_texture
-        shading_shift_texture_backup = backup_texture_info(shading_shift_texture)
+        shading_shift_texture_backup = _backup_texture_info(shading_shift_texture)
         shading_shift_texture_scale = convert.float_or_none(
             shading_shift_texture.get("scale")
         )
@@ -243,14 +243,16 @@ def migrate_material(
         matcap_factor = convert.float3_or_none(
             vrmc_materials_mtoon.get("matcap_factor")
         )
-        matcap_texture_backup = backup_texture_info(vrmc_materials_mtoon.matcap_texture)
+        matcap_texture_backup = _backup_texture_info(
+            vrmc_materials_mtoon.matcap_texture
+        )
         gi_equalization_factor = convert.float_or_none(
             vrmc_materials_mtoon.get("gi_equalization_factor")
         )
         parametric_rim_color_factor = convert.float3_or_none(
             vrmc_materials_mtoon.get("parametric_rim_color_factor")
         )
-        rim_multiply_texture_backup = backup_texture_info(
+        rim_multiply_texture_backup = _backup_texture_info(
             vrmc_materials_mtoon.rim_multiply_texture
         )
         rim_lighting_mix_factor = convert.float_or_none(
@@ -274,7 +276,7 @@ def migrate_material(
         outline_width_factor = convert.float_or_none(
             vrmc_materials_mtoon.get("outline_width_factor")
         )
-        outline_width_multiply_texture_backup = backup_texture_info(
+        outline_width_multiply_texture_backup = _backup_texture_info(
             vrmc_materials_mtoon.outline_width_multiply_texture
         )
         outline_color_factor = convert.float3_or_none(
@@ -283,7 +285,7 @@ def migrate_material(
         outline_lighting_mix_factor = convert.float_or_none(
             vrmc_materials_mtoon.get("outline_lighting_mix_factor")
         )
-        uv_animation_mask_texture_backup = backup_texture_info(
+        uv_animation_mask_texture_backup = _backup_texture_info(
             vrmc_materials_mtoon.uv_animation_mask_texture
         )
         uv_animation_scroll_x_speed_factor = convert.float_or_none(
@@ -401,7 +403,7 @@ def migrate_material(
         mtoon1.addon_version = updated_addon_version
 
 
-def backup_texture_info(texture_info: object) -> Optional[TextureInfoBackup]:
+def _backup_texture_info(texture_info: object) -> Optional[TextureInfoBackup]:
     if not isinstance(texture_info, PropertyGroup):
         return None
 
@@ -455,7 +457,7 @@ def backup_texture_info(texture_info: object) -> Optional[TextureInfoBackup]:
     )
 
 
-def migrate_sampler_filter_node(material: Material) -> None:
+def _migrate_sampler_filter_node(material: Material) -> None:
     node_tree = material.node_tree
     if not node_tree:
         return

@@ -204,7 +204,7 @@ class NormalizedBone:
 SearchBranch = Union["UnassignedSearchBranch", "AssignedSearchBranch"]
 
 
-def parent_from_json(
+def _parent_from_json(
     data: Json,
 ) -> Optional[tuple[NormalizedBone, HumanBoneSpecification]]:
     if data is None:
@@ -230,7 +230,7 @@ def parent_from_json(
     return (bone, human_bone_specification)
 
 
-def search_branch_from_json(data: Json) -> SearchBranch:
+def _search_branch_from_json(data: Json) -> SearchBranch:
     if not isinstance(data, Mapping):
         message = "SearchBranch must be an object"
         raise TypeError(message)
@@ -267,7 +267,7 @@ class UnassignedSearchBranch:
             message = "UnassignedSearchBranch.children must be a list"
             raise TypeError(message)
         return UnassignedSearchBranch(
-            children=tuple(search_branch_from_json(child) for child in children_data)
+            children=tuple(_search_branch_from_json(child) for child in children_data)
         )
 
     @cached_property
@@ -333,14 +333,14 @@ class AssignedSearchBranch:
         if human_bone_specification is None:
             message = f"Unknown human bone name: {human_bone_name_str}"
             raise ValueError(message)
-        parent = parent_from_json(data.get("parent"))
+        parent = _parent_from_json(data.get("parent"))
         children_data = data.get("children")
         if children_data is None:
             children_data = []
         if not isinstance(children_data, list):
             message = "AssignedSearchBranch.children must be a list"
             raise TypeError(message)
-        children = tuple(search_branch_from_json(child) for child in children_data)
+        children = tuple(_search_branch_from_json(child) for child in children_data)
         return AssignedSearchBranch(
             depth=depth,
             bone=bone,
@@ -511,7 +511,7 @@ def create_structure_based_mapping(
                     * require_requirement
                 ):
                     break
-                result = search_structure_based_mapping_step(
+                result = _search_structure_based_mapping_step(
                     root_bone,
                     (human_bone_specification,),
                     None,
@@ -558,7 +558,7 @@ def create_structure_based_mapping(
     return {spec.name: bone for bone, spec in mapping.items()}
 
 
-def search_structure_based_mapping_step(
+def _search_structure_based_mapping_step(
     bone: NormalizedBone,
     human_bone_specifications: tuple[HumanBoneSpecification, ...],
     parent: Optional[tuple[NormalizedBone, HumanBoneSpecification]],
@@ -612,7 +612,7 @@ def search_structure_based_mapping_step(
         )
         if bone.children and human_bone_specification_children:
             children = (
-                search_structure_based_mapping_product(
+                _search_structure_based_mapping_product(
                     bone.children,
                     human_bone_specification_children,
                     (bone, human_bone_specification),
@@ -638,7 +638,7 @@ def search_structure_based_mapping_step(
     if skip_count > 0:
         result = max(
             result,
-            search_structure_based_mapping_product(
+            _search_structure_based_mapping_product(
                 bone.children,
                 human_bone_specifications,
                 parent,
@@ -652,7 +652,7 @@ def search_structure_based_mapping_step(
     return result
 
 
-def search_structure_based_mapping_product(
+def _search_structure_based_mapping_product(
     bones: tuple[NormalizedBone, ...],
     human_bone_specifications: tuple[HumanBoneSpecification, ...],
     parent: Optional[tuple[NormalizedBone, HumanBoneSpecification]],
@@ -707,7 +707,7 @@ def search_structure_based_mapping_product(
         if skipping_children:
             result = max(
                 result,
-                search_structure_based_mapping_product(
+                _search_structure_based_mapping_product(
                     bones,
                     skipping_children,
                     parent,
@@ -732,7 +732,7 @@ def search_structure_based_mapping_product(
             itertools.combinations(bones, assignment_combination_len),
         ):
             for spec_children_permutation in itertools.permutations(spec_children):
-                for bone_packings in iter_skip_counts_and_bone_combinations(
+                for bone_packings in _iter_skip_counts_and_bone_combinations(
                     skip_count,
                     tuple(
                         zip(
@@ -746,7 +746,7 @@ def search_structure_based_mapping_product(
                     ),
                 ):
                     children = tuple(
-                        search_structure_based_mapping_step(
+                        _search_structure_based_mapping_step(
                             bone_child,
                             spec_child,
                             parent,
@@ -806,7 +806,7 @@ def search_structure_based_mapping_product(
             itertools.combinations(bones, special_assignment_combination_len),
         ):
             for spec_children_permutation in itertools.permutations(spec_children):
-                for bone_packings in iter_skip_counts_and_bone_combinations(
+                for bone_packings in _iter_skip_counts_and_bone_combinations(
                     skip_count,
                     tuple(
                         zip(
@@ -820,7 +820,7 @@ def search_structure_based_mapping_product(
                     ),
                 ):
                     children = tuple(
-                        search_structure_based_mapping_step(
+                        _search_structure_based_mapping_step(
                             bone_child,
                             spec_child,
                             parent,
@@ -841,7 +841,7 @@ def search_structure_based_mapping_product(
     return result
 
 
-def backtrack_skip_counts_and_bone_combinations(
+def _backtrack_skip_counts_and_bone_combinations(
     *,
     bones: tuple[tuple[NormalizedBone, int], ...],
     counts: list[int],
@@ -857,7 +857,7 @@ def backtrack_skip_counts_and_bone_combinations(
     max_count = min(bone.recursive_len - requirement_len, remaining)
     for count in range(max_count, -1, -1):
         counts.append(count)
-        yield from backtrack_skip_counts_and_bone_combinations(
+        yield from _backtrack_skip_counts_and_bone_combinations(
             bones=bones,
             counts=counts,
             bone_index=bone_index + 1,
@@ -866,7 +866,7 @@ def backtrack_skip_counts_and_bone_combinations(
         counts.pop()
 
 
-def iter_skip_counts_and_bone_combinations(
+def _iter_skip_counts_and_bone_combinations(
     skip_count: int, bones: tuple[tuple[NormalizedBone, int], ...]
 ) -> Iterator[list[tuple[NormalizedBone, int]]]:
     if skip_count < 0:
@@ -883,7 +883,7 @@ def iter_skip_counts_and_bone_combinations(
     if total_recursive_len < skip_count:
         return
 
-    yield from backtrack_skip_counts_and_bone_combinations(
+    yield from _backtrack_skip_counts_and_bone_combinations(
         bones=bones,
         counts=[],
         bone_index=0,

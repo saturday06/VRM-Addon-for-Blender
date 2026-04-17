@@ -96,7 +96,7 @@ ALPHA_CLIP_OUTPUT_NODE_NAME: Final = "Mtoon1Material.AlphaClip.Output"
 ALPHA_CLIP_OUTPUT_NODE_SOCKET_NAME: Final = "Value"
 
 
-def get_gltf_emissive_node(material: Material) -> Optional[ShaderNodeEmission]:
+def _get_gltf_emissive_node(material: Material) -> Optional[ShaderNodeEmission]:
     node_tree = material.node_tree
     if not node_tree:
         return None
@@ -2917,7 +2917,7 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
         principled_bsdf = PrincipledBSDFWrapper(material, is_readonly=False)
         principled_bsdf.emission_strength = self.emissive_strength
 
-        emissive_node = get_gltf_emissive_node(material)
+        emissive_node = _get_gltf_emissive_node(material)
         if emissive_node is not None:
             socket = emissive_node.inputs.get(EMISSION_STRENGTH_INPUT_KEY)
             if isinstance(socket, NodeSocketFloat):
@@ -2934,7 +2934,7 @@ class Mtoon1KhrMaterialsEmissiveStrengthPropertyGroup(MaterialTraceablePropertyG
         )
         outline_principled_bsdf.emission_strength = self.emissive_strength
 
-        outline_emissive_node = get_gltf_emissive_node(outline_material)
+        outline_emissive_node = _get_gltf_emissive_node(outline_material)
         if outline_emissive_node is not None:
             outline_socket = outline_emissive_node.inputs.get(
                 EMISSION_STRENGTH_INPUT_KEY
@@ -3302,7 +3302,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             self.emissive_factor[2],
         )
 
-        emissive_node = get_gltf_emissive_node(material)
+        emissive_node = _get_gltf_emissive_node(material)
         if emissive_node is not None:
             socket = emissive_node.inputs.get(EMISSION_COLOR_INPUT_KEY)
             if isinstance(socket, NodeSocketColor):
@@ -3328,7 +3328,7 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
             self.emissive_factor[2],
         )
 
-        outline_emissive_node = get_gltf_emissive_node(material)
+        outline_emissive_node = _get_gltf_emissive_node(material)
         if outline_emissive_node is not None:
             outline_socket = outline_emissive_node.inputs.get(EMISSION_COLOR_INPUT_KEY)
             if isinstance(outline_socket, NodeSocketColor):
@@ -3749,7 +3749,7 @@ class NodesModifierInputKey:
         return self.outline_width_multiply_texture_uv_key + "_attribute_name"
 
 
-def get_nodes_modifier_input_key(
+def _get_nodes_modifier_input_key(
     modifier: NodesModifier,
 ) -> Optional[NodesModifierInputKey]:
     node_group = modifier.node_group
@@ -3793,7 +3793,7 @@ def generate_mtoon1_outline_material_name(material: Material) -> str:
     return f"MToon Outline ({material.name})"
 
 
-def assign_mtoon_unversioned_image(
+def _assign_mtoon_unversioned_image(
     context: Context,
     texture_info: Mtoon1TextureInfoPropertyGroup,
     image_name_and_sampler_type: Optional[tuple[str, int, int]],
@@ -3831,7 +3831,7 @@ def assign_mtoon_unversioned_image(
     texture_info.index.sampler.wrap_t = wrap
 
 
-def convert_mtoon_unversioned_to_mtoon1(
+def _convert_mtoon_unversioned_to_mtoon1(
     context: Context,
     material: Material,
     node: ShaderNodeGroup,
@@ -3994,7 +3994,7 @@ def convert_mtoon_unversioned_to_mtoon1(
     gltf.alpha_cutoff = alpha_cutoff
     mtoon.transparent_with_z_write = transparent_with_z_write
     gltf.pbr_metallic_roughness.base_color_factor = base_color_factor
-    assign_mtoon_unversioned_image(
+    _assign_mtoon_unversioned_image(
         context,
         gltf.pbr_metallic_roughness.base_color_texture,
         base_color_texture,
@@ -4002,14 +4002,14 @@ def convert_mtoon_unversioned_to_mtoon1(
         uv_scale,
     )
     mtoon.shade_color_factor = shade_color_factor
-    assign_mtoon_unversioned_image(
+    _assign_mtoon_unversioned_image(
         context,
         mtoon.shade_multiply_texture,
         shade_multiply_texture,
         uv_offset,
         uv_scale,
     )
-    assign_mtoon_unversioned_image(
+    _assign_mtoon_unversioned_image(
         context, gltf.normal_texture, normal_texture, uv_offset, uv_scale
     )
     if normal_texture_scale is not None:
@@ -4022,10 +4022,10 @@ def convert_mtoon_unversioned_to_mtoon1(
         mtoon.gi_equalization_factor = gi_equalization_factor
 
     gltf.emissive_factor = emissive_factor
-    assign_mtoon_unversioned_image(
+    _assign_mtoon_unversioned_image(
         context, gltf.emissive_texture, emissive_texture, uv_offset, uv_scale
     )
-    assign_mtoon_unversioned_image(
+    _assign_mtoon_unversioned_image(
         context, mtoon.matcap_texture, matcap_texture, (0, 0), (1, 1)
     )
 
@@ -4036,7 +4036,7 @@ def convert_mtoon_unversioned_to_mtoon1(
     if parametric_rim_lift_factor is not None:
         mtoon.parametric_rim_lift_factor = parametric_rim_lift_factor
 
-    assign_mtoon_unversioned_image(
+    _assign_mtoon_unversioned_image(
         context, mtoon.rim_multiply_texture, rim_multiply_texture, uv_offset, uv_scale
     )
 
@@ -4059,7 +4059,7 @@ def convert_mtoon_unversioned_to_mtoon1(
     else:
         mtoon.outline_width_mode = mtoon.OUTLINE_WIDTH_MODE_NONE.identifier
 
-    assign_mtoon_unversioned_image(
+    _assign_mtoon_unversioned_image(
         context,
         mtoon.outline_width_multiply_texture,
         outline_width_multiply_texture,
@@ -4072,7 +4072,7 @@ def convert_mtoon_unversioned_to_mtoon1(
     if outline_color_mode == 1:
         mtoon.outline_lighting_mix_factor = outline_lighting_mix_factor
 
-    assign_mtoon_unversioned_image(
+    _assign_mtoon_unversioned_image(
         context,
         mtoon.uv_animation_mask_texture,
         uv_animation_mask_texture,
@@ -4095,7 +4095,7 @@ def convert_material_to_mtoon1(
 
     node, legacy_shader_name = search.legacy_shader_node(material)
     if node and legacy_shader_name == "MToon_unversioned":
-        convert_mtoon_unversioned_to_mtoon1(resolved_context, material, node)
+        _convert_mtoon_unversioned_to_mtoon1(resolved_context, material, node)
         return
 
     mmd_material = MmdMaterial.try_parse(material)
@@ -4234,7 +4234,7 @@ def convert_mtoon1_to_bsdf_principled(material: Material) -> None:
         principled_bsdf.normalmap_strength = gltf.normal_texture.scale
 
 
-def assign_mtoon1_outline(
+def _assign_mtoon1_outline(
     context: Context,
     material: Material,
     obj: Object,
@@ -4270,7 +4270,7 @@ def assign_mtoon1_outline(
             continue
         if search_modifier.node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME:
             continue
-        input_key = get_nodes_modifier_input_key(search_modifier)
+        input_key = _get_nodes_modifier_input_key(search_modifier)
         if input_key is None:
             continue
         search_material = search_modifier.get(input_key.material_key)
@@ -4355,7 +4355,7 @@ def assign_mtoon1_outline(
     if modifier.node_group != node_group:
         modifier.node_group = node_group
 
-    input_key = get_nodes_modifier_input_key(modifier)
+    input_key = _get_nodes_modifier_input_key(modifier)
     if input_key is None:
         return
 
@@ -4471,7 +4471,7 @@ def refresh_mtoon1_outline_object(context: Context, obj: Object) -> None:
         if not mtoon1.enabled or mtoon1.is_outline_material:
             continue
 
-        assign_mtoon1_outline(context, material, obj, create_modifier=False)
+        _assign_mtoon1_outline(context, material, obj, create_modifier=False)
 
 
 def refresh_mtoon1_outline(
@@ -4503,7 +4503,7 @@ def refresh_mtoon1_outline(
             if not mtoon1.enabled or mtoon1.is_outline_material:
                 continue
 
-            assign_mtoon1_outline(
+            _assign_mtoon1_outline(
                 resolved_context,
                 material,
                 obj,
@@ -4526,7 +4526,7 @@ def refresh_mtoon1_outline(
                 continue
             if node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME:
                 continue
-            input_key = get_nodes_modifier_input_key(search_modifier)
+            input_key = _get_nodes_modifier_input_key(search_modifier)
             if input_key is None:
                 continue
             search_material = search_modifier.get(input_key.material_key)

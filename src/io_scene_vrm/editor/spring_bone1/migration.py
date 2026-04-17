@@ -8,7 +8,7 @@ from .ops import (
 from .property_group import SpringBone1SpringBonePropertyGroup
 
 
-def migrate_blender_object(armature: Armature) -> None:
+def _migrate_blender_object(armature: Armature) -> None:
     ext = get_armature_extension(armature)
     if tuple(ext.addon_version) >= (2, 3, 27):
         return
@@ -19,7 +19,7 @@ def migrate_blender_object(armature: Armature) -> None:
             collider.bpy_object = bpy_object
 
 
-def fixup_gravity_dir(armature: Armature) -> None:
+def _fixup_gravity_dir(armature: Armature) -> None:
     ext = get_armature_extension(armature)
 
     if tuple(ext.addon_version) <= (2, 14, 3):
@@ -56,8 +56,8 @@ def migrate(context: Context, armature: Object) -> None:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
-    migrate_blender_object(armature_data)
-    fixup_gravity_dir(armature_data)
+    _migrate_blender_object(armature_data)
+    _fixup_gravity_dir(armature_data)
 
     ext = get_armature_extension(armature_data)
     spring_bone1 = ext.spring_bone1

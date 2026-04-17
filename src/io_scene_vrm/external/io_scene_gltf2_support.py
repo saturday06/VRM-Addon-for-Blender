@@ -221,7 +221,7 @@ class ExportSceneGltfArguments:
     export_apply: bool
 
 
-def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
+def _invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
     if bpy.app.version < (3, 2):
         return bpy.ops.export_scene.gltf(
             filepath=arguments.filepath,
@@ -311,7 +311,7 @@ def __invoke_export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
 def export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
     last_exception: Optional[Exception] = None
     try:
-        return __invoke_export_scene_gltf(arguments)
+        return _invoke_export_scene_gltf(arguments)
     except RuntimeError as exception:
         last_exception = exception
 
@@ -323,7 +323,7 @@ def export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
         arguments.export_armature_object_remove = False
         _logger.warning("retrying with `export_armature_object_remove = False`")
         try:
-            return __invoke_export_scene_gltf(arguments)
+            return _invoke_export_scene_gltf(arguments)
         except RuntimeError as exception:
             last_exception = exception
 
@@ -332,7 +332,7 @@ def export_scene_gltf(arguments: ExportSceneGltfArguments) -> set[str]:
         arguments.export_animations = False
         _logger.warning("retrying with `export_animations = False`")
         try:
-            return __invoke_export_scene_gltf(arguments)
+            return _invoke_export_scene_gltf(arguments)
         except RuntimeError as exception:
             last_exception = exception
 

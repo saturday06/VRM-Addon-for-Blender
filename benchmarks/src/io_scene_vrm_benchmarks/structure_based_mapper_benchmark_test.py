@@ -26,7 +26,7 @@ Tree = Mapping[
 ]
 
 
-def create_armature(
+def _create_armature(
     context: Context, tree_root: Tree
 ) -> tuple[Object, Mapping[str, HumanBoneSpecification]]:
     bpy.ops.object.add(type="ARMATURE", enter_editmode=True, location=(0, 0, 0))
@@ -120,7 +120,7 @@ def test_structure_based_mapper(benchmark: BenchmarkFixture) -> None:
         },
     }
 
-    armature, expected_mapping = create_armature(context, tree)
+    armature, expected_mapping = _create_armature(context, tree)
     if not isinstance(armature_data := armature.data, Armature):
         raise TypeError
 

@@ -1266,7 +1266,7 @@ class VRM_OT_restore_vrm1_expression_morph_target_bind_object(Operator):
         armature_object_name: str  # type: ignore[no-redef]
 
 
-def add_shape_keys_to_vrm1_expressions(
+def _add_shape_keys_to_vrm1_expressions(
     context: Context,
     armature_object_name: str,
     shape_key_mapping: Mapping[ExpressionPreset, Sequence[Mapping[str, float]]],
@@ -1367,7 +1367,7 @@ def assign_vrm1_expressions_automatically(
         VRM1_PRESET_TO_READY_PLAYER_ME_SHAPE_KEY_MAPPING,
         VRM1_PRESET_TO_ARKIT_SHAPE_KEY_MAPPING,
     ):
-        add_shape_keys_to_vrm1_expressions(
+        _add_shape_keys_to_vrm1_expressions(
             context,
             armature_object_name,
             mapping,
@@ -1412,7 +1412,7 @@ class VRM_OT_assign_vrm1_expressions_from_vrchat(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        return add_shape_keys_to_vrm1_expressions(
+        return _add_shape_keys_to_vrm1_expressions(
             context,
             self.armature_object_name,
             VRM1_PRESET_TO_VRCHAT_SHAPE_KEY_MAPPING,
@@ -1461,7 +1461,7 @@ class VRM_OT_assign_vrm1_expressions_from_mmd(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        return add_shape_keys_to_vrm1_expressions(
+        return _add_shape_keys_to_vrm1_expressions(
             context,
             self.armature_object_name,
             VRM1_PRESET_TO_MMD_SHAPE_KEY_MAPPING,
@@ -1513,12 +1513,12 @@ class VRM_OT_assign_vrm1_expressions_from_ready_player_me(Operator):
     )
 
     def execute(self, context: Context) -> set[str]:
-        add_shape_keys_to_vrm1_expressions(
+        _add_shape_keys_to_vrm1_expressions(
             context,
             self.armature_object_name,
             VRM1_PRESET_TO_READY_PLAYER_ME_SHAPE_KEY_MAPPING,
         )
-        return add_shape_keys_to_vrm1_expressions(
+        return _add_shape_keys_to_vrm1_expressions(
             context,
             self.armature_object_name,
             VRM1_PRESET_TO_ARKIT_SHAPE_KEY_MAPPING,
@@ -1632,7 +1632,7 @@ class VRM_OT_assign_vrm1_expressions_from_arkit(Operator):
                     morph_target_bind.index = key_block_name
                     morph_target_bind.weight = 1.0
 
-        add_shape_keys_to_vrm1_expressions(
+        _add_shape_keys_to_vrm1_expressions(
             context,
             self.armature_object_name,
             VRM1_PRESET_TO_ARKIT_SHAPE_KEY_MAPPING,

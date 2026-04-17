@@ -2825,7 +2825,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 self.assign_export_custom_properties(),
                 tempfile.TemporaryDirectory() as temp_dir,
             ):
-                force_apply_modifiers_to_objects(
+                _force_apply_modifiers_to_objects(
                     self.context, self.armature, mesh_compat_object_names
                 )
 
@@ -2893,7 +2893,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             return
 
         armature_world_matrix = (
-            find_node_world_matrix(node_dicts, armature_node_index, None) or Matrix()
+            _find_node_world_matrix(node_dicts, armature_node_index, None) or Matrix()
         )
 
         if not (0 <= armature_node_index < len(node_dicts)):
@@ -2981,8 +2981,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 child_node_dict = node_dicts[armature_child_index]
                 if not isinstance(child_node_dict, dict):
                     continue
-                child_matrix = get_node_matrix(child_node_dict)
-                set_node_matrix(
+                child_matrix = _get_node_matrix(child_node_dict)
+                _set_node_matrix(
                     child_node_dict,
                     armature_world_matrix @ child_matrix,
                 )
@@ -3303,7 +3303,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         return pack_glb(json_dict, buffer0)
 
 
-def find_node_world_matrix(
+def _find_node_world_matrix(
     node_dicts: list[Json],
     target_node_index: int,
     parent_node_index: Optional[int],
@@ -3323,7 +3323,7 @@ def find_node_world_matrix(
         for node_index in range(len(node_dicts)):
             if node_index in all_child_indices:
                 continue
-            matrix = find_node_world_matrix(node_dicts, target_node_index, node_index)
+            matrix = _find_node_world_matrix(node_dicts, target_node_index, node_index)
             if matrix is not None:
                 return matrix
         return Matrix()
@@ -3335,7 +3335,7 @@ def find_node_world_matrix(
     if not isinstance(node_dict, dict):
         return None
 
-    parent_node_matrix = get_node_matrix(node_dict)
+    parent_node_matrix = _get_node_matrix(node_dict)
 
     if parent_node_index == target_node_index:
         return parent_node_matrix
@@ -3347,7 +3347,7 @@ def find_node_world_matrix(
     for child_node_index in child_node_indices:
         if not isinstance(child_node_index, int):
             continue
-        child_node_matrix = find_node_world_matrix(
+        child_node_matrix = _find_node_world_matrix(
             node_dicts, target_node_index, child_node_index
         )
         if child_node_matrix is not None:
@@ -3356,7 +3356,7 @@ def find_node_world_matrix(
     return None
 
 
-def get_node_matrix(node_dict: dict[str, Json]) -> Matrix:
+def _get_node_matrix(node_dict: dict[str, Json]) -> Matrix:
     matrix = node_dict.get("matrix")
     if isinstance(matrix, list):
         if len(matrix) != 16:
@@ -3391,7 +3391,7 @@ def get_node_matrix(node_dict: dict[str, Json]) -> Matrix:
     return location_matrix @ rotation_matrix @ scale_matrix
 
 
-def set_node_matrix(node_dict: dict[str, Json], matrix: Matrix) -> None:
+def _set_node_matrix(node_dict: dict[str, Json], matrix: Matrix) -> None:
     node_dict.pop("matrix", None)
     location, rotation, scale = matrix.decompose()
     node_dict["translation"] = list(location)
@@ -3404,7 +3404,7 @@ def set_node_matrix(node_dict: dict[str, Json], matrix: Matrix) -> None:
     node_dict["scale"] = list(scale)
 
 
-def force_apply_modifiers_to_objects(
+def _force_apply_modifiers_to_objects(
     context: Context,
     armature_object: Object,
     mesh_compatible_object_names: Sequence[str],
@@ -3413,14 +3413,14 @@ def force_apply_modifiers_to_objects(
         obj.name for obj in context.selectable_objects if obj.select_get()
     ]
     for mesh_compatible_object_name in mesh_compatible_object_names:
-        force_apply_modifiers_to_object(
+        _force_apply_modifiers_to_object(
             context, armature_object, mesh_compatible_object_name
         )
     for obj in context.selectable_objects:
         obj.select_set(obj.name in selected_object_names)
 
 
-def force_apply_modifiers_to_object(
+def _force_apply_modifiers_to_object(
     context: Context,
     armature_object: Object,
     mesh_compatible_object_name: str,

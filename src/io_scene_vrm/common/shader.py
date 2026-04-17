@@ -239,15 +239,15 @@ SHADER_NODE_GROUP_NAMES: Final = (
 )
 
 
-def template_name(name: str) -> str:
+def _template_name(name: str) -> str:
     return INTERNAL_NAME_PREFIX + name + " Template"
 
 
-def backup_name(name: str, backup_suffix: str) -> str:
+def _backup_name(name: str, backup_suffix: str) -> str:
     return name.removesuffix(" Template") + backup_suffix
 
 
-def generate_backup_suffix() -> str:
+def _generate_backup_suffix() -> str:
     # There is a possibility of duplicates in very rare cases. To be exact, duplicates
     # must be regenerated if any are found.
     return " " + "".join(
@@ -256,7 +256,7 @@ def generate_backup_suffix() -> str:
     )
 
 
-def get_mtoon1_auto_setup_shader_node_group(context: Context) -> Optional[NodeTree]:
+def _get_mtoon1_auto_setup_shader_node_group(context: Context) -> Optional[NodeTree]:
     node_group = context.blend_data.node_groups.get(MTOON1_AUTO_SETUP_GROUP_NAME)
     if not node_group:
         return None
@@ -269,7 +269,7 @@ def add_mtoon1_auto_setup_shader_node_group(context: Context) -> None:
     blend_path = Path(__file__).with_name("mtoon_auto_setup.blend")
     node_tree_path = str(blend_path) + "/NodeTree"
 
-    if get_mtoon1_auto_setup_shader_node_group(context):
+    if _get_mtoon1_auto_setup_shader_node_group(context):
         return
 
     wm_append_without_library(
@@ -282,13 +282,13 @@ def add_mtoon1_auto_setup_shader_node_group(context: Context) -> None:
 
 
 def remove_mtoon1_auto_setup_shader_node_group(context: Context) -> None:
-    node_group = get_mtoon1_auto_setup_shader_node_group(context)
+    node_group = _get_mtoon1_auto_setup_shader_node_group(context)
     if not node_group or node_group.users:
         return
     context.blend_data.node_groups.remove(node_group)
 
 
-def load_mtoon1_node_group(
+def _load_mtoon1_node_group(
     context: Context,
     blend_file_path: Path,
     node_group_name: str,
@@ -318,15 +318,15 @@ def load_mtoon1_node_group(
                 )
                 raise TypeError(message)
 
-    backup_suffix = generate_backup_suffix()
+    backup_suffix = _generate_backup_suffix()
 
-    template_node_group_name = template_name(node_group_name)
+    template_node_group_name = _template_name(node_group_name)
     old_template_node_group = context.blend_data.node_groups.get(
         template_node_group_name
     )
     if old_template_node_group:
         _logger.error('Node Group "%s" already exists', template_node_group_name)
-        old_template_node_group.name = backup_name(
+        old_template_node_group.name = _backup_name(
             old_template_node_group.name, backup_suffix
         )
 
@@ -373,7 +373,7 @@ def load_mtoon1_node_group(
 
         # Logically, it may have already been removed, so retrieve it again
         old_template_node_group = context.blend_data.node_groups.get(
-            backup_name(template_node_group_name, backup_suffix)
+            _backup_name(template_node_group_name, backup_suffix)
         )
         if old_template_node_group:
             old_template_node_group.name = template_node_group_name
@@ -389,7 +389,7 @@ def load_mtoon1_outline_geometry_node_group(
 ) -> None:
     if bpy.app.version < (3, 3):
         return
-    load_mtoon1_node_group(
+    _load_mtoon1_node_group(
         context,
         Path(__file__).with_name("mtoon1_outline.blend"),
         OUTLINE_GEOMETRY_GROUP_NAME,
@@ -403,7 +403,7 @@ def load_mtoon1_shader_node_groups(
     context: Context, *, reset_node_groups: bool
 ) -> None:
     for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
-        load_mtoon1_node_group(
+        _load_mtoon1_node_group(
             context,
             Path(__file__).with_name("mtoon1.blend"),
             shader_node_group_name,
@@ -430,24 +430,24 @@ def load_mtoon1_shader(
 
     start_time = time.perf_counter()
 
-    backup_suffix = generate_backup_suffix()
+    backup_suffix = _generate_backup_suffix()
 
     # Back up if there are materials with the same name as the one being appended.
     # In the future, this will be replaced with append(do_reuse_local_id=True).
-    template_material_name = template_name("VRM Add-on MToon 1.0")
+    template_material_name = _template_name("VRM Add-on MToon 1.0")
     old_material = context.blend_data.materials.get(template_material_name)
     if old_material:
         _logger.error('Material "%s" already exists', template_material_name)
-        old_material.name = backup_name(old_material.name, backup_suffix)
+        old_material.name = _backup_name(old_material.name, backup_suffix)
 
     # When appending a Material, NodeTree is also appended simultaneously.
     # Back up if NodeTree with the same name exists.
     for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
-        name = template_name(shader_node_group_name)
+        name = _template_name(shader_node_group_name)
         old_template_group = context.blend_data.node_groups.get(name)
         if old_template_group:
             _logger.error('Node Group "%s" already exists', name)
-            old_template_group.name = backup_name(
+            old_template_group.name = _backup_name(
                 old_template_group.name, backup_suffix
             )
 
@@ -493,7 +493,7 @@ def load_mtoon1_shader(
 
         # Remove NodeTree that was appended simultaneously when appending Material
         for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
-            shader_node_group_template_name = template_name(shader_node_group_name)
+            shader_node_group_template_name = _template_name(shader_node_group_name)
             template_group = context.blend_data.node_groups.get(
                 shader_node_group_template_name
             )
@@ -510,16 +510,16 @@ def load_mtoon1_shader(
 
         # Logically, it may have already been removed, so retrieve it again
         old_material = context.blend_data.materials.get(
-            backup_name(template_material_name, backup_suffix)
+            _backup_name(template_material_name, backup_suffix)
         )
         if old_material:
             old_material.name = template_material_name
 
         # Restore the backed up NodeTree
         for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
-            name = template_name(shader_node_group_name)
+            name = _template_name(shader_node_group_name)
             old_template_group = context.blend_data.node_groups.get(
-                backup_name(name, backup_suffix)
+                _backup_name(name, backup_suffix)
             )
             if old_template_group:
                 old_template_group.name = name
@@ -705,7 +705,7 @@ def copy_shader_node_group(
         return
 
     for shader_node_group_name in SHADER_NODE_GROUP_NAMES:
-        shader_node_group_template_name = template_name(shader_node_group_name)
+        shader_node_group_template_name = _template_name(shader_node_group_name)
         if not node_tree.name.startswith(shader_node_group_template_name):
             continue
 

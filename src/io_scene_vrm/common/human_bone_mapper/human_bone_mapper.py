@@ -27,7 +27,7 @@ _logger = get_logger(__name__)
 
 
 @cache
-def canonicalize_bone_name(bone_name: str) -> str:
+def _canonicalize_bone_name(bone_name: str) -> str:
     bone_name = "".join(FULLWIDTH_ASCII_TO_ASCII_MAP.get(c, c) for c in bone_name)
     bone_name = re.sub(r"([a-z])([A-Z])", r"\1.\2", bone_name)
     bone_name = bone_name.lower()
@@ -45,11 +45,11 @@ def canonicalize_bone_name(bone_name: str) -> str:
     return ".".join(bone_name_components)
 
 
-def match_bone_name(bone_name1: str, bone_name2: str) -> bool:
-    return canonicalize_bone_name(bone_name1) == canonicalize_bone_name(bone_name2)
+def _match_bone_name(bone_name1: str, bone_name2: str) -> bool:
+    return _canonicalize_bone_name(bone_name1) == _canonicalize_bone_name(bone_name2)
 
 
-def match_count(
+def _match_count(
     armature: Armature, mapping: Mapping[str, HumanBoneSpecification]
 ) -> int:
     count = 0
@@ -57,13 +57,13 @@ def match_count(
     mapping = {
         bpy_name: specification
         for bpy_name, specification in mapping.items()
-        if any(match_bone_name(bpy_name, bone.name) for bone in armature.bones)
+        if any(_match_bone_name(bpy_name, bone.name) for bone in armature.bones)
     }
 
     # Validate bone ordering
     for bpy_name, specification in mapping.items():
         bone = next(
-            (bone for bone in armature.bones if match_bone_name(bpy_name, bone.name)),
+            (bone for bone in armature.bones if _match_bone_name(bpy_name, bone.name)),
             None,
         )
         if not bone:
@@ -84,7 +84,7 @@ def match_count(
                 (
                     search_specification
                     for bpy_name, search_specification in mapping.items()
-                    if match_bone_name(bpy_name, bone.name)
+                    if _match_bone_name(bpy_name, bone.name)
                 ),
                 None,
             )
@@ -100,7 +100,7 @@ def match_count(
     return count
 
 
-def match_counts(
+def _match_counts(
     armature: object, mapping: Mapping[str, HumanBoneSpecification]
 ) -> tuple[int, int]:
     if not isinstance(armature, Armature):
@@ -111,10 +111,10 @@ def match_counts(
         for bpy_name, required_specification in mapping.items()
         if required_specification.requirement
     }
-    return (match_count(armature, required_mapping), match_count(armature, mapping))
+    return (_match_count(armature, required_mapping), _match_count(armature, mapping))
 
 
-def sorted_required_first(
+def _sorted_required_first(
     armature: Armature,
     mapping: Mapping[str, HumanBoneSpecification],
 ) -> dict[str, HumanBoneSpecification]:
@@ -126,7 +126,7 @@ def sorted_required_first(
                 (
                     bone.name
                     for bone in armature.bones
-                    if match_bone_name(original_bone_name, bone.name)
+                    if _match_bone_name(original_bone_name, bone.name)
                 ),
                 None,
             )
@@ -157,7 +157,7 @@ def create_human_bone_mapping(
     if not isinstance(armature_data, Armature):
         raise TypeError
     ((required_count, _all_count), name, mapping) = sorted(
-        (match_counts(armature_data, mapping), name, mapping)
+        (_match_counts(armature_data, mapping), name, mapping)
         for name, mapping in (
             mmd_mapping.create_config(armature),
             biped_mapping.create_config(armature),
@@ -189,6 +189,6 @@ def create_human_bone_mapping(
             required_count = structure_base_mapping_required_count
     if required_count:
         _logger.debug('Treat as "%s" bone mappings', name)
-        result = sorted_required_first(armature_data, mapping)
-    canonicalize_bone_name.cache_clear()
+        result = _sorted_required_first(armature_data, mapping)
+    _canonicalize_bone_name.cache_clear()
     return result

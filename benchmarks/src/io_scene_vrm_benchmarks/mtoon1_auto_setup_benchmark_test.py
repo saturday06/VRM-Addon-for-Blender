@@ -12,7 +12,7 @@ from io_scene_vrm.common.scene_watcher import (
 from io_scene_vrm.editor.mtoon1.scene_watcher import MToon1AutoSetup
 
 
-def run_and_reset_scene_watcher(scene_watcher: SceneWatcher, context: Context) -> None:
+def _run_and_reset_scene_watcher(scene_watcher: SceneWatcher, context: Context) -> None:
     if scene_watcher.run(context) == RunState.FINISH:
         scene_watcher.reset_run_progress()
 
@@ -25,12 +25,12 @@ def test_mtoon1_auto_setup(benchmark: BenchmarkFixture) -> None:
     scene_watcher = MToon1AutoSetup()
     create_fast_path_performance_test_scene(context, scene_watcher)
     # Initial execution can take longer
-    run_and_reset_scene_watcher(scene_watcher, context)
+    _run_and_reset_scene_watcher(scene_watcher, context)
 
     @benchmark
     def _() -> None:
         for _ in range(1000):
-            run_and_reset_scene_watcher(scene_watcher, context)
+            _run_and_reset_scene_watcher(scene_watcher, context)
 
 
 if __name__ == "__main__":

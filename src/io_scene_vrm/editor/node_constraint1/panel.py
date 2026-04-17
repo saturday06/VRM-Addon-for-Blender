@@ -21,7 +21,7 @@ from ..search import active_object_is_vrm1_armature
 from .property_group import NodeConstraint1NodeConstraintPropertyGroup
 
 
-def draw_roll_constraint_layout(
+def _draw_roll_constraint_layout(
     layout: UILayout,
     node_constraint: NodeConstraint1NodeConstraintPropertyGroup,
     object_constraints: dict[str, CopyRotationConstraint],
@@ -90,7 +90,7 @@ def draw_roll_constraint_layout(
         )
 
 
-def draw_aim_constraint_layout(
+def _draw_aim_constraint_layout(
     layout: UILayout,
     node_constraint: NodeConstraint1NodeConstraintPropertyGroup,
     object_constraints: dict[str, DampedTrackConstraint],
@@ -150,7 +150,7 @@ def draw_aim_constraint_layout(
         )
 
 
-def draw_rotation_constraint_layout(
+def _draw_rotation_constraint_layout(
     layout: UILayout,
     node_constraint: NodeConstraint1NodeConstraintPropertyGroup,
     object_constraints: dict[str, CopyRotationConstraint],
@@ -219,7 +219,7 @@ def draw_rotation_constraint_layout(
         )
 
 
-def draw_node_constraint1_layout(
+def _draw_node_constraint1_layout(
     context: Context,
     armature: Object,
     layout: UILayout,
@@ -234,19 +234,19 @@ def draw_node_constraint1_layout(
         export_lights=False,
     )
     object_constraints, bone_constraints, _ = search.export_constraints(objs, armature)
-    draw_roll_constraint_layout(
+    _draw_roll_constraint_layout(
         layout,
         node_constraint,
         object_constraints.roll_constraints,
         bone_constraints.roll_constraints,
     )
-    draw_aim_constraint_layout(
+    _draw_aim_constraint_layout(
         layout,
         node_constraint,
         object_constraints.aim_constraints,
         bone_constraints.aim_constraints,
     )
-    draw_rotation_constraint_layout(
+    _draw_rotation_constraint_layout(
         layout,
         node_constraint,
         object_constraints.rotation_constraints,
@@ -278,7 +278,7 @@ class VRM_PT_node_constraint1_armature_object_property(Panel):
         armature_data = active_object.data
         if not isinstance(armature_data, Armature):
             return
-        draw_node_constraint1_layout(
+        _draw_node_constraint1_layout(
             context,
             active_object,
             self.layout,
@@ -309,7 +309,7 @@ class VRM_PT_node_constraint1_ui(Panel):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        draw_node_constraint1_layout(
+        _draw_node_constraint1_layout(
             context,
             armature,
             self.layout,

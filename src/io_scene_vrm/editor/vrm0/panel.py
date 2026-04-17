@@ -340,7 +340,7 @@ def draw_vrm0_humanoid_optional_bones_layout(
     )
 
 
-def draw_vrm0_humanoid_layout(
+def _draw_vrm0_humanoid_layout(
     context: Context,
     armature: Object,
     layout: UILayout,
@@ -442,7 +442,7 @@ class VRM_PT_vrm0_humanoid_armature_object_property(Panel):
         armature_data = active_object.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm0_humanoid_layout(
+        _draw_vrm0_humanoid_layout(
             context,
             active_object,
             self.layout,
@@ -472,7 +472,7 @@ class VRM_PT_vrm0_humanoid_ui(Panel):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm0_humanoid_layout(
+        _draw_vrm0_humanoid_layout(
             context,
             armature,
             self.layout,
@@ -480,7 +480,7 @@ class VRM_PT_vrm0_humanoid_ui(Panel):
         )
 
 
-def draw_vrm0_first_person_layout(
+def _draw_vrm0_first_person_layout(
     armature: Object,
     _context: Context,
     layout: UILayout,
@@ -570,7 +570,7 @@ class VRM_PT_vrm0_first_person_armature_object_property(Panel):
         if not isinstance(armature_data, Armature):
             return
         ext = get_armature_extension(armature_data)
-        draw_vrm0_first_person_layout(
+        _draw_vrm0_first_person_layout(
             active_object,
             context,
             self.layout,
@@ -600,7 +600,7 @@ class VRM_PT_vrm0_first_person_ui(Panel):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm0_first_person_layout(
+        _draw_vrm0_first_person_layout(
             armature,
             context,
             self.layout,
@@ -608,7 +608,7 @@ class VRM_PT_vrm0_first_person_ui(Panel):
         )
 
 
-def draw_vrm0_blend_shape_master_layout(
+def _draw_vrm0_blend_shape_master_layout(
     armature: Object,
     context: Context,
     layout: UILayout,
@@ -849,7 +849,7 @@ class VRM_PT_vrm0_blend_shape_master_armature_object_property(Panel):
         if not isinstance(armature_data, Armature):
             return
         ext = get_armature_extension(armature_data)
-        draw_vrm0_blend_shape_master_layout(
+        _draw_vrm0_blend_shape_master_layout(
             active_object, context, self.layout, ext.vrm0.blend_shape_master
         )
 
@@ -876,7 +876,7 @@ class VRM_PT_vrm0_blend_shape_master_ui(Panel):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm0_blend_shape_master_layout(
+        _draw_vrm0_blend_shape_master_layout(
             armature,
             context,
             self.layout,
@@ -884,21 +884,21 @@ class VRM_PT_vrm0_blend_shape_master_ui(Panel):
         )
 
 
-def draw_vrm0_secondary_animation_layout(
+def _draw_vrm0_secondary_animation_layout(
     armature: Object,
     layout: UILayout,
     secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
 ) -> None:
     defer_migrate(armature.name, heavy_migration=False)
-    draw_vrm0_secondary_animation_bone_groups_layout(
+    _draw_vrm0_secondary_animation_bone_groups_layout(
         armature, layout, secondary_animation
     )
-    draw_vrm0_secondary_animation_collider_groups_layout(
+    _draw_vrm0_secondary_animation_collider_groups_layout(
         armature, layout, secondary_animation
     )
 
 
-def draw_vrm0_secondary_animation_bone_groups_layout(
+def _draw_vrm0_secondary_animation_bone_groups_layout(
     armature: Object,
     layout: UILayout,
     secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
@@ -1027,7 +1027,7 @@ def draw_vrm0_secondary_animation_bone_groups_layout(
         collider_group_collection_item_op.collider_group_index = collider_group_index
 
 
-def draw_vrm0_secondary_animation_collider_groups_layout(
+def _draw_vrm0_secondary_animation_collider_groups_layout(
     armature: Object,
     layout: UILayout,
     secondary_animation: Vrm0SecondaryAnimationPropertyGroup,
@@ -1139,7 +1139,7 @@ class VRM_PT_vrm0_secondary_animation_armature_object_property(Panel):
         if not isinstance(armature_data, Armature):
             return
         ext = get_armature_extension(armature_data)
-        draw_vrm0_secondary_animation_layout(
+        _draw_vrm0_secondary_animation_layout(
             active_object, self.layout, ext.vrm0.secondary_animation
         )
 
@@ -1166,14 +1166,14 @@ class VRM_PT_vrm0_secondary_animation_ui(Panel):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm0_secondary_animation_layout(
+        _draw_vrm0_secondary_animation_layout(
             armature,
             self.layout,
             get_armature_extension(armature_data).vrm0.secondary_animation,
         )
 
 
-def draw_vrm0_meta_layout(
+def _draw_vrm0_meta_layout(
     armature: Object,
     _context: Context,
     layout: UILayout,
@@ -1234,7 +1234,7 @@ class VRM_PT_vrm0_meta_armature_object_property(Panel):
         if not isinstance(armature_data, Armature):
             return
         ext = get_armature_extension(armature_data)
-        draw_vrm0_meta_layout(active_object, context, self.layout, ext.vrm0.meta)
+        _draw_vrm0_meta_layout(active_object, context, self.layout, ext.vrm0.meta)
 
 
 class VRM_PT_vrm0_meta_ui(Panel):
@@ -1259,7 +1259,7 @@ class VRM_PT_vrm0_meta_ui(Panel):
         armature_data = armature.data
         if not isinstance(armature_data, Armature):
             return
-        draw_vrm0_meta_layout(
+        _draw_vrm0_meta_layout(
             armature,
             context,
             self.layout,

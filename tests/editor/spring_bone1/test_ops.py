@@ -13,7 +13,6 @@ from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     get_armature_extension,
 )
-from io_scene_vrm.editor.spring_bone1.ops import assign_spring_bone1_from_vrm0
 from io_scene_vrm.editor.spring_bone1.property_group import (
     SpringBone1ColliderGroupReferencePropertyGroup,
 )
@@ -1540,7 +1539,9 @@ class TestAssignSpringBone1FromVrm0(AddonTestCase):
         vrm0_collider_group_reference.collider_group_uuid = vrm0_collider_group.uuid
         vrm0_collider_group.fixup(armature)
 
-        result = assign_spring_bone1_from_vrm0(context, armature.name)
+        result = ops.vrm.assign_spring_bone1_from_vrm0(
+            armature_object_name=armature.name
+        )
         self.assertEqual(result, {"FINISHED"})
 
         spring_bone1 = ext.spring_bone1
@@ -1600,7 +1601,9 @@ class TestAssignSpringBone1FromVrm0(AddonTestCase):
         ext.addon_version = ADDON_VERSION
 
         # No VRM0 secondary animation data
-        result = assign_spring_bone1_from_vrm0(context, armature.name)
+        result = ops.vrm.assign_spring_bone1_from_vrm0(
+            armature_object_name=armature.name
+        )
         self.assertEqual(result, {"FINISHED"})
 
         spring_bone1 = ext.spring_bone1
@@ -1635,7 +1638,9 @@ class TestAssignSpringBone1FromVrm0(AddonTestCase):
         existing_spring = spring_bone1.add_spring()
         existing_spring.vrm_name = "Existing"
 
-        result = assign_spring_bone1_from_vrm0(context, armature.name)
+        result = ops.vrm.assign_spring_bone1_from_vrm0(
+            armature_object_name=armature.name
+        )
         self.assertEqual(result, {"FINISHED"})
 
         # Existing spring should still be there and no new springs added

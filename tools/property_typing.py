@@ -21,7 +21,7 @@ _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.INFO)
 
 
-def write_property_typing(
+def _write_property_typing(
     property_name: str,
     property_type: str,
     keywords: dict[str, object],
@@ -130,7 +130,7 @@ def write_property_typing(
     return (line, arg_line, arg_call_line)
 
 
-def update_property_typing(
+def _update_property_typing(
     current_class: type,
     typing_code: str,
     output_folder_path: Path,
@@ -317,7 +317,7 @@ def generate_property_typing_code(output_folder_path: Path, *, more: bool) -> in
                     for keyword_key, keyword_value in keywords.items()
                     if isinstance(keyword_key, str)
                 }
-                code_line, ops_arg_line, ops_call_line = write_property_typing(
+                code_line, ops_arg_line, ops_call_line = _write_property_typing(
                     property_key,
                     f"{function.__module__}.{function_name}",
                     typed_keywords,
@@ -359,7 +359,7 @@ def generate_property_typing_code(output_folder_path: Path, *, more: bool) -> in
             if ops_path.exists():
                 ops_code = ops_path.read_text() + ops_code
             ops_path.write_text(ops_code)
-        update_property_typing(current_class, code, output_folder_path, more=more)
+        _update_property_typing(current_class, code, output_folder_path, more=more)
     return 0
 
 
