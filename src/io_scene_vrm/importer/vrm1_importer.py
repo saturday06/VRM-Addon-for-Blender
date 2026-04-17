@@ -99,13 +99,13 @@ class Vrm1Importer(AbstractBaseVrmImporter):
     ) -> None:
         source = texture_dict.get("source")
         if isinstance(source, int):
-            image = self.images.get(source)
+            image = self._images.get(source)
             if image:
                 texture.source = image
                 self.assign_texture_colorspace(image, texture.colorspace)
 
         sampler = texture_dict.get("sampler")
-        samplers = self.parse_result.json_dict.get("samplers")
+        samplers = self._parse_result.json_dict.get("samplers")
         if not isinstance(sampler, int) or not isinstance(samplers, list):
             return
         if not 0 <= sampler < len(samplers):
@@ -167,7 +167,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
     ) -> None:
         index = texture_info_dict.get("index")
         if isinstance(index, int):
-            texture_dicts = self.parse_result.json_dict.get("textures")
+            texture_dicts = self._parse_result.json_dict.get("textures")
             if isinstance(texture_dicts, list) and 0 <= index < len(texture_dicts):
                 texture_dict = texture_dicts[index]
                 if isinstance(texture_dict, dict):
@@ -197,12 +197,12 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         if not isinstance(mtoon_dict, dict):
             return
 
-        material = self.materials.get(material_index)
+        material = self._materials.get(material_index)
         if not material:
             name = gltf_dict.get("name")
             if not isinstance(name, str):
                 name = "Material"
-            material = self.context.blend_data.materials.new(name)
+            material = self._context.blend_data.materials.new(name)
         self.reset_material(material)
         material.use_backface_culling = True
 
@@ -358,7 +358,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             mtoon.rim_lighting_mix_factor = float(rim_lighting_mix_factor)
 
         mtoon.enable_outline_preview = get_preferences(
-            self.context
+            self._context
         ).enable_mtoon_outline_preview
 
         outline_width_mode = mtoon_dict.get("outlineWidthMode")
@@ -418,7 +418,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             )
 
     def load_materials(self, progress: PartialProgress) -> None:
-        material_dicts = self.parse_result.json_dict.get("materials")
+        material_dicts = self._parse_result.json_dict.get("materials")
         if not isinstance(material_dicts, list):
             progress.update(1)
             return
@@ -431,7 +431,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
     def find_vrm1_bone_node_indices(self) -> list[int]:
         result: list[int] = []
 
-        vrm1_dict = self.parse_result.vrm1_extension_dict
+        vrm1_dict = self._parse_result.vrm1_extension_dict
         if not isinstance(vrm1_dict, dict):
             return result
 
@@ -455,7 +455,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
     def find_spring_bone1_bone_node_indices(self) -> list[int]:
         result: list[int] = []
 
-        extensions_dict = self.parse_result.json_dict.get("extensions")
+        extensions_dict = self._parse_result.json_dict.get("extensions")
         if not isinstance(extensions_dict, dict):
             return result
 
@@ -506,13 +506,13 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         )
 
     def setup_vrm1_humanoid_bones(self) -> None:
-        armature = self.armature
+        armature = self._armature
         if not armature:
             return
         addon_extension = get_armature_extension(self.armature_data)
 
         Vrm1HumanBonesPropertyGroup.update_all_bone_name_candidates(
-            self.context, self.armature_data.name, force=True
+            self._context, self.armature_data.name, force=True
         )
 
         human_bones = addon_extension.vrm1.humanoid.human_bones
@@ -531,7 +531,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 return
 
         with self.save_bone_child_object_transforms(
-            self.context, armature
+            self._context, armature
         ) as armature_data:
             bone_name_to_human_bone_name: dict[str, HumanBoneName] = {}
             for (
@@ -636,7 +636,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             non_human_bone_tree_bones: list[EditBone] = []
             constraint_node_index_to_source_index: dict[int, int] = {}
             constraint_node_index_groups: list[set[int]] = []
-            nodes = self.parse_result.json_dict.get("nodes")
+            nodes = self._parse_result.json_dict.get("nodes")
             if not isinstance(nodes, list):
                 nodes = []
             for node_index, node_dict in enumerate(nodes):
@@ -720,7 +720,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
             for bone in human_bone_tree_bones + non_human_bone_tree_bones:
                 bone_index = next(
-                    (i for i, n in self.bone_names.items() if n == bone.name), None
+                    (i for i, n in self._bone_names.items() if n == bone.name), None
                 )
                 if isinstance(bone_index, int):
                     group_axis_translation: Optional[str] = None
@@ -899,7 +899,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         location, rotation, _ = matrix.decompose()
         matrix = Matrix.Translation(location) @ rotation.to_matrix().to_4x4()
         bpy.ops.object.select_all(action="DESELECT")
-        self.context.scene.cursor.matrix = matrix
+        self._context.scene.cursor.matrix = matrix
         obj.select_set(True)
         bpy.ops.object.origin_set(type="ORIGIN_CURSOR", center="MEDIAN")
 
@@ -908,7 +908,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         ).axis_translation = BoneExtension.reverse_axis_translation(axis_translation)
 
     def load_gltf_extensions(self) -> None:
-        armature = self.armature
+        armature = self._armature
         if not armature:
             return
         addon_extension = get_armature_extension(self.armature_data)
@@ -916,12 +916,12 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         vrm0 = addon_extension.vrm0
 
         addon_extension.spec_version = addon_extension.SPEC_VERSION_VRM1
-        vrm1_extension_dict = self.parse_result.vrm1_extension_dict
+        vrm1_extension_dict = self._parse_result.vrm1_extension_dict
 
         addon_extension.addon_version = get_addon_version()
 
-        textblock = self.context.blend_data.texts.new(name="vrm.json")
-        textblock.write(json.dumps(self.parse_result.json_dict, indent=4))
+        textblock = self._context.blend_data.texts.new(name="vrm.json")
+        textblock.write(json.dumps(self._parse_result.json_dict, indent=4))
 
         self.load_vrm1_meta(vrm1.meta, vrm1_extension_dict.get("meta"))
         self.load_vrm1_humanoid(
@@ -936,14 +936,14 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             vrm1.expressions, vrm1_extension_dict.get("expressions")
         )
 
-        extensions_dict = self.parse_result.json_dict.get("extensions")
+        extensions_dict = self._parse_result.json_dict.get("extensions")
         if isinstance(extensions_dict, dict):
             self.load_spring_bone1(
                 addon_extension.spring_bone1, extensions_dict.get("VRMC_springBone")
             )
 
         self.load_node_constraint1()
-        migration.migrate(self.context, armature.name, heavy_migration=True)
+        migration.migrate(self._context, armature.name, heavy_migration=True)
 
     def load_vrm1_meta(self, meta: Vrm1MetaPropertyGroup, meta_dict: Json) -> None:
         if not isinstance(meta_dict, dict):
@@ -983,7 +983,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
         thumbnail_image_index = meta_dict.get("thumbnailImage")
         if isinstance(thumbnail_image_index, int):
-            thumbnail_image = self.images.get(thumbnail_image_index)
+            thumbnail_image = self._images.get(thumbnail_image_index)
             if thumbnail_image:
                 meta.thumbnail_image = thumbnail_image
 
@@ -1064,7 +1064,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             node_index = human_bone_dict.get("node")
             if not isinstance(node_index, int):
                 continue
-            bone_name = self.bone_names.get(node_index)
+            bone_name = self._bone_names.get(node_index)
             if not isinstance(bone_name, str) or bone_name in assigned_bone_names:
                 continue
             human_bone.node.bone_name = bone_name
@@ -1107,7 +1107,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
             node = mesh_annotation_dict.get("node")
             if isinstance(node, int):
-                mesh_object_name = self.mesh_object_names.get(node)
+                mesh_object_name = self._mesh_object_names.get(node)
                 if isinstance(mesh_object_name, str):
                     mesh_annotation.node.mesh_object_name = mesh_object_name
 
@@ -1122,7 +1122,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
     ) -> None:
         if not isinstance(look_at_dict, dict):
             return
-        armature = self.armature
+        armature = self._armature
         if armature is None:
             return
         offset_from_head_bone = Vector(
@@ -1204,7 +1204,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             node_index = morph_target_bind_dict.get("node")
             if not isinstance(node_index, int):
                 continue
-            node_dicts = self.parse_result.json_dict.get("nodes")
+            node_dicts = self._parse_result.json_dict.get("nodes")
             if not isinstance(node_dicts, list) or not (
                 0 <= node_index < len(node_dicts)
             ):
@@ -1215,7 +1215,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             mesh_index = node_dict.get("mesh")
             if not isinstance(mesh_index, int):
                 continue
-            mesh_obj = self.meshes.get(mesh_index)
+            mesh_obj = self._meshes.get(mesh_index)
             if not mesh_obj:
                 continue
 
@@ -1245,7 +1245,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
             material_index = material_color_bind_dict.get("material")
             if isinstance(material_index, int):
-                material = self.materials.get(material_index)
+                material = self._materials.get(material_index)
                 if material:
                     material_color_bind.material = material
 
@@ -1274,7 +1274,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
             material_index = texture_transform_bind_dict.get("material")
             if isinstance(material_index, int):
-                material = self.materials.get(material_index)
+                material = self._materials.get(material_index)
                 if material:
                     texture_transform_bind.material = material
 
@@ -1345,7 +1345,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         bone: Optional[Bone] = None
         node_index = collider_dict.get("node")
         if isinstance(node_index, int):
-            bone_name = self.bone_names.get(node_index)
+            bone_name = self._bone_names.get(node_index)
             if isinstance(bone_name, str):
                 collider.node.bone_name = bone_name
                 collider_bpy_object = collider.bpy_object
@@ -1545,7 +1545,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             collider_dicts = []
 
         for collider_dict in collider_dicts:
-            collider = spring_bone.add_collider(self.context, armature)
+            collider = spring_bone.add_collider(self._context, armature)
 
             if not isinstance(collider_dict, dict):
                 collider.shape.sphere.radius = 0.0001
@@ -1555,33 +1555,33 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             self.load_spring_bone1_collider(collider, collider_dict)
 
         for collider in spring_bone.colliders:
-            collider.reset_bpy_object(self.context, armature)
+            collider.reset_bpy_object(self._context, armature)
 
         collider_object_names: list[str] = []
         if spring_bone.colliders:
-            colliders_collection = self.context.blend_data.collections.new("Colliders")
-            self.context.scene.collection.children.link(colliders_collection)
+            colliders_collection = self._context.blend_data.collections.new("Colliders")
+            self._context.scene.collection.children.link(colliders_collection)
             for collider in spring_bone.colliders:
                 collider_bpy_object = collider.bpy_object
                 if not collider_bpy_object:
                     continue
                 colliders_collection.objects.link(collider_bpy_object)
                 collider_object_names.append(collider_bpy_object.name)
-                if collider_bpy_object.name in self.context.scene.collection.objects:
-                    self.context.scene.collection.objects.unlink(collider_bpy_object)
+                if collider_bpy_object.name in self._context.scene.collection.objects:
+                    self._context.scene.collection.objects.unlink(collider_bpy_object)
                 for child in collider_bpy_object.children:
                     collider_object_names.append(child.name)
                     colliders_collection.objects.link(child)
-                    if child.name in self.context.scene.collection.objects:
-                        self.context.scene.collection.objects.unlink(child)
+                    if child.name in self._context.scene.collection.objects:
+                        self._context.scene.collection.objects.unlink(child)
 
         spring_bone.active_collider_index = 0
 
         if collider_object_names:
-            imported_object_names = self.imported_object_names
+            imported_object_names = self._imported_object_names
             if imported_object_names is None:
                 imported_object_names = []
-                self.imported_object_names = imported_object_names
+                self._imported_object_names = imported_object_names
             imported_object_names.extend(collider_object_names)
 
     def load_spring_bone1_collider_groups(
@@ -1643,7 +1643,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
             center_index = spring_dict.get("center")
             if isinstance(center_index, int):
-                bone_name = self.bone_names.get(center_index)
+                bone_name = self._bone_names.get(center_index)
                 if bone_name:
                     spring.center.bone_name = bone_name
 
@@ -1658,7 +1658,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
 
                 node_index = joint_dict.get("node")
                 if isinstance(node_index, int):
-                    bone_name = self.bone_names.get(node_index)
+                    bone_name = self._bone_names.get(node_index)
                     if bone_name:
                         joint.node.bone_name = bone_name
 
@@ -1712,7 +1712,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
     ) -> None:
         if not isinstance(spring_bone_dict, dict):
             return
-        armature = self.armature
+        armature = self._armature
         if armature is None:
             message = "armature is None"
             raise ValueError(message)
@@ -1732,22 +1732,22 @@ class Vrm1Importer(AbstractBaseVrmImporter):
     def get_object_or_bone_by_node_index(
         self, node_index: int
     ) -> Union[Object, PoseBone, None]:
-        object_name = self.object_names.get(node_index)
-        bone_name = self.bone_names.get(node_index)
+        object_name = self._object_names.get(node_index)
+        bone_name = self._bone_names.get(node_index)
         if object_name is not None:
-            return self.context.blend_data.objects.get(object_name)
-        if self.armature and bone_name is not None:
-            return self.armature.pose.bones.get(bone_name)
+            return self._context.blend_data.objects.get(object_name)
+        if self._armature and bone_name is not None:
+            return self._armature.pose.bones.get(bone_name)
         return None
 
     def load_node_constraint1(
         self,
     ) -> None:
-        armature = self.armature
+        armature = self._armature
         if not armature:
             return
 
-        nodes = self.parse_result.json_dict.get("nodes")
+        nodes = self._parse_result.json_dict.get("nodes")
         if not isinstance(nodes, list):
             nodes = []
         for node_index, node_dict in enumerate(nodes):

@@ -46,17 +46,17 @@ class AbstractBaseVrmExporter(ABC):
         export_objects: Sequence[Object],
         armature: Object,
     ) -> None:
-        self.context = context
-        self.export_objects = export_objects
-        self.armature = armature
-        self.export_id = "BlenderVrmAddonExport" + (
+        self._context = context
+        self._export_objects = export_objects
+        self._armature = armature
+        self._export_id = "BlenderVrmAddonExport" + (
             "".join(secrets.choice(string.digits) for _ in range(10))
         )
-        self.gltf2_addon_export_settings = (
+        self._gltf2_addon_export_settings = (
             io_scene_gltf2_support.create_export_settings()
         )
 
-        armature_data = self.armature.data
+        armature_data = self._armature.data
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)

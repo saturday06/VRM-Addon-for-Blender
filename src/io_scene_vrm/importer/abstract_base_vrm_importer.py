@@ -164,21 +164,21 @@ class AbstractBaseVrmImporter(ABC):
         parse_result: ParseResult,
         preferences: ImportPreferencesProtocol,
     ) -> None:
-        self.context = context
-        self.parse_result = parse_result
-        self.preferences = preferences
+        self._context = context
+        self._parse_result = parse_result
+        self._preferences = preferences
 
-        self.meshes: dict[int, Object] = {}
-        self.images: dict[int, Image] = {}
-        self.armature: Optional[Object] = None
-        self.bone_names: dict[int, str] = {}
-        self.materials: dict[int, Material] = {}
-        self.bone_child_object_world_matrices: dict[str, Matrix] = {}
-        self.import_id = glTF2ImportUserExtension.update_current_import_id()
-        self.temp_object_name_count = 0
-        self.object_names: dict[int, str] = {}
-        self.mesh_object_names: dict[int, str] = {}
-        self.imported_object_names: Optional[list[str]] = None
+        self._meshes: dict[int, Object] = {}
+        self._images: dict[int, Image] = {}
+        self._armature: Optional[Object] = None
+        self._bone_names: dict[int, str] = {}
+        self._materials: dict[int, Material] = {}
+        self._bone_child_object_world_matrices: dict[str, Matrix] = {}
+        self._import_id = glTF2ImportUserExtension.update_current_import_id()
+        self._temp_object_name_count = 0
+        self._object_names: dict[int, str] = {}
+        self._mesh_object_names: dict[int, str] = {}
+        self._imported_object_names: Optional[list[str]] = None
 
     @abstractmethod
     def load_materials(self, progress: PartialProgress) -> None:
@@ -194,33 +194,33 @@ class AbstractBaseVrmImporter(ABC):
 
     def import_vrm(self) -> None:
         try:
-            with create_progress(self.context) as progress:
-                with save_workspace(self.context):
+            with create_progress(self._context) as progress:
+                with save_workspace(self._context):
                     progress.update(0.1)
                     self.import_gltf2_with_indices()
                     progress.update(0.3)
                     self.use_fake_user_for_thumbnail()
                     progress.update(0.4)
                     if (
-                        self.parse_result.vrm1_extension_dict
-                        or self.parse_result.vrm0_extension_dict
+                        self._parse_result.vrm1_extension_dict
+                        or self._parse_result.vrm0_extension_dict
                     ):
                         self.load_materials(progress.partial_progress(0.9))
                     if (
-                        self.parse_result.vrm1_extension_dict
-                        or self.parse_result.vrm0_extension_dict
+                        self._parse_result.vrm1_extension_dict
+                        or self._parse_result.vrm0_extension_dict
                     ):
                         self.load_gltf_extensions()
                     progress.update(0.92)
                     self.setup_viewport()
                     progress.update(0.94)
-                    self.context.view_layer.update()
+                    self._context.view_layer.update()
                     progress.update(0.96)
 
                     # Texture extraction occurs. During this process, .blend file saving
                     # may occur and save callbacks may run, so be careful not to apply
                     # those callbacks to incompletely imported VRM data
-                    if self.preferences.extract_textures_into_folder:
+                    if self._preferences.extract_textures_into_folder:
                         self.extract_textures(repack=False)
                     elif bpy.app.version < (3, 1):
                         self.extract_textures(repack=True)
@@ -236,10 +236,10 @@ class AbstractBaseVrmImporter(ABC):
 
     @property
     def armature_data(self) -> Armature:
-        if not self.armature:
+        if not self._armature:
             message = "armature is not set"
             raise AssertionError(message)
-        armature_data = self.armature.data
+        armature_data = self._armature.data
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
@@ -321,7 +321,7 @@ class AbstractBaseVrmImporter(ABC):
         # The thumbnail is specified as an image index in the VRM specification,
         # but in UniVRM's implementation it's a texture index
         # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterContext.cs#L308
-        meta_dict = self.parse_result.vrm0_extension_dict.get("meta")
+        meta_dict = self._parse_result.vrm0_extension_dict.get("meta")
         if not isinstance(meta_dict, dict):
             return
 
@@ -329,7 +329,7 @@ class AbstractBaseVrmImporter(ABC):
         if not isinstance(thumbnail_texture_index, int):
             return
 
-        texture_dicts = self.parse_result.json_dict.get("textures", [])
+        texture_dicts = self._parse_result.json_dict.get("textures", [])
         if not isinstance(texture_dicts, list):
             _logger.warning('json["textures"] is not list')
             return
@@ -345,7 +345,7 @@ class AbstractBaseVrmImporter(ABC):
         if not isinstance(thumbnail_image_index, int):
             return
 
-        thumbnail_image = self.images.get(thumbnail_image_index)
+        thumbnail_image = self._images.get(thumbnail_image_index)
         if not thumbnail_image:
             return
 
@@ -374,7 +374,7 @@ class AbstractBaseVrmImporter(ABC):
 
     def assign_packed_image_filepaths(self) -> None:
         # Assign image filepath for fbx export
-        for image in self.images.values():
+        for image in self._images.values():
             if image.packed_file is None:
                 continue
             if image.filepath:
@@ -395,12 +395,12 @@ class AbstractBaseVrmImporter(ABC):
         Therefore, the file is saved, but be careful that file save callbacks may run
         during this process.
         """
-        dir_path = self.parse_result.filepath.with_suffix(".vrm.textures").absolute()
-        if self.preferences.make_new_texture_folder or repack:
+        dir_path = self._parse_result.filepath.with_suffix(".vrm.textures").absolute()
+        if self._preferences.make_new_texture_folder or repack:
             dir_path = create_unique_indexed_directory_path(dir_path)
         dir_path.mkdir(parents=True, exist_ok=True)
 
-        if bpy.app.version >= (3, 1) and not self.context.blend_data.filepath:
+        if bpy.app.version >= (3, 1) and not self._context.blend_data.filepath:
             temp_blend_path = None
             for _ in range(10000):
                 image_suffix = (
@@ -408,17 +408,17 @@ class AbstractBaseVrmImporter(ABC):
                     + "".join(str(secrets.randbelow(10)) for _ in range(10))
                     + ".blend"
                 )
-                temp_blend_path = self.parse_result.filepath.with_suffix(image_suffix)
+                temp_blend_path = self._parse_result.filepath.with_suffix(image_suffix)
                 if not temp_blend_path.exists():
                     break
             if temp_blend_path is not None:
                 bpy.ops.wm.save_as_mainfile(filepath=str(temp_blend_path))
 
-        for image_index, image in self.images.items():
+        for image_index, image in self._images.items():
             image_original_file_path = Path(image.filepath_from_user())
             image_path_stem = image_original_file_path.stem
             if image_path_stem:
-                legacy_image_name_prefix = self.import_id + "Image"
+                legacy_image_name_prefix = self._import_id + "Image"
                 if image_path_stem.startswith(legacy_image_name_prefix):
                     image_path_stem = re.sub(
                         r"^\d+_",
@@ -480,7 +480,7 @@ class AbstractBaseVrmImporter(ABC):
         scene_node_indices = [
             index for index in scene_node_index_jsons if isinstance(index, int)
         ]
-        json_dict = self.parse_result.json_dict
+        json_dict = self._parse_result.json_dict
         node_dict_jsons = json_dict.get("nodes")
         if not isinstance(node_dict_jsons, list):
             return []
@@ -506,7 +506,7 @@ class AbstractBaseVrmImporter(ABC):
             search_scene_node_indices = [scene_node_index]
             while search_scene_node_indices:
                 search_scene_node_index = search_scene_node_indices.pop()
-                if search_scene_node_index == self.parse_result.hips_node_index:
+                if search_scene_node_index == self._parse_result.hips_node_index:
                     bone_node_indices.append(scene_node_index)
                     hips_found = True
                 if not 0 <= search_scene_node_index < len(node_dicts):
@@ -626,7 +626,7 @@ class AbstractBaseVrmImporter(ABC):
         return result
 
     def import_gltf2_with_indices(self) -> None:
-        json_dict, buffer0_bytes = parse_glb(self.parse_result.filepath.read_bytes())
+        json_dict, buffer0_bytes = parse_glb(self._parse_result.filepath.read_bytes())
 
         for key in ("nodes", "materials", "meshes"):
             if key not in json_dict or not isinstance(json_dict[key], list):
@@ -642,12 +642,12 @@ class AbstractBaseVrmImporter(ABC):
                     extras_dict = {}
                     value_dict["extras"] = extras_dict
 
-                extras_dict.update({self.import_id + key.capitalize(): index})
+                extras_dict.update({self._import_id + key.capitalize(): index})
                 mesh_index = value_dict.get("mesh")
                 if key == "nodes" and isinstance(mesh_index, int):
-                    extras_dict.update({self.import_id + "Meshes": mesh_index})
+                    extras_dict.update({self._import_id + "Meshes": mesh_index})
 
-        legacy_image_name_prefix = self.import_id + "Image"
+        legacy_image_name_prefix = self._import_id + "Image"
         image_dicts = json_dict.get("images")
         if isinstance(image_dicts, list):
             for image_index, image_dict in enumerate(image_dicts):
@@ -1045,7 +1045,7 @@ class AbstractBaseVrmImporter(ABC):
                                 else FLOAT_NEGATIVE_MAX
                             )
 
-        if self.parse_result.spec_version_number < (1, 0):
+        if self._parse_result.spec_version_number < (1, 0):
             bone_heuristic = "FORTUNE"
         else:
             bone_heuristic = "BLENDER"
@@ -1069,7 +1069,7 @@ class AbstractBaseVrmImporter(ABC):
                 _logger.exception(
                     'Failed to import "%s" generated from "%s" using glTF 2.0 Add-on',
                     indexed_vrm_filepath,
-                    self.parse_result.filepath,
+                    self._parse_result.filepath,
                 )
                 self.cleanup_gltf2_with_indices()
         if not full_vrm_import_success:
@@ -1096,22 +1096,22 @@ class AbstractBaseVrmImporter(ABC):
                         'Failed to import "%s" generated from "%s"'
                         " using glTF 2.0 Add-on without animations key",
                         indexed_vrm_filepath,
-                        self.parse_result.filepath,
+                        self._parse_result.filepath,
                     )
                     self.cleanup_gltf2_with_indices()
                     raise
         # Save the selection state of objects immediately after glTF import
-        self.imported_object_names = [
-            selected_object.name for selected_object in self.context.selected_objects
+        self._imported_object_names = [
+            selected_object.name for selected_object in self._context.selected_objects
         ]
 
-        extras_node_index_key = self.import_id + "Nodes"
-        for obj in self.context.blend_data.objects:
+        extras_node_index_key = self._import_id + "Nodes"
+        for obj in self._context.blend_data.objects:
             node_index = obj.pop(extras_node_index_key, None)
             if isinstance(node_index, int):
-                self.object_names[node_index] = obj.name
+                self._object_names[node_index] = obj.name
                 if isinstance(obj.data, Mesh):
-                    self.mesh_object_names[node_index] = obj.name
+                    self._mesh_object_names[node_index] = obj.name
             data = obj.data
             if isinstance(data, Mesh):
                 data.pop(extras_node_index_key, None)
@@ -1126,17 +1126,17 @@ class AbstractBaseVrmImporter(ABC):
                 bone_node_index = bone.pop(extras_node_index_key, None)
                 if not isinstance(bone_node_index, int):
                     continue
-                node_dicts = self.parse_result.json_dict.get("nodes")
+                node_dicts = self._parse_result.json_dict.get("nodes")
                 if not isinstance(node_dicts, list):
                     continue
                 if 0 <= bone_node_index < len(node_dicts):
                     node_dict = node_dicts[bone_node_index]
                     if isinstance(node_dict, dict):
                         node_dict["name"] = bone_name
-                self.bone_names[bone_node_index] = bone_name
+                self._bone_names[bone_node_index] = bone_name
                 if (
-                    self.armature is not None
-                    or bone_node_index != self.parse_result.hips_node_index
+                    self._armature is not None
+                    or bone_node_index != self._parse_result.hips_node_index
                 ):
                     continue
 
@@ -1146,24 +1146,24 @@ class AbstractBaseVrmImporter(ABC):
                 spring_bone1 = ext.spring_bone1
                 vrm0.humanoid.initial_automatic_bone_assignment = False
                 vrm1.humanoid.human_bones.initial_automatic_bone_assignment = False
-                if self.parse_result.spec_version_number >= (1, 0):
+                if self._parse_result.spec_version_number >= (1, 0):
                     vrm1.expressions.initial_automatic_expression_assignment = False
                     spring_bone1.initial_automatic_spring_bone_assignment = False
                 vrm0.humanoid.pose = vrm0.humanoid.POSE_CURRENT_POSE.identifier
                 vrm1.humanoid.pose = vrm1.humanoid.POSE_CURRENT_POSE.identifier
-                self.armature = obj
+                self._armature = obj
 
         if (
-            (armature := self.armature) is not None
+            (armature := self._armature) is not None
             and isinstance(armature.data, Armature)
-            and self.parse_result.spec_version_number < (1, 0)
+            and self._parse_result.spec_version_number < (1, 0)
         ):
             bone_name_to_roll: dict[str, float] = {}
-            with save_workspace(self.context, armature, mode="EDIT"):
+            with save_workspace(self._context, armature, mode="EDIT"):
                 for edit_bone in armature.data.edit_bones:
                     bone_name_to_roll[edit_bone.name] = edit_bone.roll
 
-            with save_workspace(self.context, armature):
+            with save_workspace(self._context, armature):
                 armature_rotation = get_rotation_as_quaternion(armature)
                 armature_rotation.rotate(Euler((0.0, 0.0, math.pi), "XYZ"))
                 set_rotation_without_mode_change(armature, armature_rotation)
@@ -1174,7 +1174,7 @@ class AbstractBaseVrmImporter(ABC):
                     location=False, rotation=True, scale=False, properties=False
                 )
 
-            with self.save_bone_child_object_transforms(self.context, armature):
+            with self.save_bone_child_object_transforms(self._context, armature):
                 edit_bones = [
                     edit_bone
                     for edit_bone in armature.data.edit_bones
@@ -1187,16 +1187,16 @@ class AbstractBaseVrmImporter(ABC):
                         edit_bone.roll = roll
                     edit_bones.extend(edit_bone.children)
 
-        extras_material_index_key = self.import_id + "Materials"
-        for material in self.context.blend_data.materials:
+        extras_material_index_key = self._import_id + "Materials"
+        for material in self._context.blend_data.materials:
             if self.is_temp_object_name(material.name):
                 continue
             material_index = material.pop(extras_material_index_key, None)
             if isinstance(material_index, int):
-                self.materials[material_index] = material
+                self._materials[material_index] = material
 
-        extras_mesh_index_key = self.import_id + "Meshes"
-        for obj in self.context.blend_data.objects:
+        extras_mesh_index_key = self._import_id + "Meshes"
+        for obj in self._context.blend_data.objects:
             data = obj.data
             if not isinstance(data, Mesh):
                 continue
@@ -1204,12 +1204,12 @@ class AbstractBaseVrmImporter(ABC):
             data_custom_mesh_index = data.pop(extras_mesh_index_key, None)
             obj_custom_mesh_index = obj.pop(extras_mesh_index_key, None)
             if isinstance(data_custom_mesh_index, int):
-                self.meshes[data_custom_mesh_index] = obj
+                self._meshes[data_custom_mesh_index] = obj
             elif isinstance(obj_custom_mesh_index, int):
-                self.meshes[obj_custom_mesh_index] = obj
+                self._meshes[obj_custom_mesh_index] = obj
 
-        for image in list(self.context.blend_data.images):
-            custom_image_index = image.get(self.import_id)
+        for image in list(self._context.blend_data.images):
+            custom_image_index = image.get(self._import_id)
             if not isinstance(custom_image_index, int) and image.name.startswith(
                 legacy_image_name_prefix
             ):
@@ -1247,12 +1247,12 @@ class AbstractBaseVrmImporter(ABC):
             else:
                 image.name = "_".join(image.name.split("_")[1:])
 
-            self.images[custom_image_index] = image
+            self._images[custom_image_index] = image
 
-        if self.context.object is not None and self.context.object.mode == "EDIT":
+        if self._context.object is not None and self._context.object.mode == "EDIT":
             bpy.ops.object.mode_set(mode="OBJECT")
 
-        for scene in list(self.context.blend_data.scenes):
+        for scene in list(self._context.blend_data.scenes):
             if not self.is_temp_object_name(scene.name):
                 continue
             if bpy.app.version >= (3, 2) and scene.use_extra_user:
@@ -1264,19 +1264,19 @@ class AbstractBaseVrmImporter(ABC):
                     scene.users,
                 )
             else:
-                self.context.blend_data.scenes.remove(scene)
+                self._context.blend_data.scenes.remove(scene)
 
-        for obj in list(self.context.blend_data.objects):
+        for obj in list(self._context.blend_data.objects):
             if not self.is_temp_object_name(obj.name):
                 continue
-            if not safe_removal.remove_object(self.context, obj):
+            if not safe_removal.remove_object(self._context, obj):
                 _logger.warning(
                     'Failed to remove "%s" with %d users while removing temp objects',
                     obj.name,
                     obj.users,
                 )
 
-        for mesh in list(self.context.blend_data.meshes):
+        for mesh in list(self._context.blend_data.meshes):
             if not self.is_temp_object_name(mesh.name):
                 continue
             if mesh.users:
@@ -1286,9 +1286,9 @@ class AbstractBaseVrmImporter(ABC):
                     mesh.users,
                 )
             else:
-                self.context.blend_data.meshes.remove(mesh)
+                self._context.blend_data.meshes.remove(mesh)
 
-        for material in list(self.context.blend_data.materials):
+        for material in list(self._context.blend_data.materials):
             if not self.is_temp_object_name(material.name):
                 continue
             if material.users:
@@ -1298,17 +1298,17 @@ class AbstractBaseVrmImporter(ABC):
                     material.users,
                 )
             else:
-                self.context.blend_data.materials.remove(material)
+                self._context.blend_data.materials.remove(material)
 
-        if self.armature is None:
+        if self._armature is None:
             _logger.warning("Failed to read VRM Humanoid")
 
     def cleanup_gltf2_with_indices(self) -> None:
-        with save_workspace(self.context):
-            meshes_key = self.import_id + "Meshes"
-            nodes_key = self.import_id + "Nodes"
+        with save_workspace(self._context):
+            meshes_key = self._import_id + "Meshes"
+            nodes_key = self._import_id + "Nodes"
             remove_objs: list[Object] = []
-            for obj in list(self.context.scene.collection.objects):
+            for obj in list(self._context.scene.collection.objects):
                 if isinstance(armature_data := obj.data, Armature):
                     for bone in armature_data.bones:
                         if nodes_key in bone:
@@ -1332,28 +1332,28 @@ class AbstractBaseVrmImporter(ABC):
                     remove_objs.append(obj)
 
             for obj in remove_objs:
-                safe_removal.remove_object(self.context, obj)
+                safe_removal.remove_object(self._context, obj)
 
     def temp_object_name(self) -> str:
-        self.temp_object_name_count += 1
-        return f"{self.import_id}Temp_{self.temp_object_name_count}_"
+        self._temp_object_name_count += 1
+        return f"{self._import_id}Temp_{self._temp_object_name_count}_"
 
     def is_temp_object_name(self, name: str) -> bool:
-        return name.startswith(f"{self.import_id}Temp_")
+        return name.startswith(f"{self._import_id}Temp_")
 
     def setup_viewport(self) -> None:
-        if self.armature:
-            if self.preferences.set_armature_display_to_wire:
-                self.armature.display_type = "WIRE"
-            if self.preferences.set_armature_display_to_show_in_front:
-                self.armature.show_in_front = True
-            if self.preferences.set_armature_bone_shape_to_default:
-                for bone in self.armature.pose.bones:
+        if self._armature:
+            if self._preferences.set_armature_display_to_wire:
+                self._armature.display_type = "WIRE"
+            if self._preferences.set_armature_display_to_show_in_front:
+                self._armature.show_in_front = True
+            if self._preferences.set_armature_bone_shape_to_default:
+                for bone in self._armature.pose.bones:
                     bone.custom_shape = None
 
-        if self.preferences.set_view_transform_to_standard_on_import:
+        if self._preferences.set_view_transform_to_standard_on_import:
             # https://github.com/saturday06/VRM-Addon-for-Blender/issues/336#issuecomment-1760729404
-            view_settings = self.context.scene.view_settings
+            view_settings = self._context.scene.view_settings
             try:
                 view_settings.view_transform = "Standard"
             except TypeError:
@@ -1361,8 +1361,8 @@ class AbstractBaseVrmImporter(ABC):
                     'scene.view_settings.view_transform doesn\'t support "Standard".'
                 )
 
-        if self.preferences.set_shading_type_to_material_on_import:
-            screen = self.context.screen
+        if self._preferences.set_shading_type_to_material_on_import:
+            screen = self._context.screen
             if screen:
                 for area in screen.areas:
                     for space in area.spaces:
@@ -1370,22 +1370,22 @@ class AbstractBaseVrmImporter(ABC):
                             space.shading.type = "MATERIAL"
 
     def save_t_pose_action(self) -> None:
-        if self.armature is None:
+        if self._armature is None:
             return
 
-        t_pose_action = self.context.blend_data.actions.new(name="T-Pose")
+        t_pose_action = self._context.blend_data.actions.new(name="T-Pose")
         t_pose_action.use_fake_user = True
         animation_data_created = False
-        if not self.armature.animation_data:
-            self.armature.animation_data_create()
+        if not self._armature.animation_data:
+            self._armature.animation_data_create()
             animation_data_created = True
-        if not self.armature.animation_data:
+        if not self._armature.animation_data:
             message = "armature.animation_data is None"
             raise ValueError(message)
-        original_action = self.armature.animation_data.action
-        self.armature.animation_data.action = t_pose_action
+        original_action = self._armature.animation_data.action
+        self._armature.animation_data.action = t_pose_action
 
-        for bone in self.armature.pose.bones:
+        for bone in self._armature.pose.bones:
             for data_path in (
                 "location",
                 "rotation_quaternion",
@@ -1401,21 +1401,21 @@ class AbstractBaseVrmImporter(ABC):
         ext.vrm0.humanoid.pose_library = t_pose_action
         ext.vrm1.humanoid.pose_library = t_pose_action
         if animation_data_created:
-            self.armature.animation_data_clear()
+            self._armature.animation_data_clear()
         else:
-            self.armature.animation_data.action = original_action
+            self._armature.animation_data.action = original_action
 
     def setup_object_selection_and_activation(self) -> None:
-        active_object = self.context.view_layer.objects.active
+        active_object = self._context.view_layer.objects.active
         if active_object and active_object.mode != "OBJECT":
             bpy.ops.object.mode_set(mode="OBJECT")
-        if self.imported_object_names is not None:
+        if self._imported_object_names is not None:
             bpy.ops.object.select_all(action="DESELECT")
-            for obj in self.context.selectable_objects:
-                if obj.name in self.imported_object_names:
+            for obj in self._context.selectable_objects:
+                if obj.name in self._imported_object_names:
                     obj.select_set(True)
-        if self.armature is not None:
-            self.context.view_layer.objects.active = self.armature
+        if self._armature is not None:
+            self._context.view_layer.objects.active = self._armature
 
 
 def parse_vrm_json(filepath: Path, *, license_validation: bool) -> ParseResult:

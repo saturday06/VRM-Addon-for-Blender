@@ -101,32 +101,32 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     ) -> None:
         super().__init__(context, export_objects, armature)
 
-        self.export_all_influences = (
+        self._export_all_influences = (
             export_preferences.enable_advanced_preferences
             and export_preferences.export_all_influences
         )
-        self.export_lights = (
+        self._export_lights = (
             export_preferences.enable_advanced_preferences
             and export_preferences.export_lights
         )
-        self.export_gltf_animations = (
+        self._export_gltf_animations = (
             export_preferences.enable_advanced_preferences
             and export_preferences.export_gltf_animations
         )
-        self.export_try_sparse_sk = (
+        self._export_try_sparse_sk = (
             export_preferences.enable_advanced_preferences
             and export_preferences.export_try_sparse_sk
         )
 
-        self.extras_main_armature_key = (
-            INTERNAL_NAME_PREFIX + self.export_id + "MainArmature"
+        self._extras_main_armature_key = (
+            INTERNAL_NAME_PREFIX + self._export_id + "MainArmature"
         )
-        self.extras_bone_name_key = INTERNAL_NAME_PREFIX + self.export_id + "BoneName"
-        self.extras_object_name_key = (
-            INTERNAL_NAME_PREFIX + self.export_id + "ObjectName"
+        self._extras_bone_name_key = INTERNAL_NAME_PREFIX + self._export_id + "BoneName"
+        self._extras_object_name_key = (
+            INTERNAL_NAME_PREFIX + self._export_id + "ObjectName"
         )
-        self.extras_material_name_key = (
-            INTERNAL_NAME_PREFIX + self.export_id + "MaterialName"
+        self._extras_material_name_key = (
+            INTERNAL_NAME_PREFIX + self._export_id + "MaterialName"
         )
 
     @staticmethod
@@ -164,7 +164,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def overwrite_object_visibility_and_selection(self) -> Generator[None]:
         object_visibility_and_selection = (
             self.enter_overwrite_object_visibility_and_selection(
-                self.context, self.export_objects
+                self._context, self._export_objects
             )
         )
         try:
@@ -175,7 +175,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             # after yield
         finally:
             self.leave_overwrite_object_visibility_and_selection(
-                self.context, object_visibility_and_selection
+                self._context, object_visibility_and_selection
             )
 
     @staticmethod
@@ -367,7 +367,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             backup_obj_name_to_original_obj_name,
             backup_data_name_to_original_data_name,
         ) = self.enter_save_selected_mesh_compat_objects(
-            self.context, self.armature, self.export_objects
+            self._context, self._armature, self._export_objects
         )
         try:
             yield list(backup_obj_name_to_original_obj_name.values())
@@ -377,7 +377,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             # after yield
         finally:
             self.leave_save_selected_mesh_compat_objects(
-                self.context,
+                self._context,
                 backup_obj_name_to_original_obj_name,
                 backup_data_name_to_original_data_name,
             )
@@ -385,7 +385,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def enter_mount_skinned_mesh_parent(self, armature: Object) -> Sequence[str]:
         mounted_object_names: list[str] = []
 
-        for obj in self.export_objects:
+        for obj in self._export_objects:
             if obj.type != "MESH" or not [
                 True
                 for m in obj.modifiers
@@ -409,7 +409,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         self, mounted_object_names: Sequence[str]
     ) -> None:
         for mounted_object_name in reversed(mounted_object_names):
-            restore_obj = self.context.blend_data.objects.get(mounted_object_name)
+            restore_obj = self._context.blend_data.objects.get(mounted_object_name)
             if not restore_obj:
                 continue
             matrix_world = restore_obj.matrix_world.copy()
@@ -427,7 +427,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         # Therefore, make the ancestor parent of meshes that are not descendants
         # of the armature as the armature, and restore it later
 
-        armature = self.armature
+        armature = self._armature
         if not armature:
             yield
             return
@@ -2630,7 +2630,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     @contextmanager
     def disable_constraints(self, context: Context) -> Generator[None]:
         object_name_and_constraint_name, bone_name_and_constraint_name = (
-            self.enter_disable_constraints(context, self.armature, self.export_objects)
+            self.enter_disable_constraints(
+                context, self._armature, self._export_objects
+            )
         )
         try:
             yield
@@ -2641,50 +2643,50 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         finally:
             self.leave_disable_constraints(
                 context,
-                self.armature,
+                self._armature,
                 object_name_and_constraint_name,
                 bone_name_and_constraint_name,
             )
 
     def enter_assign_export_custom_properties(self) -> None:
-        self.armature[self.extras_main_armature_key] = True
+        self._armature[self._extras_main_armature_key] = True
 
-        armature_data = self.armature.data
+        armature_data = self._armature.data
         if not isinstance(armature_data, Armature):
             return
 
         # To minimize the impact of other glTF2ExportUserExtensions,
         # use custom properties that seem to have less impact
         # to establish correspondence between Blender objects and indices.
-        for obj in self.context.blend_data.objects:
-            obj[self.extras_object_name_key] = obj.name
-        for material in self.context.blend_data.materials:
-            material[self.extras_material_name_key] = material.name
+        for obj in self._context.blend_data.objects:
+            obj[self._extras_object_name_key] = obj.name
+        for material in self._context.blend_data.materials:
+            material[self._extras_material_name_key] = material.name
 
         # The glTF 2.0 addon comment states that it saves custom properties with
         # PoseBone, but it actually references custom properties of Bone.
         # Therefore, write to both just in case
-        for pose_bone in self.armature.pose.bones:
-            pose_bone[self.extras_bone_name_key] = pose_bone.name
+        for pose_bone in self._armature.pose.bones:
+            pose_bone[self._extras_bone_name_key] = pose_bone.name
         for bone in armature_data.bones:
-            bone[self.extras_bone_name_key] = bone.name
+            bone[self._extras_bone_name_key] = bone.name
 
     def leave_assign_export_custom_properties(self) -> None:
-        armature_data = self.armature.data
+        armature_data = self._armature.data
         if not isinstance(armature_data, Armature):
             return
 
         for bone in reversed(armature_data.bones):
-            bone.pop(self.extras_bone_name_key, None)
-        for pose_bone in reversed(self.armature.pose.bones):
-            pose_bone.pop(self.extras_bone_name_key, None)
+            bone.pop(self._extras_bone_name_key, None)
+        for pose_bone in reversed(self._armature.pose.bones):
+            pose_bone.pop(self._extras_bone_name_key, None)
 
-        for material in reversed(self.context.blend_data.materials):
-            material.pop(self.extras_material_name_key, None)
-        for obj in reversed(self.context.blend_data.objects):
-            obj.pop(self.extras_object_name_key, None)
+        for material in reversed(self._context.blend_data.materials):
+            material.pop(self._extras_material_name_key, None)
+        for obj in reversed(self._context.blend_data.objects):
+            obj.pop(self._extras_object_name_key, None)
 
-        self.armature.pop(self.extras_main_armature_key, None)
+        self._armature.pop(self._extras_main_armature_key, None)
 
     @contextmanager
     def assign_export_custom_properties(self) -> Generator[None]:
@@ -2798,35 +2800,35 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def export(self) -> Optional[bytes]:
         init_extras_export()
 
-        armature_data = self.armature.data
+        armature_data = self._armature.data
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
 
-        self.setup_mtoon_gltf_fallback_nodes(self.context, is_vrm0=False)
+        self.setup_mtoon_gltf_fallback_nodes(self._context, is_vrm0=False)
 
         with (
-            save_workspace(self.context),
+            save_workspace(self._context),
             self.setup_flexible_hierarchy_bones(
-                self.context, self.armature, self.export_objects
+                self._context, self._armature, self._export_objects
             ),
-            self.setup_dummy_human_bones(self.context, self.armature),
-            self.clear_blend_shape_proxy_previews(self.context, armature_data),
+            self.setup_dummy_human_bones(self._context, self._armature),
+            self.clear_blend_shape_proxy_previews(self._context, armature_data),
             self.enable_deform_for_all_referenced_bones(armature_data),
-            setup_humanoid_t_pose(self.context, self.armature),
+            setup_humanoid_t_pose(self._context, self._armature),
             self.overwrite_object_visibility_and_selection(),
         ):
             with (
-                self.disable_constraints(self.context),
-                self.hide_mtoon1_outline_geometry_nodes(self.context),
-                self.disable_mtoon1_material_nodes(self.context),
+                self.disable_constraints(self._context),
+                self.hide_mtoon1_outline_geometry_nodes(self._context),
+                self.disable_mtoon1_material_nodes(self._context),
                 self.mount_skinned_mesh_parent(),
                 self.save_selected_mesh_compat_objects() as mesh_compat_object_names,
                 self.assign_export_custom_properties(),
                 tempfile.TemporaryDirectory() as temp_dir,
             ):
                 _force_apply_modifiers_to_objects(
-                    self.context, self.armature, mesh_compat_object_names
+                    self._context, self._armature, mesh_compat_object_names
                 )
 
                 filepath = Path(temp_dir, "out.glb")
@@ -2840,19 +2842,19 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         export_current_frame=True,
                         use_selection=True,
                         use_active_scene=True,
-                        export_animations=self.export_gltf_animations,
+                        export_animations=self._export_gltf_animations,
                         export_armature_object_remove=(
                             self.gltf_export_armature_object_remove(
-                                self.context, mesh_compat_object_names
+                                self._context, mesh_compat_object_names
                             )
                         ),
                         export_rest_position_armature=False,
                         export_apply=False,
                         # Models may appear incorrectly in many viewers
-                        export_all_influences=self.export_all_influences,
+                        export_all_influences=self._export_all_influences,
                         # TODO: Expose UI Option, Unity allows light export
-                        export_lights=self.export_lights,
-                        export_try_sparse_sk=self.export_try_sparse_sk,
+                        export_lights=self._export_lights,
+                        export_try_sparse_sk=self._export_try_sparse_sk,
                         export_vertex_color="MATERIAL",
                     )
                 )
@@ -2995,7 +2997,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     def add_vrm_extension_to_glb(
         self, extra_name_assigned_glb: bytes
     ) -> Optional[bytes]:
-        armature_data = self.armature.data
+        armature_data = self._armature.data
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
@@ -3023,17 +3025,17 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if not isinstance(extras_dict, dict):
                 continue
 
-            bone_name = extras_dict.pop(self.extras_bone_name_key, None)
+            bone_name = extras_dict.pop(self._extras_bone_name_key, None)
             if isinstance(bone_name, str):
                 bone_name_to_index_dict[bone_name] = node_index
 
-            is_main_armature = extras_dict.pop(self.extras_main_armature_key, None)
+            is_main_armature = extras_dict.pop(self._extras_main_armature_key, None)
 
-            object_name = extras_dict.pop(self.extras_object_name_key, None)
+            object_name = extras_dict.pop(self._extras_object_name_key, None)
             if isinstance(object_name, str):
                 object_name_to_index_dict[object_name] = node_index
                 if bpy.app.version < (3, 3):
-                    is_main_armature = object_name == self.armature.name
+                    is_main_armature = object_name == self._armature.name
 
             if is_main_armature:
                 if not extras_dict:
@@ -3086,7 +3088,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         node_constraint_spec_version = "1.0"
         use_node_constraint = False
         object_constraints, bone_constraints, _ = search.export_constraints(
-            self.export_objects, self.armature
+            self._export_objects, self._armature
         )
 
         for object_name, node_index in object_name_to_index_dict.items():
@@ -3153,7 +3155,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if not isinstance(extras_dict, dict):
                 continue
 
-            material_name = extras_dict.pop(self.extras_material_name_key, None)
+            material_name = extras_dict.pop(self._extras_material_name_key, None)
             if not isinstance(material_name, str):
                 continue
 
@@ -3162,15 +3164,15 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 material_dict.pop("extras", None)
 
         self.save_vrm_materials(
-            self.context,
+            self._context,
             json_dict,
             buffer0,
             material_name_to_index_dict,
             image_name_to_index_dict,
-            self.gltf2_addon_export_settings,
+            self._gltf2_addon_export_settings,
         )
         self.unassign_normal_from_mtoon_primitive_morph_target(
-            self.context, json_dict, material_name_to_index_dict
+            self._context, json_dict, material_name_to_index_dict
         )
 
         extensions_used = json_dict.get("extensionsUsed")
@@ -3193,7 +3195,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 json_dict,
                 buffer0,
                 image_name_to_index_dict,
-                self.gltf2_addon_export_settings,
+                self._gltf2_addon_export_settings,
             ),
             "humanoid": self.create_humanoid_dict(
                 vrm.humanoid, bone_name_to_index_dict
@@ -3235,7 +3237,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             spring_bone,
             bone_name_to_index_dict,
             collider_group_uuid_to_index_dict,
-            self.armature,
+            self._armature,
         )
         if spring_bone_spring_dicts:
             spring_bone_dict["springs"] = spring_bone_spring_dicts

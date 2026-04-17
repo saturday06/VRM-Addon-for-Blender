@@ -129,7 +129,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             self.weights = bytearray()
             self.joints = bytearray()
 
-            self.index_search_dict: dict[
+            self._index_search_dict: dict[
                 tuple[int, tuple[float, float, float], Optional[tuple[float, float]]],
                 int,
             ] = {}
@@ -158,7 +158,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 normal=normal,
                 texcoord=texcoord,
             )
-            return self.index_search_dict.get(index_search_key)
+            return self._index_search_dict.get(index_search_key)
 
         def add_vertex(
             self,
@@ -178,7 +178,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 normal=normal,
                 texcoord=texcoord,
             )
-            self.index_search_dict[index_search_key] = index
+            self._index_search_dict[index_search_key] = index
 
             self.position.extend(self.POSITION_STRUCT.pack(*position))
             position_x, position_y, position_z = position
@@ -255,15 +255,15 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         init_extras_export()
 
         with (
-            save_workspace(self.context),
+            save_workspace(self._context),
             self.setup_flexible_hierarchy_bones(
-                self.context, self.armature, self.export_objects
+                self._context, self._armature, self._export_objects
             ),
-            self.clear_blend_shape_proxy_previews(self.context, self.armature_data),
+            self.clear_blend_shape_proxy_previews(self._context, self.armature_data),
             self.enable_deform_for_all_referenced_bones(self.armature_data),
-            setup_humanoid_t_pose(self.context, self.armature),
-            self.hide_mtoon1_outline_geometry_nodes(self.context),
-            create_progress(self.context) as progress,
+            setup_humanoid_t_pose(self._context, self._armature),
+            self.hide_mtoon1_outline_geometry_nodes(self._context),
+            create_progress(self._context) as progress,
         ):
             json_dict: dict[str, Json] = {}
             buffer0 = bytearray()
@@ -691,7 +691,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 collider_object = collider.bpy_object
                 if (
                     not collider_object
-                    or collider_object.parent_bone not in self.armature.pose.bones
+                    or collider_object.parent_bone not in self._armature.pose.bones
                 ):
                     continue
 
@@ -699,9 +699,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 offset = [
                     collider_object.matrix_world.to_translation()[i]
                     - (
-                        self.armature.matrix_world
+                        self._armature.matrix_world
                         @ Matrix.Translation(
-                            self.armature.pose.bones[collider_object.parent_bone].head
+                            self._armature.pose.bones[collider_object.parent_bone].head
                         )
                     ).to_translation()[i]
                     for i in range(3)
@@ -1328,7 +1328,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             return image_index
 
         image_bytes, mime = image_to_image_bytes(
-            image, self.gltf2_addon_export_settings
+            image, self._gltf2_addon_export_settings
         )
 
         image_buffer_view_index = len(buffer_view_dicts)
@@ -1658,7 +1658,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         # Control texture addition order for compatibility with old exporter
 
         main_tex = self.create_mtoon0_texture_info_dict(
-            self.context,
+            self._context,
             texture_dicts,
             sampler_dicts,
             image_dicts,
@@ -1684,7 +1684,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         default_texture_vector_property = [0, 0, 1, 1]
 
         shade_texture = self.create_mtoon0_texture_info_dict(
-            self.context,
+            self._context,
             texture_dicts,
             sampler_dicts,
             image_dicts,
@@ -1704,7 +1704,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         float_properties["_BumpScale"] = bump_scale
 
         bump_map = self.create_mtoon0_texture_info_dict(
-            self.context,
+            self._context,
             texture_dicts,
             sampler_dicts,
             image_dicts,
@@ -1718,7 +1718,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         )
         if not bump_map:
             bump_map = self.create_mtoon0_texture_info_dict(
-                self.context,
+                self._context,
                 texture_dicts,
                 sampler_dicts,
                 image_dicts,
@@ -1743,7 +1743,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             "ShadingGradeTexture": "_ShadingGradeTexture",
         }.items():
             texture = self.create_mtoon0_texture_info_dict(
-                self.context,
+                self._context,
                 texture_dicts,
                 sampler_dicts,
                 image_dicts,
@@ -1761,7 +1761,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             vector_properties[texture_property_key] = default_texture_vector_property
 
         emission_map = self.create_mtoon0_texture_info_dict(
-            self.context,
+            self._context,
             texture_dicts,
             sampler_dicts,
             image_dicts,
@@ -1786,7 +1786,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             "UV_Animation_Mask_Texture": "_UvAnimMaskTexture",
         }.items():
             texture = self.create_mtoon0_texture_info_dict(
-                self.context,
+                self._context,
                 texture_dicts,
                 sampler_dicts,
                 image_dicts,
@@ -1876,7 +1876,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             material_dict["alphaMode"] = "BLEND"
 
         normal_texture = self.create_mtoon0_texture_info_dict(
-            self.context,
+            self._context,
             texture_dicts,
             sampler_dicts,
             image_dicts,
@@ -1892,7 +1892,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             material_dict["normalTexture"] = normal_texture_dict
 
         emissive_texture = self.create_mtoon0_texture_info_dict(
-            self.context,
+            self._context,
             texture_dicts,
             sampler_dicts,
             image_dicts,
@@ -1908,7 +1908,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             material_dict["emissiveTexture"] = emissive_texture_dict
 
         base_color_texture = self.create_mtoon0_texture_info_dict(
-            self.context,
+            self._context,
             texture_dicts,
             sampler_dicts,
             image_dicts,
@@ -1924,7 +1924,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             pbr_metallic_roughness_dict["baseColorTexture"] = base_color_texture_dict
 
         metallic_roughness_texture = self.create_mtoon0_texture_info_dict(
-            self.context,
+            self._context,
             texture_dicts,
             sampler_dicts,
             image_dicts,
@@ -1942,7 +1942,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             )
 
         occlusion_texture = self.create_mtoon0_texture_info_dict(
-            self.context,
+            self._context,
             texture_dicts,
             sampler_dicts,
             image_dicts,
@@ -2012,7 +2012,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             material_dict["pbrMetallicRoughness"] = pbr_metallic_roughness_dict
 
         main_tex = self.create_mtoon0_texture_info_dict(
-            self.context,
+            self._context,
             texture_dicts,
             sampler_dicts,
             image_dicts,
@@ -2145,7 +2145,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         )
 
         gltf2_io_material = gather_gltf2_io_material(
-            material, self.gltf2_addon_export_settings
+            material, self._gltf2_addon_export_settings
         )
         if not gltf2_io_material:
             return
@@ -2456,7 +2456,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         image_name_to_image_index: dict[str, int],
     ) -> None:
         gltf2_io_texture_images: list[Vrm0Exporter.Gltf2IoTextureImage] = []
-        for material in search.export_materials(self.context, self.export_objects):
+        for material in search.export_materials(self._context, self._export_objects):
             self.write_material(
                 _progress,
                 material_dicts,
@@ -2482,13 +2482,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         buffer0: bytearray,
         bone_name_to_node_index: dict[str, int],
     ) -> tuple[Sequence[int], Mapping[str, Json], Sequence[int]]:
-        bones = [bone for bone in self.armature.pose.bones if not bone.parent]
+        bones = [bone for bone in self._armature.pose.bones if not bone.parent]
         root_node_index = len(node_dicts)
         if not bones:
             _logger.error("No bones")
             node_dicts.append(
                 {
-                    "name": self.armature.name,
+                    "name": self._armature.name,
                 }
             )
             return [root_node_index], {}, []
@@ -2606,9 +2606,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         if parent_bone is None:
             parent_world_translation = Vector((0, 0, 0))
         else:
-            parent_world_translation = self.armature.matrix_world @ parent_bone.head
+            parent_world_translation = self._armature.matrix_world @ parent_bone.head
 
-        world_translation = self.armature.matrix_world @ bone.head
+        world_translation = self._armature.matrix_world @ bone.head
 
         bone_name_to_inverse_bind_matrices[bone.name] = Matrix(
             (
@@ -2755,7 +2755,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     while mesh_parent:
                         if mesh_parent.parent_type == "BONE":
                             if (
-                                mesh_parent.parent == self.armature
+                                mesh_parent.parent == self._armature
                                 and (
                                     bone_index := bone_name_to_node_index.get(
                                         mesh_parent.parent_bone
@@ -2914,7 +2914,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         obj, mesh_convertible_objects
                     )
                 )
-                and parent in self.export_objects
+                and parent in self._export_objects
             ):
                 # TODO: Don't restore nested meshes for compatibility, but will
                 # restore in the future
@@ -2923,10 +2923,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 pass
 
             if obj.parent_type == "BONE" and (
-                bone := self.armature.pose.bones.get(obj.parent_bone)
+                bone := self._armature.pose.bones.get(obj.parent_bone)
             ):
                 parent_translation = (
-                    self.armature.matrix_world @ bone.matrix
+                    self._armature.matrix_world @ bone.matrix
                 ).to_translation()
                 parent_node_index = bone_name_to_node_index.get(obj.parent_bone)
 
@@ -2979,9 +2979,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 for key_block in original_shape_keys.key_blocks:
                     key_block_name_to_value[key_block.name] = key_block.value
                     key_block.value = 0
-                self.context.view_layer.update()
+                self._context.view_layer.update()
 
-        with save_workspace(self.context):
+        with save_workspace(self._context):
             # TODO: Executing move for compatibility with old addon,
             # but seems unnecessary
             mesh_data_transform = Matrix.Identity(4)
@@ -2992,7 +2992,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             mesh_data_transform @= obj.matrix_world
 
             main_mesh_data = generate_evaluated_mesh(
-                self.context,
+                self._context,
                 obj,
             )
             if main_mesh_data is None:
@@ -3092,7 +3092,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if original_shape_keys:
                 no_morph_normal_export_vertex_indices: set[int] = (
                     self.create_no_morph_normal_export_vertex_indices(
-                        self.context,
+                        self._context,
                         main_mesh_data,
                     )
                 )
@@ -3117,13 +3117,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                         continue
 
                     shape_key.value = 1.0
-                    self.context.view_layer.update()
+                    self._context.view_layer.update()
                     shape_mesh_data = generate_evaluated_mesh(
-                        self.context,
+                        self._context,
                         obj,
                     )
                     shape_key.value = 0.0
-                    self.context.view_layer.update()
+                    self._context.view_layer.update()
 
                     if not shape_mesh_data:
                         continue
@@ -3181,7 +3181,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                             shape_mesh_data.users,
                         )
                     else:
-                        self.context.blend_data.meshes.remove(shape_mesh_data)
+                        self._context.blend_data.meshes.remove(shape_mesh_data)
 
         if main_mesh_data.users:
             _logger.warning(
@@ -3190,7 +3190,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 main_mesh_data.users,
             )
         else:
-            self.context.blend_data.meshes.remove(main_mesh_data)
+            self._context.blend_data.meshes.remove(main_mesh_data)
         main_mesh_data = None
 
         if original_shape_keys:
@@ -3198,7 +3198,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 key_block = original_shape_keys.key_blocks.get(key_block_name)
                 if key_block:
                     key_block.value = value
-            self.context.view_layer.update()
+            self._context.view_layer.update()
 
         if not material_index_to_vertex_indices:
             return scene_node_index
@@ -3520,7 +3520,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         mesh_convertible_objects = [
             mesh_object
-            for mesh_object in self.export_objects
+            for mesh_object in self._export_objects
             if mesh_object.type in search.MESH_CONVERTIBLE_OBJECT_TYPES
         ]
 
@@ -3544,9 +3544,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             if not swapped:
                 break
 
-        for obj in self.export_objects:
+        for obj in self._export_objects:
             node_index = None
-            with save_workspace(self.context, obj):
+            with save_workspace(self._context, obj):
                 node_index = self.write_mesh_node(
                     progress,
                     node_dicts,
@@ -3574,10 +3574,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
     @property
     def armature_data(self) -> Armature:
-        if not self.armature:
+        if not self._armature:
             message = "armature is not set"
             raise AssertionError(message)
-        armature_data = self.armature.data
+        armature_data = self._armature.data
         if not isinstance(armature_data, Armature):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
