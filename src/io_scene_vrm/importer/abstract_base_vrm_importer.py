@@ -142,13 +142,19 @@ class ParseResult:
         else:
             return None
 
-        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
-            temp_file.write(image_bytes)
-            temp_file.close()
-            image = context.blend_data.images.load(temp_file.name)
+        temp_file_path: Optional[Path] = None
+        try:
+            with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
+                temp_file_path = Path(temp_file.name)
+                temp_file.write(image_bytes)
+            image = context.blend_data.images.load(str(temp_file_path))
             image.name = "vrm-thumbnail-" + uuid.uuid4().hex
             image.pack()
-            return image.name
+        finally:
+            if temp_file_path:
+                with contextlib.suppress(OSError):
+                    temp_file_path.unlink(missing_ok=True)
+        return image.name
 
 
 class AbstractBaseVrmImporter(ABC):
