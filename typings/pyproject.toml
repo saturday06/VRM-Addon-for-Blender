@@ -1,6 +1,6 @@
 [project]
 name = "starry-bpy-typings"
-version = "3.26.5"
+version = "3.26.6"
 readme = "README.md"
 
 [tool.uv.build-backend]

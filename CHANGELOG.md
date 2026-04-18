@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.26.6](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.5...v3.26.6) (2026-04-18)
+
+
+### 🐛 Bug Fixes
+
+* fix bug where third-party colliders were merged automatically without intention ([664048f](https://github.com/saturday06/VRM-Addon-for-Blender/commit/664048fddef1bfcec1f85fc083f42af9e736a197))
+
 ## [3.26.5](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.4...v3.26.5) (2026-04-15)
 
 
