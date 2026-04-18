@@ -48,11 +48,22 @@ def _fixup_gravity_dir(armature: Armature) -> None:
                 joint.gravity_dir = gravity_dir
 
 
-def is_unnecessary(spring_bone1: SpringBone1SpringBonePropertyGroup) -> bool:
+def is_unnecessary(
+    spring_bone1: SpringBone1SpringBonePropertyGroup,
+    *,
+    heavy_migration: bool,
+) -> bool:
+    if not heavy_migration:
+        return True
     return not spring_bone1.initial_automatic_spring_bone_assignment
 
 
-def migrate(context: Context, armature: Object) -> None:
+def migrate(
+    context: Context,
+    armature: Object,
+    *,
+    heavy_migration: bool,
+) -> None:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         return
@@ -68,6 +79,6 @@ def migrate(context: Context, armature: Object) -> None:
     ):
         spring_bone1.initial_automatic_spring_bone_assignment = False
 
-    if spring_bone1.initial_automatic_spring_bone_assignment:
+    if heavy_migration and spring_bone1.initial_automatic_spring_bone_assignment:
         spring_bone1.initial_automatic_spring_bone_assignment = False
         assign_spring_bone1_automatically(context, armature.name)

@@ -46,7 +46,9 @@ def is_unnecessary(armature_data: Armature, *, heavy_migration: bool) -> bool:
         tuple(ext.addon_version) >= get_addon_version()
         and vrm0_migration.is_unnecessary(ext.vrm0, heavy_migration=heavy_migration)
         and vrm1_migration.is_unnecessary(ext.vrm1, heavy_migration=heavy_migration)
-        and spring_bone1_migration.is_unnecessary(ext.spring_bone1)
+        and spring_bone1_migration.is_unnecessary(
+            ext.spring_bone1, heavy_migration=heavy_migration
+        )
     )
 
 
@@ -115,7 +117,7 @@ def migrate(
 
     vrm0_migration.migrate(context, ext.vrm0, armature, heavy_migration=heavy_migration)
     vrm1_migration.migrate(context, ext.vrm1, armature, heavy_migration=heavy_migration)
-    spring_bone1_migration.migrate(context, armature)
+    spring_bone1_migration.migrate(context, armature, heavy_migration=heavy_migration)
 
     if (
         ext.has_vrm_model_metadata(armature)
