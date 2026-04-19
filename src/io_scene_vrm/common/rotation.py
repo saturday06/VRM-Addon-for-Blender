@@ -24,7 +24,8 @@ def get_rotation_as_quaternion(
         return object_or_pose_bone.rotation_quaternion.copy()
 
     if object_or_pose_bone.rotation_mode == ROTATION_MODE_AXIS_ANGLE:
-        axis_x, axis_y, axis_z, angle = object_or_pose_bone.rotation_axis_angle
+        # https://projects.blender.org/blender/blender/src/tag/v2.93.18/source/blender/makesrna/intern/rna_pose.c#L270-L278
+        angle, axis_x, axis_y, axis_z = object_or_pose_bone.rotation_axis_angle
         return Quaternion((axis_x, axis_y, axis_z), angle)
 
     if object_or_pose_bone.rotation_mode in ROTATION_MODE_EULER:
@@ -49,7 +50,8 @@ def set_rotation_without_mode_change(
 
     if object_or_pose_bone.rotation_mode == ROTATION_MODE_AXIS_ANGLE:
         axis, angle = quaternion.to_axis_angle()
-        object_or_pose_bone.rotation_axis_angle = [axis.x, axis.y, axis.z, angle]
+        # https://projects.blender.org/blender/blender/src/tag/v2.93.18/source/blender/makesrna/intern/rna_pose.c#L280-L290
+        object_or_pose_bone.rotation_axis_angle = [angle, axis.x, axis.y, axis.z]
         return
 
     if object_or_pose_bone.rotation_mode in ROTATION_MODE_EULER:
