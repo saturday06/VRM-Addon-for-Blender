@@ -12,6 +12,9 @@ cd "$(dirname "$0")/.."
 sudo ./tools/install_ubuntu_packages.sh
 sudo ./tools/install_ubuntu_vnc_packages.sh
 
+# restore .gitkeep in .local that may be deleted when the volume is created.
+git restore .local/var/cache/.gitkeep .local/tmp/.gitkeep
+
 ./tools/install_act.sh
 ./tools/install_hadolint.sh
 ./tools/install_editorconfig-checker.sh
