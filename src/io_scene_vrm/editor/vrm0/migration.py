@@ -172,7 +172,8 @@ def _migrate_vrm0_first_person(
         first_person_dict.get("firstPersonBoneOffset")
     )
     if first_person_bone_offset is not None:
-        # Axis confusing
+        # Perform a special axis transformation for VRM 0.0.
+        # https://github.com/vrm-c/vrm-specification/issues/205#issuecomment-753582597
         (x, y, z) = first_person_bone_offset
         first_person.first_person_bone_offset = (x, z, y)
 
@@ -402,7 +403,8 @@ def _migrate_vrm0_secondary_animation(
             bone_group_dict.get("gravityDir")
         )
         if gravity_dir is not None:
-            # Axis confusing
+            # Perform a special axis transformation for VRM 0.0.
+            # https://github.com/vrm-c/vrm-specification/issues/205#issuecomment-753582597
             (x, y, z) = gravity_dir
             bone_group.gravity_dir = (x, z, y)
 

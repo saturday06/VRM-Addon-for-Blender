@@ -984,7 +984,8 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             first_person_dict.get("firstPersonBoneOffset")
         )
         if first_person_bone_offset is not None:
-            # Axis confusing
+            # Perform a special axis transformation for VRM 0.0.
+            # https://github.com/vrm-c/vrm-specification/issues/205#issuecomment-753582597
             (x, y, z) = first_person_bone_offset
             first_person.first_person_bone_offset = (x, z, y)
 
@@ -1196,9 +1197,10 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 obj.parent = self._armature
                 obj.parent_type = "BONE"
                 obj.parent_bone = bone_name
-                fixed_offset = [
-                    offset[axis] * inv for axis, inv in zip([0, 2, 1], [-1, -1, 1])
-                ]  # TODO: Y-axis inversion is matched to UniVRM serialization
+
+                # Perform a special axis transformation for VRM 0.0.
+                # https://github.com/vrm-c/UniVRM/issues/65
+                fixed_offset = (-offset[0], -offset[2], offset[1])
 
                 obj.matrix_world = Matrix.Translation(
                     (
@@ -1245,7 +1247,8 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 bone_group_dict.get("gravityDir")
             )
             if gravity_dir is not None:
-                # Axis confusing
+                # Perform a special axis transformation for VRM 0.0.
+                # https://github.com/vrm-c/vrm-specification/issues/205#issuecomment-753582597
                 (x, y, z) = gravity_dir
                 bone_group.gravity_dir = (x, z, y)
 

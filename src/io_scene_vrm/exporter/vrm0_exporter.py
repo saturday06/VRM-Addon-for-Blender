@@ -715,6 +715,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 )
 
                 collider_dict["offset"] = {
+                    # Perform a special axis transformation for VRM 0.0.
                     # https://github.com/vrm-c/UniVRM/issues/65
                     "x": -offset[0],
                     "y": offset[2],
@@ -730,8 +731,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 "stiffiness": bone_group.stiffiness,
                 "gravityPower": bone_group.gravity_power,
                 "gravityDir": {
-                    # TODO: firstPerson.firstPersonBoneOffset and BoneGroup.gravityDir
-                    # axis conversion is original. Need to document this.
+                    # Perform a special axis transformation for VRM 0.0.
+                    # https://github.com/vrm-c/vrm-specification/issues/205#issuecomment-753582597
                     "x": bone_group.gravity_dir[0],
                     "y": bone_group.gravity_dir[2],
                     "z": bone_group.gravity_dir[1],
@@ -851,8 +852,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 first_person_dict["firstPersonBone"] = first_person_bone_index
 
         first_person_dict["firstPersonBoneOffset"] = {
-            # TODO: firstPerson.firstPersonBoneOffset and BoneGroup.gravityDir
-            # axis conversion is original. Need to document this.
+            # Perform a special axis transformation for VRM 0.0.
+            # https://github.com/vrm-c/vrm-specification/issues/205#issuecomment-753582597
             "x": first_person.first_person_bone_offset[0],
             "y": first_person.first_person_bone_offset[2],
             "z": first_person.first_person_bone_offset[1],
