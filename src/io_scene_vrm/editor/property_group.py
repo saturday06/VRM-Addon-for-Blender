@@ -878,29 +878,29 @@ T_co = TypeVar("T_co", covariant=True)
 
 # The actual type does not take type arguments.
 class CollectionPropertyProtocol(Protocol[T_co]):
-    def add(self) -> T_co: ...  # TODO: undocumented
+    def add(self) -> T_co: ...
 
-    def __len__(self) -> int: ...  # TODO: undocumented
+    def __len__(self) -> int: ...
 
-    def __iter__(self) -> Iterator[T_co]: ...  # TODO: undocumented
+    def __iter__(self) -> Iterator[T_co]: ...
 
-    def clear(self) -> None: ...  # TODO: undocumented
+    def clear(self) -> None: ...
 
     @overload
-    def __getitem__(self, index: int) -> T_co: ...  # TODO: undocumented
+    def __getitem__(self, index: int) -> T_co: ...
 
     @overload
     def __getitem__(
         self, index: "slice[Optional[int], Optional[int], Optional[int]]"
-    ) -> tuple[T_co, ...]: ...  # TODO: undocumented
+    ) -> tuple[T_co, ...]: ...
 
-    def remove(self, index: int) -> None: ...  # TODO: undocumented
+    def remove(self, index: int) -> None: ...
 
-    def values(self) -> ValuesView[T_co]: ...  # TODO: undocumented
+    def values(self) -> ValuesView[T_co]: ...
 
-    def __contains__(self, value: str) -> bool: ...  # TODO: undocumented
+    def __contains__(self, value: str) -> bool: ...
 
-    def move(self, from_index: int, to_index: int) -> None: ...  # TODO: undocumented
+    def move(self, from_index: int, to_index: int) -> None: ...
 
 
 def clear_global_variables() -> None:

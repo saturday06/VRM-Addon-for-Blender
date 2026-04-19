@@ -22,9 +22,9 @@ class MtoonUnversioned:
         "_OutlineWidth": "OutlineWidth",
         "_OutlineScaledMaxDistance": "OutlineScaleMaxDistance",
         "_OutlineLightingMix": "OutlineLightingMix",
-        "_UvAnimScrollX": "UV_Scroll_X",  # TODO: #####
-        "_UvAnimScrollY": "UV_Scroll_Y",  # TODO: #####
-        "_UvAnimRotation": "UV_Scroll_Rotation",  # TODO: #####
+        "_UvAnimScrollX": "UV_Scroll_X",
+        "_UvAnimScrollY": "UV_Scroll_Y",
+        "_UvAnimRotation": "UV_Scroll_Rotation",
         "_DebugMode": None,
         "_BlendMode": None,
         "_OutlineWidthMode": "OutlineWidthMode",
@@ -47,7 +47,7 @@ class MtoonUnversioned:
         "_SphereAdd": "SphereAddTexture",
         "_RimTexture": "RimTexture",
         "_OutlineWidthTexture": "OutlineWidthTexture",
-        "_UvAnimMaskTexture": "UV_Animation_Mask_Texture",  # TODO: ####
+        "_UvAnimMaskTexture": "UV_Animation_Mask_Texture",
     }
     vector_base_props_exchange_dict: Mapping[str, str] = {
         "_Color": "DiffuseColor",
