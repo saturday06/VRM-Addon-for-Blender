@@ -6,8 +6,9 @@ from io import BytesIO
 from typing import Final, Optional, Union
 from urllib.parse import unquote, urlsplit
 
-from mathutils import Quaternion, Vector
+from mathutils import Matrix, Quaternion, Vector
 
+from . import convert
 from .convert import Json
 from .deep import make_json
 from .gl import (
@@ -609,3 +610,38 @@ def read_accessor_as_animation_sampler_rotation_output(
     if vec4_accessor is None:
         return None
     return [Quaternion((w, x, -z, y)).normalized() for x, y, z, w in vec4_accessor]
+
+
+def parse_gltf_node_matrix(node_dict: dict[str, Json]) -> Matrix:
+    matrix = node_dict.get("matrix")
+    if isinstance(matrix, list):
+        if len(matrix) != 16:
+            return Matrix()
+
+        row0 = convert.float4_or_none((matrix[0], matrix[4], matrix[8], matrix[12]))
+        row1 = convert.float4_or_none((matrix[1], matrix[5], matrix[9], matrix[13]))
+        row2 = convert.float4_or_none((matrix[2], matrix[6], matrix[10], matrix[14]))
+        row3 = convert.float4_or_none((matrix[3], matrix[7], matrix[11], matrix[15]))
+        if not (row0 and row1 and row2 and row3):
+            return Matrix()
+
+        return Matrix((row0, row1, row2, row3))
+
+    location_matrix = Matrix()
+    location = convert.float3_or_none(node_dict.get("translation"))
+    if location:
+        location_matrix = Matrix.Translation(location)
+
+    rotation_matrix = Matrix()
+    rotation = convert.float4_or_none(node_dict.get("rotation"))
+    if rotation:
+        x, y, z, w = rotation
+        quaternion = Quaternion((w, x, y, z))
+        rotation_matrix = quaternion.to_matrix().to_4x4()
+
+    scale_matrix = Matrix()
+    scale = convert.float3_or_none(node_dict.get("scale"))
+    if scale:
+        scale_matrix = Matrix.Diagonal(scale).to_4x4()
+
+    return location_matrix @ rotation_matrix @ scale_matrix

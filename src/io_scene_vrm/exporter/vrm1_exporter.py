@@ -36,7 +36,7 @@ from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.gl import GL_LINEAR, GL_REPEAT
-from ..common.gltf import pack_glb, parse_glb
+from ..common.gltf import pack_glb, parse_glb, parse_gltf_node_matrix
 from ..common.logger import get_logger
 from ..common.preferences import ExportPreferencesProtocol
 from ..common.rotation import (
@@ -2982,7 +2982,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 child_node_dict = node_dicts[armature_child_index]
                 if not isinstance(child_node_dict, dict):
                     continue
-                child_matrix = _get_node_matrix(child_node_dict)
+                child_matrix = parse_gltf_node_matrix(child_node_dict)
                 _set_node_matrix(
                     child_node_dict,
                     armature_world_matrix @ child_matrix,
@@ -3336,7 +3336,7 @@ def _find_node_world_matrix(
     if not isinstance(node_dict, dict):
         return None
 
-    parent_node_matrix = _get_node_matrix(node_dict)
+    parent_node_matrix = parse_gltf_node_matrix(node_dict)
 
     if parent_node_index == target_node_index:
         return parent_node_matrix
@@ -3355,41 +3355,6 @@ def _find_node_world_matrix(
             return parent_node_matrix @ child_node_matrix
 
     return None
-
-
-def _get_node_matrix(node_dict: dict[str, Json]) -> Matrix:
-    matrix = node_dict.get("matrix")
-    if isinstance(matrix, list):
-        if len(matrix) != 16:
-            return Matrix()
-
-        row0 = convert.float4_or_none((matrix[0], matrix[4], matrix[8], matrix[12]))
-        row1 = convert.float4_or_none((matrix[1], matrix[5], matrix[9], matrix[13]))
-        row2 = convert.float4_or_none((matrix[2], matrix[6], matrix[10], matrix[14]))
-        row3 = convert.float4_or_none((matrix[3], matrix[7], matrix[11], matrix[15]))
-        if not (row0 and row1 and row2 and row3):
-            return Matrix()
-
-        return Matrix((row0, row1, row2, row3))
-
-    location_matrix = Matrix()
-    location = convert.float3_or_none(node_dict.get("translation"))
-    if location:
-        location_matrix = Matrix.Translation(location)
-
-    rotation_matrix = Matrix()
-    rotation = convert.float4_or_none(node_dict.get("rotation"))
-    if rotation:
-        x, y, z, w = rotation
-        quaternion = Quaternion((w, x, y, z))
-        rotation_matrix = quaternion.to_matrix().to_4x4()
-
-    scale_matrix = Matrix()
-    scale = convert.float3_or_none(node_dict.get("scale"))
-    if scale:
-        scale_matrix = Matrix.Diagonal(scale).to_4x4()
-
-    return location_matrix @ rotation_matrix @ scale_matrix
 
 
 def _set_node_matrix(node_dict: dict[str, Json], matrix: Matrix) -> None:

@@ -13,6 +13,7 @@ from ..common.convert import Json
 from ..common.debug import dump
 from ..common.gltf import (
     parse_glb,
+    parse_gltf_node_matrix,
     read_accessor_as_animation_sampler_input,
     read_accessor_as_animation_sampler_rotation_output,
     read_accessor_as_animation_sampler_translation_output,
@@ -547,35 +548,27 @@ class NodeRestPoseTree:
         if not isinstance(node_dict, dict):
             return []
 
-        translation_float3 = convert.float3_or_none(node_dict.get("translation"))
-        if translation_float3:
-            x, y, z = translation_float3
-            translation = Vector((x, -z, y))
-        else:
-            translation = Vector((0.0, 0.0, 0.0))
+        parsed_matrix = parse_gltf_node_matrix(node_dict)
+        parsed_translation, parsed_rotation, parsed_scale = parsed_matrix.decompose()
 
-        rotation_float4 = convert.float4_or_none(node_dict.get("rotation"))
-        if rotation_float4:
-            x, y, z, w = rotation_float4
-            rotation = Quaternion((w, x, -z, y)).normalized()
-        else:
-            rotation = Quaternion()
-
-        scale_float3 = convert.float3_or_none(node_dict.get("scale"))
-        if scale_float3:
-            x, y, z = scale_float3
-            scale = Vector((x, z, y))
-        else:
-            scale = Vector((1, 1, 1))
+        translation = Vector(
+            (parsed_translation.x, -parsed_translation.z, parsed_translation.y)
+        )
+        rotation = Quaternion(
+            (
+                parsed_rotation.w,
+                parsed_rotation.x,
+                -parsed_rotation.z,
+                parsed_rotation.y,
+            )
+        ).normalized()
+        scale = Vector((parsed_scale.x, parsed_scale.z, parsed_scale.y))
 
         local_matrix = (
             Matrix.Translation(translation)
             @ rotation.to_matrix().to_4x4()
             @ Matrix.Diagonal(scale).to_4x4()
         )
-
-        # TODO: Is it an Euler angle in the case of 3 elements?
-        # TODO: Decompose if it's a Matrix
 
         child_indices = node_dict.get("children")
         if isinstance(child_indices, list):
