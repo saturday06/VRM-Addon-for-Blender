@@ -6,7 +6,6 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from tempfile import mkdtemp
 from typing import Final, Optional, Protocol
 
 import bpy
@@ -187,13 +186,24 @@ def create_fast_path_performance_test_scene(
     repository_root_path = (
         Path(__file__).resolve(strict=True).parent.parent.parent.parent
     )
-    if (repository_root_path / ".git").exists() and (
-        repository_root_path / "pyproject.toml"
-    ).exists():
-        temp_path = repository_root_path / ".local" / "tmp"
-    else:
-        temp_path = Path(mkdtemp(prefix="vrm-format-"))
-    cached_blend_path = temp_path / (
+    expected_scene_watcher_source_path = (
+        repository_root_path / "src" / "io_scene_vrm" / "common" / "scene_watcher.py"
+    )
+
+    if (
+        not expected_scene_watcher_source_path.exists()
+        or (
+            expected_scene_watcher_source_path.resolve(strict=True)
+            != Path(__file__).resolve(strict=True)
+        )
+        or not (repository_root_path / ".git").exists()
+        or not (repository_root_path / "pyproject.toml").exists()
+    ):
+        message = f"Repository root not found at {repository_root_path}"
+        raise AssertionError(message)
+
+    cache_folder_path = repository_root_path / ".local" / "var" / "cache"
+    cached_blend_path = cache_folder_path / (
         type(scene_watcher).__name__
         + "-"
         + "_".join(map(str, bpy.app.version))

@@ -50,9 +50,18 @@ ci-super-linter-local-image.tar.gz
 __pycache__/
 
 /.local/**
+
+# commit /.local/tmp/.gitkeep
 !/.local/tmp/
 /.local/tmp/**
 !/.local/tmp/.gitkeep
+
+# commit /.local/var/cache/.gitkeep
+!/.local/var/
+/.local/var/**
+!/.local/var/cache
+/.local/var/cache/**
+!/.local/var/cache/.gitkeep
 
 /tests/resources/blend/*_animation/*/*_blender.png
 /tests/resources/blend/*_animation/*/*_blender_roundtrip.png
