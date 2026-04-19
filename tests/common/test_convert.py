@@ -62,6 +62,10 @@ class TestConvert(TestCase):
             [1.0, 2.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0],
         )
         self.assertEqual(
+            convert.vrm_json_curve_to_list([1, 2, 3, 4, 5, 6, 7, 8]),
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
+        )
+        self.assertEqual(
             convert.vrm_json_curve_to_list([1, 2, 3, 4, 5, 6, 7, 8, 9]),
             [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
         )
@@ -106,6 +110,17 @@ class TestConvert(TestCase):
         # Test zero division avoidance
         self.assertAlmostEqual(
             convert.mtoon_shading_toony_1_to_0(2.0, 0.0), 0.9, places=5
+        )
+
+        # Test negative output clamping to 0
+        self.assertEqual(convert.mtoon_shading_toony_1_to_0(-0.5, -0.5), 0.0)
+
+        # Test output > 1 clamping to 1
+        self.assertEqual(convert.mtoon_shading_toony_1_to_0(1.5, 0.5), 1.0)
+
+        # Test another regular case
+        self.assertAlmostEqual(
+            convert.mtoon_shading_toony_1_to_0(0.2, 0.3), 0.2380952, places=5
         )
 
     def test_mtoon_shading_shift_1_to_0(self) -> None:
@@ -214,6 +229,16 @@ class TestConvert(TestCase):
         )
 
     def test_linear_to_srgb(self) -> None:
+        self.assertEqual(convert.linear_to_srgb([]), [])
+
+        srgb_short = convert.linear_to_srgb([0.5])
+        self.assertAlmostEqual(srgb_short[0], 0.72974005, places=5)
+
+        srgb_3 = convert.linear_to_srgb([0.5, 0.5, 0.5])
+        self.assertAlmostEqual(srgb_3[0], 0.72974005, places=5)
+        self.assertAlmostEqual(srgb_3[1], 0.72974005, places=5)
+        self.assertAlmostEqual(srgb_3[2], 0.72974005, places=5)
+
         self.assertEqual(
             convert.linear_to_srgb([0.0, 0.0, 0.0, 0.5]), [0.0, 0.0, 0.0, 0.5]
         )
@@ -226,7 +251,24 @@ class TestConvert(TestCase):
         self.assertAlmostEqual(srgb[2], 0.72974005, places=5)
         self.assertEqual(srgb[3], 0.5)
 
+        srgb_5 = convert.linear_to_srgb([0.5, 0.5, 0.5, 0.5, 0.5])
+        self.assertAlmostEqual(srgb_5[0], 0.72974005, places=5)
+        self.assertAlmostEqual(srgb_5[1], 0.72974005, places=5)
+        self.assertAlmostEqual(srgb_5[2], 0.72974005, places=5)
+        self.assertEqual(srgb_5[3], 0.5)
+        self.assertEqual(srgb_5[4], 0.5)
+
     def test_srgb_to_linear(self) -> None:
+        self.assertEqual(convert.srgb_to_linear([]), [])
+
+        linear_short = convert.srgb_to_linear([0.5])
+        self.assertAlmostEqual(linear_short[0], 0.21763764, places=5)
+
+        linear_3 = convert.srgb_to_linear([0.5, 0.5, 0.5])
+        self.assertAlmostEqual(linear_3[0], 0.21763764, places=5)
+        self.assertAlmostEqual(linear_3[1], 0.21763764, places=5)
+        self.assertAlmostEqual(linear_3[2], 0.21763764, places=5)
+
         self.assertEqual(
             convert.srgb_to_linear([0.0, 0.0, 0.0, 0.5]), [0.0, 0.0, 0.0, 0.5]
         )
@@ -238,3 +280,10 @@ class TestConvert(TestCase):
         self.assertAlmostEqual(linear[1], 0.21763764, places=5)
         self.assertAlmostEqual(linear[2], 0.21763764, places=5)
         self.assertEqual(linear[3], 0.5)
+
+        linear_5 = convert.srgb_to_linear([0.5, 0.5, 0.5, 0.5, 0.5])
+        self.assertAlmostEqual(linear_5[0], 0.21763764, places=5)
+        self.assertAlmostEqual(linear_5[1], 0.21763764, places=5)
+        self.assertAlmostEqual(linear_5[2], 0.21763764, places=5)
+        self.assertEqual(linear_5[3], 0.5)
+        self.assertEqual(linear_5[4], 0.5)
