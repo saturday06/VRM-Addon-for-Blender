@@ -582,7 +582,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     bind.mesh.mesh_object_name
                 )
                 if mesh_index is None:
-                    # logger.warning("%s => None", bind.mesh.mesh_object_name)
                     continue
                 bind_dict["mesh"] = mesh_index
 
@@ -3228,7 +3227,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     "byteOffset": 0,
                     "type": "SCALAR",
                     "componentType": GL_UNSIGNED_INT,
-                    # TODO: Avoid division as it can lead to mistakes
                     "count": len(vertex_indices) // vertex_indices_struct.size,
                 }
             )
@@ -3830,7 +3828,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         context: Context,
         mesh_data: Mesh,
     ) -> set[int]:
-        # logger.error("CREATE UNIQ:")
         # Collect vertex indices where normal difference is forced to zero
         # setting is enabled
         exclusion_vertex_indices: set[int] = set()
@@ -3866,36 +3863,22 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         mesh_data: Mesh,
     ) -> list[Vector]:
         # Collect normal values for each shape key
-        # logger.error("  refkey=%s key=%s", reference_key_name, shape_key_name)
         # Use split (loop) normals instead of vertex normals
         # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1129
         vertex_normal_sum_vectors = [Vector([0.0, 0.0, 0.0])] * len(mesh_data.vertices)
         for loop_triangle in mesh_data.loop_triangles:
-            # logger.error("    loop_triangle mat=%s", loop_triangle.material_index)
             for vertex_index, normal in zip(
                 loop_triangle.vertices, loop_triangle.split_normals
             ):
-                # logger.error(
-                #     "      vindex=%s normal=%s",
-                #     vertex_index,
-                #     normal,
-                # )
                 if vertex_index in no_morph_normal_export_vertex_indices:
-                    # logger.error("      EXCLUDE")
                     continue
                 if not (0 <= vertex_index < len(vertex_normal_sum_vectors)):
-                    # logger.error("      OUT OF RANGE")
                     continue
                 vertex_normal_sum_vectors[vertex_index] = (
                     # Normally we would use the += operator, but for some
                     # reason the result changes so we don't use it
                     vertex_normal_sum_vectors[vertex_index] + Vector(normal)
                 )
-                # logger.error(
-                #     "      => %s:%s",
-                #     vertex_normal_sum_vectors[vertex_index],
-                #     list(vertex_normal_sum_vectors[vertex_index]),
-                # )
         return [
             Vector((0, 0, 0))
             if vector.length_squared < float_info.epsilon
@@ -3913,19 +3896,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             no_morph_normal_export_vertex_indices,
             shape_key_mesh_data,
         )
-
         # Collect normal differences from reference key for each shape key
-
-        # logger.error("REFERENCE_KEY: %s", mesh_data.shape_keys.reference_key.name)
-        # for v in reference_vertex_normal_vectors:
-        #     logger.error("  %s", v)
-
-        # for n, vv in shape_key_name_to_vertex_normal_vectors.items():
-        #     logger.error("KEY: %s", n)
-        #     for v in vv:
-        #         logger.error("  %s", v)
-
-        # logger.error("RESULT:")
         vertex_index_to_morph_normal_diffs = [
             (
                 vertex_normal_vector.x - reference_vertex_normal_vector.x,
@@ -3937,11 +3908,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 reference_vertex_normal_vectors,
             )
         ]
-        # logger.error(
-        #     "  %s:%s",
-        #     shape_key_name,
-        #     vertex_index_to_morph_normal_diffs,
-        # )
         return vertex_index_to_morph_normal_diffs
 
     def have_skin(self, mesh: Object) -> bool:
