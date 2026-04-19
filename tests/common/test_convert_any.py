@@ -6,6 +6,19 @@ from io_scene_vrm.common import convert_any
 
 
 class TestConvertAny(TestCase):
+    def test_to_object(self) -> None:
+        obj = object()
+        self.assertIs(convert_any.to_object(obj), obj)
+        self.assertIs(convert_any.to_object(None), None)
+        self.assertEqual(convert_any.to_object(1), 1)
+        self.assertEqual(convert_any.to_object("a"), "a")
+
+        lst = [1, 2, 3]
+        self.assertIs(convert_any.to_object(lst), lst)
+
+        dct = {"a": 1}
+        self.assertIs(convert_any.to_object(dct), dct)
+
     def test_iterator_to_object_iterator(self) -> None:
         self.assertIsNone(convert_any.iterator_to_object_iterator(None))
         self.assertIsNone(convert_any.iterator_to_object_iterator(1))

@@ -5,6 +5,12 @@ from io_scene_vrm.common.blender_manifest import BlenderManifest
 
 
 class TestBlenderManifest(TestCase):
+    def test_default_blender_manifest_path(self) -> None:
+        path = BlenderManifest.default_blender_manifest_path()
+        self.assertTrue(path.exists())
+        self.assertTrue(path.is_file())
+        self.assertEqual(path.name, "blender_manifest.toml")
+
     def test_read_default(self) -> None:
         blender_manifest = BlenderManifest.read()
         self.assertGreater(blender_manifest.version, (2,))
