@@ -588,10 +588,10 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
                 return
             if isinstance(connection_check_node, NodeReroute):
                 connection_check_inputs = connection_check_node.inputs
-                if len(connection_check_inputs) == 0:
+                if not connection_check_inputs:
                     break
                 connection_check_links = connection_check_inputs[0].links
-                if len(connection_check_links) == 0:
+                if not connection_check_links:
                     break
                 connection_check_link = connection_check_links[0]
                 connection_check_node = connection_check_link.from_node
@@ -621,7 +621,7 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
                     traversing_sockets.extend(connection_check_node.outputs)
                     continue
                 traversing_outputs = connection_check_node.outputs
-                if len(traversing_outputs) == 0:
+                if not traversing_outputs:
                     continue
                 out_socket = traversing_outputs[0]
                 out_node = connection_check_node

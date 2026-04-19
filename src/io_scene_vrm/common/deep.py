@@ -91,7 +91,7 @@ def diff(
         if not isinstance(right, dict):
             return [f"{path}: left is dict but right is {type(right)}"]
         diffs = []
-        for key in sorted(set(list(left.keys()) + list(right.keys()))):
+        for key in sorted(left.keys() | right.keys()):
             if key not in left:
                 diffs.append(f'{path}: {key} not in left. right["{key}"]={right[key]}')
                 continue
