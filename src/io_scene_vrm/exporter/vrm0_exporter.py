@@ -3221,6 +3221,16 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 }
             )
             indices_accessor_index = len(accessor_dicts)
+            if vertex_indices_struct.size == 0:
+                message = "vertex_indices_struct.size is 0"
+                raise AssertionError(message)
+            if len(vertex_indices) % vertex_indices_struct.size != 0:
+                message = (
+                    "vertex_indices length is not a multiple of "
+                    "vertex_indices_struct.size"
+                )
+                raise AssertionError(message)
+
             accessor_dicts.append(
                 {
                     "bufferView": indices_buffer_view_index,
