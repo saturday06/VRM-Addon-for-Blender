@@ -3449,7 +3449,6 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     def all_textures(
         self, *, downgrade_to_mtoon0: bool
     ) -> list[Union[Mtoon0TexturePropertyGroup, Mtoon1TexturePropertyGroup]]:
-        # TODO: remove code duplication
         result: list[Union[Mtoon0TexturePropertyGroup, Mtoon1TexturePropertyGroup]] = []
         result.extend(
             [

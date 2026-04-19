@@ -2852,7 +2852,6 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                         export_apply=False,
                         # Models may appear incorrectly in many viewers
                         export_all_influences=self._export_all_influences,
-                        # TODO: Expose UI Option, Unity allows light export
                         export_lights=self._export_lights,
                         export_try_sparse_sk=self._export_try_sparse_sk,
                         export_vertex_color="MATERIAL",

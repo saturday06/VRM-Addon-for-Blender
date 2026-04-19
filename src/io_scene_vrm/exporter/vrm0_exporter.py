@@ -3065,8 +3065,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     # something, but it's judged safer to keep it the same as the glTF
                     # 2.0 addon.
                     # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1127
-                    # TODO: This implementation should really average the three normals
-                    # from the loop
                     normal = convert.axis_blender_to_gltf(loop.normal)
 
                     vertex_index = self.collect_vertex(
