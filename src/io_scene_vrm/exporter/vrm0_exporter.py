@@ -2895,12 +2895,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         have_skin = bool(skin_joints) and self.have_skin(obj)
 
         node_index = len(node_dicts)
-        node_dict: dict[str, Json] = {
-            "name": obj.name,
-            # TODO: Planned for removal as it's identical to default value
-            "rotation": [0, 0, 0, 1],
-            "scale": [1, 1, 1],
-        }
+        node_dict: dict[str, Json] = {"name": obj.name}
 
         parent_node_index = None
         parent_translation = None

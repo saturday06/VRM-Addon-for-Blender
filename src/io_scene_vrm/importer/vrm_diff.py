@@ -74,10 +74,17 @@ def _create_vrm_json_dict(data: bytes) -> dict[str, Json]:
             if "matrix" in node_dict:
                 continue
 
+            if "translation" not in node_dict:
+                node_dict["translation"] = [0.0, 0.0, 0.0]
+
             if "scale" not in node_dict:
                 node_dict["scale"] = [1.0, 1.0, 1.0]
 
             rotation = node_dict.get("rotation")
+            if rotation is None:
+                node_dict["rotation"] = [0.0, 0.0, 0.0, 1.0]
+                continue
+
             if not isinstance(rotation, list) or len(rotation) != 4:
                 continue
 
@@ -88,7 +95,6 @@ def _create_vrm_json_dict(data: bytes) -> dict[str, Json]:
                 or not isinstance(rotation_z, (float, int))
                 or not isinstance(rotation_w, (float, int))
             ):
-                node_dict["rotation"] = [0.0, 0.0, 0.0, 1.0]
                 continue
 
             axis, angle = Quaternion(
