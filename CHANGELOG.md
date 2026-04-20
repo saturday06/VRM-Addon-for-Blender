@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.26.7](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.6...v3.26.7) (2026-04-19)
+
+
+### 🐛 Bug Fixes
+
+* fix a bug where getting or setting rotation in axis-angle mode produced invalid values ([06e7e37](https://github.com/saturday06/VRM-Addon-for-Blender/commit/06e7e37249e047f74f7b2b4bffcb08737c479d25))
+
 ## [3.26.6](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.5...v3.26.6) (2026-04-18)
 
 
