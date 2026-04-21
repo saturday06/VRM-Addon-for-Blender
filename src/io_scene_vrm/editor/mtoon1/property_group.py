@@ -3244,7 +3244,10 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
     def _set_alpha_cutoff(self, value: float) -> None:
         material = self.find_material()
         if bpy.app.version < (4, 2):
-            material.alpha_threshold = max(0, min(1.0, value - 0.00001))  # TODO: ...
+            # glTF alphaCutoff: >= is opaque
+            # Blender <4.2 alpha_threshold: > is opaque
+            # Subtract 0.00001 to absorb this difference.
+            material.alpha_threshold = max(0, min(1.0, value - 0.00001))
         self.set_value(
             shader.OUTPUT_GROUP_NAME,
             shader.OUTPUT_GROUP_ALPHA_CUTOFF_LABEL,

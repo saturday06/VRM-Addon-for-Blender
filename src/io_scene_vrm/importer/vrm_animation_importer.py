@@ -294,9 +294,10 @@ def _import_vrm_animation(context: Context, path: Path, armature: Object) -> set
         if not isinstance(node_dict, dict):
             continue
 
+        # https://github.com/vrm-c/vrm-specification/blob/3942748efbc803b258e288e0f6c993c6bb96cebf/specification/VRMC_vrm_animation-1.0/README.md?plain=1#L163-L164
         translation = node_dict.get("translation")
         if isinstance(translation, list) and translation:
-            default_preview_value = translation[0]  # TODO: In case of Matrix
+            default_preview_value = translation[0]
             if not isinstance(default_preview_value, (float, int)):
                 default_preview_value = 0.0
         else:
