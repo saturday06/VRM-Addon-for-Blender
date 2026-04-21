@@ -6,6 +6,7 @@ from bpy.types import Armature
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.editor.extension import get_armature_extension
+from io_scene_vrm.editor.validation import is_valid_url
 from tests.util import AddonTestCase
 
 
@@ -121,6 +122,19 @@ class TestValidation(AddonTestCase):
         human_bones.spine.node.bone_name = "hips"
 
         self.assertEqual(ops.vrm.model_validate(), {"CANCELLED"})
+
+    def test_is_valid_url(self) -> None:
+        self.assertTrue(is_valid_url("https://example.com", allow_empty_str=False))
+        self.assertTrue(is_valid_url("https://example.com", allow_empty_str=True))
+
+        self.assertFalse(is_valid_url("example.com", allow_empty_str=False))
+        self.assertFalse(is_valid_url("example.com", allow_empty_str=True))
+
+        self.assertFalse(is_valid_url("", allow_empty_str=False))
+        self.assertTrue(is_valid_url("", allow_empty_str=True))
+
+        self.assertFalse(is_valid_url("http://[", allow_empty_str=False))
+        self.assertFalse(is_valid_url("http://[", allow_empty_str=True))
 
 
 if __name__ == "__main__":
