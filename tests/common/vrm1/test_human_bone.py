@@ -112,3 +112,10 @@ class TestVrm1HumanBone(TestCase):
                 vrm1_human_bone.HumanBoneSpecifications.RIGHT_SHOULDER,
             ),
         )
+
+    def test_from_str(self) -> None:
+        self.assertEqual(
+            vrm1_human_bone.HumanBoneName.from_str("hips"),
+            vrm1_human_bone.HumanBoneName.HIPS,
+        )
+        self.assertIsNone(vrm1_human_bone.HumanBoneName.from_str("invalid_bone_name"))
