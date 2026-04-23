@@ -4,20 +4,15 @@ from bpy.types import Context, Object
 
 
 def remove_object(context: Context, obj: Object) -> bool:
-    for collection in (
-        *(scene.collection for scene in context.blend_data.scenes),
-        *context.blend_data.collections,
-    ):
-        for collection_object in collection.objects:
-            if collection_object.parent != obj:
-                continue
-            if collection_object.parent_type != obj.parent_type:
-                collection_object.parent_type = obj.parent_type
-            if collection_object.parent != obj.parent:
-                collection_object.parent = obj.parent
-            if collection_object.parent_bone != obj.parent_bone:
-                collection_object.parent_bone = obj.parent_bone
+    for child in tuple(obj.children):
+        if child.parent_type != obj.parent_type:
+            child.parent_type = obj.parent_type
+        if child.parent != obj.parent:
+            child.parent = obj.parent
+        if child.parent_bone != obj.parent_bone:
+            child.parent_bone = obj.parent_bone
 
+    for collection in tuple(obj.users_collection):
         if obj.name in collection.objects:
             collection.objects.unlink(obj)
 
