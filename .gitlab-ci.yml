@@ -1,5 +1,5 @@
 ci:
-  image: cimg/base:current-24.04@sha256:c7693014a5fe7f5c95ac54590b54e2b183995241e082eb20377761916477a3e4
+  image: cimg/node:lts@sha256:5ee681fd1421b7555c4a6598689fd1258ab27e9fbeb5ccdb6ac56311e087805a
   services:
     - docker:29.3.1-dind@sha256:4d90f1f6c400315c2dba96d3ec93c01e64198395cbba04f79d12adce4f737029
   retry:
