@@ -1,16 +1,80 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 from typing import Optional
-from unittest import TestCase, main
+from unittest import main
 
 import bpy
 
-from io_scene_vrm.editor.search import current_armature, object_distance
+from io_scene_vrm.editor.search import (
+    active_object_is_vrm0_armature,
+    active_object_is_vrm1_armature,
+    current_armature,
+    object_distance,
+)
+from tests.util import AddonTestCase
 
 
-class TestSearch(TestCase):
-    def setUp(self) -> None:
-        super().setUp()
-        bpy.ops.wm.read_homefile(use_empty=True)
+class TestSearch(AddonTestCase):
+    def test_active_object_is_vrm_armature(self) -> None:
+        context = bpy.context
+
+        # No active object
+        context.view_layer.objects.active = None
+        self.assertFalse(active_object_is_vrm0_armature(context))
+        self.assertFalse(active_object_is_vrm1_armature(context))
+
+        # Active object is not an armature
+        mesh_obj = bpy.data.objects.new("Mesh", bpy.data.meshes.new("Mesh"))
+        context.scene.collection.objects.link(mesh_obj)
+        context.view_layer.objects.active = mesh_obj
+        self.assertFalse(active_object_is_vrm0_armature(context))
+        self.assertFalse(active_object_is_vrm1_armature(context))
+
+        # Active object has type ARMATURE but no data
+
+        class MockActiveObject:
+            @property
+            def type(self) -> str:
+                return "ARMATURE"
+
+            @property
+            def data(self) -> None:
+                return None
+
+        class MockContext:
+            @property
+            def active_object(self) -> MockActiveObject:
+                return MockActiveObject()
+
+        mock_context = MockContext()
+        self.assertFalse(active_object_is_vrm0_armature(mock_context))  # type: ignore[arg-type]
+        self.assertFalse(active_object_is_vrm1_armature(mock_context))  # type: ignore[arg-type]
+
+        # Active object is an armature with data
+        armature_data = bpy.data.armatures.new("Armature")
+        armature_obj = bpy.data.objects.new("Armature", armature_data)
+        context.scene.collection.objects.link(armature_obj)
+        context.view_layer.objects.active = armature_obj
+
+        # `AddonTestCase` enables the add-on for this test, so the armature
+        # extension property group is available and can be accessed directly.
+        from io_scene_vrm.editor.extension_accessor import get_armature_extension
+
+        ext = get_armature_extension(armature_data)
+
+        # VRM 0.0
+        ext.spec_version = ext.SPEC_VERSION_VRM0
+        self.assertTrue(active_object_is_vrm0_armature(context))
+        self.assertFalse(active_object_is_vrm1_armature(context))
+
+        # VRM 1.0
+        ext.spec_version = ext.SPEC_VERSION_VRM1
+        self.assertFalse(active_object_is_vrm0_armature(context))
+        self.assertTrue(active_object_is_vrm1_armature(context))
+
+        # KHR_character
+        ext.spec_version = ext.SPEC_VERSION_KHR_CHARACTER
+        self.assertFalse(active_object_is_vrm0_armature(context))
+        self.assertFalse(active_object_is_vrm1_armature(context))
 
     def test_object_distance(self) -> None:
         context = bpy.context

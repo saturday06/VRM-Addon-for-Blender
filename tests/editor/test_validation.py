@@ -3,10 +3,15 @@ from unittest import main
 
 import bpy
 from bpy.types import Armature
+from mathutils import Vector
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.editor.extension import get_armature_extension
-from io_scene_vrm.editor.validation import is_valid_url
+from io_scene_vrm.editor.validation import (
+    ValidationState,
+    WM_OT_vrm_validator,
+    is_valid_url,
+)
 from tests.util import AddonTestCase
 
 
@@ -122,6 +127,61 @@ class TestValidation(AddonTestCase):
         human_bones.spine.node.bone_name = "hips"
 
         self.assertEqual(ops.vrm.model_validate(), {"CANCELLED"})
+
+    def test_validate_vrm1_additional(self) -> None:
+        context = bpy.context
+
+        ops.icyp.make_basic_armature()
+        armatures = [
+            obj for obj in context.blend_data.objects if obj.type == "ARMATURE"
+        ]
+        self.assertEqual(len(armatures), 1)
+        armature = armatures[0]
+        if not isinstance(armature.data, Armature):
+            raise TypeError
+
+        ext = get_armature_extension(armature.data)
+
+        # 1. Test empty state
+        state = ValidationState()
+        WM_OT_vrm_validator.validate_vrm1_additional(armature.data, [armature], state)
+        self.assertEqual(state.skippable_warning_messages, [])
+        self.assertEqual(state.error_messages, [])
+
+        # 2. Test invalid URL
+        ext.vrm1.meta.other_license_url = "http://["
+        state = ValidationState()
+        WM_OT_vrm_validator.validate_vrm1_additional(armature.data, [armature], state)
+        self.assertEqual(len(state.skippable_warning_messages), 1)
+        self.assertIn("is not a valid URL", state.skippable_warning_messages[0])
+
+        # 3. Test negative scale
+        ext.vrm1.meta.other_license_url = ""
+        armature.scale = Vector((-1, 1, 1))
+        state = ValidationState()
+        WM_OT_vrm_validator.validate_vrm1_additional(armature.data, [armature], state)
+        self.assertEqual(len(state.error_messages), 1)
+        self.assertIn(
+            "contains a negative value for the scale", state.error_messages[0]
+        )
+        armature.scale = Vector((1, 1, 1))
+
+        # 4. Test overlapping spring bones and ancestor-descendant chain
+        springs = ext.spring_bone1.springs
+        spring1 = springs.add()
+        spring1.vrm_name = "Spring1"
+        spring1.joints.add().node.bone_name = "spine"
+
+        spring2 = springs.add()
+        spring2.vrm_name = "Spring2"
+        spring2.joints.add().node.bone_name = "chest"
+        spring2.joints.add().node.bone_name = "spine"
+
+        state = ValidationState()
+        WM_OT_vrm_validator.validate_vrm1_additional(armature.data, [armature], state)
+        self.assertEqual(len(state.skippable_warning_messages), 1)
+        self.assertIn("have common bone", state.skippable_warning_messages[0])
+        self.assertIn('"spine"', state.skippable_warning_messages[0])
 
     def test_is_valid_url(self) -> None:
         self.assertTrue(is_valid_url("https://example.com", allow_empty_str=False))
