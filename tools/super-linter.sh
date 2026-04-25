@@ -54,8 +54,16 @@ docker container rm --force "$super_linter_container_name" || true
 docker container create --rm --name "$super_linter_container_name" "$@" "$super_linter_tag_name"
 lint_path=$(mktemp -d)
 git clone --no-local --depth 1 "$repository_root_path" "$lint_path"
-git -C "$repository_root_path" ls-files --cached --others --exclude-standard -z |
-  rsync --archive --files-from=- --from0 --delete-missing-args "${repository_root_path}/" "${lint_path}/"
+while IFS= read -r -d '' file; do
+  src="${repository_root_path}/${file}"
+  dst="${lint_path}/${file}"
+  if [ -e "$src" ]; then
+    mkdir -p "$(dirname "$dst")"
+    cp -p "$src" "$dst"
+  else
+    rm -f "$dst"
+  fi
+done < <(git -C "$repository_root_path" ls-files --cached --others --exclude-standard -z)
 git -C "$lint_path" status --porcelain
 docker container cp "${lint_path}/." "${super_linter_container_name}:/tmp/lint/"
 docker container start --attach "$super_linter_container_name"
