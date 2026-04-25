@@ -781,9 +781,9 @@ def _search_structure_based_mapping_product(
         if not all(s in human_bone_specifications for s in special_group):
             continue
 
-        remaining_group = list(human_bone_specifications)
-        for special_human_bone_specification in special_group:
-            remaining_group.remove(special_human_bone_specification)
+        remaining_group = [
+            s for s in human_bone_specifications if s not in special_group
+        ]
 
         if remaining_group:
             groups = (
