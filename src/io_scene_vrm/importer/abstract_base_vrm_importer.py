@@ -142,18 +142,16 @@ class ParseResult:
         else:
             return None
 
-        temp_file_path: Optional[Path] = None
+        temp_dir = tempfile.TemporaryDirectory()
         try:
-            with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
-                temp_file_path = Path(temp_file.name)
-                temp_file.write(image_bytes)
+            temp_file_path = Path(temp_dir.name) / f"thumbnail{suffix}"
+            temp_file_path.write_bytes(image_bytes)
             image = context.blend_data.images.load(str(temp_file_path))
             image.name = "vrm-thumbnail-" + uuid.uuid4().hex
             image.pack()
         finally:
-            if temp_file_path:
-                with contextlib.suppress(OSError):
-                    temp_file_path.unlink(missing_ok=True)
+            with contextlib.suppress(OSError):
+                temp_dir.cleanup()
         return image.name
 
 
