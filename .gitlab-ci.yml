@@ -7,6 +7,7 @@ ci:
     when:
       - runner_system_failure
   before_script:
+    - git checkout -b "gitlab-ci-${CI_JOB_ID}-${CI_COMMIT_SHA}" # avoid "detached state" for act
     - sudo ./tools/install_ubuntu_packages.sh
     - ./tools/install_act.sh
     - timeout 600 sh -c 'until docker info --format "{{ .OperatingSystem }}"; do sleep 1; done'
