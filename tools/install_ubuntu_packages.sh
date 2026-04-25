@@ -26,6 +26,7 @@ install_ubuntu_packages() (
     python3-pygit2 \
     python3-tqdm \
     python3-typing-extensions \
+    rsync \
     ruby \
     ruby-rmagick \
     shellcheck \
