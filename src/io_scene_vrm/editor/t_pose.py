@@ -663,8 +663,9 @@ def setup_humanoid_t_pose(
         ext = get_armature_extension(armature_data)
         saved_vrm1_look_at_preview = ext.vrm1.look_at.enable_preview
         if ext.is_vrm1() and ext.vrm1.look_at.enable_preview:
-            # TODO: It would be helpful to warn in advance if this is
-            # reached during export
+            _logger.warning(
+                "The Look At preview is enabled. It will be temporarily disabled."
+            )
             ext.vrm1.look_at.enable_preview = False
             if ext.vrm1.look_at.type == ext.vrm1.look_at.TYPE_BONE.identifier:
                 human_bones = ext.vrm1.humanoid.human_bones
@@ -693,8 +694,6 @@ def setup_humanoid_t_pose(
                     action, evaluation_time=pose_marker_frame
                 )
             else:
-                # TODO: It would be helpful to warn in advance if this is
-                # reached during export
                 set_estimated_humanoid_t_pose(context, armature)
 
     context.view_layer.update()

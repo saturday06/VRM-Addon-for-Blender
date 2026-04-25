@@ -5,6 +5,7 @@ from sys import float_info
 from typing import TYPE_CHECKING, Final, Optional
 from urllib.parse import urlsplit
 
+import bpy
 from bpy.app.translations import pgettext
 from bpy.props import BoolProperty, CollectionProperty, IntProperty, StringProperty
 from bpy.types import (
@@ -49,6 +50,7 @@ class ValidationState:
     info_messages: Final[list[str]] = field(default_factory=list[str])
     node_names: Final[list[str]] = field(default_factory=list[str])
     used_images: Final[list[Image]] = field(default_factory=list[Image])
+    used_materials: Final[list[Material]] = field(default_factory=list[Material])
 
 
 class VrmValidationError(PropertyGroup):
@@ -410,6 +412,16 @@ class WM_OT_vrm_validator(Operator):
                     + ' in "VRM" panel → "Humanoid" → "T-Pose".'
                 )
             )
+        if humanoid.pose == humanoid.POSE_CUSTOM_POSE.identifier and not (
+            humanoid.pose_library and humanoid.pose_library.name in bpy.data.actions
+        ):
+            state.skippable_warning_messages.append(
+                pgettext(
+                    "The T-Pose is set to a custom pose, but the custom pose action"
+                    + " is not set or no longer exists. The armature rest position"
+                    + " will be used."
+                )
+            )
 
         human_bones = humanoid.human_bones
         all_required_bones_exist = True
@@ -501,6 +513,16 @@ class WM_OT_vrm_validator(Operator):
                     + ' in "VRM" panel → "VRM 0.x Humanoid" → "T-Pose".'
                 )
             )
+        if humanoid.pose == humanoid.POSE_CUSTOM_POSE.identifier and not (
+            humanoid.pose_library and humanoid.pose_library.name in bpy.data.actions
+        ):
+            state.skippable_warning_messages.append(
+                pgettext(
+                    "The T-Pose is set to a custom pose, but the custom pose action"
+                    + " is not set or no longer exists. The armature rest position"
+                    + " will be used."
+                )
+            )
 
         human_bones = humanoid.human_bones
         all_required_bones_exist = True
@@ -533,7 +555,15 @@ class WM_OT_vrm_validator(Operator):
         state: ValidationState,
     ) -> None:
         # meta URL validation
-        meta1 = get_armature_extension(armature_data).vrm1.meta
+        armature_extension = get_armature_extension(armature_data)
+        if armature_extension.vrm1.look_at.enable_preview:
+            state.info_messages.append(
+                pgettext(
+                    "The Look At preview is enabled. It will be disabled during export."
+                )
+            )
+
+        meta1 = armature_extension.vrm1.meta
         if not is_valid_url(meta1.other_license_url, allow_empty_str=True):
             state.skippable_warning_messages.append(
                 pgettext('"{url}" is not a valid URL.').format(
@@ -650,19 +680,17 @@ class WM_OT_vrm_validator(Operator):
 
     @staticmethod
     def validate_materials(
-        context: Context,
-        export_objects: list[Object],
+        _context: Context,
+        _export_objects: list[Object],
         *,
         is_vrm0: bool,
         state: ValidationState,
     ) -> None:
-        used_materials = search.export_materials(context, export_objects)
-
-        for mat in used_materials:
+        for material in state.used_materials:
             if (
-                not (mat_node_tree := mat.node_tree)
-                or get_material_extension(mat).mtoon1.enabled
-                or shader.MmdMaterial.try_parse(mat)
+                not (mat_node_tree := material.node_tree)
+                or get_material_extension(material).mtoon1.enabled
+                or shader.MmdMaterial.try_parse(material)
             ):
                 continue
             for node in mat_node_tree.nodes:
@@ -691,11 +719,11 @@ class WM_OT_vrm_validator(Operator):
                         + ' "VRM MToon Material" or connect'
                         + " Principled BSDF/MToon_unversioned/TRANSPARENT_ZWRITE"
                         + ' to "Surface" directly. Empty material will be exported.'
-                    ).format(material_name=mat.name)
+                    ).format(material_name=material.name)
                 )
 
         for node, legacy_shader_name, material in search.shader_nodes_and_materials(
-            used_materials
+            state.used_materials
         ):
             # MToon
             if legacy_shader_name == "MToon_unversioned":
@@ -769,8 +797,8 @@ class WM_OT_vrm_validator(Operator):
                     state.used_images,
                 )
 
-        for mat in used_materials:
-            gltf = get_material_extension(mat).mtoon1
+        for material in state.used_materials:
+            gltf = get_material_extension(material).mtoon1
             if not gltf.enabled:
                 continue
 
@@ -788,7 +816,7 @@ class WM_OT_vrm_validator(Operator):
                         + ' to "{input_colorspace}" for "{texture_label}"'
                         + ' in Material "{name}".'
                     ).format(
-                        name=mat.name,
+                        name=material.name,
                         texture_label=source.name,
                         colorspace=pgettext(texture.colorspace),
                         input_colorspace=pgettext("Input Color Space"),
@@ -821,7 +849,7 @@ class WM_OT_vrm_validator(Operator):
                                 'Material "{name}" {texture}\'s Offset and Scale are'
                                 + " ignored in VRM 0.0."
                             ).format(
-                                name=mat.name,
+                                name=material.name,
                                 texture=texture_info.index.label,
                             )
                         )
@@ -837,7 +865,7 @@ class WM_OT_vrm_validator(Operator):
                             + " in VRM 0.0 are the values of"
                             + " the Lit Color Texture."
                         ).format(
-                            name=mat.name,
+                            name=material.name,
                             texture=texture_info.index.label,
                         )
                     )
@@ -871,11 +899,46 @@ class WM_OT_vrm_validator(Operator):
         )
 
         # blend_shape_master
-        # TODO: material value and material existence
         blend_shape_master = get_armature_extension(
             armature_data
         ).vrm0.blend_shape_master
         for blend_shape_group in blend_shape_master.blend_shape_groups:
+            for material_value in blend_shape_group.material_values:
+                if not material_value.material:
+                    state.info_messages.append(
+                        pgettext(
+                            "A material value bind exists in a blend shape group"
+                            + ' named "{blend_shape_group_name}" but'
+                            + " no material is set."
+                        ).format(blend_shape_group_name=blend_shape_group.name)
+                    )
+                    continue
+
+                if material_value.material not in state.used_materials:
+                    state.info_messages.append(
+                        pgettext(
+                            'A material named "{material_name}" is assigned to a'
+                            + ' blend shape group named "{blend_shape_group_name}"'
+                            + " but the material will not be exported."
+                        ).format(
+                            blend_shape_group_name=blend_shape_group.name,
+                            material_name=material_value.material.name,
+                        )
+                    )
+                    continue
+
+                if not material_value.property_name:
+                    state.info_messages.append(
+                        pgettext(
+                            'A material named "{material_name}" is assigned to a'
+                            + ' blend shape group named "{blend_shape_group_name}"'
+                            + " but the property name is empty."
+                        ).format(
+                            blend_shape_group_name=blend_shape_group.name,
+                            material_name=material_value.material.name,
+                        )
+                    )
+
             for bind in blend_shape_group.binds:
                 mesh_object_name = bind.mesh.mesh_object_name
                 if not bind.index or not mesh_object_name:
@@ -989,6 +1052,7 @@ class WM_OT_vrm_validator(Operator):
             export_only_selections=preferences.export_only_selections,
             export_lights=preferences.export_lights,
         )
+        state.used_materials.extend(search.export_materials(context, export_objects))
 
         if not any(
             obj.type in search.MESH_CONVERTIBLE_OBJECT_TYPES for obj in export_objects

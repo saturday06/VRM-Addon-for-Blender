@@ -2,10 +2,11 @@
 from unittest import main
 
 import bpy
-from bpy.types import Armature
+from bpy.types import Armature, Mesh
 from mathutils import Vector
 
 from io_scene_vrm.common import ops
+from io_scene_vrm.editor import search
 from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.validation import (
     ValidationState,
@@ -182,6 +183,87 @@ class TestValidation(AddonTestCase):
         self.assertEqual(len(state.skippable_warning_messages), 1)
         self.assertIn("have common bone", state.skippable_warning_messages[0])
         self.assertIn('"spine"', state.skippable_warning_messages[0])
+
+    def test_validate_vrm0_blend_shape_material_validation(self) -> None:
+        context = bpy.context
+
+        ops.icyp.make_basic_armature()
+        armatures = [
+            obj for obj in context.blend_data.objects if obj.type == "ARMATURE"
+        ]
+        self.assertEqual(len(armatures), 1)
+        armature = armatures[0]
+        if not isinstance(armature.data, Armature):
+            raise TypeError
+
+        ext = get_armature_extension(armature.data)
+        ext.spec_version = ext.SPEC_VERSION_VRM0
+        blend_shape_master = ext.vrm0.blend_shape_master
+        group = blend_shape_master.blend_shape_groups.add()
+        group.name = "TestGroup"
+
+        # 1. Test empty material
+        material_value = group.material_values.add()
+        state = ValidationState()
+        WM_OT_vrm_validator.validate_vrm0_additional(
+            context, armature.data, [armature], state
+        )
+        self.assertTrue(any("no material is set" in msg for msg in state.info_messages))
+
+        # 2. Test non-exported material
+        material = context.blend_data.materials.new(name="TestMaterial")
+        material_value.material = material
+        state = ValidationState()
+        WM_OT_vrm_validator.validate_vrm0_additional(
+            context, armature.data, [armature], state
+        )
+        self.assertTrue(
+            any("will not be exported" in msg for msg in state.info_messages)
+        )
+
+        # 3. Test empty property name
+        # To make the material "exported", it needs to be used by an object in
+        # export_objects.
+        mesh = context.blend_data.meshes.new(name="TestMesh")
+        mesh.from_pydata([(0, 0, 0), (0, 0, 1), (0, 1, 0)], [], [(0, 1, 2)])
+        mesh_obj = context.blend_data.objects.new(
+            name="TestMeshObj",
+            object_data=mesh,
+        )
+        context.scene.collection.objects.link(mesh_obj)
+        mesh_data = mesh_obj.data
+        if not isinstance(mesh_data, Mesh):
+            raise TypeError
+        mesh_data.materials.append(material)
+
+        export_objects = [armature, mesh_obj]
+        state = ValidationState()
+        state.used_materials.extend(search.export_materials(context, export_objects))
+        WM_OT_vrm_validator.validate_vrm0_additional(
+            context, armature.data, export_objects, state
+        )
+        self.assertTrue(
+            any("the property name is empty" in msg for msg in state.info_messages)
+        )
+
+        # 4. Test valid state
+        material_value.property_name = "_Color"
+        state = ValidationState()
+        state.used_materials.extend(search.export_materials(context, export_objects))
+        WM_OT_vrm_validator.validate_vrm0_additional(
+            context, armature.data, export_objects, state
+        )
+        # We don't check info_messages length because there might be other info
+        # messages (like firstPersonBone)
+        self.assertFalse(
+            any("no material is set" in msg for msg in state.info_messages)
+        )
+        self.assertFalse(
+            any("will not be exported" in msg for msg in state.info_messages)
+        )
+        self.assertFalse(
+            any("the property name is empty" in msg for msg in state.info_messages)
+        )
 
     def test_is_valid_url(self) -> None:
         self.assertTrue(is_valid_url("https://example.com", allow_empty_str=False))
