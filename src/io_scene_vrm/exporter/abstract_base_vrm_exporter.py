@@ -50,7 +50,7 @@ class AbstractBaseVrmExporter(ABC):
         self._export_objects = export_objects
         self._armature = armature
         self._export_id = "BlenderVrmAddonExport" + (
-            "".join(secrets.choice(string.digits) for _ in range(10))
+            "".join(secrets.choice(string.digits) for _ in range(15))
         )
         self._gltf2_addon_export_settings = (
             io_scene_gltf2_support.create_export_settings()

@@ -62,7 +62,7 @@ class Gltf2ImportUserExtensionVrm:
     @classmethod
     def update_current_import_id(cls) -> str:
         import_id = "BlenderVrmAddonImport" + (
-            "".join(secrets.choice(string.digits) for _ in range(10))
+            "".join(secrets.choice(string.digits) for _ in range(15))
         )
         cls._current_import_id = import_id
         return import_id

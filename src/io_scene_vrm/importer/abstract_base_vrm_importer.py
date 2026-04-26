@@ -9,6 +9,7 @@ import os
 import re
 import secrets
 import shutil
+import string
 import struct
 import tempfile
 import uuid
@@ -403,7 +404,7 @@ class AbstractBaseVrmImporter(ABC):
             for _ in range(10000):
                 image_suffix = (
                     ".temp"
-                    + "".join(str(secrets.randbelow(10)) for _ in range(10))
+                    + "".join(secrets.choice(string.digits) for _ in range(15))
                     + ".blend"
                 )
                 temp_blend_path = self._parse_result.filepath.with_suffix(image_suffix)

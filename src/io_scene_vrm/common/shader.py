@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import math
-import random
+import secrets
 import string
 import time
 from copy import deepcopy
@@ -251,7 +251,7 @@ def _generate_backup_suffix() -> str:
     # There is a possibility of duplicates in very rare cases. To be exact, duplicates
     # must be regenerated if any are found.
     return " " + "".join(
-        random.SystemRandom().choice(string.ascii_letters + string.digits)
+        secrets.choice(string.ascii_letters + string.digits)
         for _ in range(8)  # Be careful not to exceed a total of 64 characters
     )
 
