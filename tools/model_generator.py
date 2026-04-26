@@ -223,7 +223,7 @@ def main(argv: list[str]) -> int:
     image_bytes = Path(__file__).with_name("model_generator_texture.png").read_bytes()
     padded_image_bytes = bytes(image_bytes)
     # Pad to 4-byte alignment for subsequent accessors.
-    while len(padded_image_bytes) % 4 != 0:
+    while len(padded_image_bytes) % 4:
         padded_image_bytes += b"\x00"
     image_buffer_byte_offset = len(binary_chunk)
     binary_chunk += padded_image_bytes

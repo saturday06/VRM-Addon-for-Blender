@@ -1094,8 +1094,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             image_index = None
 
         # Image doesn't exist yet - create new buffer view and image entry
-        # TODO: Verify alignment requirement and optimize
-        while len(buffer0) % 32 == 0:
+        while len(buffer0) % 4:
             buffer0.append(0)
 
         image_bytes, mime = image_to_image_bytes(image, gltf2_addon_export_settings)
@@ -1123,8 +1122,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         image_name_to_index_dict[image.name] = image_index
 
         buffer0.extend(image_bytes)
-        # TODO: Verify alignment requirement and optimize
-        while len(buffer0) % 32 == 0:
+        while len(buffer0) % 4:
             buffer0.append(0)
 
         return image_index

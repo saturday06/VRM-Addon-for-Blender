@@ -123,10 +123,10 @@ def pack_glb(
         ensure_ascii=False,
     ).encode()
 
-    while len(json_chunk_bytes) % 4 != 0:
+    while len(json_chunk_bytes) % 4:
         json_chunk_bytes += b"\x20"
 
-    while len(bin_chunk_bytes) % 4 != 0:
+    while len(bin_chunk_bytes) % 4:
         bin_chunk_bytes += b"\x00"
 
     glb = bytearray()
