@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import math
+import sys
 from unittest import TestCase
 
 from io_scene_vrm.common import convert
@@ -174,6 +175,8 @@ class TestConvert(TestCase):
         self.assertEqual(convert.float_or_none(True), 1.0)
         self.assertEqual(convert.float_or_none(False), 0.0)
         self.assertIsNone(convert.float_or_none(math.nan))
+        self.assertEqual(convert.float_or_none(math.inf), sys.float_info.max)
+        self.assertEqual(convert.float_or_none(-math.inf), -sys.float_info.max)
         self.assertIsNone(convert.float_or_none("1.5"))
         self.assertIsNone(convert.float_or_none(None))
 

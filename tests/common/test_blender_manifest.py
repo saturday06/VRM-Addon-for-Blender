@@ -33,3 +33,42 @@ class TestBlenderManifest(TestCase):
         self.assertEqual(blender_manifest.version, (1, 23, 456))
         self.assertEqual(blender_manifest.blender_version_min, (9, 8, 7))
         self.assertEqual(blender_manifest.blender_version_max, (12, 34, 56))
+
+        # Test missing blender_version_max
+        text_missing_max = (
+            'id = "baz"\n'
+            + 'version = "1.23.456"\n'
+            + 'blender_version_min = "9.8.7"\n'
+        )
+        blender_manifest_missing_max = BlenderManifest.read(text_missing_max)
+        self.assertEqual(blender_manifest_missing_max.id, "baz")
+        self.assertEqual(blender_manifest_missing_max.version, (1, 23, 456))
+        self.assertEqual(blender_manifest_missing_max.blender_version_min, (9, 8, 7))
+        self.assertIsNone(blender_manifest_missing_max.blender_version_max)
+
+    def test_read_errors(self) -> None:
+        with self.assertRaisesRegex(
+            ValueError, "'id' was not found in blender manifest"
+        ):
+            BlenderManifest.read(
+                'version = "1.23.456"\n' + 'blender_version_min = "9.8.7"\n'
+            )
+
+        with self.assertRaisesRegex(
+            ValueError, "'version' was not found in blender manifest"
+        ):
+            BlenderManifest.read('id = "baz"\n' + 'blender_version_min = "9.8.7"\n')
+
+        with self.assertRaisesRegex(
+            ValueError, "'version' was not found in blender manifest"
+        ):
+            BlenderManifest.read(
+                'id = "baz"\n'
+                + 'version = "1.23"\n'  # Invalid format
+                + 'blender_version_min = "9.8.7"\n'
+            )
+
+        with self.assertRaisesRegex(
+            ValueError, "'blender_version_min' was not found in blender manifest"
+        ):
+            BlenderManifest.read('id = "baz"\n' + 'version = "1.23.456"\n')
