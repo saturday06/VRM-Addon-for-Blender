@@ -2144,13 +2144,13 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             }
         )
 
-        gltf2_io_material = gather_gltf2_io_material(
-            material, self._gltf2_addon_export_settings
-        )
-        if not gltf2_io_material:
-            return
-
         try:
+            gltf2_io_material = gather_gltf2_io_material(
+                material, self._gltf2_addon_export_settings
+            )
+            if not gltf2_io_material:
+                return
+
             alpha_cutoff = convert.float_or_none(
                 getattr(gltf2_io_material, "alpha_cutoff", None)
             )
