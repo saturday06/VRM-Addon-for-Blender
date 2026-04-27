@@ -12,7 +12,7 @@ class TestVersion(TestCase):
             (
                 3,  # x-release-please-major
                 26,  # x-release-please-minor
-                7,  # x-release-please-patch
+                8,  # x-release-please-patch
             ),
         )
 

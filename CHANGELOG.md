@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.26.8](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.7...v3.26.8) (2026-04-27)
+
+
+### 🐛 Bug Fixes
+
+* fix a bug where VRM0 export fails when certain shader nodes are present ([86972fa](https://github.com/saturday06/VRM-Addon-for-Blender/commit/86972faae3e9d270b3edde339b4ca0ed3e0bbc2e))
+* fix unfriendly vrm 1.0 image buffer alignments ([4c528da](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4c528da1b4f0ce9f975febe385e20fffdab8fe44))
+
 ## [3.26.7](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.6...v3.26.7) (2026-04-19)
 
 
