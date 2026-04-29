@@ -283,16 +283,17 @@ def _read_accessor_as_bytes(
     element_byte_length = accessor_component_count * component.byte_length
     required_byte_length = count * element_byte_length
 
-    buffer_view_index = accessor_dict.get("bufferView")
     base_bytes: Optional[bytes] = None
-    if isinstance(buffer_view_index, int) and 0 <= buffer_view_index < len(
+    key_not_found = object()
+    buffer_view_index = accessor_dict.get("bufferView", key_not_found)
+    if buffer_view_index == key_not_found:
+        base_bytes = b"\x00" * required_byte_length
+    elif isinstance(buffer_view_index, int) and 0 <= buffer_view_index < len(
         buffer_view_dicts
     ):
         base_bytes = _read_buffer_view_as_bytes(
             buffer_view_dicts[buffer_view_index], buffer_dicts, bin_chunk_bytes
         )
-    elif accessor_dict.get("sparse") is not None:
-        base_bytes = b"\x00" * required_byte_length
 
     if base_bytes is None:
         return None
@@ -300,6 +301,7 @@ def _read_accessor_as_bytes(
     sparse_dict = accessor_dict.get("sparse")
     if sparse_dict is None:
         return base_bytes
+
     if not isinstance(sparse_dict, dict):
         return None
 
@@ -351,9 +353,16 @@ def _read_accessor_as_bytes(
     )
     if values_raw_bytes is None:
         return None
+    values_byte_offset = values_dict.get("byteOffset")
+    if isinstance(values_byte_offset, int):
+        if not (0 <= values_byte_offset < len(values_raw_bytes)):
+            return None
+        values_bytes = values_raw_bytes[values_byte_offset:]
+    else:
+        values_bytes = values_raw_bytes
 
     values_byte_length = sparse_count * element_byte_length
-    if len(values_raw_bytes) < values_byte_length:
+    if len(values_bytes) < values_byte_length:
         return None
 
     updated_bytes = bytearray(base_bytes[:required_byte_length])
@@ -365,7 +374,7 @@ def _read_accessor_as_bytes(
             return None
         value_start = sparse_index * element_byte_length
         value_end = value_start + element_byte_length
-        updated_bytes[start:end] = values_raw_bytes[value_start:value_end]
+        updated_bytes[start:end] = values_bytes[value_start:value_end]
 
     return bytes(updated_bytes)
 
