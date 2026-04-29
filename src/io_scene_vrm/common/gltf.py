@@ -2,6 +2,7 @@
 import base64
 import json
 import struct
+from dataclasses import dataclass
 from io import BytesIO
 from typing import Final, Optional, Union
 from urllib.parse import unquote, urlsplit
@@ -158,20 +159,59 @@ def pack_glb(
     return bytes(glb)
 
 
-def _read_accessor_as_bytes(
-    accessor_dict: dict[str, Json],
-    buffer_view_dicts: list[Json],
+@dataclass(frozen=True)
+class Component:
+    component_type: int
+    unpack_symbol: str
+    byte_length: int
+
+    @staticmethod
+    def from_component_type(component_type: int) -> Optional["Component"]:
+        for component in (
+            BYTE_COMPONENT,
+            UNSIGNED_BYTE_COMPONENT,
+            SHORT_COMPONENT,
+            UNSIGNED_SHORT_COMPONENT,
+            INT_COMPONENT,
+            UNSIGNED_INT_COMPONENT,
+            FLOAT_COMPONENT,
+        ):
+            if component.component_type == component_type:
+                return component
+        return None
+
+
+BYTE_COMPONENT: Final = Component(GL_BYTE, "b", 1)
+UNSIGNED_BYTE_COMPONENT: Final = Component(GL_UNSIGNED_BYTE, "B", 1)
+SHORT_COMPONENT: Final = Component(GL_SHORT, "h", 2)
+UNSIGNED_SHORT_COMPONENT: Final = Component(GL_UNSIGNED_SHORT, "H", 2)
+INT_COMPONENT: Final = Component(GL_INT, "i", 4)
+UNSIGNED_INT_COMPONENT: Final = Component(GL_UNSIGNED_INT, "I", 4)
+FLOAT_COMPONENT: Final = Component(GL_FLOAT, "f", 4)
+
+
+def _accessor_type_component_count(accessor_type: str) -> Optional[int]:
+    if accessor_type == "SCALAR":
+        return 1
+    if accessor_type == "VEC2":
+        return 2
+    if accessor_type == "VEC3":
+        return 3
+    if accessor_type == "VEC4":
+        return 4
+    if accessor_type == "MAT4":
+        return 16
+    return None
+
+
+def _read_buffer_view_as_bytes(
+    buffer_view_dict: Json,
     buffer_dicts: list[Json],
     bin_chunk_bytes: Optional[bytes],
 ) -> Optional[bytes]:
-    buffer_view_index = accessor_dict.get("bufferView")
-    if not isinstance(buffer_view_index, int):
-        return None
-    if not 0 <= buffer_view_index < len(buffer_view_dicts):
-        return None
-    buffer_view_dict = buffer_view_dicts[buffer_view_index]
     if not isinstance(buffer_view_dict, dict):
         return None
+
     buffer_index = buffer_view_dict.get("buffer")
     if not isinstance(buffer_index, int):
         return None
@@ -221,26 +261,126 @@ def _read_accessor_as_bytes(
     return buffer_bytes[byte_offset : byte_offset + byte_length]
 
 
+def _read_accessor_as_bytes(
+    accessor_dict: dict[str, Json],
+    buffer_view_dicts: list[Json],
+    buffer_dicts: list[Json],
+    bin_chunk_bytes: Optional[bytes],
+) -> Optional[bytes]:
+    if not isinstance(accessor_type := accessor_dict.get("type"), str):
+        return None
+    if not isinstance(component_type := accessor_dict.get("componentType"), int):
+        return None
+    if not isinstance(count := accessor_dict.get("count"), int):
+        return None
+    accessor_component_count = _accessor_type_component_count(accessor_type)
+    if accessor_component_count is None:
+        return None
+    component = Component.from_component_type(component_type)
+    if component is None:
+        return None
+
+    element_byte_length = accessor_component_count * component.byte_length
+    required_byte_length = count * element_byte_length
+
+    buffer_view_index = accessor_dict.get("bufferView")
+    base_bytes: Optional[bytes] = None
+    if isinstance(buffer_view_index, int) and 0 <= buffer_view_index < len(
+        buffer_view_dicts
+    ):
+        base_bytes = _read_buffer_view_as_bytes(
+            buffer_view_dicts[buffer_view_index], buffer_dicts, bin_chunk_bytes
+        )
+    elif accessor_dict.get("sparse") is not None:
+        base_bytes = b"\x00" * required_byte_length
+
+    if base_bytes is None:
+        return None
+
+    sparse_dict = accessor_dict.get("sparse")
+    if sparse_dict is None:
+        return base_bytes
+    if not isinstance(sparse_dict, dict):
+        return None
+
+    sparse_count = sparse_dict.get("count")
+    if not isinstance(sparse_count, int):
+        return None
+    if sparse_count < 1:
+        return None
+
+    if len(base_bytes) < required_byte_length:
+        return None
+
+    indices_dict = sparse_dict.get("indices")
+    values_dict = sparse_dict.get("values")
+    if not isinstance(indices_dict, dict) or not isinstance(values_dict, dict):
+        return None
+
+    indices_buffer_view_index = indices_dict.get("bufferView")
+    if not isinstance(indices_buffer_view_index, int):
+        return None
+    if not 0 <= indices_buffer_view_index < len(buffer_view_dicts):
+        return None
+    indices_raw_bytes = _read_buffer_view_as_bytes(
+        buffer_view_dicts[indices_buffer_view_index], buffer_dicts, bin_chunk_bytes
+    )
+    if indices_raw_bytes is None:
+        return None
+    indices_component_type = indices_dict.get("componentType")
+    if not isinstance(indices_component_type, int):
+        return None
+    indices = _unpack_component(indices_component_type, sparse_count, indices_raw_bytes)
+    if indices is None:
+        return None
+    previous_index = -1
+    for index in indices:
+        if not isinstance(index, int):
+            return None
+        if index <= previous_index or index < 0 or index >= count:
+            return None
+        previous_index = index
+
+    values_buffer_view_index = values_dict.get("bufferView")
+    if not isinstance(values_buffer_view_index, int):
+        return None
+    if not 0 <= values_buffer_view_index < len(buffer_view_dicts):
+        return None
+    values_raw_bytes = _read_buffer_view_as_bytes(
+        buffer_view_dicts[values_buffer_view_index], buffer_dicts, bin_chunk_bytes
+    )
+    if values_raw_bytes is None:
+        return None
+
+    values_byte_length = sparse_count * element_byte_length
+    if len(values_raw_bytes) < values_byte_length:
+        return None
+
+    updated_bytes = bytearray(base_bytes[:required_byte_length])
+    for sparse_index, index in enumerate(indices):
+        index_int = int(index)
+        start = index_int * element_byte_length
+        end = start + element_byte_length
+        if end > len(updated_bytes):
+            return None
+        value_start = sparse_index * element_byte_length
+        value_end = value_start + element_byte_length
+        updated_bytes[start:end] = values_raw_bytes[value_start:value_end]
+
+    return bytes(updated_bytes)
+
+
 def _unpack_component(
     component_type: int, unpack_count: int, buffer_bytes: bytes
 ) -> Optional[Union[tuple[int, ...], tuple[float, ...]]]:
-    for search_component_type, component_count, unpack_symbol in (
-        (GL_BYTE, 1, "b"),
-        (GL_UNSIGNED_BYTE, 1, "B"),
-        (GL_SHORT, 2, "h"),
-        (GL_UNSIGNED_SHORT, 2, "H"),
-        (GL_INT, 4, "i"),
-        (GL_UNSIGNED_INT, 4, "I"),
-        (GL_FLOAT, 4, "f"),
-    ):
-        if search_component_type != component_type:
-            continue
-        if unpack_count == 0:
-            return ()
-        if not 1 <= unpack_count * component_count <= len(buffer_bytes):
-            return None
-        return struct.unpack("<" + unpack_symbol * unpack_count, buffer_bytes)
-    return None
+    component = Component.from_component_type(component_type)
+    if component is None:
+        return None
+    if unpack_count == 0:
+        return ()
+    if not 1 <= unpack_count * component.byte_length <= len(buffer_bytes):
+        return None
+    return struct.unpack("<" + component.unpack_symbol * unpack_count, buffer_bytes)
 
 
 def _unpack_accessor_as_scalar_components(
