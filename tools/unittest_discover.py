@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
 import argparse
+import logging
 import os
 import sys
 from io import TextIOWrapper
@@ -28,6 +29,12 @@ def reader_task(reader_io: TextIO) -> None:
     if not isinstance(stderr_encoding, str):
         stderr_encoding = "mbcs" if sys.platform == "win32" else "utf-8"
 
+    # https://github.com/KhronosGroup/glTF-Blender-IO/blob/9799167e9e2d41b31125357858db6a9f28cbeb00/addons/io_scene_gltf2/io/com/debug.py#L78-L79
+    loggers = (
+        logging.getLogger("glTFImporter"),
+        logging.getLogger("glTFImporter_errors"),
+    )
+
     while char := reader_io.read(1):
         safe_char = char.encode(stderr_encoding, errors="replace").decode(
             stderr_encoding, errors="replace"
@@ -40,6 +47,9 @@ def reader_task(reader_io: TextIO) -> None:
         # stderr volume is high enough for this to become a bottleneck, that output
         # volume itself is likely a bug, so this trade-off is acceptable.
         sys.stdout.flush()
+        for logger in loggers:
+            for logger_handler in logger.handlers:
+                logger_handler.flush()
         sys.stderr.write(safe_char)
         sys.stderr.flush()
 
