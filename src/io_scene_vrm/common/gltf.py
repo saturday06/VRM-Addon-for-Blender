@@ -314,9 +314,10 @@ def _read_accessor_as_bytes(
     if len(base_bytes) < required_byte_length:
         return None
 
-    indices_dict = sparse_dict.get("indices")
-    values_dict = sparse_dict.get("values")
-    if not isinstance(indices_dict, dict) or not isinstance(values_dict, dict):
+    if not isinstance(indices_dict := sparse_dict.get("indices"), dict):
+        return None
+
+    if not isinstance(values_dict := sparse_dict.get("values"), dict):
         return None
 
     indices_buffer_view_index = indices_dict.get("bufferView")
@@ -329,10 +330,17 @@ def _read_accessor_as_bytes(
     )
     if indices_raw_bytes is None:
         return None
-    indices_component_type = indices_dict.get("componentType")
-    if not isinstance(indices_component_type, int):
+    indices_byte_offset = indices_dict.get("byteOffset")
+    if isinstance(indices_byte_offset, int):
+        if not (0 <= indices_byte_offset < len(indices_raw_bytes)):
+            return None
+        indices_bytes = indices_raw_bytes[indices_byte_offset:]
+    else:
+        indices_bytes = indices_raw_bytes
+
+    if not isinstance(indices_component_type := indices_dict.get("componentType"), int):
         return None
-    indices = _unpack_component(indices_component_type, sparse_count, indices_raw_bytes)
+    indices = _unpack_component(indices_component_type, sparse_count, indices_bytes)
     if indices is None:
         return None
     previous_index = -1
