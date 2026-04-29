@@ -396,9 +396,13 @@ def _unpack_component(
         return None
     if unpack_count == 0:
         return ()
-    if not 1 <= unpack_count * component.byte_length <= len(buffer_bytes):
+    unpack_byte_length = unpack_count * component.byte_length
+    if not 1 <= unpack_byte_length <= len(buffer_bytes):
         return None
-    return struct.unpack(f"<{unpack_count}{component.unpack_symbol}", buffer_bytes)
+    return struct.unpack(
+        f"<{unpack_count}{component.unpack_symbol}",
+        buffer_bytes[:unpack_byte_length],
+    )
 
 
 def _unpack_accessor_as_scalar_components(
