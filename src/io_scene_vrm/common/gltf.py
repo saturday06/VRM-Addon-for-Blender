@@ -274,6 +274,8 @@ def _read_accessor_as_bytes(
         return None
     if not isinstance(count := accessor_dict.get("count"), int):
         return None
+    if not isinstance(accessor_byte_offset := accessor_dict.get("byteOffset", 0), int):
+        return None
     accessor_component_count = _accessor_type_component_count(accessor_type)
     if accessor_component_count is None:
         return None
@@ -292,9 +294,14 @@ def _read_accessor_as_bytes(
     elif isinstance(buffer_view_index, int) and 0 <= buffer_view_index < len(
         buffer_view_dicts
     ):
-        base_bytes = _read_buffer_view_as_bytes(
+        base_buffer_view_bytes = _read_buffer_view_as_bytes(
             buffer_view_dicts[buffer_view_index], buffer_dicts, bin_chunk_bytes
         )
+        if base_buffer_view_bytes is None:
+            return None
+        if not (0 <= accessor_byte_offset <= len(base_buffer_view_bytes)):
+            return None
+        base_bytes = base_buffer_view_bytes[accessor_byte_offset:]
 
     if base_bytes is None:
         return None
