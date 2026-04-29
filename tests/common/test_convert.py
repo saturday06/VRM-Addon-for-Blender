@@ -25,10 +25,17 @@ class TestConvert(TestCase):
     def test_sequence_or_none(self) -> None:
         self.assertIsNone(convert.sequence_or_none(None))
         self.assertIsNone(convert.sequence_or_none(1))
+        self.assertIsNone(convert.sequence_or_none(True))
+
+        class UnrelatedClass:
+            pass
+
+        self.assertIsNone(convert.sequence_or_none(UnrelatedClass()))
 
         self.assertEqual(convert.sequence_or_none([1, 2, 3]), [1, 2, 3])
         self.assertEqual(convert.sequence_or_none((1, 2, 3)), [1, 2, 3])
         self.assertEqual(convert.sequence_or_none("abc"), ["a", "b", "c"])
+        self.assertEqual(convert.sequence_or_none({"a": 1, "b": 2}), ["a", "b"])
 
     def test_mapping_or_none(self) -> None:
         self.assertIsNone(convert.mapping_or_none(None))
@@ -37,18 +44,34 @@ class TestConvert(TestCase):
         self.assertEqual(convert.mapping_or_none({"a": 1}), {"a": 1})
 
     def test_vrm_json_vector3_to_tuple(self) -> None:
-        self.assertIsNone(convert.vrm_json_vector3_to_tuple(None))
-        self.assertIsNone(convert.vrm_json_vector3_to_tuple([]))
+        test_cases_none: list[convert.Json] = [
+            None,
+            [],
+            "string",
+            123,
+            True,
+        ]
+        for case in test_cases_none:
+            with self.subTest(case=case):
+                self.assertIsNone(convert.vrm_json_vector3_to_tuple(case))
 
-        self.assertEqual(convert.vrm_json_vector3_to_tuple({}), (0.0, 0.0, 0.0))
-        self.assertEqual(
-            convert.vrm_json_vector3_to_tuple({"x": 1, "y": 2, "z": 3}), (1.0, 2.0, 3.0)
-        )
-        self.assertEqual(
-            convert.vrm_json_vector3_to_tuple({"x": 1.5, "y": 2.5, "z": 3.5}),
-            (1.5, 2.5, 3.5),
-        )
-        self.assertEqual(convert.vrm_json_vector3_to_tuple({"x": "a"}), (0.0, 0.0, 0.0))
+        test_cases_equal: list[tuple[convert.Json, tuple[float, float, float]]] = [
+            ({}, (0.0, 0.0, 0.0)),
+            ({"x": 1, "y": 2, "z": 3}, (1.0, 2.0, 3.0)),
+            ({"x": 1.5, "y": 2.5, "z": 3.5}, (1.5, 2.5, 3.5)),
+            ({"x": "a"}, (0.0, 0.0, 0.0)),
+            ({"x": "a", "y": "b", "z": "c"}, (0.0, 0.0, 0.0)),
+            ({"x": 1}, (1.0, 0.0, 0.0)),
+            ({"y": 2}, (0.0, 2.0, 0.0)),
+            ({"z": 3}, (0.0, 0.0, 3.0)),
+            ({"x": 1, "z": 3}, (1.0, 0.0, 3.0)),
+            ({"x": None, "y": 2.0, "z": False}, (0.0, 2.0, 0.0)),
+            ({"x": True, "y": False, "z": 3.0}, (1.0, 0.0, 3.0)),
+            ({"w": 4.0}, (0.0, 0.0, 0.0)),
+        ]
+        for case, expected in test_cases_equal:
+            with self.subTest(case=case):
+                self.assertEqual(convert.vrm_json_vector3_to_tuple(case), expected)
 
     def test_vrm_json_curve_to_list(self) -> None:
         self.assertIsNone(convert.vrm_json_curve_to_list(None))
