@@ -1,7 +1,7 @@
 ci:
   image: cimg/node:lts@sha256:5ee681fd1421b7555c4a6598689fd1258ab27e9fbeb5ccdb6ac56311e087805a
   services:
-    - docker:29.3.1-dind@sha256:4d90f1f6c400315c2dba96d3ec93c01e64198395cbba04f79d12adce4f737029
+    - docker:29.4.0-dind@sha256:a6dd5322747a95cd8e3207bd8d415a8fd20ec34e9c00f06dc019cbd912013489
   retry:
     max: 2
     when:

@@ -38,7 +38,7 @@ jobs:
           persist-credentials: false
       - name: Cache archive
         id: cache-archive
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: .local/tmp/blender.zip
           key: ${{ matrix.blender.archive_url_path }}-archive-12
@@ -65,7 +65,7 @@ jobs:
           $env:BLENDER_VRM_TEST_BLENDER_PATH = (Get-ChildItem ".github\blender\*\blender.exe")[0].FullName
           & $env:BLENDER_VRM_TEST_BLENDER_PATH --background -noaudio --python-exit-code 1 --python tools\unittest_discover.py
       - name: Archive failed io test result
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
           name: VRMs (${{ github.job }} ${{ matrix.blender.job_name_postfix }})
@@ -98,7 +98,7 @@ jobs:
           persist-credentials: false
       - name: Cache archive
         id: cache-archive
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: .local/tmp/blender.dmg
           key: ${{ matrix.blender.archive_url_path }}-archive-12
@@ -136,7 +136,7 @@ jobs:
           hdiutil detach "$unpack_path" || true
           ./.github/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
           name: VRMs (${{ github.job }} ${{ matrix.blender.job_name_postfix }})
@@ -159,7 +159,7 @@ jobs:
           persist-credentials: false
       - name: Cache archive
         id: cache-archive
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: .local/tmp/blender.tar.xz
           key: ${{ matrix.blender.archive_url_path }}-archive-12
@@ -178,7 +178,7 @@ jobs:
           tar -x --strip-components=1 -f .local/tmp/blender.tar.xz -C "$blender_base_path"
           "${blender_base_path}/blender" --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
           name: VRMs (${{ github.job }} ${{ matrix.blender.job_name_postfix }})
