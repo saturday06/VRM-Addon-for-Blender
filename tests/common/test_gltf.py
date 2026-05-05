@@ -3,6 +3,8 @@ import base64
 import struct
 from unittest import TestCase
 
+from mathutils import Matrix, Quaternion
+
 from io_scene_vrm.common import gltf
 from io_scene_vrm.common.convert import Json
 
@@ -743,3 +745,89 @@ class TestGltf(TestCase):
             self.assertAlmostEqual(actual, expected, places=6)
         for actual, expected in zip(weights1, (1 / 9, 1 / 9, 1 / 9, 0.0)):
             self.assertAlmostEqual(actual, expected, places=6)
+
+    def test_parse_gltf_node_matrix(self) -> None:
+        # Default empty dict
+        self.assertEqual(gltf.parse_gltf_node_matrix({}), Matrix())
+
+        # Valid matrix (column-major in glTF -> row-major in Blender Matrix)
+        node_dict_matrix: dict[str, Json] = {
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                1.0,
+                2.0,
+                3.0,
+                1.0,
+            ]
+        }
+        expected_matrix = Matrix(
+            (
+                (1.0, 0.0, 0.0, 1.0),
+                (0.0, 1.0, 0.0, 2.0),
+                (0.0, 0.0, 1.0, 3.0),
+                (0.0, 0.0, 0.0, 1.0),
+            )
+        )
+        self.assertEqual(gltf.parse_gltf_node_matrix(node_dict_matrix), expected_matrix)
+
+        # Invalid matrix
+        self.assertEqual(gltf.parse_gltf_node_matrix({"matrix": [1.0]}), Matrix())
+        self.assertEqual(gltf.parse_gltf_node_matrix({"matrix": "invalid"}), Matrix())
+
+        # Valid translation
+        node_dict_translation: dict[str, Json] = {"translation": [1.0, 2.0, 3.0]}
+        expected_translation = Matrix.Translation((1.0, 2.0, 3.0))
+        self.assertEqual(
+            gltf.parse_gltf_node_matrix(node_dict_translation), expected_translation
+        )
+
+        # Invalid translation
+        self.assertEqual(
+            gltf.parse_gltf_node_matrix({"translation": [1.0, 2.0]}),
+            Matrix(),
+        )
+
+        # Valid rotation (glTF: x, y, z, w -> Blender: w, x, y, z)
+        node_dict_rotation: dict[str, Json] = {"rotation": [0.0, 1.0, 0.0, 0.0]}
+        expected_rotation = Quaternion((0.0, 0.0, 1.0, 0.0)).to_matrix().to_4x4()
+        self.assertEqual(
+            gltf.parse_gltf_node_matrix(node_dict_rotation), expected_rotation
+        )
+
+        # Invalid rotation
+        node_dict_rotation_invalid: dict[str, Json] = {"rotation": [0.0, 1.0, 0.0]}
+        self.assertEqual(
+            gltf.parse_gltf_node_matrix(node_dict_rotation_invalid),
+            Matrix(),
+        )
+
+        # Valid scale
+        node_dict_scale: dict[str, Json] = {"scale": [2.0, 3.0, 4.0]}
+        expected_scale = Matrix.Diagonal((2.0, 3.0, 4.0)).to_4x4()
+        self.assertEqual(gltf.parse_gltf_node_matrix(node_dict_scale), expected_scale)
+
+        # Invalid scale
+        node_dict_invalid_scale: dict[str, Json] = {"scale": [2.0, 3.0]}
+        self.assertEqual(gltf.parse_gltf_node_matrix(node_dict_invalid_scale), Matrix())
+
+        # Valid combination of translation, rotation, and scale
+        node_dict_combined: dict[str, Json] = {
+            "translation": [1.0, 2.0, 3.0],
+            "rotation": [0.0, 1.0, 0.0, 0.0],
+            "scale": [2.0, 3.0, 4.0],
+        }
+        expected_combined = expected_translation @ expected_rotation @ expected_scale
+        self.assertEqual(
+            gltf.parse_gltf_node_matrix(node_dict_combined), expected_combined
+        )
