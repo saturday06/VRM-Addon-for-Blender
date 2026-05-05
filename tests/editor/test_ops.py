@@ -15,6 +15,7 @@ from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     get_armature_extension,
 )
+from io_scene_vrm.editor.ops import VRM_OT_open_url_in_web_browser
 from tests.util import AddonTestCase
 
 ADDON_VERSION = version.get_addon_version()
@@ -213,6 +214,27 @@ class TestMakeEstimatedHumanoidTPose(AddonTestCase):
             armature.pose.bones["index_distal.R"].head,
             "index_distal.R head doesn't match",
         )
+
+
+class TestOpenUrlInWebBrowser(AddonTestCase):
+    def test_supported(self) -> None:
+        supported = VRM_OT_open_url_in_web_browser.supported
+        self.assertTrue(supported("https://google.com"))
+        self.assertTrue(supported("http://google.com"))
+        self.assertFalse(supported("  https://google.com  "))
+        self.assertFalse(supported("\r\nhttps://google.com"))
+        self.assertTrue(supported("https://127.0.0.1"))
+        self.assertTrue(supported("http://localhost"))
+
+        self.assertFalse(supported(""))
+        self.assertFalse(supported("javascript:alert(1)"))
+        self.assertFalse(supported("file:///etc/passwd"))
+        self.assertFalse(supported("https:javascript:alert(1)"))
+        self.assertFalse(supported("http:javascript:alert(1)"))
+        self.assertFalse(supported("https://"))
+        self.assertFalse(supported("https://user@"))
+        self.assertFalse(supported("http://:80"))
+        self.assertFalse(supported("http:///google.com"))
 
 
 if __name__ == "__main__":

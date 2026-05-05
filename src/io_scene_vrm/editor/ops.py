@@ -189,11 +189,15 @@ class VRM_OT_open_url_in_web_browser(Operator):
     def supported(url_str: str) -> bool:
         if not url_str:
             return False
+        if url_str != url_str.strip():
+            return False
         try:
             url = urlsplit(url_str)
         except ValueError:
             return False
-        return url.scheme in ("http", "https")
+        if url.scheme not in ("http", "https"):
+            return False
+        return bool(url.hostname)
 
     def execute(self, _context: Context) -> set[str]:
         url = self.url
