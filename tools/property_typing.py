@@ -37,44 +37,58 @@ def _write_property_typing(
     if property_name == "stiffiness" or property_name.endswith("_ussage_name"):
         comment += "  # noqa: SC200"
 
-    if property_type in ("bpy.props.StringProperty", "bpy.props.EnumProperty"):
+    if not property_type.startswith("bpy.props."):
+        return ("", None, None)
+
+    prop_type_name = property_type.rsplit(".", maxsplit=1)[-1]
+    if prop_type_name == "StringProperty":
         line = f"        {property_name}: str{comment}"
         arg_type = "str"
         arg_default = '""'
-    elif property_type == "bpy.props.FloatProperty":
+    elif prop_type_name == "EnumProperty":
+        options = keywords.get("options")
+        if isinstance(options, set) and "ENUM_FLAG" in options:
+            line = f"        {property_name}: set[str]{comment}"
+            arg_type = "set[str]"
+            arg_default = "set()"
+        else:
+            line = f"        {property_name}: str{comment}"
+            arg_type = "str"
+            arg_default = '""'
+    elif prop_type_name == "FloatProperty":
         line = f"        {property_name}: float{comment}"
         arg_type = "float"
         arg_default = 0.0
-    elif property_type == "bpy.props.FloatVectorProperty":
+    elif prop_type_name == "FloatVectorProperty":
         line = f"        {property_name}: Sequence[float]{comment}"
         if len(line) > ruff_line_len:
             line = (
                 f"        {property_name}: ({comment}\n"
                 "            Sequence[float]\n        )"
             )
-    elif property_type == "bpy.props.IntProperty":
+    elif prop_type_name == "IntProperty":
         line = f"        {property_name}: int{comment}"
         arg_type = "int"
         arg_default = 0
-    elif property_type == "bpy.props.IntVectorProperty":
+    elif prop_type_name == "IntVectorProperty":
         line = f"        {property_name}: Sequence[int]{comment}"
         if len(line) > ruff_line_len:
             line = (
                 f"        {property_name}: ({comment}\n"
                 "            Sequence[int]\n        )"
             )
-    elif property_type == "bpy.props.BoolProperty":
+    elif prop_type_name == "BoolProperty":
         line = f"        {property_name}: bool{comment}"
         arg_type = "bool"
         arg_default = "False"
-    elif property_type == "bpy.props.BoolVectorProperty":
+    elif prop_type_name == "BoolVectorProperty":
         line = f"        {property_name}: Sequence[bool]{comment}"
         if len(line) > ruff_line_len:
             line = (
                 f"        {property_name}: ({comment}\n"
                 "            Sequence[bool]\n        )"
             )
-    elif property_type == "bpy.props.PointerProperty":
+    elif prop_type_name == "PointerProperty":
         target_type = keywords.get("type")
         if not isinstance(target_type, type):
             message = f"Unexpected {keywords}"
@@ -90,7 +104,7 @@ def _write_property_typing(
                 + f"            {target_name}\n"
                 + "        )"
             )
-    elif property_type == "bpy.props.CollectionProperty":
+    elif prop_type_name == "CollectionProperty":
         target_type = keywords.get("type")
         if not isinstance(target_type, type):
             message = f"Unexpected {keywords}"
@@ -109,10 +123,8 @@ def _write_property_typing(
         arg_call_line = (
             f"{property_name}={property_name} if {property_name} is not None else []"
         )
-    elif property_type.startswith("bpy.props."):
-        line = f"        # TODO: {property_name} {property_type}"
     else:
-        return ("", None, None)
+        line = f"        # TODO: {property_name} {property_type}"
 
     line += "\n"
 
