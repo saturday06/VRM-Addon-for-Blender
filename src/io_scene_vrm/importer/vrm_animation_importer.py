@@ -745,9 +745,7 @@ def _assign_humanoid_keyframe(
                 )
             )
 
-            # TODO: UniVRM seems to adjust the movement amount by the ratio of
-            # hips height. This is not described in the specification.
-            # Investigation of how it works in UniVRM source code is needed.
+            # https://github.com/vrm-c/vrm-specification/blob/3942748efbc803b258e288e0f6c993c6bb96cebf/specification/VRMC_vrm_animation-1.0/how_to_transform_human_pose.md?plain=1#L116-L123
             rest_world_translation_z = rest_world_matrix.to_translation().z
             if abs(rest_world_translation_z) > 0:
                 world_height_ratio = (
