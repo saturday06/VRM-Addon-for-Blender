@@ -156,7 +156,7 @@ def float_or_none(
         return max(min_value, min(v, max_value))
 
     if isinstance(v, bool):
-        return 1.0 if v else 0.0
+        return max(min_value, min(1.0 if v else 0.0, max_value))
 
     if isinstance(v, int):
         return max(min_value, min(float(v), max_value))

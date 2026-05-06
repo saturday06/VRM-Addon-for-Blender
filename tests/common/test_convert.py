@@ -206,6 +206,24 @@ class TestConvert(TestCase):
         self.assertEqual(convert.float_or_none(10.0, max_value=5.0), 5.0)
         self.assertEqual(convert.float_or_none(-10.0, min_value=-5.0), -5.0)
 
+        # min_value/max_value boundaries
+        self.assertEqual(
+            convert.float_or_none(
+                sys.float_info.max, min_value=0.0, max_value=sys.float_info.max
+            ),
+            sys.float_info.max,
+        )
+        self.assertEqual(
+            convert.float_or_none(
+                -sys.float_info.max, min_value=-sys.float_info.max, max_value=0.0
+            ),
+            -sys.float_info.max,
+        )
+
+        # bool with clamping
+        self.assertEqual(convert.float_or_none(True, min_value=2.0), 2.0)
+        self.assertEqual(convert.float_or_none(False, max_value=-1.0), -1.0)
+
     def test_float_or(self) -> None:
         self.assertEqual(convert.float_or(1.5, 0.0), 1.5)
         self.assertEqual(convert.float_or(None, 2.5), 2.5)
