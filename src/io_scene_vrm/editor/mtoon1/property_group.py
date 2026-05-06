@@ -4,6 +4,7 @@ import re
 import sys
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from itertools import islice
 from typing import TYPE_CHECKING, Final, Optional, Protocol, Union
 
 import bpy
@@ -3728,7 +3729,6 @@ def reset_shader_node_group(
 
 @dataclass(frozen=True)
 class NodesModifierInputKey:
-    geometry_key: str
     material_key: str
     outline_material_key: str
     outline_width_mode_key: str
@@ -3744,9 +3744,11 @@ class NodesModifierInputKey:
     object_key: str
     enabled_key: str
 
+    @property
     def outline_width_multiply_texture_uv_use_attribute_key(self) -> str:
         return self.outline_width_multiply_texture_uv_key + "_use_attribute"
 
+    @property
     def outline_width_multiply_texture_uv_attribute_name_key(self) -> str:
         return self.outline_width_multiply_texture_uv_key + "_attribute_name"
 
@@ -3757,9 +3759,12 @@ def _get_nodes_modifier_input_key(
     node_group = modifier.node_group
     if not node_group:
         return None
+
+    required_key_len = 15
+
     if bpy.app.version < (4, 0):
         keys = [i.identifier for i in node_group.inputs]
-    else:
+    elif bpy.app.version < (5, 2):
         from bpy.types import NodeTreeInterfaceSocket
 
         keys = [
@@ -3769,11 +3774,24 @@ def _get_nodes_modifier_input_key(
             and isinstance(item, NodeTreeInterfaceSocket)
             and item.in_out == "INPUT"
         ]
+    else:
+        # Ideally we would use NodesModifier.properties.inputs.keys(),
+        # but right after creating a NodesModifier, it returns an empty iterator,
+        # so we search using a loop instead.
+        keys = list(
+            islice(
+                (
+                    key
+                    for i in range(1, required_key_len * 10)
+                    if getattr(modifier.properties.inputs, key := f"Socket_{i}", None)
+                ),
+                required_key_len,
+            )
+        )
 
-    if len(keys) < 15:
+    if len(keys) < required_key_len:
         return None
     return NodesModifierInputKey(
-        geometry_key=keys[0],
         material_key=keys[1],
         outline_material_key=keys[2],
         outline_width_mode_key=keys[3],
@@ -3789,6 +3807,239 @@ def _get_nodes_modifier_input_key(
         object_key=keys[13],
         enabled_key=keys[14],
     )
+
+
+class NodesModifierCustomProperties:
+    def __init__(
+        self, modifier: NodesModifier, input_key: NodesModifierInputKey
+    ) -> None:
+        self.modifier = modifier
+        self.input_key = input_key
+
+    def _set(self, key: str, value: object) -> bool:
+        if self.modifier.get(key) == value:
+            return False
+        self.modifier[key] = value
+        return True
+
+    def get_material(self) -> Optional[Material]:
+        material = self.modifier.get(self.input_key.material_key)
+        if material is None:
+            return None
+        if not isinstance(material, Material):
+            _logger.error(
+                "Expected Material for key: %s, modifier: %s, got: %s",
+                self.input_key.material_key,
+                self.modifier.name,
+                type(material),
+            )
+            return None
+        return material
+
+    def set_material(self, value: Material) -> bool:
+        return self._set(self.input_key.material_key, value)
+
+    def set_outline_material(self, value: Material) -> bool:
+        return self._set(self.input_key.outline_material_key, value)
+
+    def set_outline_width_mode(self, value: int) -> bool:
+        return self._set(self.input_key.outline_width_mode_key, value)
+
+    def set_outline_width_factor(self, value: float) -> bool:
+        return self._set(self.input_key.outline_width_factor_key, value)
+
+    def set_outline_width_multiply_texture(self, value: Optional[Image]) -> bool:
+        return self._set(self.input_key.outline_width_multiply_texture_key, value)
+
+    def set_outline_width_multiply_texture_exists(self, *, value: bool) -> bool:
+        return self._set(
+            self.input_key.outline_width_multiply_texture_exists_key, value
+        )
+
+    def set_outline_width_multiply_texture_uv_use_attribute(
+        self, *, value: Union[bool, int]
+    ) -> bool:
+        return self._set(
+            self.input_key.outline_width_multiply_texture_uv_use_attribute_key, value
+        )
+
+    def set_outline_width_multiply_texture_uv_attribute_name(self, value: str) -> bool:
+        return self._set(
+            self.input_key.outline_width_multiply_texture_uv_attribute_name_key, value
+        )
+
+    def set_outline_width_multiply_texture_uv_offset_x(self, value: float) -> bool:
+        return self._set(
+            self.input_key.outline_width_multiply_texture_uv_offset_x_key, value
+        )
+
+    def set_outline_width_multiply_texture_uv_offset_y(self, value: float) -> bool:
+        return self._set(
+            self.input_key.outline_width_multiply_texture_uv_offset_y_key, value
+        )
+
+    def set_outline_width_multiply_texture_uv_scale_x(self, value: float) -> bool:
+        return self._set(
+            self.input_key.outline_width_multiply_texture_uv_scale_x_key, value
+        )
+
+    def set_outline_width_multiply_texture_uv_scale_y(self, value: float) -> bool:
+        return self._set(
+            self.input_key.outline_width_multiply_texture_uv_scale_y_key, value
+        )
+
+    def set_extrude_mesh_individual(self, *, value: bool) -> bool:
+        return self._set(self.input_key.extrude_mesh_individual_key, value)
+
+    def set_object(self, value: Object) -> bool:
+        return self._set(self.input_key.object_key, value)
+
+    def set_enabled(self, *, value: bool) -> bool:
+        return self._set(self.input_key.enabled_key, value)
+
+
+class NodesModifierProperties:
+    def __init__(
+        self, modifier: NodesModifier, input_key: NodesModifierInputKey
+    ) -> None:
+        self.modifier = modifier
+        self.input_key = input_key
+
+    def _get(self, key: str, attr: str = "value") -> Optional[object]:
+        socket = getattr(self.modifier.properties.inputs, key, None)
+        if not socket:
+            _logger.error(
+                "Socket not found for key: %s, modifier: %s", key, self.modifier.name
+            )
+            return None
+        return getattr(socket, attr)
+
+    def _set(self, key: str, value: object, attr: str = "value") -> bool:
+        socket = getattr(self.modifier.properties.inputs, key, None)
+        if not socket:
+            _logger.error(
+                "Socket not found for key: %s, modifier: %s", key, self.modifier.name
+            )
+            return False
+        if getattr(socket, attr) == value:
+            return False
+        setattr(socket, attr, value)
+        return True
+
+    def get_material(self) -> Optional[Material]:
+        material = self._get(self.input_key.material_key)
+        if material is None:
+            return None
+        if not isinstance(material, Material):
+            _logger.error(
+                "Expected Material for key: %s, modifier: %s, got: %s",
+                self.input_key.material_key,
+                self.modifier.name,
+                type(material),
+            )
+            return None
+        return material
+
+    def set_material(self, value: Material) -> bool:
+        return self._set(self.input_key.material_key, value)
+
+    def set_outline_material(self, value: Material) -> bool:
+        return self._set(self.input_key.outline_material_key, value)
+
+    def set_outline_width_mode(self, value: int) -> bool:
+        return self._set(self.input_key.outline_width_mode_key, value)
+
+    def set_outline_width_factor(self, value: float) -> bool:
+        return self._set(self.input_key.outline_width_factor_key, value)
+
+    def set_outline_width_multiply_texture(self, value: Optional[Image]) -> bool:
+        return self._set(self.input_key.outline_width_multiply_texture_key, value)
+
+    def set_outline_width_multiply_texture_exists(self, *, value: bool) -> bool:
+        return self._set(
+            self.input_key.outline_width_multiply_texture_exists_key, value
+        )
+
+    def set_outline_width_multiply_texture_uv_use_attribute(
+        self, *, value: Union[bool, int]
+    ) -> bool:
+        return self._set(
+            self.input_key.outline_width_multiply_texture_uv_key,
+            "ATTRIBUTE" if value else "VALUE",
+            "type",
+        )
+
+    def set_outline_width_multiply_texture_uv_attribute_name(self, value: str) -> bool:
+        return self._set(
+            self.input_key.outline_width_multiply_texture_uv_key,
+            value,
+            "attribute_name",
+        )
+
+    def set_outline_width_multiply_texture_uv_offset_x(self, value: float) -> bool:
+        return self._set(
+            self.input_key.outline_width_multiply_texture_uv_offset_x_key, value
+        )
+
+    def set_outline_width_multiply_texture_uv_offset_y(self, value: float) -> bool:
+        return self._set(
+            self.input_key.outline_width_multiply_texture_uv_offset_y_key, value
+        )
+
+    def set_outline_width_multiply_texture_uv_scale_x(self, value: float) -> bool:
+        return self._set(
+            self.input_key.outline_width_multiply_texture_uv_scale_x_key, value
+        )
+
+    def set_outline_width_multiply_texture_uv_scale_y(self, value: float) -> bool:
+        return self._set(
+            self.input_key.outline_width_multiply_texture_uv_scale_y_key, value
+        )
+
+    def set_extrude_mesh_individual(self, *, value: bool) -> bool:
+        return self._set(self.input_key.extrude_mesh_individual_key, value)
+
+    def set_object(self, value: Object) -> bool:
+        return self._set(self.input_key.object_key, value)
+
+    def set_enabled(self, *, value: bool) -> bool:
+        return self._set(self.input_key.enabled_key, value)
+
+
+class NodesModifierPropertiesProtocol(Protocol):
+    def get_material(self) -> Optional[Material]: ...
+    def set_material(self, value: Material) -> bool: ...
+    def set_outline_material(self, value: Material) -> bool: ...
+    def set_outline_width_mode(self, value: int) -> bool: ...
+    def set_outline_width_factor(self, value: float) -> bool: ...
+    def set_outline_width_multiply_texture(self, value: Optional[Image]) -> bool: ...
+    def set_outline_width_multiply_texture_exists(self, *, value: bool) -> bool: ...
+    def set_outline_width_multiply_texture_uv_use_attribute(
+        self, *, value: Union[bool, int]
+    ) -> bool: ...
+    def set_outline_width_multiply_texture_uv_attribute_name(
+        self, value: str
+    ) -> bool: ...
+    def set_outline_width_multiply_texture_uv_offset_x(self, value: float) -> bool: ...
+    def set_outline_width_multiply_texture_uv_offset_y(self, value: float) -> bool: ...
+    def set_outline_width_multiply_texture_uv_scale_x(self, value: float) -> bool: ...
+    def set_outline_width_multiply_texture_uv_scale_y(self, value: float) -> bool: ...
+    def set_extrude_mesh_individual(self, *, value: bool) -> bool: ...
+    def set_object(self, value: Object) -> bool: ...
+    def set_enabled(self, *, value: bool) -> bool: ...
+
+
+def _get_nodes_modifier_input_properties(
+    modifier: NodesModifier,
+) -> Optional[NodesModifierPropertiesProtocol]:
+    input_key = _get_nodes_modifier_input_key(modifier)
+    if not input_key:
+        return None
+
+    if bpy.app.version < (5, 2):
+        return NodesModifierCustomProperties(modifier, input_key)
+
+    return NodesModifierProperties(modifier, input_key)
 
 
 def generate_mtoon1_outline_material_name(material: Material) -> str:
@@ -4272,8 +4523,8 @@ def _assign_mtoon1_outline(
             continue
         if search_modifier.node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME:
             continue
-        input_key = _get_nodes_modifier_input_key(search_modifier)
-        if input_key is None:
+        input_properties = _get_nodes_modifier_input_properties(search_modifier)
+        if input_properties is None:
             # If NodesModifierInputKey cannot be obtained, the node is broken, so avoid
             # modifying it as much as possible.
             _logger.warning(
@@ -4283,8 +4534,8 @@ def _assign_mtoon1_outline(
             )
             no_outline = True
             continue
-        search_material = search_modifier.get(input_key.material_key)
-        if not isinstance(search_material, Material):
+        search_material = input_properties.get_material()
+        if search_material is None:
             continue
         if search_material.name != material.name:
             continue
@@ -4365,11 +4616,10 @@ def _assign_mtoon1_outline(
     if modifier.node_group != node_group:
         modifier.node_group = node_group
 
-    input_key = _get_nodes_modifier_input_key(modifier)
-    if input_key is None:
+    input_properties = _get_nodes_modifier_input_properties(modifier)
+    if input_properties is None:
         return
 
-    modifier_input_changed = False
     (
         outline_width_multiply_texture_uv_offset_x,
         outline_width_multiply_texture_uv_offset_y,
@@ -4396,61 +4646,65 @@ def _assign_mtoon1_outline(
     outline_width_multiply_texture_uv_use_attribute = (
         True if tuple(bpy.app.version) >= (4, 2) else 1
     )
-    for k, v in (
-        (input_key.material_key, material),
-        (input_key.outline_material_key, outline_material),
-        (input_key.outline_width_mode_key, outline_width_mode_value),
-        (input_key.outline_width_factor_key, mtoon.outline_width_factor),
-        (
-            input_key.outline_width_multiply_texture_key,
-            mtoon.outline_width_multiply_texture.index.source,
-        ),
-        (
-            input_key.outline_width_multiply_texture_exists_key,
-            bool(mtoon.outline_width_multiply_texture.index.source),
-        ),
-        (
-            input_key.outline_width_multiply_texture_uv_use_attribute_key(),
-            outline_width_multiply_texture_uv_use_attribute,
-        ),
-        (
-            input_key.outline_width_multiply_texture_uv_attribute_name_key(),
-            uv_layer_name,
-        ),
-        (
-            input_key.outline_width_multiply_texture_uv_offset_x_key,
-            outline_width_multiply_texture_uv_offset_x,
-        ),
-        (
-            input_key.outline_width_multiply_texture_uv_offset_y_key,
-            outline_width_multiply_texture_uv_offset_y,
-        ),
-        (
-            input_key.outline_width_multiply_texture_uv_scale_x_key,
-            outline_width_multiply_texture_uv_scale_x,
-        ),
-        (
-            input_key.outline_width_multiply_texture_uv_scale_y_key,
-            outline_width_multiply_texture_uv_scale_y,
-        ),
-        (
-            input_key.extrude_mesh_individual_key,
-            (
-                obj.type == "MESH"
-                and isinstance(mesh_data := obj.data, Mesh)
-                and not (has_auto_smooth and mesh_data.use_auto_smooth)
-                and not any(polygon.use_smooth for polygon in mesh_data.polygons)
-            ),
-        ),
-        (input_key.object_key, obj),
-        (
-            input_key.enabled_key,
-            obj.mode not in {"VERTEX_PAINT", "TEXTURE_PAINT", "WEIGHT_PAINT", "SCULPT"},
-        ),
-    ):
-        if modifier.get(k) != v:
-            modifier[k] = v
-            modifier_input_changed = True
+
+    modifier_input_changed = False
+    modifier_input_changed |= input_properties.set_material(material)
+    modifier_input_changed |= input_properties.set_outline_material(outline_material)
+    modifier_input_changed |= input_properties.set_outline_width_mode(
+        outline_width_mode_value
+    )
+    modifier_input_changed |= input_properties.set_outline_width_factor(
+        mtoon.outline_width_factor
+    )
+    modifier_input_changed |= input_properties.set_outline_width_multiply_texture(
+        mtoon.outline_width_multiply_texture.index.source
+    )
+    modifier_input_changed |= (
+        input_properties.set_outline_width_multiply_texture_exists(
+            value=bool(mtoon.outline_width_multiply_texture.index.source)
+        )
+    )
+    modifier_input_changed |= (
+        input_properties.set_outline_width_multiply_texture_uv_use_attribute(
+            value=outline_width_multiply_texture_uv_use_attribute
+        )
+    )
+    modifier_input_changed |= (
+        input_properties.set_outline_width_multiply_texture_uv_attribute_name(
+            uv_layer_name
+        )
+    )
+    modifier_input_changed |= (
+        input_properties.set_outline_width_multiply_texture_uv_offset_x(
+            outline_width_multiply_texture_uv_offset_x
+        )
+    )
+    modifier_input_changed |= (
+        input_properties.set_outline_width_multiply_texture_uv_offset_y(
+            outline_width_multiply_texture_uv_offset_y
+        )
+    )
+    modifier_input_changed |= (
+        input_properties.set_outline_width_multiply_texture_uv_scale_x(
+            outline_width_multiply_texture_uv_scale_x
+        )
+    )
+    modifier_input_changed |= (
+        input_properties.set_outline_width_multiply_texture_uv_scale_y(
+            outline_width_multiply_texture_uv_scale_y
+        )
+    )
+    modifier_input_changed |= input_properties.set_extrude_mesh_individual(
+        value=obj.type == "MESH"
+        and isinstance(mesh_data := obj.data, Mesh)
+        and not (has_auto_smooth and mesh_data.use_auto_smooth)
+        and not any(polygon.use_smooth for polygon in mesh_data.polygons)
+    )
+    modifier_input_changed |= input_properties.set_object(obj)
+    modifier_input_changed |= input_properties.set_enabled(
+        value=obj.mode
+        not in {"VERTEX_PAINT", "TEXTURE_PAINT", "WEIGHT_PAINT", "SCULPT"}
+    )
 
     if modifier_input_changed:
         modifier.show_viewport = not modifier.show_viewport
@@ -4536,12 +4790,12 @@ def refresh_mtoon1_outline(
                 continue
             if node_group.name != shader.OUTLINE_GEOMETRY_GROUP_NAME:
                 continue
-            input_key = _get_nodes_modifier_input_key(search_modifier)
-            if input_key is None:
+            input_properties = _get_nodes_modifier_input_properties(search_modifier)
+            if input_properties is None:
                 continue
-            search_material = search_modifier.get(input_key.material_key)
+            search_material = input_properties.get_material()
             if (
-                isinstance(search_material, Material)
+                search_material is not None
                 and search_material.name in outline_material_names
             ):
                 continue

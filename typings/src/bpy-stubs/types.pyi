@@ -1878,10 +1878,22 @@ class Modifier(bpy_struct):
 class ArmatureModifier(Modifier):
     object: Object | None
 
+class IDPropertyGroupViewKeys:
+    def __iter__(self) -> Iterator[str]: ...
+
+class GeometryNodesInterfaceInputs:
+    def keys(self) -> IDPropertyGroupViewKeys: ...
+
+class GeometryNodesModifierInterface:
+    @property
+    def inputs(self) -> GeometryNodesInterfaceInputs: ...
+
 class NodesModifier(Modifier):
     node_group: NodeTree | None  # Whether it becomes None needs verification
     show_group_selector: bool
     show_manage_panel: bool
+    @property
+    def properties(self) -> GeometryNodesModifierInterface: ...
 
 class OperatorFileListElement(PropertyGroup): ...
 
