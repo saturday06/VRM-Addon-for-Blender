@@ -4274,6 +4274,14 @@ def _assign_mtoon1_outline(
             continue
         input_key = _get_nodes_modifier_input_key(search_modifier)
         if input_key is None:
+            # If NodesModifierInputKey cannot be obtained, the node is broken, so avoid
+            # modifying it as much as possible.
+            _logger.warning(
+                "NodesModifier '%s' on object '%s' has an unexpected node group input.",
+                search_modifier.name,
+                obj.name,
+            )
+            no_outline = True
             continue
         search_material = search_modifier.get(input_key.material_key)
         if not isinstance(search_material, Material):
