@@ -64,13 +64,16 @@ def discover_and_run_test_suite() -> int:
     parser = argparse.ArgumentParser(prog=Path(__file__).name)
     parser.add_argument("-f", "--failfast", action="store_true")
     parser.add_argument("-p", "--pattern", default="test*.py")
+    parser.add_argument("-s", "--start-directory", default=".")
     parser.add_argument("-v", "--verbose", action="store_true")
+    parser.add_argument("-t", "--top-level-directory", default=argparse.SUPPRESS)
     args = parser.parse_args(argv)
 
     test_loader = TestLoader()
     test_suite = test_loader.discover(
-        start_dir=str(Path(__file__).parent.parent),
+        start_dir=args.start_directory,
         pattern=args.pattern,
+        top_level_dir=getattr(args, "top_level_directory", args.start_directory),
     )
 
     reader_fd, writer_fd = os.pipe()
