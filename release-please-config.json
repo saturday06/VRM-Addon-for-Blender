@@ -5,10 +5,6 @@
   "draft-pull-request": true,
   "changelog-sections": [
     {
-      "type": "BREAKING CHANGE",
-      "section": "💥 Breaking Changes"
-    },
-    {
       "type": "feat",
       "section": "🚀 Features"
     },
