@@ -27,6 +27,7 @@ from ..common.logger import get_logger
 from ..common.version import get_addon_version
 from ..editor.ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..editor.property_group import CollectionPropertyProtocol
+from ..external import io_scene_gltf2_support
 
 _logger = get_logger(__name__)
 
@@ -50,6 +51,7 @@ def show_error_dialog(
     if append_environment:
         if lines:
             lines[0] = f"Python: {lines[0]}"
+        lines = io_scene_gltf2_support.read_addon_diagnostics() + lines
 
         os_name = None
         platform_system, _, _ = platform.system_alias(
@@ -100,6 +102,10 @@ def _mask_private_string(message: str) -> str:
 
     message = message.replace(str(Path.home()), "<home path>")
     message = message.replace(getpass.getuser(), "<user name>")
+    binary_path = bpy.app.binary_path
+    if binary_path:
+        binary_folder_path = Path(binary_path).parent
+        message = message.replace(str(binary_folder_path), "<bin folder path>")
     return message
 
 

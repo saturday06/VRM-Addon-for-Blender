@@ -1,7 +1,11 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+import contextlib
 import datetime
+import hashlib
+import inspect
 import logging
 from dataclasses import dataclass
+from pathlib import Path
 from typing import ClassVar, Optional
 
 import bpy
@@ -375,3 +379,35 @@ def gather_gltf2_io_material(
 
     gltf2_io_material, _ = gather_material(material, export_settings)
     return gltf2_io_material
+
+
+def read_addon_diagnostics() -> list[str]:
+    gltf2_addon = bpy.context.preferences.addons.get("io_scene_gltf2")
+    if gltf2_addon is None:
+        return ["glTF 2.0: Not Found"]
+    gltf2_preferences = getattr(gltf2_addon, "preferences", None)
+    if gltf2_preferences is None:
+        return ["glTF 2.0: No Preferences Found"]
+
+    c = gltf2_preferences.__class__
+    try:
+        path = inspect.getsourcefile(c)
+    except (OSError, TypeError):
+        try:
+            path = inspect.getfile(c)
+        except (OSError, TypeError):
+            path = None
+    if not isinstance(path, str):
+        return [f"glTF 2.0: Not Inspectable (path={path})"]
+
+    diagnostics = [f'glTF 2.0: "{path}"']
+    source_bytes = None
+    with contextlib.suppress(OSError):
+        source_bytes = Path(path).read_bytes()
+    if source_bytes is not None:
+        diagnostics.append(
+            f"          (SHA256: {hashlib.sha256(source_bytes).hexdigest()})"
+        )
+    else:
+        diagnostics.append("          (Not Readable)")
+    return diagnostics
