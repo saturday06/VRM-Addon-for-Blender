@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.1.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.0.0...v4.1.0) (2026-05-07)
+
+
+### 🚀 Features
+
+* show glTF add-on diagnostics in the error dialog ([fb8e4e9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fb8e4e975348bac7b038836289f3c01388a20ef5))
+
+
+### 🐛 Bug Fixes
+
+* restart the release pipeline because it did not complete successfully ([4391116](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4391116a283843f26e09ab8e434bc31e0387d627))
+
 ## [4.0.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.27.0...v4.0.0) (2026-05-06)
 
 
