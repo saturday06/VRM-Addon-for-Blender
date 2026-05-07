@@ -7,21 +7,27 @@
 
 * show glTF add-on diagnostics in the error dialog ([fb8e4e9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fb8e4e975348bac7b038836289f3c01388a20ef5))
 
-
-### 🐛 Bug Fixes
-
-* restart the release pipeline because it did not complete successfully ([4391116](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4391116a283843f26e09ab8e434bc31e0387d627))
-
 ## [4.0.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.27.0...v4.0.0) (2026-05-06)
 
 
-### ⚠ BREAKING CHANGES
+### 💥 BREAKING CHANGES
 
-* trigger major release pipeline
+* remove deprecated compatibility APIs and aliases
+  * removed deprecated operator IDs:
+    * `vrm.add_vrm1_arkit_custom_expressions` -> use `vrm.assign_vrm1_expressions_from_arkit`
+    * `vrm.assign_vrm1_mmd_expressions` -> use `vrm.assign_vrm1_expressions_from_mmd`
+    * `vrm.assign_vrm1_ready_player_me_expressions` -> use `vrm.assign_vrm1_expressions_from_ready_player_me`
+    * `vrm.assign_vrm1_vrchat_expressions` -> use `vrm.assign_vrm1_expressions_from_vrchat`
+  * removed deprecated operator argument alias `armature_name`; use `armature_object_name`
+  * removed deprecated property aliases:
+    * `MeshObjectPropertyGroup.value` -> use `MeshObjectPropertyGroup.mesh_object_name`
+    * `BonePropertyGroup.value` -> use `BonePropertyGroup.bone_name`
 
-### 🐛 Bug Fixes
-
-* trigger major release pipeline ([36e524e](https://github.com/saturday06/VRM-Addon-for-Blender/commit/36e524e9eb554918a71f07166ea094452a1a4c8e))
+* fix class and bl_idname mismatches by renaming IDs to match current class names
+  * `VRM_PT_vrm1_spring_bone_armature_object_property` -> `VRM_PT_spring_bone1_armature_object_property`
+  * `VRM_PT_vrm1_spring_bone_ui` -> `VRM_PT_spring_bone1_ui`
+  * `VRM_UL_vrm0_material_color_bind` -> `VRM_UL_vrm1_material_color_bind`
+  * `VRM_IMPORTER_PT_export_error_messages` -> `VRM_PT_export_file_browser_tool_props`
 
 ## [3.27.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.8...v3.27.0) (2026-05-01)
 
