@@ -137,6 +137,7 @@ if [ "$release_postfix" = "release" ]; then
 
   # https://developer.blender.org/docs/features/extensions/ci_cd/
   set +x # Hide the content of Authorization variables
+  echo "Uploading to Blender Extensions Platform..."
   curl \
     --fail-with-body \
     --show-error \
