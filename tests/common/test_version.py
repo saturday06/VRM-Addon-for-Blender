@@ -10,8 +10,8 @@ class TestVersion(TestCase):
         self.assertEqual(
             version.get_addon_version(),
             (
-                3,  # x-release-please-major
-                27,  # x-release-please-minor
+                4,  # x-release-please-major
+                0,  # x-release-please-minor
                 0,  # x-release-please-patch
             ),
         )

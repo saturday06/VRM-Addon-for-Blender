@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.0.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.27.0...v4.0.0) (2026-05-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* trigger major release pipeline
+
+### 🐛 Bug Fixes
+
+* trigger major release pipeline ([36e524e](https://github.com/saturday06/VRM-Addon-for-Blender/commit/36e524e9eb554918a71f07166ea094452a1a4c8e))
+
 ## [3.27.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v3.26.8...v3.27.0) (2026-05-01)
 
 
