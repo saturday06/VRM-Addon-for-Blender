@@ -5,7 +5,7 @@
 
 ### 🐛 Bug Fixes
 
-* trigger release pipeline ([1eab977](https://github.com/saturday06/VRM-Addon-for-Blender/commit/1eab977effbfe82475942b489fdee1a62f9dea0c))
+* fix a bug where bone deformation was disabled when the root bone was non-deform ([c0d3695](https://github.com/saturday06/VRM-Addon-for-Blender/commit/c0d3695f951e52e740ca43f790a86ef2573a05ed))
 
 ## [4.1.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.0.0...v4.1.0) (2026-05-07)
 
