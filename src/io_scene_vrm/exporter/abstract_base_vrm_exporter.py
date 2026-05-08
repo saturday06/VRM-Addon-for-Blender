@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Optional, TypeVar, Union
 
 import bmesh
+import bpy
 from bpy.types import Armature, Constraint, Context, Mesh, NodesModifier, Object
 from mathutils import Vector
 
@@ -179,6 +180,24 @@ class AbstractBaseVrmExporter(ABC):
             ):
                 bone.use_deform = True
                 modified_non_deform_bone_names.append(bone.name)
+
+        if ext.is_vrm1() and bpy.app.version >= (4, 4):
+            # Enable deformation for root bone when Blender 4.4+ and VRM 1.0.
+            #
+            # For VRM 1.0, export is done using the glTF 2.0 add-on, but export
+            # becomes unstable when root bone deformation is not present.
+            # Compatibility for versions before Blender 4.4 is already handled
+            # separately, so here we enable root bone deformation only for 4.4+.
+            # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2394
+            # https://github.com/saturday06/VRM-Addon-for-Blender/issues/1244
+            for bone in armature_data.bones:
+                if bone.parent:
+                    continue
+                if bone.use_deform:
+                    continue
+                bone.use_deform = True
+                modified_non_deform_bone_names.append(bone.name)
+
         return modified_non_deform_bone_names
 
     def leave_enable_deform_for_all_referenced_bones(
