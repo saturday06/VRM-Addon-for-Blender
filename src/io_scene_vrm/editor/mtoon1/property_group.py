@@ -3914,7 +3914,7 @@ class NodesModifierProperties:
             return None
         return getattr(socket, attr)
 
-    def _set(self, key: str, value: object, attr: str = "value") -> bool:
+    def _set(self, key: str, attr: str, value: object) -> bool:
         socket = getattr(self.modifier.properties.inputs, key, None)
         if not socket:
             _logger.error(
@@ -3925,6 +3925,12 @@ class NodesModifierProperties:
             return False
         setattr(socket, attr, value)
         return True
+
+    def _set_value(self, key: str, value: object) -> bool:
+        changed = False
+        changed |= self._set(key, "type", "VALUE")
+        changed |= self._set(key, "value", value)
+        return changed
 
     def get_material(self) -> Optional[Material]:
         material = self._get(self.input_key.material_key)
@@ -3941,22 +3947,22 @@ class NodesModifierProperties:
         return material
 
     def set_material(self, value: Material) -> bool:
-        return self._set(self.input_key.material_key, value)
+        return self._set_value(self.input_key.material_key, value)
 
     def set_outline_material(self, value: Material) -> bool:
-        return self._set(self.input_key.outline_material_key, value)
+        return self._set_value(self.input_key.outline_material_key, value)
 
     def set_outline_width_mode(self, value: int) -> bool:
-        return self._set(self.input_key.outline_width_mode_key, value)
+        return self._set_value(self.input_key.outline_width_mode_key, value)
 
     def set_outline_width_factor(self, value: float) -> bool:
-        return self._set(self.input_key.outline_width_factor_key, value)
+        return self._set_value(self.input_key.outline_width_factor_key, value)
 
     def set_outline_width_multiply_texture(self, value: Optional[Image]) -> bool:
-        return self._set(self.input_key.outline_width_multiply_texture_key, value)
+        return self._set_value(self.input_key.outline_width_multiply_texture_key, value)
 
     def set_outline_width_multiply_texture_exists(self, *, value: bool) -> bool:
-        return self._set(
+        return self._set_value(
             self.input_key.outline_width_multiply_texture_exists_key, value
         )
 
@@ -3965,45 +3971,45 @@ class NodesModifierProperties:
     ) -> bool:
         return self._set(
             self.input_key.outline_width_multiply_texture_uv_key,
-            "ATTRIBUTE" if value else "VALUE",
             "type",
+            "ATTRIBUTE" if value else "VALUE",
         )
 
     def set_outline_width_multiply_texture_uv_attribute_name(self, value: str) -> bool:
         return self._set(
             self.input_key.outline_width_multiply_texture_uv_key,
-            value,
             "attribute_name",
+            value,
         )
 
     def set_outline_width_multiply_texture_uv_offset_x(self, value: float) -> bool:
-        return self._set(
+        return self._set_value(
             self.input_key.outline_width_multiply_texture_uv_offset_x_key, value
         )
 
     def set_outline_width_multiply_texture_uv_offset_y(self, value: float) -> bool:
-        return self._set(
+        return self._set_value(
             self.input_key.outline_width_multiply_texture_uv_offset_y_key, value
         )
 
     def set_outline_width_multiply_texture_uv_scale_x(self, value: float) -> bool:
-        return self._set(
+        return self._set_value(
             self.input_key.outline_width_multiply_texture_uv_scale_x_key, value
         )
 
     def set_outline_width_multiply_texture_uv_scale_y(self, value: float) -> bool:
-        return self._set(
+        return self._set_value(
             self.input_key.outline_width_multiply_texture_uv_scale_y_key, value
         )
 
     def set_extrude_mesh_individual(self, *, value: bool) -> bool:
-        return self._set(self.input_key.extrude_mesh_individual_key, value)
+        return self._set_value(self.input_key.extrude_mesh_individual_key, value)
 
     def set_object(self, value: Object) -> bool:
-        return self._set(self.input_key.object_key, value)
+        return self._set_value(self.input_key.object_key, value)
 
     def set_enabled(self, *, value: bool) -> bool:
-        return self._set(self.input_key.enabled_key, value)
+        return self._set_value(self.input_key.enabled_key, value)
 
 
 class NodesModifierPropertiesProtocol(Protocol):
