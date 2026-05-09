@@ -188,7 +188,7 @@ class AbstractBaseVrmExporter(ABC):
             # becomes unstable when root bone deformation is not present.
             # Compatibility for versions before Blender 4.4 is already handled
             # separately, so here we enable root bone deformation only for 4.4+.
-            # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2394
+            # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2697
             # https://github.com/saturday06/VRM-Addon-for-Blender/issues/1244
             for bone in armature_data.bones:
                 if bone.parent:
