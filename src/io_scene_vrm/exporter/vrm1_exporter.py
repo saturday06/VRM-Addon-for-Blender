@@ -3068,18 +3068,16 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 for child_removing_node_dict in node_dicts:
                     if not isinstance(child_removing_node_dict, dict):
                         continue
-                    children = child_removing_node_dict.get("children")
+                    children = child_removing_node_dict.pop("children", None)
                     if not isinstance(children, list):
                         continue
                     children = [child for child in children if child != node_index]
                     if children:
                         child_removing_node_dict["children"] = children
-                    else:
-                        child_removing_node_dict.pop("children", None)
 
                 # TODO: remove from scenes, skin joints ...
 
-            if not extras_dict and "extras" in node_dict:
+            if not extras_dict:
                 node_dict.pop("extras", None)
 
         node_constraint_spec_version = "1.0"

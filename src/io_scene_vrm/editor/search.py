@@ -389,10 +389,11 @@ class ExportConstraint:
 
     @property
     def all_constraints(self) -> list[tuple[str, Constraint]]:
-        all_constraints: list[tuple[str, Constraint]] = []
-        all_constraints.extend(self.roll_constraints.items())
-        all_constraints.extend(self.aim_constraints.items())
-        all_constraints.extend(self.rotation_constraints.items())
+        all_constraints: list[tuple[str, Constraint]] = [
+            *self.roll_constraints.items(),
+            *self.aim_constraints.items(),
+            *self.rotation_constraints.items(),
+        ]
         return all_constraints
 
 
@@ -576,19 +577,15 @@ def export_constraints(
     object_constraints = export_object_constraints(objs, armature)
     bone_constraints = export_bone_constraints(objs, armature)
 
-    all_roll_constraints: list[CopyRotationConstraint] = list(
-        object_constraints.roll_constraints.values()
-    ) + list(bone_constraints.roll_constraints.values())
-    all_rotation_constraints: list[CopyRotationConstraint] = list(
-        object_constraints.rotation_constraints.values()
-    ) + list(bone_constraints.rotation_constraints.values())
-
-    # TODO: Aim Constraint's circular dependency detection
-    # + list(object_constraints.aim_constraints.values())
-    # + list(bone_constraints.aim_constraints.values())
-    all_constraints: list[Constraint] = []
-    all_constraints.extend(all_roll_constraints)
-    all_constraints.extend(all_rotation_constraints)
+    all_constraints: list[Constraint] = [
+        *object_constraints.roll_constraints.values(),
+        *bone_constraints.roll_constraints.values(),
+        *object_constraints.rotation_constraints.values(),
+        *bone_constraints.rotation_constraints.values(),
+        # TODO: Aim Constraint's circular dependency detection
+        # *object_constraints.aim_constraints.values(),
+        # *bone_constraints.aim_constraints.values(),
+    ]
 
     excluded_constraints: list[
         Union[

@@ -850,7 +850,7 @@ def _backtrack_skip_counts_and_bone_combinations(
 ) -> Iterator[list[tuple[NormalizedBone, int]]]:
     if bone_index == len(bones):
         if remaining == 0:
-            yield [(bones[i][0], counts[i]) for i in range(len(bones))]
+            yield [(bone, count) for (bone, _), count in zip(bones, counts)]
         return
 
     bone, requirement_len = bones[bone_index]
