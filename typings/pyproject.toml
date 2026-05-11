@@ -15,6 +15,7 @@ module-name = [
   "io_scene_gltf2-stubs",
   "idprop-stubs",
   "mathutils-stubs",
+  "requests-stubs",
 ]
 
 [tool.ruff]
