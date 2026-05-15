@@ -227,7 +227,7 @@ class WM_OT_vrm_validator(Operator):
         execute_migration: bool,
         state: ValidationState,
     ) -> None:
-        armature_count = len([True for obj in export_objects if obj.type == "ARMATURE"])
+        armature_count = sum(1 for obj in export_objects if obj.type == "ARMATURE")
         if armature_count >= 2:  # only one armature
             state.error_messages.append(
                 pgettext("VRM exporter needs only one armature not some armatures.")
@@ -635,7 +635,9 @@ class WM_OT_vrm_validator(Operator):
         is_vrm1: bool,
         state: ValidationState,
     ) -> None:
-        bones_names = [b.name for b in armature_data.bones] if armature_data else []
+        bones_names = (
+            {b.name for b in armature_data.bones} if armature_data else set[str]()
+        )
         vertex_error_count = 0
 
         for mesh in (obj for obj in export_objects if obj.type == "MESH"):
