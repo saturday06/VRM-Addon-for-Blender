@@ -198,8 +198,6 @@ class AbstractBaseVrmImporter(ABC):
                 with save_workspace(self._context):
                     progress.update(0.1)
                     self.import_gltf2_with_indices()
-                    progress.update(0.3)
-                    self.use_fake_user_for_thumbnail()
                     progress.update(0.4)
                     if (
                         self._parse_result.vrm1_extension_dict
@@ -316,40 +314,6 @@ class AbstractBaseVrmImporter(ABC):
                 AbstractBaseVrmImporter.leave_save_bone_child_object_transforms(
                     context, armature, bone_child_object_world_matrices
                 )
-
-    def use_fake_user_for_thumbnail(self) -> None:
-        # The thumbnail is specified as an image index in the VRM specification,
-        # but in UniVRM's implementation it's a texture index
-        # https://github.com/vrm-c/UniVRM/blob/v0.67.0/Assets/VRM/Runtime/IO/VRMImporterContext.cs#L308
-        meta_dict = self._parse_result.vrm0_extension_dict.get("meta")
-        if not isinstance(meta_dict, dict):
-            return
-
-        thumbnail_texture_index = meta_dict.get("texture")
-        if not isinstance(thumbnail_texture_index, int):
-            return
-
-        texture_dicts = self._parse_result.json_dict.get("textures", [])
-        if not isinstance(texture_dicts, list):
-            _logger.warning('json["textures"] is not list')
-            return
-
-        if not (0 <= thumbnail_texture_index < len(texture_dicts)):
-            return
-
-        thumbnail_texture_dict = texture_dicts[thumbnail_texture_index]
-        if not isinstance(thumbnail_texture_dict, dict):
-            return
-
-        thumbnail_image_index = thumbnail_texture_dict.get("source")
-        if not isinstance(thumbnail_image_index, int):
-            return
-
-        thumbnail_image = self._images.get(thumbnail_image_index)
-        if not thumbnail_image:
-            return
-
-        thumbnail_image.use_fake_user = True
 
     @staticmethod
     def reset_material(material: Material) -> None:

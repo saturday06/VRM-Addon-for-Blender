@@ -26,15 +26,6 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^tools/install_nvm.sh$/"],
-      "matchStrings": [
-        "\"https://raw\\.githubusercontent\\.com/nvm-sh/nvm/(?<currentValue>v\\d+\\.\\d+\\.\\d+)/install\\.sh\""
-      ],
-      "datasourceTemplate": "github-releases",
-      "depNameTemplate": "nvm-sh/nvm"
-    },
-    {
-      "customType": "regex",
       "managerFilePatterns": ["/^tools/install_act.sh$/"],
       "matchStrings": [
         "\"https://github\\.com/nektos/act/releases/download/(?<currentValue>v\\d+\\.\\d+\\.\\d+)/act_Linux_x86_64\\.tar\\.gz\"",

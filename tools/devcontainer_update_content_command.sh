@@ -16,14 +16,10 @@ sudo ./tools/install_ubuntu_vnc_packages.sh
 git restore .local/var/cache/.gitkeep .local/tmp/.gitkeep
 
 ./tools/install_act.sh
-./tools/install_hadolint.sh
-./tools/install_editorconfig-checker.sh
 
 # error: GitHub API rate limit exceeded error may occur.
 # In such cases, processing continues. In the future, we will make it possible to pass tokens.
 uv self update || true
-
-./tools/install_nvm.sh
 
 deno upgrade
 
