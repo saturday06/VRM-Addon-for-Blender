@@ -446,3 +446,56 @@ class TestCalculateMtoon0RenderQueueOffsetMaps(TestCase):
         self.assertNotIn(2450, t_map)
         self.assertEqual(t_map, {3000: 0})
         self.assertEqual(tz_map, {2501: 0})
+
+    def test_blend_mode_precision(self) -> None:
+        # threshold is 0.001
+        mp_trans_plus = self.make_mtoon_property(render_queue=3000, blend_mode=2.0009)
+        mp_trans_minus = self.make_mtoon_property(render_queue=3001, blend_mode=1.9991)
+        mp_trans_off = self.make_mtoon_property(render_queue=3002, blend_mode=2.0011)
+
+        mp_z_plus = self.make_mtoon_property(render_queue=2501, blend_mode=3.0009)
+        mp_z_minus = self.make_mtoon_property(render_queue=2502, blend_mode=2.9991)
+        mp_z_off = self.make_mtoon_property(render_queue=2503, blend_mode=3.0011)
+
+        t_map, tz_map = _calculate_mtoon0_render_queue_offset_maps(
+            [
+                mp_trans_plus,
+                mp_trans_minus,
+                mp_trans_off,
+                mp_z_plus,
+                mp_z_minus,
+                mp_z_off,
+            ]
+        )
+        self.assertIn(3000, t_map)
+        self.assertIn(3001, t_map)
+        self.assertNotIn(3002, t_map)
+        self.assertIn(2501, tz_map)
+        self.assertIn(2502, tz_map)
+        self.assertNotIn(2503, tz_map)
+
+    def test_duplicate_render_queues(self) -> None:
+        mp1 = self.make_mtoon_property(render_queue=3000, blend_mode=2.0)
+        mp2 = self.make_mtoon_property(render_queue=3000, blend_mode=2.0)
+        t_map, _ = _calculate_mtoon0_render_queue_offset_maps([mp1, mp2])
+        self.assertEqual(t_map, {3000: 0})
+
+    def test_missing_blend_mode(self) -> None:
+        mp = MaterialProperty(
+            name="test",
+            shader="VRM/MToon",
+            render_queue=3000,
+            keyword_map={},
+            tag_map={},
+            float_properties={},
+            vector_properties={},
+            texture_properties={},
+        )
+        t_map, tz_map = _calculate_mtoon0_render_queue_offset_maps([mp])
+        self.assertEqual(t_map, {})
+        self.assertEqual(tz_map, {})
+
+    def test_input_as_tuple(self) -> None:
+        mp = self.make_mtoon_property(render_queue=3000, blend_mode=2.0)
+        t_map, _ = _calculate_mtoon0_render_queue_offset_maps((mp,))
+        self.assertEqual(t_map, {3000: 0})
