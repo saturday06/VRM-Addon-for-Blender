@@ -3020,7 +3020,14 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
             vertex_attributes_collector = Vrm0Exporter.VertexAttributesCollector()
             uv_layers = main_mesh_data.uv_layers
-            uv_layer = uv_layers.active
+            uv_layer = next(
+                (
+                    uv_layer
+                    for uv_layer in uv_layers
+                    if uv_layer and uv_layer.active_render
+                ),
+                None,
+            )
             main_mesh_data.calc_loop_triangles()
 
             loop_index_to_texcoord: list[Optional[tuple[float, float]]] = []
