@@ -2,7 +2,7 @@
 import re
 from collections.abc import Mapping
 from functools import cache
-from typing import Optional
+from typing import Final, Optional
 
 from bpy.types import Armature, Bone, Object
 
@@ -24,17 +24,21 @@ from . import (
 )
 from .structure_based_mapping import create_structure_based_mapping
 
+BONE_NAME_LOWER_TO_UPPER_REGEX_SUB: Final = (re.compile(r"([a-z])([A-Z])"), r"\1.\2")
+BONE_NAME_DIGIT_REGEX_SUB: Final = (re.compile(r"(\d+)"), r".\1.")
+BONE_NAME_COMPONENT_SPLIT_REGEX: Final = re.compile(r"[-._: (){}[\]<>]+")
+
 _logger = get_logger(__name__)
 
 
 @cache
 def _canonicalize_bone_name(bone_name: str) -> str:
     bone_name = "".join(FULLWIDTH_ASCII_TO_ASCII_MAP.get(c, c) for c in bone_name)
-    bone_name = re.sub(r"([a-z])([A-Z])", r"\1.\2", bone_name)
+    bone_name = re.sub(*BONE_NAME_LOWER_TO_UPPER_REGEX_SUB, bone_name)
     bone_name = bone_name.lower()
     bone_name = "".join(" " if c.isspace() else c for c in bone_name)
-    bone_name = re.sub(r"(\d+)", r".\1.", bone_name).strip(".")
-    bone_name_components = re.split(r"[-._: (){}[\]<>]+", bone_name)
+    bone_name = re.sub(*BONE_NAME_DIGIT_REGEX_SUB, bone_name).strip(".")
+    bone_name_components = re.split(BONE_NAME_COMPONENT_SPLIT_REGEX, bone_name)
     for patterns, replacement in {
         ("l", "左"): "left",
         ("r", "右"): "right",
