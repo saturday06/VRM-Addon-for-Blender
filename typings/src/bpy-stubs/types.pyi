@@ -2205,6 +2205,13 @@ class BlendDataImages(bpy_prop_collection[Image]):
 
 class BlendDataArmatures(bpy_prop_collection[Armature]):
     def new(self, name: str) -> Armature: ...
+    def remove(
+        self,
+        armature: Armature,
+        do_unlink: bool = True,
+        do_id_user: bool = True,
+        do_ui_user: bool = True,
+    ) -> None: ...
 
 class BlendDataTexts(bpy_prop_collection[Text]):
     def new(self, name: str) -> Text: ...

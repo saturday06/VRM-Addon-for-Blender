@@ -318,10 +318,20 @@ def _export_vrm(
 
     Path(filepath).write_bytes(glb_bytes)
 
-    if armature_object_is_temporary and not safe_removal.remove_object(
-        context, armature_object
-    ):
-        _logger.warning("Failed to remove temporary armature")
+    if armature_object_is_temporary:
+        if not isinstance(armature_data := armature_object.data, Armature):
+            armature_data = None
+        if not safe_removal.remove_object(context, armature_object):
+            _logger.warning("Failed to remove temporary armature")
+        if armature_data:
+            if armature_data.users:
+                _logger.warning(
+                    'Failed to remove "%s" with %d users while removing temp armature',
+                    armature_data.name,
+                    armature_data.users,
+                )
+            else:
+                context.blend_data.armatures.remove(armature_data)
 
     return {"FINISHED"}
 
