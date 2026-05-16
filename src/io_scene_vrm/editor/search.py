@@ -3,7 +3,6 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Final, Optional, Union
 
-import bpy
 from bpy.app.translations import pgettext
 from bpy.types import (
     Armature,
@@ -18,8 +17,6 @@ from bpy.types import (
     Object,
     ObjectConstraints,
     PoseBoneConstraints,
-    ShaderNodeGroup,
-    ShaderNodeOutputMaterial,
 )
 
 from ..common.logger import get_logger
@@ -68,73 +65,6 @@ def export_materials(context: Context, objects: Sequence[Object]) -> Sequence[Ma
             result.append(material)
 
     return list(dict.fromkeys(result))  # Remove duplicates
-
-
-LEGACY_SHADER_NAMES: Final = (
-    "MToon_unversioned",
-    "GLTF",
-    "TRANSPARENT_ZWRITE",
-)
-
-
-def legacy_shader_node(
-    material: Material,
-) -> tuple[Optional[ShaderNodeGroup], Optional[str]]:
-    if bpy.app.version < (5, 0, 0) and not material.use_nodes:
-        return (None, None)
-
-    node_tree = material.node_tree
-    if not node_tree:
-        return (None, None)
-
-    for node in node_tree.nodes:
-        if node.mute:
-            continue
-
-        if not isinstance(node, ShaderNodeOutputMaterial):
-            continue
-
-        surface_socket = node.inputs.get("Surface")
-        if not surface_socket:
-            continue
-
-        links = surface_socket.links
-        if not links:
-            continue
-
-        link = links[0]
-        if not link.is_valid or link.is_muted:
-            continue
-
-        group_node = link.from_node
-        if group_node.mute:
-            continue
-
-        if not isinstance(group_node, ShaderNodeGroup):
-            continue
-
-        group_node_tree = group_node.node_tree
-        if not group_node_tree:
-            continue
-
-        legacy_shader_name = group_node_tree.get("SHADER")
-        if not isinstance(legacy_shader_name, str):
-            continue
-
-        return (group_node, legacy_shader_name)
-
-    return (None, None)
-
-
-def shader_nodes_and_materials(
-    materials: Sequence[Material],
-) -> Sequence[tuple[ShaderNodeGroup, str, Material]]:
-    result: list[tuple[ShaderNodeGroup, str, Material]] = []
-    for material in materials:
-        node, legacy_shader_name = legacy_shader_node(material)
-        if node is not None and legacy_shader_name is not None:
-            result.append((node, legacy_shader_name, material))
-    return result
 
 
 def object_distance(

@@ -45,7 +45,7 @@ from ..common.gltf import (
 from ..common.logger import get_logger
 from ..common.mtoon_unversioned import MtoonUnversioned
 from ..common.progress import Progress, create_progress
-from ..common.shader import MmdMaterial
+from ..common.shader import LegacyAddonMaterial, MmdMaterial
 from ..common.version import get_addon_version
 from ..common.vrm0.human_bone import (
     HumanBoneName,
@@ -2355,12 +2355,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             )
             return
 
-        legacy_shader_node_group, legacy_shader_name = search.legacy_shader_node(
-            material
-        )
-        if not legacy_shader_node_group:
+        if not (legacy_addon_material := LegacyAddonMaterial.try_parse(material)):
             pass
-        elif legacy_shader_name == "MToon_unversioned":
+        elif legacy_addon_material.shader_name == "MToon_unversioned":
             self.write_legacy_mtoon_unversioned_material(
                 progress,
                 texture_dicts,
@@ -2373,10 +2370,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 material,
                 material_dict,
                 vrm_material_property_dict,
-                legacy_shader_node_group,
+                legacy_addon_material.shader_node_group,
             )
             return
-        elif legacy_shader_name == "GLTF":
+        elif legacy_addon_material.shader_name == "GLTF":
             self.write_legacy_gltf_material(
                 progress,
                 texture_dicts,
@@ -2389,10 +2386,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 material,
                 material_dict,
                 vrm_material_property_dict,
-                legacy_shader_node_group,
+                legacy_addon_material.shader_node_group,
             )
             return
-        elif legacy_shader_name == "TRANSPARENT_ZWRITE":
+        elif legacy_addon_material.shader_name == "TRANSPARENT_ZWRITE":
             self.write_legacy_transparent_zwrite_material(
                 progress,
                 texture_dicts,
@@ -2405,7 +2402,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 material,
                 material_dict,
                 vrm_material_property_dict,
-                legacy_shader_node_group,
+                legacy_addon_material.shader_node_group,
             )
             return
 
@@ -3863,13 +3860,10 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             material_extension = get_material_extension(material)
             if material_extension.mtoon1.export_shape_key_normals:
                 continue
-            if material_extension.mtoon1.enabled:
-                exclusion_vertex_indices.update(polygon.vertices)
-                continue
-            node, legacy_shader_name = search.legacy_shader_node(material)
-            if not node:
-                continue
-            if legacy_shader_name == "MToon_unversioned":
+            if material_extension.mtoon1.enabled or (
+                (legacy_addon_material := LegacyAddonMaterial.try_parse(material))
+                and legacy_addon_material.shader_name == "MToon_unversioned"
+            ):
                 exclusion_vertex_indices.update(polygon.vertices)
 
         return exclusion_vertex_indices

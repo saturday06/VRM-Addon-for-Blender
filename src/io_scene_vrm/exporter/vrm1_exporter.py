@@ -27,6 +27,7 @@ from bpy.types import (
     Node,
     Object,
     PoseBone,
+    ShaderNodeGroup,
     VectorFont,
 )
 from mathutils import Matrix, Quaternion, Vector
@@ -44,7 +45,7 @@ from ..common.rotation import (
     get_rotation_as_quaternion,
     set_rotation_without_mode_change,
 )
-from ..common.shader import MmdMaterial
+from ..common.shader import LegacyAddonMaterial, MmdMaterial
 from ..common.version import get_addon_version
 from ..common.vrm1.human_bone import (
     HumanBoneName,
@@ -1767,7 +1768,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         json_dict: dict[str, Json],
         buffer0: bytearray,
         material: Material,
-        node: Node,
+        node: ShaderNodeGroup,
         image_name_to_index_dict: dict[str, int],
         gltf2_addon_export_settings: dict[str, object],
     ) -> dict[str, Json]:
@@ -2115,37 +2116,36 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 continue
 
             # MToon_unversioned (MToon for VRM 0.0)
-            legacy_shader_node, legacy_shader_name = search.legacy_shader_node(material)
-            if not isinstance(legacy_shader_node, Node):
+            if not (legacy_addon_material := LegacyAddonMaterial.try_parse(material)):
                 continue
-            if legacy_shader_name == "MToon_unversioned":
+            if legacy_addon_material.shader_name == "MToon_unversioned":
                 material_dicts[index] = cls.create_mtoon_unversioned_material_dict(
                     context,
                     json_dict,
                     buffer0,
                     material,
-                    legacy_shader_node,
+                    legacy_addon_material.shader_node_group,
                     image_name_to_index_dict,
                     gltf2_addon_export_settings,
                 )
-            elif legacy_shader_name == "GLTF":
+            elif legacy_addon_material.shader_name == "GLTF":
                 material_dicts[index] = cls.create_legacy_gltf_material_dict(
                     context,
                     json_dict,
                     buffer0,
                     material,
-                    legacy_shader_node,
+                    legacy_addon_material.shader_node_group,
                     image_name_to_index_dict,
                     gltf2_addon_export_settings,
                 )
-            elif legacy_shader_name == "TRANSPARENT_ZWRITE":
+            elif legacy_addon_material.shader_name == "TRANSPARENT_ZWRITE":
                 material_dicts[index] = (
                     cls.create_legacy_transparent_zwrite_material_dict(
                         context,
                         json_dict,
                         buffer0,
                         material,
-                        legacy_shader_node,
+                        legacy_addon_material.shader_node_group,
                         image_name_to_index_dict,
                         gltf2_addon_export_settings,
                     )
@@ -2222,15 +2222,17 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     material = context.blend_data.materials.get(search_material_name)
                     if not material:
                         continue
-                    if get_material_extension(material).mtoon1.export_shape_key_normals:
+                    mtoon1 = get_material_extension(material).mtoon1
+                    if mtoon1.export_shape_key_normals:
                         continue
-                    if get_material_extension(material).mtoon1.enabled:
-                        skip = False
-                        break
-                    node, legacy_shader_name = search.legacy_shader_node(material)
-                    if not node:
-                        continue
-                    if legacy_shader_name == "MToon_unversioned":
+                    if mtoon1.enabled or (
+                        (
+                            legacy_addon_material := LegacyAddonMaterial.try_parse(
+                                material
+                            )
+                        )
+                        and legacy_addon_material.shader_name == "MToon_unversioned"
+                    ):
                         skip = False
                         break
                 if skip:

@@ -238,6 +238,12 @@ SHADER_NODE_GROUP_NAMES: Final = (
     OUTPUT_GROUP_NAME,
 )
 
+LEGACY_SHADER_NAMES: Final = (
+    "MToon_unversioned",
+    "GLTF",
+    "TRANSPARENT_ZWRITE",
+)
+
 
 def _template_name(name: str) -> str:
     return INTERNAL_NAME_PREFIX + name + " Template"
@@ -2047,6 +2053,65 @@ def search_input_node(
             searching_node_sockets.extend(from_node.inputs)
 
     return None
+
+
+@dataclass(frozen=True)
+class LegacyAddonMaterial:
+    shader_node_group: ShaderNodeGroup
+    shader_name: str
+
+    @classmethod
+    def try_parse(cls, material: Material) -> Optional["LegacyAddonMaterial"]:
+        if bpy.app.version < (5, 0, 0) and not material.use_nodes:
+            return None
+
+        node_tree = material.node_tree
+        if not node_tree:
+            return None
+
+        for node in node_tree.nodes:
+            if node.mute:
+                continue
+
+            if not isinstance(node, ShaderNodeOutputMaterial):
+                continue
+
+            surface_socket = node.inputs.get("Surface")
+            if not surface_socket:
+                continue
+
+            links = surface_socket.links
+            if not links:
+                continue
+
+            link = links[0]
+            if not link.is_valid or link.is_muted:
+                continue
+
+            group_node = link.from_node
+            if group_node.mute:
+                continue
+
+            if not isinstance(group_node, ShaderNodeGroup):
+                continue
+
+            group_node_tree = group_node.node_tree
+            if not group_node_tree:
+                continue
+
+            shader_name = group_node_tree.get("SHADER")
+            if not isinstance(shader_name, str):
+                continue
+
+            if shader_name not in LEGACY_SHADER_NAMES:
+                continue
+
+            return LegacyAddonMaterial(
+                shader_node_group=group_node,
+                shader_name=shader_name,
+            )
+
+        return None
 
 
 @dataclass(frozen=True)

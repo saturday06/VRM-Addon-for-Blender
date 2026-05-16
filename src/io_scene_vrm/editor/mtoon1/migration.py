@@ -18,7 +18,7 @@ from ...common import convert, ops, shader, version
 from ...common.gl import GL_LINEAR, GL_NEAREST
 from ...common.logger import get_logger
 from ...common.progress import create_progress
-from .. import search
+from ...common.shader import LegacyAddonMaterial
 from ..extension_accessor import get_material_extension
 from .property_group import (
     GL_LINEAR_IMAGE_INTERPOLATIONS,
@@ -91,8 +91,9 @@ def _migrate_material(
     material: Material,
     blender_4_2_migrated_material_names: list[str],
 ) -> None:
-    _, legacy_legacy_shader_name = search.legacy_shader_node(material)
-    if legacy_legacy_shader_name in search.LEGACY_SHADER_NAMES:
+    if (
+        legacy_addon_material := LegacyAddonMaterial.try_parse(material)
+    ) and legacy_addon_material.shader_name in shader.LEGACY_SHADER_NAMES:
         # Since old shader node groups are not compatible with Blender 4.2 as they are,
         # always warn when upgrading to Blender 4.2 or later.
         blender_4_2_migrated_material_names.append(material.name)

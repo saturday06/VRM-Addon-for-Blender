@@ -13,6 +13,7 @@ from bpy.types import (
     UILayout,
 )
 
+from ...common.shader import LegacyAddonMaterial
 from ...common.vrm0.human_bone import HumanBoneSpecifications
 from .. import ops, search
 from ..extension_accessor import (
@@ -757,9 +758,9 @@ def _draw_vrm0_blend_shape_master_layout(
                 )
             else:
                 ext = get_material_extension(material)
-                node, legacy_shader_name = search.legacy_shader_node(material)
                 if ext.mtoon1.enabled or (
-                    node and legacy_shader_name == "MToon_unversioned"
+                    (legacy_addon_material := LegacyAddonMaterial.try_parse(material))
+                    and legacy_addon_material.shader_name == "MToon_unversioned"
                 ):
                     if bpy.app.version >= (3, 2):
                         material_value_column.prop_search(

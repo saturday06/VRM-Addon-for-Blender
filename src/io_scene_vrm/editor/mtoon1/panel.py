@@ -6,7 +6,7 @@ from bpy.app.translations import pgettext
 from bpy.types import Context, Panel, PropertyGroup, UILayout
 
 from ...common.logger import get_logger
-from ...common.shader import MmdMaterial
+from ...common.shader import LegacyAddonMaterial, MmdMaterial
 from .. import search
 from ..extension_accessor import get_material_extension
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
@@ -405,11 +405,17 @@ def _draw_material(context: Context, layout: UILayout) -> None:
 
     _draw_mtoon1_material(context, layout)
 
-    node, legacy_shader_name = search.legacy_shader_node(material)
-    if ext.mtoon1.enabled or (node and legacy_shader_name == "MToon_unversioned"):
+    legacy_addon_material = LegacyAddonMaterial.try_parse(material)
+    if ext.mtoon1.enabled or (
+        legacy_addon_material
+        and legacy_addon_material.shader_name == "MToon_unversioned"
+    ):
         layout.prop(ext.mtoon1, "export_shape_key_normals")
         return
-    if node and legacy_shader_name in ("TRANSPARENT_ZWRITE", "GLTF"):
+    if legacy_addon_material and legacy_addon_material.shader_name in (
+        "TRANSPARENT_ZWRITE",
+        "GLTF",
+    ):
         return
     if MmdMaterial.try_parse(material):
         return

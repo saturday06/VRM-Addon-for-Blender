@@ -30,6 +30,7 @@ from ..common.legacy_gltf import RGBA_INPUT_NAMES, TEXTURE_INPUT_NAMES, VAL_INPU
 from ..common.logger import get_logger
 from ..common.mtoon_unversioned import MtoonUnversioned
 from ..common.preferences import get_preferences
+from ..common.shader import LegacyAddonMaterial
 from ..common.vrm0 import human_bone as vrm0_human_bone
 from ..common.vrm1 import human_bone as vrm1_human_bone
 from . import migration, search
@@ -711,7 +712,7 @@ class WM_OT_vrm_validator(Operator):
                         node_tree = from_node.node_tree
                         if (
                             node_tree
-                            and node_tree.get("SHADER") in search.LEGACY_SHADER_NAMES
+                            and node_tree.get("SHADER") in shader.LEGACY_SHADER_NAMES
                         ):
                             continue
 
@@ -724,15 +725,16 @@ class WM_OT_vrm_validator(Operator):
                     ).format(material_name=material.name)
                 )
 
-        for node, legacy_shader_name, material in search.shader_nodes_and_materials(
-            state.used_materials
-        ):
+        for material in state.used_materials:
+            legacy_addon_material = LegacyAddonMaterial.try_parse(material)
+            if not legacy_addon_material:
+                continue
             # MToon
-            if legacy_shader_name == "MToon_unversioned":
+            if legacy_addon_material.shader_name == "MToon_unversioned":
                 for texture_val in MtoonUnversioned.texture_kind_exchange_dict.values():
                     suffix = "_alpha" if texture_val == "ReceiveShadow_Texture" else ""
                     _node_material_input_check(
-                        node,
+                        legacy_addon_material.shader_node_group,
                         material,
                         "TEX_IMAGE",
                         texture_val + suffix,
@@ -743,7 +745,7 @@ class WM_OT_vrm_validator(Operator):
                     if float_val is None:
                         continue
                     _node_material_input_check(
-                        node,
+                        legacy_addon_material.shader_node_group,
                         material,
                         "VALUE",
                         float_val,
@@ -752,7 +754,7 @@ class WM_OT_vrm_validator(Operator):
                     )
                 for k in ("_Color", "_ShadeColor", "_EmissionColor", "_OutlineColor"):
                     _node_material_input_check(
-                        node,
+                        legacy_addon_material.shader_node_group,
                         material,
                         "RGB",
                         MtoonUnversioned.vector_props_exchange_dict[k],
@@ -760,10 +762,10 @@ class WM_OT_vrm_validator(Operator):
                         state.used_images,
                     )
             # GLTF
-            elif legacy_shader_name == "GLTF":
+            elif legacy_addon_material.shader_name == "GLTF":
                 for k in TEXTURE_INPUT_NAMES:
                     _node_material_input_check(
-                        node,
+                        legacy_addon_material.shader_node_group,
                         material,
                         "TEX_IMAGE",
                         k,
@@ -772,7 +774,7 @@ class WM_OT_vrm_validator(Operator):
                     )
                 for k in VAL_INPUT_NAMES:
                     _node_material_input_check(
-                        node,
+                        legacy_addon_material.shader_node_group,
                         material,
                         "VALUE",
                         k,
@@ -781,7 +783,7 @@ class WM_OT_vrm_validator(Operator):
                     )
                 for k in RGBA_INPUT_NAMES:
                     _node_material_input_check(
-                        node,
+                        legacy_addon_material.shader_node_group,
                         material,
                         "RGB",
                         k,
@@ -789,9 +791,9 @@ class WM_OT_vrm_validator(Operator):
                         state.used_images,
                     )
             # Transparent_Zwrite
-            elif legacy_shader_name == "TRANSPARENT_ZWRITE":
+            elif legacy_addon_material.shader_name == "TRANSPARENT_ZWRITE":
                 _node_material_input_check(
-                    node,
+                    legacy_addon_material.shader_node_group,
                     material,
                     "TEX_IMAGE",
                     "Main_Texture",

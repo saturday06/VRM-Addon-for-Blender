@@ -57,9 +57,8 @@ from ...common.gl import (
 )
 from ...common.logger import get_logger
 from ...common.preferences import VrmAddonPreferences, get_preferences
-from ...common.shader import MmdMaterial
+from ...common.shader import LegacyAddonMaterial, MmdMaterial
 from ...common.version import get_addon_version
-from .. import search
 from ..extension_accessor import get_material_extension
 from ..property_group import property_group_enum
 
@@ -4352,9 +4351,12 @@ def convert_material_to_mtoon1(
 ) -> None:
     resolved_context = context or bpy.context
 
-    node, legacy_shader_name = search.legacy_shader_node(material)
-    if node and legacy_shader_name == "MToon_unversioned":
-        _convert_mtoon_unversioned_to_mtoon1(resolved_context, material, node)
+    if (
+        legacy_addon_material := LegacyAddonMaterial.try_parse(material)
+    ) and legacy_addon_material.shader_name == "MToon_unversioned":
+        _convert_mtoon_unversioned_to_mtoon1(
+            resolved_context, material, legacy_addon_material.shader_node_group
+        )
         return
 
     mmd_material = MmdMaterial.try_parse(material)
