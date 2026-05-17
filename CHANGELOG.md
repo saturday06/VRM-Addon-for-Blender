@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.2.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.1.1...v4.2.0) (2026-05-17)
+
+
+### 🚀 Features
+
+* add MPFB2 bone mapping preset ([46d0c99](https://github.com/saturday06/VRM-Addon-for-Blender/commit/46d0c998288d08278a9410d510eef4acf741d34c))
+
+
+### 🐛 Bug Fixes
+
+* fix a bug where hidden UVs could be exported for VRM 0.x meshes with multiple UVs ([c74e7ea](https://github.com/saturday06/VRM-Addon-for-Blender/commit/c74e7ea351111b0f34a185ee5fe82306fcbef05d))
+* fixed a bug where temporary armatures might remain after exporting VRM0 files ([0146c00](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0146c00d9059b22ff0539645e983c3762bce9cf1))
+* fixed incorrect UV mapping when exporting VRM 1.0 meshes with multiple UVs. ([79dcea9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/79dcea918346b5ba021fb856e3b2888964057f79))
+
 ## [4.1.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.1.0...v4.1.1) (2026-05-08)
 
 

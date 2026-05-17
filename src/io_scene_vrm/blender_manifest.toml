@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "vrm"
-version = "4.1.1"
+version = "4.2.0"
 
 name = "VRM format"
 tagline = "VRM import, export and editing capabilities"
