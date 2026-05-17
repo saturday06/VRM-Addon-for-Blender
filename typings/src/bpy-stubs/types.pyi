@@ -773,6 +773,7 @@ class MeshUVLoopLayer(bpy_struct):
 class UVLoopLayers(bpy_prop_collection[MeshUVLoopLayer]):
     active: MeshUVLoopLayer | None
     def new(self, name: str = "UVMap", do_init: bool = True) -> MeshUVLoopLayer: ...
+    def remove(self, uv_layer: MeshUVLoopLayer) -> None: ...
 
 class MeshLoopTriangle(bpy_struct):
     vertices: tuple[int, int, int]

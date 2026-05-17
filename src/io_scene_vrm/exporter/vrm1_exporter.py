@@ -2830,6 +2830,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 _force_apply_modifiers_to_objects(
                     self._context, self._armature, mesh_compat_object_names
                 )
+                _remove_inactive_uv_maps(self._context, mesh_compat_object_names)
 
                 filepath = Path(temp_dir, "out.glb")
                 export_scene_gltf_result = export_scene_gltf(
@@ -3300,6 +3301,26 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 json_dict.pop(key, None)
 
         return pack_glb(json_dict, buffer0)
+
+
+def _remove_inactive_uv_maps(
+    context: Context, mesh_object_names: Sequence[str]
+) -> None:
+    """Remove UV maps that are not active for rendering from meshes.
+
+    As of UniVRM v0.131.0, only one UV map is supported, so UV maps not used for
+    rendering are removed.
+    """
+    for mesh_object_name in mesh_object_names:
+        if not (obj := context.blend_data.objects.get(mesh_object_name)):
+            continue
+        if not isinstance(mesh := obj.data, Mesh):
+            continue
+        for uv_layer_index in reversed(range(len(mesh.uv_layers))):
+            uv_layer = mesh.uv_layers[uv_layer_index]
+            if uv_layer.active_render:
+                continue
+            mesh.uv_layers.remove(uv_layer)
 
 
 def _find_node_world_matrix(
