@@ -3316,11 +3316,14 @@ def _remove_inactive_uv_maps(
             continue
         if not isinstance(mesh := obj.data, Mesh):
             continue
-        for uv_layer_index in reversed(range(len(mesh.uv_layers))):
-            uv_layer = mesh.uv_layers[uv_layer_index]
+        uv_layers = mesh.uv_layers
+        for uv_layer_index in reversed(range(len(uv_layers))):
+            if uv_layer_index >= len(uv_layers):
+                continue
+            uv_layer = uv_layers[uv_layer_index]
             if uv_layer.active_render:
                 continue
-            mesh.uv_layers.remove(uv_layer)
+            uv_layers.remove(uv_layer)
 
 
 def _find_node_world_matrix(
