@@ -267,71 +267,73 @@ def _export_vrm(
     armature_object: Optional[Object] = next(iter(armature_objects), None)
     is_vrm1 = False
     is_khr_character = False
+    armature_object_is_temporary = False
+    try:
+        with save_workspace(
+            context,
+            # Allow restoring after changing active object
+            armature_object,
+        ):
+            if armature_object:
+                armature_data = armature_object.data
+                if isinstance(armature_data, Armature):
+                    is_vrm1 = get_armature_extension(armature_data).is_vrm1()
+                    is_khr_character = get_armature_extension(
+                        armature_data
+                    ).is_khr_character()
+            else:
+                ops.icyp.make_basic_armature("EXEC_DEFAULT")
+                armature_object = context.view_layer.objects.active
+                if not armature_object or armature_object.type != "ARMATURE":
+                    message = "Failed to generate temporary armature"
+                    raise RuntimeError(message)
+                armature_object_is_temporary = True
 
-    with save_workspace(
-        context,
-        # Allow restoring after changing active object
-        armature_object,
-    ):
-        if armature_object:
-            armature_object_is_temporary = False
-            armature_data = armature_object.data
-            if isinstance(armature_data, Armature):
-                is_vrm1 = get_armature_extension(armature_data).is_vrm1()
-                is_khr_character = get_armature_extension(
-                    armature_data
-                ).is_khr_character()
-        else:
-            armature_object_is_temporary = True
-            ops.icyp.make_basic_armature("EXEC_DEFAULT")
-            armature_object = context.view_layer.objects.active
-            if not armature_object or armature_object.type != "ARMATURE":
-                message = "Failed to generate temporary armature"
-                raise RuntimeError(message)
+            migration.migrate(context, armature_object.name, heavy_migration=True)
 
-        migration.migrate(context, armature_object.name, heavy_migration=True)
-
-        if is_khr_character:
-            exporter: AbstractBaseVrmExporter = KhrCharacterExporter(
-                context,
-                export_objects,
-                armature_object,
-                export_preferences,
-            )
-        elif is_vrm1:
-            exporter: AbstractBaseVrmExporter = Vrm1Exporter(
-                context,
-                export_objects,
-                armature_object,
-                export_preferences,
-            )
-        else:
-            exporter: AbstractBaseVrmExporter = Vrm0Exporter(
-                context,
-                export_objects,
-                armature_object,
-            )
-
-        glb_bytes = exporter.export()
-        if glb_bytes is None:
-            return {"CANCELLED"}
-
-    Path(filepath).write_bytes(glb_bytes)
-
-    if armature_object_is_temporary:
-        if not isinstance(armature_data := armature_object.data, Armature):
-            armature_data = None
-        if not safe_removal.remove_object(context, armature_object):
-            _logger.warning("Failed to remove temporary armature")
-        if armature_data:
-            if armature_data.users:
-                _logger.warning(
-                    'Failed to remove "%s" with %d users while removing temp armature',
-                    armature_data.name,
-                    armature_data.users,
+            if is_khr_character:
+                exporter: AbstractBaseVrmExporter = KhrCharacterExporter(
+                    context,
+                    export_objects,
+                    armature_object,
+                    export_preferences,
+                )
+            elif is_vrm1:
+                exporter: AbstractBaseVrmExporter = Vrm1Exporter(
+                    context,
+                    export_objects,
+                    armature_object,
+                    export_preferences,
                 )
             else:
-                context.blend_data.armatures.remove(armature_data)
+                exporter: AbstractBaseVrmExporter = Vrm0Exporter(
+                    context,
+                    export_objects,
+                    armature_object,
+                )
+
+            glb_bytes = exporter.export()
+    finally:
+        if armature_object and armature_object_is_temporary:
+            if not isinstance(armature_data := armature_object.data, Armature):
+                armature_data = None
+            if not safe_removal.remove_object(context, armature_object):
+                _logger.warning("Failed to remove temporary armature")
+            if armature_data:
+                if armature_data.users:
+                    _logger.warning(
+                        'Failed to remove "%s" with %d users '
+                        "while removing temporary armature",
+                        armature_data.name,
+                        armature_data.users,
+                    )
+                else:
+                    context.blend_data.armatures.remove(armature_data)
+
+    if glb_bytes is None:
+        return {"CANCELLED"}
+
+    Path(filepath).write_bytes(glb_bytes)
 
     return {"FINISHED"}
 
