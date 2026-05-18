@@ -610,7 +610,9 @@ def _remove_link_to_mesh_object(armature_data: Armature) -> None:
 
 def _fixup_gravity_dir(armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
-    if tuple(ext.addon_version) >= (2, 15, 4):
+    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or tuple(
+        ext.addon_version
+    ) >= (2, 15, 4):
         return
 
     for bone_group in ext.vrm0.secondary_animation.bone_groups:
