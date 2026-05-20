@@ -9,6 +9,7 @@ from bpy.types import Armature
 from mathutils import Euler, Quaternion, Vector
 
 from io_scene_vrm.common import ops, version
+from io_scene_vrm.editor import migration
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     get_armature_extension,
@@ -42,6 +43,43 @@ def assert_vector3_equals(
 
 
 class TestSpringBone1(AddonTestCase):
+    def test_initial_addon_version_migration_preserves_current_gravity_dir(
+        self,
+    ) -> None:
+        context = bpy.context
+
+        bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
+        armature = context.object
+        if not armature or not isinstance(armature.data, Armature):
+            raise AssertionError
+
+        ext = get_armature_extension(armature.data)
+        ext.addon_version = ext.INITIAL_ADDON_VERSION
+        ext.spec_version = SPEC_VERSION
+        ext.spring_bone1.initial_automatic_spring_bone_assignment = False
+
+        self.assertEqual(
+            ops.vrm.add_spring_bone1_spring(armature_object_name=armature.name),
+            {"FINISHED"},
+        )
+        self.assertEqual(
+            ops.vrm.add_spring_bone1_spring_joint(
+                armature_object_name=armature.name, spring_index=0
+            ),
+            {"FINISHED"},
+        )
+
+        joint = ext.spring_bone1.springs[0].joints[0]
+        original_gravity_dir = tuple(joint.gravity_dir)
+
+        self.assertTrue(migration.migrate(context, armature.name, heavy_migration=True))
+
+        assert_vector3_equals(
+            Vector(original_gravity_dir),
+            joint.gravity_dir,
+            "Initial addon version migration gravity direction",
+        )
+
     def test_one_joint_extending_in_y_direction(self) -> None:
         context = bpy.context
 
