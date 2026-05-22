@@ -329,11 +329,11 @@ class VrmAddonObjectExtensionPropertyGroup(PropertyGroup):
 
 
 class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
-    INITIAL_ADDON_VERSION = VrmAddonPreferences.INITIAL_ADDON_VERSION
+    UNMANAGED_ADDON_VERSION = VrmAddonPreferences.UNMANAGED_ADDON_VERSION
 
     addon_version: IntVectorProperty(  # type: ignore[valid-type]
         size=3,
-        default=INITIAL_ADDON_VERSION,
+        default=UNMANAGED_ADDON_VERSION,
     )
 
     vrm0: PointerProperty(  # type: ignore[valid-type]
@@ -468,11 +468,11 @@ class VrmAddonMaterialExtensionPropertyGroup(PropertyGroup):
 
 
 class VrmAddonNodeTreeExtensionPropertyGroup(PropertyGroup):
-    INITIAL_ADDON_VERSION = VrmAddonPreferences.INITIAL_ADDON_VERSION
+    UNMANAGED_ADDON_VERSION = VrmAddonPreferences.UNMANAGED_ADDON_VERSION
 
     addon_version: IntVectorProperty(  # type: ignore[valid-type]
         size=3,
-        default=INITIAL_ADDON_VERSION,
+        default=UNMANAGED_ADDON_VERSION,
     )
     if TYPE_CHECKING:
         # This code is auto generated.

@@ -610,9 +610,10 @@ def _remove_link_to_mesh_object(armature_data: Armature) -> None:
 
 def _fixup_gravity_dir(armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
-    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or tuple(
-        ext.addon_version
-    ) >= (2, 15, 4):
+    if (
+        tuple(ext.addon_version) >= (2, 15, 4)
+        or tuple(ext.addon_version) == ext.UNMANAGED_ADDON_VERSION
+    ):
         return
 
     for bone_group in ext.vrm0.secondary_animation.bone_groups:
@@ -640,7 +641,7 @@ def _migrate_pose(context: Context, armature: Object, armature_data: Armature) -
     if isinstance(humanoid.get("pose"), int):
         return
 
-    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION:
+    if tuple(ext.addon_version) == ext.UNMANAGED_ADDON_VERSION:
         if ext.has_vrm_model_metadata(armature):
             humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
         return
@@ -656,9 +657,10 @@ def _migrate_pose(context: Context, armature: Object, armature_data: Armature) -
 
 def _migrate_auto_pose(_context: Context, armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
-    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or tuple(
-        ext.addon_version
-    ) >= (2, 20, 81):
+    if (
+        tuple(ext.addon_version) >= (2, 20, 81)
+        or tuple(ext.addon_version) == ext.UNMANAGED_ADDON_VERSION
+    ):
         return
 
     humanoid = ext.vrm0.humanoid
@@ -670,9 +672,10 @@ def _migrate_saved_mesh_object_name_to_restore(
     _context: Context, armature_data: Armature
 ) -> None:
     ext = get_armature_extension(armature_data)
-    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or tuple(
-        ext.addon_version
-    ) >= (3, 9, 0):
+    if (
+        tuple(ext.addon_version) >= (3, 9, 0)
+        or tuple(ext.addon_version) == ext.UNMANAGED_ADDON_VERSION
+    ):
         return
 
     for blend_shape_group in ext.vrm0.blend_shape_master.blend_shape_groups:

@@ -2977,11 +2977,11 @@ class Mtoon1MaterialExtensionsPropertyGroup(PropertyGroup):
 
 # https://github.com/vrm-c/vrm-specification/blob/8dc51ec7241be27ee95f159cefc0190a0e41967b/specification/VRMC_materials_mtoon-1.0-beta/schema/VRMC_materials_mtoon.schema.json
 class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
-    INITIAL_ADDON_VERSION = VrmAddonPreferences.INITIAL_ADDON_VERSION
+    UNMANAGED_ADDON_VERSION = VrmAddonPreferences.UNMANAGED_ADDON_VERSION
 
     addon_version: IntVectorProperty(  # type: ignore[valid-type]
         size=3,
-        default=INITIAL_ADDON_VERSION,
+        default=UNMANAGED_ADDON_VERSION,
     )
 
     pbr_metallic_roughness: PointerProperty(  # type: ignore[valid-type]

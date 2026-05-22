@@ -54,7 +54,7 @@ class TestSpringBone1(AddonTestCase):
             raise AssertionError
 
         ext = get_armature_extension(armature.data)
-        ext.addon_version = ext.INITIAL_ADDON_VERSION
+        ext.addon_version = ext.UNMANAGED_ADDON_VERSION
         ext.spec_version = SPEC_VERSION
         ext.spring_bone1.initial_automatic_spring_bone_assignment = False
 

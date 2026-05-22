@@ -175,7 +175,7 @@ def _migrate_pose(context: Context, armature: Object, armature_data: Armature) -
     if isinstance(humanoid.get("pose"), int):
         return
 
-    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION:
+    if tuple(ext.addon_version) == ext.UNMANAGED_ADDON_VERSION:
         if ext.has_vrm_model_metadata(armature):
             humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
         return
@@ -191,9 +191,10 @@ def _migrate_pose(context: Context, armature: Object, armature_data: Armature) -
 
 def _migrate_auto_pose(_context: Context, armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
-    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION or tuple(
-        ext.addon_version
-    ) >= (2, 20, 81):
+    if (
+        tuple(ext.addon_version) >= (2, 20, 81)
+        or tuple(ext.addon_version) == ext.UNMANAGED_ADDON_VERSION
+    ):
         return
 
     humanoid = ext.vrm1.humanoid
@@ -292,7 +293,7 @@ def migrate(
     if (
         (ext := get_armature_extension(armature_data))
         and tuple(ext.addon_version) < (3, 18)
-        and tuple(ext.addon_version) != ext.INITIAL_ADDON_VERSION
+        and tuple(ext.addon_version) != ext.UNMANAGED_ADDON_VERSION
     ):
         expressions.initial_automatic_expression_assignment = False
 

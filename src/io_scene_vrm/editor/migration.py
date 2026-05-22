@@ -162,9 +162,10 @@ def migrate_all_objects(
             updated_addon_version,
         )
 
-    if tuple(preferences.addon_version) != preferences.INITIAL_ADDON_VERSION and tuple(
-        preferences.addon_version
-    ) < (2, 34, 0):
+    if (
+        tuple(preferences.addon_version) < (2, 34, 0)
+        and tuple(preferences.addon_version) != preferences.UNMANAGED_ADDON_VERSION
+    ):
         preferences.enable_advanced_preferences = True
         preferences.export_gltf_animations = True
 

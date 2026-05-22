@@ -21,7 +21,7 @@ def _migrate_blender_object(armature: Armature) -> None:
 
 def _fixup_gravity_dir(armature: Armature) -> None:
     ext = get_armature_extension(armature)
-    if tuple(ext.addon_version) == ext.INITIAL_ADDON_VERSION:
+    if tuple(ext.addon_version) == ext.UNMANAGED_ADDON_VERSION:
         return
 
     if tuple(ext.addon_version) <= (2, 14, 3):
@@ -77,7 +77,7 @@ def migrate(
 
     if (
         tuple(ext.addon_version) < (3, 21, 2)
-        and tuple(ext.addon_version) != ext.INITIAL_ADDON_VERSION
+        and tuple(ext.addon_version) != ext.UNMANAGED_ADDON_VERSION
     ):
         spring_bone1.initial_automatic_spring_bone_assignment = False
 

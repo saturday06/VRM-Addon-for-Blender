@@ -225,11 +225,11 @@ def draw_export_preferences_layout(
 class VrmAddonPreferences(AddonPreferences):
     bl_idname = ADDON_PACKAGE_NAME
 
-    INITIAL_ADDON_VERSION: tuple[int, int, int] = (0, 0, 0)
+    UNMANAGED_ADDON_VERSION: tuple[int, int, int] = (0, 0, 0)
 
     addon_version: IntVectorProperty(  # type: ignore[valid-type]
         size=3,
-        default=INITIAL_ADDON_VERSION,
+        default=UNMANAGED_ADDON_VERSION,
     )
 
     def _update_add_mtoon_shader_node_group(self, context: Context) -> None:
