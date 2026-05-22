@@ -166,7 +166,7 @@ def _migrate_old_expressions_layout(expressions: Vrm1ExpressionsPropertyGroup) -
         _migrate_old_expression_layout(old_expression, expression)
 
 
-def _migrate_pose(context: Context, armature: Object, armature_data: Armature) -> None:
+def _migrate_pose(context: Context, _armature: Object, armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 20, 34):
         return
@@ -176,8 +176,10 @@ def _migrate_pose(context: Context, armature: Object, armature_data: Armature) -
         return
 
     if tuple(ext.addon_version) == ext.UNMANAGED_ADDON_VERSION:
-        if ext.has_vrm_model_metadata(armature):
-            humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
+        return
+
+    if tuple(ext.addon_version) <= (2, 0, 1):
+        humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
         return
 
     action = humanoid.pose_library

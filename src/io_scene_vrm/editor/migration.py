@@ -114,14 +114,21 @@ def migrate(
         return True
 
     ext = get_armature_extension(armature_data)
+    if (
+        ext.has_vrm_model_metadata(armature)
+        and tuple(ext.addon_version) == ext.UNMANAGED_ADDON_VERSION
+    ):
+        # If old metadata exists from before ext.addon_version existed,
+        # set addon_version to 0.0.100 and properly upgrade it within migrate().
+        ext.addon_version = (0, 0, 100)
 
     vrm0_migration.migrate(context, ext.vrm0, armature, heavy_migration=heavy_migration)
     vrm1_migration.migrate(context, ext.vrm1, armature, heavy_migration=heavy_migration)
     spring_bone1_migration.migrate(context, armature, heavy_migration=heavy_migration)
 
     if (
-        ext.has_vrm_model_metadata(armature)
-        and tuple(ext.addon_version) < (3, 14, 0)
+        tuple(ext.addon_version) < (3, 14, 0)
+        and tuple(ext.addon_version) != ext.UNMANAGED_ADDON_VERSION
         and not ext.get("spec_version")
     ):
         ext.spec_version = ext.SPEC_VERSION_VRM0

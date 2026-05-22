@@ -43,7 +43,7 @@ def assert_vector3_equals(
 
 
 class TestSpringBone1(AddonTestCase):
-    def test_initial_addon_version_migration_preserves_current_gravity_dir(
+    def test_unmanaged_addon_version_migration_preserves_current_gravity_dir(
         self,
     ) -> None:
         context = bpy.context
@@ -77,8 +77,25 @@ class TestSpringBone1(AddonTestCase):
         assert_vector3_equals(
             Vector(original_gravity_dir),
             joint.gravity_dir,
-            "Initial addon version migration gravity direction",
+            "Unmanaged addon version migration gravity direction",
         )
+
+    def test_unmanaged_addon_version_migration_with_legacy_metadata(self) -> None:
+        context = bpy.context
+
+        bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
+        armature = context.object
+        if not armature or not isinstance(armature.data, Armature):
+            raise AssertionError
+
+        ext = get_armature_extension(armature.data)
+        ext.addon_version = ext.UNMANAGED_ADDON_VERSION
+        armature["humanoid_params"] = "{}"
+        armature.data["hips"] = ""
+
+        self.assertTrue(migration.migrate(context, armature.name, heavy_migration=True))
+        self.assertEqual(tuple(ext.addon_version), ADDON_VERSION)
+        self.assertEqual(ext.spec_version, ext.SPEC_VERSION_VRM0)
 
     def test_one_joint_extending_in_y_direction(self) -> None:
         context = bpy.context

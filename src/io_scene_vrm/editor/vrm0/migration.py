@@ -610,12 +610,6 @@ def _remove_link_to_mesh_object(armature_data: Armature) -> None:
 
 def _fixup_gravity_dir(armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
-    if (
-        tuple(ext.addon_version) >= (2, 15, 4)
-        or tuple(ext.addon_version) == ext.UNMANAGED_ADDON_VERSION
-    ):
-        return
-
     for bone_group in ext.vrm0.secondary_animation.bone_groups:
         gravity_dir = list(bone_group.gravity_dir)
         bone_group.gravity_dir = (gravity_dir[0] + 1, 0, 0)  # Make a change
@@ -632,7 +626,7 @@ def _fixup_humanoid_feet_spacing(armature_data: Armature) -> None:
         humanoid.feet_spacing = float(feet_spacing)
 
 
-def _migrate_pose(context: Context, armature: Object, armature_data: Armature) -> None:
+def _migrate_pose(context: Context, _armature: Object, armature_data: Armature) -> None:
     ext = get_armature_extension(armature_data)
     if tuple(ext.addon_version) >= (2, 20, 34):
         return
@@ -642,8 +636,10 @@ def _migrate_pose(context: Context, armature: Object, armature_data: Armature) -
         return
 
     if tuple(ext.addon_version) == ext.UNMANAGED_ADDON_VERSION:
-        if ext.has_vrm_model_metadata(armature):
-            humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
+        return
+
+    if tuple(ext.addon_version) <= (2, 0, 1):
+        humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
         return
 
     action = humanoid.pose_library
