@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.2.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.2.1...v4.2.2) (2026-05-23)
+
+
+### 🐛 Bug Fixes
+
+* fix a bug that sometimes caused the application to crash when importing SpringBone ([51d7b3c](https://github.com/saturday06/VRM-Addon-for-Blender/commit/51d7b3cfed76abf91a555c4d1ade28b09c2f4dfe))
+
 ## [4.2.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.2.0...v4.2.1) (2026-05-22)
 
 
