@@ -12,7 +12,6 @@ from ...common.logger import get_logger
 from ..extension_accessor import get_armature_extension
 from .handler import reset_state, update_pose_bone_rotations
 from .property_group import (
-    SpringBone1ColliderGroupPropertyGroup,
     SpringBone1ColliderGroupReferencePropertyGroup,
     SpringBone1ColliderReferencePropertyGroup,
 )
@@ -1289,13 +1288,14 @@ def _assign_spring_bone1_from_vrm0(
     if spring_bone1.colliders or spring_bone1.springs:
         return {"FINISHED"}
 
-    vrm0_collider_group_uuid_to_collider_group: dict[
-        str, SpringBone1ColliderGroupPropertyGroup
-    ] = {}
+    vrm0_collider_group_uuid_to_collider_group_uuid: dict[str, str] = {}
     for vrm0_collider_group in vrm0_secondary_animation.collider_groups:
         if not vrm0_collider_group.uuid:
             continue
         collider_group = spring_bone1.add_collider_group()
+        vrm0_collider_group_uuid_to_collider_group_uuid[vrm0_collider_group.uuid] = (
+            collider_group.uuid
+        )
         collider_group_name = vrm0_collider_group.node.bone_name
         if collider_group_name:
             collider_group_name += "-"
@@ -1324,9 +1324,6 @@ def _assign_spring_bone1_from_vrm0(
 
             collider_group_collider = collider_group.add_collider()
             collider_group_collider.collider_uuid = collider.uuid
-        vrm0_collider_group_uuid_to_collider_group[vrm0_collider_group.uuid] = (
-            collider_group
-        )
 
     assigned_bone_names: set[str] = set()
     for vrm0_bone_group in vrm0_secondary_animation.bone_groups:
@@ -1399,13 +1396,15 @@ def _assign_spring_bone1_from_vrm0(
                 )
                 if not vrm0_collider_group_uuid:
                     continue
-                collider_group = vrm0_collider_group_uuid_to_collider_group.get(
-                    vrm0_collider_group_uuid
+                collider_group_uuid = (
+                    vrm0_collider_group_uuid_to_collider_group_uuid.get(
+                        vrm0_collider_group_uuid
+                    )
                 )
-                if not collider_group:
+                if not collider_group_uuid:
                     continue
                 spring_collider_group = spring.add_collider_group()
-                spring_collider_group.collider_group_uuid = collider_group.uuid
+                spring_collider_group.collider_group_uuid = collider_group_uuid
     return {"FINISHED"}
 
 
@@ -1488,9 +1487,7 @@ def _assign_spring_bone1_from_mmd(
         return {"FINISHED"}
 
     # Create sphere colliders from kinematic (non-physics) rigid bodies.
-    static_rigid_bone_to_collider_group: dict[
-        str, SpringBone1ColliderGroupPropertyGroup
-    ] = {}
+    static_rigid_bone_to_collider_group_uuid: dict[str, str] = {}
     for bone_name, mmd_obj in static_rigid_bone_name_to_obj.items():
         collider = spring_bone1.add_collider(context, armature)
         collider.node.bone_name = bone_name
@@ -1525,7 +1522,7 @@ def _assign_spring_bone1_from_mmd(
         collider_group.vrm_name = bone_name + "-mmd-colliders"
         collider_group_collider = collider_group.add_collider()
         collider_group_collider.collider_uuid = collider.uuid
-        static_rigid_bone_to_collider_group[bone_name] = collider_group
+        static_rigid_bone_to_collider_group_uuid[bone_name] = collider_group.uuid
 
     # Build bone chains from physics bones.
     # Root physics bones are those whose direct bone parent is NOT a physics bone.
@@ -1592,12 +1589,12 @@ def _assign_spring_bone1_from_mmd(
         if root_bone:
             traversing: Optional[Bone] = root_bone.parent
             while traversing:
-                collider_group = static_rigid_bone_to_collider_group.get(
+                collider_group_uuid = static_rigid_bone_to_collider_group_uuid.get(
                     traversing.name
                 )
-                if collider_group:
+                if collider_group_uuid:
                     spring_collider_group = spring.add_collider_group()
-                    spring_collider_group.collider_group_uuid = collider_group.uuid
+                    spring_collider_group.collider_group_uuid = collider_group_uuid
                 traversing = traversing.parent
 
     return {"FINISHED"}
