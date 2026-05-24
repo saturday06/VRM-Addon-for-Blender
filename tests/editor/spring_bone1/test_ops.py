@@ -1838,5 +1838,92 @@ class TestAssignUnassignSpringColliderGroup(AddonTestCase):
         self.assertEqual(result, {"CANCELLED"})
 
 
+class TestRemoveSpringBone1ColliderClampsIndex(AddonTestCase):
+    """Regression tests for active index clamping after collider/group removal."""
+
+    def test_remove_collider_clamps_collider_group_active_collider_index(
+        self,
+    ) -> None:
+        """Removing a collider clamps collider_group.active_collider_index."""
+        context = bpy.context
+
+        bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
+        armature = context.object
+        if not armature or not isinstance(armature.data, Armature):
+            raise AssertionError
+
+        ext = get_armature_extension(armature.data)
+        ext.addon_version = ADDON_VERSION
+        ext.spec_version = SPEC_VERSION
+
+        spring_bone1 = ext.spring_bone1
+
+        # Add a collider and capture its UUID
+        self.assertEqual(
+            ops.vrm.add_spring_bone1_collider(armature_object_name=armature.name),
+            {"FINISHED"},
+        )
+        collider_uuid = spring_bone1.colliders[0].uuid
+
+        # Add a collider group with a reference pointing to the collider
+        collider_group = spring_bone1.add_collider_group()
+        collider_ref = collider_group.add_collider()
+        collider_ref.collider_uuid = collider_uuid
+
+        # Set active_collider_index to an out-of-range value
+        collider_group.active_collider_index = 999
+
+        # Remove the collider; this also removes the reference inside the group
+        self.assertEqual(
+            ops.vrm.remove_spring_bone1_collider(
+                armature_object_name=armature.name, collider_index=0
+            ),
+            {"FINISHED"},
+        )
+
+        # Index must be clamped to max(0, len(colliders) - 1) == 0
+        self.assertEqual(collider_group.active_collider_index, 0)
+
+    def test_remove_collider_group_clamps_spring_active_collider_group_index(
+        self,
+    ) -> None:
+        """Removing a collider group clamps spring.active_collider_group_index."""
+        context = bpy.context
+
+        bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
+        armature = context.object
+        if not armature or not isinstance(armature.data, Armature):
+            raise AssertionError
+
+        ext = get_armature_extension(armature.data)
+        ext.addon_version = ADDON_VERSION
+        ext.spec_version = SPEC_VERSION
+
+        spring_bone1 = ext.spring_bone1
+
+        # Add a collider group and capture its UUID
+        collider_group = spring_bone1.add_collider_group()
+        collider_group_uuid = collider_group.uuid
+
+        # Add a spring with a collider group reference
+        spring = spring_bone1.add_spring()
+        collider_group_ref = spring.add_collider_group()
+        collider_group_ref.collider_group_uuid = collider_group_uuid
+
+        # Set active_collider_group_index to an out-of-range value
+        spring.active_collider_group_index = 999
+
+        # Remove the collider group; this also removes the reference from the spring
+        self.assertEqual(
+            ops.vrm.remove_spring_bone1_collider_group(
+                armature_object_name=armature.name, collider_group_index=0
+            ),
+            {"FINISHED"},
+        )
+
+        # Index must be clamped to max(0, len(collider_groups) - 1) == 0
+        self.assertEqual(spring.active_collider_group_index, 0)
+
+
 if __name__ == "__main__":
     main()

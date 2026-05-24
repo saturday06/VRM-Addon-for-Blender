@@ -473,7 +473,7 @@ class AbstractBaseVrmImporter(ABC):
                 if search_scene_node_index == self._parse_result.hips_node_index:
                     bone_node_indices.append(scene_node_index)
                     hips_found = True
-                if not 0 <= search_scene_node_index < len(node_dicts):
+                if not (0 <= search_scene_node_index < len(node_dicts)):
                     continue
                 node_dict = node_dicts[search_scene_node_index]
                 all_scene_node_indices.append(search_scene_node_index)
@@ -496,11 +496,13 @@ class AbstractBaseVrmImporter(ABC):
 
         # Also treat indices registered in skin as bones
         for node_index in all_scene_node_indices:
-            if not 0 <= node_index < len(node_dicts):
+            if not (0 <= node_index < len(node_dicts)):
                 continue
             node_dict = node_dicts[node_index]
             skin_index = node_dict.get("skin")
-            if not isinstance(skin_index, int) or not 0 <= skin_index < len(skin_dicts):
+            if not isinstance(skin_index, int) or not (
+                0 <= skin_index < len(skin_dicts)
+            ):
                 continue
             skin_dict = skin_dicts[skin_index]
             skeleton_index = skin_dict.get("skeleton")
@@ -521,7 +523,7 @@ class AbstractBaseVrmImporter(ABC):
         search_bone_node_indices = list(bone_node_indices)
         while search_bone_node_indices:
             search_bone_node_index = search_bone_node_indices.pop()
-            if not 0 <= search_bone_node_index < len(node_dicts):
+            if not (0 <= search_bone_node_index < len(node_dicts)):
                 continue
             node_dict = node_dicts[search_bone_node_index]
             if isinstance(node_dict.get("mesh"), int):
@@ -563,7 +565,7 @@ class AbstractBaseVrmImporter(ABC):
         bone_node_index: int,
         middle_bone_node_indices: list[int],
     ) -> list[int]:
-        if not 0 <= bone_node_index < len(node_dicts):
+        if not (0 <= bone_node_index < len(node_dicts)):
             return []
         node_dict = node_dicts[bone_node_index]
         child_indices = node_dict.get("children")
@@ -574,7 +576,7 @@ class AbstractBaseVrmImporter(ABC):
         for child_index in child_indices:
             if not isinstance(child_index, int):
                 continue
-            if not 0 <= child_index < len(node_dicts):
+            if not (0 <= child_index < len(node_dicts)):
                 continue
             if child_index in bone_node_indices:
                 result.extend(middle_bone_node_indices)

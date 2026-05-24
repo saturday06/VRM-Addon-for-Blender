@@ -108,7 +108,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         samplers = self._parse_result.json_dict.get("samplers")
         if not isinstance(sampler, int) or not isinstance(samplers, list):
             return
-        if not 0 <= sampler < len(samplers):
+        if not (0 <= sampler < len(samplers)):
             return
 
         sampler_dict = samplers[sampler]
@@ -1613,7 +1613,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 collider_reference = collider_group.add_collider()
                 if not isinstance(collider_index, int):
                     continue
-                if not 0 <= collider_index < len(spring_bone.colliders):
+                if not (0 <= collider_index < len(spring_bone.colliders)):
                     continue
                 collider = spring_bone.colliders[collider_index]
                 if not collider:
@@ -1696,7 +1696,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 collider_group_reference = spring.add_collider_group()
                 if not isinstance(collider_group_index, int):
                     continue
-                if not 0 <= collider_group_index < len(spring_bone.collider_groups):
+                if not (0 <= collider_group_index < len(spring_bone.collider_groups)):
                     continue
                 collider_group = spring_bone.collider_groups[collider_group_index]
                 if not collider_group:

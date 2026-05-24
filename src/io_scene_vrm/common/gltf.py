@@ -217,7 +217,7 @@ def read_buffer_view_as_bytes(
     buffer_index = buffer_view_dict.get("buffer")
     if not isinstance(buffer_index, int):
         return None
-    if not 0 <= buffer_index < len(buffer_dicts):
+    if not (0 <= buffer_index < len(buffer_dicts)):
         return None
 
     if buffer_index == 0 and bin_chunk_bytes is not None:
@@ -253,12 +253,12 @@ def read_buffer_view_as_bytes(
     byte_offset = buffer_view_dict.get("byteOffset", 0)
     if not isinstance(byte_offset, int):
         return None
-    if not 0 <= byte_offset < len(buffer_bytes):
+    if not (0 <= byte_offset < len(buffer_bytes)):
         return None
     byte_length = buffer_view_dict.get("byteLength")
     if not isinstance(byte_length, int):
         return None
-    if not 0 <= byte_offset + byte_length <= len(buffer_bytes):
+    if not (0 <= byte_offset + byte_length <= len(buffer_bytes)):
         return None
     return buffer_bytes[byte_offset : byte_offset + byte_length]
 
@@ -272,7 +272,7 @@ def _remove_byte_stride_padding(
 ) -> Optional[bytes]:
     if not isinstance(buffer_view_dict, dict):
         return None
-    if not 0 <= accessor_byte_offset <= len(buffer_view_bytes):
+    if not (0 <= accessor_byte_offset <= len(buffer_view_bytes)):
         return None
 
     byte_stride = buffer_view_dict.get("byteStride")
@@ -291,7 +291,7 @@ def _remove_byte_stride_padding(
         + byte_stride * (accessor_count - 1)
         + accessor_element_byte_length
     )
-    if not 0 <= accessor_byte_end <= len(buffer_view_bytes):
+    if not (0 <= accessor_byte_end <= len(buffer_view_bytes)):
         return None
 
     accessor_bytes = bytearray(accessor_count * accessor_element_byte_length)
@@ -384,7 +384,7 @@ def _read_accessor_as_bytes(
     indices_buffer_view_index = indices_dict.get("bufferView")
     if not isinstance(indices_buffer_view_index, int):
         return None
-    if not 0 <= indices_buffer_view_index < len(buffer_view_dicts):
+    if not (0 <= indices_buffer_view_index < len(buffer_view_dicts)):
         return None
     indices_raw_bytes = read_buffer_view_as_bytes(
         buffer_view_dicts[indices_buffer_view_index], buffer_dicts, bin_chunk_bytes
@@ -415,7 +415,7 @@ def _read_accessor_as_bytes(
     values_buffer_view_index = values_dict.get("bufferView")
     if not isinstance(values_buffer_view_index, int):
         return None
-    if not 0 <= values_buffer_view_index < len(buffer_view_dicts):
+    if not (0 <= values_buffer_view_index < len(buffer_view_dicts)):
         return None
     values_raw_bytes = read_buffer_view_as_bytes(
         buffer_view_dicts[values_buffer_view_index], buffer_dicts, bin_chunk_bytes
@@ -457,7 +457,7 @@ def _unpack_component(
     if unpack_count == 0:
         return ()
     unpack_byte_length = unpack_count * component.byte_length
-    if not 1 <= unpack_byte_length <= len(buffer_bytes):
+    if not (1 <= unpack_byte_length <= len(buffer_bytes)):
         return None
     return struct.unpack(
         f"<{unpack_count}{component.unpack_symbol}",

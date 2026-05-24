@@ -1090,7 +1090,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 # Image already exists, return its index without duplicating data
                 return image_index
             _logger.error(
-                "Bug: not 0 <= %d < len(images)) for %s", image_index, image.name
+                "Bug: not (0 <= %d < len(images)) for %s", image_index, image.name
             )
             image_index = None
 
@@ -2957,7 +2957,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                     if search_scene_node_index == armature_node_index:
                         scene_node_indices.remove(scene_node_index)
                         break
-                    if not 0 <= search_scene_node_index < len(node_dicts):
+                    if not (0 <= search_scene_node_index < len(node_dicts)):
                         continue
                     search_scene_node_dict = node_dicts[search_scene_node_index]
                     if not isinstance(search_scene_node_dict, dict):
@@ -2972,7 +2972,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
             for armature_child_index in armature_child_indices:
                 if (
-                    not 0 <= armature_child_index < len(node_dicts)
+                    not (0 <= armature_child_index < len(node_dicts))
                     or armature_child_index in scene_node_indices
                 ):
                     continue
@@ -3090,7 +3090,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         )
 
         for object_name, node_index in object_name_to_index_dict.items():
-            if not 0 <= node_index < len(node_dicts):
+            if not (0 <= node_index < len(node_dicts)):
                 continue
             node_dict = node_dicts[node_index]
             if not isinstance(node_dict, dict):
@@ -3116,7 +3116,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 use_node_constraint = True
 
         for bone_name, node_index in bone_name_to_index_dict.items():
-            if not 0 <= node_index < len(node_dicts):
+            if not (0 <= node_index < len(node_dicts)):
                 continue
             node_dict = node_dicts[node_index]
             if not isinstance(node_dict, dict):
@@ -3318,7 +3318,9 @@ def _remove_inactive_uv_maps(
             continue
         uv_layers = mesh.uv_layers
         for uv_layer_index in reversed(range(len(uv_layers))):
-            if uv_layer_index >= len(uv_layers):
+            if len(uv_layers) <= 1:
+                break
+            if not (0 <= uv_layer_index < len(uv_layers)):
                 continue
             uv_layer = uv_layers[uv_layer_index]
             if uv_layer.active_render:
@@ -3351,7 +3353,7 @@ def _find_node_world_matrix(
                 return matrix
         return Matrix()
 
-    if not 0 <= parent_node_index < len(node_dicts):
+    if not (0 <= parent_node_index < len(node_dicts)):
         return None
 
     node_dict = node_dicts[parent_node_index]

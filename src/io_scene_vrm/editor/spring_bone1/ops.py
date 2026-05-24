@@ -87,18 +87,19 @@ class VRM_OT_remove_spring_bone1_collider(Operator):
         bpy_object = None
 
         collider_uuid = spring_bone.colliders[self.collider_index].uuid
-        spring_bone.colliders.remove(self.collider_index)
         for collider_group in spring_bone.collider_groups:
-            while True:
-                removed = False
-                for index, collider in enumerate(list(collider_group.colliders)):
-                    if collider.collider_uuid != collider_uuid:
-                        continue
+            for index in reversed(range(len(collider_group.colliders))):
+                if not (0 <= index < len(collider_group.colliders)):
+                    continue
+                collider_reference = collider_group.colliders[index]
+                if collider_reference.collider_uuid == collider_uuid:
                     collider_group.colliders.remove(index)
-                    removed = True
-                    break
-                if not removed:
-                    break
+            collider_group.active_collider_index = min(
+                collider_group.active_collider_index,
+                max(0, len(collider_group.colliders) - 1),
+            )
+
+        spring_bone.colliders.remove(self.collider_index)
 
         spring_bone.active_collider_index = min(
             spring_bone.active_collider_index,
@@ -383,19 +384,21 @@ class VRM_OT_remove_spring_bone1_collider_group(Operator):
         collider_groups = spring_bone.collider_groups
         if len(collider_groups) <= self.collider_group_index:
             return {"CANCELLED"}
+
         collider_group_uuid = collider_groups[self.collider_group_index].uuid
-        collider_groups.remove(self.collider_group_index)
         for spring in spring_bone.springs:
-            while True:
-                removed = False
-                for index, collider_group in enumerate(list(spring.collider_groups)):
-                    if collider_group.collider_group_uuid != collider_group_uuid:
-                        continue
+            for index in reversed(range(len(spring.collider_groups))):
+                if not (0 <= index < len(spring.collider_groups)):
+                    continue
+                collider_group_reference = spring.collider_groups[index]
+                if collider_group_reference.collider_group_uuid == collider_group_uuid:
                     spring.collider_groups.remove(index)
-                    removed = True
-                    break
-                if not removed:
-                    break
+            spring.active_collider_group_index = min(
+                spring.active_collider_group_index,
+                max(0, len(spring.collider_groups) - 1),
+            )
+
+        collider_groups.remove(self.collider_group_index)
 
         spring_bone.active_collider_group_index = min(
             spring_bone.active_collider_group_index,

@@ -90,7 +90,7 @@ class MaterialProperty:
         if not isinstance(material_property_dicts, list):
             return fallback
 
-        if not 0 <= i < len(material_property_dicts):
+        if not (0 <= i < len(material_property_dicts)):
             return fallback
 
         material_property_dict = material_property_dicts[i]
@@ -268,7 +268,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         texture_dicts = self._parse_result.json_dict.get("textures")
         if not isinstance(texture_dicts, list):
             return False
-        if not 0 <= texture_index < len(texture_dicts):
+        if not (0 <= texture_index < len(texture_dicts)):
             return False
         texture_dict = texture_dicts[texture_index]
         if not isinstance(texture_dict, dict):
@@ -285,7 +285,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
         samplers = self._parse_result.json_dict.get("samplers")
         if not isinstance(sampler, int) or not isinstance(samplers, list):
             return True
-        if not 0 <= sampler < len(samplers):
+        if not (0 <= sampler < len(samplers)):
             return True
 
         sampler_dict = samplers[sampler]

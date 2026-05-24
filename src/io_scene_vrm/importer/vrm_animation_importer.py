@@ -127,7 +127,7 @@ def _import_vrm_animation(context: Context, path: Path, armature: Object) -> set
     hips_node_index = hips_dict.get("node")
     if not isinstance(hips_node_index, int):
         return {"CANCELLED"}
-    if not 0 <= hips_node_index < len(node_dicts):
+    if not (0 <= hips_node_index < len(node_dicts)):
         return {"CANCELLED"}
     hips_node_dict = node_dicts[hips_node_index]
     if not isinstance(hips_node_dict, dict):
@@ -165,7 +165,7 @@ def _import_vrm_animation(context: Context, path: Path, armature: Object) -> set
         node_index = human_bone_dict.get("node")
         if not isinstance(node_index, int):
             continue
-        if not 0 <= node_index < len(node_dicts):
+        if not (0 <= node_index < len(node_dicts)):
             continue
         human_bone_name = HumanBoneName.from_str(human_bone_name_str)
         if not human_bone_name:
@@ -224,13 +224,13 @@ def _import_vrm_animation(context: Context, path: Path, armature: Object) -> set
         node_index = target_dict.get("node")
         if not isinstance(node_index, int):
             continue
-        if not 0 <= node_index < len(node_dicts):
+        if not (0 <= node_index < len(node_dicts)):
             continue
         animation_path = target_dict.get("path")
         animation_sampler_index = animation_channel_dict.get("sampler")
         if not isinstance(animation_sampler_index, int):
             continue
-        if not 0 <= animation_sampler_index < len(animation_sampler_dicts):
+        if not (0 <= animation_sampler_index < len(animation_sampler_dicts)):
             continue
         animation_sampler_dict = animation_sampler_dicts[animation_sampler_index]
         if not isinstance(animation_sampler_dict, dict):
@@ -239,7 +239,7 @@ def _import_vrm_animation(context: Context, path: Path, armature: Object) -> set
         input_index = animation_sampler_dict.get("input")
         if not isinstance(input_index, int):
             continue
-        if not 0 <= input_index < len(accessor_dicts):
+        if not (0 <= input_index < len(accessor_dicts)):
             continue
         input_accessor_dict = accessor_dicts[input_index]
         if not isinstance(input_accessor_dict, dict):
@@ -248,7 +248,7 @@ def _import_vrm_animation(context: Context, path: Path, armature: Object) -> set
         output_index = animation_sampler_dict.get("output")
         if not isinstance(output_index, int):
             continue
-        if not 0 <= output_index < len(accessor_dicts):
+        if not (0 <= output_index < len(accessor_dicts)):
             continue
         output_accessor_dict = accessor_dicts[output_index]
         if not isinstance(output_accessor_dict, dict):
@@ -288,7 +288,7 @@ def _import_vrm_animation(context: Context, path: Path, armature: Object) -> set
         str, tuple[tuple[float, Vector], ...]
     ] = {}
     for expression_name, node_index in expression_name_to_node_index.items():
-        if not 0 <= node_index < len(node_dicts):
+        if not (0 <= node_index < len(node_dicts)):
             continue
         node_dict = node_dicts[node_index]
         if not isinstance(node_dict, dict):
@@ -543,7 +543,7 @@ class NodeRestPoseTree:
         *,
         is_root: bool,
     ) -> list["NodeRestPoseTree"]:
-        if not 0 <= node_index < len(node_dicts):
+        if not (0 <= node_index < len(node_dicts)):
             return []
         node_dict = node_dicts[node_index]
         if not isinstance(node_dict, dict):

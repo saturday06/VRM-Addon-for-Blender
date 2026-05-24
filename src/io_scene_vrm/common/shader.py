@@ -1645,7 +1645,7 @@ def copy_node_tree(
         input_node = from_to.get(from_link.to_node)
         if input_node is None:
             continue
-        if not 0 <= input_socket_index < len(input_node.inputs):
+        if not (0 <= input_socket_index < len(input_node.inputs)):
             _logger.error(
                 "Input socket out of range: %d < %d",
                 input_socket_index,
@@ -1670,7 +1670,7 @@ def copy_node_tree(
         output_node = from_to.get(from_link.from_node)
         if output_node is None:
             continue
-        if not 0 <= output_socket_index < len(output_node.outputs):
+        if not (0 <= output_socket_index < len(output_node.outputs)):
             _logger.error(
                 "Output socket out of range: %d < %d",
                 output_socket_index,
