@@ -137,7 +137,7 @@
   // https://github.com/denoland/deno/issues/20609#issuecomment-2762970307
   "nodeModulesDir": "auto",
   "imports": {
-    "@devcontainers/cli": "npm:@devcontainers/cli@^0.86.0",
+    "@devcontainers/cli": "npm:@devcontainers/cli@0.86.1",
     "@octokit/rest": "npm:@octokit/rest@22.0.1",
     "@octokit/types": "npm:@octokit/types@16.0.0",
     "@types/node": "npm:@types/node@25.6.1",
