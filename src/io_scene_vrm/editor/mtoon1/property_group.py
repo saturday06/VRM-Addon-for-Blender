@@ -4,7 +4,6 @@ import re
 import sys
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from itertools import islice
 from typing import TYPE_CHECKING, Final, Optional, Protocol, Union
 
 import bpy
@@ -29,6 +28,7 @@ from bpy.types import (
     NodesModifier,
     NodeSocketColor,
     NodeSocketFloat,
+    NodeTree,
     Object,
     PropertyGroup,
     ShaderNodeBsdfPrincipled,
@@ -3753,17 +3753,11 @@ class NodesModifierInputKey:
 
 
 def _get_nodes_modifier_input_key(
-    modifier: NodesModifier,
+    node_group: NodeTree,
 ) -> Optional[NodesModifierInputKey]:
-    node_group = modifier.node_group
-    if not node_group:
-        return None
-
-    required_key_len = 15
-
     if bpy.app.version < (4, 0):
         keys = [i.identifier for i in node_group.inputs]
-    elif bpy.app.version < (5, 2):
+    else:
         from bpy.types import NodeTreeInterfaceSocket
 
         keys = [
@@ -3773,22 +3767,8 @@ def _get_nodes_modifier_input_key(
             and isinstance(item, NodeTreeInterfaceSocket)
             and item.in_out == "INPUT"
         ]
-    else:
-        # Ideally we would use NodesModifier.properties.inputs.keys(),
-        # but right after creating a NodesModifier, it returns an empty iterator,
-        # so we search using a loop instead.
-        keys = list(
-            islice(
-                (
-                    key
-                    for i in range(1, required_key_len * 10)
-                    if getattr(modifier.properties.inputs, key := f"Socket_{i}", None)
-                ),
-                required_key_len,
-            )
-        )
 
-    if len(keys) < required_key_len:
+    if len(keys) < 15:
         return None
     return NodesModifierInputKey(
         material_key=keys[1],
@@ -3905,7 +3885,7 @@ class NodesModifierProperties:
         self.input_key = input_key
 
     def _get(self, key: str, attr: str = "value") -> Optional[object]:
-        socket = getattr(self.modifier.properties.inputs, key, None)
+        socket = getattr(getattr(self.modifier.properties, "inputs", None), key, None)
         if not socket:
             _logger.error(
                 "Socket not found for key: %s, modifier: %s", key, self.modifier.name
@@ -3914,7 +3894,7 @@ class NodesModifierProperties:
         return getattr(socket, attr)
 
     def _set(self, key: str, attr: str, value: object) -> bool:
-        socket = getattr(self.modifier.properties.inputs, key, None)
+        socket = getattr(getattr(self.modifier.properties, "inputs", None), key, None)
         if not socket:
             _logger.error(
                 "Socket not found for key: %s, modifier: %s", key, self.modifier.name
@@ -4037,7 +4017,11 @@ class NodesModifierPropertiesProtocol(Protocol):
 def _get_nodes_modifier_input_properties(
     modifier: NodesModifier,
 ) -> Optional[NodesModifierPropertiesProtocol]:
-    input_key = _get_nodes_modifier_input_key(modifier)
+    node_group = modifier.node_group
+    if not node_group:
+        return None
+
+    input_key = _get_nodes_modifier_input_key(node_group)
     if not input_key:
         return None
 
@@ -4506,6 +4490,8 @@ def _assign_mtoon1_outline(
     node_group = context.blend_data.node_groups.get(shader.OUTLINE_GEOMETRY_GROUP_NAME)
     if not node_group:
         return
+    if not _get_nodes_modifier_input_key(node_group):
+        return
     mtoon = get_material_extension(material).mtoon1.extensions.vrmc_materials_mtoon
     outline_width_mode_value = mtoon.outline_width_mode_enum.identifier_to_value(
         mtoon.outline_width_mode,
@@ -4533,14 +4519,6 @@ def _assign_mtoon1_outline(
             continue
         input_properties = _get_nodes_modifier_input_properties(search_modifier)
         if input_properties is None:
-            # If NodesModifierInputKey cannot be obtained, the node is broken, so avoid
-            # modifying it as much as possible.
-            _logger.warning(
-                "NodesModifier '%s' on object '%s' has an unexpected node group input.",
-                search_modifier.name,
-                obj.name,
-            )
-            no_outline = True
             continue
         search_material = input_properties.get_material()
         if search_material is None:
