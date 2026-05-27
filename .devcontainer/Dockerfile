@@ -30,7 +30,7 @@ RUN <<'SETUP_USER_DEVELOPER'
   useradd --create-home --user-group --shell /bin/bash developer
   echo "developer ALL=(root) NOPASSWD:ALL" | tee /etc/sudoers.d/developer
   mkdir -p /workspace
-  chown "$(id -un):$(id -gn)" /workspace
+  chown developer:developer /workspace
 SETUP_USER_DEVELOPER
 
 USER developer
