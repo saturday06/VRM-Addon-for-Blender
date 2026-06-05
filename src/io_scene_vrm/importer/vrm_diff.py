@@ -162,7 +162,7 @@ def _create_vrm_json_dict(data: bytes) -> dict[str, Json]:
             )
 
             vrm0_first_person_bone = vrm0_first_person_dict.get("firstPersonBone")
-            if vrm0_first_person_bone in (None, -1):
+            if vrm0_first_person_bone in {None, -1}:
                 for vrm0_human_bone_dict in vrm0_human_bone_dicts:
                     if not isinstance(vrm0_human_bone_dict, dict):
                         continue

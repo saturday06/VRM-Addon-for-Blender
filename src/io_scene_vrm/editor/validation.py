@@ -235,7 +235,7 @@ class WM_OT_vrm_validator(Operator):
             )
 
         for obj in export_objects:
-            if (parent_obj := obj.parent) and obj.parent_type in ("VERTEX", "VERTEX_3"):
+            if (parent_obj := obj.parent) and obj.parent_type in {"VERTEX", "VERTEX_3"}:
                 state.skippable_warning_messages.append(
                     pgettext(
                         'The vertex "{parent_name}" is set as the parent of "{name}",'

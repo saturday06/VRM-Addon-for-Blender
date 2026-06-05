@@ -675,7 +675,7 @@ def _assign_humanoid_keyframe(
     human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
     if (
         human_bone_name
-        and human_bone_name not in (HumanBoneName.LEFT_EYE, HumanBoneName.RIGHT_EYE)
+        and human_bone_name not in {HumanBoneName.LEFT_EYE, HumanBoneName.RIGHT_EYE}
         and (
             human_bone := human_bones.human_bone_name_to_human_bone().get(
                 human_bone_name

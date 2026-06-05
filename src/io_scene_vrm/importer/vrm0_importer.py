@@ -1437,7 +1437,7 @@ def _setup_bones(context: Context, armature: Object) -> None:
             #                    -- rightEye
             #
             # well, so we don't process leftEye and rightEye
-            if human_bone_name in (HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE):
+            if human_bone_name in {HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE}:
                 continue
 
             bone = armature_data.edit_bones.get(bone_name)
@@ -1459,7 +1459,7 @@ def _setup_bones(context: Context, armature: Object) -> None:
                 if (
                     parent_human_bone_name == HumanBoneName.UPPER_CHEST
                     and last_human_bone_name
-                    not in (HumanBoneName.HEAD, HumanBoneName.NECK)
+                    not in {HumanBoneName.HEAD, HumanBoneName.NECK}
                 ):
                     break
 

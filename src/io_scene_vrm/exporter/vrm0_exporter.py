@@ -2900,7 +2900,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             pass
         else:
             if (
-                obj.parent_type in ("ARMATURE", "OBJECT")
+                obj.parent_type in {"ARMATURE", "OBJECT"}
                 and (
                     parent := self.get_export_parent_object(
                         obj, mesh_convertible_objects

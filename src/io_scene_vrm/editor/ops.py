@@ -195,7 +195,7 @@ class VRM_OT_open_url_in_web_browser(Operator):
             url = urlsplit(url_str)
         except ValueError:
             return False
-        if url.scheme not in ("http", "https"):
+        if url.scheme not in {"http", "https"}:
             return False
         return bool(url.hostname)
 

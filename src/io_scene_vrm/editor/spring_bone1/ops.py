@@ -1482,7 +1482,7 @@ def _assign_spring_bone1_from_mmd(
         if rigid_type == "0":
             # MODE_STATIC
             static_rigid_bone_name_to_obj[bone_name] = obj
-        elif rigid_type in ("1", "2") and bone_name not in dynamic_rigid_bone_names:
+        elif rigid_type in {"1", "2"} and bone_name not in dynamic_rigid_bone_names:
             # MODE_DYNAMIC, MODE_DYNAMIC_BONE
             dynamic_rigid_bone_names.append(bone_name)
 

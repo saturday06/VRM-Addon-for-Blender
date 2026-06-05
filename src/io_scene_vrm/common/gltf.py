@@ -499,7 +499,7 @@ def _merge_duplicate_primitive_vertex_skinning_weights(
             joints_component_type := joints_accessor_dict.get("componentType"), int
         ):
             return
-        if joints_component_type not in (GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT):
+        if joints_component_type not in {GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT}:
             return
         joints_n = _read_vec4_accessor(
             joints_accessor_dict,

@@ -801,7 +801,7 @@ def _create_node_animation(
         if human_bone_name is None:
             _logger.error("Failed to find human bone name for bone %s", bone_name)
             continue
-        if human_bone_name in (HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE):
+        if human_bone_name in {HumanBoneName.RIGHT_EYE, HumanBoneName.LEFT_EYE}:
             continue
         node_index = bone_name_to_node_index.get(bone_name)
         if not isinstance(node_index, int):

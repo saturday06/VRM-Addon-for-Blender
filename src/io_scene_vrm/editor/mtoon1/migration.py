@@ -153,7 +153,7 @@ def _migrate_material(
         blender_4_2_migrated_material_names.append(material.name)
         alpha_cutoff = material.alpha_threshold
         blend_method = material.blend_method
-        if blend_method in ("BLEND", "HASHED"):
+        if blend_method in {"BLEND", "HASHED"}:
             alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_BLEND.identifier
         elif blend_method == "CLIP":
             alpha_mode = Mtoon1MaterialPropertyGroup.ALPHA_MODE_MASK.identifier
