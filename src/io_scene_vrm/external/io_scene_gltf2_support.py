@@ -150,6 +150,11 @@ def create_export_settings() -> dict[str, object]:
         # for https://github.com/KhronosGroup/glTF-Blender-IO/blob/06f0f908e883add2767fde828f52a013086a17c3/addons/io_scene_gltf2/blender/exp/material/gltf2_blender_gather_materials.py#L171
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/06f0f908e883add2767fde828f52a013086a17c3/addons/io_scene_gltf2/blender/exp/gltf2_blender_gather.py#L62-L66
         "KHR_animation_pointer": {"materials": {}, "lights": {}, "cameras": {}},
+        # https://github.com/KhronosGroup/glTF-Blender-IO/blob/53959a0f2b83c8090cb4ff2b2815417d38cfe2b2/addons/io_scene_gltf2/__init__.py#L1257-L1273
+        "gltf_animation_mode": "ACTIONS",
+        "gltf_anim_scene_split_object": False,
+        "gltf_trs_w_animation_pointer": False,
+        "gltf_export_anim_pointer": False,
     }
 
     if bpy.app.version < (4, 2):
