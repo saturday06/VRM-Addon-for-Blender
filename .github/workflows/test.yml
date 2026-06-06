@@ -73,7 +73,7 @@ jobs:
 
   test-macos:
     name: test-macos / ${{ matrix.blender.job_name_postfix }}
-    runs-on: macos-15
+    runs-on: macos-26
     permissions:
       contents: read
     strategy:
