@@ -122,7 +122,9 @@ class TestRotation(TestCase):
         action = animation_data.action
         if action is None:
             self.fail("Action should not be None after inserting keyframe")
-        self.assertTrue(any(fc.data_path == "rotation_euler" for fc in action.fcurves))
+        self.assertTrue(
+            any(fc.data_path == "rotation_euler" for fc in _get_action_fcurves(action))
+        )
         animation_data = None
         action = None
 
