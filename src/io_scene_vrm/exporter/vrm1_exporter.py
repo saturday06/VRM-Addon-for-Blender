@@ -222,7 +222,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 continue
             if obj_data.name in backup_data_name_to_original_data_name:
                 continue
-            backup_data_name = "Backup-Data-" + uuid4().hex
+            backup_data_name = (
+                "Backup-Data-" + uuid4().hex + "-" + type(obj_data).__name__
+            )
             backup_data_name_to_original_data_name[backup_data_name] = obj_data.name
             obj_data.name = backup_data_name
 
@@ -305,7 +307,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
             # Even if deletion fails, randomize the name to avoid
             # confusion with the original object
-            restored_export_obj.name = "Export-" + uuid4().hex
+            restored_export_obj.name = "Export-Object-" + uuid4().hex
             if not safe_removal.remove_object(context, restored_export_obj):
                 _logger.warning(
                     'Failed to remove "%s" with %d users (temp object for "%s")',
@@ -318,7 +320,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         for removing_object_data in removing_object_datum:
             # Even if deletion fails, randomize the name to avoid
             # confusion with the original object data
-            removing_object_data.name = "Export-Data-" + uuid4().hex
+            removing_object_data.name = (
+                "Export-Data-" + uuid4().hex + "-" + type(removing_object_data).__name__
+            )
 
             if removing_object_data.users:
                 _logger.warning(
