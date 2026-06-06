@@ -11,6 +11,7 @@ from io_scene_vrm.common.rotation import (
     insert_rotation_keyframe,
     set_rotation_without_mode_change,
 )
+from io_scene_vrm.exporter.vrm_animation_exporter import _get_action_fcurves
 
 
 class TestRotation(TestCase):
@@ -86,7 +87,10 @@ class TestRotation(TestCase):
         if action is None:
             self.fail("Action should not be None after inserting keyframe")
         self.assertTrue(
-            any(fc.data_path == "rotation_quaternion" for fc in action.fcurves)
+            any(
+                fc.data_path == "rotation_quaternion"
+                for fc in _get_action_fcurves(action)
+            )
         )
         animation_data = None
         action = None
@@ -101,7 +105,10 @@ class TestRotation(TestCase):
         if action is None:
             self.fail("Action should not be None after inserting keyframe")
         self.assertTrue(
-            any(fc.data_path == "rotation_axis_angle" for fc in action.fcurves)
+            any(
+                fc.data_path == "rotation_axis_angle"
+                for fc in _get_action_fcurves(action)
+            )
         )
         animation_data = None
         action = None
