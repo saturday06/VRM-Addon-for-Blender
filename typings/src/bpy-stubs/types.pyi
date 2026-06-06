@@ -2424,6 +2424,13 @@ class BlendData:
     def workspaces(self) -> BlendDataWorkSpaces: ...
     @property
     def worlds(self) -> BlendDataWorlds: ...
+    def user_map(
+        self,
+        *,
+        subset: Sequence[ID] | None = ...,
+        key_types: set[type[ID]] | None = ...,
+        value_types: set[type[ID]] | None = ...,
+    ) -> dict[ID, set[ID]]: ...
 
 class Operator(bpy_struct):
     bl_description: str
