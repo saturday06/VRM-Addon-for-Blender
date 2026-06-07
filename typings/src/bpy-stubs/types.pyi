@@ -1565,6 +1565,7 @@ class Object(ID):
     def constraints(self) -> ObjectConstraints: ...
     parent_type: str
     parent_bone: str
+    parent_bone_head_tail_factor: float
     empty_display_size: float
     empty_display_type: str
     display_type: str
