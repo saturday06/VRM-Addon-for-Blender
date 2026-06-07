@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.2.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.2.2...v4.2.3) (2026-06-07)
+
+
+### 🐛 Bug Fixes
+
+* fix SpringBone capsule collider radius calculation ([78140df](https://github.com/saturday06/VRM-Addon-for-Blender/commit/78140dfe4dd0bcaca543837dae9e3c6914de0898))
+
 ## [4.2.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.2.1...v4.2.2) (2026-05-23)
 
 
