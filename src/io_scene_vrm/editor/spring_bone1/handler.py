@@ -255,7 +255,7 @@ def _calculate_object_pose_bone_rotations(
                 tail = pose_bone_world_matrix @ Vector(
                     extended_collider.shape.capsule.tail
                 )
-                radius = extended_collider.shape.sphere.radius
+                radius = extended_collider.shape.capsule.radius
                 offset_to_tail_diff = tail - offset
                 offset_to_tail_diff_length_squared = offset_to_tail_diff.length_squared
                 if offset_to_tail_diff_length_squared < float_info.epsilon:
@@ -308,7 +308,7 @@ def _calculate_object_pose_bone_rotations(
         elif collider.shape_type == collider.SHAPE_TYPE_CAPSULE.identifier:
             offset = pose_bone_world_matrix @ Vector(collider.shape.capsule.offset)
             tail = pose_bone_world_matrix @ Vector(collider.shape.capsule.tail)
-            radius = collider.shape.sphere.radius
+            radius = collider.shape.capsule.radius
             offset_to_tail_diff = tail - offset
             offset_to_tail_diff_length_squared = offset_to_tail_diff.length_squared
             if offset_to_tail_diff_length_squared < float_info.epsilon:

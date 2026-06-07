@@ -1541,6 +1541,66 @@ class TestSpringBone1(AddonTestCase):
             armature.pose.bones["joint2"].head, (0, 2, 0), "After 2 seconds joint2"
         )
 
+    def test_capsule_collider_uses_capsule_radius(self) -> None:
+        context = bpy.context
+
+        bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
+        armature = context.object
+        if not armature or not isinstance(armature.data, Armature):
+            raise AssertionError
+
+        ext = get_armature_extension(armature.data)
+        ext.addon_version = ADDON_VERSION
+        ext.spec_version = SPEC_VERSION
+        ext.spring_bone1.enable_animation = True
+
+        bpy.ops.object.mode_set(mode="EDIT")
+        joint_bone0 = armature.data.edit_bones.new("joint0")
+        joint_bone0.head = Vector((0, 0, 0))
+        joint_bone0.tail = Vector((0, 1, 0))
+
+        joint_bone1 = armature.data.edit_bones.new("joint1")
+        joint_bone1.parent = joint_bone0
+        joint_bone1.head = Vector((0, 1, 0))
+        joint_bone1.tail = Vector((0, 2, 0))
+        bpy.ops.object.mode_set(mode="OBJECT")
+
+        spring_bone1 = ext.spring_bone1
+        spring = spring_bone1.add_spring()
+        joint0 = spring.add_joint()
+        joint0.node.bone_name = "joint0"
+        joint0.gravity_power = 0
+        joint0.drag_force = 1
+        joint0.stiffness = 0
+        joint0.hit_radius = 0
+        joint1 = spring.add_joint()
+        joint1.node.bone_name = "joint1"
+        joint1.gravity_power = 0
+        joint1.drag_force = 1
+        joint1.stiffness = 0
+        joint1.hit_radius = 0
+
+        collider = spring_bone1.add_collider(context, armature)
+        collider.node.bone_name = "joint0"
+        collider.shape_type = collider.SHAPE_TYPE_CAPSULE.identifier
+        collider.shape.sphere.radius = 0
+        collider.shape.capsule.radius = 0.25
+        collider.shape.capsule.offset = (0.2, 0.5, 0)
+        collider.shape.capsule.tail = (0.2, 1.5, 0)
+
+        collider_group = spring_bone1.add_collider_group()
+        collider_reference = collider_group.add_collider()
+        collider_reference.collider_uuid = collider.uuid
+        collider_group_reference = spring.add_collider_group()
+        collider_group_reference.collider_group_uuid = collider_group.uuid
+
+        context.view_layer.update()
+
+        ops.vrm.update_spring_bone1_animation(delta_time=1)
+        context.view_layer.update()
+
+        self.assertLess(armature.pose.bones["joint1"].head.x, -0.01)
+
 
 class TestAssignSpringBone1FromVrm0(AddonTestCase):
     def test_collider_group_and_spring_mapping(self) -> None:
