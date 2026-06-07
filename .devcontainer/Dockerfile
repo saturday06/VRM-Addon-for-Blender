@@ -4,9 +4,6 @@ FROM cimg/base:current-24.04@sha256:c7693014a5fe7f5c95ac54590b54e2b183995241e082
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# cimg/base has PAGER=cat by default, but it is inconvenient in devcontainer, so change it to less.
-ENV PAGER=less
-
 USER root
 
 RUN --mount=type=bind,source=.,target=/root/src/tools <<'INSTALL_PACKAGES'
@@ -66,3 +63,6 @@ VNC_XSTARTUP_SCRIPT
   # Deno doesnot add newlines to the final line of shell config, so add them manually.
   echo | tee -a ~/.profile ~/.bash_profile ~/.bashrc ~/.zshrc
 SETUP_USER_DEVELOPER_LOCAL_ENVIRONMENT
+
+# cimg/base has PAGER=cat by default, but it is inconvenient in devcontainer, so change it to less.
+ENV PAGER=less
