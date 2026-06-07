@@ -688,23 +688,19 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
             for collider in collider_group.colliders:
                 collider_object = collider.bpy_object
-                if (
-                    not collider_object
-                    or collider_object.parent_bone not in self._armature.pose.bones
+                if not collider_object or not (
+                    bone := self._armature.pose.bones.get(collider_object.parent_bone)
                 ):
                     continue
 
                 collider_dict: dict[str, Json] = {}
-                offset = [
-                    collider_object.matrix_world.to_translation()[i]
-                    - (
-                        self._armature.matrix_world
-                        @ Matrix.Translation(
-                            self._armature.pose.bones[collider_object.parent_bone].head
-                        )
-                    ).to_translation()[i]
-                    for i in range(3)
-                ]
+                bone_node_world_translation = (
+                    self._armature.matrix_world @ bone.matrix
+                ).to_translation()
+                offset = (
+                    collider_object.matrix_world.to_translation()
+                    - bone_node_world_translation
+                )
 
                 object_mean_scale = statistics.mean(
                     abs(s) for s in collider_object.matrix_world.to_scale()
@@ -716,9 +712,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 collider_dict["offset"] = {
                     # Perform a special axis transformation for VRM 0.0.
                     # https://github.com/vrm-c/UniVRM/issues/65
-                    "x": -offset[0],
-                    "y": offset[2],
-                    "z": -offset[1],
+                    "x": -offset.x,
+                    "y": offset.z,
+                    "z": -offset.y,
                 }
                 collider_dicts.append(collider_dict)
 
