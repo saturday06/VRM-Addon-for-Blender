@@ -2,7 +2,6 @@
   "last-release-sha": "0d3911f25e3c79e2dca21089198387af0474f049",
   "bootstrap-sha": "0d3911f25e3c79e2dca21089198387af0474f049",
   "draft": true,
-  "draft-pull-request": true,
   "changelog-sections": [
     {
       "type": "feat",
