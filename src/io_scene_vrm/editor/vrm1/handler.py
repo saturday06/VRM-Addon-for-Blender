@@ -6,7 +6,7 @@ from bpy.types import Depsgraph, Scene
 
 from ...common.logger import get_logger
 from ...common.scene_watcher import trigger_scene_watcher
-from .property_group import Vrm1ExpressionPropertyGroup
+from .property_group import Vrm1ExpressionPropertyGroup, Vrm1LookAtPropertyGroup
 from .scene_watcher import LookAtPreviewUpdater
 
 _logger = get_logger(__name__)
@@ -17,6 +17,7 @@ def frame_change_post(_unused: object) -> None:
     context = bpy.context
 
     Vrm1ExpressionPropertyGroup.apply_pending_preview_update_to_armatures(context)
+    Vrm1LookAtPropertyGroup.update_all_previews(context)
 
     # Update materials
     Vrm1ExpressionPropertyGroup.update_materials(context)
