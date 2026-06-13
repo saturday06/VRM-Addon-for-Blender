@@ -2118,6 +2118,7 @@ class Context(bpy_struct):
     # Screen Context
     object: Object | None
     active_object: Object | None
+    visible_objects: Sequence[Object]
     selectable_objects: Sequence[Object]
     selected_objects: Sequence[Object]
 

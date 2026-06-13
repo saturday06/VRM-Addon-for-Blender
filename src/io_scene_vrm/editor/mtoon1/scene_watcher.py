@@ -60,8 +60,6 @@ class OutlineUpdater(SceneWatcher):
 
     def run(self, context: Context) -> RunState:
         """Detect changes in material assignments to objects and assign outlines."""
-        blend_data = context.blend_data
-
         # If this value becomes zero, return PREEMPT and interrupt the process.
         # If a change is detected, set a virtually infinite value so that the
         # process proceeds to the end.
@@ -71,7 +69,7 @@ class OutlineUpdater(SceneWatcher):
 
         create_modifier = False
 
-        objects = blend_data.objects
+        objects = context.visible_objects
         if not objects:
             return RunState.FINISH
 

@@ -15,28 +15,34 @@ _logger = get_logger(__name__)
 
 @dataclass
 class LookAtPreviewUpdater(SceneWatcher):
-    armature_index: int = 0
+    object_index: int = 0
 
     def reset_run_progress(self) -> None:
-        self.armature_index = 0
+        self.object_index = 0
 
     def run(self, context: Context) -> RunState:
         """Detect updates to the target object of Look At and update the state."""
-        blend_data = context.blend_data
-
-        if not blend_data.armatures:
+        if not context.blend_data.armatures:
+            return RunState.FINISH
+        objects = context.visible_objects
+        if not objects:
             return RunState.FINISH
 
-        count = 20
+        count = 50
 
-        armatures_len = len(blend_data.armatures)
-        if self.armature_index >= armatures_len:
-            self.armature_index = 0
+        objects_len = len(objects)
+        if self.object_index >= objects_len:
+            self.object_index = 0
 
-        start_armature_index = self.armature_index
-        end_armature_index = min(self.armature_index + count, armatures_len)
-        for armature in blend_data.armatures[start_armature_index:end_armature_index]:
-            ext = get_armature_extension(armature)
+        start_object_index = self.object_index
+        end_object_index = min(self.object_index + count, objects_len)
+        for obj in objects[start_object_index:end_object_index]:
+            if obj.type != "ARMATURE":
+                continue
+            armature_data = obj.data
+            if not isinstance(armature_data, Armature):
+                continue
+            ext = get_armature_extension(armature_data)
             if not ext.is_vrm1():
                 continue
             look_at = ext.vrm1.look_at
@@ -52,9 +58,9 @@ class LookAtPreviewUpdater(SceneWatcher):
                 Vrm1LookAtPropertyGroup.update_all_previews(context)
                 return RunState.FINISH
 
-        self.armature_index += count
+        self.object_index += count
 
-        if end_armature_index < armatures_len:
+        if end_object_index < objects_len:
             return RunState.PREEMPT
 
         return RunState.FINISH
