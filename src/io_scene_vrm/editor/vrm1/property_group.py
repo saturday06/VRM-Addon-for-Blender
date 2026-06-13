@@ -708,7 +708,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
 
     @staticmethod
     def update_all_previews(context: Context) -> None:
-        for armature_object in context.blend_data.objects:
+        for armature_object in context.visible_objects:
             if armature_object.type != "ARMATURE":
                 continue
             armature_data = armature_object.data
@@ -732,11 +732,15 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
     ):
         if not self.enable_preview:
             return False
+
         preview_target_bpy_object = self.preview_target_bpy_object
         if not preview_target_bpy_object:
             return False
 
         head_bone_name = vrm1.humanoid.human_bones.head.node.bone_name
+        if not head_bone_name:
+            return False
+
         head_pose_bone = armature_object.pose.bones.get(head_bone_name)
         if not head_pose_bone:
             return False
