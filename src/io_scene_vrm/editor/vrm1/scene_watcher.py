@@ -21,21 +21,29 @@ class LookAtPreviewUpdater(SceneWatcher):
 
     def run(self, context: Context) -> RunState:
         """Detect updates to the target object of Look At and update the state."""
+        # If this value becomes zero, return PREEMPT and interrupt the process.
+        # If a change is detected, update previews and return FINISH.
+        preempt_countdown = 50
+
         if not context.blend_data.armatures:
             return RunState.FINISH
         objects = context.visible_objects
         if not objects:
             return RunState.FINISH
 
-        count = 50
-
         objects_len = len(objects)
         if self.object_index >= objects_len:
             self.object_index = 0
 
-        start_object_index = self.object_index
-        end_object_index = min(self.object_index + count, objects_len)
-        for obj in objects[start_object_index:end_object_index]:
+        next_object_index = self.object_index
+        for obj in objects[self.object_index : objects_len]:
+            self.object_index = next_object_index
+            next_object_index += 1
+
+            preempt_countdown -= 1
+            if preempt_countdown <= 0:
+                return RunState.PREEMPT
+
             if obj.type != "ARMATURE":
                 continue
             armature_data = obj.data
@@ -49,10 +57,7 @@ class LookAtPreviewUpdater(SceneWatcher):
                 Vrm1LookAtPropertyGroup.update_all_previews(context)
                 return RunState.FINISH
 
-        self.object_index += count
-
-        if end_object_index < objects_len:
-            return RunState.PREEMPT
+            preempt_countdown -= 10
 
         return RunState.FINISH
 
