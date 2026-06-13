@@ -544,10 +544,12 @@ def register() -> None:
     writable_context.register_writable_context_becomes_available_once_handler(
         setup_once_when_writable_context_becomes_available,
     )
-    bpy.app.timers.register(
-        scene_watcher.process_scene_watcher_scheduler,
-        first_interval=scene_watcher.SceneWatcherScheduler.INTERVAL,
-    )
+    if not bpy.app.timers.is_registered(scene_watcher.process_scene_watcher_scheduler):
+        bpy.app.timers.register(
+            scene_watcher.process_scene_watcher_scheduler,
+            first_interval=scene_watcher.SceneWatcherScheduler.INTERVAL,
+            persistent=True,
+        )
 
     io_scene_gltf2_support.init_extras_export()
 
