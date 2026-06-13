@@ -2,7 +2,6 @@
 from dataclasses import dataclass
 
 from bpy.types import Armature, Context
-from mathutils import Vector
 
 from ...common import ops
 from ...common.logger import get_logger
@@ -46,15 +45,7 @@ class LookAtPreviewUpdater(SceneWatcher):
             if not ext.is_vrm1():
                 continue
             look_at = ext.vrm1.look_at
-            if not look_at.enable_preview:
-                continue
-            preview_target_bpy_object = look_at.preview_target_bpy_object
-            if not preview_target_bpy_object:
-                continue
-            if (
-                Vector(look_at.previous_preview_target_bpy_object_location)
-                - preview_target_bpy_object.location
-            ).length_squared > 0:
+            if look_at.update_preview(context, obj, ext.vrm1, check_only=True):
                 Vrm1LookAtPropertyGroup.update_all_previews(context)
                 return RunState.FINISH
 

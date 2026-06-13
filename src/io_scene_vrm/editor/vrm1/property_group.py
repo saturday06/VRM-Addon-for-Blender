@@ -702,8 +702,8 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
         type=Object,
         name="Preview Target",
     )
-    previous_preview_target_bpy_object_location: FloatVectorProperty(  # type: ignore[valid-type]
-        size=3,
+    previous_preview_matrix: FloatVectorProperty(  # type: ignore[valid-type]
+        size=16,
     )
 
     @staticmethod
@@ -714,29 +714,57 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
             armature_data = armature_object.data
             if not isinstance(armature_data, Armature):
                 continue
-            look_at = get_armature_extension(armature_data).vrm1.look_at
-            look_at.update_preview(context, armature_object, armature_data)
+            vrm1 = get_armature_extension(armature_data).vrm1
+            look_at = vrm1.look_at
+            look_at.update_preview(context, armature_object, vrm1, check_only=False)
 
     def update_preview(
         self,
         _context: Context,
         armature_object: Object,
-        armature_data: Armature,
-    ) -> None:
-        vrm1 = get_armature_extension(armature_data).vrm1
+        vrm1: "Vrm1PropertyGroup",
+        *,
+        check_only: bool,
+    ) -> (
+        # Returns True if a resource-intensive operation is executed according to
+        # SceneWatcher's criteria.
+        bool
+    ):
+        if not self.enable_preview:
+            return False
         preview_target_bpy_object = self.preview_target_bpy_object
         if not preview_target_bpy_object:
-            return
-        to_translation = preview_target_bpy_object.matrix_world.to_translation()
-        if (
-            Vector(self.previous_preview_target_bpy_object_location) - to_translation
-        ).length_squared < float_info.epsilon:
-            return
-        self.previous_preview_target_bpy_object_location = to_translation
+            return False
+
         head_bone_name = vrm1.humanoid.human_bones.head.node.bone_name
         head_pose_bone = armature_object.pose.bones.get(head_bone_name)
         if not head_pose_bone:
-            return
+            return False
+
+        head_parent_pose_bone = head_pose_bone.parent
+        if not head_parent_pose_bone:
+            return False
+
+        to_translation = preview_target_bpy_object.matrix_world.to_translation()
+        preview_matrix = [
+            float(e)
+            for row in (
+                Matrix.Translation(-to_translation)
+                @ armature_object.matrix_world
+                @ head_pose_bone.matrix
+            )
+            for e in row
+        ]
+        if len(preview_matrix) == len(self.previous_preview_matrix) and all(
+            abs(a - b) < float_info.epsilon
+            for a, b in zip(preview_matrix, self.previous_preview_matrix)
+        ):
+            return False
+
+        if check_only:
+            return True
+
+        self.previous_preview_matrix = preview_matrix
 
         # TODO: Honor t-pose action
         rest_head_bone_matrix = (
@@ -749,10 +777,6 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
         rest_head_bone_inverted_rotation = (
             rest_head_bone_matrix.to_quaternion().inverted()
         )
-
-        head_parent_pose_bone = head_pose_bone.parent
-        if not head_parent_pose_bone:
-            return
 
         head_bone_without_rotation_matrix = (
             armature_object.matrix_world
@@ -782,7 +806,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
 
         # https://github.com/vrm-c/vrm-specification/blob/0861a66eb2f2b76835322d775678047d616536b3/specification/VRMC_vrm-1.0/lookAt.md?plain=1#L180
         if abs(forward_length) < float_info.epsilon:
-            return
+            return True
 
         yaw_degrees = math.degrees(math.atan2(right_length, forward_length))
         pitch_degrees = math.degrees(
@@ -808,6 +832,8 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
             )
         elif vrm1.look_at.type == vrm1.look_at.TYPE_EXPRESSION.identifier:
             self._apply_expression_preview(vrm1, yaw_degrees, pitch_degrees)
+
+        return True
 
     # https://github.com/vrm-c/vrm-specification/blob/0861a66eb2f2b76835322d775678047d616536b3/specification/VRMC_vrm-1.0/lookAt.md?plain=1#L230
     def _apply_eye_bone_preview(
@@ -968,9 +994,7 @@ class Vrm1LookAtPropertyGroup(PropertyGroup):
         range_map_vertical_up: Vrm1LookAtRangeMapPropertyGroup  # type: ignore[no-redef]
         enable_preview: bool  # type: ignore[no-redef]
         preview_target_bpy_object: Optional[Object]  # type: ignore[no-redef]
-        previous_preview_target_bpy_object_location: (  # type: ignore[no-redef]
-            Sequence[float]
-        )
+        previous_preview_matrix: Sequence[float]  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.firstPerson.meshAnnotation.schema.json
