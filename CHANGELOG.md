@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.2.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.2.3...v4.2.4) (2026-06-14)
+
+
+### 🐛 Bug Fixes
+
+* fix look at preview diff calculation ([d46206e](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d46206e7b21d0fa44b8b4b6e902a33e7bc3de7f6))
+* fixed a bug that sometimes prevented LookAt and MToon from updating automatically ([9633c29](https://github.com/saturday06/VRM-Addon-for-Blender/commit/9633c295068a881fa5c29e7bb3ca439f3b97c2ac))
+* include LookAtPropertyGroup in frame change updates ([07c3066](https://github.com/saturday06/VRM-Addon-for-Blender/commit/07c306685409e9e33dc68d34caf9274a25a8af2b))
+
 ## [4.2.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.2.2...v4.2.3) (2026-06-07)
 
 
