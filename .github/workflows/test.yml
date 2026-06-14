@@ -117,7 +117,7 @@ jobs:
               -Mwarnings \
               -e 'my $pid = fork(); if ($pid == 0) { exec(@ARGV); exit(1); } local $SIG{ALRM} = sub { kill(9, $pid); }; alarm(600); waitpid($pid, 0); exit($?);' \
               -- \
-              sh -xc "brew update && brew install ffmpeg imagemagick"; then
+              sh -exc "brew update && brew install ffmpeg imagemagick"; then
               break
             fi
 
