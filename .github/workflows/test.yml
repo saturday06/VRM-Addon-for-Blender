@@ -144,7 +144,7 @@ jobs:
 
   test-linux:
     name: test-linux / ${{ matrix.blender.job_name_postfix }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     strategy:

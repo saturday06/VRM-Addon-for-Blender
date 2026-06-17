@@ -10,7 +10,7 @@ on:
 
 jobs:
   release-please:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       release_release_created: ${{ steps.release.outputs.release_created }}
       release_sha: ${{ steps.release.outputs.sha }}
@@ -39,7 +39,7 @@ jobs:
         if: ${{ !steps.release.outputs.release_created }}
 
   upload-release-archive:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: release-please
     if: ${{ needs.release-please.result == 'success' && needs.release-please.outputs.release_release_created }}
     environment: extensions-blender-org
