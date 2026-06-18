@@ -11,7 +11,7 @@ on:
 
 jobs:
   benchmark:
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     if: ${{ github.repository_visibility == 'public' }}
