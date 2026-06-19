@@ -1514,6 +1514,7 @@ def copy_node_tree_interface(from_node_tree: NodeTree, to_node_tree: NodeTree) -
             OUTPUT_GROUP_NAME: [
                 OUTPUT_GROUP_RENDER_QUEUE_OFFSET_NUMBER_LABEL,
                 OUTPUT_GROUP_OUTLINE_WIDTH_MODE_LABEL,
+                OUTPUT_GROUP_ALPHA_MODE_LABEL,
             ],
             UV_GROUP_NAME: [
                 UV_GROUP_WRAP_S_LABEL,
