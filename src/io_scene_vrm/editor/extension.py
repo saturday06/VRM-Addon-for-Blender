@@ -30,7 +30,7 @@ from .node_constraint1.property_group import NodeConstraint1NodeConstraintProper
 from .property_group import StringPropertyGroup, property_group_enum
 from .spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
 from .vrm0.property_group import Vrm0PropertyGroup
-from .vrm1.property_group import Vrm1PropertyGroup
+from .vrm1.property_group import Vrm1LookAtPropertyGroup, Vrm1PropertyGroup
 
 if TYPE_CHECKING:
     from .property_group import CollectionPropertyProtocol
@@ -372,7 +372,7 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
         ),
     )
 
-    def _update_spec_version(self, _context: Context) -> None:
+    def _update_spec_version(self, context: Context) -> None:
         for blend_shape_group in self.vrm0.blend_shape_master.blend_shape_groups:
             blend_shape_group.preview = 0
 
@@ -385,6 +385,7 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
             vrm0_hidden = False
         elif self.spec_version == self.SPEC_VERSION_VRM1:
             vrm1_hidden = False
+            Vrm1LookAtPropertyGroup.update_all_previews(context)
 
         for vrm0_collider in (
             collider.bpy_object
