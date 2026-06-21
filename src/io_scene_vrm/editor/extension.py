@@ -376,6 +376,9 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
         for blend_shape_group in self.vrm0.blend_shape_master.blend_shape_groups:
             blend_shape_group.preview = 0
 
+        for expression in self.vrm1.expressions.all_name_to_expression_dict().values():
+            expression.preview = 0
+
         vrm0_hidden = True
         vrm1_hidden = True
         if self.spec_version == self.SPEC_VERSION_VRM0:
