@@ -643,6 +643,7 @@ def save_pre(_unused: object) -> None:
         context, load_post=False
     )
     migration.migrate_all_objects(context, heavy_migration=False)
+    property_group.clear_expression_material_binds(context)
 
 
 def setup_once_when_writable_context_becomes_available(

@@ -28,7 +28,7 @@ from bpy.types import (
 )
 from mathutils import Vector
 
-from ...common import convert
+from ...common import convert, shader
 from ...common.animation import defer_shape_key_update
 from ...common.logger import get_logger
 from ...common.vrm0.human_bone import (
@@ -36,16 +36,26 @@ from ...common.vrm0.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
+from ...common.vrm0.material_property import (
+    MTOON0_PROPERTIES,
+    MaterialPropertyTarget,
+    MaterialPropertyType,
+)
 from ...common.vrm1.expression_preset import (
     VRM0_PRESET_UNKNOWN,
     ExpressionPresets,
 )
-from ..extension_accessor import get_armature_extension
+from ..extension_accessor import get_armature_extension, get_material_extension
+from ..mtoon1.property_group import (
+    Mtoon1MaterialPropertyGroup,
+    Mtoon1TextureInfoPropertyGroup,
+)
 from ..property_group import (
     BonePropertyGroup,
     FloatPropertyGroup,
     HumanoidStructureBonePropertyGroup,
     MeshObjectPropertyGroup,
+    clear_expression_material_binds,
     property_group_enum,
 )
 from ..vrm1.property_group import Vrm1HumanoidPropertyGroup
@@ -573,17 +583,25 @@ class Vrm0BlendShapeBindPropertyGroup(PropertyGroup):
         weight: float  # type: ignore[no-redef]
 
 
+def reset_blend_shape_material_value_binds(context: Context) -> None:
+    clear_expression_material_binds(context)
+    for armature_data in context.blend_data.armatures:
+        Vrm0BlendShapeGroupPropertyGroup.apply_previews(context, armature_data)
+
+
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L9-L16
 class Vrm0MaterialValueBindPropertyGroup(PropertyGroup):
     material: PointerProperty(  # type: ignore[valid-type]
         name="Material",
         type=Material,
+        update=lambda _, context: reset_blend_shape_material_value_binds(context),
     )
 
     # Use StringProperty instead of EnumProperty for property_name.
     # This is necessary to allow arbitrary values to be entered.
     property_name: StringProperty(  # type: ignore[valid-type]
-        name="Property Name"
+        name="Property Name",
+        update=lambda _, context: reset_blend_shape_material_value_binds(context),
     )
 
     target_value: CollectionProperty(  # type: ignore[valid-type]
@@ -700,17 +718,214 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
         cls.pending_preview_update_armature_data_names.clear()
 
     @classmethod
+    def get_texture_info(
+        cls,
+        gltf: Mtoon1MaterialPropertyGroup,
+        target: MaterialPropertyTarget,
+    ) -> Optional[Mtoon1TextureInfoPropertyGroup]:
+        mtoon = gltf.extensions.vrmc_materials_mtoon
+        if target == MaterialPropertyTarget.MAIN_TEX:
+            return gltf.pbr_metallic_roughness.base_color_texture
+        if target == MaterialPropertyTarget.SHADE_TEXTURE:
+            return mtoon.shade_multiply_texture
+        if target == MaterialPropertyTarget.BUMP_MAP:
+            return gltf.normal_texture
+        if target == MaterialPropertyTarget.RIM_TEXTURE:
+            return mtoon.rim_multiply_texture
+        if target == MaterialPropertyTarget.SPHERE_ADD:
+            return mtoon.matcap_texture
+        if target == MaterialPropertyTarget.EMISSION_MAP:
+            return gltf.emissive_texture
+        if target == MaterialPropertyTarget.OUTLINE_WIDTH_TEXTURE:
+            return mtoon.outline_width_multiply_texture
+        if target == MaterialPropertyTarget.UV_ANIM_MASK_TEXTURE:
+            return mtoon.uv_animation_mask_texture
+        return None
+
+    @classmethod
+    def get_material_property_vector(
+        cls, material: Material, material_value: Vrm0MaterialValueBindPropertyGroup
+    ) -> Optional[tuple[Sequence[float], Sequence[float]]]:
+        gltf = get_material_extension(material).mtoon1
+        if not gltf.enabled:
+            return None
+        mtoon = gltf.extensions.vrmc_materials_mtoon
+        target_value = material_value.target_value
+        if not target_value:
+            return None
+        target_vector: list[float] = [t.value for t in target_value]
+        property_name = material_value.property_name
+        if not property_name:
+            return None
+        material_property = MTOON0_PROPERTIES.get(property_name)
+        if not material_property:
+            return None
+        dimension = material_property.dimension
+        if len(target_vector) != dimension:
+            return None
+        target = material_property.target
+        if target is None:
+            return None
+
+        if target == MaterialPropertyTarget.COLOR:
+            return (target_vector, gltf.pbr_metallic_roughness.base_color_factor)
+        if target == MaterialPropertyTarget.SHADE_COLOR:
+            return (target_vector, mtoon.shade_color_factor)
+        if target == MaterialPropertyTarget.RIM_COLOR:
+            return (target_vector, mtoon.parametric_rim_color_factor)
+        if target == MaterialPropertyTarget.EMISSION_COLOR:
+            return (target_vector, gltf.emissive_factor)
+        if target == MaterialPropertyTarget.OUTLINE_COLOR:
+            return (target_vector, mtoon.outline_color_factor)
+
+        texture_info = cls.get_texture_info(gltf, target)
+        if not texture_info:
+            return None
+        khr_texture_transform = texture_info.extensions.khr_texture_transform
+        default_vector = (
+            khr_texture_transform.scale[0],
+            khr_texture_transform.scale[1],
+            khr_texture_transform.offset[0],
+            khr_texture_transform.offset[1],
+        )
+        if material_property.type == MaterialPropertyType.UV_SCALE_TRANSLATION:
+            return (
+                target_vector,
+                default_vector,
+            )
+        if material_property.type == MaterialPropertyType.UV_SCALE:
+            return (
+                (
+                    target_vector[0],
+                    target_vector[1],
+                    default_vector[2],
+                    default_vector[3],
+                ),
+                default_vector,
+            )
+        if material_property.type == MaterialPropertyType.UV_TRANSLATION:
+            return (
+                (
+                    default_vector[0],
+                    default_vector[1],
+                    target_vector[0],
+                    target_vector[1],
+                ),
+                default_vector,
+            )
+        return None
+
+    @classmethod
+    def set_material_property_vector_to_expression(
+        cls,
+        material: Material,
+        target: MaterialPropertyTarget,
+        vector: Vector,
+    ) -> None:
+        mtoon1 = get_material_extension(material).mtoon1
+
+        if target == MaterialPropertyTarget.COLOR:
+            mtoon1.set_vector3(
+                shader.OUTPUT_GROUP_NAME,
+                shader.OUTPUT_GROUP_EXPRESSION_COLOR_BIND_LABEL,
+                vector.xyz,
+            )
+            mtoon1.set_value(
+                shader.OUTPUT_GROUP_NAME,
+                shader.OUTPUT_GROUP_EXPRESSION_COLOR_ALPHA_BIND_LABEL,
+                vector.w,
+            )
+            return
+        if target == MaterialPropertyTarget.SHADE_COLOR:
+            mtoon1.set_vector3(
+                shader.OUTPUT_GROUP_NAME,
+                shader.OUTPUT_GROUP_EXPRESSION_SHADE_COLOR_BIND_LABEL,
+                vector.xyz,
+            )
+            return
+        if target == MaterialPropertyTarget.RIM_COLOR:
+            mtoon1.set_vector3(
+                shader.OUTPUT_GROUP_NAME,
+                shader.OUTPUT_GROUP_EXPRESSION_RIM_COLOR_BIND_LABEL,
+                vector.xyz,
+            )
+            return
+        if target == MaterialPropertyTarget.EMISSION_COLOR:
+            mtoon1.set_vector3(
+                shader.OUTPUT_GROUP_NAME,
+                shader.OUTPUT_GROUP_EXPRESSION_EMISSION_COLOR_BIND_LABEL,
+                vector.xyz,
+            )
+            return
+        if target == MaterialPropertyTarget.OUTLINE_COLOR:
+            mtoon1.set_vector3(
+                shader.OUTPUT_GROUP_NAME,
+                shader.OUTPUT_GROUP_EXPRESSION_OUTLINE_COLOR_BIND_LABEL,
+                vector.xyz,
+            )
+            return
+
+        texture_info = cls.get_texture_info(mtoon1, target)
+        if not texture_info:
+            return
+        khr_texture_transform = texture_info.extensions.khr_texture_transform
+        khr_texture_transform.set_texture_uv(
+            shader.UV_GROUP_EXPRESSION_UV_SCALE_BIND_LABEL,
+            vector.xy,
+        )
+        khr_texture_transform.set_texture_uv(
+            shader.UV_GROUP_EXPRESSION_UV_OFFSET_BIND_LABEL,
+            vector.zw,
+        )
+
+    @classmethod
     def apply_previews(cls, context: Context, armature_data: Armature) -> None:
         mesh_object_name_to_key_block_name_to_value: dict[str, dict[str, float]] = {}
         blend_shape_groups = get_armature_extension(
             armature_data
         ).vrm0.blend_shape_master.blend_shape_groups
+        material_name_to_target_to_vector: dict[
+            str, dict[MaterialPropertyTarget, Vector]
+        ] = {}
         for blend_shape_group in blend_shape_groups:
             if blend_shape_group.is_binary:
                 # https://github.com/vrm-c/UniVRM/blob/38ccb92300c9ab41c72eb3d5b8dc8ce664a659d5/Assets/VRM/Runtime/BlendShape/BlendShapeMerger.cs#L89-L92
                 preview = 0.0 if blend_shape_group.preview < 0.5 else 1.0
             else:
                 preview = blend_shape_group.preview
+
+            for material_value in blend_shape_group.material_values:
+                material = material_value.material
+                if not material:
+                    continue
+                vectors = cls.get_material_property_vector(material, material_value)
+                if not vectors:
+                    continue
+                property_name = material_value.property_name
+                if not property_name:
+                    continue
+                material_property = MTOON0_PROPERTIES.get(property_name)
+                if not material_property:
+                    continue
+                target = material_property.target
+                if not target:
+                    continue
+                target_vector, default_vector = vectors
+                target_to_vector = material_name_to_target_to_vector.get(material.name)
+                if target_to_vector is None:
+                    target_to_vector = {}
+                    material_name_to_target_to_vector[material.name] = target_to_vector
+                current_vector = target_to_vector.get(target)
+                if current_vector is None:
+                    current_vector = (
+                        Vector(target_vector) - Vector(default_vector)
+                    ) * preview
+                else:
+                    current_vector = (
+                        current_vector
+                        + (Vector(target_vector) - Vector(default_vector)) * preview
+                    )
+                target_to_vector[target] = current_vector
 
             for bind in blend_shape_group.binds:
                 mesh_object_name = bind.mesh.mesh_object_name
@@ -727,6 +942,16 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
                 key_block_name_to_value[key_block_name] = (
                     key_block_name_to_value.get(key_block_name, 0) + value
                 )
+
+        for (
+            material_name,
+            target_to_vector,
+        ) in material_name_to_target_to_vector.items():
+            material = context.blend_data.materials.get(material_name)
+            if not material:
+                continue
+            for target, vector in target_to_vector.items():
+                cls.set_material_property_vector_to_expression(material, target, vector)
 
         mesh_data_name_to_key_block_name_to_total_value: dict[
             str, dict[str, float]

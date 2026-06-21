@@ -29,7 +29,7 @@ from bpy.types import (
 )
 from mathutils import Matrix, Quaternion, Vector
 
-from ...common import convert
+from ...common import convert, shader
 from ...common.animation import defer_shape_key_update
 from ...common.char import DISABLE_TRANSLATION
 from ...common.logger import get_logger
@@ -43,12 +43,14 @@ from ...common.vrm1.human_bone import (
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
-from ..extension_accessor import get_armature_extension
+from ..extension_accessor import get_armature_extension, get_material_extension
+from ..mtoon1.property_group import Mtoon1MatcapTextureInfoPropertyGroup
 from ..property_group import (
     HumanoidStructureBonePropertyGroup,
     MaterialPropertyGroup,
     MeshObjectPropertyGroup,
     StringPropertyGroup,
+    clear_expression_material_binds,
     property_group_enum,
 )
 
@@ -1043,6 +1045,12 @@ class Vrm1FirstPersonPropertyGroup(PropertyGroup):
         active_mesh_annotation_index: int  # type: ignore[no-redef]
 
 
+def reset_expression_material_binds(context: Context) -> None:
+    clear_expression_material_binds(context)
+    for armature_data in context.blend_data.armatures:
+        Vrm1ExpressionPropertyGroup.apply_previews(context, armature_data)
+
+
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_vrm-1.0-beta/schema/VRMC_vrm.expressions.expression.morphTargetBind.schema.json
 class Vrm1MorphTargetBindPropertyGroup(PropertyGroup):
     def _update_preview(self, context: Context) -> None:
@@ -1077,9 +1085,20 @@ class Vrm1MaterialColorBindPropertyGroup(PropertyGroup):
     material: PointerProperty(  # type: ignore[valid-type]
         name="Material",
         type=Material,
+        update=lambda _, context: reset_expression_material_binds(context),
     )
 
-    type_enum, __types = property_group_enum(
+    (
+        type_enum,
+        (
+            TYPE_COLOR,
+            TYPE_EMISSION_COLOR,
+            TYPE_SHADE_COLOR,
+            TYPE_MATCAP_COLOR,
+            TYPE_RIM_COLOR,
+            TYPE_OUTLINE_COLOR,
+        ),
+    ) = property_group_enum(
         ("color", "Color", "", "NONE", 0),
         ("emissionColor", "Emission Color", "", "NONE", 1),
         ("shadeColor", "Shade Color", "", "NONE", 2),
@@ -1090,6 +1109,7 @@ class Vrm1MaterialColorBindPropertyGroup(PropertyGroup):
     type: EnumProperty(  # type: ignore[valid-type]
         name="Type",
         items=type_enum.items(),
+        update=lambda _, context: reset_expression_material_binds(context),
     )
     target_value: FloatVectorProperty(  # type: ignore[valid-type]
         name="Target Value",
@@ -1138,6 +1158,7 @@ class Vrm1TextureTransformBindPropertyGroup(PropertyGroup):
     material: PointerProperty(  # type: ignore[valid-type]
         name="Material",
         type=Material,
+        update=lambda _, context: reset_expression_material_binds(context),
     )
     scale: FloatVectorProperty(  # type: ignore[valid-type]
         size=2,
@@ -1247,6 +1268,8 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         look_at_blend_factor = max(0.0, min(1 - look_at_block_rate, 1.0))
 
         mesh_object_name_to_key_block_name_to_value: dict[str, dict[str, float]] = {}
+        material_name_to_color_type_to_vector: dict[str, dict[str, Vector]] = {}
+        material_name_to_uv_transform: dict[str, tuple[float, Vector, Vector]] = {}
         for name, expression in name_to_expression_dict.items():
             if expression.is_binary:
                 # https://github.com/vrm-c/vrm-specification/blob/5b1071b9da1d60bb1bab0b70754615127fc43e9e/specification/VRMC_vrm-1.0/expressions.md?plain=1#L46
@@ -1265,11 +1288,97 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
                 material = texture_transform_bind.material
                 if not material:
                     continue
+                mtoon1 = get_material_extension(material).mtoon1
+                if not mtoon1.enabled:
+                    continue
+                uv_transform: Optional[tuple[float, Vector, Vector]] = (
+                    material_name_to_uv_transform.get(material.name)
+                )
+                if not uv_transform:
+                    uv_transform = (
+                        0,
+                        Vector((0, 0)),
+                        Vector((0, 0)),
+                    )
+                material_name_to_uv_transform[material.name] = (
+                    uv_transform[0] + preview,
+                    uv_transform[1] + Vector(texture_transform_bind.scale) * preview,
+                    uv_transform[2] + Vector(texture_transform_bind.offset) * preview,
+                )
 
             for material_color_bind in expression.material_color_binds:
                 material = material_color_bind.material
                 if not material:
                     continue
+                mtoon1 = get_material_extension(material).mtoon1
+                if not mtoon1.enabled:
+                    continue
+                if (
+                    material_color_bind.type
+                    == Vrm1MaterialColorBindPropertyGroup.TYPE_COLOR.identifier
+                ):
+                    target_vector = Vector(material_color_bind.target_value)
+                    default_vector = Vector(
+                        mtoon1.pbr_metallic_roughness.base_color_factor
+                    )
+                elif (
+                    material_color_bind.type
+                    == Vrm1MaterialColorBindPropertyGroup.TYPE_EMISSION_COLOR.identifier
+                ):
+                    target_vector = Vector(material_color_bind.target_value_as_rgb)
+                    default_vector = Vector(mtoon1.emissive_factor)
+                elif (
+                    material_color_bind.type
+                    == Vrm1MaterialColorBindPropertyGroup.TYPE_SHADE_COLOR.identifier
+                ):
+                    target_vector = Vector(material_color_bind.target_value_as_rgb)
+                    default_vector = Vector(
+                        mtoon1.extensions.vrmc_materials_mtoon.shade_color_factor
+                    )
+                elif (
+                    material_color_bind.type
+                    == Vrm1MaterialColorBindPropertyGroup.TYPE_MATCAP_COLOR.identifier
+                ):
+                    target_vector = Vector(material_color_bind.target_value_as_rgb)
+                    default_vector = Vector(
+                        mtoon1.extensions.vrmc_materials_mtoon.matcap_factor
+                    )
+                elif (
+                    material_color_bind.type
+                    == Vrm1MaterialColorBindPropertyGroup.TYPE_RIM_COLOR.identifier
+                ):
+                    target_vector = Vector(material_color_bind.target_value_as_rgb)
+                    default_vector = Vector(
+                        mtoon1.extensions.vrmc_materials_mtoon.parametric_rim_color_factor
+                    )
+                elif (
+                    material_color_bind.type
+                    == Vrm1MaterialColorBindPropertyGroup.TYPE_OUTLINE_COLOR.identifier
+                ):
+                    target_vector = Vector(material_color_bind.target_value_as_rgb)
+                    default_vector = Vector(
+                        mtoon1.extensions.vrmc_materials_mtoon.outline_color_factor
+                    )
+                else:
+                    continue
+
+                color_type_to_vector = material_name_to_color_type_to_vector.get(
+                    material.name
+                )
+                if not color_type_to_vector:
+                    color_type_to_vector = {}
+                    material_name_to_color_type_to_vector[material.name] = (
+                        color_type_to_vector
+                    )
+
+                current_vector = color_type_to_vector.get(material_color_bind.type)
+                if current_vector is None:
+                    current_vector = (target_vector - default_vector) * preview
+                else:
+                    current_vector = (
+                        current_vector + (target_vector - default_vector) * preview
+                    )
+                color_type_to_vector[material_color_bind.type] = current_vector
 
             for morph_target_bind in expression.morph_target_binds:
                 value = morph_target_bind.weight * preview
@@ -1287,6 +1396,97 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
                 key_block_name_to_value[key_block_name] = (
                     key_block_name_to_value.get(key_block_name, 0) + value
                 )
+
+        for material_name, (
+            total_preview,
+            scale,
+            offset,
+        ) in material_name_to_uv_transform.items():
+            material = context.blend_data.materials.get(material_name)
+            if not material:
+                continue
+            mtoon1 = get_material_extension(material).mtoon1
+            for texture_info in mtoon1.all_texture_info():
+                if isinstance(texture_info, Mtoon1MatcapTextureInfoPropertyGroup):
+                    continue
+                khr_texture_transform = texture_info.extensions.khr_texture_transform
+                khr_texture_transform.set_texture_uv(
+                    shader.UV_GROUP_EXPRESSION_UV_OFFSET_BIND_LABEL,
+                    offset - Vector(khr_texture_transform.offset) * total_preview,
+                )
+                khr_texture_transform.set_texture_uv(
+                    shader.UV_GROUP_EXPRESSION_UV_SCALE_BIND_LABEL,
+                    scale - Vector(khr_texture_transform.scale) * total_preview,
+                )
+
+        for (
+            material_name,
+            color_type_to_vector,
+        ) in material_name_to_color_type_to_vector.items():
+            material = context.blend_data.materials.get(material_name)
+            if not material:
+                continue
+            mtoon1 = get_material_extension(material).mtoon1
+            for material_color_bind_type, vector in color_type_to_vector.items():
+                if (
+                    material_color_bind_type
+                    == Vrm1MaterialColorBindPropertyGroup.TYPE_COLOR.identifier
+                ):
+                    mtoon1.set_vector3(
+                        shader.OUTPUT_GROUP_NAME,
+                        shader.OUTPUT_GROUP_EXPRESSION_COLOR_BIND_LABEL,
+                        vector.xyz,
+                    )
+                    mtoon1.set_value(
+                        shader.OUTPUT_GROUP_NAME,
+                        shader.OUTPUT_GROUP_EXPRESSION_COLOR_ALPHA_BIND_LABEL,
+                        vector.w,
+                    )
+                elif (
+                    material_color_bind_type
+                    == Vrm1MaterialColorBindPropertyGroup.TYPE_EMISSION_COLOR.identifier
+                ):
+                    mtoon1.set_vector3(
+                        shader.OUTPUT_GROUP_NAME,
+                        shader.OUTPUT_GROUP_EXPRESSION_EMISSION_COLOR_BIND_LABEL,
+                        vector.xyz,
+                    )
+                elif (
+                    material_color_bind_type
+                    == Vrm1MaterialColorBindPropertyGroup.TYPE_SHADE_COLOR.identifier
+                ):
+                    mtoon1.set_vector3(
+                        shader.OUTPUT_GROUP_NAME,
+                        shader.OUTPUT_GROUP_EXPRESSION_SHADE_COLOR_BIND_LABEL,
+                        vector.xyz,
+                    )
+                elif (
+                    material_color_bind_type
+                    == Vrm1MaterialColorBindPropertyGroup.TYPE_MATCAP_COLOR.identifier
+                ):
+                    mtoon1.set_vector3(
+                        shader.OUTPUT_GROUP_NAME,
+                        shader.OUTPUT_GROUP_EXPRESSION_MATCAP_COLOR_BIND_LABEL,
+                        vector.xyz,
+                    )
+                elif (
+                    material_color_bind_type
+                    == Vrm1MaterialColorBindPropertyGroup.TYPE_RIM_COLOR.identifier
+                ):
+                    mtoon1.set_vector3(
+                        shader.OUTPUT_GROUP_NAME,
+                        shader.OUTPUT_GROUP_EXPRESSION_RIM_COLOR_BIND_LABEL,
+                        vector.xyz,
+                    )
+                elif (
+                    material_color_bind_type
+                    == Vrm1MaterialColorBindPropertyGroup.TYPE_OUTLINE_COLOR.identifier
+                ):
+                    mtoon1.set_vector3(
+                        shader.OUTPUT_GROUP_NAME,
+                        shader.OUTPUT_GROUP_EXPRESSION_OUTLINE_COLOR_BIND_LABEL,
+                        vector.xyz,
+                    )
 
         mesh_data_name_to_key_block_name_to_total_value: dict[
             str, dict[str, float]

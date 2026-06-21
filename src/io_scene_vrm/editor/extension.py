@@ -20,6 +20,7 @@ from mathutils import Matrix, Quaternion
 
 from ..common.logger import get_logger
 from ..common.preferences import VrmAddonPreferences
+from ..common.vrm0.material_property import GLTF_PROPERTIES, MTOON0_PROPERTIES
 from .extension_accessor import (
     get_armature_extension,
     get_scene_extension,
@@ -27,7 +28,11 @@ from .extension_accessor import (
 from .khr_character.property_group import KhrCharacterPropertyGroup
 from .mtoon1.property_group import Mtoon1MaterialPropertyGroup
 from .node_constraint1.property_group import NodeConstraint1NodeConstraintPropertyGroup
-from .property_group import StringPropertyGroup, property_group_enum
+from .property_group import (
+    StringPropertyGroup,
+    clear_expression_material_binds,
+    property_group_enum,
+)
 from .spring_bone1.property_group import SpringBone1SpringBonePropertyGroup
 from .vrm0.property_group import Vrm0PropertyGroup
 from .vrm1.property_group import Vrm1LookAtPropertyGroup, Vrm1PropertyGroup
@@ -50,76 +55,10 @@ class VrmAddonSceneExtensionPropertyGroup(PropertyGroup):
     @staticmethod
     def update_vrm0_material_property_names(context: Context) -> None:
         # Unity 2022.3.4 + UniVRM 0.112.0
-        gltf_property_names = [
-            "_Color",
-            "_MainTex_ST",
-            "_MainTex_ST_S",
-            "_MainTex_ST_T",
-            "_MetallicGlossMap_ST",
-            "_MetallicGlossMap_ST_S",
-            "_MetallicGlossMap_ST_T",
-            "_BumpMap_ST",
-            "_BumpMap_ST_S",
-            "_BumpMap_ST_T",
-            "_ParallaxMap_ST",
-            "_ParallaxMap_ST_S",
-            "_ParallaxMap_ST_T",
-            "_OcclusionMap_ST",
-            "_OcclusionMap_ST_S",
-            "_OcclusionMap_ST_T",
-            "_EmissionColor",
-            "_EmissionMap_ST",
-            "_EmissionMap_ST_S",
-            "_EmissionMap_ST_T",
-            "_DetailMask_ST",
-            "_DetailMask_ST_S",
-            "_DetailMask_ST_T",
-            "_DetailAlbedoMap_ST",
-            "_DetailAlbedoMap_ST_S",
-            "_DetailAlbedoMap_ST_T",
-            "_DetailNormalMap_ST",
-            "_DetailNormalMap_ST_S",
-            "_DetailNormalMap_ST_T",
-        ]
+        gltf_property_names = list(GLTF_PROPERTIES.keys())
 
         # UniVRM 0.112.0
-        mtoon0_property_names = [
-            "_Color",
-            "_ShadeColor",
-            "_MainTex_ST",
-            "_MainTex_ST_S",
-            "_MainTex_ST_T",
-            "_ShadeTexture_ST",
-            "_ShadeTexture_ST_S",
-            "_ShadeTexture_ST_T",
-            "_BumpMap_ST",
-            "_BumpMap_ST_S",
-            "_BumpMap_ST_T",
-            "_ReceiveShadowTexture_ST",
-            "_ReceiveShadowTexture_ST_S",
-            "_ReceiveShadowTexture_ST_T",
-            "_ShadingGradeTexture_ST",
-            "_ShadingGradeTexture_ST_S",
-            "_ShadingGradeTexture_ST_T",
-            "_RimColor",
-            "_RimTexture_ST",
-            "_RimTexture_ST_S",
-            "_RimTexture_ST_T",
-            "_SphereAdd_ST",
-            "_SphereAdd_ST_S",
-            "_SphereAdd_ST_T",
-            "_EmissionColor",
-            "_EmissionMap_ST",
-            "_EmissionMap_ST_S",
-            "_EmissionMap_ST_T",
-            "_OutlineWidthTexture_ST",
-            "_OutlineWidthTexture_ST_S",
-            "_OutlineWidthTexture_ST_T",
-            "_OutlineColor",
-            "_UvAnimMaskTexture_ST",
-            "_UvAnimMaskTexture_ST_S",
-            "_UvAnimMaskTexture_ST_T",
-        ]
+        mtoon0_property_names = list(MTOON0_PROPERTIES.keys())
 
         for scene in context.blend_data.scenes:
             ext = get_scene_extension(scene)
@@ -373,6 +312,8 @@ class VrmAddonArmatureExtensionPropertyGroup(PropertyGroup):
     )
 
     def _update_spec_version(self, context: Context) -> None:
+        clear_expression_material_binds(context)
+
         for blend_shape_group in self.vrm0.blend_shape_master.blend_shape_groups:
             blend_shape_group.preview = 0
 

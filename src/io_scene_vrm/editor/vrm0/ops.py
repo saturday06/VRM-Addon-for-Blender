@@ -20,6 +20,7 @@ from ..property_group import HumanoidStructureBonePropertyGroup
 from .property_group import (
     Vrm0HumanoidPropertyGroup,
     Vrm0SecondaryAnimationColliderGroupReferencePropertyGroup,
+    reset_blend_shape_material_value_binds,
 )
 
 logger = get_logger(__name__)
@@ -254,6 +255,7 @@ class VRM_OT_remove_vrm0_material_value_bind(Operator):
             blend_shape_group.active_material_value_index,
             max(0, len(blend_shape_group.material_values) - 1),
         )
+        reset_blend_shape_material_value_binds(context)
         return {"FINISHED"}
 
     if TYPE_CHECKING:

@@ -57,6 +57,7 @@ from ..vrm0.property_group import Vrm0HumanoidPropertyGroup
 from .property_group import (
     Vrm1ExpressionPropertyGroup,
     Vrm1HumanBonesPropertyGroup,
+    reset_expression_material_binds,
 )
 
 logger = get_logger(__name__)
@@ -1390,6 +1391,7 @@ class VRM_OT_remove_vrm1_expression_texture_transform_bind(Operator):
             expression.active_texture_transform_bind_index,
             max(0, len(expression.texture_transform_binds) - 1),
         )
+        reset_expression_material_binds(context)
         return {"FINISHED"}
 
     if TYPE_CHECKING:

@@ -523,6 +523,51 @@ class MaterialTraceablePropertyGroup(PropertyGroup):
 
         socket.default_value = (*rgb, 1.0)
 
+    def set_vector3(
+        self,
+        node_group_name: str,
+        group_label: str,
+        value: object,
+        default_value: Optional[tuple[float, float, float]] = None,
+    ) -> None:
+        material = self.find_material()
+
+        outline = self.find_outline_property_group(material)
+        if outline:
+            outline.set_vector3(node_group_name, group_label, value, default_value)
+
+        if not default_value:
+            default_value = (0.0, 0.0, 0.0)
+
+        node_tree = material.node_tree
+        if not node_tree:
+            return
+
+        vector3 = convert.float3_or_none(value) or default_value
+
+        node = next(
+            (
+                node
+                for node in node_tree.nodes
+                if isinstance(node, ShaderNodeGroup)
+                and node.node_tree
+                and node.node_tree.name == node_group_name
+            ),
+            None,
+        )
+        if not node:
+            _logger.warning('No group node "%s"', node_group_name)
+            return
+
+        socket = node.inputs.get(group_label)
+        if not isinstance(socket, shader.VECTOR_SOCKET_CLASSES):
+            _logger.warning(
+                'No "%s" in shader node group "%s"', group_label, node_group_name
+            )
+            return
+
+        socket.default_value = vector3
+
 
 class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
     def get_texture_info_property_group(self) -> "Mtoon1TextureInfoPropertyGroup":
@@ -841,6 +886,10 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
                 socket.default_value = float(value)
             if isinstance(socket, shader.INT_SOCKET_CLASSES):
                 socket.default_value = int(value)
+        elif (vector2 := convert.float2_or_none(value)) is not None and isinstance(
+            socket, shader.VECTOR_SOCKET_CLASSES
+        ):
+            socket.default_value = (*vector2, 0.0)
 
         outline = self.find_outline_property_group(material)
         if not outline:

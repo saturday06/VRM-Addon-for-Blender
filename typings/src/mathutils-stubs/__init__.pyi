@@ -45,6 +45,7 @@ class Vector(Sequence[float]):
     x: float
     y: float
     z: float
+    w: float
 
     def __init__(self, seq: Iterable[int | float]) -> None: ...
     def copy(self) -> Vector: ...
@@ -82,6 +83,12 @@ class Vector(Sequence[float]):
     ) -> float: ...  # The type of fallback is ambiguous in the documentation
     @property
     def magnitude(self) -> float: ...
+    @property
+    def xy(self) -> Vector: ...
+    @property
+    def zw(self) -> Vector: ...
+    @property
+    def xyz(self) -> Vector: ...
 
 class Quaternion:
     x: float

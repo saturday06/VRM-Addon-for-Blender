@@ -18,11 +18,18 @@ import bpy
 from bpy.app.translations import pgettext
 from bpy.props import FloatProperty, PointerProperty, StringProperty
 from bpy.types import Armature, Bone, Context, Material, Object, PropertyGroup, UILayout
+from mathutils import Vector
+
+from io_scene_vrm.common import shader
 
 from ..common.logger import get_logger
 from ..common.vrm0 import human_bone as vrm0_human_bone
 from ..common.vrm1 import human_bone as vrm1_human_bone
-from .extension_accessor import get_armature_extension, get_bone_extension
+from .extension_accessor import (
+    get_armature_extension,
+    get_bone_extension,
+    get_material_extension,
+)
 
 HumanBoneSpecification = TypeVar(
     "HumanBoneSpecification",
@@ -813,6 +820,38 @@ class HumanoidStructureBonePropertyGroup(BonePropertyGroup):
             traversing_human_bone_specifications.extend(
                 traversing_human_bone_specification.children
             )
+
+
+def clear_expression_material_binds(context: Context) -> None:
+    for material in context.blend_data.materials:
+        mtoon1 = get_material_extension(material).mtoon1
+        if not mtoon1.enabled:
+            continue
+        for texture_info in mtoon1.all_texture_info():
+            khr_texture_transform = texture_info.extensions.khr_texture_transform
+            khr_texture_transform.set_texture_uv(
+                shader.UV_GROUP_EXPRESSION_UV_OFFSET_BIND_LABEL,
+                Vector((0, 0)),
+            )
+            khr_texture_transform.set_texture_uv(
+                shader.UV_GROUP_EXPRESSION_UV_SCALE_BIND_LABEL,
+                Vector((0, 0)),
+            )
+
+        mtoon1.set_value(
+            shader.OUTPUT_GROUP_NAME,
+            shader.OUTPUT_GROUP_EXPRESSION_COLOR_ALPHA_BIND_LABEL,
+            0,
+        )
+        for label in (
+            shader.OUTPUT_GROUP_EXPRESSION_COLOR_BIND_LABEL,
+            shader.OUTPUT_GROUP_EXPRESSION_EMISSION_COLOR_BIND_LABEL,
+            shader.OUTPUT_GROUP_EXPRESSION_SHADE_COLOR_BIND_LABEL,
+            shader.OUTPUT_GROUP_EXPRESSION_MATCAP_COLOR_BIND_LABEL,
+            shader.OUTPUT_GROUP_EXPRESSION_RIM_COLOR_BIND_LABEL,
+            shader.OUTPUT_GROUP_EXPRESSION_OUTLINE_COLOR_BIND_LABEL,
+        ):
+            mtoon1.set_vector3(shader.OUTPUT_GROUP_NAME, label, Vector((0, 0, 0)))
 
 
 T_co = TypeVar("T_co", covariant=True)
