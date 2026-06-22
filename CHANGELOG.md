@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.3.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.2.4...v4.3.0) (2026-06-22)
+
+
+### 🚀 Features
+
+* bone mapping detection for Character Creator ([fc7c750](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fc7c75016ee70bb342c84b2bba0f2e212db7656d))
+* support expression/blendshape material bind preview ([93edbb2](https://github.com/saturday06/VRM-Addon-for-Blender/commit/93edbb2976a5e20b54fec182c34d6dde0943e253))
+
 ## [4.2.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.2.3...v4.2.4) (2026-06-14)
 
 
