@@ -20,8 +20,7 @@ from bpy.props import FloatProperty, PointerProperty, StringProperty
 from bpy.types import Armature, Bone, Context, Material, Object, PropertyGroup, UILayout
 from mathutils import Vector
 
-from io_scene_vrm.common import shader
-
+from ..common import shader
 from ..common.logger import get_logger
 from ..common.vrm0 import human_bone as vrm0_human_bone
 from ..common.vrm1 import human_bone as vrm1_human_bone
