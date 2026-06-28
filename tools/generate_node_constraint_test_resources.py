@@ -201,6 +201,7 @@ def generate_constraint_vrm(
         Path(__file__).parent.parent
         / "tests"
         / "resources"
+        / "template"
         / "node_constraint"
         / "hips_spine_twisting.vrma"
     )
@@ -289,6 +290,7 @@ def main() -> int:
                 Path(__file__).parent.parent
                 / "tests"
                 / "resources"
+                / "template"
                 / "node_constraint"
                 / "node_constraint_template.blend"
             )
