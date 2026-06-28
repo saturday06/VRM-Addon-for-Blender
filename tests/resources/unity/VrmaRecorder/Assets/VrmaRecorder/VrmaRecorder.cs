@@ -282,15 +282,6 @@ namespace VrmaRecorder
             Camera rightCamera
         )
         {
-            Debug.LogFormat("StartRecording: {0} {1}",
-#if UNITY_EDITOR
-                Path.GetRelativePath(Application.dataPath, inputVrmPath),
-                Path.GetRelativePath(Application.dataPath, inputVrmaPath)
-#else
-                inputVrmPath, inputVrmaPath
-#endif
-            );
-
             // SpringBoneはデフォルトではTime.deltaTimeを使って動く。
             // VRMのロードはとても重く1フレームの周期に収まらないこともあるため
             // そのままだとSpringBoneの最初のフレームの動きが非決定的になる。
@@ -322,6 +313,7 @@ namespace VrmaRecorder
                 using var vrmaImporter = new VrmAnimationImporter(vrmaData);
                 vrmaGltfInstance = await vrmaImporter.LoadAsync(new ImmediateCaller());
             }
+            var clipLength = vrmaGltfInstance.AnimationClips.Select(clip => clip.length).Max();
 
             foreach (var visibleRenderer in vrmaGltfInstance.VisibleRenderers)
             {
@@ -342,6 +334,17 @@ namespace VrmaRecorder
                 Resolution,
                 24,
                 RenderTextureFormat.ARGB32
+            );
+
+            Debug.LogFormat("StartRecording: vrm={0} vrma={1} duration={2}seconds",
+#if UNITY_EDITOR
+                Path.GetRelativePath(Application.dataPath, inputVrmPath),
+                Path.GetRelativePath(Application.dataPath, inputVrmaPath),
+#else
+                inputVrmPath,
+                inputVrmaPath,
+#endif
+                clipLength
             );
 
             await Awaitable.NextFrameAsync();
