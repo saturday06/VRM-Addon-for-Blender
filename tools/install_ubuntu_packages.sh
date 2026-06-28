@@ -14,6 +14,7 @@ install_ubuntu_packages() (
     gnupg \
     imagemagick \
     less \
+    libegl1 \
     libsm6 \
     lsb-release \
     moreutils \
