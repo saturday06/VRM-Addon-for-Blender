@@ -309,10 +309,26 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
             {"FINISHED"},
         )
 
+        current_armature_object = current_armature(context)
+        if not current_armature_object:
+            message = "No armature object found"
+            raise AssertionError(message)
+        armature_data = current_armature_object.data
+        if not isinstance(armature_data, Armature):
+            message = "Armature data is not of type bpy.types.Armature"
+            raise TypeError(message)
+        ext = get_armature_extension(armature_data)
+        is_vrm0 = ext.is_vrm0()
+        if is_vrm0:
+            ext.spec_version = ext.SPEC_VERSION_VRM1
+
         self.assertEqual(
             ops.import_scene.vrma(filepath=str(input_vrma_path)),
             {"FINISHED"},
         )
+
+        if is_vrm0:
+            ext.spec_version = ext.SPEC_VERSION_VRM0
 
         debug_blend_path = DEFAULT_TEMP_PATH / (
             input_vrm_path.stem
@@ -365,6 +381,15 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
             {"FINISHED"},
         )
 
+        armature_data = current_armature_object.data
+        if not isinstance(armature_data, Armature):
+            message = "Armature data is not of type bpy.types.Armature"
+            raise TypeError(message)
+        ext = get_armature_extension(armature_data)
+        is_vrm0 = ext.is_vrm0()
+        if is_vrm0:
+            ext.spec_version = ext.SPEC_VERSION_VRM1
+
         vrma_path = input_blend_path.with_suffix(".vrma")
         self.assertEqual(
             ops.export_scene.vrma(
@@ -372,6 +397,9 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
             ),
             {"FINISHED"},
         )
+
+        if is_vrm0:
+            ext.spec_version = ext.SPEC_VERSION_VRM0
 
         if lossless:
             self.assert_rendering(
