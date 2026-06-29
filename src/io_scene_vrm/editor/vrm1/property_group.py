@@ -1116,7 +1116,7 @@ class Vrm1MaterialColorBindPropertyGroup(PropertyGroup):
         size=4,
         subtype="COLOR",
         min=0,
-        max=1,  # TODO: hdr emission color?
+        soft_max=1,
     )
 
     def _get_target_value_as_rgb(self) -> tuple[float, float, float]:
