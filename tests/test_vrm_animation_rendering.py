@@ -69,7 +69,7 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
         scene = context.scene
 
         for obj in scene.collection.objects:
-            if obj.type in ("CAMERA", "LIGHT"):
+            if obj.type in {"CAMERA", "LIGHT"}:
                 obj.hide_render = True
                 obj.hide_viewport = True
 
