@@ -137,9 +137,9 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
         light_object = context.blend_data.objects.new(
             name="Light" + cls.OBJECT_SUFFIX, object_data=light_data
         )
-        light_object.location = Vector((0, -8, 0))
+        light_object.location = Vector((0, -4, 4))
         light_object.rotation_mode = "XYZ"
-        light_object.rotation_euler = Euler((math.pi / 2, 0, 0))
+        light_object.rotation_euler = Euler((math.pi / 4, 0, 0))
 
         scene.collection.objects.link(light_object)
 
