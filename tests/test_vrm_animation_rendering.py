@@ -180,7 +180,7 @@ class __TestVrmAnimationRenderingBase(AddonTestCase):
             self.generate_unity_screenshots(render_folder_path, vrm_path, vrma_path)
 
         render_blend_path = render_folder_path.with_name(
-            render_folder_path.stem + f"{RENDER_SUFFIX}{suffix}.blend"
+            render_folder_path.name + f"{RENDER_SUFFIX}{suffix}.blend"
         )
         bpy.ops.wm.save_as_mainfile(filepath=str(render_blend_path))
         scene = context.scene
