@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.3.0...v4.3.1) (2026-07-01)
+
+
+### 🐛 Bug Fixes
+
+* some development code has been removed to meet the platform requirements ([e345704](https://github.com/saturday06/VRM-Addon-for-Blender/commit/e3457044f1a11624e735fbcf0a1300b4a5db817c))
+
 ## [4.3.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.2.4...v4.3.0) (2026-06-22)
 
 
