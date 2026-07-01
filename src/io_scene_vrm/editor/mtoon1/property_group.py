@@ -900,6 +900,92 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
 
 class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
+    def _call_overridden_get_texture_offset(self) -> tuple[float, float]:
+        return self._get_texture_offset()
+
+    def _get_texture_offset(self) -> tuple[float, float]:
+        return (0, 0)
+
+    def _call_overridden_set_texture_offset(self, value: object) -> None:
+        self._set_texture_offset(value)
+
+    def _set_texture_offset(self, value: object) -> None:
+        _ = value
+
+    def _call_overridden_get_texture_scale(self) -> tuple[float, float]:
+        return self._get_texture_scale()
+
+    def _get_texture_scale(self) -> tuple[float, float]:
+        return 1, 1
+
+    def _call_overridden_set_texture_scale(self, value: object) -> None:
+        self._set_texture_scale(value)
+
+    def _set_texture_scale(self, value: object) -> None:
+        _ = value
+
+    offset: FloatVectorProperty(  # type: ignore[valid-type]
+        name="Offset",
+        size=2,
+        default=(
+            shader.UV_GROUP_UV_OFFSET_X_DEFAULT,
+            shader.UV_GROUP_UV_OFFSET_Y_DEFAULT,
+        ),
+        get=_call_overridden_get_texture_offset,
+        set=_call_overridden_set_texture_offset,
+    )
+
+    scale: FloatVectorProperty(  # type: ignore[valid-type]
+        name="Scale",
+        size=2,
+        default=(
+            shader.UV_GROUP_UV_SCALE_X_DEFAULT,
+            shader.UV_GROUP_UV_SCALE_Y_DEFAULT,
+        ),
+        get=_call_overridden_get_texture_scale,
+        set=_call_overridden_set_texture_scale,
+    )
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        offset: Sequence[float]  # type: ignore[no-redef]
+        scale: Sequence[float]  # type: ignore[no-redef]
+
+
+class Mtoon1NonBaseColorKhrTextureTransformPropertyGroup(
+    Mtoon1KhrTextureTransformPropertyGroup
+):
+    def _get_texture_offset(self) -> tuple[float, float]:
+        ext = get_material_extension(self.find_material())
+        base_color_texture = ext.mtoon1.pbr_metallic_roughness.base_color_texture
+        offset = base_color_texture.extensions.khr_texture_transform.offset
+        return (offset[0], offset[1])
+
+    def _set_texture_offset(self, value: object) -> None:
+        _ = value
+        # https://github.com/vrm-c/UniVRM/blob/v0.131.1/Packages/VRM10/Runtime/IO/Material/BuiltInRP/Export/Materials/BuiltInVrm10MToonMaterialExporter.cs#L166-L177
+        _logger.warning(
+            "Setting texture offset is not supported for non-base color textures"
+        )
+
+    def _get_texture_scale(self) -> tuple[float, float]:
+        ext = get_material_extension(self.find_material())
+        base_color_texture = ext.mtoon1.pbr_metallic_roughness.base_color_texture
+        scale = base_color_texture.extensions.khr_texture_transform.scale
+        return (scale[0], scale[1])
+
+    def _set_texture_scale(self, value: object) -> None:
+        _ = value
+        # https://github.com/vrm-c/UniVRM/blob/v0.131.1/Packages/VRM10/Runtime/IO/Material/BuiltInRP/Export/Materials/BuiltInVrm10MToonMaterialExporter.cs#L166-L177
+        _logger.warning(
+            "Setting texture scale is not supported for non-base color textures"
+        )
+
+
+class Mtoon1BaseColorKhrTextureTransformPropertyGroup(
+    Mtoon1KhrTextureTransformPropertyGroup
+):
     def _get_texture_offset(self) -> tuple[float, float]:
         x = self.get_texture_uv_float(
             shader.UV_GROUP_UV_OFFSET_X_LABEL,
@@ -915,26 +1001,44 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
         offset = convert.float2_or_none(value)
         if offset is None:
             return
-
-        self.set_texture_uv(shader.UV_GROUP_UV_OFFSET_X_LABEL, offset[0])
-        self.set_texture_uv(shader.UV_GROUP_UV_OFFSET_Y_LABEL, offset[1])
-
-        node_name = self.get_image_texture_node_name()
         material = self.find_material()
-        if not material.node_tree:
+        node_tree = material.node_tree
+        if not node_tree:
             return
-        node = material.node_tree.nodes.get(node_name)
-        if not isinstance(node, ShaderNodeTexImage):
-            _logger.warning('No shader node tex image "%s"', node_name)
-            return
-        node.texture_mapping.translation = Vector((0, 0, 0))
 
-        outline = self.find_outline_property_group(material)
-        if not outline:
-            return
-        if not isinstance(outline, Mtoon1KhrTextureTransformPropertyGroup):
-            return
-        outline.offset = offset
+        ext = get_material_extension(material)
+        for texture_info, offset in [
+            *[
+                (texture_info, offset)
+                for texture_info in ext.mtoon1.uv_transformable_texture_info()
+            ],
+            *[
+                (texture_info, (0, 0))
+                for texture_info in ext.mtoon1.non_uv_transformable_texture_info()
+            ],
+        ]:
+            khr_texture_transform = texture_info.extensions.khr_texture_transform
+
+            khr_texture_transform.set_texture_uv(
+                shader.UV_GROUP_UV_OFFSET_X_LABEL, offset[0]
+            )
+            khr_texture_transform.set_texture_uv(
+                shader.UV_GROUP_UV_OFFSET_Y_LABEL, offset[1]
+            )
+
+            node_name = khr_texture_transform.get_image_texture_node_name()
+            node = node_tree.nodes.get(node_name)
+            if not isinstance(node, ShaderNodeTexImage):
+                _logger.warning('No shader node tex image "%s"', node_name)
+                continue
+            node.texture_mapping.translation = Vector((0, 0, 0))
+
+            outline = khr_texture_transform.find_outline_property_group(material)
+            if not outline:
+                continue
+            if not isinstance(outline, Mtoon1KhrTextureTransformPropertyGroup):
+                continue
+            outline.offset = offset
 
     def _get_texture_scale(self) -> tuple[float, float]:
         x = self.get_texture_uv_float(
@@ -951,152 +1055,90 @@ class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
         scale = convert.float2_or_none(value)
         if scale is None:
             return
-
-        self.set_texture_uv(shader.UV_GROUP_UV_SCALE_X_LABEL, scale[0])
-        self.set_texture_uv(shader.UV_GROUP_UV_SCALE_Y_LABEL, scale[1])
-
-        node_name = self.get_image_texture_node_name()
         material = self.find_material()
-        if not material.node_tree:
+        node_tree = material.node_tree
+        if not node_tree:
             return
-        node = material.node_tree.nodes.get(node_name)
-        if not isinstance(node, ShaderNodeTexImage):
-            _logger.warning('No shader node tex image "%s"', node_name)
-            return
-        node.texture_mapping.scale = Vector((1, 1, 1))
 
-        outline = self.find_outline_property_group(material)
-        if not outline:
-            return
-        if not isinstance(outline, Mtoon1KhrTextureTransformPropertyGroup):
-            return
-        outline.scale = scale
+        ext = get_material_extension(material)
+        for texture_info, scale in [
+            *[
+                (texture_info, scale)
+                for texture_info in ext.mtoon1.uv_transformable_texture_info()
+            ],
+            *[
+                (texture_info, (1, 1))
+                for texture_info in ext.mtoon1.non_uv_transformable_texture_info()
+            ],
+        ]:
+            khr_texture_transform = texture_info.extensions.khr_texture_transform
 
-    offset: FloatVectorProperty(  # type: ignore[valid-type]
-        name="Offset",
-        size=2,
-        default=(
-            shader.UV_GROUP_UV_OFFSET_X_DEFAULT,
-            shader.UV_GROUP_UV_OFFSET_Y_DEFAULT,
-        ),
-        get=_get_texture_offset,
-        set=_set_texture_offset,
-    )
+            khr_texture_transform.set_texture_uv(
+                shader.UV_GROUP_UV_SCALE_X_LABEL, scale[0]
+            )
+            khr_texture_transform.set_texture_uv(
+                shader.UV_GROUP_UV_SCALE_Y_LABEL, scale[1]
+            )
 
-    scale: FloatVectorProperty(  # type: ignore[valid-type]
-        name="Scale",
-        size=2,
-        default=(
-            shader.UV_GROUP_UV_SCALE_X_DEFAULT,
-            shader.UV_GROUP_UV_SCALE_Y_DEFAULT,
-        ),
-        get=_get_texture_scale,
-        set=_set_texture_scale,
-    )
+            node_name = khr_texture_transform.get_image_texture_node_name()
+            node = node_tree.nodes.get(node_name)
+            if not isinstance(node, ShaderNodeTexImage):
+                _logger.warning('No shader node tex image "%s"', node_name)
+                continue
+            node.texture_mapping.scale = Vector((1, 1, 1))
 
-    if TYPE_CHECKING:
-        # This code is auto generated.
-        # To regenerate, run the `uv run tools/property_typing.py` command.
-        offset: Sequence[float]  # type: ignore[no-redef]
-        scale: Sequence[float]  # type: ignore[no-redef]
-
-
-class Mtoon1BaseColorKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup
-):
-    pass
+            outline = khr_texture_transform.find_outline_property_group(material)
+            if not outline:
+                continue
+            if not isinstance(outline, Mtoon1KhrTextureTransformPropertyGroup):
+                continue
+            outline.scale = scale
 
 
 class Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup
+    Mtoon1NonBaseColorKhrTextureTransformPropertyGroup
 ):
     pass
 
 
 class Mtoon1NormalKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup
+    Mtoon1NonBaseColorKhrTextureTransformPropertyGroup
 ):
     pass
 
 
 class Mtoon1ShadingShiftKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup
+    Mtoon1NonBaseColorKhrTextureTransformPropertyGroup
 ):
     pass
 
 
 class Mtoon1EmissiveKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup
+    Mtoon1NonBaseColorKhrTextureTransformPropertyGroup
 ):
     pass
 
 
 class Mtoon1RimMultiplyKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup
+    Mtoon1NonBaseColorKhrTextureTransformPropertyGroup
 ):
     pass
 
 
 class Mtoon1MatcapKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup
+    Mtoon1NonBaseColorKhrTextureTransformPropertyGroup
 ):
     pass
 
 
 class Mtoon1OutlineWidthMultiplyKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup
+    Mtoon1NonBaseColorKhrTextureTransformPropertyGroup
 ):
-    def _set_texture_offset_and_outline(self, value: object) -> None:
-        offset = convert.float2_or_none(value)
-        if offset is None:
-            return
-        material = self.find_material()
-        if get_material_extension(material).mtoon1.is_outline_material:
-            return
-        self._set_texture_offset(offset)
-        refresh_mtoon1_outline(material_name=material.name, create_modifier=False)
-
-    def _set_texture_scale_and_outline(self, value: object) -> None:
-        scale = convert.float2_or_none(value)
-        if scale is None:
-            return
-        material = self.find_material()
-        if get_material_extension(material).mtoon1.is_outline_material:
-            return
-        self._set_texture_scale(scale)
-        refresh_mtoon1_outline(material_name=material.name, create_modifier=False)
-
-    offset: FloatVectorProperty(  # type: ignore[valid-type]
-        name="Offset",
-        size=2,
-        default=(
-            shader.UV_GROUP_UV_OFFSET_X_DEFAULT,
-            shader.UV_GROUP_UV_OFFSET_Y_DEFAULT,
-        ),
-        get=Mtoon1KhrTextureTransformPropertyGroup._get_texture_offset,
-        set=_set_texture_offset_and_outline,
-    )
-
-    scale: FloatVectorProperty(  # type: ignore[valid-type]
-        name="Scale",
-        size=2,
-        default=(
-            shader.UV_GROUP_UV_SCALE_X_DEFAULT,
-            shader.UV_GROUP_UV_SCALE_Y_DEFAULT,
-        ),
-        get=Mtoon1KhrTextureTransformPropertyGroup._get_texture_scale,
-        set=_set_texture_scale_and_outline,
-    )
-
-    if TYPE_CHECKING:
-        # This code is auto generated.
-        # To regenerate, run the `uv run tools/property_typing.py` command.
-        offset: Sequence[float]  # type: ignore[no-redef]
-        scale: Sequence[float]  # type: ignore[no-redef]
+    pass
 
 
 class Mtoon1UvAnimationMaskKhrTextureTransformPropertyGroup(
-    Mtoon1KhrTextureTransformPropertyGroup
+    Mtoon1NonBaseColorKhrTextureTransformPropertyGroup
 ):
     pass
 
@@ -3485,18 +3527,28 @@ class Mtoon1MaterialPropertyGroup(MaterialTraceablePropertyGroup):
         type=Material,
     )
 
-    def all_texture_info(self) -> list[Mtoon1TextureInfoPropertyGroup]:
+    def uv_transformable_texture_info(self) -> list[Mtoon1TextureInfoPropertyGroup]:
         return [
             self.pbr_metallic_roughness.base_color_texture,
             self.normal_texture,
             self.emissive_texture,
             self.extensions.vrmc_materials_mtoon.shade_multiply_texture,
             self.extensions.vrmc_materials_mtoon.shading_shift_texture,
-            self.extensions.vrmc_materials_mtoon.matcap_texture,
             self.extensions.vrmc_materials_mtoon.rim_multiply_texture,
-            self.extensions.vrmc_materials_mtoon.outline_width_multiply_texture,
             self.extensions.vrmc_materials_mtoon.uv_animation_mask_texture,
         ]
+
+    def non_uv_transformable_texture_info(self) -> list[Mtoon1TextureInfoPropertyGroup]:
+        return [
+            self.extensions.vrmc_materials_mtoon.matcap_texture,
+            self.extensions.vrmc_materials_mtoon.outline_width_multiply_texture,
+        ]
+
+    def all_texture_info(self) -> list[Mtoon1TextureInfoPropertyGroup]:
+        return (
+            self.uv_transformable_texture_info()
+            + self.non_uv_transformable_texture_info()
+        )
 
     def all_textures(
         self, *, downgrade_to_mtoon0: bool

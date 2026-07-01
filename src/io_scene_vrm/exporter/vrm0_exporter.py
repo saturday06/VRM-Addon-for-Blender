@@ -1005,7 +1005,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         ):
             vector_properties["_MainTex"] = [
                 khr_texture_transform.offset[0],
-                khr_texture_transform.offset[1],
+                # https://github.com/vrm-c/UniVRM/issues/930
+                1 - khr_texture_transform.offset[1] - khr_texture_transform.scale[1],
                 khr_texture_transform.scale[0],
                 khr_texture_transform.scale[1],
             ]

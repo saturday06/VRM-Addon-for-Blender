@@ -7,7 +7,6 @@ from bpy.types import Context, Panel, PropertyGroup, UILayout
 
 from ...common.logger import get_logger
 from ...common.shader import LegacyAddonMaterial, MmdMaterial
-from .. import search
 from ..extension_accessor import get_material_extension
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
 from .ops import (
@@ -30,8 +29,6 @@ def _draw_texture_info(
     base_property_group: PropertyGroup,
     texture_info_attr_name: str,
     color_factor_attr_name: Optional[str] = None,
-    *,
-    is_vrm0: bool,
 ) -> UILayout:
     texture_info = getattr(base_property_group, texture_info_attr_name, None)
     if not isinstance(texture_info, Mtoon1TextureInfoPropertyGroup):
@@ -111,21 +108,21 @@ def _draw_texture_info(
     box.prop(texture_info.index.sampler, "min_filter")
     box.prop(texture_info.index.sampler, "wrap_s")
     box.prop(texture_info.index.sampler, "wrap_t")
-    box.prop(texture_info.extensions.khr_texture_transform, "offset")
-    box.prop(texture_info.extensions.khr_texture_transform, "scale")
 
-    if is_vrm0:
-        if ext.extensions.vrmc_materials_mtoon.matcap_texture == texture_info:
-            box.box().label(
-                text="Offset and Scale are ignored in VRM 0.0.", icon="ERROR"
-            )
-        elif ext.pbr_metallic_roughness.base_color_texture != texture_info:
-            box.box().label(
-                text="Offset and Scale in VRM 0.0 are"
-                + " the values of the Lit Color Texture.",
-                icon="ERROR",
-            )
-
+    if ext.pbr_metallic_roughness.base_color_texture == texture_info:
+        box.prop(texture_info.extensions.khr_texture_transform, "offset")
+        box.prop(texture_info.extensions.khr_texture_transform, "scale")
+    if texture_info in {
+        ext.extensions.vrmc_materials_mtoon.matcap_texture,
+        ext.extensions.vrmc_materials_mtoon.outline_width_multiply_texture,
+    }:
+        pass
+    else:
+        box.box().label(
+            text="Offset and Scale in VRM 0.0 are"
+            + " the values of the Lit Color Texture.",
+            icon="INFO",
+        )
     return input_layout
 
 
@@ -201,7 +198,6 @@ def _draw_mtoon1_material(context: Context, layout: UILayout) -> None:
     if not ext.mtoon1.enabled:
         return
 
-    is_vrm0 = search.current_armature_is_vrm0(context)
     gltf = ext.mtoon1
     mtoon = gltf.extensions.vrmc_materials_mtoon
 
@@ -225,7 +221,6 @@ def _draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         gltf.pbr_metallic_roughness,
         "base_color_texture",
         "base_color_factor",
-        is_vrm0=is_vrm0,
     )
     _draw_texture_info(
         material.name,
@@ -234,7 +229,6 @@ def _draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         mtoon,
         "shade_multiply_texture",
         "shade_color_factor",
-        is_vrm0=is_vrm0,
     )
     normal_texture_layout = _draw_texture_info(
         material.name,
@@ -242,7 +236,6 @@ def _draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         lighting_box,
         gltf,
         "normal_texture",
-        is_vrm0=is_vrm0,
     )
     normal_texture_layout.separator(factor=0.5)
     normal_texture_layout.prop(gltf.normal_texture, "scale")
@@ -255,7 +248,6 @@ def _draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         lighting_box,
         mtoon,
         "shading_shift_texture",
-        is_vrm0=is_vrm0,
     )
     shading_shift_texture_layout.separator(factor=0.5)
     shading_shift_texture_layout.prop(mtoon.shading_shift_texture, "scale")
@@ -282,7 +274,6 @@ def _draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         emission_box,
         gltf,
         "emissive_texture",
-        is_vrm0=is_vrm0,
     ).row(align=True)
     emissive_texture_layout.scale_x = 0.71
     emissive_texture_layout.separator(factor=0.5 / 0.71)
@@ -299,7 +290,6 @@ def _draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         rim_lighting_box,
         mtoon,
         "rim_multiply_texture",
-        is_vrm0=is_vrm0,
     )
     rim_lighting_box.prop(mtoon, "rim_lighting_mix_factor", slider=True)
     _draw_texture_info(
@@ -309,7 +299,6 @@ def _draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         mtoon,
         "matcap_texture",
         "matcap_factor",
-        is_vrm0=is_vrm0,
     )
     rim_lighting_box.row().prop(mtoon, "parametric_rim_color_factor")
     rim_lighting_box.prop(mtoon, "parametric_rim_fresnel_power_factor", slider=True)
@@ -343,7 +332,6 @@ def _draw_mtoon1_material(context: Context, layout: UILayout) -> None:
             outline_box,
             mtoon,
             "outline_width_multiply_texture",
-            is_vrm0=is_vrm0,
         )
         outline_width_multiply_texture_layout.separator(factor=0.5)
         outline_width_multiply_texture_layout.prop(
@@ -361,7 +349,6 @@ def _draw_mtoon1_material(context: Context, layout: UILayout) -> None:
         uv_animation_box,
         mtoon,
         "uv_animation_mask_texture",
-        is_vrm0=is_vrm0,
     )
     uv_animation_box.prop(mtoon, "uv_animation_scroll_x_speed_factor")
     uv_animation_box.prop(mtoon, "uv_animation_scroll_y_speed_factor")

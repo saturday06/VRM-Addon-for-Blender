@@ -782,38 +782,48 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
         if not texture_info:
             return None
         khr_texture_transform = texture_info.extensions.khr_texture_transform
-        default_vector = (
-            khr_texture_transform.scale[0],
-            khr_texture_transform.scale[1],
-            khr_texture_transform.offset[0],
-            khr_texture_transform.offset[1],
-        )
+        khr_scale_u = khr_texture_transform.scale[0]
+        khr_scale_v = khr_texture_transform.scale[1]
+        khr_offset_u = khr_texture_transform.offset[0]
+        khr_offset_v = khr_texture_transform.offset[1]
         if material_property.type == MaterialPropertyType.UV_SCALE_TRANSLATION:
-            return (
-                target_vector,
-                default_vector,
-            )
-        if material_property.type == MaterialPropertyType.UV_SCALE:
-            return (
-                (
-                    target_vector[0],
-                    target_vector[1],
-                    default_vector[2],
-                    default_vector[3],
-                ),
-                default_vector,
-            )
-        if material_property.type == MaterialPropertyType.UV_TRANSLATION:
-            return (
-                (
-                    default_vector[0],
-                    default_vector[1],
-                    target_vector[0],
-                    target_vector[1],
-                ),
-                default_vector,
-            )
-        return None
+            unity_scale_u, unity_scale_v, unity_offset_u, unity_offset_v = target_vector
+            target_vector = [
+                unity_scale_u,
+                unity_scale_v,
+                unity_offset_u,
+                # https://github.com/vrm-c/UniVRM/issues/930
+                1 - unity_offset_v - unity_scale_v,
+            ]
+        elif material_property.type == MaterialPropertyType.UV_SCALE:
+            unity_scale_u, unity_scale_v = target_vector
+            target_vector = [
+                unity_scale_u,
+                unity_scale_v,
+                khr_offset_u,
+                khr_offset_v,  # No need to change offset
+            ]
+        elif material_property.type == MaterialPropertyType.UV_TRANSLATION:
+            unity_offset_u, unity_offset_v = target_vector
+            target_vector = [
+                khr_scale_u,
+                khr_scale_v,
+                unity_offset_u,
+                # https://github.com/vrm-c/UniVRM/issues/930
+                1 - unity_offset_v - khr_scale_v,
+            ]
+        else:
+            return None
+
+        return (
+            target_vector,
+            (
+                khr_scale_u,
+                khr_scale_v,
+                khr_offset_u,
+                khr_offset_v,
+            ),
+        )
 
     @classmethod
     def set_material_property_vector_to_expression(
