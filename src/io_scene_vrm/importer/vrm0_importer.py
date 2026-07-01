@@ -7,6 +7,7 @@ import math
 import uuid
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from sys import float_info
 from typing import Optional, Union
 
 from bpy.types import (
@@ -391,16 +392,34 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 base_color_factor
             )
 
-        raw_uv_transform = material_property.vector_properties.get("_MainTex")
-        if raw_uv_transform is None or len(raw_uv_transform) != 4:
-            uv_transform = (0.0, 0.0, 1.0, 1.0)
+        (
+            texture_offset_u,
+            raw_texture_offset_v,
+            raw_texture_scale_u,
+            raw_texture_scale_v,
+        ) = convert.float4_or(
+            material_property.vector_properties.get("_MainTex"), (0.0, 0.0, 1.0, 1.0)
+        )
+
+        if abs(raw_texture_scale_u) < float_info.epsilon:
+            texture_scale_u = 1.0
         else:
-            uv_transform = (
-                raw_uv_transform[0],
-                raw_uv_transform[1],
-                raw_uv_transform[2],
-                raw_uv_transform[3],
-            )
+            texture_scale_u = raw_texture_scale_u
+
+        if abs(raw_texture_scale_v) < float_info.epsilon:
+            texture_scale_v = 1.0
+        else:
+            texture_scale_v = raw_texture_scale_v
+
+        # https://github.com/vrm-c/UniVRM/issues/930
+        texture_offset_v = 1 - raw_texture_offset_v - texture_scale_v
+
+        uv_transform = (
+            texture_offset_u,
+            texture_offset_v,
+            texture_scale_u,
+            texture_scale_v,
+        )
 
         self.assign_mtoon0_texture_info(
             gltf.pbr_metallic_roughness.base_color_texture,
@@ -659,12 +678,28 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                     if isinstance(image_index, int):
                         main_texture_image = self._images.get(image_index)
 
-        (texture_offset_u, texture_offset_v, texture_scale_u, texture_scale_v) = (
-            convert.float4_or(
-                material_property.vector_properties.get("_MainTex"),
-                (0.0, 0.0, 1.0, 1.0),
-            )
+        (
+            texture_offset_u,
+            raw_texture_offset_v,
+            raw_texture_scale_u,
+            raw_texture_scale_v,
+        ) = convert.float4_or(
+            material_property.vector_properties.get("_MainTex"), (0.0, 0.0, 1.0, 1.0)
         )
+
+        if abs(raw_texture_scale_u) < float_info.epsilon:
+            texture_scale_u = 1.0
+        else:
+            texture_scale_u = raw_texture_scale_u
+
+        if abs(raw_texture_scale_v) < float_info.epsilon:
+            texture_scale_v = 1.0
+        else:
+            texture_scale_v = raw_texture_scale_v
+
+        # https://github.com/vrm-c/UniVRM/issues/930
+        texture_offset_v = 1 - raw_texture_offset_v - texture_scale_v
+
         if main_texture_image:
             for texture in (
                 gltf.pbr_metallic_roughness.base_color_texture,

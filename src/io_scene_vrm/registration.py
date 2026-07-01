@@ -174,6 +174,7 @@ CLASSES: Final[
     mtoon1_property_group.Mtoon1OutlineWidthMultiplySamplerPropertyGroup,
     mtoon1_property_group.Mtoon1UvAnimationMaskSamplerPropertyGroup,
     mtoon1_property_group.Mtoon1SamplerPropertyGroup,
+    mtoon1_property_group.Mtoon1NonBaseColorKhrTextureTransformPropertyGroup,
     mtoon1_property_group.Mtoon1BaseColorKhrTextureTransformPropertyGroup,
     mtoon1_property_group.Mtoon1ShadeMultiplyKhrTextureTransformPropertyGroup,
     mtoon1_property_group.Mtoon1NormalKhrTextureTransformPropertyGroup,
