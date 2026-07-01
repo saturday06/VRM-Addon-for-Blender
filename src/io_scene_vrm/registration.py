@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 # SPDX-FileCopyrightText: 2018 iCyP
 
-import os
 from typing import Final, Union
 
 import bpy
@@ -37,7 +36,6 @@ from .common import (
     shader,
     writable_context,
 )
-from .common.debug import cleanse_modules
 from .common.logger import get_logger
 from .common.version import trigger_clear_addon_version_cache
 from .editor import (
@@ -619,10 +617,6 @@ def unregister() -> None:
     bpy.app.translations.unregister(preferences.ADDON_PACKAGE_NAME)
 
     clear_global_variables()
-
-    # https://github.com/saturday06/VRM-Addon-for-Blender/issues/506#issuecomment-2183766778
-    if os.getenv("BLENDER_VRM_DEVELOPMENT_MODE") == "yes":
-        cleanse_modules()
 
 
 @persistent
