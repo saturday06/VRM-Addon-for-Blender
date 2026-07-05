@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.3.1...v4.3.2) (2026-07-05)
+
+
+### 🐛 Bug Fixes
+
+* fix vrm 0.0 uv translation and scaling ([85e04f9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/85e04f92efa10bd31448a2eb98c60e4e7b7f5203))
+
 ## [4.3.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.3.0...v4.3.1) (2026-07-01)
 
 
