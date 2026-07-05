@@ -404,8 +404,8 @@ TRANSLATION_DICTIONARY: Final[Mapping[tuple[str, str], str]] = {
     ): "VRM 0.0材质「{name}」的{texture}的偏移和缩放将被忽略。",
     (
         "*",
-        "Offset and Scale in VRM 0.0 are" + " the values of the Lit Color Texture.",
-    ): "VRM 0.0 中的偏移和缩放是 Lit Color Texture 的值。",
+        "Offset and Scale are the values of the Lit Color Texture.",
+    ): "偏移和缩放的值是 Lit Color Texture 的值。",
     (
         "*",
         'Material "{name}" {texture}\'s Offset and Scale'

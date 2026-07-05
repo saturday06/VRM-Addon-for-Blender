@@ -112,15 +112,14 @@ def _draw_texture_info(
     if ext.pbr_metallic_roughness.base_color_texture == texture_info:
         box.prop(texture_info.extensions.khr_texture_transform, "offset")
         box.prop(texture_info.extensions.khr_texture_transform, "scale")
-    if texture_info in {
+    elif texture_info in {
         ext.extensions.vrmc_materials_mtoon.matcap_texture,
         ext.extensions.vrmc_materials_mtoon.outline_width_multiply_texture,
     }:
         pass
     else:
         box.box().label(
-            text="Offset and Scale in VRM 0.0 are"
-            + " the values of the Lit Color Texture.",
+            text="Offset and Scale are the values of the Lit Color Texture.",
             icon="INFO",
         )
     return input_layout

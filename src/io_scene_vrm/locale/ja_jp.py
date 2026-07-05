@@ -496,8 +496,8 @@ TRANSLATION_DICTIONARY: Final[Mapping[tuple[str, str], str]] = {
     + "無視されます。",
     (
         "*",
-        "Offset and Scale in VRM 0.0 are" + " the values of the Lit Color Texture.",
-    ): "VRM 0.0でのオフセットとスケールはLit Colorテクスチャの値になります。",
+        "Offset and Scale are the values of the Lit Color Texture.",
+    ): "オフセットとスケールの値はLit Colorテクスチャの値になります。",
     (
         "*",
         'Material "{name}" {texture}\'s Offset and Scale'
