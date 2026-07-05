@@ -957,8 +957,13 @@ class Mtoon1NonBaseColorKhrTextureTransformPropertyGroup(
     Mtoon1KhrTextureTransformPropertyGroup
 ):
     def _get_texture_offset(self) -> tuple[float, float]:
-        ext = get_material_extension(self.find_material())
-        base_color_texture = ext.mtoon1.pbr_metallic_roughness.base_color_texture
+        mtoon1 = get_material_extension(self.find_material()).mtoon1
+        if any(
+            texture_info.extensions.khr_texture_transform == self
+            for texture_info in mtoon1.non_uv_transformable_texture_info()
+        ):
+            return (0.0, 0.0)
+        base_color_texture = mtoon1.pbr_metallic_roughness.base_color_texture
         offset = base_color_texture.extensions.khr_texture_transform.offset
         return (offset[0], offset[1])
 
@@ -970,8 +975,13 @@ class Mtoon1NonBaseColorKhrTextureTransformPropertyGroup(
         )
 
     def _get_texture_scale(self) -> tuple[float, float]:
-        ext = get_material_extension(self.find_material())
-        base_color_texture = ext.mtoon1.pbr_metallic_roughness.base_color_texture
+        mtoon1 = get_material_extension(self.find_material()).mtoon1
+        if any(
+            texture_info.extensions.khr_texture_transform == self
+            for texture_info in mtoon1.non_uv_transformable_texture_info()
+        ):
+            return (1.0, 1.0)
+        base_color_texture = mtoon1.pbr_metallic_roughness.base_color_texture
         scale = base_color_texture.extensions.khr_texture_transform.scale
         return (scale[0], scale[1])
 
