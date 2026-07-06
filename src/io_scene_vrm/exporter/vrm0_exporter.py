@@ -1383,7 +1383,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             return default
 
         uv_offset_scaling_node = x_links[0].from_node
-        if not uv_offset_scaling_node or uv_offset_scaling_node.type != "MAPPING'":
+        if not uv_offset_scaling_node or uv_offset_scaling_node.type != "MAPPING":
             return default
 
         location_input = uv_offset_scaling_node.inputs.get("Location")
