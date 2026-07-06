@@ -4,6 +4,7 @@ import re
 import sys
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from sys import float_info
 from typing import TYPE_CHECKING, Final, Optional, Protocol, Union
 
 import bpy
@@ -900,6 +901,16 @@ class TextureTraceablePropertyGroup(MaterialTraceablePropertyGroup):
 
 
 class Mtoon1KhrTextureTransformPropertyGroup(TextureTraceablePropertyGroup):
+    def is_default(self) -> bool:
+        offset_x, offset_y = self.offset
+        scale_x, scale_y = self.scale
+        return (
+            abs(offset_x - shader.UV_GROUP_UV_OFFSET_X_DEFAULT) < float_info.epsilon
+            and abs(offset_y - shader.UV_GROUP_UV_OFFSET_Y_DEFAULT) < float_info.epsilon
+            and abs(scale_x - shader.UV_GROUP_UV_SCALE_X_DEFAULT) < float_info.epsilon
+            and abs(scale_y - shader.UV_GROUP_UV_SCALE_Y_DEFAULT) < float_info.epsilon
+        )
+
     def _call_overridden_get_texture_offset(self) -> tuple[float, float]:
         return self._get_texture_offset()
 

@@ -1001,6 +1001,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 buffer0,
                 image_name_to_image_index,
                 khr_texture_transform,
+                extensions_used,
             ),
         ):
             vector_properties["_MainTex"] = [
@@ -1010,7 +1011,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 khr_texture_transform.scale[0],
                 khr_texture_transform.scale[1],
             ]
-            extensions_used.append("KHR_texture_transform")
 
         vector_properties["_ShadeColor"] = convert.linear_to_srgb(
             [*mtoon.shade_color_factor, 1]
@@ -1044,6 +1044,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 buffer0,
                 image_name_to_image_index,
                 khr_texture_transform,
+                extensions_used,
             ),
         ):
             normal_texture_to_index_dict = material_dict.get("normalTexture")
@@ -1104,6 +1105,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 buffer0,
                 image_name_to_image_index,
                 khr_texture_transform,
+                extensions_used,
             ),
         )
         if pbr_metallic_roughness_dict:
@@ -1353,12 +1355,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
     def create_mtoon0_khr_texture_transform(
         self, node: Node, texture_input_name: str
-    ) -> tuple[dict[str, Json], tuple[float, float, float, float]]:
-        default: tuple[dict[str, Json], tuple[float, float, float, float]] = (
-            {
-                "offset": [0, 0],
-                "scale": [1, 1],
-            },
+    ) -> tuple[Optional[dict[str, Json]], tuple[float, float, float, float]]:
+        default: tuple[Optional[dict[str, Json]], tuple[float, float, float, float]] = (
+            None,
             (0, 0, 1, 1),
         )
 
@@ -1388,26 +1387,34 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         location_input = uv_offset_scaling_node.inputs.get("Location")
         if isinstance(location_input, shader.VECTOR_SOCKET_CLASSES):
-            offset_u = location_input.default_value[0]
-            offset_v = location_input.default_value[1]
+            offset_x = location_input.default_value[0]
+            offset_y = location_input.default_value[1]
         else:
-            offset_u = 0.0
-            offset_v = 0.0
+            offset_x = shader.UV_GROUP_UV_OFFSET_X_DEFAULT
+            offset_y = shader.UV_GROUP_UV_OFFSET_Y_DEFAULT
 
         scale_input = uv_offset_scaling_node.inputs.get("Scale")
         if isinstance(scale_input, shader.VECTOR_SOCKET_CLASSES):
-            scale_u = scale_input.default_value[0]
-            scale_v = scale_input.default_value[1]
+            scale_x = scale_input.default_value[0]
+            scale_y = scale_input.default_value[1]
         else:
-            scale_u = 1.0
-            scale_v = 1.0
+            scale_x = shader.UV_GROUP_UV_SCALE_X_DEFAULT
+            scale_y = shader.UV_GROUP_UV_SCALE_Y_DEFAULT
+
+        if (
+            abs(offset_x - shader.UV_GROUP_UV_OFFSET_X_DEFAULT) < float_info.epsilon
+            and abs(offset_y - shader.UV_GROUP_UV_OFFSET_Y_DEFAULT) < float_info.epsilon
+            and abs(scale_x - shader.UV_GROUP_UV_SCALE_X_DEFAULT) < float_info.epsilon
+            and abs(scale_y - shader.UV_GROUP_UV_SCALE_Y_DEFAULT) < float_info.epsilon
+        ):
+            return default
 
         return (
             {
-                "offset": [offset_u, offset_v],
-                "scale": [scale_u, scale_v],
+                "offset": [offset_x, offset_y],
+                "scale": [scale_x, scale_y],
             },
-            (offset_u, offset_v, scale_u, scale_v),
+            (offset_x, offset_y, scale_x, scale_y),
         )
 
     def create_mtoon0_texture_info_dict(
@@ -1469,7 +1476,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
 
         texture_info: dict[str, Json] = {"index": texture_index}
 
-        if use_khr_texture_transform:
+        if use_khr_texture_transform and khr_texture_transform_dict:
             texture_info["extensions"] = {
                 "KHR_texture_transform": khr_texture_transform_dict
             }
@@ -3808,7 +3815,8 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         buffer_view_dicts: list[dict[str, Json]],
         buffer0: bytearray,
         image_name_to_image_index: dict[str, int],
-        khr_texture_transform: Optional[Mtoon1KhrTextureTransformPropertyGroup],
+        khr_texture_transform: Mtoon1KhrTextureTransformPropertyGroup,
+        extensions_used: list[str],
     ) -> Optional[dict[str, Json]]:
         texture_info_dict = self.create_mtoon1_downgraded_texture(
             texture_info.index,
@@ -3825,13 +3833,15 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         if texture_info_dict is None:
             return None
 
-        if khr_texture_transform is not None:
+        if not khr_texture_transform.is_default():
             texture_info_dict["extensions"] = {
                 "KHR_texture_transform": {
                     "offset": list(khr_texture_transform.offset),
                     "scale": list(khr_texture_transform.scale),
                 }
             }
+            if "KHR_texture_transform" not in extensions_used:
+                extensions_used.append("KHR_texture_transform")
         return texture_info_dict
 
     @staticmethod

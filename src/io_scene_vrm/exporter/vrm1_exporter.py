@@ -1025,53 +1025,59 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     @classmethod
     def create_mtoon0_khr_texture_transform(
         cls, node: Node, texture_input_name: str
-    ) -> dict[str, Json]:
-        default: dict[str, Json] = {
-            "offset": [0, 0],
-            "scale": [1, 1],
-        }
-
+    ) -> Optional[dict[str, Json]]:
         texture_input = node.inputs.get(texture_input_name)
         if not texture_input:
-            return default
+            return None
 
         texture_input_links = texture_input.links
         if not texture_input_links:
-            return default
+            return None
 
         x_from_node = texture_input_links[0].from_node
         if not x_from_node:
-            return default
+            return None
 
         x_inputs = x_from_node.inputs
         if not x_inputs:
-            return default
+            return None
 
         x_links = x_inputs[0].links
         if not x_links:
-            return default
+            return None
 
         uv_offset_scaling_node = x_links[0].from_node
         if not uv_offset_scaling_node or uv_offset_scaling_node.type != "MAPPING":
-            return default
-
-        result = default.copy()
+            return None
 
         location_input = uv_offset_scaling_node.inputs.get("Location")
         if isinstance(location_input, shader.VECTOR_SOCKET_CLASSES):
-            result["offset"] = [
-                location_input.default_value[0],
-                location_input.default_value[1],
-            ]
+            offset_x = location_input.default_value[0]
+            offset_y = location_input.default_value[1]
+        else:
+            offset_x = shader.UV_GROUP_UV_OFFSET_X_DEFAULT
+            offset_y = shader.UV_GROUP_UV_OFFSET_Y_DEFAULT
 
         scale_input = uv_offset_scaling_node.inputs.get("Scale")
         if isinstance(scale_input, shader.VECTOR_SOCKET_CLASSES):
-            result["scale"] = [
-                scale_input.default_value[0],
-                scale_input.default_value[1],
-            ]
+            scale_x = scale_input.default_value[0]
+            scale_y = scale_input.default_value[1]
+        else:
+            scale_x = shader.UV_GROUP_UV_SCALE_X_DEFAULT
+            scale_y = shader.UV_GROUP_UV_SCALE_Y_DEFAULT
 
-        return result
+        if (
+            abs(offset_x - shader.UV_GROUP_UV_OFFSET_X_DEFAULT) < float_info.epsilon
+            and abs(offset_y - shader.UV_GROUP_UV_OFFSET_Y_DEFAULT) < float_info.epsilon
+            and abs(scale_x - shader.UV_GROUP_UV_SCALE_X_DEFAULT) < float_info.epsilon
+            and abs(scale_y - shader.UV_GROUP_UV_SCALE_Y_DEFAULT) < float_info.epsilon
+        ):
+            return None
+
+        return {
+            "offset": [offset_x, offset_y],
+            "scale": [scale_x, scale_y],
+        }
 
     @classmethod
     def find_or_create_image(
@@ -1207,6 +1213,10 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             texture_index = len(texture_dicts)
             texture_dicts.append(texture_dict)
 
+        khr_texture_transform = texture_info.extensions.khr_texture_transform
+        if khr_texture_transform.is_default():
+            return {"index": texture_index}
+
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, list):
             extensions_used = []
@@ -1216,7 +1226,6 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             extensions_used.append("KHR_texture_transform")
         json_dict["extensionsUsed"] = extensions_used
 
-        khr_texture_transform = texture_info.extensions.khr_texture_transform
         khr_texture_transform_dict: dict[str, Json] = {
             "offset": list(khr_texture_transform.offset),
             "scale": list(khr_texture_transform.scale),
@@ -1285,6 +1294,12 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             texture_index = len(texture_dicts)
             texture_dicts.append(texture_dict)
 
+        khr_texture_transform_dict = cls.create_mtoon0_khr_texture_transform(
+            node, texture_input_name
+        )
+        if not khr_texture_transform_dict:
+            return {"index": texture_index}
+
         extensions_used = json_dict.get("extensionsUsed")
         if not isinstance(extensions_used, list):
             extensions_used = []
@@ -1293,10 +1308,6 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         if "KHR_texture_transform" not in extensions_used:
             extensions_used.append("KHR_texture_transform")
         json_dict["extensionsUsed"] = extensions_used
-
-        khr_texture_transform_dict = cls.create_mtoon0_khr_texture_transform(
-            node, texture_input_name
-        )
 
         return {
             "index": texture_index,
