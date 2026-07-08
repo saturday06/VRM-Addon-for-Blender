@@ -3460,7 +3460,42 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 )
 
             for primitive_dict in primitive_dicts:
-                primitive_dict["targets"] = make_json(primitive_target_dicts)
+                material = next(
+                    (
+                        self._context.blend_data.materials.get(material_name)
+                        for material_name, material_index in (
+                            material_name_to_material_index.items()
+                        )
+                        if material_index == primitive_dict.get("material")
+                    ),
+                    None,
+                )
+                if not material:
+                    export_shape_key_normals = True
+                else:
+                    mtoon1 = get_material_extension(material).mtoon1
+                    if mtoon1.export_shape_key_normals:
+                        export_shape_key_normals = True
+                    elif mtoon1.enabled or (
+                        (
+                            legacy_addon_material := LegacyAddonMaterial.try_parse(
+                                material
+                            )
+                        )
+                        and legacy_addon_material.shader_name == "MToon_unversioned"
+                    ):
+                        export_shape_key_normals = False
+                    else:
+                        export_shape_key_normals = True
+
+                primitive_dict["targets"] = make_json(
+                    primitive_target_dict
+                    if export_shape_key_normals
+                    else {
+                        k: v for k, v in primitive_target_dict.items() if k != "NORMAL"
+                    }
+                    for primitive_target_dict in primitive_target_dicts
+                )
                 primitive_dict["extras"] = {
                     # for compatibility with legacy practices
                     # https://github.com/vrm-c/UniVRM/blob/38ccb92300c9ab41c72eb3d5b8dc8ce664a659d5/Assets/UniGLTF/Runtime/UniGLTF/Format/ExtensionsAndExtras/gltf_mesh_extras_targetNames.cs#L7-L12
