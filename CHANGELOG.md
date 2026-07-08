@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.3.2...v4.3.3) (2026-07-08)
+
+
+### 🐛 Bug Fixes
+
+* improved compatibility between UniVRM and three-vrm for outlineWidthTexture ([74f1893](https://github.com/saturday06/VRM-Addon-for-Blender/commit/74f189302549a093aa5b8789aa58812645733e3d))
+
 ## [4.3.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.3.1...v4.3.2) (2026-07-05)
 
 
