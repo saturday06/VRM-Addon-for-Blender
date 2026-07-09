@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: 2018 iCyP
 
 import itertools
+import math
 import re
 import statistics
 import struct
@@ -3072,7 +3073,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     # something, but it's judged safer to keep it the same as the glTF
                     # 2.0 addon.
                     # https://github.com/KhronosGroup/glTF-Blender-IO/pull/1127
-                    normal = convert.axis_blender_to_gltf(loop.normal)
+                    normal = convert.axis_blender_to_gltf(
+                        Vrm0Exporter.safe_normalized_vector(loop.normal)
+                    )
 
                     vertex_index = self.collect_vertex(
                         obj,
@@ -3311,7 +3314,6 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                 "type": "VEC3",
                 "componentType": GL_FLOAT,
                 "count": vertex_attributes_collector.count,
-                # "normalized": True, # TODO: Needs investigation
             }
         )
         primitive_attribute_dict["NORMAL"] = normal_accessor_index
@@ -3933,9 +3935,7 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     vertex_normal_sum_vectors[vertex_index] + Vector(normal)
                 )
         return [
-            Vector((0, 0, 0))
-            if vector.length_squared < float_info.epsilon
-            else vector.normalized()
+            Vrm0Exporter.safe_normalized_vector(vector)
             for vector in vertex_normal_sum_vectors
         ]
 
@@ -3962,6 +3962,36 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
             )
         ]
         return vertex_index_to_morph_normal_diffs
+
+    @staticmethod
+    def safe_normalized_vector(vector: Vector) -> Vector:
+        x, y, z = vector
+
+        x_inf = math.isinf(x)
+        y_inf = math.isinf(y)
+        z_inf = math.isinf(z)
+        if x_inf or y_inf or z_inf:
+            x = math.copysign(1.0 if x_inf else 0, x)
+            y = math.copysign(1.0 if y_inf else 0, y)
+            z = math.copysign(1.0 if z_inf else 0, z)
+            return Vector((x, y, z)).normalized()
+
+        x_nan = math.isnan(x)
+        y_nan = math.isnan(y)
+        z_nan = math.isnan(z)
+        if x_nan or y_nan or z_nan:
+            if x_nan:
+                x = 0.0
+            if y_nan:
+                y = 0.0
+            if z_nan:
+                z = 0.0
+            vector = Vector((x, y, z))
+
+        if vector.length_squared < float_info.epsilon:
+            return Vector((0.0, 0.0, -1.0))
+
+        return vector.normalized()
 
     def have_skin(self, mesh: Object) -> bool:
         # TODO: This method has false positives but is kept as-is for compatibility.
