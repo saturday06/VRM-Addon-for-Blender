@@ -47,7 +47,8 @@ html {
   border-radius: 2px;
 }
 
-.vp-doc img[src$=".gif"], .vp-doc img[src^="data:image/gif;"] {
+.vp-doc img[src$=".gif"],
+.vp-doc img[src^="data:image/gif;"] {
   border: 0;
 }
 
