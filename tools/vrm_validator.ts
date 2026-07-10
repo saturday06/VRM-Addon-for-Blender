@@ -1,16 +1,23 @@
 // SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import process from "node:process";
-import { basename, dirname } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { readdir, readFile, stat } from "node:fs/promises";
 import gltfValidator from "gltf-validator";
 
 const basePath = process.env.BLENDER_VRM_TEST_RESOURCES_PATH || process.cwd();
-if (!(await stat(basePath)).isDirectory()) {
+const basePathStat = await stat(basePath);
+let paths: Array<string> = [];
+if (basePathStat.isDirectory()) {
+  paths = (await readdir(basePath, { recursive: true })).map((path) =>
+    join(basePath, path)
+  );
+} else if (basePathStat.isFile()) {
+  paths = [basePath];
+} else {
   console.error(`No base path: "${basePath}"`);
   process.exit(1);
 }
 
-const paths = await readdir(basePath, { recursive: true });
 paths.forEach(async (path) => {
   if (basename(dirname(path)) == "in" && path.endsWith(".vrm")) {
     return;
