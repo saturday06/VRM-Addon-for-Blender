@@ -17,10 +17,10 @@ jobs:
     if: ${{ github.repository_visibility == 'public' }}
     timeout-minutes: 720
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         env:
           BENCHMARK_PYTHON_VERSION: "3.13" # Set as environment variable to prevent automatic updates by renovate
         with:
@@ -29,10 +29,10 @@ jobs:
           python-version: ${{ env.BENCHMARK_PYTHON_VERSION }}
       # CodSpeed can only generate flamegraphs with Python 3.12 or later
       - run: git ls-files pyproject.toml "**/pyproject.toml" | xargs sed -i~ 's/^requires-python = "==3\.10\.\*" /requires-python = "==3.13.*" /'
-      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
       - run: uv sync --no-managed-python
       - run: git diff
-      - uses: CodSpeedHQ/action@658a901452bb54c799643e060733b7afe9121b8d # v4.14.0
+      - uses: CodSpeedHQ/action@a4a36bb07c0638b0b4ca52bf1f3dad1b4289e52f # v4.18.1
         with:
           mode: simulation
           run: uv run pytest src/ --codspeed

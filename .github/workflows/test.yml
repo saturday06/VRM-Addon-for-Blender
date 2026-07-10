@@ -33,12 +33,12 @@ jobs:
           - job_name_postfix: blender 4.5
             archive_url_path: Blender4.5/blender-4.5.1-windows-x64.zip
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
       - name: Cache archive
         id: cache-archive
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: .local/tmp/blender.zip
           key: ${{ matrix.blender.archive_url_path }}-archive-12
@@ -93,12 +93,12 @@ jobs:
           - job_name_postfix: blender 4.5 x64
             archive_url_path: Blender4.5/blender-4.5.1-macos-x64.dmg
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
       - name: Cache archive
         id: cache-archive
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: .local/tmp/blender.dmg
           key: ${{ matrix.blender.archive_url_path }}-archive-12
@@ -154,12 +154,12 @@ jobs:
           - job_name_postfix: blender 4.5
             archive_url_path: Blender4.5/blender-4.5.1-linux-x64.tar.xz
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
       - name: Cache archive
         id: cache-archive
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: .local/tmp/blender.tar.xz
           key: ${{ matrix.blender.archive_url_path }}-archive-12
