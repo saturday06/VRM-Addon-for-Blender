@@ -981,7 +981,7 @@ class Mtoon1NonBaseColorKhrTextureTransformPropertyGroup(
     def _set_texture_offset(self, value: object) -> None:
         _ = value
         # https://github.com/vrm-c/UniVRM/blob/v0.131.1/Packages/VRM10/Runtime/IO/Material/BuiltInRP/Export/Materials/BuiltInVrm10MToonMaterialExporter.cs#L166-L177
-        _logger.warning(
+        _logger.info(
             "Setting texture offset is not supported for non-base color textures"
         )
 
@@ -999,7 +999,7 @@ class Mtoon1NonBaseColorKhrTextureTransformPropertyGroup(
     def _set_texture_scale(self, value: object) -> None:
         _ = value
         # https://github.com/vrm-c/UniVRM/blob/v0.131.1/Packages/VRM10/Runtime/IO/Material/BuiltInRP/Export/Materials/BuiltInVrm10MToonMaterialExporter.cs#L166-L177
-        _logger.warning(
+        _logger.info(
             "Setting texture scale is not supported for non-base color textures"
         )
 
