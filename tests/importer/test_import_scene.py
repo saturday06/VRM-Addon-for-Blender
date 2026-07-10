@@ -93,7 +93,7 @@ class __TestImportSceneBrokenVrmBase(AddonTestCase):
         if (
             vrm_path.name == "draco.vrm"
             and not bpy.app.binary_path
-            and bpy.app.version < (4, 5)
+            and not ((4, 5) <= bpy.app.version < (5, 2))
         ):
             # On Linux when built as a module, the draco library cannot be read
             # and causes an error
