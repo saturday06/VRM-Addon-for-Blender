@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.4.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.3.3...v4.4.0) (2026-07-11)
+
+
+### 🚀 Features
+
+* An appropriate UI for VRM0 Material Bind. Fixed parameter interpretation errors. ([d37bd70](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d37bd7060fbf97a455702c45f159341009e75bb8))
+* support blender 5.2 ([eb37f3a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/eb37f3a45e9e7cd9f12c31af3e55ca542bec9ae1))
+
 ## [4.3.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.3.2...v4.3.3) (2026-07-08)
 
 
