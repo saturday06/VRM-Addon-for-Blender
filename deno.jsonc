@@ -140,7 +140,7 @@
     "@devcontainers/cli": "npm:@devcontainers/cli@0.87.0",
     "@octokit/rest": "npm:@octokit/rest@22.0.1",
     "@octokit/types": "npm:@octokit/types@16.0.0",
-    "@types/node": "npm:@types/node@25.9.4",
+    "@types/node": "npm:@types/node@26.1.0",
     "gltf-validator": "npm:gltf-validator@2.0.0-dev.3.10",
     "isomorphic-git": "npm:isomorphic-git@1.38.6",
     "pyright": "npm:pyright@1.1.411",
