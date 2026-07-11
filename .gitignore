@@ -18,6 +18,7 @@ ci-super-linter-local-image.tar.gz
 /benchmarks/.codspeed/
 /extension_output/
 /release_output/
+/src/io_scene_vrm/documentation/
 /super-linter-output/
 /tests/resources/unity/*/*.csproj
 /tests/resources/unity/*/*.DotSettings.user

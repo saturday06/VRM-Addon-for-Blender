@@ -59,6 +59,7 @@ website_release_path="${release_output_dir_path}/${prefix_name}-${underscore_ver
 
 compression_dir=$(mktemp -d --suffix=-release-archive-work-dir)
 archive_root_name="${prefix_name}-${release_postfix}"
+deno task docs:copy-docs-to-src
 cp -r src/io_scene_vrm "${compression_dir}/${archive_root_name}"
 cp -r LICENSE* "${compression_dir}/${archive_root_name}/"
 (

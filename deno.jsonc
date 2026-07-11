@@ -8,6 +8,7 @@
     "devcontainer": "deno run --permission-set=devcontainer ./node_modules/.bin/devcontainer",
     "docs:build": "deno run --permission-set=docs:build vitepress build docs",
     "docs:dev": "deno run --permission-set=docs:dev vitepress dev docs",
+    "docs:copy-docs-to-src": "deno run --permission-set=docs:copy-docs-to-src ./tools/copy_docs_to_src.ts",
     "pyright": "uv run -- deno run --permission-set=pyright --unstable-node-globals ./tools/pyright.cts --warnings",
     "update-changelog": "deno run --permission-set=update-changelog ./tools/update_changelog.ts",
     "vrm-validator": "deno run --permission-set=vrm-validator ./tools/vrm_validator.ts"
@@ -92,6 +93,23 @@
       ],
       "write": [
         "docs/.vitepress/"
+      ]
+    },
+    "docs:copy-docs-to-src": {
+      "env": true,
+      "ffi": true,
+      "read": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "osRelease"
+        ],
+        "deny": [
+          "networkInterfaces"
+        ]
+      },
+      "write": [
+        "src/io_scene_vrm/documentation/"
       ]
     },
     "pyright": {
