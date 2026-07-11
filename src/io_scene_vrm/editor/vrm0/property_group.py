@@ -31,12 +31,14 @@ from mathutils import Vector
 from ...common import convert, shader
 from ...common.animation import defer_shape_key_update
 from ...common.logger import get_logger
+from ...common.shader import LegacyAddonMaterial
 from ...common.vrm0.human_bone import (
     HumanBoneName,
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
 from ...common.vrm0.material_property import (
+    GLTF_PROPERTIES,
     MTOON0_PROPERTIES,
     MaterialPropertyTarget,
     MaterialPropertyType,
@@ -609,6 +611,170 @@ class Vrm0MaterialValueBindPropertyGroup(PropertyGroup):
         type=FloatPropertyGroup,
     )
 
+    def _get_target_value_as_rgb(self) -> tuple[float, float, float]:
+        r, g, b, _a = self.read_target_value_as_float4()
+        return (
+            r,
+            g,
+            b,
+        )
+
+    def _set_target_value_as_rgb(self, value: Sequence[float]) -> None:
+        if len(value) < 3:
+            return
+        r, g, b = value[:3]
+        while len(self.target_value) < 4:
+            self.target_value.add()
+        while len(self.target_value) > 4:
+            self.target_value.remove(len(self.target_value) - 1)
+        self.target_value[0].value = r
+        self.target_value[1].value = g
+        self.target_value[2].value = b
+        self.target_value[3].value = 1.0
+
+    target_value_as_rgb: FloatVectorProperty(  # type: ignore[valid-type]
+        name="Color",
+        size=3,
+        subtype="COLOR",
+        get=_get_target_value_as_rgb,
+        set=_set_target_value_as_rgb,
+    )
+
+    def _get_target_value_as_rgba(self) -> tuple[float, float, float, float]:
+        return self.read_target_value_as_float4()
+
+    def _set_target_value_as_rgba(self, value: Sequence[float]) -> None:
+        if len(value) < 4:
+            return
+        r, g, b, a = value[:4]
+        while len(self.target_value) < 4:
+            self.target_value.add()
+        while len(self.target_value) > 4:
+            self.target_value.remove(len(self.target_value) - 1)
+        self.target_value[0].value = r
+        self.target_value[1].value = g
+        self.target_value[2].value = b
+        self.target_value[3].value = a
+
+    target_value_as_rgba: FloatVectorProperty(  # type: ignore[valid-type]
+        name="Color",
+        size=4,
+        subtype="COLOR",
+        get=_get_target_value_as_rgba,
+        set=_set_target_value_as_rgba,
+    )
+
+    def _set_target_value_uv(self, index: int, value: float) -> None:
+        u_scale, v_scale, u_offset, v_offset = self.read_target_value_as_float4()
+        values = [u_scale, v_scale, u_offset, v_offset]
+        values[index] = value
+        while len(self.target_value) < 4:
+            self.target_value.add()
+        while len(self.target_value) > 4:
+            self.target_value.remove(len(self.target_value) - 1)
+        for i, v in enumerate(values):
+            self.target_value[i].value = v
+
+    def _get_target_value_tiling_s(self) -> float:
+        return self.read_target_value_as_float4()[0]
+
+    def _set_target_value_tiling_s(self, value: float) -> None:
+        self._set_target_value_uv(0, value)
+
+    target_value_tiling_s: FloatProperty(  # type: ignore[valid-type]
+        name="Tiling X",
+        get=_get_target_value_tiling_s,
+        set=_set_target_value_tiling_s,
+    )
+
+    def _get_target_value_tiling_t(self) -> float:
+        return self.read_target_value_as_float4()[1]
+
+    def _set_target_value_tiling_t(self, value: float) -> None:
+        self._set_target_value_uv(1, value)
+
+    target_value_tiling_t: FloatProperty(  # type: ignore[valid-type]
+        name="Tiling Y",
+        get=_get_target_value_tiling_t,
+        set=_set_target_value_tiling_t,
+    )
+
+    def _get_target_value_offset_s(self) -> float:
+        return self.read_target_value_as_float4()[2]
+
+    def _set_target_value_offset_s(self, value: float) -> None:
+        self._set_target_value_uv(2, value)
+
+    target_value_offset_s: FloatProperty(  # type: ignore[valid-type]
+        name="Offset X",
+        get=_get_target_value_offset_s,
+        set=_set_target_value_offset_s,
+    )
+
+    def _get_target_value_offset_t(self) -> float:
+        return self.read_target_value_as_float4()[3]
+
+    def _set_target_value_offset_t(self, value: float) -> None:
+        self._set_target_value_uv(3, value)
+
+    target_value_offset_t: FloatProperty(  # type: ignore[valid-type]
+        name="Offset Y",
+        get=_get_target_value_offset_t,
+        set=_set_target_value_offset_t,
+    )
+
+    def read_default_target_value(self) -> Optional[tuple[float, float, float, float]]:
+        material = self.material
+        is_mtoon = material and (
+            get_material_extension(material).mtoon1.enabled
+            or (
+                (legacy_addon_material := LegacyAddonMaterial.try_parse(material))
+                and legacy_addon_material.shader_name == "MToon_unversioned"
+            )
+        )
+
+        for material_property in (
+            list(MTOON0_PROPERTIES.values()) + list(GLTF_PROPERTIES.values())
+            if is_mtoon
+            else list(GLTF_PROPERTIES.values()) + list(MTOON0_PROPERTIES.values())
+        ):
+            if material_property.name != self.property_name:
+                continue
+            if material_property.type in {
+                MaterialPropertyType.RGB,
+                MaterialPropertyType.RGBA,
+            }:
+                return (1.0, 1.0, 1.0, 1.0)
+            if material_property.type in {
+                MaterialPropertyType.UV,
+                MaterialPropertyType.UV_S,
+                MaterialPropertyType.UV_T,
+            }:
+                return (1.0, 1.0, 0.0, 0.0)
+        return None
+
+    def read_target_value_as_float4(self) -> tuple[float, float, float, float]:
+        default_target_value = self.read_default_target_value()
+        if default_target_value is None:
+            default_target_value = (0.0, 0.0, 0.0, 0.0)
+        target_value = self.target_value
+        return (
+            target_value[0].value if len(target_value) > 0 else default_target_value[0],
+            target_value[1].value if len(target_value) > 1 else default_target_value[1],
+            target_value[2].value if len(target_value) > 2 else default_target_value[2],
+            target_value[3].value if len(target_value) > 3 else default_target_value[3],
+        )
+
+    def read_target_value_as_float_list(self) -> list[float]:
+        target_value = self.target_value
+        default_target_value = self.read_default_target_value()
+        if default_target_value is None:
+            return [value.value for value in target_value]
+        return [
+            target_value[i].value if i < len(target_value) else default_target_value[i]
+            for i in range(len(default_target_value))
+        ]
+
     if TYPE_CHECKING:
         # This code is auto generated.
         # To regenerate, run the `uv run tools/property_typing.py` command.
@@ -617,6 +783,12 @@ class Vrm0MaterialValueBindPropertyGroup(PropertyGroup):
         target_value: CollectionPropertyProtocol[  # type: ignore[no-redef]
             FloatPropertyGroup
         ]
+        target_value_as_rgb: Sequence[float]  # type: ignore[no-redef]
+        target_value_as_rgba: Sequence[float]  # type: ignore[no-redef]
+        target_value_tiling_s: float  # type: ignore[no-redef]
+        target_value_tiling_t: float  # type: ignore[no-redef]
+        target_value_offset_s: float  # type: ignore[no-redef]
+        target_value_offset_t: float  # type: ignore[no-redef]
 
 
 # https://github.com/vrm-c/UniVRM/blob/v0.91.1/Assets/VRM/Runtime/Format/glTF_VRM_BlendShape.cs#L62-L99
@@ -745,38 +917,79 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
     @classmethod
     def get_material_property_vector(
         cls, material: Material, material_value: Vrm0MaterialValueBindPropertyGroup
-    ) -> Optional[tuple[Sequence[float], Sequence[float]]]:
+    ) -> Optional[
+        tuple[tuple[float, float, float, float], tuple[float, float, float, float]]
+    ]:
         gltf = get_material_extension(material).mtoon1
         if not gltf.enabled:
             return None
         mtoon = gltf.extensions.vrmc_materials_mtoon
-        target_value = material_value.target_value
-        if not target_value:
-            return None
-        target_vector: list[float] = [t.value for t in target_value]
+        target_vector = material_value.read_target_value_as_float_list()
         property_name = material_value.property_name
         if not property_name:
             return None
         material_property = MTOON0_PROPERTIES.get(property_name)
         if not material_property:
             return None
-        dimension = material_property.dimension
-        if len(target_vector) != dimension:
+
+        if len(target_vector) != 4:
             return None
+        target_vector = (
+            target_vector[0],
+            target_vector[1],
+            target_vector[2],
+            target_vector[3],
+        )
+
         target = material_property.target
         if target is None:
             return None
 
         if target == MaterialPropertyTarget.COLOR:
-            return (target_vector, gltf.pbr_metallic_roughness.base_color_factor)
+            default_vector = convert.float4_or(
+                gltf.pbr_metallic_roughness.base_color_factor,
+                (
+                    *shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_COLOR_DEFAULT,
+                    shader.OUTPUT_GROUP_BASE_COLOR_FACTOR_ALPHA_DEFAULT,
+                ),
+            )
+            return (target_vector, default_vector)
         if target == MaterialPropertyTarget.SHADE_COLOR:
-            return (target_vector, mtoon.shade_color_factor)
+            default_vector = (
+                *convert.float3_or(
+                    mtoon.shade_color_factor,
+                    shader.OUTPUT_GROUP_SHADE_COLOR_FACTOR_DEFAULT,
+                ),
+                1.0,
+            )
+            return (target_vector, default_vector)
         if target == MaterialPropertyTarget.RIM_COLOR:
-            return (target_vector, mtoon.parametric_rim_color_factor)
+            default_vector = (
+                *convert.float3_or(
+                    mtoon.parametric_rim_color_factor,
+                    shader.OUTPUT_GROUP_PARAMETRIC_RIM_COLOR_FACTOR_DEFAULT,
+                ),
+                1.0,
+            )
+            return (target_vector, default_vector)
         if target == MaterialPropertyTarget.EMISSION_COLOR:
-            return (target_vector, gltf.emissive_factor)
+            default_vector = (
+                *convert.float3_or(
+                    gltf.emissive_factor,
+                    shader.OUTPUT_GROUP_EMISSIVE_FACTOR_DEFAULT,
+                ),
+                1.0,
+            )
+            return (target_vector, default_vector)
         if target == MaterialPropertyTarget.OUTLINE_COLOR:
-            return (target_vector, mtoon.outline_color_factor)
+            default_vector = (
+                *convert.float3_or(
+                    mtoon.outline_color_factor,
+                    shader.OUTPUT_GROUP_OUTLINE_COLOR_FACTOR_DEFAULT,
+                ),
+                1.0,
+            )
+            return (target_vector, default_vector)
 
         texture_info = cls.get_texture_info(gltf, target)
         if not texture_info:
@@ -786,32 +999,32 @@ class Vrm0BlendShapeGroupPropertyGroup(PropertyGroup):
         khr_scale_v = khr_texture_transform.scale[1]
         khr_offset_u = khr_texture_transform.offset[0]
         khr_offset_v = khr_texture_transform.offset[1]
-        if material_property.type == MaterialPropertyType.UV_SCALE_TRANSLATION:
+        if material_property.type == MaterialPropertyType.UV:
             unity_scale_u, unity_scale_v, unity_offset_u, unity_offset_v = target_vector
-            target_vector = [
+            target_vector = (
                 unity_scale_u,
                 unity_scale_v,
                 unity_offset_u,
                 # https://github.com/vrm-c/UniVRM/issues/930
                 1 - unity_offset_v - unity_scale_v,
-            ]
-        elif material_property.type == MaterialPropertyType.UV_SCALE:
-            unity_scale_u, unity_scale_v = target_vector
-            target_vector = [
+            )
+        elif material_property.type == MaterialPropertyType.UV_S:
+            unity_scale_u, _, unity_offset_u, _ = target_vector
+            target_vector = (
                 unity_scale_u,
-                unity_scale_v,
-                khr_offset_u,
-                khr_offset_v,  # No need to change offset
-            ]
-        elif material_property.type == MaterialPropertyType.UV_TRANSLATION:
-            unity_offset_u, unity_offset_v = target_vector
-            target_vector = [
-                khr_scale_u,
                 khr_scale_v,
                 unity_offset_u,
+                khr_offset_v,  # No need to change offset
+            )
+        elif material_property.type == MaterialPropertyType.UV_T:
+            _, unity_scale_v, _, unity_offset_v = target_vector
+            target_vector = (
+                khr_scale_u,
+                unity_scale_v,
+                khr_offset_u,
                 # https://github.com/vrm-c/UniVRM/issues/930
-                1 - unity_offset_v - khr_scale_v,
-            ]
+                1 - unity_offset_v - unity_scale_v,
+            )
         else:
             return None
 

@@ -615,7 +615,9 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
                     {
                         "materialName": material_value_material.name,
                         "propertyName": material_value.property_name,
-                        "targetValue": [v.value for v in material_value.target_value],
+                        "targetValue": make_json(
+                            material_value.read_target_value_as_float_list()
+                        ),
                     }
                 )
 

@@ -15,6 +15,11 @@ from bpy.types import (
 
 from ...common.shader import LegacyAddonMaterial
 from ...common.vrm0.human_bone import HumanBoneSpecifications
+from ...common.vrm0.material_property import (
+    GLTF_PROPERTIES,
+    MTOON0_PROPERTIES,
+    MaterialPropertyType,
+)
 from .. import ops, search
 from ..extension_accessor import (
     get_armature_extension,
@@ -609,6 +614,127 @@ class VRM_PT_vrm0_first_person_ui(Panel):
         )
 
 
+def _draw_vrm0_material_value_layout(
+    armature: Object,
+    context: Context,
+    layout: UILayout,
+    material_value: Vrm0MaterialValueBindPropertyGroup,
+    *,
+    blend_shape_group_index: int,
+    material_value_index: int,
+) -> None:
+    material_value_column = layout.column()
+    material_value_column.prop_search(
+        material_value, "material", context.blend_data, "materials"
+    )
+
+    material = material_value.material
+    if not material:
+        material_value_column.prop(material_value, "property_name", icon="PROPERTIES")
+        is_mtoon = False
+    else:
+        ext = get_material_extension(material)
+        if ext.mtoon1.enabled or (
+            (legacy_addon_material := LegacyAddonMaterial.try_parse(material))
+            and legacy_addon_material.shader_name == "MToon_unversioned"
+        ):
+            is_mtoon = True
+            if bpy.app.version >= (3, 2):
+                material_value_column.prop_search(
+                    material_value,
+                    "property_name",
+                    get_scene_extension(context.scene),
+                    "vrm0_material_mtoon0_property_names",
+                    icon="PROPERTIES",
+                    results_are_suggestions=True,
+                )
+            else:
+                material_value_column.prop_search(
+                    material_value,
+                    "property_name",
+                    get_scene_extension(context.scene),
+                    "vrm0_material_mtoon0_property_names",
+                    icon="PROPERTIES",
+                )
+        elif bpy.app.version >= (3, 2):
+            is_mtoon = False
+            material_value_column.prop_search(
+                material_value,
+                "property_name",
+                get_scene_extension(context.scene),
+                "vrm0_material_gltf_property_names",
+                icon="PROPERTIES",
+                results_are_suggestions=True,
+            )
+        else:
+            is_mtoon = False
+            material_value_column.prop_search(
+                material_value,
+                "property_name",
+                get_scene_extension(context.scene),
+                "vrm0_material_gltf_property_names",
+                icon="PROPERTIES",
+            )
+
+    for material_property in (
+        list(MTOON0_PROPERTIES.values()) + list(GLTF_PROPERTIES.values())
+        if is_mtoon
+        else list(GLTF_PROPERTIES.values()) + list(MTOON0_PROPERTIES.values())
+    ):
+        if material_property.name != material_value.property_name:
+            continue
+
+        if material_property.type == MaterialPropertyType.RGBA:
+            material_value_column.prop(material_value, "target_value_as_rgba")
+            return
+
+        if material_property.type == MaterialPropertyType.RGB:
+            material_value_column.prop(material_value, "target_value_as_rgb")
+            return
+
+        if material_property.type == MaterialPropertyType.UV:
+            material_value_uv_tiling_row = material_value_column.row(align=True)
+            material_value_uv_tiling_row.prop(material_value, "target_value_tiling_s")
+            material_value_uv_tiling_row.prop(material_value, "target_value_tiling_t")
+            material_value_uv_offset_row = material_value_column.row(align=True)
+            material_value_uv_offset_row.prop(material_value, "target_value_offset_s")
+            material_value_uv_offset_row.prop(material_value, "target_value_offset_t")
+            return
+
+        if material_property.type == MaterialPropertyType.UV_S:
+            material_value_column.prop(material_value, "target_value_tiling_s")
+            material_value_column.prop(material_value, "target_value_offset_s")
+            return
+
+        if material_property.type == MaterialPropertyType.UV_T:
+            material_value_column.prop(material_value, "target_value_tiling_t")
+            material_value_column.prop(material_value, "target_value_offset_t")
+            return
+
+    for target_value_index, target_value in enumerate(material_value.target_value):
+        target_value_row = material_value_column.row()
+        target_value_row.prop(target_value, "value", text=f"Value {target_value_index}")
+        remove_target_value_op = layout_operator(
+            target_value_row,
+            vrm0_ops.VRM_OT_remove_vrm0_material_value_bind_target_value,
+            text="",
+            translate=False,
+            icon="REMOVE",
+        )
+        remove_target_value_op.armature_object_name = armature.name
+        remove_target_value_op.blend_shape_group_index = blend_shape_group_index
+        remove_target_value_op.material_value_index = material_value_index
+        remove_target_value_op.target_value_index = target_value_index
+    add_target_value_op = layout_operator(
+        material_value_column,
+        vrm0_ops.VRM_OT_add_vrm0_material_value_bind_target_value,
+        icon="ADD",
+    )
+    add_target_value_op.armature_object_name = armature.name
+    add_target_value_op.blend_shape_group_index = blend_shape_group_index
+    add_target_value_op.material_value_index = material_value_index
+
+
 def _draw_vrm0_blend_shape_master_layout(
     armature: Object,
     context: Context,
@@ -746,84 +872,14 @@ def _draw_vrm0_blend_shape_master_layout(
             )
 
         if isinstance(material_value, Vrm0MaterialValueBindPropertyGroup):
-            material_value_column = material_value_binds_box.column()
-            material_value_column.prop_search(
-                material_value, "material", blend_data, "materials"
+            _draw_vrm0_material_value_layout(
+                armature,
+                context,
+                material_value_binds_box,
+                material_value,
+                blend_shape_group_index=blend_shape_group_index,
+                material_value_index=material_value_index,
             )
-
-            material = material_value.material
-            if not material:
-                material_value_column.prop(
-                    material_value, "property_name", icon="PROPERTIES"
-                )
-            else:
-                ext = get_material_extension(material)
-                if ext.mtoon1.enabled or (
-                    (legacy_addon_material := LegacyAddonMaterial.try_parse(material))
-                    and legacy_addon_material.shader_name == "MToon_unversioned"
-                ):
-                    if bpy.app.version >= (3, 2):
-                        material_value_column.prop_search(
-                            material_value,
-                            "property_name",
-                            get_scene_extension(context.scene),
-                            "vrm0_material_mtoon0_property_names",
-                            icon="PROPERTIES",
-                            results_are_suggestions=True,
-                        )
-                    else:
-                        material_value_column.prop_search(
-                            material_value,
-                            "property_name",
-                            get_scene_extension(context.scene),
-                            "vrm0_material_mtoon0_property_names",
-                            icon="PROPERTIES",
-                        )
-                elif bpy.app.version >= (3, 2):
-                    material_value_column.prop_search(
-                        material_value,
-                        "property_name",
-                        get_scene_extension(context.scene),
-                        "vrm0_material_gltf_property_names",
-                        icon="PROPERTIES",
-                        results_are_suggestions=True,
-                    )
-                else:
-                    material_value_column.prop_search(
-                        material_value,
-                        "property_name",
-                        get_scene_extension(context.scene),
-                        "vrm0_material_gltf_property_names",
-                        icon="PROPERTIES",
-                    )
-
-            for (
-                target_value_index,
-                target_value,
-            ) in enumerate(material_value.target_value):
-                target_value_row = material_value_column.row()
-                target_value_row.prop(
-                    target_value, "value", text=f"Value {target_value_index}"
-                )
-                remove_target_value_op = layout_operator(
-                    target_value_row,
-                    vrm0_ops.VRM_OT_remove_vrm0_material_value_bind_target_value,
-                    text="",
-                    translate=False,
-                    icon="REMOVE",
-                )
-                remove_target_value_op.armature_object_name = armature.name
-                remove_target_value_op.blend_shape_group_index = blend_shape_group_index
-                remove_target_value_op.material_value_index = material_value_index
-                remove_target_value_op.target_value_index = target_value_index
-            add_target_value_op = layout_operator(
-                material_value_column,
-                vrm0_ops.VRM_OT_add_vrm0_material_value_bind_target_value,
-                icon="ADD",
-            )
-            add_target_value_op.armature_object_name = armature.name
-            add_target_value_op.blend_shape_group_index = blend_shape_group_index
-            add_target_value_op.material_value_index = material_value_index
 
 
 class VRM_PT_vrm0_blend_shape_master_armature_object_property(Panel):
