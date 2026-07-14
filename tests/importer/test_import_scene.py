@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 
 import functools
+import sys
 from os import environ
 from pathlib import Path
 from unittest import main
@@ -90,14 +91,12 @@ class __TestImportSceneBrokenVrmBase(AddonTestCase):
         environ["BLENDER_VRM_AUTOMATIC_LICENSE_CONFIRMATION"] = "true"
 
         success = True
-        if (
-            vrm_path.name == "draco.vrm"
-            and not bpy.app.binary_path
-            and not ((4, 5) <= bpy.app.version < (5, 2))
-        ):
-            # On Linux when built as a module, the draco library cannot be read
-            # and causes an error
-            success = False
+        if vrm_path.name == "draco.vrm":
+            if bpy.app.binary_path:
+                if sys.platform == "linux" and bpy.app.version >= (5, 2):
+                    success = False
+            else:
+                success = False
 
         if (
             vrm_path.name == "empty.vrm"
