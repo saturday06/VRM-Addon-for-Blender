@@ -21,10 +21,10 @@ name = "bpy"
 version = "3.6.0"
 source = { registry = "https://download.blender.org/pypi/" }
 dependencies = [
-    { name = "cython" },
-    { name = "numpy" },
-    { name = "requests" },
-    { name = "zstandard" },
+    { name = "cython", marker = "(platform_machine == 'arm64' and sys_platform == 'darwin') or (platform_machine == 'x86_64' and sys_platform == 'darwin') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
+    { name = "numpy", marker = "(platform_machine == 'arm64' and sys_platform == 'darwin') or (platform_machine == 'x86_64' and sys_platform == 'darwin') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
+    { name = "requests", marker = "(platform_machine == 'arm64' and sys_platform == 'darwin') or (platform_machine == 'x86_64' and sys_platform == 'darwin') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
+    { name = "zstandard", marker = "(platform_machine == 'arm64' and sys_platform == 'darwin') or (platform_machine == 'x86_64' and sys_platform == 'darwin') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
 ]
 wheels = [
     { url = "https://download.blender.org/pypi/bpy/bpy-3.6.0-cp310-cp310-macosx_10_15_x86_64.whl" },
@@ -206,10 +206,10 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'arm64' and sys_platform == 'darwin'", specifier = "==5.1.*", index = "https://download.blender.org/pypi/" },
-    { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'linux'", specifier = "==5.1.*", index = "https://download.blender.org/pypi/" },
-    { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'win32'", specifier = "==5.1.*", index = "https://download.blender.org/pypi/" },
-    { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'ARM64' and sys_platform == 'win32'", specifier = "==5.1.*", index = "https://download.blender.org/pypi/" },
+    { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'arm64' and sys_platform == 'darwin'", specifier = "==5.2.*", index = "https://download.blender.org/pypi/" },
+    { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'linux'", specifier = "==5.2.*", index = "https://download.blender.org/pypi/" },
+    { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'win32'", specifier = "==5.2.*", index = "https://download.blender.org/pypi/" },
+    { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'ARM64' and sys_platform == 'win32'", specifier = "==5.2.*", index = "https://download.blender.org/pypi/" },
     { name = "io-scene-vrm", editable = "." },
     { name = "pytest" },
     { name = "pytest-benchmark" },
