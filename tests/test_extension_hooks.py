@@ -3,6 +3,7 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, sentinel
 
+from io_scene_vrm.common.convert import Json
 from io_scene_vrm.extension_hooks import (
     Vrm1ExportExtensionContext,
     Vrm1ImportExtensionContext,
@@ -139,7 +140,7 @@ class TestExtensionHooks(TestCase):
 
         register_vrm1_export_extension_hook(hook)
 
-        json_dict = {
+        json_dict: dict[str, Json] = {
             "extensions": {},
             "extensionsUsed": ["VRMC_vrm"],
         }

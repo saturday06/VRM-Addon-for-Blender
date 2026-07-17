@@ -57,11 +57,11 @@ class Vrm1ExportExtensionContext:
 
 
 class Vrm1ImportExtensionHook(Protocol):
-    def __call__(self, context: Vrm1ImportExtensionContext) -> None: ...
+    def __call__(self, context: Vrm1ImportExtensionContext, /) -> None: ...
 
 
 class Vrm1ExportExtensionHook(Protocol):
-    def __call__(self, context: Vrm1ExportExtensionContext) -> None: ...
+    def __call__(self, context: Vrm1ExportExtensionContext, /) -> None: ...
 
 
 @dataclass
