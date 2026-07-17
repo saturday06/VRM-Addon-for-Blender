@@ -76,6 +76,10 @@ from ..editor.vrm1.property_group import (
     Vrm1LookAtPropertyGroup,
     Vrm1MetaPropertyGroup,
 )
+from ..extension_hooks import (
+    Vrm1ExportExtensionContext,
+    invoke_vrm1_export_extension_hooks,
+)
 from ..external.io_scene_gltf2_support import (
     ExportSceneGltfArguments,
     export_scene_gltf,
@@ -3262,6 +3266,23 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
 
         json_dict["extensions"] = extensions
         json_dict["extensionsUsed"] = extensions_used
+
+        invoke_vrm1_export_extension_hooks(
+            Vrm1ExportExtensionContext(
+                context=self._context,
+                armature=self._armature,
+                json_dict=json_dict,
+                buffer0=buffer0,
+                bone_name_to_node_index=bone_name_to_index_dict,
+                object_name_to_node_index=object_name_to_index_dict,
+                image_name_to_index=image_name_to_index_dict,
+                material_name_to_index=material_name_to_index_dict,
+                mesh_object_name_to_node_index=mesh_object_name_to_node_index_dict,
+                mesh_object_name_to_morph_target_names=(
+                    mesh_object_name_to_morph_target_names_dict
+                ),
+            )
+        )
 
         v = get_addon_version()
         if environ.get("BLENDER_VRM_USE_TEST_EXPORTER_VERSION") == "true":
