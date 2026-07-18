@@ -18,7 +18,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    if: ${{ github.repository_visibility == 'public' }}
+    if: ${{ vars.ENABLE_VRM_RELEASE_PLEASE_WORKFLOW_RELEASE_PLEASE_JOB == 'true' }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
