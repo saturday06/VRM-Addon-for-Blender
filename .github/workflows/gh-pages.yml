@@ -20,7 +20,7 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    if: ${{ github.repository_visibility == 'public' }}
+    if: ${{ vars.ENABLE_VRM_GH_PAGES_WORKFLOW_DEPLOY_JOB == 'true' }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -42,9 +42,6 @@ jobs:
             --header "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest"; then
 
-            if [ "$GITHUB_REPOSITORY_OWNER" != "saturday06" ]; then
-              exit 0
-            fi
             exit 1
           fi
 
