@@ -301,6 +301,9 @@ def export_objects(
             continue
         if not export_invisibles and not obj.visible_get():
             continue
+        # VRMXT GeoNodes particle preview helpers (viewport-only; not avatar mesh).
+        if obj.get("vrmxt_vfx_preview"):
+            continue
         objects.append(obj)
 
     return [
