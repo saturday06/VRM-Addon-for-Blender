@@ -949,19 +949,20 @@ class Vrm1Importer(AbstractBaseVrmImporter):
         self.load_node_constraint1()
         migration.migrate(self._context, armature.name, heavy_migration=True)
 
-        invoke_vrm1_import_extension_hooks(
-            create_vrm1_import_extension_context(
-                context=self._context,
-                armature=armature,
-                json_dict=self._parse_result.json_dict,
-                node_index_to_object_name=self._object_names,
-                node_index_to_bone_name=self._bone_names,
-                image_index_to_image=self._images,
-                material_index_to_material=self._materials,
-                mesh_index_to_object=self._meshes,
-                mesh_node_index_to_object_name=self._mesh_object_names,
+        if get_preferences(self._context).enable_vrm1_import_extension_hooks:
+            invoke_vrm1_import_extension_hooks(
+                create_vrm1_import_extension_context(
+                    context=self._context,
+                    armature=armature,
+                    json_dict=self._parse_result.json_dict,
+                    node_index_to_object_name=self._object_names,
+                    node_index_to_bone_name=self._bone_names,
+                    image_index_to_image=self._images,
+                    material_index_to_material=self._materials,
+                    mesh_index_to_object=self._meshes,
+                    mesh_node_index_to_object_name=self._mesh_object_names,
+                )
             )
-        )
 
     def load_vrm1_meta(self, meta: Vrm1MetaPropertyGroup, meta_dict: Json) -> None:
         if not isinstance(meta_dict, dict):

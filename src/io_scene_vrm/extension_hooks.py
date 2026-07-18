@@ -21,6 +21,10 @@ from bpy.types import Context, Image, Material, Object
 
 from .common.convert import Json
 
+# Custom property third-party add-ons set on viewport-only helpers so
+# ``export_objects`` omits them from the GLB (no product-specific names).
+EXCLUDE_FROM_EXPORT_CUSTOM_PROP: Final[str] = "vrm_exclude_from_export"
+
 _K = TypeVar("_K")
 _V = TypeVar("_V")
 
