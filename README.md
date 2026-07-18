@@ -1,12 +1,10 @@
-**Work in progress**
-
 <a name="en" />
 
 [ English / [日本語](#ja_JP) ]
 
 # VRM Add-on for Blender [![CI status](https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/saturday06/VRM-Addon-for-Blender/actions) [![CodSpeed Badge](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/saturday06/VRM-Addon-for-Blender?utm_source=badge)
 
-VRM Add-on for Blender adds VRM import, export, and editing capabilities to
+*Work in progress* VRM Add-on for Blender adds VRM import, export, and editing capabilities to
 Blender. It also provides
 [an API for automation via Python scripts](https://vrm-addon-for-blender.info/en-us/scripting-api/).
 
