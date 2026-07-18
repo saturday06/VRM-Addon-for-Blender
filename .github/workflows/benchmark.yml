@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-    if: ${{ github.repository_visibility == 'public' }}
+    if: ${{ vars.ENABLE_VRM_BENCHMARK_WORKFLOW_BENCHMARK_JOB == 'true' }}
     timeout-minutes: 720
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
