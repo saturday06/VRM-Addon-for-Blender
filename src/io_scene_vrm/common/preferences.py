@@ -277,6 +277,14 @@ class VrmAddonPreferences(AddonPreferences):
         name="Enable MToon Outline Preview",
         default=True,
     )
+    enable_vrm1_import_extension_hooks: BoolProperty(  # type: ignore[valid-type]
+        name="Enable VRM 1.0 Import Extension Hooks",
+        description=(
+            "When enabled, registered third-party VRM 1.0 import extension hooks "
+            "run after stock VRM 1.0 import finishes"
+        ),
+        default=False,
+    )
 
     export_invisibles: BoolProperty(  # type: ignore[valid-type]
         name="Export Invisible Objects",
@@ -299,6 +307,14 @@ class VrmAddonPreferences(AddonPreferences):
     export_try_sparse_sk: BoolProperty(  # type: ignore[valid-type]
         name="Use Sparse Accessors",
     )
+    enable_vrm1_export_extension_hooks: BoolProperty(  # type: ignore[valid-type]
+        name="Enable VRM 1.0 Export Extension Hooks",
+        description=(
+            "When enabled, registered third-party VRM 1.0 export extension hooks "
+            "run after stock VRM 1.0 extensions are written"
+        ),
+        default=False,
+    )
 
     def draw(self, _context: Context) -> None:
         layout = self.layout
@@ -319,10 +335,12 @@ class VrmAddonPreferences(AddonPreferences):
         import_box = layout.box()
         import_box.label(text="Import", icon="IMPORT")
         draw_import_preferences_layout(self, import_box)
+        import_box.prop(self, "enable_vrm1_import_extension_hooks")
 
         export_box = layout.box()
         export_box.label(text="Export", icon="EXPORT")
         draw_export_preferences_layout(self, export_box, show_vrm1_options=True)
+        export_box.prop(self, "enable_vrm1_export_extension_hooks")
 
     if TYPE_CHECKING:
         # This code is auto generated.
@@ -337,6 +355,7 @@ class VrmAddonPreferences(AddonPreferences):
         set_armature_display_to_show_in_front: bool  # type: ignore[no-redef]
         set_armature_bone_shape_to_default: bool  # type: ignore[no-redef]
         enable_mtoon_outline_preview: bool  # type: ignore[no-redef]
+        enable_vrm1_import_extension_hooks: bool  # type: ignore[no-redef]
         export_invisibles: bool  # type: ignore[no-redef]
         export_only_selections: bool  # type: ignore[no-redef]
         enable_advanced_preferences: bool  # type: ignore[no-redef]
@@ -344,6 +363,7 @@ class VrmAddonPreferences(AddonPreferences):
         export_lights: bool  # type: ignore[no-redef]
         export_gltf_animations: bool  # type: ignore[no-redef]
         export_try_sparse_sk: bool  # type: ignore[no-redef]
+        enable_vrm1_export_extension_hooks: bool  # type: ignore[no-redef]
 
 
 def get_preferences(context: Context) -> VrmAddonPreferences:
