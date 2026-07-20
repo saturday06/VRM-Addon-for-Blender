@@ -4,6 +4,7 @@ import struct
 from collections.abc import Mapping, Sequence
 from os import environ
 from pathlib import Path
+from sys import float_info
 from typing import Optional
 
 import bpy
@@ -788,7 +789,9 @@ def _create_node_animation(
 
     # Export rotation
     for bone_name, quaternions in bone_name_to_quaternions.items():
-        if all(abs(quaternion.angle) == 0 for quaternion in quaternions):
+        if all(
+            abs(quaternion.angle) < float_info.epsilon for quaternion in quaternions
+        ):
             continue
         human_bone_name = next(
             (
@@ -907,7 +910,8 @@ def _create_node_animation(
         _logger.error("Failed to find node index for hips bone %s", hips_bone_name)
         return
     if all(
-        hips_translation.length_squared == 0 for hips_translation in hips_translations
+        hips_translation.length_squared < float_info.epsilon
+        for hips_translation in hips_translations
     ):
         return
 
