@@ -20,6 +20,7 @@ from bpy.types import (
 )
 
 from ..common.logger import get_logger
+from ..extension_hooks import EXCLUDE_FROM_EXPORT_CUSTOM_PROP
 from .extension_accessor import get_armature_extension
 
 _logger = get_logger(__name__)
@@ -300,6 +301,9 @@ def export_objects(
         if obj.name not in context.view_layer.objects:
             continue
         if not export_invisibles and not obj.visible_get():
+            continue
+        # Viewport-only helpers tagged by third-party add-ons (not avatar mesh).
+        if obj.get(EXCLUDE_FROM_EXPORT_CUSTOM_PROP):
             continue
         objects.append(obj)
 
