@@ -1413,7 +1413,7 @@ def _assign_spring_bone1_from_vrm0(
 
 class VRM_OT_assign_spring_bone1_from_vrm0(Operator):
     bl_idname = "vrm.assign_spring_bone1_from_vrm0"
-    bl_label = "Copy VRM 0.0 Spring Bone"
+    bl_label = "Assign VRM 0.0 Spring Bones"
     bl_description = "Copy VRM 0.0 Spring Bone data to VRM 1.0 Spring Bone"
     bl_options: ClassVar = {"REGISTER", "UNDO"}
 
@@ -1605,7 +1605,7 @@ def _assign_spring_bone1_from_mmd(
 
 class VRM_OT_assign_spring_bone1_from_mmd(Operator):
     bl_idname = "vrm.assign_spring_bone1_from_mmd"
-    bl_label = "Copy MMD Spring Bone"
+    bl_label = "Assign MMD Spring Bones"
     bl_description = "Copy MMD spring bone data to VRM 1.0 Spring Bone"
     bl_options: ClassVar = {"REGISTER", "UNDO"}
 

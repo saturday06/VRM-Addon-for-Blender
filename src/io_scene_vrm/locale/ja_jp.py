@@ -808,4 +808,13 @@ TRANSLATION_DICTIONARY: Final[Mapping[tuple[str, str], str]] = {
         "Operator",
         "Add ARkit / PerfectSync Custom Expressions",
     ): "ARkit / PerfectSyncのカスタムExpressionを追加",
+    (
+        "Operator",
+        "Assign Auto-Detected Spring Bones",
+    ): "自動検出されたスプリングボーンを割り当て",
+    ("Operator", "Assign VRM 0.0 Spring Bones"): "VRM 0.0のスプリングボーンを割り当て",
+    (
+        "Operator",
+        "Assign MMD Physics Spring Bones",
+    ): "MMDの物理演算からスプリングボーンを割り当て",
 }
