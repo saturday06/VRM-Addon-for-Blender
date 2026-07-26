@@ -6,7 +6,7 @@
     "npm:@octokit/types@16.0.0": "16.0.0",
     "npm:@types/node@26.1.1": "26.1.1",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
-    "npm:isomorphic-git@1.38.10": "1.38.10",
+    "npm:isomorphic-git@1.39.0": "1.39.0",
     "npm:pyright@1.1.411": "1.1.411",
     "npm:vitepress@1.6.4": "1.6.4_@algolia+client-search@5.56.0_@types+node@26.1.1_search-insights@2.17.3",
     "npm:vue@3.5.40": "3.5.40"
@@ -1082,8 +1082,8 @@
     "isarray@2.0.5": {
       "integrity": "sha512-xHjhDr3cNBK0BzdUJSPXZntQUx/mwMS5Rw4A7lPJ90XGAO6ISP/ePDNuo0vhqOZU+UD5JoodwCAAoZQd3FeAKw=="
     },
-    "isomorphic-git@1.38.10": {
-      "integrity": "sha512-nJSSq7ypu97vM33rSdxXyPzSWksCberjKspzXhFEcBHdVyxdNkWByAzJ/AURV1jIlfv8pLq37lGdIEt7ORj17Q==",
+    "isomorphic-git@1.39.0": {
+      "integrity": "sha512-5B1y8nFVgTWpS7Se7oQFSISJAqyOMLr2e/fN9ziRHmcofDdnrrWgX5wHHwuAMRlyyicb9OPpR6ToFxdAgiiDZw==",
       "dependencies": [
         "async-lock",
         "clean-git-ref",
@@ -1519,7 +1519,7 @@
       "npm:@octokit/types@16.0.0",
       "npm:@types/node@26.1.1",
       "npm:gltf-validator@2.0.0-dev.3.10",
-      "npm:isomorphic-git@1.38.10",
+      "npm:isomorphic-git@1.39.0",
       "npm:pyright@1.1.411",
       "npm:vitepress@1.6.4",
       "npm:vue@3.5.40"
