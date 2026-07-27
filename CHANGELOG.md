@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.4.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.4.0...v4.4.1) (2026-07-27)
+
+
+### 🐛 Bug Fixes
+
+* fix rounding logic of IsBinary BlendShapes in VRM 0.0 ([f19c4b7](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f19c4b76cba392e54689af84abf465afc64653ef))
+* improve rotation and translation checks using float precision ([12301f0](https://github.com/saturday06/VRM-Addon-for-Blender/commit/12301f059f14faa60df2a4d5b06dbe12589c5dfd))
+
 ## [4.4.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.3.3...v4.4.0) (2026-07-11)
 
 
