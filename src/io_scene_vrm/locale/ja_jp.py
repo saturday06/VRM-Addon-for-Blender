@@ -806,6 +806,10 @@ TRANSLATION_DICTIONARY: Final[Mapping[tuple[str, str], str]] = {
     ): "Ready Player Meのシェイプキーを割り当て",
     (
         "Operator",
+        "Assign VRM 0.0 Blend Shapes",
+    ): "VRM 0.0のBlend Shapeを割り当て",
+    (
+        "Operator",
         "Add ARkit / PerfectSync Custom Expressions",
     ): "ARkit / PerfectSyncのカスタムExpressionを追加",
     (

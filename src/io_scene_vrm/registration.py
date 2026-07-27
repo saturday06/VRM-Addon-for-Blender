@@ -364,6 +364,7 @@ CLASSES: Final[
     vrm1_ops.VRM_OT_assign_vrm1_expressions_from_ready_player_me,
     vrm1_ops.VRM_OT_assign_vrm1_expressions_from_vrchat,
     vrm1_ops.VRM_OT_assign_vrm1_expressions_from_arkit,
+    vrm1_ops.VRM_OT_assign_vrm1_expressions_from_vrm0,
     vrm1_ops.VRM_OT_assign_vrm1_expressions_automatically,
     vrm1_ops.VRM_OT_add_vrm1_expression_material_color_bind,
     vrm1_ops.VRM_OT_remove_vrm1_expression_material_color_bind,

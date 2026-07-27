@@ -30,6 +30,7 @@ from bpy.types import (
 from ...common import shader
 from ...common.human_bone_mapper.human_bone_mapper import create_human_bone_mapping
 from ...common.logger import get_logger
+from ...common.shader import LegacyAddonMaterial
 from ...common.shape_key_mapper.arkit_mapping import (
     ARKIT_SHAPE_KEYS,
     VRM1_PRESET_TO_ARKIT_SHAPE_KEY_MAPPING,
@@ -42,21 +43,30 @@ from ...common.shape_key_mapper.vrchat_mapping import (
     VRM1_PRESET_TO_VRCHAT_SHAPE_KEY_MAPPING,
 )
 from ...common.vrm0.human_bone import HumanBoneName as Vrm0HumanBoneName
-from ...common.vrm1.expression_preset import ExpressionPreset
+from ...common.vrm0.material_property import (
+    GLTF_PROPERTIES,
+    MTOON0_PROPERTIES,
+    MaterialPropertyTarget,
+    MaterialPropertyType,
+)
+from ...common.vrm1.expression_preset import ExpressionPreset, ExpressionPresets
 from ...common.vrm1.human_bone import (
     HumanBoneName,
     HumanBoneSpecification,
     HumanBoneSpecifications,
 )
 from .. import search
-from ..extension_accessor import get_armature_extension
+from ..extension_accessor import get_armature_extension, get_material_extension
 from ..menu import VRM_MT_bone_assignment
 from ..ops import VRM_OT_open_url_in_web_browser, layout_operator
 from ..property_group import HumanoidStructureBonePropertyGroup
-from ..vrm0.property_group import Vrm0HumanoidPropertyGroup
+from ..vrm0.property_group import (
+    Vrm0HumanoidPropertyGroup,
+)
 from .property_group import (
     Vrm1ExpressionPropertyGroup,
     Vrm1HumanBonesPropertyGroup,
+    Vrm1MaterialColorBindPropertyGroup,
     reset_expression_material_binds,
 )
 
@@ -939,6 +949,197 @@ def _add_shape_keys_to_vrm1_expressions(
     return {"FINISHED"}
 
 
+def assign_vrm1_expressions_from_vrm0(
+    context: Context, armature_object_name: str
+) -> set[str]:
+    armature = context.blend_data.objects.get(armature_object_name)
+    if armature is None or armature.type != "ARMATURE":
+        return {"CANCELLED"}
+    armature_data = armature.data
+    if not isinstance(armature_data, Armature):
+        return {"CANCELLED"}
+
+    expressions = get_armature_extension(armature_data).vrm1.expressions
+    blend_shape_groups = get_armature_extension(
+        armature_data
+    ).vrm0.blend_shape_master.blend_shape_groups
+
+    for blend_shape_group in blend_shape_groups:
+        if not blend_shape_group.name:
+            continue
+
+        if (
+            blend_shape_group.preset_name
+            == blend_shape_group.PRESET_NAME_UNKNOWN.identifier
+        ):
+            if blend_shape_group.name.casefold() in {
+                "surprise",
+                "surprised",
+            }:
+                expression_preset = ExpressionPresets.SURPRISED
+            else:
+                expression_preset = None
+        else:
+            expression_preset = next(
+                (
+                    expression_preset
+                    for expression_preset in ExpressionPresets.all
+                    if blend_shape_group.preset_name == expression_preset.vrm0_preset
+                ),
+                None,
+            )
+
+        if expression_preset is None:
+            expression = next(
+                (
+                    custom_expression
+                    for custom_expression in expressions.custom
+                    if custom_expression.custom_name == blend_shape_group.name
+                ),
+                None,
+            )
+            if expression is None:
+                expression = expressions.custom.add()
+                expression.custom_name = blend_shape_group.name
+        else:
+            expression = expressions.preset.name_to_expression_dict().get(
+                expression_preset.name
+            )
+            if expression is None:
+                continue
+
+        if (
+            expression.morph_target_binds
+            or expression.material_color_binds
+            or expression.texture_transform_binds
+        ):
+            continue
+
+        for bind in blend_shape_group.binds:
+            mesh_object_name = bind.mesh.mesh_object_name
+            if not mesh_object_name:
+                continue
+            morph_target_bind = expression.morph_target_binds.add()
+            morph_target_bind.node.mesh_object_name = mesh_object_name
+            morph_target_bind.index = bind.index
+            morph_target_bind.weight = bind.weight
+
+        for material_value in blend_shape_group.material_values:
+            material = material_value.material
+            if not material:
+                continue
+
+            is_mtoon = get_material_extension(material).mtoon1.enabled or (
+                (legacy_addon_material := LegacyAddonMaterial.try_parse(material))
+                and legacy_addon_material.shader_name == "MToon_unversioned"
+            )
+            material_property = next(
+                (
+                    material_property
+                    for material_property in (
+                        list(MTOON0_PROPERTIES.values())
+                        + list(GLTF_PROPERTIES.values())
+                        if is_mtoon
+                        else list(GLTF_PROPERTIES.values())
+                        + list(MTOON0_PROPERTIES.values())
+                    )
+                    if material_property.name == material_value.property_name
+                ),
+                None,
+            )
+            if not material_property:
+                continue
+            material_property_target = material_property.target
+            if material_property_target is None:
+                continue
+
+            if material_property.type in {
+                MaterialPropertyType.RGB,
+                MaterialPropertyType.RGBA,
+            } and (
+                material_color_bind_type := {
+                    MaterialPropertyTarget.COLOR: (
+                        Vrm1MaterialColorBindPropertyGroup.TYPE_COLOR
+                    ),
+                    MaterialPropertyTarget.EMISSION_COLOR: (
+                        Vrm1MaterialColorBindPropertyGroup.TYPE_EMISSION_COLOR
+                    ),
+                    MaterialPropertyTarget.SHADE_COLOR: (
+                        Vrm1MaterialColorBindPropertyGroup.TYPE_SHADE_COLOR
+                    ),
+                    # No SPHERE_ADD_COLOR
+                    # MaterialPropertyTarget.SPHERE_ADD: (
+                    #     Vrm1MaterialColorBindPropertyGroup.TYPE_MATCAP_COLOR
+                    # )
+                    MaterialPropertyTarget.RIM_COLOR: (
+                        Vrm1MaterialColorBindPropertyGroup.TYPE_RIM_COLOR
+                    ),
+                    MaterialPropertyTarget.OUTLINE_COLOR: (
+                        Vrm1MaterialColorBindPropertyGroup.TYPE_OUTLINE_COLOR
+                    ),
+                }.get(material_property_target)
+            ):
+                material_color_bind = expression.material_color_binds.add()
+                material_color_bind.material = material
+                material_color_bind.type = material_color_bind_type.identifier
+                if (
+                    material_color_bind_type.identifier
+                    == Vrm1MaterialColorBindPropertyGroup.TYPE_COLOR.identifier
+                ):
+                    material_color_bind.target_value = (
+                        material_value.target_value_as_rgba
+                    )
+                else:
+                    material_color_bind.target_value_as_rgb = (
+                        material_value.target_value_as_rgb
+                    )
+
+            if (
+                material_property.type
+                in {
+                    MaterialPropertyType.UV,
+                    MaterialPropertyType.UV_S,
+                    MaterialPropertyType.UV_T,
+                }
+                and material_property_target == MaterialPropertyTarget.MAIN_TEX
+            ):
+                texture_transform_bind = expression.texture_transform_binds.add()
+                texture_transform_bind.material = material
+                texture_transform_bind.scale = (
+                    material_value.target_value_tiling_s,
+                    material_value.target_value_tiling_t,
+                )
+                texture_transform_bind.offset = (
+                    material_value.target_value_offset_s,
+                    # https://github.com/vrm-c/UniVRM/issues/930
+                    1
+                    - material_value.target_value_offset_t
+                    - material_value.target_value_tiling_t,
+                )
+
+    update_vrm1_expression_ui_list_elements(context)
+    return {"FINISHED"}
+
+
+class VRM_OT_assign_vrm1_expressions_from_vrm0(Operator):
+    bl_idname = "vrm.assign_vrm1_expressions_from_vrm0"
+    bl_label = "Assign VRM 0.0 Blend Shapes"
+    bl_description = "Assign VRM 1.0 Expressions from VRM 0.x Blend Shapes"
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        return assign_vrm1_expressions_from_vrm0(context, self.armature_object_name)
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
+
+
 class VRM_OT_assign_vrm1_expressions_automatically(Operator):
     bl_idname = "vrm.assign_vrm1_expressions_automatically"
     bl_label = "Assign Auto-Detected Shape Keys"
@@ -972,6 +1173,7 @@ def assign_vrm1_expressions_automatically(
             armature_object_name,
             mapping,
         )
+    assign_vrm1_expressions_from_vrm0(context, armature_object_name)
     return {"FINISHED"}
 
 

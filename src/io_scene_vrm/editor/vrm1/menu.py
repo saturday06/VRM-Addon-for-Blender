@@ -12,6 +12,7 @@ from .ops import (
     VRM_OT_assign_vrm1_expressions_from_mmd,
     VRM_OT_assign_vrm1_expressions_from_ready_player_me,
     VRM_OT_assign_vrm1_expressions_from_vrchat,
+    VRM_OT_assign_vrm1_expressions_from_vrm0,
     VRM_OT_restore_vrm1_expression_morph_target_bind_object,
 )
 
@@ -63,6 +64,11 @@ class VRM_MT_vrm1_expression(Menu):
             layout, VRM_OT_assign_vrm1_expressions_from_ready_player_me
         )
         ready_player_me_expressions_op.armature_object_name = armature.name
+
+        vrm0_blend_shapes_expressions_op = layout_operator(
+            layout, VRM_OT_assign_vrm1_expressions_from_vrm0
+        )
+        vrm0_blend_shapes_expressions_op.armature_object_name = armature.name
 
         arkit_expressions_op = layout_operator(
             layout, VRM_OT_assign_vrm1_expressions_from_arkit

@@ -47,8 +47,8 @@ class VRM_MT_spring_bone1_spring_bones(Menu):
         )
         auto_detection_op.armature_object_name = armature.name
 
-        assign_op = layout_operator(layout, VRM_OT_assign_spring_bone1_from_vrm0)
-        assign_op.armature_object_name = armature.name
+        assign_vrm0_op = layout_operator(layout, VRM_OT_assign_spring_bone1_from_vrm0)
+        assign_vrm0_op.armature_object_name = armature.name
 
         assign_mmd_op = layout_operator(layout, VRM_OT_assign_spring_bone1_from_mmd)
         assign_mmd_op.armature_object_name = armature.name
