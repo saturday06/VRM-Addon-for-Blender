@@ -31,6 +31,9 @@ dev = [
   "types-tqdm",
 ]
 
+[tool.uv]
+cache-dir = "./.local/var/cache/uv"
+
 [tool.uv.workspace]
 members = ["benchmarks", "typings"]
 
