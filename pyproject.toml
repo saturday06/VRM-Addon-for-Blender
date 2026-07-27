@@ -52,6 +52,7 @@ select = ["ALL"]
 ignore = [
   # ----- fixing -----
 
+  "CPY001", # Missing copyright notice at top of file
   "FBT003", # Boolean positional value in function call
 
   # ----- ignored -----
