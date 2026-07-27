@@ -52,6 +52,9 @@ jobs:
           ref: ${{ needs.release-please.outputs.release_sha }}
       - name: Install deb packages
         run: sudo ./tools/install_ubuntu_packages.sh
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version-file: .deno-version
       - name: Release
         run: ./tools/release.sh "$RELEASE_TAG_NAME"
         env:
