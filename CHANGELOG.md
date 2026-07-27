@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.5.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.4.1...v4.5.0) (2026-07-27)
+
+
+### 🚀 Features
+
+* vrm0 to vrm1 expression migration ([79c6fab](https://github.com/saturday06/VRM-Addon-for-Blender/commit/79c6fab61abe0bb60117b0cf041489f72098fb16))
+
+
+### 🐛 Bug Fixes
+
+* trigger release pipeline ([4420249](https://github.com/saturday06/VRM-Addon-for-Blender/commit/44202492ae197349fd75f7e2cf911323d261435c))
+
 ## [4.4.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.4.0...v4.4.1) (2026-07-27)
 
 
