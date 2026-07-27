@@ -682,7 +682,7 @@ TRANSLATION_DICTIONARY: Final[Mapping[tuple[str, str], str]] = {
     (
         "*",
         "Shows the cause of the bone assignment error"
-        " or the reason why none of the bone assignment candidates exist.",
+        + " or the reason why none of the bone assignment candidates exist.",
     ): "ボーン割り当てのエラーの原因や、"
     + "ボーンの割り当て候補が存在しない理由を表示します。",
     (
