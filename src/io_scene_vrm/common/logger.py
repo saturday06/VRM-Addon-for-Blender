@@ -22,13 +22,13 @@ class VrmAddonLoggerAdapter(LoggerAdapter):
         msg: object,
         *args: object,
         exc_info: Union[
-            None,
             bool,
             Union[
                 tuple[type[BaseException], BaseException, Optional[TracebackType]],
                 tuple[None, None, None],
             ],
             BaseException,
+            None,
         ] = None,
         stack_info: bool = False,
         stacklevel: int = 1,
