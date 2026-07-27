@@ -1,5 +1,73 @@
 # Changelog
 
+## [5.0.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.4.1...v5.0.0) (2026-07-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* trigger major release pipeline
+
+### 🚀 Features
+
+* add mode to ignore Human Bone hierarchy constraints and reconstruct on export ([d8b9ef8](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d8b9ef8cdc37d8fb900a9365d3e229042acfc31c))
+* add MPFB2 bone mapping preset ([46d0c99](https://github.com/saturday06/VRM-Addon-for-Blender/commit/46d0c998288d08278a9410d510eef4acf741d34c))
+* add thumbnail preview to VRM import license warning dialog ([236b290](https://github.com/saturday06/VRM-Addon-for-Blender/commit/236b2902aa0413d4816a76810f2f5befae85871e))
+* An appropriate UI for VRM0 Material Bind. Fixed parameter interpretation errors. ([d37bd70](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d37bd7060fbf97a455702c45f159341009e75bb8))
+* auto-set renderQueueOffsetNumber in VRM0 MToon0 import using UniVRM migration logic ([9f61835](https://github.com/saturday06/VRM-Addon-for-Blender/commit/9f6183533fd77fcdd1750b51756cb79eadb225df))
+* bone eyedropper submenu ([4e871cb](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4e871cbda1723d52a70804f2ec278e0854e66776))
+* bone mapping detection for Character Creator ([fc7c750](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fc7c75016ee70bb342c84b2bba0f2e212db7656d))
+* hide make_new_texture_folder when extract_textures_into_folder is disabled ([13e9da9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/13e9da994f10ee0fb212a13c7b3ef9a80355d465))
+* implement ui list filters ([1af39e5](https://github.com/saturday06/VRM-Addon-for-Blender/commit/1af39e5ca713d26103e7e43def78dd5364458cbb))
+* preprocess and merge duplicated joint weights ([0770e1d](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0770e1d1b453748eb5c67d56baf0428a1f27cf80))
+* revert general bone selector to default behaviour ([354e76c](https://github.com/saturday06/VRM-Addon-for-Blender/commit/354e76c647e80fb26d9090b9c95cc8a26b2ce439))
+* show glTF add-on diagnostics in the error dialog ([fb8e4e9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fb8e4e975348bac7b038836289f3c01388a20ef5))
+* springbone migration from VRM 0.0 to VRM 1.0 ([a4896ce](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a4896ce9b1673d2d5579b9d312815f2764449153))
+* support blender 5.1 ([a73d13a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/a73d13aa39a23b228897ee9acba0f7f92e65937f))
+* support blender 5.2 ([eb37f3a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/eb37f3a45e9e7cd9f12c31af3e55ca542bec9ae1))
+* support expression/blendshape material bind preview ([93edbb2](https://github.com/saturday06/VRM-Addon-for-Blender/commit/93edbb2976a5e20b54fec182c34d6dde0943e253))
+* the displayed armature is now selected by default ([6691a9d](https://github.com/saturday06/VRM-Addon-for-Blender/commit/6691a9d53ff6428377f3123cfba3a749118f8450))
+
+
+### 🐛 Bug Fixes
+
+* fix a bug that sometimes caused the application to crash when importing SpringBone ([51d7b3c](https://github.com/saturday06/VRM-Addon-for-Blender/commit/51d7b3cfed76abf91a555c4d1ade28b09c2f4dfe))
+* fix a bug where getting or setting rotation in axis-angle mode produced invalid values ([06e7e37](https://github.com/saturday06/VRM-Addon-for-Blender/commit/06e7e37249e047f74f7b2b4bffcb08737c479d25))
+* fix a bug where hidden UVs could be exported for VRM 0.x meshes with multiple UVs ([c74e7ea](https://github.com/saturday06/VRM-Addon-for-Blender/commit/c74e7ea351111b0f34a185ee5fe82306fcbef05d))
+* fix a bug where VRM0 export fails when certain shader nodes are present ([86972fa](https://github.com/saturday06/VRM-Addon-for-Blender/commit/86972faae3e9d270b3edde339b4ca0ed3e0bbc2e))
+* fix a freeze that occurred when loading a blend file ([dacaf02](https://github.com/saturday06/VRM-Addon-for-Blender/commit/dacaf021d45d6c70a95a1e21ff83a6651802449a))
+* fix bug where third-party colliders were merged automatically without intention ([664048f](https://github.com/saturday06/VRM-Addon-for-Blender/commit/664048fddef1bfcec1f85fc083f42af9e736a197))
+* fix collider reparent error on save ([11d7675](https://github.com/saturday06/VRM-Addon-for-Blender/commit/11d7675b4f85ac4f226fd81b7528c5babf19c7b9))
+* fix export error when a Null Constraint is present in the file ([8fc941b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/8fc941b563ad06f6e6392d60d2f7559b4d89a968))
+* fix look at preview diff calculation ([d46206e](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d46206e7b21d0fa44b8b4b6e902a33e7bc3de7f6))
+* fix random crash on load or migrate armature ([adb9fa2](https://github.com/saturday06/VRM-Addon-for-Blender/commit/adb9fa2b4216dcfc6bfa98bd75b24f412bf0d51d))
+* fix rounding logic of IsBinary BlendShapes in VRM 0.0 ([f19c4b7](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f19c4b76cba392e54689af84abf465afc64653ef))
+* fix shape key values being lost during VRM export ([6f02137](https://github.com/saturday06/VRM-Addon-for-Blender/commit/6f0213756491e94f60f5b34a137cbfb4816b2015))
+* fix SpringBone capsule collider radius calculation ([78140df](https://github.com/saturday06/VRM-Addon-for-Blender/commit/78140dfe4dd0bcaca543837dae9e3c6914de0898))
+* fix unfriendly vrm 1.0 image buffer alignments ([4c528da](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4c528da1b4f0ce9f975febe385e20fffdab8fe44))
+* fix vrm 0.0 uv translation and scaling ([85e04f9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/85e04f92efa10bd31448a2eb98c60e4e7b7f5203))
+* fixed a bug in edge cases during image filename generation ([8be2a88](https://github.com/saturday06/VRM-Addon-for-Blender/commit/8be2a881827fef4f7e2b5f11e3e3fba688de011a))
+* fixed a bug that sometimes prevented LookAt and MToon from updating automatically ([9633c29](https://github.com/saturday06/VRM-Addon-for-Blender/commit/9633c295068a881fa5c29e7bb3ca439f3b97c2ac))
+* fixed a bug where exporting VRM 0 models in Blender 5.1 had become extremely slow ([682528f](https://github.com/saturday06/VRM-Addon-for-Blender/commit/682528f39ab7d1f0e5c4f20c3ebebb45e42d2a21))
+* fixed a bug where expression animations might not be reflected when manually moving the timeline ([b34eca5](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b34eca5eb4889d511e97ba810aa1536cf477ca8f))
+* fixed a bug where temporary armatures might remain after exporting VRM0 files ([0146c00](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0146c00d9059b22ff0539645e983c3762bce9cf1))
+* fixed a bug where unregistered shape keys were accidentally baked ([dc0b659](https://github.com/saturday06/VRM-Addon-for-Blender/commit/dc0b659be78b5c759bf5980321cd1293a2e3058c))
+* fixed a bug where vrm files sometimes failed to load on Windows ([c00a62b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/c00a62bd51bef1059c474230d4e41c9066a0a282))
+* fixed a bug where VRM import would fail if the entire viewport's armature was hidden ([bac1256](https://github.com/saturday06/VRM-Addon-for-Blender/commit/bac12560ea8bf0ce8d16bbbb979f0aa249d900ac))
+* fixed incorrect UV mapping when exporting VRM 1.0 meshes with multiple UVs. ([79dcea9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/79dcea918346b5ba021fb856e3b2888964057f79))
+* improve rotation and translation checks using float precision ([12301f0](https://github.com/saturday06/VRM-Addon-for-Blender/commit/12301f059f14faa60df2a4d5b06dbe12589c5dfd))
+* improve URI handling in read_accessor_as_bytes function ([b0279c8](https://github.com/saturday06/VRM-Addon-for-Blender/commit/b0279c8c97d7c6444febf887c077fa430028dcc7))
+* improved compatibility between UniVRM and three-vrm for outlineWidthTexture ([74f1893](https://github.com/saturday06/VRM-Addon-for-Blender/commit/74f189302549a093aa5b8789aa58812645733e3d))
+* include LookAtPropertyGroup in frame change updates ([07c3066](https://github.com/saturday06/VRM-Addon-for-Blender/commit/07c306685409e9e33dc68d34caf9274a25a8af2b))
+* **io_scene_vrm:** potential denial of service via extremely large re ([5adffea](https://github.com/saturday06/VRM-Addon-for-Blender/commit/5adffea46328c7b96b7afef63e2e4f5839c0cb65))
+* restart the release pipeline because it did not complete successfully ([4391116](https://github.com/saturday06/VRM-Addon-for-Blender/commit/4391116a283843f26e09ab8e434bc31e0387d627))
+* some development code has been removed to meet the platform requirements ([e345704](https://github.com/saturday06/VRM-Addon-for-Blender/commit/e3457044f1a11624e735fbcf0a1300b4a5db817c))
+* trigger major release pipeline ([36e524e](https://github.com/saturday06/VRM-Addon-for-Blender/commit/36e524e9eb554918a71f07166ea094452a1a4c8e))
+* trigger release pipeline ([4420249](https://github.com/saturday06/VRM-Addon-for-Blender/commit/44202492ae197349fd75f7e2cf911323d261435c))
+* trigger release pipeline ([956ea9a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/956ea9a4f117118ff48b9b7bbb17b606421e2fd8))
+* trigger release pipeline ([1eab977](https://github.com/saturday06/VRM-Addon-for-Blender/commit/1eab977effbfe82475942b489fdee1a62f9dea0c))
+* tweak Simplified Chinese translation ([adb530a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/adb530a58d74b5480c11d9e436a1e473724339bf))
+* update buffer alignment from 32 to 4 bytes in animation export functions ([d3348f1](https://github.com/saturday06/VRM-Addon-for-Blender/commit/d3348f129c629dbd589c5da098b7a46159739a43))
+
 ## [4.4.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.4.0...v4.4.1) (2026-07-27)
 
 
