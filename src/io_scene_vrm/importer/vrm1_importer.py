@@ -814,7 +814,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 z_negated_vector = z_vector.copy()
                 z_negated_vector.negate()
 
-                bone_length_and_axis_translations: list[tuple[float, str]] = [
+                bone_length, axis_translation = max(
                     (
                         target_vector.dot(x_vector),
                         BoneExtension.AXIS_TRANSLATION_X_TO_Y.identifier,
@@ -839,10 +839,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                         target_vector.dot(z_negated_vector),
                         BoneExtension.AXIS_TRANSLATION_MINUS_Z_TO_Y.identifier,
                     ),
-                ]
-                bone_length, axis_translation = sorted(
-                    bone_length_and_axis_translations, reverse=True, key=lambda x: x[0]
-                )[0]
+                )
                 bone.matrix = BoneExtension.translate_axis(
                     bone.matrix,
                     axis_translation,

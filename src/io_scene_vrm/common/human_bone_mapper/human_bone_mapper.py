@@ -162,7 +162,7 @@ def create_human_bone_mapping(
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
         raise TypeError
-    ((required_count, _all_count), name, mapping) = sorted(
+    ((required_count, _all_count), name, mapping) = max(
         (_match_counts(armature_data, mapping), name, mapping)
         for name, mapping in (
             mmd_mapping.create_config(armature),
@@ -182,7 +182,7 @@ def create_human_bone_mapping(
             vrm_addon_mapping.CONFIG_VRM1,
             vrm_addon_mapping.CONFIG_VRM0,
         )
-    )[-1]
+    )
     result = {}
     wanted_required_count = sum(
         1 for spec in HumanBoneSpecifications.all_human_bones if spec.requirement
