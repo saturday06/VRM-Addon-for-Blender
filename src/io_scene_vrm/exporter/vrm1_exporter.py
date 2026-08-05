@@ -878,6 +878,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
     @classmethod
     def create_spring_bone_spring_dicts(
         cls,
+        extensions_used: list[Json],
         spring_bone: SpringBone1SpringBonePropertyGroup,
         bone_name_to_index_dict: Mapping[str, int],
         collider_group_uuid_to_index_dict: Mapping[str, int],
@@ -893,7 +894,16 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 SpringBone1SpringPropertyGroup, Sequence[SpringBone1JointPropertyGroup]
             ]
         ] = [
-            (spring, [joint for joint, _ in joint_and_bones])
+            (
+                spring,
+                [
+                    joint
+                    for joint, _ in joint_and_bones
+                    if isinstance(
+                        bone_name_to_index_dict.get(joint.node.bone_name), int
+                    )
+                ],
+            )
             for spring in spring_bone.springs
             for joint_and_bones in sort_spring_bone_joints(armature, spring.joints)
         ]
@@ -911,20 +921,53 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 node_index = bone_name_to_index_dict.get(joint.node.bone_name)
                 if not isinstance(node_index, int):
                     continue
-                joint_dicts.append(
-                    {
-                        "node": node_index,
-                        "hitRadius": joint.hit_radius,
-                        "stiffness": joint.stiffness,
-                        "gravityPower": joint.gravity_power,
-                        "gravityDir": [
-                            joint.gravity_dir[0],
-                            joint.gravity_dir[2],
-                            -joint.gravity_dir[1],
-                        ],
-                        "dragForce": joint.drag_force,
+                joint_dict: dict[str, Json] = {
+                    "node": node_index,
+                    "hitRadius": joint.hit_radius,
+                    "stiffness": joint.stiffness,
+                    "gravityPower": joint.gravity_power,
+                    "gravityDir": [
+                        joint.gravity_dir[0],
+                        joint.gravity_dir[2],
+                        -joint.gravity_dir[1],
+                    ],
+                    "dragForce": joint.drag_force,
+                }
+
+                limit = joint.vrmc_spring_bone_limit
+                limit_parameter_dict: Optional[dict[str, Json]] = None
+                limit_type = ""
+                if limit.limit_type == limit.LIMIT_TYPE_CONE.identifier:
+                    limit_parameter_dict = {"angle": limit.cone_angle}
+                    limit_type = "cone"
+                elif limit.limit_type == limit.LIMIT_TYPE_HINGE.identifier:
+                    limit_parameter_dict = {"angle": limit.hinge_angle}
+                    limit_type = "hinge"
+                elif limit.limit_type == limit.LIMIT_TYPE_SPHERICAL.identifier:
+                    limit_parameter_dict = {
+                        "pitch": limit.spherical_pitch,
+                        "yaw": limit.spherical_yaw,
                     }
-                )
+                    limit_type = "spherical"
+
+                if limit_parameter_dict is not None and joint is not joints[-1]:
+                    rotation = limit.rotation_quaternion()
+                    limit_parameter_dict["rotation"] = [
+                        rotation.x,
+                        rotation.y,
+                        rotation.z,
+                        rotation.w,
+                    ]
+                    joint_dict["extensions"] = {
+                        "VRMC_springBone_limit": {
+                            "specVersion": "1.0",
+                            "limit": {limit_type: limit_parameter_dict},
+                        }
+                    }
+                    if "VRMC_springBone_limit" not in extensions_used:
+                        extensions_used.append("VRMC_springBone_limit")
+
+                joint_dicts.append(joint_dict)
 
             if not joint_dicts:
                 continue
@@ -3281,6 +3324,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             spring_bone_dict["colliderGroups"] = spring_bone_collider_group_dicts
 
         spring_bone_spring_dicts = self.create_spring_bone_spring_dicts(
+            extensions_used,
             spring_bone,
             bone_name_to_index_dict,
             collider_group_uuid_to_index_dict,

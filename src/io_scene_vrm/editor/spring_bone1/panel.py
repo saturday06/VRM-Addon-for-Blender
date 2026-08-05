@@ -10,6 +10,7 @@ from ..migration import defer_migrate
 from ..panel import VRM_PT_vrm_armature_object_property, draw_template_list
 from ..search import active_object_is_vrm1_armature
 from . import ops
+from .handler import sort_spring_bone_joints
 from .menu import VRM_MT_spring_bone1_spring_bones
 from .property_group import (
     SpringBone1ColliderGroupPropertyGroup,
@@ -425,6 +426,26 @@ def _draw_spring_bone1_springs_layout(
         joints_column.prop(joint, "gravity_dir")
         joints_column.prop(joint, "drag_force", slider=True)
         joints_column.prop(joint, "hit_radius", slider=True)
+
+        if any(
+            sorted_joint == joint
+            for sorted_chain in sort_spring_bone_joints(armature, spring.joints)
+            for sorted_joint, _ in list(sorted_chain)[:-1]
+        ):
+            limit = joint.vrmc_spring_bone_limit
+            limit_box = joints_column.box()
+            limit_box.label(text="VRMC_springBone_limit (Experimental)")
+            limit_box.prop(limit, "limit_type")
+            if limit.limit_type == limit.LIMIT_TYPE_CONE.identifier:
+                limit_box.prop(limit, "cone_angle")
+                limit_box.prop(limit, "rotation")
+            elif limit.limit_type == limit.LIMIT_TYPE_HINGE.identifier:
+                limit_box.prop(limit, "hinge_angle")
+                limit_box.prop(limit, "rotation")
+            elif limit.limit_type == limit.LIMIT_TYPE_SPHERICAL.identifier:
+                limit_box.prop(limit, "spherical_pitch")
+                limit_box.prop(limit, "spherical_yaw")
+                limit_box.prop(limit, "rotation")
 
     collider_groups_box = spring_column.box()
     collider_groups_column = collider_groups_box.column()

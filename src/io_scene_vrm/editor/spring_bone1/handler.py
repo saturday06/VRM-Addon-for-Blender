@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+
+import math
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
@@ -19,6 +21,7 @@ from ..property_group import CollectionPropertyProtocol
 from .property_group import (
     SpringBone1JointPropertyGroup,
     SpringBone1SpringPropertyGroup,
+    SpringBone1VrmcSpringBoneLimitPropertyGroup,
 )
 
 
@@ -37,6 +40,117 @@ class State:
 
 
 _state: Final = State()
+
+
+def _apply_spring_bone_limit_local_direction(
+    direction: Vector,
+    limit: SpringBone1VrmcSpringBoneLimitPropertyGroup,
+) -> Vector:
+    direction = direction.normalized()
+
+    if limit.limit_type == limit.LIMIT_TYPE_CONE.identifier:
+        limit_angle = max(0.0, min(math.pi, limit.cone_angle))
+        cos_limit_angle = math.cos(limit_angle)
+        if direction.y < cos_limit_angle:
+            # mathutils vectors use single precision. Computing this from y
+            # loses the horizontal components near either pole.
+            horizontal_length_squared = (
+                direction.x * direction.x + direction.z * direction.z
+            )
+            sin_limit_angle = math.sqrt(
+                max(0.0, 1.0 - cos_limit_angle * cos_limit_angle)
+            )
+            if horizontal_length_squared < float_info.epsilon:
+                direction.x = 0.0
+                direction.z = sin_limit_angle
+            else:
+                scale = sin_limit_angle / math.sqrt(horizontal_length_squared)
+                direction.x *= scale
+                direction.z *= scale
+            direction.y = cos_limit_angle
+        return direction
+
+    if limit.limit_type == limit.LIMIT_TYPE_HINGE.identifier:
+        projected_length_squared = direction.y * direction.y + direction.z * direction.z
+        if projected_length_squared < float_info.epsilon:
+            return Vector((0.0, 1.0, 0.0))
+
+        projected_length = math.sqrt(projected_length_squared)
+        direction = Vector(
+            (0.0, direction.y / projected_length, direction.z / projected_length)
+        )
+        limit_angle = max(0.0, min(math.pi, limit.hinge_angle))
+        cos_limit_angle = math.cos(limit_angle)
+        if direction.y < cos_limit_angle:
+            sin_limit_angle = math.sqrt(
+                max(0.0, 1.0 - cos_limit_angle * cos_limit_angle)
+            )
+            direction.y = cos_limit_angle
+            direction.z = -sin_limit_angle if direction.z < 0.0 else sin_limit_angle
+        return direction
+
+    if limit.limit_type == limit.LIMIT_TYPE_SPHERICAL.identifier:
+        x = max(-1.0, min(1.0, direction.x))
+        y = max(-1.0, min(1.0, direction.y))
+        if x * x + direction.z * direction.z < float_info.epsilon and y < 0.0:
+            pitch = math.pi
+        elif y * y + direction.z * direction.z < float_info.epsilon:
+            pitch = 0.0
+        else:
+            pitch = math.atan2(direction.z, y)
+        yaw = math.asin(x)
+
+        limit_pitch = max(0.0, min(math.pi, limit.spherical_pitch))
+        limit_yaw = max(0.0, min(math.pi / 2.0, limit.spherical_yaw))
+        pitch = max(-limit_pitch, min(limit_pitch, pitch))
+        yaw = max(-limit_yaw, min(limit_yaw, yaw))
+        cos_yaw = math.cos(yaw)
+        return Vector(
+            (
+                math.sin(yaw),
+                cos_yaw * math.cos(pitch),
+                cos_yaw * math.sin(pitch),
+            )
+        )
+
+    return direction
+
+
+def _apply_spring_bone_limit(
+    next_tail_world_translation: Vector,
+    next_head_world_translation: Vector,
+    head_to_tail_world_distance: float,
+    obj_matrix_world_quaternion: Quaternion,
+    next_head_parent_pose_bone_object_rotation: Quaternion,
+    bone_axis: Vector,
+    limit: SpringBone1VrmcSpringBoneLimitPropertyGroup,
+) -> Vector:
+    if limit.limit_type == limit.LIMIT_TYPE_NONE.identifier:
+        return next_tail_world_translation
+    if bone_axis.length_squared < float_info.epsilon:
+        return next_tail_world_translation
+
+    axis_rotation = limit.default_rotation(bone_axis)
+
+    limit_world_rotation = (
+        obj_matrix_world_quaternion
+        @ next_head_parent_pose_bone_object_rotation
+        @ axis_rotation
+        @ limit.rotation_quaternion()
+    ).normalized()
+    tail_direction = next_tail_world_translation - next_head_world_translation
+    if tail_direction.length_squared < float_info.epsilon:
+        tail_direction = limit_world_rotation @ Vector((0.0, 1.0, 0.0))
+    else:
+        tail_direction.normalize()
+    local_direction = limit_world_rotation.inverted() @ tail_direction
+    limited_local_direction = _apply_spring_bone_limit_local_direction(
+        local_direction, limit
+    )
+    return (
+        next_head_world_translation
+        + (limit_world_rotation @ limited_local_direction) * head_to_tail_world_distance
+    )
 
 
 def reset_state(context: Context) -> None:
@@ -623,6 +737,15 @@ def _calculate_joint_pair_head_pose_bone_rotations(
         + (next_tail_world_translation - next_head_world_translation).normalized()
         * head_to_tail_world_distance
     )
+    next_tail_world_translation = _apply_spring_bone_limit(
+        next_tail_world_translation,
+        next_head_world_translation,
+        head_to_tail_world_distance,
+        obj_matrix_world_quaternion,
+        next_head_parent_pose_bone_object_rotation,
+        next_head_rotation_start_target_local_translation,
+        head_joint.vrmc_spring_bone_limit,
+    )
     # Calculate collider collision
     for world_colliders in world_collider_groups:
         for world_collider in world_colliders:
@@ -643,6 +766,15 @@ def _calculate_joint_pair_head_pose_bone_rotations(
                     next_tail_world_translation - next_head_world_translation
                 ).normalized()
                 * head_to_tail_world_distance
+            )
+            next_tail_world_translation = _apply_spring_bone_limit(
+                next_tail_world_translation,
+                next_head_world_translation,
+                head_to_tail_world_distance,
+                obj_matrix_world_quaternion,
+                next_head_parent_pose_bone_object_rotation,
+                next_head_rotation_start_target_local_translation,
+                head_joint.vrmc_spring_bone_limit,
             )
 
     next_tail_object_local_translation = (

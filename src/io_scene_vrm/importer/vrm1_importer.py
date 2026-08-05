@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import json
 from collections.abc import Mapping, Sequence
+from sys import float_info
 from types import MappingProxyType
 from typing import Optional, Union
 
@@ -18,7 +19,7 @@ from bpy.types import (
     Object,
     PoseBone,
 )
-from mathutils import Matrix, Vector
+from mathutils import Matrix, Quaternion, Vector
 
 from ..common import convert, shader
 from ..common.convert import Json, JsonView
@@ -53,6 +54,7 @@ from ..editor.mtoon1.property_group import (
 )
 from ..editor.spring_bone1.property_group import (
     SpringBone1ColliderPropertyGroup,
+    SpringBone1JointPropertyGroup,
     SpringBone1SpringBonePropertyGroup,
 )
 from ..editor.vrm0.property_group import Vrm0HumanoidPropertyGroup
@@ -1661,7 +1663,7 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             joint_dicts = spring_dict.get("joints")
             if not isinstance(joint_dicts, list):
                 joint_dicts = []
-            for joint_dict in joint_dicts:
+            for joint_index, joint_dict in enumerate(joint_dicts):
                 joint = spring.add_joint()
 
                 if not isinstance(joint_dict, dict):
@@ -1698,6 +1700,20 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 drag_force = convert.float_or_none(joint_dict.get("dragForce"))
                 if drag_force is not None:
                     joint.drag_force = drag_force
+
+                if joint_index + 1 < len(joint_dicts):
+                    bone = self.armature_data.bones.get(joint.node.bone_name)
+                    tail_bone = None
+                    tail_dict = joint_dicts[joint_index + 1]
+                    if isinstance(tail_dict, dict):
+                        tail_index = tail_dict.get("node")
+                        if isinstance(tail_index, int):
+                            tail_name = self._bone_names.get(tail_index)
+                            if tail_name:
+                                tail_bone = self.armature_data.bones.get(tail_name)
+                    self.load_spring_bone1_joint_limit(
+                        joint, joint_dict, bone, tail_bone
+                    )
             spring.active_joint_index = 0
 
             collider_group_indices = spring_dict.get("colliderGroups")
@@ -1715,6 +1731,80 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 collider_group_reference.collider_group_uuid = collider_group.uuid
             spring.active_collider_group_index = 0
         spring_bone.active_spring_index = 0
+
+    @staticmethod
+    def load_spring_bone1_joint_limit(
+        joint: SpringBone1JointPropertyGroup,
+        joint_dict: dict[str, Json],
+        bone: Optional[Bone] = None,
+        tail_bone: Optional[Bone] = None,
+    ) -> None:
+        extensions_dict = joint_dict.get("extensions")
+        if not isinstance(extensions_dict, dict):
+            return
+        extension_dict = extensions_dict.get("VRMC_springBone_limit")
+        if not isinstance(extension_dict, dict):
+            return
+        if extension_dict.get("specVersion") != "1.0":
+            return
+        limit_dict = extension_dict.get("limit")
+        if not isinstance(limit_dict, dict):
+            return
+
+        limit = joint.vrmc_spring_bone_limit
+        parameter_dict: Optional[dict[str, Json]] = None
+        if isinstance(cone_dict := limit_dict.get("cone"), dict):
+            limit.limit_type = limit.LIMIT_TYPE_CONE.identifier
+            parameter_dict = cone_dict
+            angle = convert.float_or_none(cone_dict.get("angle"))
+            if angle is not None:
+                limit.cone_angle = angle
+        elif isinstance(hinge_dict := limit_dict.get("hinge"), dict):
+            limit.limit_type = limit.LIMIT_TYPE_HINGE.identifier
+            parameter_dict = hinge_dict
+            angle = convert.float_or_none(hinge_dict.get("angle"))
+            if angle is not None:
+                limit.hinge_angle = angle
+        elif isinstance(spherical_dict := limit_dict.get("spherical"), dict):
+            limit.limit_type = limit.LIMIT_TYPE_SPHERICAL.identifier
+            parameter_dict = spherical_dict
+            pitch = convert.float_or_none(spherical_dict.get("pitch"))
+            if pitch is not None:
+                limit.spherical_pitch = pitch
+            yaw = convert.float_or_none(spherical_dict.get("yaw"))
+            if yaw is not None:
+                limit.spherical_yaw = yaw
+
+        if parameter_dict is None:
+            return
+        rotation = convert.float4_or_none(parameter_dict.get("rotation"))
+        x, y, z, w = rotation if rotation is not None else (0.0, 0.0, 0.0, 1.0)
+        quaternion = Quaternion((w, x, y, z))
+        if sum(component * component for component in quaternion) < float_info.epsilon:
+            quaternion = Quaternion()
+        else:
+            quaternion.normalize()
+        if bone and tail_bone:
+            # Import adjusts node axes to Blender bone axes. The limit rotation
+            # is relative to the shortest rotation from Y+ to the tail, so both
+            # the node basis and that default rotation must be accounted for.
+            bone_axis = bone.matrix_local.inverted_safe() @ tail_bone.head_local
+            original_to_blender = BoneExtension.translate_axis(
+                Matrix(), get_bone_extension(bone).axis_translation
+            ).to_quaternion()
+            original_bone_axis = original_to_blender.inverted() @ bone_axis
+            quaternion = (
+                limit.default_rotation(bone_axis).inverted()
+                @ original_to_blender
+                @ limit.default_rotation(original_bone_axis)
+                @ quaternion
+            ).normalized()
+        limit.rotation = [
+            quaternion.w,
+            quaternion.x,
+            quaternion.y,
+            quaternion.z,
+        ]
 
     def load_spring_bone1(
         self,

@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+import math
 import statistics
 import uuid
 from collections.abc import Callable, Sequence
@@ -1018,6 +1019,100 @@ class SpringBone1JointAnimationStatePropertyGroup(PropertyGroup):
         current_world_translation: Sequence[float]  # type: ignore[no-redef]
 
 
+class SpringBone1VrmcSpringBoneLimitPropertyGroup(PropertyGroup):
+    (
+        limit_type_enum,
+        (
+            LIMIT_TYPE_NONE,
+            LIMIT_TYPE_CONE,
+            LIMIT_TYPE_HINGE,
+            LIMIT_TYPE_SPHERICAL,
+        ),
+    ) = property_group_enum(
+        ("NONE", "None", "Don't apply an angle limit", "NONE", 0),
+        ("CONE", "Cone", "Restrict the joint direction to a cone", "CONE", 1),
+        (
+            "HINGE",
+            "Hinge",
+            "Restrict the joint direction to a hinge plane",
+            "CON_ROTLIKE",
+            2,
+        ),
+        (
+            "SPHERICAL",
+            "Spherical",
+            "Restrict the joint direction by pitch and yaw",
+            "SPHERE",
+            3,
+        ),
+    )
+
+    limit_type: EnumProperty(  # type: ignore[valid-type]
+        items=limit_type_enum.items(),
+        name="Limit Type",
+    )
+    cone_angle: FloatProperty(  # type: ignore[valid-type]
+        name="Angle",
+        subtype="ANGLE",
+        min=0.0,
+        max=math.pi,
+        default=math.pi,
+    )
+    hinge_angle: FloatProperty(  # type: ignore[valid-type]
+        name="Angle",
+        subtype="ANGLE",
+        min=0.0,
+        max=math.pi,
+        default=math.pi,
+    )
+    spherical_pitch: FloatProperty(  # type: ignore[valid-type]
+        name="Pitch",
+        subtype="ANGLE",
+        min=0.0,
+        max=math.pi,
+        default=math.pi,
+    )
+    spherical_yaw: FloatProperty(  # type: ignore[valid-type]
+        name="Yaw",
+        subtype="ANGLE",
+        min=0.0,
+        max=math.pi / 2.0,
+        default=math.pi / 2.0,
+    )
+    rotation: FloatVectorProperty(  # type: ignore[valid-type]
+        name="Rotation",
+        description="Relative rotation as a W, X, Y, Z quaternion",
+        size=4,
+        subtype="QUATERNION",
+        min=-1.0,
+        max=1.0,
+        default=(1.0, 0.0, 0.0, 0.0),
+    )
+
+    @staticmethod
+    def default_rotation(bone_axis: Vector) -> Quaternion:
+        bone_axis = bone_axis.normalized()
+        dot = max(-1.0, min(1.0, bone_axis.y))
+        if dot < -1.0 + float_info.epsilon:
+            return Quaternion((0.0, 1.0, 0.0, 0.0))
+        return Quaternion((dot + 1.0, bone_axis.z, 0.0, -bone_axis.x)).normalized()
+
+    def rotation_quaternion(self) -> Quaternion:
+        rotation = Quaternion(self.rotation)
+        if sum(component * component for component in rotation) < float_info.epsilon:
+            return Quaternion()
+        rotation.normalize()
+        return rotation
+
+    if TYPE_CHECKING:
+        limit_type: str  # type: ignore[no-redef]
+        cone_angle: float  # type: ignore[no-redef]
+        hinge_angle: float  # type: ignore[no-redef]
+        spherical_pitch: float  # type: ignore[no-redef]
+        spherical_yaw: float  # type: ignore[no-redef]
+        rotation: Sequence[float]  # type: ignore[no-redef]
+
+
 # https://github.com/vrm-c/vrm-specification/blob/6fb6baaf9b9095a84fb82c8384db36e1afeb3558/specification/VRMC_springBone-1.0-beta/schema/VRMC_springBone.joint.schema.json
 class SpringBone1JointPropertyGroup(PropertyGroup):
     node: PointerProperty(  # type: ignore[valid-type]
@@ -1075,6 +1170,10 @@ class SpringBone1JointPropertyGroup(PropertyGroup):
         type=SpringBone1JointAnimationStatePropertyGroup,
     )
 
+    vrmc_spring_bone_limit: PointerProperty(  # type: ignore[valid-type]
+        type=SpringBone1VrmcSpringBoneLimitPropertyGroup,
+    )
+
     # for UI
     show_expanded: BoolProperty()  # type: ignore[valid-type]
 
@@ -1089,6 +1188,9 @@ class SpringBone1JointPropertyGroup(PropertyGroup):
         drag_force: float  # type: ignore[no-redef]
         animation_state: (  # type: ignore[no-redef]
             SpringBone1JointAnimationStatePropertyGroup
+        )
+        vrmc_spring_bone_limit: (  # type: ignore[no-redef]
+            SpringBone1VrmcSpringBoneLimitPropertyGroup
         )
         show_expanded: bool  # type: ignore[no-redef]
 

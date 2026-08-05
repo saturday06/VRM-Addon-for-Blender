@@ -160,6 +160,7 @@ CLASSES: Final[
     spring_bone1_property_group.SpringBone1ColliderGroupPropertyGroup,
     spring_bone1_property_group.SpringBone1ColliderGroupReferencePropertyGroup,
     spring_bone1_property_group.SpringBone1JointAnimationStatePropertyGroup,
+    spring_bone1_property_group.SpringBone1VrmcSpringBoneLimitPropertyGroup,
     spring_bone1_property_group.SpringBone1JointPropertyGroup,
     spring_bone1_property_group.SpringBone1SpringAnimationStatePropertyGroup,
     spring_bone1_property_group.SpringBone1SpringPropertyGroup,

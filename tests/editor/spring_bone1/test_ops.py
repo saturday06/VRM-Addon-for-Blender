@@ -9,14 +9,25 @@ from bpy.types import Armature
 from mathutils import Euler, Quaternion, Vector
 
 from io_scene_vrm.common import ops, version
+from io_scene_vrm.common.convert import Json
 from io_scene_vrm.editor import migration
 from io_scene_vrm.editor.extension import (
     VrmAddonArmatureExtensionPropertyGroup,
     get_armature_extension,
 )
+from io_scene_vrm.editor.extension import (
+    VrmAddonBoneExtensionPropertyGroup as BoneExtension,
+)
+from io_scene_vrm.editor.extension_accessor import get_bone_extension
+from io_scene_vrm.editor.spring_bone1.handler import (
+    _apply_spring_bone_limit,
+    _apply_spring_bone_limit_local_direction,
+)
 from io_scene_vrm.editor.spring_bone1.property_group import (
     SpringBone1ColliderGroupReferencePropertyGroup,
 )
+from io_scene_vrm.exporter.vrm1_exporter import Vrm1Exporter
+from io_scene_vrm.importer.vrm1_importer import Vrm1Importer
 from tests.util import AddonTestCase
 
 ADDON_VERSION = version.get_addon_version()
@@ -43,6 +54,319 @@ def assert_vector3_equals(
 
 
 class TestSpringBone1(AddonTestCase):
+    def test_spring_bone_simulation_applies_cone_limit(self) -> None:
+        context = bpy.context
+
+        bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
+        armature = context.object
+        if not armature or not isinstance(armature.data, Armature):
+            raise AssertionError
+
+        extension = get_armature_extension(armature.data)
+        extension.addon_version = ADDON_VERSION
+        extension.spec_version = SPEC_VERSION
+        extension.spring_bone1.enable_animation = True
+
+        bpy.ops.object.mode_set(mode="EDIT")
+        root_bone = armature.data.edit_bones.new("root")
+        root_bone.head = Vector((0.0, 0.0, 0.0))
+        root_bone.tail = Vector((0.0, 1.0, 0.0))
+
+        head_bone = armature.data.edit_bones.new("head")
+        head_bone.parent = root_bone
+        head_bone.head = Vector((0.0, 1.0, 0.0))
+        head_bone.tail = Vector((0.0, 2.0, 0.0))
+
+        tail_bone = armature.data.edit_bones.new("tail")
+        tail_bone.parent = head_bone
+        tail_bone.head = Vector((0.0, 2.0, 0.0))
+        tail_bone.tail = Vector((0.0, 3.0, 0.0))
+        bpy.ops.object.mode_set(mode="OBJECT")
+
+        spring = extension.spring_bone1.add_spring()
+        head_joint = spring.add_joint()
+        head_joint.node.bone_name = "head"
+        head_joint.stiffness = 0.0
+        head_joint.gravity_power = 1.0
+        head_joint.drag_force = 1.0
+        head_joint.vrmc_spring_bone_limit.limit_type = (
+            head_joint.vrmc_spring_bone_limit.LIMIT_TYPE_CONE.identifier
+        )
+        head_joint.vrmc_spring_bone_limit.cone_angle = 0.0
+        tail_joint = spring.add_joint()
+        tail_joint.node.bone_name = "tail"
+
+        context.view_layer.update()
+        ops.vrm.update_spring_bone1_animation(delta_time=1.0)
+        context.view_layer.update()
+
+        assert_vector3_equals(
+            Vector((0.0, 2.0, 0.0)),
+            armature.pose.bones["tail"].head,
+            "Cone-limited tail",
+        )
+
+    def test_spring_bone_limit_directions(self) -> None:
+        context = bpy.context
+
+        bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
+        armature = context.object
+        if not armature or not isinstance(armature.data, Armature):
+            raise AssertionError
+
+        limit = (
+            get_armature_extension(armature.data)
+            .spring_bone1.add_spring()
+            .add_joint()
+            .vrmc_spring_bone_limit
+        )
+
+        limit.limit_type = limit.LIMIT_TYPE_CONE.identifier
+        limit.cone_angle = math.pi / 4.0
+        for direction in (Vector((0.0001, -1.0, 0.0)), Vector((0.001, -1.0, 0.0))):
+            with self.subTest(direction=direction):
+                assert_vector3_equals(
+                    Vector((math.sqrt(0.5), math.sqrt(0.5), 0.0)),
+                    _apply_spring_bone_limit_local_direction(direction, limit),
+                    "Cone near singular direction",
+                )
+        assert_vector3_equals(
+            Vector((0.0, math.sqrt(0.5), math.sqrt(0.5))),
+            _apply_spring_bone_limit_local_direction(Vector((0.0, -1.0, 0.0)), limit),
+            "Cone singular direction",
+        )
+
+        limit.limit_type = limit.LIMIT_TYPE_HINGE.identifier
+        limit.hinge_angle = math.pi / 4.0
+        assert_vector3_equals(
+            Vector((0.0, 1.0, 0.0)),
+            _apply_spring_bone_limit_local_direction(Vector((1.0, 0.0, 0.0)), limit),
+            "Hinge singular direction",
+        )
+
+        limit.limit_type = limit.LIMIT_TYPE_SPHERICAL.identifier
+        limit.spherical_pitch = math.pi / 4.0
+        limit.spherical_yaw = math.pi / 4.0
+        assert_vector3_equals(
+            Vector((0.0, math.sqrt(0.5), -math.sqrt(0.5))),
+            _apply_spring_bone_limit_local_direction(
+                Vector((0.0, -1.0, -0.0001)), limit
+            ),
+            "Spherical near negative Y",
+        )
+        assert_vector3_equals(
+            Vector((math.sqrt(0.5), 0.5, 0.5)),
+            _apply_spring_bone_limit_local_direction(Vector((1.0, 0.0, 0.0001)), limit),
+            "Spherical near positive X",
+        )
+        assert_vector3_equals(
+            Vector((0.0, math.sqrt(0.5), math.sqrt(0.5))),
+            _apply_spring_bone_limit_local_direction(Vector((0.0, -1.0, 0.0)), limit),
+            "Spherical singular direction",
+        )
+
+        limit.limit_type = limit.LIMIT_TYPE_CONE.identifier
+        limit.cone_angle = 0.0
+        rotation = Quaternion((0.0, 0.0, 1.0), math.pi / 2.0)
+        limit.rotation = [rotation.w, rotation.x, rotation.y, rotation.z]
+        assert_vector3_equals(
+            Vector((-1.0, 0.0, 0.0)),
+            _apply_spring_bone_limit(
+                Vector((0.0, 0.0, 1.0)),
+                Vector((0.0, 0.0, 0.0)),
+                1.0,
+                Quaternion(),
+                Quaternion(),
+                Vector((0.0, 1.0, 0.0)),
+                limit,
+            ),
+            "Rotated cone direction",
+        )
+
+    def test_spring_bone_limit_import_export(self) -> None:
+        context = bpy.context
+
+        bpy.ops.object.add(type="ARMATURE", location=(0, 0, 0))
+        armature = context.object
+        if not armature or not isinstance(armature.data, Armature):
+            raise AssertionError
+
+        bpy.ops.object.mode_set(mode="EDIT")
+        bone = armature.data.edit_bones.new("joint")
+        bone.head = Vector((0.0, 0.0, 0.0))
+        bone.tail = Vector((0.0, 1.0, 0.0))
+        tail_bone = armature.data.edit_bones.new("tail")
+        tail_bone.parent = bone
+        tail_bone.head = Vector((0.0, 1.0, 0.0))
+        tail_bone.tail = Vector((0.0, 2.0, 0.0))
+        bpy.ops.object.mode_set(mode="OBJECT")
+
+        spring_bone = get_armature_extension(armature.data).spring_bone1
+        spring = spring_bone.add_spring()
+        joint = spring.add_joint()
+        joint.node.bone_name = "joint"
+        tail_joint = spring.add_joint()
+        tail_joint.node.bone_name = "tail"
+        tail_joint.vrmc_spring_bone_limit.limit_type = (
+            tail_joint.vrmc_spring_bone_limit.LIMIT_TYPE_CONE.identifier
+        )
+        limit = joint.vrmc_spring_bone_limit
+        limit.limit_type = limit.LIMIT_TYPE_SPHERICAL.identifier
+        limit.spherical_pitch = 0.75
+        limit.spherical_yaw = 0.25
+        rotation = Quaternion((0.0, 1.0, 0.0), 0.5)
+        limit.rotation = [rotation.w, rotation.x, rotation.y, rotation.z]
+
+        extensions_used: list[Json] = []
+        spring_dicts = Vrm1Exporter.create_spring_bone_spring_dicts(
+            extensions_used,
+            spring_bone,
+            {"joint": 0, "tail": 1},
+            {},
+            armature,
+        )
+        self.assertEqual(extensions_used, ["VRMC_springBone_limit"])
+        expected_rotation: list[Json] = [
+            rotation.x,
+            rotation.y,
+            rotation.z,
+            rotation.w,
+        ]
+        expected_extension: dict[str, Json] = {
+            "VRMC_springBone_limit": {
+                "specVersion": "1.0",
+                "limit": {
+                    "spherical": {
+                        "pitch": 0.75,
+                        "yaw": 0.25,
+                        "rotation": expected_rotation,
+                    }
+                },
+            }
+        }
+        self.assertEqual(
+            spring_dicts,
+            [
+                {
+                    "name": "Spring",
+                    "joints": [
+                        {
+                            "node": 0,
+                            "hitRadius": 0.0,
+                            "stiffness": 1.0,
+                            "gravityPower": 0.0,
+                            "gravityDir": [0.0, -1.0, 0.0],
+                            "dragForce": 0.5,
+                            "extensions": expected_extension,
+                        },
+                        {
+                            "node": 1,
+                            "hitRadius": 0.0,
+                            "stiffness": 1.0,
+                            "gravityPower": 0.0,
+                            "gravityDir": [0.0, -1.0, 0.0],
+                            "dragForce": 0.5,
+                        },
+                    ],
+                }
+            ],
+        )
+
+        terminal_extensions_used: list[Json] = []
+        terminal_springs = Vrm1Exporter.create_spring_bone_spring_dicts(
+            terminal_extensions_used, spring_bone, {"joint": 0}, {}, armature
+        )
+        terminal_spring = terminal_springs[0]
+        if not isinstance(terminal_spring, dict):
+            self.fail("Expected a spring object")
+        terminal_joints = terminal_spring["joints"]
+        if not isinstance(terminal_joints, list):
+            self.fail("Expected a joints array")
+        terminal_joint = terminal_joints[0]
+        if not isinstance(terminal_joint, dict):
+            self.fail("Expected a joint object")
+        self.assertNotIn("extensions", terminal_joint)
+        self.assertEqual(terminal_extensions_used, [])
+
+        imported_joint = spring.add_joint()
+        imported_joint_dict: dict[str, Json] = {"extensions": expected_extension}
+        Vrm1Importer.load_spring_bone1_joint_limit(imported_joint, imported_joint_dict)
+        imported_limit = imported_joint.vrmc_spring_bone_limit
+        self.assertEqual(
+            imported_limit.limit_type,
+            imported_limit.LIMIT_TYPE_SPHERICAL.identifier,
+        )
+        self.assertAlmostEqual(imported_limit.spherical_pitch, 0.75)
+        self.assertAlmostEqual(imported_limit.spherical_yaw, 0.25)
+        self.assertLess(
+            imported_limit.rotation_quaternion()
+            .rotation_difference(limit.rotation_quaternion())
+            .angle,
+            0.0001,
+        )
+
+        bone = armature.data.bones["joint"]
+        get_bone_extension(
+            bone
+        ).axis_translation = (
+            BoneExtension.AXIS_TRANSLATION_MINUS_Y_TO_Y_AROUND_Z.identifier
+        )
+        Vrm1Importer.load_spring_bone1_joint_limit(
+            imported_joint, imported_joint_dict, bone, armature.data.bones["tail"]
+        )
+        expected_imported_rotation = (
+            Quaternion((0.0, 0.0, 1.0), math.pi)
+            @ Quaternion((1.0, 0.0, 0.0), math.pi)
+            @ rotation
+        )
+        self.assertLess(
+            imported_limit.rotation_quaternion()
+            .rotation_difference(expected_imported_rotation)
+            .angle,
+            0.0001,
+        )
+
+        Vrm1Importer.load_spring_bone1_joint_limit(
+            imported_joint,
+            {
+                "extensions": {
+                    "VRMC_springBone_limit": {
+                        "specVersion": "1.0",
+                        "limit": {"cone": {"angle": 0.0}},
+                    }
+                }
+            },
+            bone,
+            armature.data.bones["tail"],
+        )
+        assert_vector3_equals(
+            Vector((-1.0, 0.0, 0.0)),
+            imported_limit.rotation_quaternion() @ Vector((1.0, 0.0, 0.0)),
+            "Default rotation with imported node axes",
+        )
+        assert_vector3_equals(
+            Vector((0.0, 0.0, -1.0)),
+            imported_limit.rotation_quaternion() @ Vector((0.0, 0.0, 1.0)),
+            "Default rotation with imported node axes",
+        )
+
+        unknown_version_joint = spring.add_joint()
+        Vrm1Importer.load_spring_bone1_joint_limit(
+            unknown_version_joint,
+            {
+                "extensions": {
+                    "VRMC_springBone_limit": {
+                        "specVersion": "2.0",
+                        "limit": {"cone": {"angle": 0.0}},
+                    }
+                }
+            },
+        )
+        self.assertEqual(
+            unknown_version_joint.vrmc_spring_bone_limit.limit_type,
+            unknown_version_joint.vrmc_spring_bone_limit.LIMIT_TYPE_NONE.identifier,
+        )
+
     def test_unmanaged_addon_version_migration_preserves_current_gravity_dir(
         self,
     ) -> None:
