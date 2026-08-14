@@ -58,4 +58,4 @@ for blender_version in \
   ln -Tfs "${PWD}/src/io_scene_vrm" "${HOME}/.config/blender/$blender_version/scripts/addons/io_scene_vrm"
 done
 
-blender --background --python-expr 'import bpy; bpy.ops.preferences.addon_enable(module="io_scene_vrm"); bpy.ops.wm.save_userpref()'
+blender --background --python-expr 'import bpy; bpy.ops.preferences.addon_enable(module="bl_ext.user_default.vrm"); bpy.ops.wm.save_userpref()'

@@ -1,10 +1,8 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-FROM cimg/base:current-24.04@sha256:6b53042171c5eec83d8a9b14206b8483195dde2f3265a85a3d18fe4b778329f3
+FROM ubuntu:resolute@sha256:678c6550cc43645e08669028bc177f50be4e7c5b8cca677067b1914d4afc7a03
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
-USER root
 
 RUN --mount=type=bind,source=.,target=/root/src/tools <<'INSTALL_PACKAGES'
   set -eu
@@ -42,8 +40,8 @@ export DISPLAY=:0
 export UV_LINK_MODE=copy
 SHELL_PROFILE_SCRIPT
 
-  mkdir -p ~/.vnc
-  cat <<'VNC_XSTARTUP_SCRIPT' >>~/.vnc/xstartup
+  mkdir -p ~/.config/tigervnc
+  cat <<'VNC_XSTARTUP_SCRIPT' >>~/.config/tigervnc/xstartup
 #!/bin/bash
 unset SESSION_MANAGER
 unset DBUS_SESSION_BUS_ADDRESS
@@ -52,7 +50,7 @@ xterm &
 (while sleep 1; do xterm -e blender --python-expr "import debugpy; debugpy.listen(5678)" --open-last || true; done) &
 exec openbox-session
 VNC_XSTARTUP_SCRIPT
-  chmod +x ~/.vnc/xstartup
+  chmod +x ~/.config/tigervnc/xstartup
 
   mkdir -p Desktop Documents Downloads Music Pictures Videos
   # https://docs.astral.sh/uv/getting-started/installation/
@@ -63,6 +61,3 @@ VNC_XSTARTUP_SCRIPT
   # Deno doesnot add newlines to the final line of shell config, so add them manually.
   echo | tee -a ~/.profile ~/.bash_profile ~/.bashrc ~/.zshrc
 SETUP_USER_DEVELOPER_LOCAL_ENVIRONMENT
-
-# cimg/base has PAGER=cat by default, but it is inconvenient in devcontainer, so change it to less.
-ENV PAGER=less
