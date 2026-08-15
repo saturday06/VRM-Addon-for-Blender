@@ -3,7 +3,7 @@
   "specifiers": {
     "npm:@devcontainers/cli@0.88.0": "0.88.0",
     "npm:@octokit/rest@22.0.1": "22.0.1",
-    "npm:@octokit/types@16.0.0": "16.0.0",
+    "npm:@octokit/types@17.0.0": "17.0.0",
     "npm:@types/node@26.2.0": "26.2.0",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
     "npm:isomorphic-git@1.41.3": "1.41.3",
@@ -1531,7 +1531,7 @@
     "dependencies": [
       "npm:@devcontainers/cli@0.88.0",
       "npm:@octokit/rest@22.0.1",
-      "npm:@octokit/types@16.0.0",
+      "npm:@octokit/types@17.0.0",
       "npm:@types/node@26.2.0",
       "npm:gltf-validator@2.0.0-dev.3.10",
       "npm:isomorphic-git@1.41.3",
