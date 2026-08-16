@@ -6,7 +6,7 @@
     "npm:@octokit/types@17.0.0": "17.0.0",
     "npm:@types/node@26.2.0": "26.2.0",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
-    "npm:isomorphic-git@1.41.3": "1.41.3",
+    "npm:isomorphic-git@1.41.4": "1.41.4",
     "npm:pyright@1.1.412": "1.1.412",
     "npm:vitepress@1.6.4": "1.6.4_@types+node@26.2.0",
     "npm:vue@3.5.41": "3.5.41"
@@ -1096,8 +1096,8 @@
     "isarray@2.0.5": {
       "integrity": "sha512-xHjhDr3cNBK0BzdUJSPXZntQUx/mwMS5Rw4A7lPJ90XGAO6ISP/ePDNuo0vhqOZU+UD5JoodwCAAoZQd3FeAKw=="
     },
-    "isomorphic-git@1.41.3": {
-      "integrity": "sha512-5O+pSDz+F8eUqhWHjvoF1kcCYtt9mjja5rHficiNFRAWbYfoiXoPfBKzLTqWyEKoEgLObu4TXthkCmYGpfkiyQ==",
+    "isomorphic-git@1.41.4": {
+      "integrity": "sha512-XfZteQRhteAdzOlKcWAeC+Zkx0ZtAh0yIO0EyURAO+mDcIBg5kzKg4UtnYE7GcmKB6qFZc0zMCXdgod/cQXVXw==",
       "dependencies": [
         "async-lock",
         "clean-git-ref",
@@ -1534,7 +1534,7 @@
       "npm:@octokit/types@17.0.0",
       "npm:@types/node@26.2.0",
       "npm:gltf-validator@2.0.0-dev.3.10",
-      "npm:isomorphic-git@1.41.3",
+      "npm:isomorphic-git@1.41.4",
       "npm:pyright@1.1.412",
       "npm:vitepress@1.6.4",
       "npm:vue@3.5.41"
