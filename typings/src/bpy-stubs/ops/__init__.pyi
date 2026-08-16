@@ -9,5 +9,6 @@ from bpy.ops import pose as pose
 from bpy.ops import preferences as preferences
 from bpy.ops import render as render
 from bpy.ops import scene as scene
+from bpy.ops import script as script
 from bpy.ops import uv as uv
 from bpy.ops import wm as wm
