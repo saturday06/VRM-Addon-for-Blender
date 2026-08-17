@@ -71,3 +71,7 @@ __pycache__/
 /tests/resources/vrma/*/*_blender.png
 /tests/resources/vrma/*/*_blender_roundtrip.png
 /tests/resources/vrma/*/*_diff.png
+
+# Local sandbox — throwaway experiments (see Sandbox/README.md)
+/Sandbox/*
+!/Sandbox/README.md
