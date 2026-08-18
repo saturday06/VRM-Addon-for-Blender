@@ -7,7 +7,8 @@ cd "$(dirname "$0")/.."
 
 # In devcontainer, permission settings may be lost, so restore them.
 if [ -x pyproject.toml ] || [ ! -x tools/devcontainer_fixup_workspace.sh ]; then
-  /bin/bash ./tools/devcontainer_fixup_workspace.sh
+  sudo chmod 755 tools/devcontainer_fixup_workspace.sh
+  ./tools/devcontainer_fixup_workspace.sh
 fi
 
 # Setup noVNC website
