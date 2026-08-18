@@ -1,4 +1,7 @@
 {
+  "lock": {
+    "frozen": true
+  },
   "exclude": [
     ".local/",
     "tests/resources/unity/*/ProjectSettings/*.json",
