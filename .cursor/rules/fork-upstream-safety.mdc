@@ -1,0 +1,19 @@
+---
+description: Never push or open PRs against upstream (this repo is a fork)
+alwaysApply: true
+---
+
+# Fork / upstream safety
+
+This repository is a **fork**. Remotes:
+
+- `origin` → `miramocha/Extended-VRM-Addon-for-Blender` (maintained fork; only allowed push/PR target)
+- `upstream` → `saturday06/VRM-Addon-for-Blender` (upstream original; never write)
+
+Hard rules:
+
+- Never `git push` to `upstream` (any ref, any force flag).
+- Never create a pull request targeting `saturday06/VRM-Addon-for-Blender` or any upstream remote URL.
+- Never run `gh pr create` with `--repo saturday06/VRM-Addon-for-Blender`, or open a PR whose base repo is upstream.
+- Fetch / merge / rebase **from** upstream into the fork is allowed when the user asks to sync.
+- Push and PRs only to `origin`, and only when the user explicitly asks.
