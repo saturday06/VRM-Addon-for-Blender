@@ -6,7 +6,8 @@ set -eu -o pipefail
 cd "$(dirname "$0")/.."
 
 # In devcontainer, permission settings may be lost, so restore them.
-/bin/bash ./tools/devcontainer_fixup_workspace.sh
+sudo chmod 755 tools/devcontainer_fixup_workspace.sh
+./tools/devcontainer_fixup_workspace.sh
 
 # Docker images are aggressively cached and packages often remain outdated, so we update here
 sudo ./tools/install_ubuntu_packages.sh
@@ -58,4 +59,7 @@ for blender_version in \
   ln -Tfs "${PWD}/src/io_scene_vrm" "${HOME}/.config/blender/$blender_version/scripts/addons/io_scene_vrm"
 done
 
-blender --background --python-expr 'import bpy; bpy.ops.preferences.addon_enable(module="io_scene_vrm"); bpy.ops.wm.save_userpref()'
+blender \
+  --background \
+  --python-expr \
+  'import bpy; bpy.ops.preferences.addon_enable(module="bl_ext.user_default.vrm" if bpy.app.version >= (4, 2) else "io_scene_vrm"); bpy.ops.wm.save_userpref()'

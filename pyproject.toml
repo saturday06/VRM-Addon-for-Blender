@@ -1,6 +1,6 @@
 [project]
 name = "io-scene-vrm"
-version = "4.4.0"
+version = "4.5.0"
 authors = [
   {name = "Isamu Mogi"},
   {name = "iCyP"},
@@ -31,6 +31,9 @@ dev = [
   "types-tqdm",
 ]
 
+[tool.uv]
+cache-dir = "./.local/var/cache/uv"
+
 [tool.uv.workspace]
 members = ["benchmarks", "typings"]
 
@@ -52,6 +55,7 @@ select = ["ALL"]
 ignore = [
   # ----- fixing -----
 
+  "CPY001", # Missing copyright notice at top of file
   "FBT003", # Boolean positional value in function call
 
   # ----- ignored -----
@@ -187,5 +191,5 @@ extraPaths = ["src", "typings/src", "."]
 reportPrivateUsage = "none"
 
 [build-system]
-requires = ["uv_build>=0.11.2,<0.12.0"]
+requires = ["uv_build>=0.12.1,<0.13.0"]
 build-backend = "uv_build"

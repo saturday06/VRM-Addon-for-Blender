@@ -44,6 +44,7 @@ rm -fr extension_output
 mkdir extension_output
 output_filepath="extension_output/extension_$(LC_ALL=C date -u +%Y%m%d%H%M%S)_$(git rev-parse HEAD).zip"
 
+deno task docs:copy-docs-to-src
 "$blender_path" --command extension build \
   --source-dir src/io_scene_vrm \
   --output-filepath "$output_filepath"

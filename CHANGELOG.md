@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.5.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.4.0...v4.5.0) (2026-07-27)
+
+
+### 🚀 Features
+
+* vrm0 to vrm1 expression migration ([79c6fab](https://github.com/saturday06/VRM-Addon-for-Blender/commit/79c6fab61abe0bb60117b0cf041489f72098fb16))
+
+
+### 🐛 Bug Fixes
+
+* fix rounding logic of IsBinary BlendShapes in VRM 0.0 ([f19c4b7](https://github.com/saturday06/VRM-Addon-for-Blender/commit/f19c4b76cba392e54689af84abf465afc64653ef))
+* improve rotation and translation checks using float precision ([12301f0](https://github.com/saturday06/VRM-Addon-for-Blender/commit/12301f059f14faa60df2a4d5b06dbe12589c5dfd))
+
 ## [4.4.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.3.3...v4.4.0) (2026-07-11)
 
 
@@ -28,14 +41,15 @@
 ### 🐛 Bug Fixes
 
 * some development code has been removed to meet the platform requirements ([e345704](https://github.com/saturday06/VRM-Addon-for-Blender/commit/e3457044f1a11624e735fbcf0a1300b4a5db817c))
+  * https://extensions.blender.org/approval-queue/vrm/#activity-19291
 
 ## [4.3.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.2.4...v4.3.0) (2026-06-22)
 
 
 ### 🚀 Features
 
+* experimental support expression/blendshape material bind preview ([93edbb2](https://github.com/saturday06/VRM-Addon-for-Blender/commit/93edbb2976a5e20b54fec182c34d6dde0943e253))
 * bone mapping detection for Character Creator ([fc7c750](https://github.com/saturday06/VRM-Addon-for-Blender/commit/fc7c75016ee70bb342c84b2bba0f2e212db7656d))
-* support expression/blendshape material bind preview ([93edbb2](https://github.com/saturday06/VRM-Addon-for-Blender/commit/93edbb2976a5e20b54fec182c34d6dde0943e253))
 
 ## [4.2.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.2.3...v4.2.4) (2026-06-14)
 
@@ -65,7 +79,7 @@
 
 ### 🐛 Bug Fixes
 
-* trigger release pipeline ([956ea9a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/956ea9a4f117118ff48b9b7bbb17b606421e2fd8))
+* remove automatic migration of unnecessary Spring Bone gravity. ([0dfb96b](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0dfb96b61c81f4b5fcf60f4f4a71fe0bd355c115)) by [@tdw46](https://github.com/tdw46)
 
 ## [4.2.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.1.1...v4.2.0) (2026-05-17)
 

@@ -1977,7 +1977,7 @@ class VRM_OT_show_vrm0_bone_assignment_diagnostics(Operator):
     bl_label = "Bone Assignment Diagnostics"
     bl_description = (
         "Shows the cause of the bone assignment error"
-        " or the reason why none of the bone assignment candidates exist."
+        + " or the reason why none of the bone assignment candidates exist."
     )
 
     def execute(self, _context: Context) -> set[str]:

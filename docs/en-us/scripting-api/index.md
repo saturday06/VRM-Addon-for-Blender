@@ -63,7 +63,9 @@ meta.allow_political_or_religious_usage = False
 meta.allow_antisocial_or_hate_usage = False
 meta.credit_notation = "required"  # or "unnecessary"
 meta.allow_redistribution = False
-meta.modification = "prohibited"  # or "allowModification", "allowModificationRedistribution"
+meta.modification = (
+    "prohibited"  # or "allowModification", "allowModificationRedistribution"
+)
 meta.other_license_url = ""
 ```
 
@@ -94,7 +96,9 @@ spine_bone.tail = (0, 0, 1)
 bpy.ops.object.mode_set(mode="OBJECT")
 
 armature.data.vrm_addon_extension.vrm1.humanoid.human_bones.hips.node.bone_name = "hips"
-armature.data.vrm_addon_extension.vrm1.humanoid.human_bones.spine.node.bone_name = "spine"
+armature.data.vrm_addon_extension.vrm1.humanoid.human_bones.spine.node.bone_name = (
+    "spine"
+)
 ```
 
 ## VRM MToon Material Settings
@@ -114,12 +118,24 @@ gltf.pbr_metallic_roughness.base_color_factor = (0, 1, 0, 1)
 gltf.pbr_metallic_roughness.base_color_texture.index.source = image
 
 # Similar settings can be made for textures other than "base_color_texture"
-gltf.pbr_metallic_roughness.base_color_texture.index.sampler.mag_filter = "NEAREST"  # or "LINEAR"
+gltf.pbr_metallic_roughness.base_color_texture.index.sampler.mag_filter = (
+    "NEAREST"  # or "LINEAR"
+)
 gltf.pbr_metallic_roughness.base_color_texture.index.sampler.min_filter = "NEAREST"  # or "LINEAR", "NEAREST_MIPMAP_NEAREST", "LINEAR_MIPMAP_NEAREST", "NEAREST_MIPMAP_LINEAR", "LINEAR_MIPMAP_LINEAR"
-gltf.pbr_metallic_roughness.base_color_texture.index.sampler.wrap_s = "REPEAT"  # or "CLAMP_TO_EDGE", "MIRRORED_REPEAT"
-gltf.pbr_metallic_roughness.base_color_texture.index.sampler.wrap_t = "REPEAT"  # or "CLAMP_TO_EDGE", "MIRRORED_REPEAT"
-gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.offset = (0, 0)
-gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.scale = (1, 1)
+gltf.pbr_metallic_roughness.base_color_texture.index.sampler.wrap_s = (
+    "REPEAT"  # or "CLAMP_TO_EDGE", "MIRRORED_REPEAT"
+)
+gltf.pbr_metallic_roughness.base_color_texture.index.sampler.wrap_t = (
+    "REPEAT"  # or "CLAMP_TO_EDGE", "MIRRORED_REPEAT"
+)
+gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.offset = (
+    0,
+    0,
+)
+gltf.pbr_metallic_roughness.base_color_texture.extensions.khr_texture_transform.scale = (
+    1,
+    1,
+)
 
 gltf.alpha_mode = "OPAQUE"  # or "MASK", "BLEND"
 gltf.double_sided = False

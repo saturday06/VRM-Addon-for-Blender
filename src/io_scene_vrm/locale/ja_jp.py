@@ -682,7 +682,7 @@ TRANSLATION_DICTIONARY: Final[Mapping[tuple[str, str], str]] = {
     (
         "*",
         "Shows the cause of the bone assignment error"
-        " or the reason why none of the bone assignment candidates exist.",
+        + " or the reason why none of the bone assignment candidates exist.",
     ): "ボーン割り当てのエラーの原因や、"
     + "ボーンの割り当て候補が存在しない理由を表示します。",
     (
@@ -806,6 +806,19 @@ TRANSLATION_DICTIONARY: Final[Mapping[tuple[str, str], str]] = {
     ): "Ready Player Meのシェイプキーを割り当て",
     (
         "Operator",
+        "Assign VRM 0.0 Blend Shapes",
+    ): "VRM 0.0のBlend Shapeを割り当て",
+    (
+        "Operator",
         "Add ARkit / PerfectSync Custom Expressions",
     ): "ARkit / PerfectSyncのカスタムExpressionを追加",
+    (
+        "Operator",
+        "Assign Auto-Detected Spring Bones",
+    ): "自動検出されたスプリングボーンを割り当て",
+    ("Operator", "Assign VRM 0.0 Spring Bones"): "VRM 0.0のスプリングボーンを割り当て",
+    (
+        "Operator",
+        "Assign MMD Physics Spring Bones",
+    ): "MMDの物理演算からスプリングボーンを割り当て",
 }

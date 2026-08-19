@@ -223,12 +223,12 @@ def _calculate_object_pose_bone_rotations(
 
         extended_collider = collider.extensions.vrmc_spring_bone_extended_collider
         world_collider: Union[
-            None,
             SphereWorldCollider,
             CapsuleWorldCollider,
             SphereInsideWorldCollider,
             CapsuleInsideWorldCollider,
             PlaneWorldCollider,
+            None,
         ] = None
         if extended_collider.enabled:
             if (
