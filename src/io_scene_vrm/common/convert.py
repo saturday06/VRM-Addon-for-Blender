@@ -33,6 +33,16 @@ Json = Union[
     dict[str, "Json"],
 ]
 
+JsonView = Union[
+    None,
+    bool,
+    int,
+    float,
+    str,
+    Sequence["JsonView"],
+    Mapping[str, "JsonView"],
+]
+
 
 def iterator_or_none(v: object) -> Optional[Iterator[object]]:
     try:

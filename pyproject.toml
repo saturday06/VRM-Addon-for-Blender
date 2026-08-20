@@ -147,6 +147,9 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
+"examples/**/*.py" = [
+  "ARG002",  # Unused method argument: `x`
+]
 "tests/**/*.py" = [
   "S603",  # `subprocess` call: check for execution of untrusted input
   "S607",  # Starting a process with a partial executable path

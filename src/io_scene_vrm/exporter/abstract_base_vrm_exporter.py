@@ -62,6 +62,8 @@ class AbstractBaseVrmExporter(ABC):
             message = f"{type(armature_data)} is not an Armature"
             raise TypeError(message)
 
+        self.generator_postfix = ""
+
     @abstractmethod
     def export(self) -> Optional[bytes]:
         pass

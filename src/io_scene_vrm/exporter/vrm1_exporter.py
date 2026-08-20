@@ -7,6 +7,7 @@ from copy import deepcopy
 from os import environ
 from pathlib import Path
 from sys import float_info
+from types import MappingProxyType
 from typing import Optional, Union
 from uuid import uuid4
 
@@ -46,6 +47,10 @@ from ..common.rotation import (
     set_rotation_without_mode_change,
 )
 from ..common.shader import LegacyAddonMaterial, MmdMaterial
+from ..common.third_party_user_extension import (
+    collect_third_party_user_extensions,
+    trigger_third_party_user_extension_hook,
+)
 from ..common.version import get_addon_version
 from ..common.vrm1.human_bone import (
     HumanBoneName,
@@ -129,6 +134,18 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         self._extras_material_name_key = (
             INTERNAL_NAME_PREFIX + self._export_id + "MaterialName"
         )
+        self._extras_mesh_name_key = INTERNAL_NAME_PREFIX + self._export_id + "MeshName"
+
+        self._third_party_user_extensions: list[object] = []
+
+        for (
+            third_party_user_extension_name,
+            third_party_user_extension,
+        ) in collect_third_party_user_extensions(context, "Vrm1ExportUserExtension"):
+            self._third_party_user_extensions.append(third_party_user_extension)
+            if self.generator_postfix:
+                self.generator_postfix += " + "
+            self.generator_postfix += third_party_user_extension_name
 
     @staticmethod
     def enter_overwrite_object_visibility_and_selection(
@@ -2677,6 +2694,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             obj[self._extras_object_name_key] = obj.name
         for material in self._context.blend_data.materials:
             material[self._extras_material_name_key] = material.name
+        for mesh in self._context.blend_data.meshes:
+            mesh[self._extras_mesh_name_key] = mesh.name
 
         # The glTF 2.0 addon comment states that it saves custom properties with
         # PoseBone, but it actually references custom properties of Bone.
@@ -2696,6 +2715,8 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         for pose_bone in reversed(self._armature.pose.bones):
             pose_bone.pop(self._extras_bone_name_key, None)
 
+        for mesh in reversed(self._context.blend_data.meshes):
+            mesh.pop(self._extras_mesh_name_key, None)
         for material in reversed(self._context.blend_data.materials):
             material.pop(self._extras_material_name_key, None)
         for obj in reversed(self._context.blend_data.objects):
@@ -3033,6 +3054,11 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             node_dicts = []
             json_dict["nodes"] = node_dicts
 
+        mesh_dicts = json_dict.get("meshes")
+        if not isinstance(mesh_dicts, list):
+            mesh_dicts = []
+            json_dict["meshes"] = mesh_dicts
+
         for node_index, node_dict in enumerate(node_dicts):
             if not isinstance(node_dict, dict):
                 continue
@@ -3060,11 +3086,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 )
 
             mesh_index = node_dict.get("mesh")
-            mesh_dicts = json_dict.get("meshes")
             if (
                 isinstance(object_name, str)
                 and isinstance(mesh_index, int)
-                and isinstance(mesh_dicts, list)
                 and 0 <= mesh_index < len(mesh_dicts)
             ):
                 mesh_object_name_to_node_index_dict[object_name] = node_index
@@ -3167,14 +3191,26 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             extras_dict = material_dict.get("extras")
             if not isinstance(extras_dict, dict):
                 continue
-
             material_name = extras_dict.pop(self._extras_material_name_key, None)
             if not isinstance(material_name, str):
                 continue
-
             material_name_to_index_dict[material_name] = material_index
             if not extras_dict:
                 material_dict.pop("extras", None)
+
+        mesh_name_to_index_dict: dict[str, int] = {}
+        for mesh_index, mesh_dict in enumerate(mesh_dicts):
+            if not isinstance(mesh_dict, dict):
+                continue
+            extras_dict = mesh_dict.get("extras")
+            if not isinstance(extras_dict, dict):
+                continue
+            mesh_name = extras_dict.pop(self._extras_mesh_name_key, None)
+            if not isinstance(mesh_name, str):
+                continue
+            mesh_name_to_index_dict[mesh_name] = mesh_index
+            if not extras_dict:
+                mesh_dict.pop("extras", None)
 
         self.save_vrm_materials(
             self._context,
@@ -3278,6 +3314,9 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         if isinstance(base_generator, str):
             generator += " with " + base_generator
 
+        if self.generator_postfix:
+            generator += " + " + self.generator_postfix
+
         asset_dict["generator"] = generator
 
         if buffer0:
@@ -3315,7 +3354,97 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
             if not json_dict.get(key):
                 json_dict.pop(key, None)
 
+        self.trigger_pre_save_hook(
+            json_dict,
+            buffer0,
+            self._armature,
+            MappingProxyType(
+                {
+                    index: obj
+                    for object_name, index in object_name_to_index_dict.items()
+                    if (obj := self._context.blend_data.objects.get(object_name))
+                }
+            ),
+            MappingProxyType(
+                {
+                    index: bone
+                    for bone_name, index in bone_name_to_index_dict.items()
+                    if (bone := armature_data.bones.get(bone_name))
+                }
+            ),
+            MappingProxyType(
+                {
+                    index: image
+                    for image_name, index in image_name_to_index_dict.items()
+                    if (image := self._context.blend_data.images.get(image_name))
+                }
+            ),
+            MappingProxyType(
+                {
+                    index: material
+                    for material_name, index in material_name_to_index_dict.items()
+                    if (
+                        material := self._context.blend_data.materials.get(
+                            material_name
+                        )
+                    )
+                }
+            ),
+            MappingProxyType(
+                {
+                    index: mesh
+                    for mesh_name, index in mesh_name_to_index_dict.items()
+                    if (mesh := self._context.blend_data.meshes.get(mesh_name))
+                }
+            ),
+        )
+
+        json_dict = {str(k): make_json(v) for k, v in json_dict.items()}
+
+        asset_dict = json_dict.get("asset")
+        if not isinstance(asset_dict, dict):
+            asset_dict = {}
+            json_dict["asset"] = asset_dict
+        asset_dict["generator"] = generator
+
+        if buffer0:
+            buffer_dicts = json_dict.get("buffers")
+            if not isinstance(buffer_dicts, list) or not buffer_dicts:
+                buffer_dicts = []
+                json_dict["buffers"] = buffer_dicts
+            if not buffer_dicts:
+                buffer_dicts.append({})
+            buffer_dict = buffer_dicts[0]
+            if not isinstance(buffer_dict, dict):
+                buffer_dict = {}
+                buffer_dicts[0] = buffer_dict
+            buffer_dict["byteLength"] = len(buffer0)
+
         return pack_glb(json_dict, buffer0)
+
+    def trigger_pre_save_hook(
+        self,
+        json_dict: dict[str, Json],
+        buffer0: bytearray,
+        armature_object: Object,
+        node_index_to_object: Mapping[int, Object],
+        node_index_to_bone: Mapping[int, Bone],
+        image_index_to_image: Mapping[int, Image],
+        material_index_to_material: Mapping[int, Material],
+        mesh_index_to_mesh: Mapping[int, Mesh],
+    ) -> None:
+        trigger_third_party_user_extension_hook(
+            self._third_party_user_extensions,
+            "pre_save_hook",
+            json_dict,
+            buffer0,
+            armature_object,
+            node_index_to_object,
+            node_index_to_bone,
+            image_index_to_image,
+            material_index_to_material,
+            mesh_index_to_mesh,
+        )
 
 
 def _remove_inactive_uv_maps(

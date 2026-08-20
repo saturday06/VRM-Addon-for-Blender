@@ -4,6 +4,8 @@ import re
 import shutil
 import subprocess
 import sys
+from collections.abc import Generator
+from contextlib import contextmanager
 from os import environ
 from pathlib import Path
 from typing import ClassVar, Final, Optional
@@ -13,6 +15,10 @@ import bpy
 
 import io_scene_vrm
 from io_scene_vrm.common.blender_manifest import BlenderManifest
+from io_scene_vrm.common.logger import get_logger
+
+_logger = get_logger(__name__)
+
 
 DEVELOPMENT_MODULE: Final = io_scene_vrm.__name__
 MANIFEST_ID: Final = BlenderManifest.read().id
@@ -177,3 +183,83 @@ def compare_image(image1_path: Path, image2_path: Path, diff_image_path: Path) -
         + compare_result.stderr.decode()
     )
     raise ValueError(message)
+
+
+@contextmanager
+def assert_module_state(module_root_path: Path) -> Generator[None, None, None]:
+    _logger.info("Testing: %s", module_root_path)
+
+    module_names: list[str] = [
+        module_path.relative_to(module_root_path).as_posix().replace("/", ".")
+        for module_path in sorted(module_root_path.glob("**"))
+        if (module_path / "blender_manifest.toml").exists()
+    ]
+    if bpy.app.version < (4, 2) and any(
+        "." in module_name for module_name in module_names
+    ):
+        message = "Blender version < 4.2 does not support nested modules"
+        raise SkipTest(message)
+
+    module_root_path_str = str(module_root_path)
+    if module_root_path_str in sys.path:
+        message = f"{module_root_path_str} is already in sys.path"
+        raise AssertionError(message)
+
+    enabled_module_names: list[str] = []
+    sys.path.insert(0, module_root_path_str)
+    try:
+        try:
+            for module_name in module_names:
+                result = bpy.ops.preferences.addon_enable(module=module_name)
+                if result != {"FINISHED"}:
+                    message = f"Failed to enable addon: {module_name}, result: {result}"
+                    raise AssertionError(message)
+                enabled_module_names.append(module_name)
+
+            yield
+
+            for module_name in module_names:
+                module = sys.modules.get(module_name)
+                if not module:
+                    message = f"Module not found in sys.modules: {module_name}"
+                    raise AssertionError(message)
+                assert_vrm_third_party_user_extension_state = getattr(
+                    module,
+                    "assert_vrm_third_party_user_extension_state",
+                    None,
+                )
+                if assert_vrm_third_party_user_extension_state is None:
+                    message = (
+                        "Module.assert_vrm_third_party_user_extension_state"
+                        f" not found: {module_name}"
+                    )
+                    raise AttributeError(message)
+                if not callable(assert_vrm_third_party_user_extension_state):
+                    message = (
+                        "Module.assert_vrm_third_party_user_extension_state"
+                        f" is not callable: {module_name}"
+                    )
+                    raise TypeError(message)
+                assert_vrm_third_party_user_extension_state()
+        finally:
+            for module_name in reversed(enabled_module_names):
+                result = bpy.ops.preferences.addon_disable(module=module_name)
+                if result != {"FINISHED"}:
+                    message = (
+                        f"Failed to disable addon: {module_name}, result: {result}"
+                    )
+                    raise AssertionError(message)
+    finally:
+        sys.path.remove(module_root_path_str)
+
+        module_root_path_resolved = module_root_path.resolve()
+        for name, module in list(sys.modules.items()):
+            module_file = getattr(module, "__file__", None)
+            if not isinstance(module_file, str):
+                continue
+            module_file_path = Path(module_file).resolve()
+            if (
+                module_root_path_resolved == module_file_path
+                or module_root_path_resolved in module_file_path.parents
+            ):
+                sys.modules.pop(name, None)

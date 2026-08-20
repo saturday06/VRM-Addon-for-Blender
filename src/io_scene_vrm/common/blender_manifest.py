@@ -19,7 +19,7 @@ class BlenderManifest:
     @classmethod
     def _read_str(cls, blender_manifest: str, key: str) -> Optional[str]:
         # When the version of Python used by the minimum supported version of Blender
-        # exceeds 3.11, it is rewritten in the tomli library.
+        # exceeds 3.11, it is rewritten in the tomllib library.
         lines = [line.strip() for line in blender_manifest.splitlines()]
 
         pattern = key + r' = "([^"]+)"'

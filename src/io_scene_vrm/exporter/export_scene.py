@@ -312,7 +312,13 @@ def _export_vrm(
                     armature_object,
                 )
 
-            glb_bytes = exporter.export()
+            try:
+                glb_bytes = exporter.export()
+            except Exception as e:
+                message = "Failed to export VRM" + exporter.generator_postfix
+                if exporter.generator_postfix:
+                    message += " with " + exporter.generator_postfix
+                raise RuntimeError(message) from e
     finally:
         if armature_object and armature_object_is_temporary:
             if not isinstance(armature_data := armature_object.data, Armature):

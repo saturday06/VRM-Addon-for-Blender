@@ -3,9 +3,10 @@ import difflib
 import math
 from collections.abc import Mapping
 from json import dumps as json_dumps
+from types import MappingProxyType
 
 from . import convert
-from .convert import Json
+from .convert import Json, JsonView
 from .logger import get_logger
 
 _logger = get_logger(__name__)
@@ -42,6 +43,17 @@ def make_json(v: object) -> Json:
 
     _logger.warning("%s %s is unrecognized type", v, type(v))
     return None
+
+
+def make_json_view(v: object) -> JsonView:
+    json = make_json(v)
+    if isinstance(json, dict):
+        return MappingProxyType(
+            {key: make_json_view(value) for key, value in json.items()}
+        )
+    if isinstance(json, list):
+        return tuple(make_json_view(x) for x in json)
+    return json
 
 
 def make_json_dict(v: Mapping[str, object]) -> dict[str, Json]:

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import logging
 import sys
+import traceback
 from collections.abc import Mapping
 from os import environ
 from types import TracebackType
@@ -16,6 +17,19 @@ else:
 
 
 class VrmAddonLoggerAdapter(LoggerAdapter):
+    def __init__(self, logger: logging.Logger, extra: Mapping[str, object]) -> None:
+        super().__init__(logger, extra)
+        self._log_output_match_counts: dict[str, int] = {}
+
+    def register_log_output_match(self, pattern: str) -> None:
+        self._log_output_match_counts[pattern] = 0
+
+    def get_log_output_match_count(self, pattern: str) -> int:
+        return self._log_output_match_counts.get(pattern, 0)
+
+    def clear_log_output_match_count(self) -> None:
+        self._log_output_match_counts.clear()
+
     def log(
         self,
         level: int,
@@ -36,6 +50,18 @@ class VrmAddonLoggerAdapter(LoggerAdapter):
         **kwargs: object,
     ) -> None:
         level_name = logging.getLevelName(level)
+        if self._log_output_match_counts:
+            try:
+                formatted_message = str(msg) % args if args else str(msg)
+            except (TypeError, ValueError):
+                formatted_message = str(msg)
+            if exc_info is True:
+                formatted_message += f"\n{traceback.format_exc()}"
+            elif exc_info:
+                formatted_message += f"\n{exc_info}"
+            for pattern, match_count in self._log_output_match_counts.items():
+                if pattern in formatted_message:
+                    self._log_output_match_counts[pattern] = match_count + 1
         super().log(
             level,
             f"[VRM Add-on:{level_name}] {msg}",
@@ -49,7 +75,7 @@ class VrmAddonLoggerAdapter(LoggerAdapter):
 
 
 # https://docs.python.org/3.7/library/logging.html#logging.getLogger
-def get_logger(name: str) -> LoggerAdapter:
+def get_logger(name: str) -> VrmAddonLoggerAdapter:
     logger = logging.getLogger(name)
     if bpy.app.debug or environ.get("BLENDER_VRM_LOGGING_LEVEL_DEBUG") == "yes":
         logger.setLevel(min(logging.DEBUG, logger.getEffectiveLevel()))

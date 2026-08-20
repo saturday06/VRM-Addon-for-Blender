@@ -231,6 +231,8 @@ class AbstractBaseVrmImporter(ABC):
         finally:
             glTF2ImportUserExtension.clear_current_import_id()
 
+        self.on_post_import()
+
     @property
     def armature_data(self) -> Armature:
         if not self._armature:
@@ -1373,6 +1375,10 @@ class AbstractBaseVrmImporter(ABC):
                     obj.select_set(True)
         if self._armature is not None:
             self._context.view_layer.objects.active = self._armature
+
+    @abstractmethod
+    def on_post_import(self) -> None:
+        pass
 
 
 def parse_vrm_json(filepath: Path, *, license_validation: bool) -> ParseResult:

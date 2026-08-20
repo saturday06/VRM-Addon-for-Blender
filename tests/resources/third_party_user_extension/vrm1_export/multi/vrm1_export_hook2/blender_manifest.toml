@@ -1,0 +1,10 @@
+schema_version = "1.0.0"
+id = "vrm1_export_hook_2"
+version = "1.0.2"
+name = "Third Party User Extension Test 2"
+tagline = "Test add-on"
+maintainer = "Isamu Mogi <dyob@lunaport.net>"
+type = "add-on"
+blender_version_min = "4.2.0"
+license = ["SPDX:MIT", "SPDX:GPL-3.0-or-later"]
+copyright = ["2026 Isamu Mogi"]

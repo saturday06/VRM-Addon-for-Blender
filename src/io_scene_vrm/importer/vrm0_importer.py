@@ -1446,6 +1446,9 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             )
         )
 
+    def on_post_import(self) -> None:
+        pass
+
 
 def _setup_bones(context: Context, armature: Object) -> None:
     """Set the direction and length of Human Bones.

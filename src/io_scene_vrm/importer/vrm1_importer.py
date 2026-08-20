@@ -1,14 +1,19 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import json
+from collections.abc import Mapping, Sequence
+from types import MappingProxyType
 from typing import Optional, Union
 
 import bpy
 from bpy.types import (
+    Armature,
     Bone,
+    Context,
     CopyRotationConstraint,
     DampedTrackConstraint,
     EditBone,
     Image,
+    Material,
     Mesh,
     Object,
     PoseBone,
@@ -16,10 +21,15 @@ from bpy.types import (
 from mathutils import Matrix, Vector
 
 from ..common import convert, shader
-from ..common.convert import Json
+from ..common.convert import Json, JsonView
+from ..common.deep import make_json_view
 from ..common.logger import get_logger
-from ..common.preferences import get_preferences
+from ..common.preferences import ImportPreferencesProtocol, get_preferences
 from ..common.progress import PartialProgress
+from ..common.third_party_user_extension import (
+    collect_third_party_user_extensions,
+    trigger_third_party_user_extension_hook,
+)
 from ..common.version import get_addon_version
 from ..common.vrm1.human_bone import HumanBoneName, HumanBoneSpecifications
 from ..editor import make_armature, migration
@@ -56,12 +66,26 @@ from ..editor.vrm1.property_group import (
     Vrm1MaterialColorBindPropertyGroup,
     Vrm1MetaPropertyGroup,
 )
-from .abstract_base_vrm_importer import AbstractBaseVrmImporter
+from .abstract_base_vrm_importer import AbstractBaseVrmImporter, ParseResult
 
 _logger = get_logger(__name__)
 
 
 class Vrm1Importer(AbstractBaseVrmImporter):
+    def __init__(
+        self,
+        context: Context,
+        parse_result: ParseResult,
+        preferences: ImportPreferencesProtocol,
+    ) -> None:
+        super().__init__(context, parse_result, preferences)
+        self._third_party_user_extensions: Sequence[object] = [
+            third_party_user_extension
+            for _, third_party_user_extension in collect_third_party_user_extensions(
+                context, "Vrm1ImportUserExtension"
+            )
+        ]
+
     @staticmethod
     def assign_texture_colorspace(image: Image, preferred_colorspace: str) -> None:
         colorspaces = [preferred_colorspace]
@@ -1842,3 +1866,59 @@ class Vrm1Importer(AbstractBaseVrmImporter):
                 elif isinstance(source, PoseBone):
                     constraint.target = armature
                     constraint.subtarget = source.name
+
+    def on_post_import(self) -> None:
+        armature = self._armature
+        if not armature:
+            return
+        if not isinstance(armature_data := armature.data, Armature):
+            return
+
+        self.trigger_post_import_hook(
+            MappingProxyType(
+                {k: make_json_view(v) for k, v in self._parse_result.json_dict.items()}
+            ),
+            self._parse_result.bin_chunk,
+            armature,
+            MappingProxyType(
+                {
+                    index: obj
+                    for index, object_name in self._object_names.items()
+                    if (obj := self._context.blend_data.objects.get(object_name))
+                }
+            ),
+            MappingProxyType(
+                {
+                    index: bone
+                    for index, bone_name in self._bone_names.items()
+                    if (bone := armature_data.bones.get(bone_name))
+                }
+            ),
+            MappingProxyType(self._images),
+            MappingProxyType(self._materials),
+            MappingProxyType(self._meshes),
+        )
+
+    def trigger_post_import_hook(
+        self,
+        json_dict: Mapping[str, JsonView],
+        buffer0: bytes,
+        armature: Object,
+        node_index_to_object: Mapping[int, Object],
+        node_index_to_bone: Mapping[int, Bone],
+        image_index_to_image: Mapping[int, Image],
+        material_index_to_material: Mapping[int, Material],
+        mesh_index_to_mesh: Mapping[int, Mesh],
+    ) -> None:
+        trigger_third_party_user_extension_hook(
+            self._third_party_user_extensions,
+            "post_import_hook",
+            json_dict,
+            buffer0,
+            armature,
+            node_index_to_object,
+            node_index_to_bone,
+            image_index_to_image,
+            material_index_to_material,
+            mesh_index_to_mesh,
+        )
