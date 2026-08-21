@@ -11,6 +11,7 @@ ci-super-linter-local-image.tar.gz
 /.idea/
 /.venv/
 /.vscode/
+/.cursor/rules/
 /docs/.vitepress/cache/
 /docs/.vitepress/dist/
 /node_modules/
