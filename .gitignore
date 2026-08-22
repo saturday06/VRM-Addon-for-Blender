@@ -11,6 +11,7 @@ ci-super-linter-local-image.tar.gz
 /.idea/
 /.venv/
 /.vscode/
+/.cursor/rules/
 /docs/.vitepress/cache/
 /docs/.vitepress/dist/
 /node_modules/
@@ -71,3 +72,7 @@ __pycache__/
 /tests/resources/vrma/*/*_blender.png
 /tests/resources/vrma/*/*_blender_roundtrip.png
 /tests/resources/vrma/*/*_diff.png
+
+# Local sandbox — throwaway experiments (see Sandbox/README.md)
+/Sandbox/*
+!/Sandbox/README.md
