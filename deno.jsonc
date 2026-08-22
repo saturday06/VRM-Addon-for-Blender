@@ -163,7 +163,7 @@
     "@octokit/types": "npm:@octokit/types@17.0.0",
     "@types/node": "npm:@types/node@26.2.0",
     "gltf-validator": "npm:gltf-validator@2.0.0-dev.3.10",
-    "isomorphic-git": "npm:isomorphic-git@1.41.5",
+    "isomorphic-git": "npm:isomorphic-git@1.41.7",
     "pyright": "npm:pyright@1.1.413",
     "vitepress": "npm:vitepress@1.6.4",
     "vue": "npm:vue@3.5.41"
