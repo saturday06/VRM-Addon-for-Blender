@@ -598,18 +598,26 @@ class AbstractBaseVrmImporter(ABC):
             value_dicts = json_dict.get(key)
             if not isinstance(value_dicts, list):
                 continue
+
             for index, value_dict in enumerate(value_dicts):
                 if not isinstance(value_dict, dict):
                     continue
+
                 extras_dict = value_dict.get("extras")
                 if not isinstance(extras_dict, dict):
                     extras_dict = {}
                     value_dict["extras"] = extras_dict
-
                 extras_dict.update({self._import_id + key.capitalize(): index})
+
+                if key != "nodes":
+                    continue
+
                 mesh_index = value_dict.get("mesh")
-                if key == "nodes" and isinstance(mesh_index, int):
-                    extras_dict.update({self._import_id + "Meshes": mesh_index})
+                if not isinstance(mesh_index, int):
+                    value_dict.pop("mesh", None)
+                    continue
+
+                extras_dict.update({self._import_id + "Meshes": mesh_index})
 
         legacy_image_name_prefix = self._import_id + "Image"
         image_dicts = json_dict.get("images")
