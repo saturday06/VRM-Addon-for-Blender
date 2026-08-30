@@ -1102,11 +1102,13 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             if not isinstance(mesh_annotation_dict, dict):
                 continue
 
-            node = mesh_annotation_dict.get("node")
-            if isinstance(node, int):
-                mesh_object_name = self._mesh_object_names.get(node)
-                if isinstance(mesh_object_name, str):
-                    mesh_annotation.node.mesh_object_name = mesh_object_name
+            if (
+                isinstance(node_index := mesh_annotation_dict.get("node"), int)
+                and (mesh_object_name := self._object_names.get(node_index))
+                and (obj := self._context.blend_data.objects.get(mesh_object_name))
+                and isinstance(obj.data, Mesh)
+            ):
+                mesh_annotation.node.mesh_object_name = mesh_object_name
 
             type_ = mesh_annotation_dict.get("type")
             if type_ in mesh_annotation.type_enum.identifiers():
