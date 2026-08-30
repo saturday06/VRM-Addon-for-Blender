@@ -168,7 +168,7 @@ class AbstractBaseVrmImporter(ABC):
         self._parse_result = parse_result
         self._preferences = preferences
 
-        self._meshes: dict[int, Object] = {}
+        self._meshes: dict[int, Mesh] = {}
         self._images: dict[int, Image] = {}
         self._armature: Optional[Object] = None
         self._bone_names: dict[int, str] = {}
@@ -607,16 +607,6 @@ class AbstractBaseVrmImporter(ABC):
                     extras_dict = {}
                     value_dict["extras"] = extras_dict
                 extras_dict.update({self._import_id + key.capitalize(): index})
-
-                if key != "nodes":
-                    continue
-
-                mesh_index = value_dict.get("mesh")
-                if not isinstance(mesh_index, int):
-                    value_dict.pop("mesh", None)
-                    continue
-
-                extras_dict.update({self._import_id + "Meshes": mesh_index})
 
         legacy_image_name_prefix = self._import_id + "Image"
         image_dicts = json_dict.get("images")
@@ -1171,13 +1161,9 @@ class AbstractBaseVrmImporter(ABC):
             data = obj.data
             if not isinstance(data, Mesh):
                 continue
-
-            data_custom_mesh_index = data.pop(extras_mesh_index_key, None)
-            obj_custom_mesh_index = obj.pop(extras_mesh_index_key, None)
-            if isinstance(data_custom_mesh_index, int):
-                self._meshes[data_custom_mesh_index] = obj
-            elif isinstance(obj_custom_mesh_index, int):
-                self._meshes[obj_custom_mesh_index] = obj
+            custom_mesh_index = data.pop(extras_mesh_index_key, None)
+            if isinstance(custom_mesh_index, int):
+                self._meshes[custom_mesh_index] = data
 
         for image in list(self._context.blend_data.images):
             custom_image_index = image.get(self._import_id)

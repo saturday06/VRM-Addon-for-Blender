@@ -14,7 +14,6 @@ from bpy.types import (
     Armature,
     Context,
     Material,
-    Mesh,
     Object,
 )
 from mathutils import Matrix, Vector
@@ -1032,10 +1031,6 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                 if not isinstance(mesh_annotation_dict, dict):
                     continue
 
-                mesh = mesh_annotation_dict.get("mesh")
-                if isinstance(mesh, int) and mesh in self._meshes:
-                    mesh_annotation.mesh.mesh_object_name = self._meshes[mesh].name
-
                 first_person_flag = mesh_annotation_dict.get("firstPersonFlag")
                 if (
                     isinstance(first_person_flag, str)
@@ -1043,6 +1038,34 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                     in mesh_annotation.first_person_flag_enum.identifiers()
                 ):
                     mesh_annotation.first_person_flag = first_person_flag
+
+                mesh_index = mesh_annotation_dict.get("mesh")
+                if not isinstance(mesh_index, int):
+                    continue
+
+                mesh_data = self._meshes.get(mesh_index)
+                if not mesh_data:
+                    continue
+
+                mesh_object = next(
+                    (
+                        mesh_object
+                        for object_name in self._object_names.values()
+                        if (
+                            mesh_object := self._context.blend_data.objects.get(
+                                object_name
+                            )
+                        )
+                        and mesh_object.type == "MESH"
+                        and mesh_object.data == mesh_data
+                    ),
+                    None,
+                )
+
+                if not mesh_object:
+                    continue
+
+                mesh_annotation.mesh.mesh_object_name = mesh_object.name
 
         look_at_type_name = first_person_dict.get("lookAtTypeName")
         if (
@@ -1115,32 +1138,55 @@ class Vrm0Importer(AbstractBaseVrmImporter):
             bind_dicts = blend_shape_group_dict.get("binds")
             if isinstance(bind_dicts, list):
                 for bind_dict in bind_dicts:
+                    bind = blend_shape_group.binds.add()
+
                     if not isinstance(bind_dict, dict):
                         continue
+
+                    weight = convert.float_or(bind_dict.get("weight"), 0.0)
+                    bind.weight = min(max(weight / 100.0, 0), 1)
 
                     mesh_index = bind_dict.get("mesh")
                     if not isinstance(mesh_index, int):
                         continue
 
-                    mesh_object = self._meshes.get(mesh_index)
+                    mesh_data = self._meshes.get(mesh_index)
+                    if not mesh_data:
+                        continue
+
+                    mesh_object = next(
+                        (
+                            mesh_object
+                            for object_name in self._object_names.values()
+                            if (
+                                mesh_object := self._context.blend_data.objects.get(
+                                    object_name
+                                )
+                            )
+                            and mesh_object.type == "MESH"
+                            and mesh_object.data == mesh_data
+                        ),
+                        None,
+                    )
                     if not mesh_object:
                         continue
 
-                    bind = blend_shape_group.binds.add()
                     bind.mesh.mesh_object_name = mesh_object.name
-                    mesh_data = mesh_object.data
-                    if isinstance(mesh_data, Mesh):
-                        shape_keys = mesh_data.shape_keys
-                        if shape_keys:
-                            index = bind_dict.get("index")
-                            if isinstance(index, int) and (
-                                1 <= (index + 1) < len(shape_keys.key_blocks)
-                            ):
-                                bind.index = list(shape_keys.key_blocks.keys())[
-                                    index + 1
-                                ]
-                    weight = convert.float_or(bind_dict.get("weight"), 0.0)
-                    bind.weight = min(max(weight / 100.0, 0), 1)
+
+                    shape_keys = mesh_data.shape_keys
+                    if not shape_keys:
+                        continue
+                    key_blocks = shape_keys.key_blocks
+
+                    bind_index = bind_dict.get("index")
+                    if not isinstance(bind_index, int) or bind_index < 0:
+                        continue
+
+                    key_blocks_index = bind_index + 1
+                    if not (1 <= key_blocks_index < len(key_blocks)):
+                        continue
+
+                    bind.index = key_blocks[key_blocks_index].name
 
             material_value_dicts = blend_shape_group_dict.get("materialValues")
             if isinstance(material_value_dicts, list):
