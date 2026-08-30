@@ -1203,27 +1203,15 @@ class Vrm1Importer(AbstractBaseVrmImporter):
             node_index = morph_target_bind_dict.get("node")
             if not isinstance(node_index, int):
                 continue
-            node_dicts = self._parse_result.json_dict.get("nodes")
-            if not isinstance(node_dicts, list) or not (
-                0 <= node_index < len(node_dicts)
-            ):
+            mesh_object_name = self._object_names.get(node_index)
+            if not mesh_object_name:
                 continue
-            node_dict = node_dicts[node_index]
-            if not isinstance(node_dict, dict):
+            mesh_object = self._context.blend_data.objects.get(mesh_object_name)
+            if not mesh_object or not isinstance(mesh_data := mesh_object.data, Mesh):
                 continue
-            mesh_index = node_dict.get("mesh")
-            if not isinstance(mesh_index, int):
-                continue
-            mesh_obj = self._meshes.get(mesh_index)
-            if not mesh_obj:
-                continue
-
-            morph_target_bind.node.mesh_object_name = mesh_obj.name
+            morph_target_bind.node.mesh_object_name = mesh_object.name
             index = morph_target_bind_dict.get("index")
             if not isinstance(index, int):
-                continue
-            mesh_data = mesh_obj.data
-            if not isinstance(mesh_data, Mesh):
                 continue
             shape_keys = mesh_data.shape_keys
             if not shape_keys:

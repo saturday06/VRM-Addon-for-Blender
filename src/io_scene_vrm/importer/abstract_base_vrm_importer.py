@@ -177,7 +177,6 @@ class AbstractBaseVrmImporter(ABC):
         self._import_id = glTF2ImportUserExtension.update_current_import_id()
         self._temp_object_name_count = 0
         self._object_names: dict[int, str] = {}
-        self._mesh_object_names: dict[int, str] = {}
         self._imported_object_names: Optional[list[str]] = None
 
     @abstractmethod
@@ -1084,8 +1083,6 @@ class AbstractBaseVrmImporter(ABC):
             node_index = obj.pop(extras_node_index_key, None)
             if isinstance(node_index, int):
                 self._object_names[node_index] = obj.name
-                if isinstance(obj.data, Mesh):
-                    self._mesh_object_names[node_index] = obj.name
             data = obj.data
             if isinstance(data, Mesh):
                 data.pop(extras_node_index_key, None)
