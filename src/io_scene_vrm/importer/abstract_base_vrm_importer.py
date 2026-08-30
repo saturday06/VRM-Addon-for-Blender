@@ -595,8 +595,6 @@ class AbstractBaseVrmImporter(ABC):
         json_dict, buffer0_bytes = parse_glb(self._parse_result.filepath.read_bytes())
 
         for key in ("nodes", "materials", "meshes"):
-            if key not in json_dict or not isinstance(json_dict[key], list):
-                continue
             value_dicts = json_dict.get(key)
             if not isinstance(value_dicts, list):
                 continue
