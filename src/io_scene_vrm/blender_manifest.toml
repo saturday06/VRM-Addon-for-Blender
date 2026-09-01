@@ -1,22 +1,24 @@
 schema_version = "1.0.0"
-
 id = "vrm"
 version = "4.5.0"
-
 name = "VRM format"
 tagline = "VRM import, export and editing capabilities"
 maintainer = "Isamu Mogi <dyob@lunaport.net>"
 type = "add-on"
-
 website = "https://vrm-addon-for-blender.info"
-
-tags = ["Import-Export", "Animation", "Modeling", "Material", "Physics"]
-
+tags = [
+  "Animation",
+  "Import-Export",
+  "Material",
+  "Modeling",
+  "Physics",
+]
 blender_version_min = "4.2.0"
 blender_version_max = "5.3.0"
-
-license = ["SPDX:MIT", "SPDX:GPL-3.0-or-later"]
-
+license = [
+  "SPDX:MIT",
+  "SPDX:GPL-3.0-or-later",
+]
 copyright = [
   "2020 Isamu Mogi",
   "2018 iCyP",
