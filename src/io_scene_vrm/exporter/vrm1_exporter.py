@@ -2727,20 +2727,21 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         if bpy.app.version < (4, 2):
             return False
 
-        if bpy.app.version < (4, 4):
-            # Root bone with non-deform bones returns False
-            # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2394
-            for selected_object in context.selected_objects:
-                if selected_object.type != "ARMATURE":
+        # Root bone with non-deform bones returns False
+        # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2394
+        # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2697
+        # https://github.com/saturday06/VRM-Addon-for-Blender/issues/1227
+        for selected_object in context.selected_objects:
+            if selected_object.type != "ARMATURE":
+                continue
+            armature = selected_object.data
+            if not isinstance(armature, Armature):
+                continue
+            for bone in armature.bones:
+                if bone.parent:
                     continue
-                armature = selected_object.data
-                if not isinstance(armature, Armature):
-                    continue
-                for bone in armature.bones:
-                    if bone.parent:
-                        continue
-                    if not bone.use_deform:
-                        return False
+                if not bone.use_deform:
+                    return False
 
         # Return False if there are vertices with Armature modifier but no weights
         # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2436
