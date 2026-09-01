@@ -2,19 +2,19 @@
 name = "io-scene-vrm"
 version = "4.5.0"
 authors = [
-  {name = "Isamu Mogi"},
-  {name = "iCyP"},
+  { name = "Isamu Mogi" },
+  { name = "iCyP" },
 ]
-license = {text = "SPDX-License-Identifier: MIT OR GPL-3.0-or-later"}
+license = { text = "SPDX-License-Identifier: MIT OR GPL-3.0-or-later" }
 
-requires-python = "==3.10.*" # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
+requires-python = "==3.10.*"  # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
 
 dependencies = [
   # https://github.com/saturday06/VRM-Addon-for-Blender/blob/v3.10.1/uv.lock#L12-L27
+  "bpy ==3.6.*; python_version == '3.10.*' and platform_machine == 'AMD64' and sys_platform == 'win32'",
   "bpy ==3.6.*; python_version == '3.10.*' and platform_machine == 'arm64' and sys_platform == 'darwin'",
   "bpy ==3.6.*; python_version == '3.10.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
   "bpy ==3.6.*; python_version == '3.10.*' and platform_machine == 'x86_64' and sys_platform == 'linux'",
-  "bpy ==3.6.*; python_version == '3.10.*' and platform_machine == 'AMD64' and sys_platform == 'win32'",
 ]
 
 [dependency-groups]
@@ -25,140 +25,35 @@ dev = [
   "requests",
   "ruff",
   "starry-bpy-typings",
-  "tomli", # for codespell
+  "tombi",
+  "tomli",  # for codespell
   "tqdm",
   "types-pygit2",
   "types-tqdm",
 ]
 
-[tool.uv]
-cache-dir = "./.local/var/cache/uv"
-
-[tool.uv.workspace]
-members = ["benchmarks", "typings"]
-
-[tool.uv.sources]
-bpy = {index = "download.blender.org"}
-io-scene-vrm-benchmarks = {workspace = true}
-starry-bpy-typings = {workspace = true}
-
-[[tool.uv.index]]
-name = "download.blender.org"
-url = "https://download.blender.org/pypi/"
-
-[tool.ruff]
-target-version = "py39" # It overrides 'project.requires-python = "== 3.10.*"'
-src = ["typings/src", "src"]
-
-[tool.ruff.lint]
-select = ["ALL"]
-ignore = [
-  # ----- fixing -----
-
-  "CPY001", # Missing copyright notice at top of file
-  "FBT003", # Boolean positional value in function call
-
-  # ----- ignored -----
-
-  # `COM812` may cause conflicts when used with the formatter in Ruff 0.1.6
-  "COM812", # Trailing comma missing
-
-  "D100", # Missing docstring in public module
-  "D101", # Missing docstring in public class
-  "D102", # Missing docstring in public method
-  "D103", # Missing docstring in public function
-  "D104", # Missing docstring in public package
-  "D105", # Missing docstring in magic method
-  "D106", # Missing docstring in public nested class
-  "D107", # Missing docstring in `__init__`
-  "ERA001", # Found commented-out code
-
-  # devcontainer for windows hosts doesn't set executable permissions properly.
-  "EXE002", # The file is executable but no shebang is present
-
-  # https://projects.blender.org/blender/blender/issues/63713
-  "FA100", # Missing `from __future__ import annotations`, but uses `x`
-
-  "FIX002", # Line contains TODO, consider resolving the issue
-
-  # `ISC001` may cause conflicts when used with the formatter in Ruff 0.1.6
-  "ISC001", # Implicitly concatenated string literals on one line
-
-  "ISC003", # Explicitly concatenated string should be implicitly concatenated
-  "PERF203", # `try`-`except` within a loop incurs performance overhead
-  "PLC0415", # `import` should be at the top-level of a file
-  "PLR2004", # Magic value used in comparison, consider replacing 3 with a constant variable
-
-  # pytest is not currently used.
-  "PT", # flake8-pytest-style
-
-  "RET504", # Unnecessary assignment to `x` before `return` statement
-
-  # SIM118 does not handle `bpy_prop_collection` correctly.
-  "SIM118", # Use `key not in dict` instead of `key not in dict.keys()`
-
-  "TC001", # Move application import `x` into a type-checking block
-  "TC002", # Move third-party import `x` into a type-checking block
-  "TC003", # Move standard library import `x` into a type-checking block
-  "TD002", # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
-  "TD003", # Missing issue link on the line following this TODO
-
-  # https://projects.blender.org/blender/blender-manual/src/commit/585cc1a5eab811052ea4dda176dfce057cb6ad69/manual/advanced/extensions/addons.rst?display=source#L174-L183
-  "TID252", # Relative imports from parent modules are banned
-]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = [
-  "S603", # `subprocess` call: check for execution of untrusted input
-  "S607", # Starting a process with a partial executable path
-  "SLF001", # Private member accessed: `_x`
-]
-
-[tool.ruff.lint.pep8-naming]
-extend-ignore-names = [
-  "glTF2ExportUserExtension",
-  "glTF2ImportUserExtension",
-  "EXPORT_SCENE_OT_*",
-  "IMPORT_SCENE_OT_*",
-  "ICYP_OT_*",
-  "VRM_FH_*",
-  "VRM_MT_*",
-  "VRM_OT_*",
-  "VRM_PT_*",
-  "VRM_UL_*",
-  "WM_OT_*",
-]
-
-[tool.ruff.lint.pydocstyle]
-convention = "pep257"
-
-[tool.ruff.lint.mccabe]
-max-complexity = 216
-
-[tool.ruff.lint.pylint]
-max-args = 19
-max-branches = 215
-max-returns = 31
-max-statements = 550
-
-[tool.mypy]
-exclude = ['.']
-ignore_errors = true # Please use pyright instead.
+[build-system]
+requires = ["uv_build>=0.12.1,<0.13.0"]
+build-backend = "uv_build"
 
 [tool.black]
-extend-exclude = ".*" # Please use Ruff instead.
+extend-exclude = ".*"  # Please use Ruff instead.
 
 [tool.codespell]
-skip = '*.lock,*.asset,node_modules,./tests/resources/unity/*/Library/*,./tests/resources/unity/*/Build/*'
+skip = "*.lock,*.asset,node_modules,./tests/resources/unity/*/Library/*,./tests/resources/unity/*/Build/*"
 
 [tool.isort]
-extend_skip_glob = ["*"] # Please use Ruff instead.
+extend_skip_glob = ["*"]  # Please use Ruff instead.
+
+[tool.mypy]
+exclude = ["."]
+ignore_errors = true  # Please use pyright instead.
 
 [tool.pylint.main]
-ignore-paths = "." # Please use Ruff instead.
+ignore-paths = "."  # Please use Ruff instead.
 
 [tool.pyright]
-pythonVersion = "3.9" # It overrides 'project.requires-python = "== 3.10.*"'
+pythonVersion = "3.9"  # It overrides 'project.requires-python = "== 3.10.*"'
 pythonPlatform = "All"
 typeCheckingMode = "strict"
 stubPath = "typings/src"
@@ -190,6 +85,112 @@ root = "tests"
 extraPaths = ["src", "typings/src", "."]
 reportPrivateUsage = "none"
 
-[build-system]
-requires = ["uv_build>=0.12.1,<0.13.0"]
-build-backend = "uv_build"
+[tool.ruff]
+target-version = "py39"  # It overrides 'project.requires-python = "== 3.10.*"'
+src = ["typings/src", "src"]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+  # ----- fixing -----
+
+  "CPY001",  # Missing copyright notice at top of file
+  "FBT003",  # Boolean positional value in function call
+
+  # ----- ignored -----
+
+  # `COM812` may cause conflicts when used with the formatter in Ruff 0.1.6
+  "COM812",  # Trailing comma missing
+
+  "D100",  # Missing docstring in public module
+  "D101",  # Missing docstring in public class
+  "D102",  # Missing docstring in public method
+  "D103",  # Missing docstring in public function
+  "D104",  # Missing docstring in public package
+  "D105",  # Missing docstring in magic method
+  "D106",  # Missing docstring in public nested class
+  "D107",  # Missing docstring in `__init__`
+  "ERA001",  # Found commented-out code
+
+  # devcontainer for windows hosts doesn't set executable permissions properly.
+  "EXE002",  # The file is executable but no shebang is present
+
+  # https://projects.blender.org/blender/blender/issues/63713
+  "FA100",  # Missing `from __future__ import annotations`, but uses `x`
+
+  "FIX002",  # Line contains TODO, consider resolving the issue
+
+  # `ISC001` may cause conflicts when used with the formatter in Ruff 0.1.6
+  "ISC001",  # Implicitly concatenated string literals on one line
+
+  "ISC003",  # Explicitly concatenated string should be implicitly concatenated
+  "PERF203",  # `try`-`except` within a loop incurs performance overhead
+  "PLC0415",  # `import` should be at the top-level of a file
+  "PLR2004",  # Magic value used in comparison, consider replacing 3 with a constant variable
+
+  # pytest is not currently used.
+  "PT",  # flake8-pytest-style
+
+  "RET504",  # Unnecessary assignment to `x` before `return` statement
+
+  # SIM118 does not handle `bpy_prop_collection` correctly.
+  "SIM118",  # Use `key not in dict` instead of `key not in dict.keys()`
+
+  "TC001",  # Move application import `x` into a type-checking block
+  "TC002",  # Move third-party import `x` into a type-checking block
+  "TC003",  # Move standard library import `x` into a type-checking block
+  "TD002",  # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
+  "TD003",  # Missing issue link on the line following this TODO
+
+  # https://projects.blender.org/blender/blender-manual/src/commit/585cc1a5eab811052ea4dda176dfce057cb6ad69/manual/advanced/extensions/addons.rst?display=source#L174-L183
+  "TID252",  # Relative imports from parent modules are banned
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+  "S603",  # `subprocess` call: check for execution of untrusted input
+  "S607",  # Starting a process with a partial executable path
+  "SLF001",  # Private member accessed: `_x`
+]
+
+[tool.ruff.lint.pep8-naming]
+extend-ignore-names = [
+  "glTF2ExportUserExtension",
+  "glTF2ImportUserExtension",
+  "EXPORT_SCENE_OT_*",
+  "IMPORT_SCENE_OT_*",
+  "ICYP_OT_*",
+  "VRM_FH_*",
+  "VRM_MT_*",
+  "VRM_OT_*",
+  "VRM_PT_*",
+  "VRM_UL_*",
+  "WM_OT_*",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 216
+
+[tool.ruff.lint.pylint]
+max-args = 19
+max-branches = 215
+max-returns = 31
+max-statements = 550
+
+[tool.uv]
+cache-dir = "./.local/var/cache/uv"
+
+[tool.uv.workspace]
+members = ["benchmarks", "typings"]
+
+[tool.uv.sources]
+bpy = { index = "download.blender.org" }
+io-scene-vrm-benchmarks = { workspace = true }
+starry-bpy-typings = { workspace = true }
+
+[[tool.uv.index]]
+name = "download.blender.org"
+url = "https://download.blender.org/pypi/"

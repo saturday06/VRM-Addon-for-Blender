@@ -2,34 +2,34 @@
 name = "io-scene-vrm-benchmarks"
 version = "4.5.0"
 readme = "README.md"
-requires-python = "==3.10.*" # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
+requires-python = "==3.10.*"  # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
 dependencies = [
   "io-scene-vrm",
   "pytest",
   "pytest-benchmark",
   "pytest-codspeed",
 
-  "bpy ==5.2.*; python_version == '3.13.*' and platform_machine == 'arm64' and sys_platform == 'darwin'",
-  "bpy ==5.2.*; python_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'linux'",
   "bpy ==5.2.*; python_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'win32'",
   "bpy ==5.2.*; python_version == '3.13.*' and platform_machine == 'ARM64' and sys_platform == 'win32'",
+  "bpy ==5.2.*; python_version == '3.13.*' and platform_machine == 'arm64' and sys_platform == 'darwin'",
+  "bpy ==5.2.*; python_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'linux'",
 ]
 
 [tool.uv.sources]
-io-scene-vrm = {workspace = true}
+io-scene-vrm = { workspace = true }
 
 [tool.ruff]
-target-version = "py39" # It overrides 'project.requires-python = "== 3.10.*"'
+target-version = "py39"  # It overrides 'project.requires-python = "== 3.10.*"'
 extend = "../pyproject.toml"
 
 [tool.ruff.lint]
 extend-ignore = [
-  "S101", # Use of `assert` detected
-  "S603", # `subprocess` call: check for execution of untrusted input
+  "S101",  # Use of `assert` detected
+  "S603",  # `subprocess` call: check for execution of untrusted input
 ]
 
 [tool.pyright]
-pythonVersion = "3.9" # It overrides 'project.requires-python = "== 3.10.*"'
+pythonVersion = "3.9"  # It overrides 'project.requires-python = "== 3.10.*"'
 pythonPlatform = "All"
 typeCheckingMode = "strict"
 
