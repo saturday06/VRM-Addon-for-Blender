@@ -137,15 +137,13 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         self._extras_mesh_name_key = INTERNAL_NAME_PREFIX + self._export_id + "MeshName"
 
         self._third_party_user_extensions: list[object] = []
-
+        self.generator_postfix = ""
         for (
             third_party_user_extension_name,
             third_party_user_extension,
         ) in collect_third_party_user_extensions(context, "Vrm1ExportUserExtension"):
             self._third_party_user_extensions.append(third_party_user_extension)
-            if self.generator_postfix:
-                self.generator_postfix += " + "
-            self.generator_postfix += third_party_user_extension_name
+            self.generator_postfix += " + " + third_party_user_extension_name
 
     @staticmethod
     def enter_overwrite_object_visibility_and_selection(
@@ -3314,8 +3312,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
         if isinstance(base_generator, str):
             generator += " with " + base_generator
 
-        if self.generator_postfix:
-            generator += " + " + self.generator_postfix
+        generator += self.generator_postfix
 
         asset_dict["generator"] = generator
 
