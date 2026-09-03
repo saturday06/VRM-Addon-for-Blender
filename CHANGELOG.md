@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.6.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.5.0...v4.6.0) (2026-09-03)
+
+
+### 🚀 Features
+
+* experimental third-party hooks based on the glTF2 add-on ([2c4b073](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2c4b07336a536aafa2dd206c6a22290da7da03b7))
+
 ## [4.5.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.4.0...v4.5.0) (2026-07-27)
 
 

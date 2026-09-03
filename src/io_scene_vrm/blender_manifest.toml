@@ -1,6 +1,6 @@
 schema_version = "1.0.0"
 id = "vrm"
-version = "4.5.0"
+version = "4.6.0"
 name = "VRM format"
 tagline = "VRM import, export and editing capabilities"
 maintainer = "Isamu Mogi <dyob@lunaport.net>"
