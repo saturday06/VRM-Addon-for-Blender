@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import math
 from unittest import TestCase
-from unittest.mock import MagicMock
 
 import bpy
 from mathutils import Euler, Quaternion
@@ -41,11 +40,6 @@ class TestRotation(TestCase):
             Euler((math.pi / 2, 0.0, 0.0), "XYZ").to_quaternion(),
         )
 
-        # Invalid mode with mocked object because Blender prevents invalid assignment
-        mock_obj = MagicMock()
-        mock_obj.rotation_mode = "INVALID_MODE"
-        self.assertEqual(get_rotation_as_quaternion(mock_obj), Quaternion())
-
     def test_set_rotation_without_mode_change(self) -> None:
         obj = bpy.data.objects.new("TestObj", None)
         target_quat = Quaternion((0.5, 0.5, 0.5, 0.5))
@@ -68,12 +62,6 @@ class TestRotation(TestCase):
         set_rotation_without_mode_change(obj, target_quat)
         self.assertEqual(obj.rotation_mode, "XYZ")
         self.assertEqual(obj.rotation_euler, target_quat.to_euler("XYZ"))
-
-        # Invalid mode with mocked object
-        mock_obj = MagicMock()
-        mock_obj.rotation_mode = "INVALID_MODE"
-        set_rotation_without_mode_change(mock_obj, target_quat)
-        # Verify it doesn't crash
 
     def test_insert_rotation_keyframe(self) -> None:
         obj = bpy.data.objects.new("TestObj", None)
@@ -127,9 +115,3 @@ class TestRotation(TestCase):
         )
         animation_data = None
         action = None
-
-        # Invalid mode with mocked object
-        mock_obj = MagicMock()
-        mock_obj.rotation_mode = "INVALID_MODE"
-        insert_rotation_keyframe(mock_obj, frame=4)
-        mock_obj.keyframe_insert.assert_not_called()

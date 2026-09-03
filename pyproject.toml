@@ -183,6 +183,9 @@ max-branches = 215
 max-returns = 31
 max-statements = 550
 
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"unittest.mock".msg = "Please use actual objects or DI"
+
 [tool.uv]
 cache-dir = "./.local/var/cache/uv"
 
