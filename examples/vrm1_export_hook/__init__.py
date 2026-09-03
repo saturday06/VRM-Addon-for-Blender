@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: CC0-1.0
 
-
 from collections.abc import Mapping
 
 import bpy
