@@ -403,7 +403,6 @@ def _import_vrm_animation(context: Context, path: Path, armature: Object) -> set
             humanoid_parent_rest_world_matrix=Matrix(),
             intermediate_rest_local_matrix=Matrix(),
             intermediate_pose_local_matrix=Matrix(),
-            parent_node_rest_pose_world_matrix=Matrix(),
         )
         _assign_expression_keyframe(
             armature_data,
@@ -606,7 +605,6 @@ def _assign_humanoid_keyframe(
     humanoid_parent_rest_world_matrix: Matrix,
     intermediate_rest_local_matrix: Matrix,
     intermediate_pose_local_matrix: Matrix,
-    parent_node_rest_pose_world_matrix: Matrix,
 ) -> None:
     armature_data = armature.data
     if not isinstance(armature_data, Armature):
@@ -683,7 +681,6 @@ def _assign_humanoid_keyframe(
         )
         and (bone := armature.pose.bones.get(human_bone.node.bone_name))
     ):
-        humanoid_rest_world_matrix = humanoid_parent_rest_world_matrix
         rest_world_matrix = humanoid_rest_world_matrix @ rest_local_matrix
         pose_world_matrix = humanoid_rest_world_matrix @ pose_local_matrix
         # rest_to_pose_matrix = rest_world_matrix.inverted() @ pose_world_matrix
@@ -777,5 +774,4 @@ def _assign_humanoid_keyframe(
             humanoid_rest_world_matrix,
             rest_local_matrix,
             pose_local_matrix,
-            parent_node_rest_pose_world_matrix @ node_rest_pose_tree.local_matrix,
         )
