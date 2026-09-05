@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import itertools
 import math
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -28,6 +29,7 @@ from ..common.vrm1.human_bone import HumanBoneName
 from ..common.workspace import save_workspace
 from ..editor.extension_accessor import get_armature_extension
 from ..editor.t_pose import setup_humanoid_t_pose
+from ..editor.vrm1.property_group import Vrm1HumanBonePropertyGroup
 
 _logger = get_logger(__name__)
 
@@ -382,6 +384,8 @@ def _import_vrm_animation(context: Context, path: Path, armature: Object) -> set
         )
     else:
         last_zero_origin_frame_count = first_zero_origin_frame_count
+
+    human_bone_name_to_human_bone = humanoid.human_bones.human_bone_name_to_human_bone()
     for zero_origin_frame_count in range(
         first_zero_origin_frame_count, last_zero_origin_frame_count + 1
     ):
@@ -394,6 +398,7 @@ def _import_vrm_animation(context: Context, path: Path, armature: Object) -> set
 
         _assign_humanoid_keyframe(
             armature,
+            human_bone_name_to_human_bone,
             node_rest_pose_tree,
             node_index_to_human_bone_name,
             node_index_to_translation_keyframes,
@@ -596,20 +601,19 @@ class NodeRestPoseTree:
 
 def _assign_humanoid_keyframe(
     armature: Object,
+    human_bone_name_to_human_bone: Mapping[HumanBoneName, Vrm1HumanBonePropertyGroup],
     node_rest_pose_tree: NodeRestPoseTree,
-    node_index_to_human_bone_name: dict[int, HumanBoneName],
-    node_index_to_translation_keyframes: dict[int, tuple[tuple[float, Vector], ...]],
-    node_index_to_rotation_keyframes: dict[int, tuple[tuple[float, Quaternion], ...]],
+    node_index_to_human_bone_name: Mapping[int, HumanBoneName],
+    node_index_to_translation_keyframes: Mapping[int, tuple[tuple[float, Vector], ...]],
+    node_index_to_rotation_keyframes: Mapping[
+        int, tuple[tuple[float, Quaternion], ...]
+    ],
     frame_count: int,
     timestamp: float,
     humanoid_parent_rest_world_matrix: Matrix,
     intermediate_rest_local_matrix: Matrix,
     intermediate_pose_local_matrix: Matrix,
 ) -> None:
-    armature_data = armature.data
-    if not isinstance(armature_data, Armature):
-        return
-
     translation_keyframes = node_index_to_translation_keyframes.get(
         node_rest_pose_tree.node_index
     )
@@ -670,15 +674,10 @@ def _assign_humanoid_keyframe(
     )
 
     human_bone_name = node_index_to_human_bone_name.get(node_rest_pose_tree.node_index)
-    human_bones = get_armature_extension(armature_data).vrm1.humanoid.human_bones
     if (
         human_bone_name
         and human_bone_name not in {HumanBoneName.LEFT_EYE, HumanBoneName.RIGHT_EYE}
-        and (
-            human_bone := human_bones.human_bone_name_to_human_bone().get(
-                human_bone_name
-            )
-        )
+        and (human_bone := human_bone_name_to_human_bone.get(human_bone_name))
         and (bone := armature.pose.bones.get(human_bone.node.bone_name))
     ):
         rest_world_matrix = humanoid_rest_world_matrix @ rest_local_matrix
@@ -765,6 +764,7 @@ def _assign_humanoid_keyframe(
     for child in node_rest_pose_tree.children:
         _assign_humanoid_keyframe(
             armature,
+            human_bone_name_to_human_bone,
             child,
             node_index_to_human_bone_name,
             node_index_to_translation_keyframes,
