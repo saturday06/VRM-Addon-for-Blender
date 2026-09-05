@@ -428,6 +428,7 @@ CLASSES: Final[
     ops.VRM_OT_load_human_bone_mappings,
     ops.VRM_OT_show_blend_file_compatibility_warning,
     ops.VRM_OT_show_blend_file_addon_compatibility_warning,
+    ops.VRM_OT_apply_humanoid_t_pose,
     ops.VRM_OT_make_estimated_humanoid_t_pose,
     ops.VRM_OT_assign_bone_to_bone_property_group,
     ops.VRM_OT_unassign_bone_to_bone_property_group,

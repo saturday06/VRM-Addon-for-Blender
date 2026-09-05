@@ -6,6 +6,8 @@ from typing import Final
 LOCALE_KEY = "ja_JP"
 
 TRANSLATION_DICTIONARY: Final[Mapping[tuple[str, str], str]] = {
+    ("Operator", "Apply"): "適用",
+    ("*", "Apply the selected VRM T-Pose"): "選択したVRM Tポーズを適用します",
     (
         "*",
         "The installed VRM add-on is not compatible with Blender {blender_version}."

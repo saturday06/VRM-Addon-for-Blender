@@ -326,7 +326,16 @@ def _draw_vrm1_humanoid_layout(
         t_pose_box = armature_box.box()
         column = t_pose_box.row().column()
         column.label(text="VRM T-Pose", icon="OUTLINER_OB_ARMATURE")
-        column.prop(humanoid, "pose")
+        row = column.split(factor=0.8, align=True)
+        row.prop(humanoid, "pose")
+        apply_row = row.row(align=True)
+        apply_row.enabled = humanoid.pose != humanoid.POSE_CURRENT_POSE.identifier and (
+            humanoid.pose != humanoid.POSE_CUSTOM_POSE.identifier
+            or humanoid.pose_library is not None
+        )
+        layout_operator(
+            apply_row, ops.VRM_OT_apply_humanoid_t_pose
+        ).armature_object_name = armature.name
         if humanoid.pose == humanoid.POSE_CUSTOM_POSE.identifier:
             label = "Pose Library" if bpy.app.version < (3, 0) else "Pose Asset"
             column.prop_search(

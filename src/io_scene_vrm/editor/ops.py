@@ -29,7 +29,7 @@ from ..common.workspace import save_workspace
 from . import search
 from .extension_accessor import get_armature_extension
 from .property_group import BonePropertyGroup
-from .t_pose import set_estimated_humanoid_t_pose
+from .t_pose import PoseBonePose, set_estimated_humanoid_t_pose, setup_humanoid_t_pose
 
 _logger = get_logger(__name__)
 
@@ -338,6 +338,41 @@ def layout_operator(
             + f"the expected name is {name}"
         )
     return cast("__Operator", operator)
+
+
+class VRM_OT_apply_humanoid_t_pose(Operator):
+    bl_idname = "vrm.apply_humanoid_t_pose"
+    bl_label = "Apply"
+    bl_description = "Apply the selected VRM T-Pose"
+    bl_options: ClassVar = {"REGISTER", "UNDO"}
+
+    armature_object_name: StringProperty(  # type: ignore[valid-type]
+        options={"HIDDEN"},
+    )
+
+    def execute(self, context: Context) -> set[str]:
+        armature = context.blend_data.objects.get(self.armature_object_name)
+        if armature is None:
+            return {"CANCELLED"}
+        armature_data = armature.data
+        if not isinstance(armature_data, Armature):
+            return {"CANCELLED"}
+
+        with setup_humanoid_t_pose(context, armature):
+            pose = PoseBonePose.save(armature.pose)
+            pose_position = armature_data.pose_position
+
+        with save_workspace(context, armature, mode="POSE"):
+            PoseBonePose.load(context, armature.pose, pose)
+            armature_data.pose_position = pose_position
+
+        context.view_layer.update()
+        return {"FINISHED"}
+
+    if TYPE_CHECKING:
+        # This code is auto generated.
+        # To regenerate, run the `uv run tools/property_typing.py` command.
+        armature_object_name: str  # type: ignore[no-redef]
 
 
 class VRM_OT_make_estimated_humanoid_t_pose(Operator):

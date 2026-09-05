@@ -21,6 +21,62 @@ from tests.util import AddonTestCase
 ADDON_VERSION = version.get_addon_version()
 
 
+class TestApplyHumanoidTPose(AddonTestCase):
+    def test_apply_selected_pose(self) -> None:
+        ops.icyp.make_basic_armature()
+        armature = bpy.context.object
+        if armature is None or not isinstance(armature.data, Armature):
+            raise TypeError
+        ext = get_armature_extension(armature.data)
+        bone = armature.pose.bones[0]
+        for spec_version, humanoid in (
+            ("0.0", ext.vrm0.humanoid),
+            ("1.0", ext.vrm1.humanoid),
+        ):
+            with self.subTest(spec_version=spec_version):
+                ext.spec_version = spec_version
+                armature.data.pose_position = "POSE"
+                bone.location = (0, 0, 1)
+                humanoid.pose = humanoid.POSE_CURRENT_POSE.identifier
+                self.assertEqual(
+                    ops.vrm.apply_humanoid_t_pose(armature_object_name=armature.name),
+                    {"FINISHED"},
+                )
+                self.assertEqual(tuple(bone.location), (0, 0, 1))
+                self.assertEqual(armature.data.pose_position, "POSE")
+
+                humanoid.pose = humanoid.POSE_REST_POSITION_POSE.identifier
+                self.assertEqual(
+                    ops.vrm.apply_humanoid_t_pose(armature_object_name=armature.name),
+                    {"FINISHED"},
+                )
+                self.assertEqual(armature.data.pose_position, "REST")
+                self.assertEqual(armature.mode, "OBJECT")
+
+                armature.data.pose_position = "POSE"
+                bone.location = (0, 0, 2)
+                bone.keyframe_insert(data_path="location", frame=0)
+                animation_data = armature.animation_data
+                if animation_data is None or animation_data.action is None:
+                    raise TypeError
+                humanoid.pose_library = animation_data.action
+                armature.animation_data_clear()
+                bone.location = (0, 0, 0)
+                humanoid.pose = humanoid.POSE_CUSTOM_POSE.identifier
+                self.assertEqual(
+                    ops.vrm.apply_humanoid_t_pose(armature_object_name=armature.name),
+                    {"FINISHED"},
+                )
+                self.assertEqual(tuple(bone.location), (0, 0, 2))
+                self.assertEqual(armature.data.pose_position, "POSE")
+
+    def test_missing_armature(self) -> None:
+        self.assertEqual(
+            ops.vrm.apply_humanoid_t_pose(armature_object_name="Missing"),
+            {"CANCELLED"},
+        )
+
+
 class TestSimplifyVroidBones(AddonTestCase):
     def test_bones_rename(self) -> None:
         context = bpy.context

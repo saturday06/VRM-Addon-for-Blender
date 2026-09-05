@@ -2252,6 +2252,20 @@ def show_blend_file_addon_compatibility_warning(
 
 # This code is auto generated.
 # To regenerate, run the `uv run tools/property_typing.py` command.
+def apply_humanoid_t_pose(
+    execution_context: str = "EXEC_DEFAULT",
+    /,
+    *,
+    armature_object_name: str = "",
+) -> set[str]:
+    return bpy.ops.vrm.apply_humanoid_t_pose(  # type: ignore[attr-defined, no-any-return]
+        execution_context,
+        armature_object_name=armature_object_name,
+    )
+
+
+# This code is auto generated.
+# To regenerate, run the `uv run tools/property_typing.py` command.
 def make_estimated_humanoid_t_pose(
     execution_context: str = "EXEC_DEFAULT",
     /,
