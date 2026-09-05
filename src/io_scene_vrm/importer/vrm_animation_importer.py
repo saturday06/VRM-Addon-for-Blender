@@ -11,7 +11,6 @@ from mathutils import Matrix, Quaternion, Vector
 
 from ..common import convert
 from ..common.convert import Json
-from ..common.debug import dump
 from ..common.gltf import (
     parse_glb,
     parse_gltf_node_matrix,
@@ -682,8 +681,6 @@ def _assign_humanoid_keyframe(
     ):
         rest_world_matrix = humanoid_rest_world_matrix @ rest_local_matrix
         pose_world_matrix = humanoid_rest_world_matrix @ pose_local_matrix
-        # rest_to_pose_matrix = rest_world_matrix.inverted() @ pose_world_matrix
-        # rest_to_pose_matrix = rest_local_matrix.inverted() @ pose_local_matrix
         rest_to_pose_matrix = rest_local_matrix.inverted() @ pose_local_matrix
         axis, angle = rest_to_pose_matrix.to_quaternion().to_axis_angle()
         axis.rotate(rest_world_matrix.to_quaternion())
@@ -697,34 +694,7 @@ def _assign_humanoid_keyframe(
         ).copy()
 
         if rotation_keyframes:
-            _logger.debug(
-                "================= %s =================", human_bone_name.value
-            )
-            _logger.debug(
-                "humanoid world matrix = %s", dump(humanoid_rest_world_matrix)
-            )
-            _logger.debug("rest_local_matrix     = %s", dump(rest_local_matrix))
-            _logger.debug("pose_local_matrix     = %s", dump(pose_local_matrix))
-            _logger.debug("rest_world_matrix     = %s", dump(rest_world_matrix))
-            _logger.debug("pose_world_matrix     = %s", dump(pose_world_matrix))
-            _logger.debug("rest_to_pose_matrix  = %s", dump(rest_to_pose_matrix))
-            _logger.debug(
-                "rest_to_pose_world_rotation = %s",
-                dump(rest_to_pose_world_rotation),
-            )
-            _logger.debug(
-                "rest_to_pose_target_local_rotation = %s",
-                dump(rest_to_pose_target_local_rotation),
-            )
-
             backup_rotation_quaternion = get_rotation_as_quaternion(bone)
-
-            # logger.debug("parent bone matrix  = %s", dump(parent_matrix))
-            _logger.debug("       bone matrix  = %s", dump(bone.matrix))
-            _logger.debug(
-                "current bone rotation = %s", dump(backup_rotation_quaternion)
-            )
-
             set_rotation_without_mode_change(
                 bone, backup_rotation_quaternion @ rest_to_pose_target_local_rotation
             )
