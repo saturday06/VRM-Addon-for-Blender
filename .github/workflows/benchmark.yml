@@ -30,7 +30,13 @@ jobs:
       # CodSpeed can only generate flamegraphs with Python 3.12 or later
       - run: git ls-files pyproject.toml "**/pyproject.toml" | xargs sed -i~ 's/^requires-python = "==3\.10\.\*" /requires-python = "==3.13.*" /'
       - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-      - run: uv sync --no-managed-python
+      - run: |
+          # Package installation fails about 5% of the time depending on the environment, so retry
+          for _ in $(seq 5); do
+            if uv sync --no-managed-python; then
+              break
+            fi
+          done
       - run: git diff
       - uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # v5.0.3
         with:

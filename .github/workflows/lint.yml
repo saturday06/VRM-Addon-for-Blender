@@ -26,6 +26,7 @@ jobs:
       - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
       - name: Install UV dependencies
         run: |
+          # Package installation fails about 5% of the time depending on the environment, so retry
           for _ in $(seq 5); do
             if uv sync; then
               break
@@ -42,6 +43,17 @@ jobs:
           git diff --exit-code
       - name: Lint
         run: ./tools/lint.sh
+
+  audit:
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+      - run: uv audit
 
   super-linter:
     runs-on: ubuntu-26.04
