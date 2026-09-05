@@ -687,7 +687,8 @@ def _assign_humanoid_keyframe(
         rest_to_pose_world_rotation = Quaternion(axis, angle).copy()
 
         target_axis, target_angle = rest_to_pose_world_rotation.to_axis_angle()
-        target_axis.rotate(bone.matrix.to_quaternion().inverted())
+        target_world_rotation = (armature.matrix_world @ bone.matrix).to_quaternion()
+        target_axis.rotate(target_world_rotation.inverted())
 
         rest_to_pose_target_local_rotation = Quaternion(
             target_axis, target_angle
@@ -702,26 +703,39 @@ def _assign_humanoid_keyframe(
             set_rotation_without_mode_change(bone, backup_rotation_quaternion)
 
         if human_bone_name == HumanBoneName.HIPS and translation_keyframes:
-            translation = (
-                bone.matrix.to_quaternion().inverted()
-                @ humanoid_rest_world_matrix.to_quaternion()
-                @ (
-                    pose_local_matrix.to_translation()
-                    - rest_local_matrix.to_translation()
-                )
+            world_translation = (
+                pose_world_matrix.to_translation() - rest_world_matrix.to_translation()
             )
 
             # https://github.com/vrm-c/vrm-specification/blob/3942748efbc803b258e288e0f6c993c6bb96cebf/specification/VRMC_vrm_animation-1.0/how_to_transform_human_pose.md?plain=1#L116-L123
             rest_world_translation_z = rest_world_matrix.to_translation().z
             if abs(rest_world_translation_z) > 0:
+                # Measure height relative to the armature origin so moving the
+                # object in the scene does not change the amount of motion.
                 world_height_ratio = (
-                    bone.matrix.to_translation().z / rest_world_translation_z
-                )
-                translation *= world_height_ratio
+                    armature.matrix_world.to_3x3() @ bone.matrix.to_translation()
+                ).z / rest_world_translation_z
+                world_translation *= world_height_ratio
 
-            # logger.debug(f"translation           = {dump(translation)}")
+            # Location channels use the rest axes and parent pose, not the bone's
+            # own pose rotation or scale. Let Blender handle that conversion,
+            # including the Local Location and Inherit Scale settings.
+            translated_pose_matrix = bone.matrix.copy()
+            translated_pose_matrix.translation += (
+                armature.matrix_world.inverted_safe().to_3x3() @ world_translation
+            )
+            parent_bone = bone.parent
+            translated_basis_matrix = bone.bone.convert_local_to_pose(
+                translated_pose_matrix,
+                bone.bone.matrix_local,
+                parent_matrix=parent_bone.matrix if parent_bone else Matrix(),
+                parent_matrix_local=(
+                    parent_bone.bone.matrix_local if parent_bone else Matrix()
+                ),
+                invert=True,
+            )
             backup_translation = bone.location.copy()
-            bone.location = translation
+            bone.location = translated_basis_matrix.to_translation()
             bone.keyframe_insert(data_path="location", frame=frame_count)
             bone.location = backup_translation
 
