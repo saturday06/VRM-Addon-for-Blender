@@ -559,14 +559,17 @@ class AbstractBaseVrmImporter(ABC):
 
         return list(dict.fromkeys(bone_node_indices))  # Distinct
 
+    @classmethod
     def find_middle_bone_indices(
-        self,
+        cls,
         node_dicts: list[dict[str, Json]],
         bone_node_indices: list[int],
         bone_node_index: int,
         middle_bone_node_indices: list[int],
     ) -> list[int]:
         if not (0 <= bone_node_index < len(node_dicts)):
+            return []
+        if bone_node_index in middle_bone_node_indices:
             return []
         node_dict = node_dicts[bone_node_index]
         child_indices = node_dict.get("children")
@@ -583,7 +586,7 @@ class AbstractBaseVrmImporter(ABC):
                 result.extend(middle_bone_node_indices)
                 continue
             result.extend(
-                self.find_middle_bone_indices(
+                cls.find_middle_bone_indices(
                     node_dicts,
                     bone_node_indices,
                     child_index,
