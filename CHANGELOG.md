@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.7.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.6.0...v4.7.0) (2026-09-05)
+
+
+### 🚀 Features
+
+* add apply button for selected VRM T-pose ([5ca82d9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/5ca82d945fd9527a840816e4b44b89e7d60875da))
+
+
+### 🐛 Bug Fixes
+
+* prevent cyclic node recursion during VRM import ([e342a3a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/e342a3a12aad63c0105db70a4b0eaec5a777608a))
+
 ## [4.6.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.5.0...v4.6.0) (2026-09-03)
 
 
