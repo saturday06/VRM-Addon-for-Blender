@@ -106,52 +106,8 @@ fi
 gh release upload "$release_tag_name" "${extension_path}#(Blender 4.2 or later) VRM Add-on for Blender Extension ${version} (zip)"
 gh release upload "$release_tag_name" "${website_release_path}#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
 
-# Create release notes for Blender Extensions
-github_release_body_path=$(mktemp)
-blender_extensions_release_note_path=$(mktemp)
-gh release view "$release_tag_name" --json body --jq .body | tee "$github_release_body_path"
-ruby -- - "$github_release_body_path" "$blender_extensions_release_note_path" <<'CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE'
-require "uri"
-
-input_path, output_path = ARGV
-title, body = File.read(input_path).strip.split("\n\n", 2)
-
-uri_str = title.strip.sub(/^## \[[.0-9]+\]\(/, "").sub(/\).*$/, "").strip
-uri = nil
-begin
-  uri = URI.parse(uri_str)
-rescue => e
-  p e
-end
-
-output = body.strip + "\n\n\n"
-if uri
-  output += "**Full Changelog:** #{uri}\n"
-end
-
-File.write(output_path, output)
-CREATE_BLENDER_EXTENSIONS_RELEASE_NOTE
-cat "$blender_extensions_release_note_path"
-
 if [ "$release_postfix" = "release" ]; then
   gh release edit "$release_tag_name" --draft=false --latest
-
-  # https://developer.blender.org/docs/features/extensions/ci_cd/
-  set +x # Hide the content of Authorization variables
-  echo "Uploading to Blender Extensions Platform..."
-  curl \
-    --fail-with-body \
-    --show-error \
-    --retry 5 \
-    --retry-delay 60 \
-    --retry-all-errors \
-    --output blender_extensions_upload.log \
-    --request POST \
-    --header "Authorization:bearer ${BLENDER_EXTENSIONS_TOKEN}" \
-    --form "version_file=@${extension_path}" \
-    --form "release_notes=<${blender_extensions_release_note_path}" \
-    "https://extensions.blender.org/api/v1/extensions/vrm/versions/upload/"
-  set -x
 else
   gh release edit "$release_tag_name" --prerelease
 fi

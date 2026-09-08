@@ -38,11 +38,10 @@ jobs:
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         if: ${{ !steps.release.outputs.release_created }}
 
-  upload-release-archive:
+  upload-release-archive-to-github:
     runs-on: ubuntu-26.04
     needs: release-please
     if: ${{ needs.release-please.result == 'success' && needs.release-please.outputs.release_release_created }}
-    environment: extensions-blender-org
     permissions:
       contents: write
     steps:
@@ -55,18 +54,37 @@ jobs:
       - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
         with:
           deno-version-file: .deno-version
-      - name: Release
-        run: ./tools/release.sh "$RELEASE_TAG_NAME"
+      - name: Release to GitHub
+        run: ./tools/release_to_github.sh "$RELEASE_TAG_NAME"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG_NAME: ${{ needs.release-please.outputs.release_tag_name }}
-          BLENDER_EXTENSIONS_TOKEN: ${{ secrets.BLENDER_EXTENSIONS_TOKEN }}
           # https://github.com/orgs/community/discussions/40405#discussioncomment-8361451
           GIT_USER_NAME: ${{ format('[BOT] {0}', github.actor) }}
           GIT_USER_EMAIL: ${{ format('{0}+{1}@users.noreply.github.com', github.actor_id, github.actor) }}
 
+  upload-release-archive-to-extensions-blender-org:
+    runs-on: ubuntu-26.04
+    needs: [release-please, upload-release-archive-to-github]
+    environment: extensions-blender-org
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ needs.release-please.outputs.release_sha }}
+      - name: Install deb packages
+        run: sudo ./tools/install_ubuntu_packages.sh
+      - name: Release to Blender Extensions
+        run: ./tools/release_to_extensions_blender_org.sh "$RELEASE_TAG_NAME"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG_NAME: ${{ needs.release-please.outputs.release_tag_name }}
+          BLENDER_EXTENSIONS_TOKEN: ${{ secrets.BLENDER_EXTENSIONS_TOKEN }}
+
   gh-pages:
-    needs: upload-release-archive
+    needs: upload-release-archive-to-github
     permissions:
       contents: read
       pages: write
