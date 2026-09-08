@@ -117,7 +117,7 @@ You can create a distribution build on Ubuntu Linux LTS.
 
 1. Run the `sudo ./tools/install_ubuntu_packages.sh` command to install the
    required packages.
-2. Run the `./tools/release.sh` command.
+2. Run the `./tools/build_release.sh` command.
 3. If you see the following output, the build was successful:
 
 ```text

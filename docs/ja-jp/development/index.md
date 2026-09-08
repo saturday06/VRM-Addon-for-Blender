@@ -117,7 +117,7 @@ New-Item -ItemType Junction -Path "$Env:APPDATA\Blender Foundation\Blender\$blen
 
 1. `sudo ./tools/install_ubuntu_packages.sh`
    コマンドを実行し、必要なパッケージをインストールします。
-2. `./tools/release.sh` コマンドを実行します。
+2. `./tools/build_release.sh` コマンドを実行します。
 3. 次のような表示が出たら、ビルド成功です。
 
 ```text

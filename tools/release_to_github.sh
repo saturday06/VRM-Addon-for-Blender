@@ -3,12 +3,31 @@
 
 set -eu
 
-if [ $# -lt 1 ]; then
-  echo "Usage: ${0} <release_tag_name>"
+usage() {
+  echo "Usage: ${0} [--dry-run] [release_tag_name]"
+}
+
+dry_run=false
+release_tag_name=
+for arg in "$@"; do
+  case "$arg" in
+  --dry-run)
+    dry_run=true
+    ;;
+  *)
+    if [ -n "$release_tag_name" ]; then
+      usage >&2
+      exit 1
+    fi
+    release_tag_name=$arg
+    ;;
+  esac
+done
+
+if [ -z "$release_tag_name" ]; then
+  usage
   release_tag_name=v0.0.0
   echo "Continuing with release_tag_name=${release_tag_name}"
-else
-  release_tag_name=$1
 fi
 
 set -x
@@ -95,6 +114,10 @@ zip -T "$extension_path"
   echo "|"
   echo
 )
+
+if [ "$dry_run" = "true" ]; then
+  exit 0
+fi
 
 gh auth status
 
