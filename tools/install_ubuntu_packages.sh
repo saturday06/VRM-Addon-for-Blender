@@ -13,6 +13,7 @@ install_ubuntu_packages() (
     git \
     gnupg \
     imagemagick \
+    jq \
     less \
     libegl1 \
     libsm6 \
