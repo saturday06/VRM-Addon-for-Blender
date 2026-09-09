@@ -485,6 +485,7 @@ class Bone(bpy_struct, __CustomProperty):
     # Documentation says 3-element float array, but actually Vector
     tail_local: Vector
 
+    @property
     def use_connect(self) -> bool: ...
 
     use_deform: bool
