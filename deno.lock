@@ -4,11 +4,11 @@
     "npm:@devcontainers/cli@0.89.0": "0.89.0",
     "npm:@octokit/rest@22.0.1": "22.0.1",
     "npm:@octokit/types@17.0.0": "17.0.0",
-    "npm:@types/node@26.4.1": "26.4.1",
+    "npm:@types/node@26.5.0": "26.5.0",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
     "npm:isomorphic-git@1.41.9": "1.41.9",
     "npm:pyright@1.1.413": "1.1.413",
-    "npm:vitepress@1.6.4": "1.6.4_@algolia+client-search@5.57.0_@types+node@26.4.1_search-insights@2.17.3",
+    "npm:vitepress@1.6.4": "1.6.4_@types+node@26.5.0",
     "npm:vue@3.5.42": "3.5.42"
   },
   "npm": {
@@ -642,8 +642,8 @@
     "@types/mdurl@2.0.0": {
       "integrity": "sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg=="
     },
-    "@types/node@26.4.1": {
-      "integrity": "sha512-k97ENvZWtvA6yqz5/FS6a7duDgOPEeOQOc2iKS/nY6mX6qJUKtLnWzQS+Xj6tXweyj6ZcTAK2Qecetnvi9nCLA==",
+    "@types/node@26.5.0": {
+      "integrity": "sha512-dVSGpriSoCgz8WnDNTuSSuSv1PC/ALXihO4ulRZt7Md8k9mlbdin3lGOcDE8SnWOgf513ByWlXd7BK4azmyg/A==",
       "dependencies": [
         "undici-types"
       ]
@@ -657,7 +657,7 @@
     "@ungap/structured-clone@1.4.0": {
       "integrity": "sha512-1mEZtMKPM09vDmQt5y7YvmN2+DFTP7Tg0EWXdic8/C6VRnpb33e4ghisCIE3WZjsE2N8mf+QV1Zqh7ZFYLWInQ=="
     },
-    "@vitejs/plugin-vue@5.2.4_vite@5.4.21_vue@3.5.42_@types+node@26.4.1": {
+    "@vitejs/plugin-vue@5.2.4_vite@5.4.21__@types+node@26.5.0_vue@3.5.42_@types+node@26.5.0": {
       "integrity": "sha512-7Yx/SXSOcQq5HiiV3orevHUFn+pmMB4cgbEkDYgnkUWb0WfeQ/wa2yFv6D5ICiCQOVpjA7vYDXrC7AGO8yjDHA==",
       "dependencies": [
         "vite",
@@ -1408,8 +1408,8 @@
         "is-typed-array"
       ]
     },
-    "undici-types@8.3.0": {
-      "integrity": "sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ=="
+    "undici-types@8.9.0": {
+      "integrity": "sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg=="
     },
     "unist-util-is@6.0.1": {
       "integrity": "sha512-LsiILbtBETkDz8I9p1dQ0uyRUWuaQzd/cuEeS1hoRSyW5E5XGmTzlwY1OrNzzakGowI9Dr/I8HVaw4hTtnxy8g==",
@@ -1461,7 +1461,7 @@
         "vfile-message"
       ]
     },
-    "vite@5.4.21_@types+node@26.4.1": {
+    "vite@5.4.21_@types+node@26.5.0": {
       "integrity": "sha512-o5a9xKjbtuhY6Bi5S3+HvbRERmouabWbyUcpXXUA1u+GNUKoROi9byOJ8M0nHbHYHkYICiMlqxkg1KkYmm25Sw==",
       "dependencies": [
         "@types/node",
@@ -1477,7 +1477,7 @@
       ],
       "bin": true
     },
-    "vitepress@1.6.4_@algolia+client-search@5.57.0_@types+node@26.4.1_search-insights@2.17.3": {
+    "vitepress@1.6.4_@types+node@26.5.0": {
       "integrity": "sha512-+2ym1/+0VVrbhNyRoFFesVvBvHAVMZMK0rw60E3X/5349M1GuVdKeazuksqopEdvkKwKGs21Q729jX81/bkBJg==",
       "dependencies": [
         "@docsearch/css",
@@ -1535,7 +1535,7 @@
       "npm:@devcontainers/cli@0.89.0",
       "npm:@octokit/rest@22.0.1",
       "npm:@octokit/types@17.0.0",
-      "npm:@types/node@26.4.1",
+      "npm:@types/node@26.5.0",
       "npm:gltf-validator@2.0.0-dev.3.10",
       "npm:isomorphic-git@1.41.9",
       "npm:pyright@1.1.413",
