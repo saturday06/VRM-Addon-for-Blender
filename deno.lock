@@ -6,7 +6,7 @@
     "npm:@octokit/types@17.0.0": "17.0.0",
     "npm:@types/node@26.5.1": "26.5.1",
     "npm:gltf-validator@2.0.0-dev.3.10": "2.0.0-dev.3.10",
-    "npm:isomorphic-git@1.41.9": "1.41.9",
+    "npm:isomorphic-git@1.42.0": "1.42.0",
     "npm:pyright@1.1.414": "1.1.414",
     "npm:vitepress@1.6.4": "1.6.4_@types+node@26.5.1",
     "npm:vue@3.5.42": "3.5.42"
@@ -657,7 +657,7 @@
     "@ungap/structured-clone@1.4.0": {
       "integrity": "sha512-1mEZtMKPM09vDmQt5y7YvmN2+DFTP7Tg0EWXdic8/C6VRnpb33e4ghisCIE3WZjsE2N8mf+QV1Zqh7ZFYLWInQ=="
     },
-    "@vitejs/plugin-vue@5.2.4_vite@5.4.21__@types+node@26.5.1_vue@3.5.42_@types+node@26.5.1": {
+    "@vitejs/plugin-vue@5.2.4_vite@5.4.21_vue@3.5.42_@types+node@26.5.1": {
       "integrity": "sha512-7Yx/SXSOcQq5HiiV3orevHUFn+pmMB4cgbEkDYgnkUWb0WfeQ/wa2yFv6D5ICiCQOVpjA7vYDXrC7AGO8yjDHA==",
       "dependencies": [
         "vite",
@@ -1099,8 +1099,8 @@
     "isarray@2.0.5": {
       "integrity": "sha512-xHjhDr3cNBK0BzdUJSPXZntQUx/mwMS5Rw4A7lPJ90XGAO6ISP/ePDNuo0vhqOZU+UD5JoodwCAAoZQd3FeAKw=="
     },
-    "isomorphic-git@1.41.9": {
-      "integrity": "sha512-WOh4ujm5mznHphzQvwj9bVj+pQpV0oZ8H4lAnh4dSaie+lN/lJ2rb6rNOOcP+2m4z8IOQp186TkEULD28NMBJg==",
+    "isomorphic-git@1.42.0": {
+      "integrity": "sha512-KeLQW0otcewcaUvVHA00b0RWOkgnRPbLY+4m2x1XDL/2yo4PbKIdscxx8SNs5yW73v0MYKzbd0N0mcvCGjhbhw==",
       "dependencies": [
         "async-lock",
         "clean-git-ref",
@@ -1537,7 +1537,7 @@
       "npm:@octokit/types@17.0.0",
       "npm:@types/node@26.5.1",
       "npm:gltf-validator@2.0.0-dev.3.10",
-      "npm:isomorphic-git@1.41.9",
+      "npm:isomorphic-git@1.42.0",
       "npm:pyright@1.1.414",
       "npm:vitepress@1.6.4",
       "npm:vue@3.5.42"
