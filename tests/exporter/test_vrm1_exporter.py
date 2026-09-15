@@ -2,10 +2,17 @@
 
 import sys
 import unittest
+from unittest.mock import MagicMock, patch
 
+import bpy
+from bpy.types import Armature
 from mathutils import Matrix
 
-from io_scene_vrm.exporter.vrm1_exporter import is_identity_matrix
+from io_scene_vrm.exporter.vrm1_exporter import (
+    Vrm1Exporter,
+    is_identity_matrix,
+)
+from tests.util import AddonTestCase
 
 
 class TestVrm1Exporter(unittest.TestCase):
@@ -48,3 +55,29 @@ class TestVrm1Exporter(unittest.TestCase):
         not_identity_off_diagonal = Matrix()
         not_identity_off_diagonal[1][2] = 1e-6
         self.assertFalse(is_identity_matrix(not_identity_off_diagonal))
+
+
+class TestGltfExportArmatureObjectRemove(AddonTestCase):
+    def test_non_deform_root_bone_disables_armature_object_removal(self) -> None:
+        bpy.ops.object.armature_add()
+        armature = bpy.context.object
+        if not armature or not isinstance(armature.data, Armature):
+            raise AssertionError
+
+        # https://github.com/saturday06/VRM-Addon-for-Blender/issues/1227
+        # https://github.com/KhronosGroup/glTF-Blender-IO/issues/2697
+        root_bone = armature.data.bones[0]
+        root_bone.use_deform = False
+
+        mock_bpy = MagicMock(wraps=bpy)
+        mock_bpy.app.version = (5, 0, 0)
+        with patch("io_scene_vrm.exporter.vrm1_exporter.bpy", mock_bpy):
+            self.assertFalse(
+                Vrm1Exporter.gltf_export_armature_object_remove(bpy.context, [])
+            )
+
+        root_bone.use_deform = True
+        with patch("io_scene_vrm.exporter.vrm1_exporter.bpy", mock_bpy):
+            self.assertTrue(
+                Vrm1Exporter.gltf_export_armature_object_remove(bpy.context, [])
+            )
