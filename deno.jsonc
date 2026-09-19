@@ -161,9 +161,9 @@
     "@devcontainers/cli": "npm:@devcontainers/cli@0.89.0",
     "@octokit/rest": "npm:@octokit/rest@22.0.1",
     "@octokit/types": "npm:@octokit/types@17.0.0",
-    "@types/node": "npm:@types/node@26.5.1",
+    "@types/node": "npm:@types/node@26.6.1",
     "gltf-validator": "npm:gltf-validator@2.0.0-dev.3.10",
-    "isomorphic-git": "npm:isomorphic-git@1.42.0",
+    "isomorphic-git": "npm:isomorphic-git@1.42.2",
     "pyright": "npm:pyright@1.1.414",
     "vitepress": "npm:vitepress@1.6.4",
     "vue": "npm:vue@3.5.42"
