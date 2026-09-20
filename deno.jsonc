@@ -166,6 +166,6 @@
     "isomorphic-git": "npm:isomorphic-git@1.42.2",
     "pyright": "npm:pyright@1.1.414",
     "vitepress": "npm:vitepress@1.6.4",
-    "vue": "npm:vue@3.5.42"
+    "vue": "npm:vue@3.5.43"
   }
 }
