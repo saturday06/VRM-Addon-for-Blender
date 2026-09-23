@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.7.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.7.1...v4.7.2) (2026-09-23)
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug where materials would break if there was a library with a relative path ([2e23604](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2e23604cc76452e56c4b4b19a47b46f8543daa0a))
+
 ## [4.7.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.7.0...v4.7.1) (2026-09-06)
 
 
