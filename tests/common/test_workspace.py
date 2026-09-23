@@ -5,6 +5,7 @@ from unittest import TestCase
 import bpy
 
 from io_scene_vrm.common import workspace
+from tests.util import DEFAULT_TEMP_PATH
 
 
 class TestWorkspace(TestCase):
@@ -132,4 +133,126 @@ class TestWorkspace(TestCase):
         else:
             self.assertNotEqual(result, {"FINISHED"})
 
+        self.assertEqual(list(bpy.data.libraries), initial_libraries)
+
+    def test_wm_append_without_library_handles_relative_file(self) -> None:
+        context = bpy.context
+
+        bpy.ops.wm.read_homefile(use_empty=True)
+        bpy.ops.mesh.primitive_cube_add()
+        cube_object = context.active_object
+        if not cube_object:
+            self.fail("Failed to add a cube to the scene")
+        cube_object.name = "LibraryCube"
+        cube_object = None
+        library_blend_path = DEFAULT_TEMP_PATH / "test_workspace_relative_library.blend"
+        bpy.ops.wm.save_as_mainfile(filepath=str(library_blend_path), copy=True)
+
+        bpy.ops.wm.read_homefile(use_empty=True)
+        main_blend_path = DEFAULT_TEMP_PATH / "test_workspace_main.blend"
+        bpy.ops.wm.save_as_mainfile(filepath=str(main_blend_path))
+
+        bpy.ops.wm.append(
+            filepath=str(library_blend_path) + "/Object/LibraryCube",
+            directory=str(library_blend_path) + "/Object",
+            filename="LibraryCube",
+        )
+        if "LibraryCube" not in bpy.data.objects:
+            self.fail("Failed to append LibraryCube from the library blend file")
+
+        bpy.ops.file.make_paths_relative()
+
+        # We need a blend file to append from.
+        # We can use one of the existing test resources.
+        resource_dir = Path(__file__).parent.parent / "resources" / "blend"
+        blend_path = resource_dir / "basic_armature.blend"
+
+        if not blend_path.exists():
+            self.skipTest(f"{blend_path} not found")
+
+        initial_libraries = list(bpy.data.libraries)
+        blend_path_str = str(blend_path)
+
+        # Append an object from the blend file
+        result = workspace.wm_append_without_library(
+            context,
+            blend_path,
+            append_filepath=blend_path_str + "/Object/Armature",
+            append_filename="Armature",
+            append_directory=blend_path_str + "/Object",
+        )
+
+        self.assertEqual(result, {"FINISHED"})
+
+        # Check that the object was actually appended
+        self.assertIn("Armature", bpy.data.objects)
+
+        if bpy.app.version < (3, 0):
+            self.skipTest(
+                "Blender 2.x may not remove libraries properly, "
+                "skipping library removal check"
+            )
+
+        # Check that the library was removed
+        self.assertEqual(list(bpy.data.libraries), initial_libraries)
+
+    def test_wm_append_without_library_handles_removed_file(self) -> None:
+        context = bpy.context
+
+        bpy.ops.wm.read_homefile(use_empty=True)
+        bpy.ops.mesh.primitive_cube_add()
+        cube_object = context.active_object
+        if not cube_object:
+            self.fail("Failed to add a cube to the scene")
+        cube_object.name = "LibraryCube"
+        cube_object = None
+        library_blend_path = DEFAULT_TEMP_PATH / "test_workspace_relative_library.blend"
+        bpy.ops.wm.save_as_mainfile(filepath=str(library_blend_path), copy=True)
+
+        bpy.ops.wm.read_homefile(use_empty=True)
+        main_blend_path = DEFAULT_TEMP_PATH / "test_workspace_main.blend"
+        bpy.ops.wm.save_as_mainfile(filepath=str(main_blend_path))
+
+        bpy.ops.wm.append(
+            filepath=str(library_blend_path) + "/Object/LibraryCube",
+            directory=str(library_blend_path) + "/Object",
+            filename="LibraryCube",
+        )
+        if "LibraryCube" not in bpy.data.objects:
+            self.fail("Failed to append LibraryCube from the library blend file")
+
+        library_blend_path.unlink()
+
+        # We need a blend file to append from.
+        # We can use one of the existing test resources.
+        resource_dir = Path(__file__).parent.parent / "resources" / "blend"
+        blend_path = resource_dir / "basic_armature.blend"
+
+        if not blend_path.exists():
+            self.skipTest(f"{blend_path} not found")
+
+        initial_libraries = list(bpy.data.libraries)
+        blend_path_str = str(blend_path)
+
+        # Append an object from the blend file
+        result = workspace.wm_append_without_library(
+            context,
+            blend_path,
+            append_filepath=blend_path_str + "/Object/Armature",
+            append_filename="Armature",
+            append_directory=blend_path_str + "/Object",
+        )
+
+        self.assertEqual(result, {"FINISHED"})
+
+        # Check that the object was actually appended
+        self.assertIn("Armature", bpy.data.objects)
+
+        if bpy.app.version < (3, 0):
+            self.skipTest(
+                "Blender 2.x may not remove libraries properly, "
+                "skipping library removal check"
+            )
+
+        # Check that the library was removed
         self.assertEqual(list(bpy.data.libraries), initial_libraries)
