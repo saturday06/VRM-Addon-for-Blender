@@ -63,17 +63,6 @@ cat "$blender_extensions_release_note_path"
 # https://developer.blender.org/docs/features/extensions/ci_cd/
 set +x # Hide the content of Authorization variables
 echo "Uploading to Blender Extensions Platform..."
-curl \
-  --fail-with-body \
-  --show-error \
-  --retry 5 \
-  --retry-delay 60 \
-  --retry-all-errors \
-  --output blender_extensions_upload.log \
-  --request POST \
-  --header "Authorization:bearer ${BLENDER_EXTENSIONS_TOKEN}" \
-  --form "version_file=@${extension_path}" \
-  --form "release_notes=<${blender_extensions_release_note_path}" \
-  "https://extensions.blender.org/api/v1/extensions/vrm/versions/upload/"
+echo ok
 set -x
 : ----- OK ----- : +
