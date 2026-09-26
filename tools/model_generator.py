@@ -23,7 +23,7 @@ def main(argv: list[str]) -> int:
         json_dict: dict[str, Json] = {
             "asset": {
                 "version": "2.0",
-                "generator": "io-scene-vrm-model-generator.py",
+                "generator": "bpy-vrm-format-model-generator.py",
             },
         }
         binary_chunk = b""

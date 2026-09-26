@@ -83,6 +83,26 @@ jobs:
           RELEASE_TAG_NAME: ${{ needs.release-please.outputs.release_tag_name }}
           BLENDER_EXTENSIONS_TOKEN: ${{ secrets.BLENDER_EXTENSIONS_TOKEN }}
 
+  upload-release-archive-to-pypi:
+    runs-on: ubuntu-26.04
+    needs: [release-please, upload-release-archive-to-extensions-blender-org]
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ needs.release-please.outputs.release_sha }}
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: false
+      - run: uv build --out-dir dist
+      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        with:
+          packages-dir: dist/
+
   gh-pages:
     needs: upload-release-archive-to-github
     permissions:

@@ -1,4 +1,4 @@
-# io-scene-vrm-benchmarks
+# bpy-vrm-format-benchmarks
 
 Benchmarks for VRM format / VRM Add-on for Blender. Real-time results can be
 viewed on [CodSpeed](https://codspeed.io/saturday06/VRM-Addon-for-Blender).

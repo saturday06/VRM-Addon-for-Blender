@@ -1,10 +1,10 @@
 [project]
-name = "io-scene-vrm-benchmarks"
+name = "bpy-vrm-format-benchmarks"
 version = "4.7.2"
 readme = "README.md"
 requires-python = "==3.10.*"  # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
 dependencies = [
-  "io-scene-vrm",
+  "bpy-vrm-format",
   "pytest",
   "pytest-benchmark",
   "pytest-codspeed",
@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-io-scene-vrm = { workspace = true }
+bpy-vrm-format = { workspace = true }
 
 [tool.ruff]
 target-version = "py39"  # It overrides 'project.requires-python = "== 3.10.*"'
@@ -42,3 +42,6 @@ testpaths = ["src"]
 [build-system]
 requires = ["uv_build>=0.12.1,<0.13.0"]
 build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "io_scene_vrm_benchmarks"

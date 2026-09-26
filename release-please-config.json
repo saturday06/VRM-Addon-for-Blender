@@ -51,12 +51,12 @@
         {
           "type": "toml",
           "path": "uv.lock",
-          "jsonpath": "$.package[?(@.name.value == 'io-scene-vrm')].version"
+          "jsonpath": "$.package[?(@.name.value == 'bpy-vrm-format')].version"
         },
         {
           "type": "toml",
           "path": "uv.lock",
-          "jsonpath": "$.package[?(@.name.value == 'io-scene-vrm-benchmarks')].version"
+          "jsonpath": "$.package[?(@.name.value == 'bpy-vrm-format-benchmarks')].version"
         },
         {
           "type": "toml",

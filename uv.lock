@@ -11,8 +11,8 @@ resolution-markers = [
 
 [manifest]
 members = [
-    "io-scene-vrm",
-    "io-scene-vrm-benchmarks",
+    "bpy-vrm-format",
+    "bpy-vrm-format-benchmarks",
     "starry-bpy-typings",
 ]
 
@@ -150,7 +150,7 @@ wheels = [
 ]
 
 [[package]]
-name = "io-scene-vrm"
+name = "bpy-vrm-format"
 version = "4.7.2"
 source = { editable = "." }
 dependencies = [
@@ -160,7 +160,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "codespell" },
-    { name = "io-scene-vrm-benchmarks" },
+    { name = "bpy-vrm-format-benchmarks" },
     { name = "pygit2" },
     { name = "requests" },
     { name = "ruff" },
@@ -183,7 +183,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "codespell" },
-    { name = "io-scene-vrm-benchmarks", editable = "benchmarks" },
+    { name = "bpy-vrm-format-benchmarks", editable = "benchmarks" },
     { name = "pygit2" },
     { name = "requests" },
     { name = "ruff" },
@@ -196,11 +196,11 @@ dev = [
 ]
 
 [[package]]
-name = "io-scene-vrm-benchmarks"
+name = "bpy-vrm-format-benchmarks"
 version = "4.7.2"
 source = { editable = "benchmarks" }
 dependencies = [
-    { name = "io-scene-vrm" },
+    { name = "bpy-vrm-format" },
     { name = "pytest" },
     { name = "pytest-benchmark" },
     { name = "pytest-codspeed" },
@@ -212,7 +212,7 @@ requires-dist = [
     { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'x86_64' and sys_platform == 'linux'", specifier = "==5.2.*", index = "https://download.blender.org/pypi/" },
     { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'AMD64' and sys_platform == 'win32'", specifier = "==5.2.*", index = "https://download.blender.org/pypi/" },
     { name = "bpy", marker = "python_full_version == '3.13.*' and platform_machine == 'ARM64' and sys_platform == 'win32'", specifier = "==5.2.*", index = "https://download.blender.org/pypi/" },
-    { name = "io-scene-vrm", editable = "." },
+    { name = "bpy-vrm-format", editable = "." },
     { name = "pytest" },
     { name = "pytest-benchmark" },
     { name = "pytest-codspeed" },
