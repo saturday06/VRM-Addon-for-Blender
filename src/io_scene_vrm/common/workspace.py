@@ -194,11 +194,13 @@ def wm_append_without_library(
         # Remove one added library.
         # Reverse order to handle recursive calls, but effectiveness is unconfirmed.
         for library in reversed(list(context.blend_data.libraries)):
-            library_path = Path(bpy.path.abspath(library.filepath))
             try:
+                library_path = Path(bpy.path.abspath(library.filepath))
                 if not library_path.exists() or not blend_path.samefile(library_path):
                     continue
             except OSError:
+                message = f'Failed to access library path for "{library.name}"'
+                _logger.warning(message)
                 continue
 
             if library.as_pointer() in existing_library_pointers:
