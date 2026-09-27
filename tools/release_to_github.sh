@@ -130,7 +130,7 @@ gh release upload "$release_tag_name" "${extension_path}#(Blender 4.2 or later) 
 gh release upload "$release_tag_name" "${website_release_path}#(Blender 2.93 - 4.1) VRM Add-on for Blender ${version} (zip)"
 
 if [ "$release_postfix" = "release" ]; then
-  echo ok
+  gh release edit "$release_tag_name" --draft=false --latest
 else
   gh release edit "$release_tag_name" --prerelease
 fi
