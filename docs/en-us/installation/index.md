@@ -8,11 +8,12 @@ This tutorial explains how to install VRM Add-on for Blender.
 ![](/assets/images/installation.gif)
 
 The steps vary depending on your Blender version and where you download from.
-Choose one of the following three methods. {#installation-methods}
+Choose one of the following methods. {#installation-methods}
 
 - [Blender 4.2 or later, download from Blender Preferences](#installation-4.2-or-later-online)
 - [Blender 4.2 or later, download from a web browser](#installation-4.2-or-later-offline)
 - [Blender 2.93 to 4.1](#installation-2.93-to-4.1)
+- [Python package on PyPI (bpy-vrm-format)](https://pypi.org/project/bpy-vrm-format/)
 
 ## Blender 4.2 or later, download from Blender Preferences <a id="installation-4.2-or-later-online"/> {#installation-4.2-or-later-online}
 

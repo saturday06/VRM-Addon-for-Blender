@@ -19,6 +19,7 @@ Blender. It supports Blender versions 2.93 to 5.2. It also provides
   [the instructions here](installation/#installation-methods).
 - For Blender 2.93 to 4.1: <DownloadLink />\
   <small>[Past Releases](https://github.com/saturday06/VRM-Addon-for-Blender/releases)</small>
+- [Python package on PyPI (bpy-vrm-format)](https://pypi.org/project/bpy-vrm-format/)
 
 ## Tutorials
 

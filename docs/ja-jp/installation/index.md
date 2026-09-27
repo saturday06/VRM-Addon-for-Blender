@@ -7,12 +7,13 @@ description: "VRM Add-on for Blenderのインストール手順を解説しま�
 
 ![](/assets/images/installation.gif)
 
-Blenderのバージョンやダウンロード元にあわせて手順が変わります。次の3種類の方式から選択してください。
+Blenderのバージョンやダウンロード元にあわせて手順が変わります。次の方式から選択してください。
 {#installation-methods}
 
 - [Blender 4.2以上で、Blenderの設定画面からダウンロードする場合](#installation-4.2-or-later-online)
 - [Blender 4.2以上で、Webブラウザからダウンロードする場合](#installation-4.2-or-later-offline)
 - [Blender 2.93から4.1の場合](#installation-2.93-to-4.1)
+- [PyPIのPythonパッケージ（bpy-vrm-format）](https://pypi.org/project/bpy-vrm-format/)
 
 ## Blender 4.2以上で、Blenderの設定画面からダウンロードする場合 <a id="installation-4.2-or-later-online"/> {#installation-4.2-or-later-online}
 
