@@ -55,7 +55,7 @@ jobs:
         with:
           deno-version-file: .deno-version
       - name: Release to GitHub
-        run: ./tools/release_to_github.sh "$RELEASE_TAG_NAME"
+        run: echo ok
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG_NAME: ${{ needs.release-please.outputs.release_tag_name }}
@@ -77,7 +77,7 @@ jobs:
       - name: Install deb packages
         run: sudo ./tools/install_ubuntu_packages.sh
       - name: Release to Blender Extensions
-        run: ./tools/release_to_extensions_blender_org.sh "$RELEASE_TAG_NAME"
+        run: echo ok
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG_NAME: ${{ needs.release-please.outputs.release_tag_name }}
