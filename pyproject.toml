@@ -9,18 +9,16 @@ description = "VRM import, export, and editing capabilities"
 readme = "pypi.md"
 license = { text = "SPDX-License-Identifier: MIT OR GPL-3.0-or-later" }
 
-requires-python = "==3.10.*"  # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
+dependencies = ["bpy"]
 
-dependencies = [
+[dependency-groups]
+dev = [
   # https://github.com/saturday06/VRM-Addon-for-Blender/blob/v3.10.1/uv.lock#L12-L27
   "bpy ==3.6.*; python_version == '3.10.*' and platform_machine == 'AMD64' and sys_platform == 'win32'",
   "bpy ==3.6.*; python_version == '3.10.*' and platform_machine == 'arm64' and sys_platform == 'darwin'",
   "bpy ==3.6.*; python_version == '3.10.*' and platform_machine == 'x86_64' and sys_platform == 'darwin'",
   "bpy ==3.6.*; python_version == '3.10.*' and platform_machine == 'x86_64' and sys_platform == 'linux'",
-]
 
-[dependency-groups]
-dev = [
   "bpy-vrm-format-benchmarks",
   "codespell",
   "pygit2",
