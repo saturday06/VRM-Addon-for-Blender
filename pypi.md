@@ -1,7 +1,9 @@
-# VRM Add-on for Blender (bpy-vrm-format) [![CI status](https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/saturday06/VRM-Addon-for-Blender/actions) [![CodSpeed Badge](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/saturday06/VRM-Addon-for-Blender?utm_source=badge)
+# bpy-vrm-format [![CI status](https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/saturday06/VRM-Addon-for-Blender/actions) [![CodSpeed Badge](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/saturday06/VRM-Addon-for-Blender?utm_source=badge)
 
-VRM Add-on for Blender (bpy-vrm-format) adds VRM import, export, and editing
-capabilities to Blender.
+`bpy-vrm-format` is a library for working with `VRM` files, a format for 3D humanoid
+avatars. It is derived from
+[VRM Add-on for Blender](https://github.com/saturday06/VRM-Addon-for-Blender)
+and provides the same API without requiring an installation of Blender itself.
 
 ## Sample Code for Generating VRM Files
 
