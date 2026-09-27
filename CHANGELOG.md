@@ -1,5 +1,27 @@
 # Changelog
 
+## [4.8.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.7.4...v4.8.0) (2026-09-27)
+
+
+### 🚀 Features
+
+* add apply button for selected VRM T-pose ([5ca82d9](https://github.com/saturday06/VRM-Addon-for-Blender/commit/5ca82d945fd9527a840816e4b44b89e7d60875da))
+* experimental third-party hooks based on the glTF2 add-on ([2c4b073](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2c4b07336a536aafa2dd206c6a22290da7da03b7))
+* vrm0 to vrm1 expression migration ([79c6fab](https://github.com/saturday06/VRM-Addon-for-Blender/commit/79c6fab61abe0bb60117b0cf041489f72098fb16))
+
+
+### 🐛 Bug Fixes
+
+* fix VRMA hips translation for transformed armatures ([9c76f6c](https://github.com/saturday06/VRM-Addon-for-Blender/commit/9c76f6c969f4f39875cfee6b6d99897c06937160))
+* fixed a bug where materials would break if there was a library with a relative path ([2e23604](https://github.com/saturday06/VRM-Addon-for-Blender/commit/2e23604cc76452e56c4b4b19a47b46f8543daa0a))
+* prevent cyclic node recursion during VRM import ([e342a3a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/e342a3a12aad63c0105db70a4b0eaec5a777608a))
+* trigger release pipeline ([3add3f2](https://github.com/saturday06/VRM-Addon-for-Blender/commit/3add3f22ac668c44e2a56d23d6098a9f5a210e20))
+* trigger release pipeline ([c2ca958](https://github.com/saturday06/VRM-Addon-for-Blender/commit/c2ca958b93ad3ca63e19666fb0938aa6023ab054))
+* trigger release pipeline ([6d77a1f](https://github.com/saturday06/VRM-Addon-for-Blender/commit/6d77a1f33a9e3004993a63b1b67acdb79fed5114))
+* trigger release pipeline ([de02778](https://github.com/saturday06/VRM-Addon-for-Blender/commit/de0277869f66082eee70bb3ef8a07d431ff40157))
+* trigger release pipeline ([4420249](https://github.com/saturday06/VRM-Addon-for-Blender/commit/44202492ae197349fd75f7e2cf911323d261435c))
+* tweak deps ([72af1db](https://github.com/saturday06/VRM-Addon-for-Blender/commit/72af1db72bb63844851bebc1f32d93bb4187097c))
+
 ## [4.7.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.7.3...v4.7.4) (2026-09-27)
 
 
