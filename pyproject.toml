@@ -11,6 +11,13 @@ license = { text = "SPDX-License-Identifier: MIT OR GPL-3.0-or-later" }
 
 dependencies = ["bpy"]
 
+[project.urls]
+Changelog = "https://github.com/saturday06/VRM-Addon-for-Blender/blob/main/CHANGELOG.md"
+Documentation = "https://vrm-addon-for-blender.info/en-us/scripting-api/"
+Homepage = "https://vrm-addon-for-blender.info"
+Issues = "https://github.com/saturday06/VRM-Addon-for-Blender/issues"
+Repository = "https://github.com/saturday06/VRM-Addon-for-Blender"
+
 [dependency-groups]
 dev = [
   # https://github.com/saturday06/VRM-Addon-for-Blender/blob/v3.10.1/uv.lock#L12-L27
