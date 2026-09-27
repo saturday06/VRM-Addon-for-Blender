@@ -1,18 +1,20 @@
-# VRM Add-on for Blender [![CI status](https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/saturday06/VRM-Addon-for-Blender/actions) [![CodSpeed Badge](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/saturday06/VRM-Addon-for-Blender?utm_source=badge)
+# VRM Add-on for Blender (bpy-vrm-format) [![CI status](https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/saturday06/VRM-Addon-for-Blender/actions) [![CodSpeed Badge](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/saturday06/VRM-Addon-for-Blender?utm_source=badge)
 
-VRM Add-on for Blender adds VRM import, export, and editing capabilities to
-Blender.
+VRM Add-on for Blender (bpy-vrm-format) adds VRM import, export, and editing
+capabilities to Blender.
 
 ## Sample Code for Generating VRM Files
 
-Here is a sample code that generates the following 3D character model and saves
+The following sample code generates the 3D character model shown below and saves
 it as a `.vrm` file.
 
-![vrm preview](https://raw.githubusercontent.com/saturday06/VRM-Addon-for-Blender/refs/heads/main/docs/assets/images/humanoid.gif)
+![VRM model preview](https://raw.githubusercontent.com/saturday06/VRM-Addon-for-Blender/refs/heads/main/docs/assets/images/humanoid.gif)
 
-Before running the script, please run commands such as
-`pip install bpy-vrm-format` or `uv add bpy-vrm-format` to make the package
-available.
+[View the 3D model](https://hub.vroid.com/characters/6595382014094436897/models/1372267393572384142)
+
+Before running the script, install the package using
+`pip install bpy-vrm-format` or add it to your project using
+`uv add bpy-vrm-format`.
 
 ```python
 import bpy
@@ -101,5 +103,5 @@ if result != {"FINISHED"}:
 print(f"{output_filepath=}")
 ```
 
-For more information, visit
-[https://vrm-addon-for-blender.info/scripting-api/](https://vrm-addon-for-blender.info/scripting-api/).
+For more information, see the
+[Scripting API documentation](https://vrm-addon-for-blender.info/en-us/scripting-api/).
