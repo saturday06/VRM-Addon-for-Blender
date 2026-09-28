@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.9.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.8.0...v4.9.0) (2026-09-27)
+
+The package has been published on PyPI. There have been no changes to its contents. See [https://pypi.org/project/bpy-vrm-format/](https://pypi.org/project/bpy-vrm-format/).
+
+## [4.8.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.7.4...v4.8.0) (2026-09-27)
+
+This is a preparatory release for uploading to PyPI.
+
+## [4.7.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.7.3...v4.7.4) (2026-09-27)
+
+This is a preparatory release for uploading to PyPI.
+
 ## [4.7.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.7.1...v4.7.2) (2026-09-23)
 
 
