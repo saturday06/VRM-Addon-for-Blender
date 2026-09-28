@@ -54,6 +54,9 @@ jobs:
 
           mkdir -p docs/.vitepress/dist/releases
           legacy_addon_release_url=$(jq -r '[.assets[] | select(.name | test("^VRM_Addon_for_Blender-[0-9]"))] | first | .browser_download_url' releases_latest.json)
+          if [ -z "$legacy_addon_release_url" ]; then
+            exit 1
+          fi
           if ! curl \
             --fail \
             --retry 20 \
