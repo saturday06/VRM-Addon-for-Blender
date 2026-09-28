@@ -1,24 +1,5 @@
-# bpy-vrm-format [![CI status](https://github.com/saturday06/VRM-Addon-for-Blender/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/saturday06/VRM-Addon-for-Blender/actions) [![CodSpeed Badge](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/saturday06/VRM-Addon-for-Blender?utm_source=badge)
+# SPDX-License-Identifier: CC0-1.0
 
-`bpy-vrm-format` is a library for working with `VRM` files, a format for 3D
-humanoid avatars. It is derived from
-[VRM Add-on for Blender](https://github.com/saturday06/VRM-Addon-for-Blender)
-and provides the same API without requiring an installation of Blender itself.
-
-## Sample Code for Generating VRM Files
-
-The following sample code generates the 3D character model shown below and saves
-it as a `.vrm` file.
-
-![VRM model preview](https://raw.githubusercontent.com/saturday06/VRM-Addon-for-Blender/refs/heads/main/docs/assets/images/humanoid.gif)
-
-[View the 3D model](https://hub.vroid.com/characters/6595382014094436897/models/1372267393572384142)
-
-Before running the script, install the package using
-`pip install bpy-vrm-format` or add it to your project using
-`uv add bpy-vrm-format`.
-
-```python
 from pathlib import Path
 
 import bpy
@@ -105,7 +86,3 @@ if result != {"FINISHED"}:
     raise RuntimeError(message)
 
 print(f"{output_filepath=}")
-```
-
-For more information, see the
-[Scripting API documentation](https://vrm-addon-for-blender.info/en-us/scripting-api/).

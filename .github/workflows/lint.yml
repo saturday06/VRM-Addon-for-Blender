@@ -44,6 +44,34 @@ jobs:
       - name: Lint
         run: ./tools/lint.sh
 
+  examples:
+    runs-on: ubuntu-26.04
+    defaults:
+      run:
+        working-directory: examples/command_line_tool
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version-file: .deno-version
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+      - name: Install UV dependencies
+        run: |
+          # Package installation fails about 5% of the time depending on the environment, so retry
+          for _ in $(seq 5); do
+            if uv sync; then
+              break
+            fi
+          done
+      - name: Run examples
+        run: uv run main.py
+      - name: Validate VRM Model
+        run: deno task vrm-validator
+
   audit:
     runs-on: ubuntu-26.04
     permissions:

@@ -65,6 +65,8 @@ pythonPlatform = "All"
 typeCheckingMode = "strict"
 stubPath = "typings/src"
 exclude = [
+  "examples/command_line_tool",
+
   # Too many files in Unity folders, causing
   # 'Enumeration of workspace source files is taking longer than 10 seconds.'
   # warning, so explicitly excluding them
@@ -156,6 +158,10 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "examples/**/*.py" = [
   "ARG002",  # Unused method argument: `x`
+  "T201",  # `print` found
+]
+"examples/*/main.py" = [
+  "INP001",  # File `x.py` is part of an implicit namespace package. Add an `__init__.py`.
 ]
 "tests/**/*.py" = [
   "S603",  # `subprocess` call: check for execution of untrusted input
