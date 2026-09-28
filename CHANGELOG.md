@@ -2,10 +2,7 @@
 
 ## [4.9.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.9.0...v4.9.1) (2026-09-28)
 
-
-### 🐛 Bug Fixes
-
-* trigger release pipeline ([3680e1a](https://github.com/saturday06/VRM-Addon-for-Blender/commit/3680e1aeaad5399e3e97a6fe5e2f8b9845bc66a4))
+This is a preparatory release for uploading to PyPI.
 
 ## [4.9.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.8.0...v4.9.0) (2026-09-27)
 
