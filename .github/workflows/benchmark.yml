@@ -20,15 +20,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - run: rm .python-version
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        env:
-          BENCHMARK_PYTHON_VERSION: "3.13" # Set as environment variable to prevent automatic updates by renovate
-        with:
-          # For reasons unknown, flamegraphs cannot be generated with Codspeed unless Python is installed via
-          # actions/setup-python.
-          python-version: ${{ env.BENCHMARK_PYTHON_VERSION }}
       # CodSpeed can only generate flamegraphs with Python 3.12 or later
+      - run: echo 3.13 > .python-version
+      # For reasons unknown, flamegraphs cannot be generated with Codspeed unless Python is installed via
+      # actions/setup-python.
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
       - run: git ls-files pyproject.toml "**/pyproject.toml" | xargs sed -i~ 's/^requires-python = "==3\.10\.\*" /requires-python = "==3.13.*" /'
       - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
       - run: |
