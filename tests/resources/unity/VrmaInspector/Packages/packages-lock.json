@@ -33,7 +33,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.27",
+      "version": "2.0.28",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -42,7 +42,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.inputsystem": {
-      "version": "1.19.0",
+      "version": "1.20.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -68,7 +68,7 @@
       }
     },
     "com.unity.timeline": {
-      "version": "1.8.12",
+      "version": "1.8.13",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -89,7 +89,7 @@
       }
     },
     "com.vrmc.gltf": {
-      "version": "https://github.com/vrm-c/UniVRM.git?path=/Packages/UniGLTF#v0.131.0",
+      "version": "https://github.com/vrm-c/UniVRM.git?path=/Packages/UniGLTF#v0.131.3",
       "depth": 0,
       "source": "git",
       "dependencies": {
@@ -99,27 +99,27 @@
         "com.unity.test-framework": "1.4.6",
         "com.unity.mathematics": "1.2.6"
       },
-      "hash": "3b99078d26b362733ad9bf463f98c83b8a1b4c9f"
+      "hash": "9750dadc592f421c356bf0376c73e61abbe323e3"
     },
     "com.vrmc.univrm": {
-      "version": "https://github.com/vrm-c/UniVRM.git?path=/Packages/VRM#v0.131.0",
+      "version": "https://github.com/vrm-c/UniVRM.git?path=/Packages/VRM#v0.131.3",
       "depth": 0,
       "source": "git",
       "dependencies": {
-        "com.vrmc.gltf": "0.131.0",
+        "com.vrmc.gltf": "0.131.3",
         "com.unity.ugui": "1.0.0"
       },
-      "hash": "3b99078d26b362733ad9bf463f98c83b8a1b4c9f"
+      "hash": "9750dadc592f421c356bf0376c73e61abbe323e3"
     },
     "com.vrmc.vrm": {
-      "version": "https://github.com/vrm-c/UniVRM.git?path=/Packages/VRM10#v0.131.0",
+      "version": "https://github.com/vrm-c/UniVRM.git?path=/Packages/VRM10#v0.131.3",
       "depth": 0,
       "source": "git",
       "dependencies": {
         "com.unity.timeline": "1.7.6",
-        "com.vrmc.gltf": "0.131.0"
+        "com.vrmc.gltf": "0.131.3"
       },
-      "hash": "3b99078d26b362733ad9bf463f98c83b8a1b4c9f"
+      "hash": "9750dadc592f421c356bf0376c73e61abbe323e3"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
