@@ -45,10 +45,10 @@
     "type=volume,target=${containerWorkspaceFolder}/.venv",
     "type=volume,target=${containerWorkspaceFolder}/docs/.vitepress/cache",
     "type=volume,target=${containerWorkspaceFolder}/node_modules",
-    "type=volume,target=${containerWorkspaceFolder}/tests/resources/unity/VrmaInspector/Library/",
-    "type=volume,target=${containerWorkspaceFolder}/tests/resources/unity/VrmaInspector/Temp/",
-    "type=volume,target=${containerWorkspaceFolder}/tests/resources/unity/VrmaRecorder/Library/",
-    "type=volume,target=${containerWorkspaceFolder}/tests/resources/unity/VrmaRecorder/Temp/"
+    "type=volume,target=${containerWorkspaceFolder}/tests/resources/unity/VrmaInspector/Library",
+    "type=volume,target=${containerWorkspaceFolder}/tests/resources/unity/VrmaInspector/Temp",
+    "type=volume,target=${containerWorkspaceFolder}/tests/resources/unity/VrmaRecorder/Library",
+    "type=volume,target=${containerWorkspaceFolder}/tests/resources/unity/VrmaRecorder/Temp"
   ],
   "customizations": {
     "vscode": {
