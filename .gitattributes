@@ -23,7 +23,6 @@
 *.yml text eol=lf
 .* text eol=lf
 Dockerfile text eol=lf
-deno.lock text eol=lf
 uv.lock text eol=lf
 
 /tests/resources/unity/**/*.asset text eol=lf

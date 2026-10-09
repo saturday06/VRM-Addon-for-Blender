@@ -22,15 +22,8 @@ git restore .local/var/cache/.gitkeep .local/tmp/.gitkeep
 # In such cases, processing continues. In the future, we will make it possible to pass tokens.
 uv self update || true
 
-deno upgrade "$(cat .deno-version)"
-
-# deno install may fail, so retry several times.
-for _ in $(seq 5); do
-  if deno install; then
-    break
-  fi
-  sleep 10
-done
+vp env use "$(cat .node-version)"
+vp install --frozen-lockfile
 
 # Enable immediate testing of the addon under development from the system Blender
 for blender_version in \

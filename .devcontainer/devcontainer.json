@@ -77,11 +77,13 @@
           "reportMissingModuleSource": "none" // Suppressed here because pylance doesn't support the setting in pyproject.toml
         },
         "terminal.integrated.scrollback": 50000,
+        "oxc.disableNestedConfig": true,
+        "oxc.fmt.disableNestedConfig": true,
         "[typescript]": {
-          "editor.defaultFormatter": "denoland.vscode-deno"
+          "editor.defaultFormatter": "oxc.oxc-vscode"
         },
         "[jsonc]": {
-          "editor.defaultFormatter": "denoland.vscode-deno"
+          "editor.defaultFormatter": "oxc.oxc-vscode"
         },
         "launch": {
           "configurations": [
@@ -172,7 +174,7 @@
         "Vue.volar",
         "cesium.gltf-vscode",
         "charliermarsh.ruff",
-        "denoland.vscode-deno",
+        "oxc.oxc-vscode",
         "ms-azuretools.vscode-containers",
         "ms-python.python",
         "ms-python.vscode-pylance"

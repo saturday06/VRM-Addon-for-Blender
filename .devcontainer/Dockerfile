@@ -56,8 +56,6 @@ VNC_XSTARTUP_SCRIPT
   # https://docs.astral.sh/uv/getting-started/installation/
   curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
 
-  # https://github.com/denoland/deno/issues/25931#issuecomment-2406073767
-  curl --fail --show-error --location https://deno.land/install.sh | sh -s -- --yes
-  # Deno doesnot add newlines to the final line of shell config, so add them manually.
-  echo | tee -a ~/.profile ~/.bash_profile ~/.bashrc ~/.zshrc
+  # https://viteplus.dev/guide/
+  curl --fail --show-error --location https://vite.plus | VP_NODE_MANAGER=yes bash
 SETUP_USER_DEVELOPER_LOCAL_ENVIRONMENT

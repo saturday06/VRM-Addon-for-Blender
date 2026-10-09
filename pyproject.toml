@@ -47,7 +47,7 @@ build-backend = "uv_build"
 extend-exclude = ".*"  # Please use Ruff instead.
 
 [tool.codespell]
-skip = "*.lock,*.asset,node_modules,./tests/resources/unity/*/Library/*,./tests/resources/unity/*/Build/*"
+skip = "*.lock,pnpm-lock.yaml,*.asset,node_modules,./tests/resources/unity/*/Library/*,./tests/resources/unity/*/Build/*"
 
 [tool.isort]
 extend_skip_glob = ["*"]  # Please use Ruff instead.

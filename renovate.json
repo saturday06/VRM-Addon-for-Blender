@@ -33,13 +33,6 @@
       ],
       "datasourceTemplate": "github-releases",
       "depNameTemplate": "nektos/act"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^.deno-version$/"],
-      "matchStrings": ["(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
-      "datasourceTemplate": "github-releases",
-      "depNameTemplate": "denoland/deno"
     }
   ]
 }

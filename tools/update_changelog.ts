@@ -1,11 +1,13 @@
 /**
  * Tool to fetch GitHub repository release info and auto-update CHANGELOG.md (TypeScript/Octokit)
- * Uses Deno import map (deno.jsonc) for Octokit
  */
 import { Octokit } from "@octokit/rest";
 import type { Endpoints } from "@octokit/types";
 import git from "isomorphic-git";
 import fs from "node:fs";
+import { writeFile } from "node:fs/promises";
+import process from "node:process";
+import { pathToFileURL } from "node:url";
 
 interface Release {
   tag_name: string;
@@ -47,7 +49,7 @@ async function updateChangelog(
     }
     newContent += `${release.body}\n\n`;
   }
-  await Deno.writeTextFile(changelogPath, newContent.trimEnd() + "\n");
+  await writeFile(changelogPath, newContent.trimEnd() + "\n");
 }
 
 async function getRepoFromGit(): Promise<string> {
@@ -76,8 +78,11 @@ async function getRepoFromGit(): Promise<string> {
   return url.pathname.slice(1).replace(/\.git$/, "");
 }
 
-if (import.meta.main) {
-  const token = Deno.env.get("GITHUB_TOKEN") || Deno.env.get("GH_TOKEN");
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
+  const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
   try {
     const repo = await getRepoFromGit();
     const releases = await fetchGithubReleases(repo, token);
@@ -85,6 +90,6 @@ if (import.meta.main) {
     console.log("CHANGELOG.md updated.");
   } catch (e) {
     console.error("Error:", e instanceof Error ? e.message : e);
-    Deno.exit(2);
+    process.exit(2);
   }
 }

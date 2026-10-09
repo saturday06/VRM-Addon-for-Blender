@@ -47,7 +47,7 @@ validate_vrm_validator_works_correctly() (
 
   for failure_vrm_path in failure.vrm tests/failure.vrm; do
     touch "$failure_vrm_path"
-    if deno task vrm-validator 2>/dev/null; then
+    if vp run vrm-validator 2>/dev/null; then
       echo "VRM Validator doesn't work correctly"
       exit 1
     fi
@@ -64,8 +64,8 @@ git ls-files -z "*.sh" | xargs -0 shellcheck
 git ls-files -z "*.py" "*.pyi" | xargs -0 uv run ruff check
 uv run codespell
 git ls-files -z "*.sh" | xargs -0 shfmt -d
-deno lint
-deno task pyright
-deno task vrm-validator
+vp lint --deny-warnings
+vp run pyright
+vp run vrm-validator
 validate_vrm_validator_works_correctly
 : ----- OK ----- : +

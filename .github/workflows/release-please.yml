@@ -51,9 +51,10 @@ jobs:
           ref: ${{ needs.release-please.outputs.release_sha }}
       - name: Install deb packages
         run: sudo ./tools/install_ubuntu_packages.sh
-      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+      - uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
         with:
-          deno-version-file: .deno-version
+          node-version-file: .node-version
+          run-install: true
       - name: Release to GitHub
         run: ./tools/release_to_github.sh "$RELEASE_TAG_NAME"
         env:

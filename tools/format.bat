@@ -18,15 +18,15 @@ call uv run ruff check --fix
 echo ### tombi format ###
 call uv run tombi format
 
-echo ### deno ###
-where deno
+echo ### Vite+ ###
+where vp
 if %errorlevel% neq 0 (
-  echo *** Please install `deno` command ***
+  echo *** Please install `vp` command ***
   goto :error
 )
 
-echo ### deno fmt ###
-call deno fmt
+echo ### Vite+ format ###
+call vp fmt
 
 popd
 

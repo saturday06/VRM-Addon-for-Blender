@@ -1,0 +1,31 @@
+{
+  "name": "vrm-addon-for-blender",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "devcontainer": "devcontainer",
+    "docs:build": "vitepress build docs",
+    "docs:dev": "vitepress dev docs",
+    "docs:copy-docs-to-src": "node --import tsx ./tools/copy_docs_to_src.ts",
+    "pyright": "uv run -- node --import tsx ./tools/pyright.cts --warnings",
+    "update-changelog": "node --import tsx ./tools/update_changelog.ts",
+    "vrm-validator": "node --import tsx ./tools/vrm_validator.ts"
+  },
+  "devDependencies": {
+    "@devcontainers/cli": "0.89.0",
+    "@octokit/rest": "22.0.1",
+    "@octokit/types": "18.0.0",
+    "@types/node": "26.6.3",
+    "gltf-validator": "2.0.0-dev.3.10",
+    "isomorphic-git": "1.42.6",
+    "pyright": "1.1.414",
+    "tsx": "4.23.15",
+    "vite-plus": "1.1.0",
+    "vitepress": "1.6.4",
+    "vue": "3.5.43"
+  },
+  "engines": {
+    "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
+  },
+  "packageManager": "pnpm@12.10.1"
+}

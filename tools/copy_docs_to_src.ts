@@ -1,4 +1,5 @@
 import { default as vitepressConfig } from "../docs/.vitepress/config.mts";
+import { copyFile, mkdir, readdir } from "node:fs/promises";
 import { join, relative } from "node:path";
 
 const sourceRoot = "docs";
@@ -9,12 +10,14 @@ async function copyMarkdownFilesRecursively(
   sourceDirectory: string,
   destinationDirectory: string,
 ): Promise<void> {
-  await Deno.mkdir(destinationDirectory, { recursive: true });
+  await mkdir(destinationDirectory, { recursive: true });
 
-  for await (const dirEntry of Deno.readDir(sourceDirectory)) {
+  for (const dirEntry of await readdir(sourceDirectory, {
+    withFileTypes: true,
+  })) {
     const sourcePath = join(sourceDirectory, dirEntry.name);
 
-    if (dirEntry.isDirectory) {
+    if (dirEntry.isDirectory()) {
       await copyMarkdownFilesRecursively(
         sourcePath,
         join(destinationDirectory, dirEntry.name),
@@ -22,12 +25,12 @@ async function copyMarkdownFilesRecursively(
       continue;
     }
 
-    if (!dirEntry.isFile || !dirEntry.name.endsWith(".md")) {
+    if (!dirEntry.isFile() || !dirEntry.name.endsWith(".md")) {
       continue;
     }
 
     const destinationPath = join(destinationDirectory, dirEntry.name);
-    await Deno.copyFile(sourcePath, destinationPath);
+    await copyFile(sourcePath, destinationPath);
   }
 }
 
@@ -37,8 +40,9 @@ for (const locale of locales) {
 
   await copyMarkdownFilesRecursively(sourceDirectory, destinationDirectory);
   console.log(
-    `Copied markdown files: ${relative(".", sourceDirectory)} -> ${
-      relative(".", destinationDirectory)
-    }`,
+    `Copied markdown files: ${relative(".", sourceDirectory)} -> ${relative(
+      ".",
+      destinationDirectory,
+    )}`,
   );
 }

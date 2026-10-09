@@ -20,9 +20,10 @@ jobs:
           persist-credentials: false
       - name: Install deb packages
         run: if sudo --non-interactive true; then sudo ./tools/install_ubuntu_packages.sh; fi
-      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+      - uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
         with:
-          deno-version-file: .deno-version
+          node-version-file: .node-version
+          run-install: true
       - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
       - name: Install UV dependencies
         run: |
@@ -55,9 +56,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+      - uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
         with:
-          deno-version-file: .deno-version
+          node-version-file: .node-version
+          run-install: true
       - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
       - name: Install UV dependencies
         run: |
@@ -70,7 +72,7 @@ jobs:
       - name: Run examples
         run: uv run main.py
       - name: Validate VRM Model
-        run: deno task vrm-validator
+        run: vp run vrm-validator
 
   audit:
     runs-on: ubuntu-26.04
@@ -108,19 +110,20 @@ jobs:
         with:
           path: .local/tmp/ci-devcontainer-cache
           key: devcontainer-${{ hashFiles('.devcontainer/devcontainer.json', '.devcontainer/Dockerfile') }}-1
-      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+      - uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
         with:
-          deno-version-file: .deno-version
+          node-version-file: .node-version
+          run-install: true
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
         with:
           driver: docker-container
       - run: |
           mkdir -p .local/tmp/ci-devcontainer-cache
-          deno task devcontainer build \
+          vp run devcontainer build \
             --cache-from type=local,src=.local/tmp/ci-devcontainer-cache \
             --cache-to type=local,dest=.local/tmp/ci-devcontainer-cache
-          deno task devcontainer up
-          deno task devcontainer exec -- cat src/io_scene_vrm/README.txt
+          vp run devcontainer up
+          vp run devcontainer exec -- cat src/io_scene_vrm/README.txt
 
   docs:
     runs-on: ubuntu-26.04
@@ -130,8 +133,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+      - uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
         with:
-          deno-version-file: .deno-version
+          node-version-file: .node-version
+          run-install: true
       - name: Build
-        run: deno task docs:build
+        run: vp run docs:build

@@ -10,7 +10,6 @@ const rootDirectory = path.join(
   "dist",
 );
 
-// deno-lint-ignore no-node-globals
 global.__rootDirectory = rootDirectory;
 
 require(path.join(rootDirectory, "pyright.js"));
