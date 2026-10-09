@@ -1,14 +1,12 @@
 import os from "node:os";
-import {
-  Awaitable,
-  defineConfig,
-  HeadConfig,
-  PageData,
-  TransformContext,
-} from "vitepress";
+import { Awaitable, defineConfig, HeadConfig, PageData, TransformContext } from "vitepress";
 
-const isPossiblyWsl = os.platform() === "linux" &&
-  os.release().split("-").some((part) => /^(microsoft|wsl)/i.test(part));
+const isPossiblyWsl =
+  os.platform() === "linux" &&
+  os
+    .release()
+    .split("-")
+    .some((part) => /^(microsoft|wsl)/i.test(part));
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -35,9 +33,7 @@ export default defineConfig({
           {
             items: [
               {
-                items: [
-                  { text: "Top", link: "/en-us/" },
-                ],
+                items: [{ text: "Top", link: "/en-us/" }],
               },
             ],
           },
@@ -130,9 +126,7 @@ export default defineConfig({
           {
             items: [
               {
-                items: [
-                  { text: "トップページ", link: "/ja-jp/" },
-                ],
+                items: [{ text: "トップページ", link: "/ja-jp/" }],
               },
             ],
           },
@@ -229,8 +223,7 @@ export default defineConfig({
       },
     ],
     editLink: {
-      pattern:
-        "https://github.com/saturday06/VRM-Addon-for-Blender/edit/main/docs/:path",
+      pattern: "https://github.com/saturday06/VRM-Addon-for-Blender/edit/main/docs/:path",
     },
   },
   head: [
@@ -252,83 +245,120 @@ export default defineConfig({
         gtag('config', 'G-L4E126M2JR');
       `,
     ],
-    ["link", {
-      rel: "apple-touch-icon",
-      sizes: "57x57",
-      href: "/apple-icon-57x57.png",
-    }],
-    ["link", {
-      rel: "apple-touch-icon",
-      sizes: "60x60",
-      href: "/apple-icon-60x60.png",
-    }],
-    ["link", {
-      rel: "apple-touch-icon",
-      sizes: "72x72",
-      href: "/apple-icon-72x72.png",
-    }],
-    ["link", {
-      rel: "apple-touch-icon",
-      sizes: "76x76",
-      href: "/apple-icon-76x76.png",
-    }],
-    ["link", {
-      rel: "apple-touch-icon",
-      sizes: "114x114",
-      href: "/apple-icon-114x114.png",
-    }],
-    ["link", {
-      rel: "apple-touch-icon",
-      sizes: "120x120",
-      href: "/apple-icon-120x120.png",
-    }],
-    ["link", {
-      rel: "apple-touch-icon",
-      sizes: "144x144",
-      href: "/apple-icon-144x144.png",
-    }],
-    ["link", {
-      rel: "apple-touch-icon",
-      sizes: "152x152",
-      href: "/apple-icon-152x152.png",
-    }],
-    ["link", {
-      rel: "apple-touch-icon",
-      sizes: "180x180",
-      href: "/apple-icon-180x180.png",
-    }],
-    ["link", {
-      rel: "icon",
-      type: "image/png",
-      sizes: "192x192",
-      href: "/android-icon-192x192.png",
-    }],
-    ["link", {
-      rel: "icon",
-      type: "image/png",
-      sizes: "32x32",
-      href: "/favicon-32x32.png",
-    }],
-    ["link", {
-      rel: "icon",
-      type: "image/png",
-      sizes: "96x96",
-      href: "/favicon-96x96.png",
-    }],
-    ["link", {
-      rel: "icon",
-      type: "image/png",
-      sizes: "16x16",
-      href: "/favicon-16x16.png",
-    }],
+    [
+      "link",
+      {
+        rel: "apple-touch-icon",
+        sizes: "57x57",
+        href: "/apple-icon-57x57.png",
+      },
+    ],
+    [
+      "link",
+      {
+        rel: "apple-touch-icon",
+        sizes: "60x60",
+        href: "/apple-icon-60x60.png",
+      },
+    ],
+    [
+      "link",
+      {
+        rel: "apple-touch-icon",
+        sizes: "72x72",
+        href: "/apple-icon-72x72.png",
+      },
+    ],
+    [
+      "link",
+      {
+        rel: "apple-touch-icon",
+        sizes: "76x76",
+        href: "/apple-icon-76x76.png",
+      },
+    ],
+    [
+      "link",
+      {
+        rel: "apple-touch-icon",
+        sizes: "114x114",
+        href: "/apple-icon-114x114.png",
+      },
+    ],
+    [
+      "link",
+      {
+        rel: "apple-touch-icon",
+        sizes: "120x120",
+        href: "/apple-icon-120x120.png",
+      },
+    ],
+    [
+      "link",
+      {
+        rel: "apple-touch-icon",
+        sizes: "144x144",
+        href: "/apple-icon-144x144.png",
+      },
+    ],
+    [
+      "link",
+      {
+        rel: "apple-touch-icon",
+        sizes: "152x152",
+        href: "/apple-icon-152x152.png",
+      },
+    ],
+    [
+      "link",
+      {
+        rel: "apple-touch-icon",
+        sizes: "180x180",
+        href: "/apple-icon-180x180.png",
+      },
+    ],
+    [
+      "link",
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "192x192",
+        href: "/android-icon-192x192.png",
+      },
+    ],
+    [
+      "link",
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "32x32",
+        href: "/favicon-32x32.png",
+      },
+    ],
+    [
+      "link",
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "96x96",
+        href: "/favicon-96x96.png",
+      },
+    ],
+    [
+      "link",
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "16x16",
+        href: "/favicon-16x16.png",
+      },
+    ],
   ],
 
   transformPageData(pageData: PageData) {
     const description = pageData.frontmatter?.description;
     if (typeof description !== "string" || description.trim().length === 0) {
-      throw new Error(
-        `[docs] Missing description frontmatter: ${pageData.relativePath}`,
-      );
+      throw new Error(`[docs] Missing description frontmatter: ${pageData.relativePath}`);
     }
     return pageData;
   },
@@ -360,9 +390,7 @@ export default defineConfig({
       ogImagePath = "/logo.png";
     }
 
-    return [
-      ["meta", { property: "og:image", content: ogImagePath }],
-    ];
+    return [["meta", { property: "og:image", content: ogImagePath }]];
   },
   vite: {
     server: {

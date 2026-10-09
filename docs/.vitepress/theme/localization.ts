@@ -1,24 +1,19 @@
 // SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 const defaultLocale = "en-us";
 const supportedLocales: readonly string[] = [defaultLocale, "ja-jp"];
-const autoRedirectionTargetLocaleKey =
-  "vrm-format-auto-redirection-target-locale";
+const autoRedirectionTargetLocaleKey = "vrm-format-auto-redirection-target-locale";
 const hasPendingAutoRedirectionKey = "vrm-format-has-pending-auto-redirection";
-const deletedLocaleToNewLocaleRedirectionMap: Readonly<Record<string, string>> =
-  {
-    // Mapping table for old, deleted locales.
-    // If you add a new locale, you do not need to add it here.
-    "en": "en-us",
-    "ja": "ja-jp",
-  };
+const deletedLocaleToNewLocaleRedirectionMap: Readonly<Record<string, string>> = {
+  // Mapping table for old, deleted locales.
+  // If you add a new locale, you do not need to add it here.
+  en: "en-us",
+  ja: "ja-jp",
+};
 
 /**
  * Save automatic redirection target locale to storage.
  */
-export function setAutoRedirectionTargetLocaleToStorage(
-  storage: Storage,
-  locale: string,
-): void {
+export function setAutoRedirectionTargetLocaleToStorage(storage: Storage, locale: string): void {
   locale = locale.toLowerCase();
   locale = deletedLocaleToNewLocaleRedirectionMap[locale] ?? locale;
 
@@ -36,16 +31,13 @@ export function setAutoRedirectionTargetLocaleToStorage(
 /**
  * Load automatic redirection target locale from storage.
  */
-export function getAutoRedirectionTargetLocaleFromStorage(
-  storage: Storage,
-): string | null {
+export function getAutoRedirectionTargetLocaleFromStorage(storage: Storage): string | null {
   let targetLocale = storage.getItem(autoRedirectionTargetLocaleKey);
   if (!targetLocale) {
     return null;
   }
   targetLocale = targetLocale.toLowerCase();
-  targetLocale = deletedLocaleToNewLocaleRedirectionMap[targetLocale] ??
-    targetLocale;
+  targetLocale = deletedLocaleToNewLocaleRedirectionMap[targetLocale] ?? targetLocale;
   if (!supportedLocales.includes(targetLocale)) {
     return null;
   }
@@ -95,12 +87,7 @@ function getAutoRedirectionTargetLocaleFromNavigatorLanguage(): string | null {
   if (navigator.languages) {
     for (const navigatorLanguage of navigator.languages) {
       for (const supportedLocale of supportedLocales) {
-        if (
-          isNavigatorLanguageContainsSupportedLocale(
-            navigatorLanguage,
-            supportedLocale,
-          )
-        ) {
+        if (isNavigatorLanguageContainsSupportedLocale(navigatorLanguage, supportedLocale)) {
           return supportedLocale;
         }
       }
@@ -110,12 +97,7 @@ function getAutoRedirectionTargetLocaleFromNavigatorLanguage(): string | null {
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/language
   if (navigator.language) {
     for (const supportedLocale of supportedLocales) {
-      if (
-        isNavigatorLanguageContainsSupportedLocale(
-          navigator.language,
-          supportedLocale,
-        )
-      ) {
+      if (isNavigatorLanguageContainsSupportedLocale(navigator.language, supportedLocale)) {
         return supportedLocale;
       }
     }
@@ -178,7 +160,7 @@ function getRedirectUrl(storage: Storage, href: string): URL | null {
     let canonicalizedRequestLocale = requestLocale.toLowerCase();
     canonicalizedRequestLocale =
       deletedLocaleToNewLocaleRedirectionMap[canonicalizedRequestLocale] ??
-        canonicalizedRequestLocale;
+      canonicalizedRequestLocale;
     if (supportedLocales.includes(canonicalizedRequestLocale)) {
       targetLocale = canonicalizedRequestLocale;
     }

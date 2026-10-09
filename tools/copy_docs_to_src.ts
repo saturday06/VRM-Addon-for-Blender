@@ -18,10 +18,7 @@ async function copyMarkdownFilesRecursively(
     const sourcePath = join(sourceDirectory, dirEntry.name);
 
     if (dirEntry.isDirectory()) {
-      await copyMarkdownFilesRecursively(
-        sourcePath,
-        join(destinationDirectory, dirEntry.name),
-      );
+      await copyMarkdownFilesRecursively(sourcePath, join(destinationDirectory, dirEntry.name));
       continue;
     }
 

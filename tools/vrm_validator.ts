@@ -8,9 +8,7 @@ const basePath = process.env.BLENDER_VRM_TEST_RESOURCES_PATH || process.cwd();
 const basePathStat = await stat(basePath);
 let paths: Array<string> = [];
 if (basePathStat.isDirectory()) {
-  paths = (await readdir(basePath, { recursive: true })).map((path) =>
-    join(basePath, path)
-  );
+  paths = (await readdir(basePath, { recursive: true })).map((path) => join(basePath, path));
 } else if (basePathStat.isFile()) {
   paths = [basePath];
 } else {
@@ -31,9 +29,7 @@ paths.forEach(async (path) => {
 
   let result;
   try {
-    result = await gltfValidator.validateBytes(
-      new Uint8Array(await readFile(path)),
-    );
+    result = await gltfValidator.validateBytes(new Uint8Array(await readFile(path)));
   } catch (e) {
     console.error(`Errors in "${path}":`);
     console.error(e);

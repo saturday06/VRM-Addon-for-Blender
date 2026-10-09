@@ -2,13 +2,7 @@
 // https://github.com/microsoft/pyright/blob/1.1.399/packages/pyright/index.js
 
 const path = require("node:path");
-const rootDirectory = path.join(
-  __dirname,
-  "..",
-  "node_modules",
-  "pyright",
-  "dist",
-);
+const rootDirectory = path.join(__dirname, "..", "node_modules", "pyright", "dist");
 
 global.__rootDirectory = rootDirectory;
 

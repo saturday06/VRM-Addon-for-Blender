@@ -16,20 +16,16 @@ interface Release {
   published_at: string | null;
 }
 
-type ListReleasesResponse =
-  Endpoints["GET /repos/{owner}/{repo}/releases"]["response"]["data"];
+type ListReleasesResponse = Endpoints["GET /repos/{owner}/{repo}/releases"]["response"]["data"];
 
-async function fetchGithubReleases(
-  repo: string,
-  token?: string,
-): Promise<Release[]> {
+async function fetchGithubReleases(repo: string, token?: string): Promise<Release[]> {
   const [owner, repoName] = repo.split("/");
   const octokit = new Octokit({ auth: token });
   // Get all releases with pagination
-  const releases: ListReleasesResponse = await octokit.paginate(
-    octokit.repos.listReleases,
-    { owner, repo: repoName },
-  );
+  const releases: ListReleasesResponse = await octokit.paginate(octokit.repos.listReleases, {
+    owner,
+    repo: repoName,
+  });
   return releases.map((release) => ({
     tag_name: release.tag_name,
     name: release.name,
@@ -38,10 +34,7 @@ async function fetchGithubReleases(
   }));
 }
 
-async function updateChangelog(
-  releases: Release[],
-  changelogPath = "CHANGELOG.md",
-): Promise<void> {
+async function updateChangelog(releases: Release[], changelogPath = "CHANGELOG.md"): Promise<void> {
   let newContent = "# Changelog\n\n";
   for (const release of releases) {
     if (!release.tag_name.startsWith("v")) {
@@ -67,9 +60,7 @@ async function getRepoFromGit(): Promise<string> {
     // Handle SSH format: git@github.com:owner/repo.git
     const match = urlString.match(/^git@github\.com:([^/]+\/[^/]+?)(\.git)?$/);
     if (!match || !match[1]) {
-      throw new Error(
-        `Could not parse owner/repo from origin URL: ${urlString}`,
-      );
+      throw new Error(`Could not parse owner/repo from origin URL: ${urlString}`);
     }
     return match[1];
   }
@@ -78,10 +69,7 @@ async function getRepoFromGit(): Promise<string> {
   return url.pathname.slice(1).replace(/\.git$/, "");
 }
 
-if (
-  process.argv[1] &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
   try {
     const repo = await getRepoFromGit();

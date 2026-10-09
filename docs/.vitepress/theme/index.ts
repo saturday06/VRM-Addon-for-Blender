@@ -15,7 +15,7 @@ export default {
   enhanceApp(enhanceAppContext: EnhanceAppContext) {
     enhanceAppContext.app.component("DownloadLink", DownloadLink);
     enhanceAppContext.app.component("DownloadLinkJa", DownloadLinkJa);
-    enhanceAppContext.router.onAfterRouteChange = (_) => {
+    enhanceAppContext.router.onAfterRouteChange = () => {
       if (inBrowser) {
         redirectToLocaleUrlIfNeeded(localStorage);
       }
