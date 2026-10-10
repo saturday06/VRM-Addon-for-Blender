@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.10.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.10.0...v4.10.1) (2026-10-10)
+
+
+### 🐛 Bug Fixes
+
+* fixed a bug where, under certain conditions, the blend shape and mesh would become unbound during VRM0 import. ([7bcff9e](https://github.com/saturday06/VRM-Addon-for-Blender/commit/7bcff9eba818bdb8d35379b3f5ed6ef8d81bd3fc))
+
 ## [4.10.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.9.1...v4.10.0) (2026-10-10)
 
 
