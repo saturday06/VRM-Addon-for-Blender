@@ -2,7 +2,7 @@
 name = "bpy-vrm-format-benchmarks"
 version = "4.10.0"
 readme = "README.md"
-requires-python = "==3.10.*"  # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
+requires-python = "==3.10.*" # I actually want to use 3.9, but bpy 3.6.* doesn't allow it.
 dependencies = [
   "bpy-vrm-format",
   "pytest",
@@ -19,17 +19,17 @@ dependencies = [
 bpy-vrm-format = { workspace = true }
 
 [tool.ruff]
-target-version = "py39"  # It overrides 'project.requires-python = "== 3.10.*"'
+target-version = "py39" # It overrides 'project.requires-python = "== 3.10.*"'
 extend = "../pyproject.toml"
 
 [tool.ruff.lint]
 extend-ignore = [
-  "S101",  # Use of `assert` detected
-  "S603",  # `subprocess` call: check for execution of untrusted input
+  "S101", # Use of `assert` detected
+  "S603", # `subprocess` call: check for execution of untrusted input
 ]
 
 [tool.pyright]
-pythonVersion = "3.9"  # It overrides 'project.requires-python = "== 3.10.*"'
+pythonVersion = "3.9" # It overrides 'project.requires-python = "== 3.10.*"'
 pythonPlatform = "All"
 typeCheckingMode = "strict"
 

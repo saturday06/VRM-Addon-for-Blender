@@ -4,7 +4,6 @@ export default defineConfig({
   fmt: {
     ignorePatterns: [
       ".local/**",
-      "**/*.toml",
       "tests/resources/unity/*/ProjectSettings/*.json",
       "CHANGELOG.md",
       "pnpm-lock.yaml",

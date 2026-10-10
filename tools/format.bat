@@ -15,9 +15,6 @@ call uv run ruff format
 echo ### ruff check --fix ###
 call uv run ruff check --fix
 
-echo ### tombi format ###
-call uv run tombi format
-
 echo ### Vite+ ###
 where vp
 if %errorlevel% neq 0 (

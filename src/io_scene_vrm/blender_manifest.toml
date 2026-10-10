@@ -6,23 +6,11 @@ tagline = "VRM import, export and editing capabilities"
 maintainer = "Isamu Mogi <dyob@lunaport.net>"
 type = "add-on"
 website = "https://vrm-addon-for-blender.info"
-tags = [
-  "Animation",
-  "Import-Export",
-  "Material",
-  "Modeling",
-  "Physics",
-]
+tags = ["Animation", "Import-Export", "Material", "Modeling", "Physics"]
 blender_version_min = "4.2.0"
 blender_version_max = "5.3.0"
-license = [
-  "SPDX:MIT",
-  "SPDX:GPL-3.0-or-later",
-]
-copyright = [
-  "2020 Isamu Mogi",
-  "2018 iCyP",
-]
+license = ["SPDX:MIT", "SPDX:GPL-3.0-or-later"]
+copyright = ["2020 Isamu Mogi", "2018 iCyP"]
 
 [permissions]
 files = "Import/export VRM from/to disk"
