@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.10.0](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.9.1...v4.10.0) (2026-10-10)
+
+
+### 🚀 Features
+
+* experimental support spring bone limits ([755673d](https://github.com/saturday06/VRM-Addon-for-Blender/commit/755673d3e5e9f1c4c1b3a5f28e31b3fe2d5b5220))
+
 ## [4.9.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.9.0...v4.9.1) (2026-09-28)
 
 This is a preparatory release for uploading to PyPI.
