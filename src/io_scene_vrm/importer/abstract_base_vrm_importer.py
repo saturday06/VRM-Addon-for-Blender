@@ -598,6 +598,31 @@ class AbstractBaseVrmImporter(ABC):
     def import_gltf2_with_indices(self) -> None:
         json_dict, buffer0_bytes = parse_glb(self._parse_result.filepath.read_bytes())
 
+        node_dicts = json_dict.get("nodes")
+        if not isinstance(node_dicts, list):
+            node_dicts = []
+            json_dict["nodes"] = node_dicts
+
+        material_dicts = json_dict.get("materials")
+        if not isinstance(material_dicts, list):
+            material_dicts = []
+            json_dict["materials"] = material_dicts
+
+        mesh_dicts = json_dict.get("meshes")
+        if not isinstance(mesh_dicts, list):
+            mesh_dicts = []
+            json_dict["meshes"] = mesh_dicts
+
+        scene_dicts = json_dict.get("scenes")
+        if not isinstance(scene_dicts, list):
+            scene_dicts = []
+            json_dict["scenes"] = scene_dicts
+
+        accessor_dicts = json_dict.get("accessors")
+        if not isinstance(accessor_dicts, list):
+            accessor_dicts = []
+            json_dict["accessors"] = accessor_dicts
+
         for key in ("nodes", "materials", "meshes"):
             value_dicts = json_dict.get(key)
             if not isinstance(value_dicts, list):
@@ -659,7 +684,6 @@ class AbstractBaseVrmImporter(ABC):
                         legacy_image_name_prefix + str(image_index) + "_" + name
                     )
 
-        mesh_dicts = json_dict.get("meshes")
         if isinstance(mesh_dicts, list):
             for mesh_dict in mesh_dicts:
                 if not isinstance(mesh_dict, dict):
@@ -760,10 +784,6 @@ class AbstractBaseVrmImporter(ABC):
                     }
                 )
 
-                material_dicts = json_dict.get("materials")
-                if not isinstance(material_dicts, list):
-                    material_dicts = []
-                    json_dict["materials"] = material_dicts
                 tex_material_index = len(material_dicts)
                 material_dicts.append(
                     {
@@ -781,32 +801,18 @@ class AbstractBaseVrmImporter(ABC):
                     }
                 )
 
-            mesh_dicts = json_dict.get("meshes")
-            if not isinstance(mesh_dicts, list):
-                mesh_dicts = []
-                json_dict["meshes"] = mesh_dicts
             tex_mesh_index = len(mesh_dicts)
             mesh_dicts.append(
                 {"name": self.temp_object_name(), "primitives": primitive_dicts}
             )
 
-            node_dicts = json_dict.get("nodes")
-            if not isinstance(node_dicts, list):
-                node_dicts = []
-                json_dict["nodes"] = node_dicts
             tex_node_index = len(node_dicts)
             node_dicts.append({"name": self.temp_object_name(), "mesh": tex_mesh_index})
 
-            scene_dicts = json_dict.get("scenes")
-            if not isinstance(scene_dicts, list):
-                scene_dicts = []
-                json_dict["scenes"] = scene_dicts
             scene_dicts.append(
                 {"name": self.temp_object_name(), "nodes": [tex_node_index]}
             )
 
-        scene_dicts = json_dict.get("scenes")
-        node_dicts = json_dict.get("nodes")
         if isinstance(scene_dicts, list) and isinstance(node_dicts, list):
             for scene_dict in scene_dicts:
                 if not isinstance(scene_dict, dict):
@@ -977,7 +983,6 @@ class AbstractBaseVrmImporter(ABC):
                     extensions_required.remove(supported_extension)
 
         # Unfortunately such VRMs exist.
-        accessor_dicts = json_dict.get("accessors")
         if isinstance(accessor_dicts, list):
             for accessor_dict in accessor_dicts:
                 if not isinstance(accessor_dict, dict):
