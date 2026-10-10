@@ -35,7 +35,7 @@ wheels = [
 
 [[package]]
 name = "bpy-vrm-format"
-version = "4.9.1"
+version = "4.10.0"
 source = { editable = "." }
 dependencies = [
     { name = "bpy" },
@@ -81,7 +81,7 @@ dev = [
 
 [[package]]
 name = "bpy-vrm-format-benchmarks"
-version = "4.9.1"
+version = "4.10.0"
 source = { editable = "benchmarks" }
 dependencies = [
     { name = "bpy-vrm-format" },
@@ -456,7 +456,7 @@ wheels = [
 
 [[package]]
 name = "starry-bpy-typings"
-version = "4.9.1"
+version = "4.10.0"
 source = { editable = "typings" }
 
 [[package]]
