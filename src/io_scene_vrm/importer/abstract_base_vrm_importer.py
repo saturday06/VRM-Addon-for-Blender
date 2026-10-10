@@ -684,31 +684,30 @@ class AbstractBaseVrmImporter(ABC):
                         legacy_image_name_prefix + str(image_index) + "_" + name
                     )
 
-        if isinstance(mesh_dicts, list):
-            for mesh_dict in mesh_dicts:
-                if not isinstance(mesh_dict, dict):
+        for mesh_dict in mesh_dicts:
+            if not isinstance(mesh_dict, dict):
+                continue
+            mesh_extras_dict = mesh_dict.get("extras")
+            if not isinstance(mesh_extras_dict, dict):
+                mesh_extras_dict = {}
+                mesh_dict["extras"] = mesh_extras_dict
+            mesh_target_names = mesh_extras_dict.get("targetNames")
+            if isinstance(mesh_target_names, list):
+                continue
+            primitive_dicts = mesh_dict.get("primitives")
+            if not isinstance(primitive_dicts, list):
+                continue
+            for primitive_dict in primitive_dicts:
+                if not isinstance(primitive_dict, dict):
                     continue
-                mesh_extras_dict = mesh_dict.get("extras")
-                if not isinstance(mesh_extras_dict, dict):
-                    mesh_extras_dict = {}
-                    mesh_dict["extras"] = mesh_extras_dict
-                mesh_target_names = mesh_extras_dict.get("targetNames")
-                if isinstance(mesh_target_names, list):
+                primitive_extras_dict = primitive_dict.get("extras")
+                if not isinstance(primitive_extras_dict, dict):
                     continue
-                primitive_dicts = mesh_dict.get("primitives")
-                if not isinstance(primitive_dicts, list):
+                primitive_target_names = primitive_extras_dict.get("targetNames")
+                if not isinstance(primitive_target_names, list):
                     continue
-                for primitive_dict in primitive_dicts:
-                    if not isinstance(primitive_dict, dict):
-                        continue
-                    primitive_extras_dict = primitive_dict.get("extras")
-                    if not isinstance(primitive_extras_dict, dict):
-                        continue
-                    primitive_target_names = primitive_extras_dict.get("targetNames")
-                    if not isinstance(primitive_target_names, list):
-                        continue
-                    mesh_extras_dict["targetNames"] = primitive_target_names
-                    break
+                mesh_extras_dict["targetNames"] = primitive_target_names
+                break
 
         texture_dicts = json_dict.get("textures")
         if isinstance(texture_dicts, list) and texture_dicts:
@@ -813,159 +812,158 @@ class AbstractBaseVrmImporter(ABC):
                 {"name": self.temp_object_name(), "nodes": [tex_node_index]}
             )
 
-        if isinstance(scene_dicts, list) and isinstance(node_dicts, list):
-            for scene_dict in scene_dicts:
-                if not isinstance(scene_dict, dict):
-                    continue
-                retain_node_indices = self.find_retain_node_indices(scene_dict)
-                if not retain_node_indices:
-                    continue
+        for scene_dict in scene_dicts:
+            if not isinstance(scene_dict, dict):
+                continue
+            retain_node_indices = self.find_retain_node_indices(scene_dict)
+            if not retain_node_indices:
+                continue
 
-                buffer_dicts = json_dict.get("buffers")
-                if not isinstance(buffer_dicts, list):
-                    buffer_dicts = []
-                    json_dict["buffers"] = buffer_dicts
-                position_buffer_index = len(buffer_dicts)
-                position_buffer_bytes = struct.pack(
-                    "<9f", 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0
-                )
-                buffer_dicts.append(
-                    {
-                        "uri": "data:application/gltf-buffer;base64,"
-                        + base64.b64encode(position_buffer_bytes).decode("ascii"),
-                        "byteLength": len(position_buffer_bytes),
-                    }
-                )
-                joints_buffer_index = len(buffer_dicts)
-                joints_buffer_bytes = struct.pack(
-                    "<12H", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-                )
-                buffer_dicts.append(
-                    {
-                        "uri": "data:application/gltf-buffer;base64,"
-                        + base64.b64encode(joints_buffer_bytes).decode("ascii"),
-                        "byteLength": len(joints_buffer_bytes),
-                    }
-                )
-                weights_buffer_index = len(buffer_dicts)
-                weights_buffer_bytes = struct.pack(
-                    "<12f", 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0
-                )
-                buffer_dicts.append(
-                    {
-                        "uri": "data:application/gltf-buffer;base64,"
-                        + base64.b64encode(weights_buffer_bytes).decode("ascii"),
-                        "byteLength": len(weights_buffer_bytes),
-                    }
-                )
+            buffer_dicts = json_dict.get("buffers")
+            if not isinstance(buffer_dicts, list):
+                buffer_dicts = []
+                json_dict["buffers"] = buffer_dicts
+            position_buffer_index = len(buffer_dicts)
+            position_buffer_bytes = struct.pack(
+                "<9f", 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0
+            )
+            buffer_dicts.append(
+                {
+                    "uri": "data:application/gltf-buffer;base64,"
+                    + base64.b64encode(position_buffer_bytes).decode("ascii"),
+                    "byteLength": len(position_buffer_bytes),
+                }
+            )
+            joints_buffer_index = len(buffer_dicts)
+            joints_buffer_bytes = struct.pack(
+                "<12H", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            )
+            buffer_dicts.append(
+                {
+                    "uri": "data:application/gltf-buffer;base64,"
+                    + base64.b64encode(joints_buffer_bytes).decode("ascii"),
+                    "byteLength": len(joints_buffer_bytes),
+                }
+            )
+            weights_buffer_index = len(buffer_dicts)
+            weights_buffer_bytes = struct.pack(
+                "<12f", 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0
+            )
+            buffer_dicts.append(
+                {
+                    "uri": "data:application/gltf-buffer;base64,"
+                    + base64.b64encode(weights_buffer_bytes).decode("ascii"),
+                    "byteLength": len(weights_buffer_bytes),
+                }
+            )
 
-                buffer_view_dicts = json_dict.get("bufferViews")
-                if not isinstance(buffer_view_dicts, list):
-                    buffer_view_dicts = []
-                    json_dict["bufferViews"] = buffer_view_dicts
-                position_buffer_view_index = len(buffer_view_dicts)
-                buffer_view_dicts.append(
-                    {
-                        "buffer": position_buffer_index,
-                        "byteLength": len(position_buffer_bytes),
-                    }
-                )
-                joints_buffer_view_index = len(buffer_view_dicts)
-                buffer_view_dicts.append(
-                    {
-                        "buffer": joints_buffer_index,
-                        "byteLength": len(joints_buffer_bytes),
-                    }
-                )
-                weights_buffer_view_index = len(buffer_view_dicts)
-                buffer_view_dicts.append(
-                    {
-                        "buffer": weights_buffer_index,
-                        "byteLength": len(weights_buffer_bytes),
-                    }
-                )
+            buffer_view_dicts = json_dict.get("bufferViews")
+            if not isinstance(buffer_view_dicts, list):
+                buffer_view_dicts = []
+                json_dict["bufferViews"] = buffer_view_dicts
+            position_buffer_view_index = len(buffer_view_dicts)
+            buffer_view_dicts.append(
+                {
+                    "buffer": position_buffer_index,
+                    "byteLength": len(position_buffer_bytes),
+                }
+            )
+            joints_buffer_view_index = len(buffer_view_dicts)
+            buffer_view_dicts.append(
+                {
+                    "buffer": joints_buffer_index,
+                    "byteLength": len(joints_buffer_bytes),
+                }
+            )
+            weights_buffer_view_index = len(buffer_view_dicts)
+            buffer_view_dicts.append(
+                {
+                    "buffer": weights_buffer_index,
+                    "byteLength": len(weights_buffer_bytes),
+                }
+            )
 
-                accessor_dicts = json_dict.get("accessors")
-                if not isinstance(accessor_dicts, list):
-                    accessor_dicts = []
-                    json_dict["accessors"] = accessor_dicts
-                position_accessors_index = len(accessor_dicts)
-                accessor_dicts.append(
-                    {
-                        "bufferView": position_buffer_view_index,
-                        "type": "VEC3",
-                        "componentType": GL_FLOAT,
-                        "count": 3,
-                        "min": [0, 0, 0],
-                        "max": [1, 1, 0],
+            accessor_dicts = json_dict.get("accessors")
+            if not isinstance(accessor_dicts, list):
+                accessor_dicts = []
+                json_dict["accessors"] = accessor_dicts
+            position_accessors_index = len(accessor_dicts)
+            accessor_dicts.append(
+                {
+                    "bufferView": position_buffer_view_index,
+                    "type": "VEC3",
+                    "componentType": GL_FLOAT,
+                    "count": 3,
+                    "min": [0, 0, 0],
+                    "max": [1, 1, 0],
+                }
+            )
+            joints_accessors_index = len(accessor_dicts)
+            accessor_dicts.append(
+                {
+                    "bufferView": joints_buffer_view_index,
+                    "type": "VEC4",
+                    "componentType": GL_UNSIGNED_SHORT,
+                    "count": 3,
+                }
+            )
+            weights_accessors_index = len(accessor_dicts)
+            accessor_dicts.append(
+                {
+                    "bufferView": weights_buffer_view_index,
+                    "type": "VEC4",
+                    "componentType": GL_FLOAT,
+                    "count": 3,
+                }
+            )
+
+            primitive_dicts = [
+                {
+                    "attributes": {
+                        "POSITION": position_accessors_index,
+                        "JOINTS_0": joints_accessors_index,
+                        "WEIGHTS_0": weights_accessors_index,
                     }
+                }
+            ]
+
+            mesh_dicts = json_dict.get("meshes")
+            if not isinstance(mesh_dicts, list):
+                mesh_dicts = []
+                json_dict["meshes"] = mesh_dicts
+            skin_mesh_index = len(mesh_dicts)
+            mesh_dicts.append(
+                make_json(
+                    {"name": self.temp_object_name(), "primitives": primitive_dicts}
                 )
-                joints_accessors_index = len(accessor_dicts)
-                accessor_dicts.append(
-                    {
-                        "bufferView": joints_buffer_view_index,
-                        "type": "VEC4",
-                        "componentType": GL_UNSIGNED_SHORT,
-                        "count": 3,
-                    }
-                )
-                weights_accessors_index = len(accessor_dicts)
-                accessor_dicts.append(
-                    {
-                        "bufferView": weights_buffer_view_index,
-                        "type": "VEC4",
-                        "componentType": GL_FLOAT,
-                        "count": 3,
-                    }
-                )
+            )
 
-                primitive_dicts = [
-                    {
-                        "attributes": {
-                            "POSITION": position_accessors_index,
-                            "JOINTS_0": joints_accessors_index,
-                            "WEIGHTS_0": weights_accessors_index,
-                        }
-                    }
-                ]
+            skin_dicts = json_dict.get("skins")
+            if not isinstance(skin_dicts, list):
+                skin_dicts = []
+                json_dict["skins"] = skin_dicts
+            skin_index = len(skin_dicts)
+            skin_dicts.append({"joints": list(retain_node_indices)})
 
-                mesh_dicts = json_dict.get("meshes")
-                if not isinstance(mesh_dicts, list):
-                    mesh_dicts = []
-                    json_dict["meshes"] = mesh_dicts
-                skin_mesh_index = len(mesh_dicts)
-                mesh_dicts.append(
-                    make_json(
-                        {"name": self.temp_object_name(), "primitives": primitive_dicts}
-                    )
-                )
+            node_dicts = json_dict.get("nodes")
+            if not isinstance(node_dicts, list):
+                node_dicts = []
+                json_dict["nodes"] = node_dicts
+            skin_node_index = len(node_dicts)
+            node_dicts.append(
+                {
+                    "name": self.temp_object_name(),
+                    "mesh": skin_mesh_index,
+                    "skin": skin_index,
+                }
+            )
 
-                skin_dicts = json_dict.get("skins")
-                if not isinstance(skin_dicts, list):
-                    skin_dicts = []
-                    json_dict["skins"] = skin_dicts
-                skin_index = len(skin_dicts)
-                skin_dicts.append({"joints": list(retain_node_indices)})
+            scene_nodes = scene_dict.get("nodes")
+            if not isinstance(scene_nodes, list):
+                scene_nodes = []
+                scene_dict["nodes"] = scene_nodes
 
-                node_dicts = json_dict.get("nodes")
-                if not isinstance(node_dicts, list):
-                    node_dicts = []
-                    json_dict["nodes"] = node_dicts
-                skin_node_index = len(node_dicts)
-                node_dicts.append(
-                    {
-                        "name": self.temp_object_name(),
-                        "mesh": skin_mesh_index,
-                        "skin": skin_index,
-                    }
-                )
-
-                scene_nodes = scene_dict.get("nodes")
-                if not isinstance(scene_nodes, list):
-                    scene_nodes = []
-                    scene_dict["nodes"] = scene_nodes
-
-                scene_nodes.append(skin_node_index)
+            scene_nodes.append(skin_node_index)
 
         # Prevent errors when extensions not supported by the glTF 2.0 add-on
         # are included in "extensionsRequired"
@@ -983,38 +981,29 @@ class AbstractBaseVrmImporter(ABC):
                     extensions_required.remove(supported_extension)
 
         # Unfortunately such VRMs exist.
-        if isinstance(accessor_dicts, list):
-            for accessor_dict in accessor_dicts:
-                if not isinstance(accessor_dict, dict):
-                    continue
+        for accessor_dict in accessor_dicts:
+            if not isinstance(accessor_dict, dict):
+                continue
 
-                max_values = accessor_dict.get("max")
-                if isinstance(max_values, list):
-                    for i, max_value in enumerate(list(max_values)):
-                        if not isinstance(max_value, (float, int)) or math.isnan(
-                            max_value
-                        ):
-                            max_values[i] = FLOAT_POSITIVE_MAX
-                        elif math.isinf(max_value):
-                            max_values[i] = (
-                                FLOAT_POSITIVE_MAX
-                                if max_value > 0
-                                else FLOAT_NEGATIVE_MAX
-                            )
+            max_values = accessor_dict.get("max")
+            if isinstance(max_values, list):
+                for i, max_value in enumerate(list(max_values)):
+                    if not isinstance(max_value, (float, int)) or math.isnan(max_value):
+                        max_values[i] = FLOAT_POSITIVE_MAX
+                    elif math.isinf(max_value):
+                        max_values[i] = (
+                            FLOAT_POSITIVE_MAX if max_value > 0 else FLOAT_NEGATIVE_MAX
+                        )
 
-                min_values = accessor_dict.get("min")
-                if isinstance(min_values, list):
-                    for i, min_value in enumerate(list(min_values)):
-                        if not isinstance(min_value, (float, int)) or math.isnan(
-                            min_value
-                        ):
-                            min_values[i] = FLOAT_NEGATIVE_MAX
-                        elif math.isinf(min_value):
-                            min_values[i] = (
-                                FLOAT_POSITIVE_MAX
-                                if min_value > 0
-                                else FLOAT_NEGATIVE_MAX
-                            )
+            min_values = accessor_dict.get("min")
+            if isinstance(min_values, list):
+                for i, min_value in enumerate(list(min_values)):
+                    if not isinstance(min_value, (float, int)) or math.isnan(min_value):
+                        min_values[i] = FLOAT_NEGATIVE_MAX
+                    elif math.isinf(min_value):
+                        min_values[i] = (
+                            FLOAT_POSITIVE_MAX if min_value > 0 else FLOAT_NEGATIVE_MAX
+                        )
 
         merge_duplicate_vertex_skinning_weights(json_dict, buffer0_bytes)
 
