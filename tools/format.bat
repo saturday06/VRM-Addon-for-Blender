@@ -24,6 +24,7 @@ if %errorlevel% neq 0 (
   echo *** Please install `vp` command ***
   goto :error
 )
+call vp install
 
 echo ### Vite+ format ###
 call vp fmt

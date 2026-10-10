@@ -25,6 +25,7 @@ if %errorlevel% neq 0 (
   echo *** Please install `vp` command ***
   goto :error
 )
+call vp install
 
 echo ### Vite+ lint ###
 call vp lint --deny-warnings
