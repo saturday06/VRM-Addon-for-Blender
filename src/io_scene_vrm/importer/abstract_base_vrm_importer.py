@@ -14,7 +14,7 @@ import struct
 import tempfile
 import uuid
 from abc import ABC, abstractmethod
-from collections.abc import Generator, Mapping
+from collections.abc import Generator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -33,7 +33,7 @@ from bpy.types import (
 from mathutils import Euler, Matrix
 
 from ..common import safe_removal, shader
-from ..common.convert import Json
+from ..common.convert import Json, sequence_or_none
 from ..common.deep import make_json
 from ..common.fs import (
     create_unique_indexed_directory_path,
@@ -623,11 +623,16 @@ class AbstractBaseVrmImporter(ABC):
             accessor_dicts = []
             json_dict["accessors"] = accessor_dicts
 
-        for key in ("nodes", "materials", "meshes"):
-            value_dicts = json_dict.get(key)
-            if not isinstance(value_dicts, list):
-                continue
+        extras_node_index_key = self._import_id + "Nodes"
+        extras_material_index_key = self._import_id + "Materials"
+        extras_mesh_index_key = self._import_id + "Meshes"
+        extras_mesh_node_indices_key = self._import_id + "MeshNodes"
 
+        for value_dicts, extras_index_key in (
+            (node_dicts, extras_node_index_key),
+            (material_dicts, extras_material_index_key),
+            (mesh_dicts, extras_mesh_index_key),
+        ):
             for index, value_dict in enumerate(value_dicts):
                 if not isinstance(value_dict, dict):
                     continue
@@ -636,7 +641,23 @@ class AbstractBaseVrmImporter(ABC):
                 if not isinstance(extras_dict, dict):
                     extras_dict = {}
                     value_dict["extras"] = extras_dict
-                extras_dict.update({self._import_id + key.capitalize(): index})
+                extras_dict.update({extras_index_key: index})
+
+        for mesh_index, mesh_dict in enumerate(mesh_dicts):
+            if not isinstance(mesh_dict, dict):
+                continue
+            node_indices = [
+                node_index
+                for node_index, node_dict in enumerate(node_dicts)
+                if isinstance(node_dict, dict) and node_dict.get("mesh") == mesh_index
+            ]
+            if not node_indices:
+                continue
+            extras_dict = mesh_dict.get("extras")
+            if not isinstance(extras_dict, dict):
+                extras_dict = {}
+                mesh_dict["extras"] = extras_dict
+            extras_dict.update({extras_mesh_node_indices_key: make_json(node_indices)})
 
         legacy_image_name_prefix = self._import_id + "Image"
         image_dicts = json_dict.get("images")
@@ -1067,7 +1088,6 @@ class AbstractBaseVrmImporter(ABC):
             selected_object.name for selected_object in self._context.selected_objects
         ]
 
-        extras_node_index_key = self._import_id + "Nodes"
         for obj in self._context.blend_data.objects:
             node_index = obj.pop(extras_node_index_key, None)
             if isinstance(node_index, int):
@@ -1085,9 +1105,6 @@ class AbstractBaseVrmImporter(ABC):
             for bone_name, bone in data.bones.items():
                 bone_node_index = bone.pop(extras_node_index_key, None)
                 if not isinstance(bone_node_index, int):
-                    continue
-                node_dicts = self._parse_result.json_dict.get("nodes")
-                if not isinstance(node_dicts, list):
                     continue
                 if 0 <= bone_node_index < len(node_dicts):
                     node_dict = node_dicts[bone_node_index]
@@ -1147,7 +1164,6 @@ class AbstractBaseVrmImporter(ABC):
                         edit_bone.roll = roll
                     edit_bones.extend(edit_bone.children)
 
-        extras_material_index_key = self._import_id + "Materials"
         for material in self._context.blend_data.materials:
             if self.is_temp_object_name(material.name):
                 continue
@@ -1155,14 +1171,24 @@ class AbstractBaseVrmImporter(ABC):
             if isinstance(material_index, int):
                 self._materials[material_index] = material
 
-        extras_mesh_index_key = self._import_id + "Meshes"
-        for obj in self._context.blend_data.objects:
-            data = obj.data
-            if not isinstance(data, Mesh):
+        for mesh in self._context.blend_data.meshes:
+            custom_mesh_index = mesh.pop(extras_mesh_index_key, None)
+            custom_mesh_node_indices: Optional[Sequence[object]] = sequence_or_none(
+                mesh.pop(extras_mesh_node_indices_key, None)
+            )
+            if not isinstance(custom_mesh_index, int):
                 continue
-            custom_mesh_index = data.pop(extras_mesh_index_key, None)
-            if isinstance(custom_mesh_index, int):
-                self._meshes[custom_mesh_index] = data
+            self._meshes[custom_mesh_index] = mesh
+
+            # In some cases, it may not be possible to retrieve the node index
+            # corresponding to an object. If the mesh object that owns the mesh data
+            # does not have a node index assigned to it, assign the array of node
+            # indices registered in the mesh data.
+            if not custom_mesh_node_indices:
+                continue
+            self._restore_object_names_from_mesh_node_indices(
+                mesh, custom_mesh_node_indices, len(node_dicts)
+            )
 
         for image in list(self._context.blend_data.images):
             custom_image_index = image.get(self._import_id)
@@ -1258,6 +1284,40 @@ class AbstractBaseVrmImporter(ABC):
 
         if self._armature is None:
             _logger.warning("Failed to read VRM Humanoid")
+
+    def _restore_object_names_from_mesh_node_indices(
+        self,
+        mesh: Mesh,
+        node_indices: Sequence[object],
+        node_count: int,
+    ) -> None:
+        unassigned_object_names: list[str] = [
+            obj.name
+            for obj in self._context.blend_data.objects
+            if obj.type == "MESH" and obj.data == mesh
+        ]
+        unassigned_node_indices: list[int] = []
+        for node_index in node_indices:
+            if not isinstance(node_index, int):
+                continue
+            if not (0 <= node_index < node_count):
+                continue
+            if (
+                (object_name := self._object_names.get(node_index))
+                and (obj := self._context.blend_data.objects.get(object_name))
+                and obj.name in unassigned_object_names
+            ):
+                unassigned_object_names.remove(obj.name)
+            else:
+                unassigned_node_indices.append(node_index)
+        if not unassigned_object_names:
+            return
+        # Link unassigned items to one another. However, it is very difficult to
+        # establish completely accurate links.
+        for index, node_index in enumerate(unassigned_node_indices):
+            self._object_names[node_index] = unassigned_object_names[
+                index % len(unassigned_object_names)
+            ]
 
     def cleanup_gltf2_with_indices(self) -> None:
         with save_workspace(self._context):

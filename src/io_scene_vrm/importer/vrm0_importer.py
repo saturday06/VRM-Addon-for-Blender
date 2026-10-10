@@ -1058,16 +1058,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                     None,
                 )
                 if not mesh_object:
-                    mesh_object = next(
-                        (
-                            obj
-                            for obj in self._context.blend_data.objects
-                            if obj.type == "MESH" and obj.data == mesh_data
-                        ),
-                        None,
-                    )
-                    if not mesh_object:
-                        continue
+                    continue
 
                 mesh_annotation.mesh.mesh_object_name = mesh_object.name
 
@@ -1171,16 +1162,7 @@ class Vrm0Importer(AbstractBaseVrmImporter):
                         None,
                     )
                     if not mesh_object:
-                        mesh_object = next(
-                            (
-                                obj
-                                for obj in self._context.blend_data.objects
-                                if obj.type == "MESH" and obj.data == mesh_data
-                            ),
-                            None,
-                        )
-                        if not mesh_object:
-                            continue
+                        continue
 
                     bind.mesh.mesh_object_name = mesh_object.name
 
