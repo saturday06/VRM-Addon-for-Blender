@@ -1049,21 +1049,25 @@ class Vrm0Importer(AbstractBaseVrmImporter):
 
                 mesh_object = next(
                     (
-                        mesh_object
+                        obj
                         for object_name in self._object_names.values()
-                        if (
-                            mesh_object := self._context.blend_data.objects.get(
-                                object_name
-                            )
-                        )
-                        and mesh_object.type == "MESH"
-                        and mesh_object.data == mesh_data
+                        if (obj := self._context.blend_data.objects.get(object_name))
+                        and obj.type == "MESH"
+                        and obj.data == mesh_data
                     ),
                     None,
                 )
-
                 if not mesh_object:
-                    continue
+                    mesh_object = next(
+                        (
+                            obj
+                            for obj in self._context.blend_data.objects
+                            if obj.type == "MESH" and obj.data == mesh_data
+                        ),
+                        None,
+                    )
+                    if not mesh_object:
+                        continue
 
                 mesh_annotation.mesh.mesh_object_name = mesh_object.name
 
@@ -1156,20 +1160,27 @@ class Vrm0Importer(AbstractBaseVrmImporter):
 
                     mesh_object = next(
                         (
-                            mesh_object
+                            obj
                             for object_name in self._object_names.values()
                             if (
-                                mesh_object := self._context.blend_data.objects.get(
-                                    object_name
-                                )
+                                obj := self._context.blend_data.objects.get(object_name)
                             )
-                            and mesh_object.type == "MESH"
-                            and mesh_object.data == mesh_data
+                            and obj.type == "MESH"
+                            and obj.data == mesh_data
                         ),
                         None,
                     )
                     if not mesh_object:
-                        continue
+                        mesh_object = next(
+                            (
+                                obj
+                                for obj in self._context.blend_data.objects
+                                if obj.type == "MESH" and obj.data == mesh_data
+                            ),
+                            None,
+                        )
+                        if not mesh_object:
+                            continue
 
                     bind.mesh.mesh_object_name = mesh_object.name
 

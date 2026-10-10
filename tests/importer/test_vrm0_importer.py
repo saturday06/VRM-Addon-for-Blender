@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+from pathlib import Path
 from typing import Optional
 from unittest import TestCase
 
@@ -8,8 +9,12 @@ from mathutils import Vector
 
 from io_scene_vrm.common import ops
 from io_scene_vrm.common.debug import assert_vector3_equals
+from io_scene_vrm.common.preferences import get_preferences
+from io_scene_vrm.editor.extension_accessor import get_armature_extension
+from io_scene_vrm.importer.abstract_base_vrm_importer import ParseResult
 from io_scene_vrm.importer.vrm0_importer import (
     MaterialProperty,
+    Vrm0Importer,
     _calculate_mtoon0_render_queue_offset_maps,
     _setup_bones,
 )
@@ -17,6 +22,47 @@ from tests.util import AddonTestCase
 
 
 class TestVrm0Importer(AddonTestCase):
+    def test_first_person_mesh_annotation_without_object_name(self) -> None:
+        context = bpy.context
+
+        ops.icyp.make_basic_armature()
+        armature = context.view_layer.objects.active
+        if not armature or not isinstance(armature.data, Armature):
+            message = "No armature"
+            raise AssertionError(message)
+
+        mesh_data = context.blend_data.meshes.new("UnmappedMesh")
+        mesh_object = context.blend_data.objects.new("UnmappedMesh", mesh_data)
+        context.scene.collection.objects.link(mesh_object)
+
+        importer = Vrm0Importer(
+            context,
+            ParseResult(
+                filepath=Path(),
+                json_dict={},
+                spec_version_number=(0, 0),
+                spec_version_str="0.0",
+                spec_version_is_stable=True,
+                vrm0_extension_dict={},
+                vrm1_extension_dict={},
+                hips_node_index=None,
+                bin_chunk=b"",
+            ),
+            get_preferences(context),
+        )
+        importer._meshes[0] = mesh_data
+        first_person = get_armature_extension(armature.data).vrm0.first_person
+        importer.load_vrm0_first_person(
+            first_person,
+            {"meshAnnotations": [{"mesh": 0}]},
+        )
+
+        self.assertNotIn(mesh_object.name, importer._object_names.values())
+        self.assertEqual(
+            first_person.mesh_annotations[0].mesh.mesh_object_name,
+            mesh_object.name,
+        )
+
     def test_eye_bone_world_minus_y(self) -> None:
         context = bpy.context
 
