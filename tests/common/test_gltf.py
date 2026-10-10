@@ -76,6 +76,42 @@ def _read_accessor_buffer_bytes(
 
 
 class TestGltf(TestCase):
+    def test_remove_empty_root_arrays(self) -> None:
+        json_dict: dict[str, Json] = {
+            "accessors": [],
+            "nodes": [{"name": "node"}],
+            "extras": {},
+        }
+
+        gltf.remove_empty_root_arrays(json_dict)
+
+        self.assertEqual(json_dict, {"nodes": [{"name": "node"}], "extras": {}})
+
+    def test_pack_glb_omits_empty_schema_arrays(self) -> None:
+        json_dict: dict[str, Json] = {key: [] for key in gltf.ROOT_NON_EMPTY_ARRAY_KEYS}
+        json_dict.update(
+            {
+                "extensionsUsed": ["KHR_materials_unlit"],
+                "nodes": [{"name": "node"}],
+                "extras": {},
+                "customEmptyArray": [],
+            }
+        )
+        original_json_dict = json_dict.copy()
+
+        packed_json_dict, _ = gltf.parse_glb(gltf.pack_glb(json_dict, b""))
+
+        for key in gltf.ROOT_NON_EMPTY_ARRAY_KEYS:
+            if key not in ("extensionsUsed", "nodes"):
+                self.assertNotIn(key, packed_json_dict)
+        self.assertEqual(
+            packed_json_dict.get("extensionsUsed"), ["KHR_materials_unlit"]
+        )
+        self.assertEqual(packed_json_dict.get("nodes"), [{"name": "node"}])
+        self.assertEqual(packed_json_dict.get("extras"), {})
+        self.assertEqual(packed_json_dict.get("customEmptyArray"), [])
+        self.assertEqual(json_dict, original_json_dict)
+
     def test_read_accessor_as_bytes_data_uri(self) -> None:
         expected_data = b"Hello World"
         base64_data = base64.b64encode(expected_data).decode("ascii")

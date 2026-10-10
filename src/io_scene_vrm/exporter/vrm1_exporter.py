@@ -38,7 +38,12 @@ from ..common.char import INTERNAL_NAME_PREFIX
 from ..common.convert import Json
 from ..common.deep import make_json
 from ..common.gl import GL_LINEAR, GL_REPEAT
-from ..common.gltf import pack_glb, parse_glb, parse_gltf_node_matrix
+from ..common.gltf import (
+    pack_glb,
+    parse_glb,
+    parse_gltf_node_matrix,
+    remove_empty_root_arrays,
+)
 from ..common.logger import get_logger
 from ..common.preferences import ExportPreferencesProtocol
 from ..common.rotation import (
@@ -3373,27 +3378,7 @@ class Vrm1Exporter(AbstractBaseVrmExporter):
                 buffer_dicts[0] = buffer_dict
             buffer_dict["byteLength"] = len(buffer0)
 
-        # https://github.com/KhronosGroup/glTF/blob/b6e0fcc6d8e9f83347aa8b2e3df085b81590a65c/specification/2.0/schema/glTF.schema.json
-        gltf_root_non_empty_array_keys = [
-            "extensionsUsed",
-            "extensionsRequired",
-            "accessors",
-            "animations",
-            "buffers",
-            "bufferViews",
-            "cameras",
-            "images",
-            "materials",
-            "meshes",
-            "nodes",
-            "samplers",
-            "scenes",
-            "skins",
-            "textures",
-        ]
-        for key in gltf_root_non_empty_array_keys:
-            if not json_dict.get(key):
-                json_dict.pop(key, None)
+        remove_empty_root_arrays(json_dict)
 
         self.trigger_pre_save_hook(
             json_dict,

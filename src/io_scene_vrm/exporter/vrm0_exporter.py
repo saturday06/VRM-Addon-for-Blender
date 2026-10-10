@@ -409,26 +409,16 @@ class Vrm0Exporter(AbstractBaseVrmExporter):
         if scene_dicts:
             json_dict["scenes"] = make_json(scene_dicts)
             json_dict["scene"] = 0
-        if node_dicts:
-            json_dict["nodes"] = make_json(node_dicts)
-        if mesh_dicts:
-            json_dict["meshes"] = make_json(mesh_dicts)
-        if material_dicts:
-            json_dict["materials"] = make_json(material_dicts)
-        if skin_dicts:
-            json_dict["skins"] = make_json(skin_dicts)
-        if accessor_dicts:
-            json_dict["accessors"] = make_json(accessor_dicts)
-        if texture_dicts:
-            json_dict["textures"] = make_json(texture_dicts)
-        if image_dicts:
-            json_dict["images"] = make_json(image_dicts)
-        if sampler_dicts:
-            json_dict["samplers"] = make_json(sampler_dicts)
-        if buffer_view_dicts:
-            json_dict["bufferViews"] = make_json(buffer_view_dicts)
-        if extensions_used:
-            json_dict["extensionsUsed"] = list(dict.fromkeys(extensions_used).keys())
+        json_dict["nodes"] = make_json(node_dicts)
+        json_dict["meshes"] = make_json(mesh_dicts)
+        json_dict["materials"] = make_json(material_dicts)
+        json_dict["skins"] = make_json(skin_dicts)
+        json_dict["accessors"] = make_json(accessor_dicts)
+        json_dict["textures"] = make_json(texture_dicts)
+        json_dict["images"] = make_json(image_dicts)
+        json_dict["samplers"] = make_json(sampler_dicts)
+        json_dict["bufferViews"] = make_json(buffer_view_dicts)
+        json_dict["extensionsUsed"] = list(dict.fromkeys(extensions_used).keys())
         json_dict["extensions"] = make_json({"VRM": extensions_vrm_dict})
         json_dict["buffers"] = [
             {

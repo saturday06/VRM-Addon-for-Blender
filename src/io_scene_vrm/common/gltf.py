@@ -27,6 +27,31 @@ from .gl import (
 FLOAT_POSITIVE_MAX: Final = 3.4028237e38
 FLOAT_NEGATIVE_MAX: Final = -FLOAT_POSITIVE_MAX
 
+# https://github.com/KhronosGroup/glTF/blob/b6e0fcc6d8e9f83347aa8b2e3df085b81590a65c/specification/2.0/schema/glTF.schema.json
+ROOT_NON_EMPTY_ARRAY_KEYS: Final = (
+    "extensionsUsed",
+    "extensionsRequired",
+    "accessors",
+    "animations",
+    "buffers",
+    "bufferViews",
+    "cameras",
+    "images",
+    "materials",
+    "meshes",
+    "nodes",
+    "samplers",
+    "scenes",
+    "skins",
+    "textures",
+)
+
+
+def remove_empty_root_arrays(json_dict: dict[str, Json]) -> None:
+    for key in ROOT_NON_EMPTY_ARRAY_KEYS:
+        if not json_dict.get(key):
+            json_dict.pop(key, None)
+
 
 def parse_glb(data: bytes) -> tuple[dict[str, Json], bytes]:
     with BytesIO(data) as glb:
@@ -116,6 +141,9 @@ def parse_glb(data: bytes) -> tuple[dict[str, Json], bytes]:
 def pack_glb(
     json_dict: dict[str, Json], bin_chunk_bytes: Union[bytes, bytearray]
 ) -> bytes:
+    json_dict = dict(json_dict)  # Shallow copy for excluding keys
+    remove_empty_root_arrays(json_dict)
+
     # https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#binary-gltf-layout
     json_chunk_bytes = json.dumps(
         json_dict,
