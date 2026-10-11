@@ -1,6 +1,6 @@
 [project]
 name = "bpy-vrm-format"
-version = "4.10.1"
+version = "4.10.2"
 authors = [{ name = "Isamu Mogi" }, { name = "iCyP" }]
 description = "VRM import, export, and editing capabilities"
 readme = "pypi.md"
