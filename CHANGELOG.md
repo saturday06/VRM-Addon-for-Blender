@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.10.2](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.10.1...v4.10.2) (2026-10-11)
+
+
+### 🐛 Bug Fixes
+
+* fixed a possible bug where, under certain conditions, the expression and mesh would become unbound during VRM1 import. ([24c27ed](https://github.com/saturday06/VRM-Addon-for-Blender/commit/24c27ed378e7f878481c4810a3e9ff912065724c))
+
 ## [4.10.1](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.10.0...v4.10.1) (2026-10-10)
 
 
