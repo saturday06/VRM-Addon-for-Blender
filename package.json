@@ -15,17 +15,17 @@
     "@devcontainers/cli": "0.89.0",
     "@octokit/rest": "22.0.1",
     "@octokit/types": "18.0.0",
-    "@types/node": "26.6.4",
+    "@types/node": "26.6.5",
     "gltf-validator": "2.0.0-dev.3.10",
-    "isomorphic-git": "1.43.2",
+    "isomorphic-git": "1.44.2",
     "pyright": "1.1.414",
     "tsx": "4.23.15",
-    "vite-plus": "1.1.0",
+    "vite-plus": "1.2.0",
     "vitepress": "1.6.4",
-    "vue": "3.5.43"
+    "vue": "3.5.44"
   },
   "engines": {
     "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
   },
-  "packageManager": "pnpm@12.10.1"
+  "packageManager": "pnpm@12.13.0"
 }
