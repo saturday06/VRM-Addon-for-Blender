@@ -67,7 +67,7 @@ jobs:
           $env:BLENDER_VRM_TEST_BLENDER_PATH = (Get-ChildItem ".github\blender\*\blender.exe")[0].FullName
           & $env:BLENDER_VRM_TEST_BLENDER_PATH --background -noaudio --python-exit-code 1 --python tools\unittest_discover.py
       - name: Archive failed io test result
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: VRMs (${{ github.job }} ${{ matrix.blender.job_name_postfix }})
@@ -140,7 +140,7 @@ jobs:
           hdiutil detach "$unpack_path" || true
           ./.github/Blender.app/Contents/MacOS/blender --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: VRMs (${{ github.job }} ${{ matrix.blender.job_name_postfix }})
@@ -182,7 +182,7 @@ jobs:
           tar -x --strip-components=1 -f .local/tmp/blender.tar.xz -C "$blender_base_path"
           "${blender_base_path}/blender" --background -noaudio --python-exit-code 1 --python tools/unittest_discover.py
       - name: Archive failed io test result
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: VRMs (${{ github.job }} ${{ matrix.blender.job_name_postfix }})
