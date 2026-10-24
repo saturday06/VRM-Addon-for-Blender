@@ -51,7 +51,7 @@ jobs:
           ref: ${{ needs.release-please.outputs.release_sha }}
       - name: Install deb packages
         run: sudo ./tools/install_ubuntu_packages.sh
-      - uses: voidzero-dev/setup-vp@3754dd7dbdb32bd8f6d28b6043de13ad3a75f21f # v1.21.1
+      - uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
         with:
           node-version-file: .node-version
           run-install: true
@@ -96,7 +96,7 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ needs.release-please.outputs.release_sha }}
-      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
           enable-cache: false
       - run: uv build --out-dir dist
