@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
 import contextlib
-import datetime
+import datetime as dt
 import hashlib
 import inspect
 import logging
@@ -99,7 +99,7 @@ def create_export_settings() -> dict[str, object]:
     export_settings: dict[str, object] = {
         "loglevel": loglevel,
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L522
-        "timestamp": datetime.datetime.now(datetime.timezone.utc),
+        "timestamp": dt.datetime.now(dt.timezone.utc),
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L258-L268
         # https://github.com/KhronosGroup/glTF-Blender-IO/blob/67b2ed150b0eba08129b970dbe1116c633a77d24/addons/io_scene_gltf2/__init__.py#L552
         "gltf_materials": True,
