@@ -80,7 +80,7 @@ class TestMmdAssignment(AddonTestCase):
                 @ Euler((0.7, 0.2, i * 0.8)).to_matrix().to_4x4()
                 @ Matrix.Diagonal((0.6, 0.6, 0.6, 1))
             )
-            obj.mmd_type = "RIGID_BODY"  # type: ignore[attr-defined]
+            setattr(obj, "mmd_type", "RIGID_BODY")
             rigid = getattr(obj, "mmd_rigid", None)
             if not isinstance(rigid, TestMmdRigidPropertyGroup):
                 raise TypeError
@@ -96,7 +96,7 @@ class TestMmdAssignment(AddonTestCase):
             sources.append(obj)
         dynamic = bpy.data.objects.new("Dynamic", None)
         bpy.context.scene.collection.objects.link(dynamic)
-        dynamic.mmd_type = "RIGID_BODY"  # type: ignore[attr-defined]
+        setattr(dynamic, "mmd_type", "RIGID_BODY")
         rigid = getattr(dynamic, "mmd_rigid", None)
         if not isinstance(rigid, TestMmdRigidPropertyGroup):
             raise TypeError
