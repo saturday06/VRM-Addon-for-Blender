@@ -6,8 +6,9 @@ from typing import TYPE_CHECKING, ClassVar, Optional
 
 from bpy.props import BoolProperty, FloatProperty, IntProperty, StringProperty
 from bpy.types import Armature, Bone, ChildOfConstraint, Context, Object, Operator
+from mathutils import Vector
 
-from ...common import convert, safe_removal
+from ...common import safe_removal
 from ...common.logger import get_logger
 from ..extension_accessor import get_armature_extension
 from .handler import reset_state, update_pose_bone_rotations
@@ -1451,7 +1452,7 @@ def _assign_spring_bone1_from_mmd(
     # mmd_rigid.type: '0' = kinematic (collider), '1' or '2' = dynamic (springy bone).
     # https://github.com/MMD-Blender/blender_mmd_tools/blob/v4.5.9/mmd_tools/core/rigid_body.py
     # https://github.com/MMD-Blender/blender_mmd_tools/blob/v4.5.9/mmd_tools/properties/rigid_body.py
-    static_rigid_bone_name_to_obj: dict[str, Object] = {}
+    static_rigid_bodies: list[tuple[str, Object]] = []
     dynamic_rigid_bone_names: list[str] = []
 
     for obj in context.blend_data.objects:
@@ -1481,7 +1482,7 @@ def _assign_spring_bone1_from_mmd(
         rigid_type: object = getattr(mmd_rigid, "type", None)
         if rigid_type == "0":
             # MODE_STATIC
-            static_rigid_bone_name_to_obj[bone_name] = obj
+            static_rigid_bodies.append((bone_name, obj))
         elif rigid_type in {"1", "2"} and bone_name not in dynamic_rigid_bone_names:
             # MODE_DYNAMIC, MODE_DYNAMIC_BONE
             dynamic_rigid_bone_names.append(bone_name)
@@ -1489,43 +1490,58 @@ def _assign_spring_bone1_from_mmd(
     if not dynamic_rigid_bone_names:
         return {"FINISHED"}
 
-    # Create sphere colliders from kinematic (non-physics) rigid bodies.
+    # Preserve every kinematic body, including multiple bodies on one bone.
     static_rigid_bone_to_collider_group_uuid: dict[str, str] = {}
-    for bone_name, mmd_obj in static_rigid_bone_name_to_obj.items():
+    for bone_name, mmd_obj in static_rigid_bodies:
         collider = spring_bone1.add_collider(context, armature)
         collider.node.bone_name = bone_name
 
         mmd_rigid = getattr(mmd_obj, "mmd_rigid", None)
         shape: object = getattr(mmd_rigid, "shape", None)
-        # Estimate size from the object's bounding-box dimensions.
-        dimensions = convert.float3_or_none(getattr(mmd_obj, "dimensions", None))
-        if dimensions:
-            dim_x, dim_y, dim_z = dimensions
-        else:
-            dim_x, dim_y, dim_z = 0.25, 0.25, 0.25
+        # MMD capsule geometry is centered on local Z. Read local bounds so
+        # object scale is applied exactly once by the body-to-bone transform.
+        bounds = mmd_obj.bound_box
+        dimensions = Vector(
+            tuple(
+                max(v[i] for v in bounds) - min(v[i] for v in bounds) for i in range(3)
+            )
+        )
+        bone_world = armature.matrix_world @ armature.pose.bones[bone_name].matrix
+        body_to_bone = bone_world.inverted_safe() @ mmd_obj.matrix_world
+        # Approximate nonuniform scale with the largest body-to-bone scale.
+        radius_scale = max(abs(value) for value in body_to_bone.to_scale())
 
         if shape == "CAPSULE":
             collider.shape_type = collider.SHAPE_TYPE_CAPSULE.identifier
-            radius = max(dim_x, dim_y) / 2
-            height = max(dim_z - radius * 2, 0.0)
-            collider.shape.capsule.radius = max(radius, 0.0001)
-            half_h = height / 2
-            collider.shape.capsule.offset = (0, 0, -half_h)
-            collider.shape.capsule.tail = (0, 0, half_h)
+            radius = max(dimensions.x, dimensions.y) / 2
+            half_height = max(dimensions.z - radius * 2, 0.0) / 2
+            collider.shape.capsule.offset = body_to_bone @ Vector((0, 0, -half_height))
+            collider.shape.capsule.tail = body_to_bone @ Vector((0, 0, half_height))
+            collider.shape.capsule.radius = max(radius * radius_scale, 0.0001)
         else:
             collider.shape_type = collider.SHAPE_TYPE_SPHERE.identifier
-            radius = max(dim_x, dim_y, dim_z) / 2
-            collider.shape.sphere.radius = max(radius, 0.0001)
+            collider.shape.sphere.offset = body_to_bone.translation
+            collider.shape.sphere.radius = max(
+                max(dimensions) * radius_scale / 2, 0.0001
+            )
 
-        collider_bpy_object = collider.bpy_object
-        if collider_bpy_object:
-            collider_bpy_object.matrix_world = mmd_obj.matrix_world
-
-        collider_group = spring_bone1.add_collider_group()
-        collider_group.vrm_name = bone_name + "-mmd-colliders"
+        # Do not overwrite matrix_world with the source body's center: the
+        # capsule object is its first endpoint, and its child is the second.
+        group_uuid = static_rigid_bone_to_collider_group_uuid.get(bone_name)
+        collider_group = next(
+            (
+                group
+                for group in spring_bone1.collider_groups
+                if group.uuid == group_uuid
+            ),
+            None,
+        )
+        if collider_group is None:
+            collider_group = spring_bone1.add_collider_group()
+            collider_group.vrm_name = bone_name + "-mmd-colliders"
+            static_rigid_bone_to_collider_group_uuid[bone_name] = collider_group.uuid
         collider_group_collider = collider_group.add_collider()
         collider_group_collider.collider_uuid = collider.uuid
-        static_rigid_bone_to_collider_group_uuid[bone_name] = collider_group.uuid
 
     # Build bone chains from physics bones.
     # Root physics bones are those whose direct bone parent is NOT a physics bone.
