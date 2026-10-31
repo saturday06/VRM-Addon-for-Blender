@@ -17,15 +17,15 @@
     "@octokit/types": "18.0.0",
     "@types/node": "26.6.5",
     "gltf-validator": "2.0.0-dev.3.10",
-    "isomorphic-git": "1.44.3",
+    "isomorphic-git": "1.44.6",
     "pyright": "1.1.414",
     "tsx": "4.23.15",
-    "vite-plus": "1.3.0",
+    "vite-plus": "1.4.0",
     "vitepress": "1.6.4",
     "vue": "3.5.44"
   },
   "engines": {
     "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
   },
-  "packageManager": "pnpm@12.15.0"
+  "packageManager": "pnpm@12.16.1"
 }
