@@ -718,8 +718,9 @@ def _search_structure_based_mapping_product(
             )
 
     assignment_combination_len = min(len(human_bone_specifications), len(bones))
+    require_requirement = search_context.require_requirement
     if (
-        not search_context.require_requirement
+        not require_requirement
         or sum(int(s.requirement) for s in human_bone_specifications)
         <= assignment_combination_len
     ):
@@ -727,40 +728,108 @@ def _search_structure_based_mapping_product(
             (human_bone_specification,)
             for human_bone_specification in human_bone_specifications
         )
-        for spec_children, bone_children in itertools.product(
-            itertools.combinations(spec_tuples, assignment_combination_len),
-            itertools.combinations(bones, assignment_combination_len),
-        ):
-            for spec_children_permutation in itertools.permutations(spec_children):
-                for bone_packings in _iter_skip_counts_and_bone_combinations(
-                    skip_count,
-                    tuple(
-                        zip(
-                            bone_children,
-                            (
-                                sum(s.recursive_requirement_len for s in ss)
-                                * search_context.require_requirement
-                                for ss in spec_children_permutation
-                            ),
-                        )
-                    ),
+        spec_combinations = itertools.combinations(
+            spec_tuples, assignment_combination_len
+        )
+        # Keep custom containers eager, as itertools.product does.
+        bone_combinations = (
+            None
+            if type(bones) is tuple
+            else tuple(itertools.combinations(bones, assignment_combination_len))
+        )
+        for spec_children in spec_combinations:
+            for bone_children in (
+                itertools.combinations(bones, assignment_combination_len)
+                if bone_combinations is None
+                else bone_combinations
+            ):
+                for spec_children_permutation in (
+                    (spec_children,)
+                    if len(spec_children) == 1
+                    else itertools.permutations(spec_children)
                 ):
-                    children = tuple(
-                        _search_structure_based_mapping_step(
-                            bone_child,
-                            spec_child,
-                            parent,
-                            depth + 1,
-                            child_skip_count,
-                            search_context,
+                    if assignment_combination_len == 1:
+                        try:
+                            requirement_len = spec_children_permutation[0][
+                                0
+                            ].recursive_requirement_len
+                            bone_requirements = (
+                                (
+                                    bone_children[0],
+                                    (
+                                        requirement_len
+                                        if type(requirement_len) is int
+                                        else sum((requirement_len,))
+                                    )
+                                    * require_requirement,
+                                ),
+                            )
+                        except StopIteration as exc:
+                            message = "generator raised StopIteration"
+                            raise RuntimeError(message) from exc
+                    else:
+                        bone_requirements = tuple(
+                            zip(
+                                bone_children,
+                                (
+                                    sum((ss[0].recursive_requirement_len,))
+                                    * require_requirement
+                                    for ss in spec_children_permutation
+                                ),
+                            )
                         )
-                        for spec_child, (bone_child, child_skip_count) in zip(
-                            spec_children_permutation, bone_packings
+                    if (
+                        assignment_combination_len == 1
+                        and type(skip_count) is int
+                        and type(bone_children[0]) is NormalizedBone
+                        and type(bone_children[0].recursive_len) is int
+                        and type(bone_requirements[0][1]) is int
+                    ):
+                        bone_child = bone_children[0]
+                        packing_options = (
+                            ([(bone_child, skip_count)],)
+                            if skip_count
+                            <= bone_child.recursive_len - bone_requirements[0][1]
+                            else ()
                         )
-                    )
-                    result = max(result, UnassignedSearchBranch(children=children))
-                    if counter.count > search_context.max_search_count:
-                        break
+                    else:
+                        packing_options = _iter_skip_counts_and_bone_combinations(
+                            skip_count, bone_requirements
+                        )
+                    for bone_packings in packing_options:
+                        if len(spec_children_permutation) == 1:
+                            bone_child, child_skip_count = bone_packings[0]
+                            try:
+                                children = (
+                                    _search_structure_based_mapping_step(
+                                        bone_child,
+                                        spec_children_permutation[0],
+                                        parent,
+                                        depth + 1,
+                                        child_skip_count,
+                                        search_context,
+                                    ),
+                                )
+                            except StopIteration as exc:
+                                message = "generator raised StopIteration"
+                                raise RuntimeError(message) from exc
+                        else:
+                            children = tuple(
+                                _search_structure_based_mapping_step(
+                                    bone_child,
+                                    spec_child,
+                                    parent,
+                                    depth + 1,
+                                    child_skip_count,
+                                    search_context,
+                                )
+                                for spec_child, (bone_child, child_skip_count) in zip(
+                                    spec_children_permutation, bone_packings
+                                )
+                            )
+                        result = max(result, UnassignedSearchBranch(children=children))
+                        if counter.count > search_context.max_search_count:
+                            break
 
     for special_group in (
         (
@@ -794,47 +863,79 @@ def _search_structure_based_mapping_product(
             groups = (special_group,)
 
         special_assignment_combination_len = min(len(groups), len(bones))
-        if (
-            search_context.require_requirement
-            and special_assignment_combination_len
-            < sum(int(any(s.requirement for s in group)) for group in groups)
+        if require_requirement and special_assignment_combination_len < sum(
+            int(any(s.requirement for s in group)) for group in groups
         ):
             break
 
-        for spec_children, bone_children in itertools.product(
-            itertools.combinations(groups, special_assignment_combination_len),
-            itertools.combinations(bones, special_assignment_combination_len),
-        ):
-            for spec_children_permutation in itertools.permutations(spec_children):
-                for bone_packings in _iter_skip_counts_and_bone_combinations(
-                    skip_count,
-                    tuple(
-                        zip(
-                            bone_children,
-                            (
-                                sum(s.recursive_requirement_len for s in ss)
-                                * search_context.require_requirement
-                                for ss in spec_children_permutation
-                            ),
-                        )
-                    ),
+        spec_combinations = itertools.combinations(
+            groups, special_assignment_combination_len
+        )
+        # Keep custom containers eager, as itertools.product does.
+        bone_combinations = (
+            None
+            if type(bones) is tuple
+            else tuple(
+                itertools.combinations(bones, special_assignment_combination_len)
+            )
+        )
+        for spec_children in spec_combinations:
+            for bone_children in (
+                itertools.combinations(bones, special_assignment_combination_len)
+                if bone_combinations is None
+                else bone_combinations
+            ):
+                for spec_children_permutation in (
+                    (spec_children,)
+                    if len(spec_children) == 1
+                    else itertools.permutations(spec_children)
                 ):
-                    children = tuple(
-                        _search_structure_based_mapping_step(
-                            bone_child,
-                            spec_child,
-                            parent,
-                            depth + 1,
-                            child_skip_count,
-                            search_context,
-                        )
-                        for spec_child, (bone_child, child_skip_count) in zip(
-                            spec_children_permutation, bone_packings
-                        )
-                    )
-                    result = max(result, UnassignedSearchBranch(children=children))
-                    if counter.count > search_context.max_search_count:
-                        break
+                    for bone_packings in _iter_skip_counts_and_bone_combinations(
+                        skip_count,
+                        tuple(
+                            zip(
+                                bone_children,
+                                (
+                                    sum(s.recursive_requirement_len for s in ss)
+                                    * require_requirement
+                                    for ss in spec_children_permutation
+                                ),
+                            )
+                        ),
+                    ):
+                        if len(spec_children_permutation) == 1:
+                            bone_child, child_skip_count = bone_packings[0]
+                            try:
+                                children = (
+                                    _search_structure_based_mapping_step(
+                                        bone_child,
+                                        spec_children_permutation[0],
+                                        parent,
+                                        depth + 1,
+                                        child_skip_count,
+                                        search_context,
+                                    ),
+                                )
+                            except StopIteration as exc:
+                                message = "generator raised StopIteration"
+                                raise RuntimeError(message) from exc
+                        else:
+                            children = tuple(
+                                _search_structure_based_mapping_step(
+                                    bone_child,
+                                    spec_child,
+                                    parent,
+                                    depth + 1,
+                                    child_skip_count,
+                                    search_context,
+                                )
+                                for spec_child, (bone_child, child_skip_count) in zip(
+                                    spec_children_permutation, bone_packings
+                                )
+                            )
+                        result = max(result, UnassignedSearchBranch(children=children))
+                        if counter.count > search_context.max_search_count:
+                            break
         break
 
     cache[cache_key] = result
