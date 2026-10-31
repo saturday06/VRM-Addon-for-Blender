@@ -182,8 +182,8 @@ importers:
         specifier: 2.0.0-dev.3.10
         version: 2.0.0-dev.3.10
       isomorphic-git:
-        specifier: 1.44.6
-        version: 1.44.6
+        specifier: 1.44.7
+        version: 1.44.7
       pyright:
         specifier: 1.1.414
         version: 1.1.414
@@ -1793,8 +1793,8 @@ packages:
   isarray@2.0.5:
     resolution: {integrity: sha512-xHjhDr3cNBK0BzdUJSPXZntQUx/mwMS5Rw4A7lPJ90XGAO6ISP/ePDNuo0vhqOZU+UD5JoodwCAAoZQd3FeAKw==}
 
-  isomorphic-git@1.44.6:
-    resolution: {integrity: sha512-J/4IvD47ZkUqY5ijiUHWL7OzdPTgdGWy0gbWOsoNMuVLLl+Sx8fCvqL2jB7sF0+j7EWO8l1w4T8miFV2tZteDw==}
+  isomorphic-git@1.44.7:
+    resolution: {integrity: sha512-+E6w8KC1AZ8jZKYdBRIxvx0sMgMQVaNNd2KrAMYAAfk5Cc/is69PShp5RXjdDDzBVU16d9usBJ2ewOOYIsN/YA==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -3576,7 +3576,7 @@ snapshots:
 
   isarray@2.0.5: {}
 
-  isomorphic-git@1.44.6:
+  isomorphic-git@1.44.7:
     dependencies:
       async-lock: 1.4.1
       clean-git-ref: 2.0.1
