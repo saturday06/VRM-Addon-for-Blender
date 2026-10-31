@@ -1246,28 +1246,37 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         blink_block_rate = 0.0
         look_at_block_rate = 0.0
         for expression in name_to_expression_dict.values():
-            if expression.preview < float_info.epsilon:
+            preview = expression.preview
+            if preview < float_info.epsilon:
                 continue
 
-            if expression.override_mouth == "blend":
-                mouth_block_rate += expression.preview
-            if expression.override_blink == "blend":
-                blink_block_rate += expression.preview
-            if expression.override_look_at == "blend":
-                look_at_block_rate += expression.preview
+            override_mouth = expression.override_mouth
+            override_blink = expression.override_blink
+            override_look_at = expression.override_look_at
+            if override_mouth == "blend":
+                mouth_block_rate += preview
+            if override_blink == "blend":
+                blink_block_rate += preview
+            if override_look_at == "blend":
+                look_at_block_rate += preview
 
-            if expression.override_mouth == "block":
+            if override_mouth == "block":
                 mouth_block_rate = 1.0
-            if expression.override_blink == "block":
+            if override_blink == "block":
                 blink_block_rate = 1.0
-            if expression.override_look_at == "block":
+            if override_look_at == "block":
                 look_at_block_rate = 1.0
 
         mouth_blend_factor = max(0.0, min(1 - mouth_block_rate, 1.0))
         blink_blend_factor = max(0.0, min(1 - blink_block_rate, 1.0))
         look_at_blend_factor = max(0.0, min(1 - look_at_block_rate, 1.0))
+        name_to_preset = {
+            preset.name: preset
+            for preset, _ in expressions.preset.expression_preset_and_expressions()
+        }
 
         mesh_object_name_to_key_block_name_to_value: dict[str, dict[str, float]] = {}
+        mesh_object_to_name: dict[Optional[Object], str] = {}
         material_name_to_color_type_to_vector: dict[str, dict[str, Vector]] = {}
         material_name_to_uv_transform: dict[str, tuple[float, Vector, Vector]] = {}
         for name, expression in name_to_expression_dict.items():
@@ -1277,11 +1286,12 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             else:
                 preview = expression.preview
 
-            if expressions.preset.is_mouth_expression(name):
+            preset = name_to_preset.get(name)
+            if preset and preset.mouth:
                 preview *= mouth_blend_factor
-            elif expressions.preset.is_blink_expression(name):
+            elif preset and preset.blink:
                 preview *= blink_blend_factor
-            elif expressions.preset.is_look_at_expression(name):
+            elif preset and preset.look_at:
                 preview *= look_at_blend_factor
 
             for texture_transform_bind in expression.texture_transform_binds:
@@ -1383,7 +1393,15 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             for morph_target_bind in expression.morph_target_binds:
                 value = morph_target_bind.weight * preview
 
-                mesh_object_name = morph_target_bind.node.mesh_object_name
+                node = morph_target_bind.node
+                if type(node) is MeshObjectPropertyGroup:
+                    mesh_object = node.bpy_object
+                    mesh_object_name = mesh_object_to_name.get(mesh_object)
+                    if mesh_object_name is None:
+                        mesh_object_name = node.mesh_object_name
+                        mesh_object_to_name[mesh_object] = mesh_object_name
+                else:
+                    mesh_object_name = node.mesh_object_name
                 key_block_name = morph_target_bind.index
                 key_block_name_to_value = (
                     mesh_object_name_to_key_block_name_to_value.get(mesh_object_name)
