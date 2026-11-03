@@ -22,6 +22,7 @@ git restore .local/var/cache/.gitkeep .local/tmp/.gitkeep
 # In such cases, processing continues. In the future, we will make it possible to pass tokens.
 uv self update || true
 
+vp upgrade
 vp env use "$(cat .node-version)"
 vp install --frozen-lockfile
 
