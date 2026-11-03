@@ -6,10 +6,10 @@
     "devcontainer": "devcontainer",
     "docs:build": "vitepress build docs",
     "docs:dev": "vitepress dev docs",
-    "docs:copy-docs-to-src": "node --import tsx ./tools/copy_docs_to_src.ts",
-    "pyright": "uv run -- node --import tsx ./tools/pyright.cts --warnings",
-    "update-changelog": "node --import tsx ./tools/update_changelog.ts",
-    "vrm-validator": "node --import tsx ./tools/vrm_validator.ts"
+    "docs:copy-docs-to-src": "vpx ./tools/copy_docs_to_src.ts",
+    "pyright": "uv run -- vpx ./tools/pyright.cts --warnings",
+    "update-changelog": "vpx ./tools/update_changelog.ts",
+    "vrm-validator": "vpx ./tools/vrm_validator.ts"
   },
   "devDependencies": {
     "@devcontainers/cli": "0.90.0",
