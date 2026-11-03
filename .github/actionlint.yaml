@@ -1,3 +1,8 @@
 self-hosted-runner:
   labels:
     - ubuntu-26.04
+paths:
+  .github/workflows/release-please.yml:
+    ignore:
+      # actionlint does not support the self-repository syntax yet.
+      - '^reusable workflow call "\$/\.github/workflows/gh-pages\.yml" at "uses" is not following the format '

@@ -110,4 +110,4 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    uses: ./.github/workflows/gh-pages.yml
+    uses: $/.github/workflows/gh-pages.yml

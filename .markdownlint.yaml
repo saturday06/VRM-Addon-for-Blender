@@ -1,4 +1,6 @@
 default: true
+MD007:
+  indent: 4
 MD013:
   line_length: 700
 MD024: false

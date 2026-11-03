@@ -66,7 +66,10 @@ git clone --no-local --depth 2 --recurse-submodules --shallow-submodules "$repos
     else
       rm -f "$dst"
     fi
-  done < <(git -C "$repository_root_path" ls-files --cached --others --exclude-standard -z --recurse-submodules)
+  done < <(
+    git -C "$repository_root_path" ls-files --cached -z --recurse-submodules
+    git -C "$repository_root_path" ls-files --others --exclude-standard -z
+  )
 )
 git -C "$lint_path" --no-pager show --stat
 git -C "$lint_path" --no-pager status
