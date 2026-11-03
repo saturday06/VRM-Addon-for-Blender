@@ -20,8 +20,7 @@
     "isomorphic-git": "1.44.8",
     "pyright": "1.1.414",
     "vite-plus": "1.4.0",
-    "vitepress": "1.6.4",
-    "vue": "3.5.44"
+    "vitepress": "1.6.4"
   },
   "engines": {
     "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
