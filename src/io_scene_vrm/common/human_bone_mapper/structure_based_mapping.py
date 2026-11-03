@@ -731,10 +731,10 @@ def _search_structure_based_mapping_product(
         spec_combinations = itertools.combinations(
             spec_tuples, assignment_combination_len
         )
-        # Keep custom containers eager, as itertools.product does.
+        # Keep non-tuple containers eager, as itertools.product does.
         bone_combinations = (
             None
-            if type(bones) is tuple
+            if isinstance(bones, tuple)
             else tuple(itertools.combinations(bones, assignment_combination_len))
         )
         for spec_children in spec_combinations:
@@ -758,7 +758,7 @@ def _search_structure_based_mapping_product(
                                     bone_children[0],
                                     (
                                         requirement_len
-                                        if type(requirement_len) is int
+                                        if isinstance(requirement_len, int)
                                         else sum((requirement_len,))
                                     )
                                     * require_requirement,
@@ -780,10 +780,10 @@ def _search_structure_based_mapping_product(
                         )
                     if (
                         assignment_combination_len == 1
-                        and type(skip_count) is int
-                        and type(bone_children[0]) is NormalizedBone
-                        and type(bone_children[0].recursive_len) is int
-                        and type(bone_requirements[0][1]) is int
+                        and isinstance(skip_count, int)
+                        and isinstance(bone_children[0], NormalizedBone)
+                        and isinstance(bone_children[0].recursive_len, int)
+                        and isinstance(bone_requirements[0][1], int)
                     ):
                         bone_child = bone_children[0]
                         packing_options = (
@@ -871,10 +871,10 @@ def _search_structure_based_mapping_product(
         spec_combinations = itertools.combinations(
             groups, special_assignment_combination_len
         )
-        # Keep custom containers eager, as itertools.product does.
+        # Keep non-tuple containers eager, as itertools.product does.
         bone_combinations = (
             None
-            if type(bones) is tuple
+            if isinstance(bones, tuple)
             else tuple(
                 itertools.combinations(bones, special_assignment_combination_len)
             )
