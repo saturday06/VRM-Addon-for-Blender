@@ -1280,7 +1280,6 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         look_at_blend_factor = max(0.0, min(1 - look_at_block_rate, 1.0))
 
         mesh_object_name_to_key_block_name_to_value: dict[str, dict[str, float]] = {}
-        mesh_object_to_name: dict[Optional[Object], str] = {}
         material_name_to_color_type_to_vector: dict[str, dict[str, Vector]] = {}
         material_name_to_uv_transform: dict[str, tuple[float, Vector, Vector]] = {}
         for preset, expression in preset_and_expressions:
@@ -1397,15 +1396,12 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             for morph_target_bind in expression.morph_target_binds:
                 value = morph_target_bind.weight * preview
 
-                node = morph_target_bind.node
-                if type(node) is MeshObjectPropertyGroup:
-                    mesh_object = node.bpy_object
-                    mesh_object_name = mesh_object_to_name.get(mesh_object)
-                    if mesh_object_name is None:
-                        mesh_object_name = node.mesh_object_name
-                        mesh_object_to_name[mesh_object] = mesh_object_name
-                else:
-                    mesh_object_name = node.mesh_object_name
+                mesh_object = morph_target_bind.node.bpy_object
+                if not mesh_object:
+                    continue
+                mesh_object_name = mesh_object.name
+                if not mesh_object_name:
+                    continue
                 key_block_name = morph_target_bind.index
                 key_block_name_to_value = (
                     mesh_object_name_to_key_block_name_to_value.get(mesh_object_name)

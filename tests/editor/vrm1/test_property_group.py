@@ -8,10 +8,47 @@ from io_scene_vrm.common import ops
 from io_scene_vrm.common.vrm1.human_bone import HumanBoneSpecifications
 from io_scene_vrm.editor.extension import get_armature_extension
 from io_scene_vrm.editor.vrm1 import ops as vrm1_ops
+from io_scene_vrm.editor.vrm1.property_group import Vrm1ExpressionPropertyGroup
 from tests.util import AddonTestCase
 
 
 class TestVrm1ExpressionsPropertyGroup(AddonTestCase):
+    def test_apply_previews_with_missing_morph_target_objects(self) -> None:
+        context = bpy.context
+        armature_data = bpy.data.armatures.new("ExpressionArmature")
+        mesh = bpy.data.meshes.new("ExpressionMesh")
+        mesh_object = bpy.data.objects.new("ExpressionMesh", mesh)
+        context.scene.collection.objects.link(mesh_object)
+        mesh_object.shape_key_add(name="Basis")
+        shape_key = mesh_object.shape_key_add(name="Smile")
+
+        expression = get_armature_extension(armature_data).vrm1.expressions.preset.happy
+        expression.morph_target_binds.add()
+        for weight in (0.25, 0.5):
+            bind = expression.morph_target_binds.add()
+            bind.node.bpy_object = mesh_object
+            bind.index = shape_key.name
+            bind.weight = weight
+
+        deleted_object = bpy.data.objects.new("DeletedMesh", mesh)
+        deleted_bind = expression.morph_target_binds.add()
+        deleted_bind.node.bpy_object = deleted_object
+        deleted_bind.index = shape_key.name
+        bpy.data.objects.remove(deleted_object)
+
+        expression.preview = 1
+        Vrm1ExpressionPropertyGroup.apply_previews(context, armature_data)
+        self.assertAlmostEqual(shape_key.value, 0.75)
+
+        mesh_object.name = "RenamedExpressionMesh"
+        expression.preview = 0.5
+        Vrm1ExpressionPropertyGroup.apply_previews(context, armature_data)
+        self.assertAlmostEqual(shape_key.value, 0.375)
+
+        expression.preview = 0
+        Vrm1ExpressionPropertyGroup.apply_previews(context, armature_data)
+        self.assertAlmostEqual(shape_key.value, 0)
+
     def test_assign_vrm1_expressions_from_vrm0(self) -> None:
         context = bpy.context
 
