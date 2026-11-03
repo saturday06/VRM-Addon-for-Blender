@@ -1240,12 +1240,20 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
     @classmethod
     def apply_previews(cls, context: Context, armature_data: Armature) -> None:
         expressions = get_armature_extension(armature_data).vrm1.expressions
-        name_to_expression_dict = expressions.all_name_to_expression_dict()
+        preset_and_expressions: list[
+            tuple[Optional[ExpressionPreset], Vrm1ExpressionPropertyGroup]
+        ] = [
+            *expressions.preset.expression_preset_and_expressions(),
+            *[
+                (None, expression)
+                for expression in expressions.all_name_to_expression_dict().values()
+            ],
+        ]
 
         mouth_block_rate = 0.0
         blink_block_rate = 0.0
         look_at_block_rate = 0.0
-        for expression in name_to_expression_dict.values():
+        for _, expression in preset_and_expressions:
             preview = expression.preview
             if preview < float_info.epsilon:
                 continue
@@ -1270,29 +1278,25 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
         mouth_blend_factor = max(0.0, min(1 - mouth_block_rate, 1.0))
         blink_blend_factor = max(0.0, min(1 - blink_block_rate, 1.0))
         look_at_blend_factor = max(0.0, min(1 - look_at_block_rate, 1.0))
-        name_to_preset = {
-            preset.name: preset
-            for preset, _ in expressions.preset.expression_preset_and_expressions()
-        }
 
         mesh_object_name_to_key_block_name_to_value: dict[str, dict[str, float]] = {}
         mesh_object_to_name: dict[Optional[Object], str] = {}
         material_name_to_color_type_to_vector: dict[str, dict[str, Vector]] = {}
         material_name_to_uv_transform: dict[str, tuple[float, Vector, Vector]] = {}
-        for name, expression in name_to_expression_dict.items():
+        for preset, expression in preset_and_expressions:
             if expression.is_binary:
                 # https://github.com/vrm-c/vrm-specification/blob/5b1071b9da1d60bb1bab0b70754615127fc43e9e/specification/VRMC_vrm-1.0/expressions.md?plain=1#L46
                 preview = 1.0 if expression.preview > 0.5 else 0.0
             else:
                 preview = expression.preview
 
-            preset = name_to_preset.get(name)
-            if preset and preset.mouth:
-                preview *= mouth_blend_factor
-            elif preset and preset.blink:
-                preview *= blink_blend_factor
-            elif preset and preset.look_at:
-                preview *= look_at_blend_factor
+            if preset:
+                if preset.mouth:
+                    preview *= mouth_blend_factor
+                elif preset.blink:
+                    preview *= blink_blend_factor
+                elif preset.look_at:
+                    preview *= look_at_blend_factor
 
             for texture_transform_bind in expression.texture_transform_binds:
                 material = texture_transform_bind.material
