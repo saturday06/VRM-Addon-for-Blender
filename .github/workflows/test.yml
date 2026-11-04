@@ -132,6 +132,9 @@ jobs:
 
             sleep 300
           done
+          brew_prefix=$(brew --prefix)
+          echo "$brew_prefix/bin" >> "$GITHUB_PATH"
+          echo "$brew_prefix/sbin" >> "$GITHUB_PATH"
       - name: Test
         run: |
           unpack_path=$(mktemp -d)
