@@ -17,16 +17,16 @@ jobs:
     if: ${{ vars.ENABLE_VRM_BENCHMARK_WORKFLOW_BENCHMARK_JOB == 'true' }}
     timeout-minutes: 720
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
       # CodSpeed can only generate flamegraphs with Python 3.12 or later
       - run: echo 3.13 > .python-version
       # For reasons unknown, flamegraphs cannot be generated with Codspeed unless Python is installed via
       # actions/setup-python.
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - uses: actions/setup-python@v7.0.0
       - run: git ls-files pyproject.toml "**/pyproject.toml" | xargs sed -i~ 's/^requires-python = "==3\.10\.\*" /requires-python = "==3.13.*" /'
-      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.0
       - run: |
           # Package installation fails about 5% of the time depending on the environment, so retry
           for _ in $(seq 5); do
@@ -35,7 +35,7 @@ jobs:
             fi
           done
       - run: git diff
-      - uses: CodSpeedHQ/action@821a40cd6c80e3cfe387caf55668287addd808da # v5.5.0
+      - uses: CodSpeedHQ/action@v5.5.0
         with:
           mode: simulation
           run: uv run pytest src/ --codspeed

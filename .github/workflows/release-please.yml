@@ -20,11 +20,11 @@ jobs:
       pull-requests: write
     if: ${{ vars.ENABLE_VRM_RELEASE_PLEASE_WORKFLOW_RELEASE_PLEASE_JOB == 'true' }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0 # This seems to make release-please-action more stable
           persist-credentials: false
-      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+      - uses: googleapis/release-please-action@v5.0.0
         id: release
         with:
           # Normally, skip-github-pull-request should remain false.
@@ -35,7 +35,7 @@ jobs:
           # If release_created is false, we run release-please-action again to create or update
           # release-pr as usual.
           skip-github-pull-request: true
-      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+      - uses: googleapis/release-please-action@v5.0.0
         if: ${{ !steps.release.outputs.release_created }}
 
   upload-release-archive-to-github:
@@ -45,13 +45,13 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           ref: ${{ needs.release-please.outputs.release_sha }}
       - name: Install deb packages
         run: sudo ./tools/install_ubuntu_packages.sh
-      - uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
+      - uses: voidzero-dev/setup-vp@v1.21.2
         with:
           node-version-file: .node-version
           run-install: true
@@ -71,7 +71,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           ref: ${{ needs.release-please.outputs.release_sha }}
@@ -92,15 +92,15 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           ref: ${{ needs.release-please.outputs.release_sha }}
-      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.0
         with:
           enable-cache: false
       - run: uv build --out-dir dist
-      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+      - uses: pypa/gh-action-pypi-publish@v1.14.2
         with:
           packages-dir: dist/
 
