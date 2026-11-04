@@ -728,10 +728,9 @@ def _search_structure_based_mapping_product(
             (human_bone_specification,)
             for human_bone_specification in human_bone_specifications
         )
-        spec_combinations = itertools.combinations(
+        for spec_children in itertools.combinations(
             spec_tuples, assignment_combination_len
-        )
-        for spec_children in spec_combinations:
+        ):
             for bone_children in itertools.combinations(
                 bones, assignment_combination_len
             ):
@@ -841,10 +840,9 @@ def _search_structure_based_mapping_product(
         ):
             break
 
-        spec_combinations = itertools.combinations(
+        for spec_children in itertools.combinations(
             groups, special_assignment_combination_len
-        )
-        for spec_children in spec_combinations:
+        ):
             for bone_children in itertools.combinations(
                 bones, special_assignment_combination_len
             ):
