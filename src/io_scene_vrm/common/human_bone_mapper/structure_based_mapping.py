@@ -731,17 +731,9 @@ def _search_structure_based_mapping_product(
         spec_combinations = itertools.combinations(
             spec_tuples, assignment_combination_len
         )
-        # Keep non-tuple containers eager, as itertools.product does.
-        bone_combinations = (
-            None
-            if isinstance(bones, tuple)
-            else tuple(itertools.combinations(bones, assignment_combination_len))
-        )
         for spec_children in spec_combinations:
-            for bone_children in (
-                itertools.combinations(bones, assignment_combination_len)
-                if bone_combinations is None
-                else bone_combinations
+            for bone_children in itertools.combinations(
+                bones, assignment_combination_len
             ):
                 for spec_children_permutation in (
                     (spec_children,)
@@ -755,12 +747,7 @@ def _search_structure_based_mapping_product(
                         bone_requirements = (
                             (
                                 bone_children[0],
-                                (
-                                    requirement_len
-                                    if isinstance(requirement_len, int)
-                                    else sum((requirement_len,))
-                                )
-                                * require_requirement,
+                                requirement_len * require_requirement,
                             ),
                         )
                     else:
@@ -768,19 +755,13 @@ def _search_structure_based_mapping_product(
                             zip(
                                 bone_children,
                                 (
-                                    sum((ss[0].recursive_requirement_len,))
+                                    ss[0].recursive_requirement_len
                                     * require_requirement
                                     for ss in spec_children_permutation
                                 ),
                             )
                         )
-                    if (
-                        assignment_combination_len == 1
-                        and isinstance(skip_count, int)
-                        and isinstance(bone_children[0], NormalizedBone)
-                        and isinstance(bone_children[0].recursive_len, int)
-                        and isinstance(bone_requirements[0][1], int)
-                    ):
+                    if assignment_combination_len == 1:
                         bone_child = bone_children[0]
                         packing_options = (
                             ([(bone_child, skip_count)],)
@@ -863,19 +844,9 @@ def _search_structure_based_mapping_product(
         spec_combinations = itertools.combinations(
             groups, special_assignment_combination_len
         )
-        # Keep non-tuple containers eager, as itertools.product does.
-        bone_combinations = (
-            None
-            if isinstance(bones, tuple)
-            else tuple(
-                itertools.combinations(bones, special_assignment_combination_len)
-            )
-        )
         for spec_children in spec_combinations:
-            for bone_children in (
-                itertools.combinations(bones, special_assignment_combination_len)
-                if bone_combinations is None
-                else bone_combinations
+            for bone_children in itertools.combinations(
+                bones, special_assignment_combination_len
             ):
                 for spec_children_permutation in (
                     (spec_children,)
