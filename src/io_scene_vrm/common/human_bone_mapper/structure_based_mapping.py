@@ -749,24 +749,20 @@ def _search_structure_based_mapping_product(
                     else itertools.permutations(spec_children)
                 ):
                     if assignment_combination_len == 1:
-                        try:
-                            requirement_len = spec_children_permutation[0][
-                                0
-                            ].recursive_requirement_len
-                            bone_requirements = (
+                        requirement_len = spec_children_permutation[0][
+                            0
+                        ].recursive_requirement_len
+                        bone_requirements = (
+                            (
+                                bone_children[0],
                                 (
-                                    bone_children[0],
-                                    (
-                                        requirement_len
-                                        if isinstance(requirement_len, int)
-                                        else sum((requirement_len,))
-                                    )
-                                    * require_requirement,
-                                ),
-                            )
-                        except StopIteration as exc:
-                            message = "generator raised StopIteration"
-                            raise RuntimeError(message) from exc
+                                    requirement_len
+                                    if isinstance(requirement_len, int)
+                                    else sum((requirement_len,))
+                                )
+                                * require_requirement,
+                            ),
+                        )
                     else:
                         bone_requirements = tuple(
                             zip(
@@ -799,20 +795,16 @@ def _search_structure_based_mapping_product(
                     for bone_packings in packing_options:
                         if len(spec_children_permutation) == 1:
                             bone_child, child_skip_count = bone_packings[0]
-                            try:
-                                children = (
-                                    _search_structure_based_mapping_step(
-                                        bone_child,
-                                        spec_children_permutation[0],
-                                        parent,
-                                        depth + 1,
-                                        child_skip_count,
-                                        search_context,
-                                    ),
-                                )
-                            except StopIteration as exc:
-                                message = "generator raised StopIteration"
-                                raise RuntimeError(message) from exc
+                            children = (
+                                _search_structure_based_mapping_step(
+                                    bone_child,
+                                    spec_children_permutation[0],
+                                    parent,
+                                    depth + 1,
+                                    child_skip_count,
+                                    search_context,
+                                ),
+                            )
                         else:
                             children = tuple(
                                 _search_structure_based_mapping_step(
@@ -905,20 +897,16 @@ def _search_structure_based_mapping_product(
                     ):
                         if len(spec_children_permutation) == 1:
                             bone_child, child_skip_count = bone_packings[0]
-                            try:
-                                children = (
-                                    _search_structure_based_mapping_step(
-                                        bone_child,
-                                        spec_children_permutation[0],
-                                        parent,
-                                        depth + 1,
-                                        child_skip_count,
-                                        search_context,
-                                    ),
-                                )
-                            except StopIteration as exc:
-                                message = "generator raised StopIteration"
-                                raise RuntimeError(message) from exc
+                            children = (
+                                _search_structure_based_mapping_step(
+                                    bone_child,
+                                    spec_children_permutation[0],
+                                    parent,
+                                    depth + 1,
+                                    child_skip_count,
+                                    search_context,
+                                ),
+                            )
                         else:
                             children = tuple(
                                 _search_structure_based_mapping_step(
