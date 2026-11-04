@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.10.4](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.10.3...v4.10.4) (2026-11-04)
+
+
+### 📈 Performance Improvements
+
+* **mapping:** speed up bone assignment -- 13.3% less time ([24af2b2](https://github.com/saturday06/VRM-Addon-for-Blender/commit/24af2b201df4560a5de3fd31c95d5dd0889475d2))
+* **vrm1:** speed up expression previews -- 56.3% less time ([0f1b605](https://github.com/saturday06/VRM-Addon-for-Blender/commit/0f1b60558ba5f3c4351f7c0dd030bdb79fd9dd06))
+
 ## [4.10.3](https://github.com/saturday06/VRM-Addon-for-Blender/compare/v4.10.2...v4.10.3) (2026-10-29)
 
 
