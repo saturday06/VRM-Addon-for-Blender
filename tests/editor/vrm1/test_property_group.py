@@ -13,6 +13,39 @@ from tests.util import AddonTestCase
 
 
 class TestVrm1ExpressionsPropertyGroup(AddonTestCase):
+    def test_apply_previews_combines_presets_and_custom_expressions_once(self) -> None:
+        context = bpy.context
+        armature_data = bpy.data.armatures.new("ExpressionArmature")
+        mesh = bpy.data.meshes.new("ExpressionMesh")
+        mesh_object = bpy.data.objects.new("ExpressionMesh", mesh)
+        context.scene.collection.objects.link(mesh_object)
+        mesh_object.shape_key_add(name="Basis")
+        shape_key = mesh_object.shape_key_add(name="Smile")
+
+        expressions = get_armature_extension(armature_data).vrm1.expressions
+        custom = expressions.custom.add()
+        custom.custom_name = "CustomSmile"
+        for expression in (expressions.preset.aa, custom):
+            bind = expression.morph_target_binds.add()
+            bind.node.bpy_object = mesh_object
+            bind.index = shape_key.name
+            bind.weight = 0.5
+        expressions.preset.aa.preview = 1
+        expressions.preset.happy.override_mouth = "blend"
+        expressions.preset.happy.preview = 0.25
+        custom.preview = 0.2
+
+        Vrm1ExpressionPropertyGroup.apply_previews(context, armature_data)
+        self.assertAlmostEqual(shape_key.value, 0.475)
+
+        expressions.preset.happy.preview = 1
+        Vrm1ExpressionPropertyGroup.apply_previews(context, armature_data)
+        self.assertAlmostEqual(shape_key.value, 0.1)
+
+        custom.preview = 0
+        Vrm1ExpressionPropertyGroup.apply_previews(context, armature_data)
+        self.assertAlmostEqual(shape_key.value, 0)
+
     def test_apply_previews_with_missing_morph_target_objects(self) -> None:
         context = bpy.context
         armature_data = bpy.data.armatures.new("ExpressionArmature")

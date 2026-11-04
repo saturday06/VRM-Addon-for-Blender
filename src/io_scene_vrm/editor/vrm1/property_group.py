@@ -1244,10 +1244,7 @@ class Vrm1ExpressionPropertyGroup(PropertyGroup):
             tuple[Optional[ExpressionPreset], Vrm1ExpressionPropertyGroup]
         ] = [
             *expressions.preset.expression_preset_and_expressions(),
-            *[
-                (None, expression)
-                for expression in expressions.all_name_to_expression_dict().values()
-            ],
+            *[(None, expression) for expression in expressions.custom],
         ]
 
         mouth_block_rate = 0.0
