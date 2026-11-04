@@ -19,7 +19,7 @@
     "gltf-validator": "2.0.0-dev.3.10",
     "isomorphic-git": "1.44.8",
     "pyright": "1.1.414",
-    "vite-plus": "1.4.0",
+    "vite-plus": "catalog:",
     "vitepress": "1.6.4"
   },
   "engines": {
