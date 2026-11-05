@@ -12,7 +12,8 @@ for /f "usebackq" %%i in (
 set "super_linter_tag_name=super-linter-local-windows-%pwd_hash%"
 
 docker build --platform=linux/amd64 --tag "%super_linter_tag_name%" --file super-linter.dockerfile "%repository_root_path%"
+if %errorlevel% neq 0 exit /b %errorlevel%
 docker run --rm -v "%repository_root_path%:/tmp/lint" "%super_linter_tag_name%"
+set "super_linter_exit_code=%errorlevel%"
 
-endlocal
-exit /b
+endlocal & exit /b %super_linter_exit_code%
