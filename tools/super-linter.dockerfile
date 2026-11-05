@@ -8,6 +8,12 @@
 
 FROM ghcr.io/super-linter/super-linter:v9.0.0@sha256:7620fb6f07a1908b0642d9ddc4f49da7d9f2b9497bcafee4d3d151d1e5567c0b
 
+# Workflow dependency lockfiles require zizmor 1.32.0 or later.
+RUN if /venvs/zizmor/bin/python -c \
+    'import importlib.metadata; import sys; from pip._vendor.packaging.version import Version; sys.exit(Version(importlib.metadata.version("zizmor")) >= Version("1.32.0"))'; then \
+    /venvs/zizmor/bin/pip install --no-cache-dir zizmor==1.32.0; \
+    fi
+
 # https://github.com/super-linter/super-linter/blob/v7.3.0/README.md?plain=1#L297
 ENV LOG_LEVEL=WARN
 
@@ -22,6 +28,9 @@ ENV LINTER_RULES_PATH=.
 
 ENV DEFAULT_BRANCH=HEAD
 ENV SAVE_SUPER_LINTER_SUMMARY=true
+
+# Exclude installed dependencies and local caches from recursive Trivy scans.
+ENV TRIVY_SKIP_DIRS="node_modules,.local,.venv,benchmarks/.venv"
 
 ENV GITHUB_ACTIONS_CONFIG_FILE=.github/actionlint.yaml
 ENV MARKDOWN_CONFIG_FILE=.markdownlint.yaml
