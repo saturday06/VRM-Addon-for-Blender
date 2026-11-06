@@ -22,7 +22,6 @@ jobs:
         run: if sudo --non-interactive true; then sudo ./tools/install_ubuntu_packages.sh; fi
       - uses: voidzero-dev/setup-vp@v1.21.2
         with:
-          node-version-file: .node-version
           run-install: true
       - uses: astral-sh/setup-uv@v10.3.0
       - name: Install UV dependencies
@@ -61,7 +60,6 @@ jobs:
           persist-credentials: false
       - uses: voidzero-dev/setup-vp@v1.21.2
         with:
-          node-version-file: .node-version
           run-install: true
       - uses: astral-sh/setup-uv@v10.3.0
       - name: Install UV dependencies
@@ -88,8 +86,6 @@ jobs:
       - uses: astral-sh/setup-uv@v10.3.0
       - run: uv audit
       - uses: voidzero-dev/setup-vp@v1.21.2
-        with:
-          node-version-file: .node-version
       - run: vp pm audit
 
   super-linter:
@@ -119,7 +115,6 @@ jobs:
           key: devcontainer-${{ hashFiles('.devcontainer/devcontainer.json', '.devcontainer/Dockerfile') }}-1
       - uses: voidzero-dev/setup-vp@v1.21.2
         with:
-          node-version-file: .node-version
           run-install: true
       - uses: docker/setup-buildx-action@v4.4.1
         with:
@@ -142,7 +137,6 @@ jobs:
           persist-credentials: false
       - uses: voidzero-dev/setup-vp@v1.21.2
         with:
-          node-version-file: .node-version
           run-install: true
       - name: Build
         run: vp run docs:build

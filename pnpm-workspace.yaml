@@ -1,3 +1,5 @@
+runtimeOnFail: ignore
+pmOnFail: ignore
 allowBuilds:
   esbuild: true
 catalog:

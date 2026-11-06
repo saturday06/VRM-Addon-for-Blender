@@ -23,7 +23,6 @@ git restore .local/var/cache/.gitkeep .local/tmp/.gitkeep
 uv self update || true
 
 vp upgrade
-vp env use "$(cat .node-version)"
 vp install --frozen-lockfile
 
 # Enable immediate testing of the addon under development from the system Blender

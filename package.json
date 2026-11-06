@@ -22,8 +22,11 @@
     "vite-plus": "catalog:",
     "vitepress": "1.6.4"
   },
-  "engines": {
-    "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "26.13.0"
+    }
   },
   "packageManager": "pnpm@12.16.1"
 }
