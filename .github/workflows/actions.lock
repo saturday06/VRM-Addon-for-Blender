@@ -26,7 +26,7 @@ workflows:
         - 'actions/checkout@v7.0.1'
         - 'astral-sh/setup-uv@v10.3.0'
         - 'googleapis/release-please-action@v5.0.0'
-        - 'pypa/gh-action-pypi-publish@v1.14.2'
+        - 'pypa/gh-action-pypi-publish@v1.14.3'
         - 'voidzero-dev/setup-vp@v1.21.2'
     '.github/workflows/test.yml':
         - 'actions/cache@v6.1.0'
@@ -118,9 +118,9 @@ dependencies:
         commit: 'sha1-45996ed1f6d02564a971a2fa1b5860e934307cf7'
         owner_id: 16785467
         repo_id: 262236530
-    'pypa/gh-action-pypi-publish@v1.14.2':
-        ref: 'v1.14.2'
-        commit: 'sha1-dc37677b2e1c63e2034f94d8a5b11f265b73ba33'
+    'pypa/gh-action-pypi-publish@v1.14.3':
+        ref: 'v1.14.3'
+        commit: 'sha1-7245906fb61fa33a13554f9d5fb856fe61758086'
         owner_id: 647025
         repo_id: 178055147
         uses:
