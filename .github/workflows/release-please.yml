@@ -51,7 +51,7 @@ jobs:
           ref: ${{ needs.release-please.outputs.release_sha }}
       - name: Install deb packages
         run: sudo ./tools/install_ubuntu_packages.sh
-      - uses: voidzero-dev/setup-vp@v1.21.2
+      - uses: voidzero-dev/setup-vp@v1.22.0
         with:
           run-install: true
       - name: Release to GitHub
@@ -95,7 +95,7 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ needs.release-please.outputs.release_sha }}
-      - uses: astral-sh/setup-uv@v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.2
         with:
           enable-cache: false
       - run: uv build --out-dir dist

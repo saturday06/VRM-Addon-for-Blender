@@ -24,9 +24,9 @@ jobs:
       - run: echo 3.13 > .python-version
       # For reasons unknown, flamegraphs cannot be generated with Codspeed unless Python is installed via
       # actions/setup-python.
-      - uses: actions/setup-python@v7.0.0
+      - uses: actions/setup-python@v7.1.0
       - run: git ls-files pyproject.toml "**/pyproject.toml" | xargs sed -i~ 's/^requires-python = "==3\.10\.\*" /requires-python = "==3.13.*" /'
-      - uses: astral-sh/setup-uv@v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.2
       - run: |
           # Package installation fails about 5% of the time depending on the environment, so retry
           for _ in $(seq 5); do
@@ -35,7 +35,7 @@ jobs:
             fi
           done
       - run: git diff
-      - uses: CodSpeedHQ/action@v5.5.0
+      - uses: CodSpeedHQ/action@v5.6.0
         with:
           mode: simulation
           run: uv run pytest src/ --codspeed
