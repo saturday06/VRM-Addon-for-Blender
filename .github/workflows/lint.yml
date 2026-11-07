@@ -20,10 +20,10 @@ jobs:
           persist-credentials: false
       - name: Install deb packages
         run: if sudo --non-interactive true; then sudo ./tools/install_ubuntu_packages.sh; fi
-      - uses: voidzero-dev/setup-vp@v1.21.2
+      - uses: voidzero-dev/setup-vp@v1.22.0
         with:
           run-install: true
-      - uses: astral-sh/setup-uv@v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.2
       - name: Install UV dependencies
         run: |
           # Package installation fails about 5% of the time depending on the environment, so retry
@@ -58,10 +58,10 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: voidzero-dev/setup-vp@v1.21.2
+      - uses: voidzero-dev/setup-vp@v1.22.0
         with:
           run-install: true
-      - uses: astral-sh/setup-uv@v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.2
       - name: Install UV dependencies
         run: |
           # Package installation fails about 5% of the time depending on the environment, so retry
@@ -83,9 +83,9 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.2
       - run: uv audit
-      - uses: voidzero-dev/setup-vp@v1.21.2
+      - uses: voidzero-dev/setup-vp@v1.22.0
       - run: vp pm audit
 
   super-linter:
@@ -113,7 +113,7 @@ jobs:
         with:
           path: .local/tmp/ci-devcontainer-cache
           key: devcontainer-${{ hashFiles('.devcontainer/devcontainer.json', '.devcontainer/Dockerfile') }}-1
-      - uses: voidzero-dev/setup-vp@v1.21.2
+      - uses: voidzero-dev/setup-vp@v1.22.0
         with:
           run-install: true
       - uses: docker/setup-buildx-action@v4.4.1
@@ -135,7 +135,7 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: voidzero-dev/setup-vp@v1.21.2
+      - uses: voidzero-dev/setup-vp@v1.22.0
         with:
           run-install: true
       - name: Build

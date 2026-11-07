@@ -5,9 +5,9 @@ version: 'v0.0.3'
 workflows:
     '.github/workflows/benchmark.yml':
         - 'actions/checkout@v7.0.1'
-        - 'actions/setup-python@v7.0.0'
-        - 'astral-sh/setup-uv@v10.3.0'
-        - 'codspeedhq/action@v5.5.0'
+        - 'actions/setup-python@v7.1.0'
+        - 'astral-sh/setup-uv@v10.3.2'
+        - 'codspeedhq/action@v5.6.0'
     '.github/workflows/close-resolved-stale-issues.yml':
         - 'actions/stale@v11.0.0'
     '.github/workflows/gh-pages.yml':
@@ -15,19 +15,19 @@ workflows:
         - 'actions/configure-pages@v6.0.0'
         - 'actions/deploy-pages@v5.0.1'
         - 'actions/upload-pages-artifact@v5.0.0'
-        - 'voidzero-dev/setup-vp@v1.21.2'
+        - 'voidzero-dev/setup-vp@v1.22.0'
     '.github/workflows/lint.yml':
         - 'actions/cache@v6.1.0'
         - 'actions/checkout@v7.0.1'
-        - 'astral-sh/setup-uv@v10.3.0'
+        - 'astral-sh/setup-uv@v10.3.2'
         - 'docker/setup-buildx-action@v4.4.1'
-        - 'voidzero-dev/setup-vp@v1.21.2'
+        - 'voidzero-dev/setup-vp@v1.22.0'
     '.github/workflows/release-please.yml':
         - 'actions/checkout@v7.0.1'
-        - 'astral-sh/setup-uv@v10.3.0'
+        - 'astral-sh/setup-uv@v10.3.2'
         - 'googleapis/release-please-action@v5.0.0'
         - 'pypa/gh-action-pypi-publish@v1.14.3'
-        - 'voidzero-dev/setup-vp@v1.21.2'
+        - 'voidzero-dev/setup-vp@v1.22.0'
     '.github/workflows/test.yml':
         - 'actions/cache@v6.1.0'
         - 'actions/checkout@v7.0.1'
@@ -68,9 +68,9 @@ dependencies:
         commit: 'sha1-a309ff8b426b58ec0e2a45f0f869d46889d02405'
         owner_id: 44036562
         repo_id: 192625525
-    'actions/setup-python@v7.0.0':
-        ref: 'v7.0.0'
-        commit: 'sha1-5fda3b95a4ea91299a34e894583c3862153e4b97'
+    'actions/setup-python@v7.1.0':
+        ref: 'v7.1.0'
+        commit: 'sha1-6d4fd22b20465ccc0f7354476588e8df7c9ca0e0'
         owner_id: 44036562
         repo_id: 192625525
     'actions/stale@v11.0.0':
@@ -95,14 +95,14 @@ dependencies:
         repo_id: 496012378
         uses:
             - 'actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f'
-    'astral-sh/setup-uv@v10.3.0':
-        ref: 'v10.3.0'
-        commit: 'sha1-1c37ad07a6a961277cf70c0d37d6f313000f5884'
+    'astral-sh/setup-uv@v10.3.2':
+        ref: 'v10.3.2'
+        commit: 'sha1-07a047e608db84b3d8c06cd9a7c7dcc9c355c18e'
         owner_id: 115962839
         repo_id: 846733598
-    'codspeedhq/action@v5.5.0':
-        ref: 'v5.5.0'
-        commit: 'sha1-821a40cd6c80e3cfe387caf55668287addd808da'
+    'codspeedhq/action@v5.6.0':
+        ref: 'v5.6.0'
+        commit: 'sha1-78102a468f96d8e0ccb92d0ec49425753fc42062'
         owner_id: 116658140
         repo_id: 561699778
         uses:
@@ -125,8 +125,8 @@ dependencies:
         repo_id: 178055147
         uses:
             - 'actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405'
-    'voidzero-dev/setup-vp@v1.21.2':
-        ref: 'v1.21.2'
-        commit: 'sha1-68f39c78aaf39be468cabd2afb09c162574c84af'
+    'voidzero-dev/setup-vp@v1.22.0':
+        ref: 'v1.22.0'
+        commit: 'sha1-cab1ab9eaff52d4857875f4f2c016e36af8f2c76'
         owner_id: 149750581
         repo_id: 1133264797
