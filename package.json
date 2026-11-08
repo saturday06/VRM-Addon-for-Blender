@@ -17,7 +17,7 @@
     "@octokit/types": "18.0.0",
     "@types/node": "26.6.6",
     "gltf-validator": "2.0.0-dev.3.10",
-    "isomorphic-git": "1.44.10",
+    "isomorphic-git": "1.44.11",
     "pyright": "1.1.414",
     "vite-plus": "catalog:",
     "vitepress": "1.6.4"
