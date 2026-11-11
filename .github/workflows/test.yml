@@ -22,18 +22,8 @@ jobs:
       fail-fast: false
       matrix:
         blender:
-          - job_name_postfix: blender 2.93
-            archive_url_path: Blender2.93/blender-2.93.18-windows-x64.zip
-          - job_name_postfix: blender 3.3
-            archive_url_path: Blender3.3/blender-3.3.21-windows-x64.zip
-          - job_name_postfix: blender 3.6
-            archive_url_path: Blender3.6/blender-3.6.23-windows-x64.zip
-          - job_name_postfix: blender 4.2
-            archive_url_path: Blender4.2/blender-4.2.12-windows-x64.zip
-          - job_name_postfix: blender 4.5
-            archive_url_path: Blender4.5/blender-4.5.1-windows-x64.zip
-          - job_name_postfix: blender 5.2
-            archive_url_path: Blender5.2/blender-5.2.0-windows-x64.zip
+          - job_name_postfix: blender 5.3
+            archive_url_path: Blender5.3/blender-5.3.0-windows-x64.zip
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -82,20 +72,8 @@ jobs:
       fail-fast: false
       matrix:
         blender:
-          - job_name_postfix: blender 2.93 arm64
-            archive_url_path: Blender2.93/blender-2.93.18-macos-arm64.dmg
-          - job_name_postfix: blender 3.3 arm64
-            archive_url_path: Blender3.3/blender-3.3.21-macos-arm64.dmg
-          - job_name_postfix: blender 3.6 arm64
-            archive_url_path: Blender3.6/blender-3.6.23-macos-arm64.dmg
-          - job_name_postfix: blender 4.2 arm64
-            archive_url_path: Blender4.2/blender-4.2.12-macos-arm64.dmg
-          - job_name_postfix: blender 4.5 arm64
-            archive_url_path: Blender4.5/blender-4.5.1-macos-arm64.dmg
-          - job_name_postfix: blender 5.2 arm64
-            archive_url_path: Blender5.2/blender-5.2.0-macos-arm64.dmg
-          - job_name_postfix: blender 4.5 x64
-            archive_url_path: Blender4.5/blender-4.5.1-macos-x64.dmg
+          - job_name_postfix: blender 5.3 arm64
+            archive_url_path: Blender5.3/blender-5.3.0-macos-arm64.dmg
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -155,8 +133,8 @@ jobs:
       fail-fast: false
       matrix:
         blender:
-          - job_name_postfix: blender 5.2
-            archive_url_path: Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          - job_name_postfix: blender 5.3
+            archive_url_path: Blender5.3/blender-5.3.0-linux-x64.tar.xz
     steps:
       - uses: actions/checkout@v7.0.1
         with:
