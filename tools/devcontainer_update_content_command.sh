@@ -27,6 +27,7 @@ vp install --frozen-lockfile
 
 # Enable immediate testing of the addon under development from the system Blender
 for blender_version in \
+  5.3 \
   5.2 \
   5.1 \
   5.0 \
