@@ -5,16 +5,13 @@ html {
   overflow-y: scroll;
 }
 
-/* The title "VRM format / VRM Add-on for Blender" is too long and overlaps with the search widget,
-  so move it to the right side */
-.VPNavBarSearch.search {
-  flex-grow: unset;
+.VPNav .VPNavBar.has-sidebar div.title {
+  max-width: unset; /* The title "VRM format / VRM Add-on for Blender" is very long, so remove the maximum width limit on the title area. */
+  white-space: break-spaces; /* Break the title text into multiple lines when the width is narrow */
 }
 
-.VPNav .VPNavBar.has-sidebar div.title {
-  flex-shrink: 1; /* When the width is narrow, shrink the title width to prevent horizontal scrollbars */
-  white-space: break-spaces; /* Break the title text into multiple lines when the width is narrow */
-  width: auto; /* With `flex-shrink: 1;` and `white-space: break-spaces`, prevent the title from wrapping unnecessarily when the sidebar is open and the width is wide */
+.VPNav .VPNavBar.has-sidebar div.title .VPNavBarTitle.has-sidebar {
+  max-width: unset; /* The title "VRM format / VRM Add-on for Blender" is very long, so remove the maximum width limit on the title area. */
 }
 
 /* The title "VRM format / VRM Add-on for Blender" is too long and overlaps with the sidebar's scrollbar,
@@ -22,11 +19,6 @@ html {
 .Layout > aside.VPSidebar:not(.open) {
   --vp-layout-top-height: var(--vp-nav-height);
   padding-top: 0;
-}
-
-/* Remove the border line between SideBar and NavBar as the design is not ideal */
-.VPNavBarTitle.has-sidebar .title {
-  border-bottom-style: none;
 }
 
 /* Make the border line between SideBar and articles overlap with the sidebar as well */
