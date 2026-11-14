@@ -95,7 +95,7 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ needs.release-please.outputs.release_sha }}
-      - uses: astral-sh/setup-uv@v10.3.2
+      - uses: astral-sh/setup-uv@v10.3.3
         with:
           enable-cache: false
       - run: uv build --out-dir dist
