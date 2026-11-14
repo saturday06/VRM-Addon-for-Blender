@@ -23,7 +23,7 @@ jobs:
       - uses: voidzero-dev/setup-vp@v1.22.0
         with:
           run-install: true
-      - uses: astral-sh/setup-uv@v10.3.2
+      - uses: astral-sh/setup-uv@v10.3.3
       - name: Install UV dependencies
         run: |
           # Package installation fails about 5% of the time depending on the environment, so retry
@@ -61,7 +61,7 @@ jobs:
       - uses: voidzero-dev/setup-vp@v1.22.0
         with:
           run-install: true
-      - uses: astral-sh/setup-uv@v10.3.2
+      - uses: astral-sh/setup-uv@v10.3.3
       - name: Install UV dependencies
         run: |
           # Package installation fails about 5% of the time depending on the environment, so retry
@@ -83,7 +83,7 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@v10.3.2
+      - uses: astral-sh/setup-uv@v10.3.3
       - run: uv audit
       - uses: voidzero-dev/setup-vp@v1.22.0
       - run: vp pm audit

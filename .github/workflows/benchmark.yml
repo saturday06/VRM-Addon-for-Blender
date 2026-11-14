@@ -26,7 +26,7 @@ jobs:
       # actions/setup-python.
       - uses: actions/setup-python@v7.1.0
       - run: git ls-files pyproject.toml "**/pyproject.toml" | xargs sed -i~ 's/^requires-python = "==3\.10\.\*" /requires-python = "==3.13.*" /'
-      - uses: astral-sh/setup-uv@v10.3.2
+      - uses: astral-sh/setup-uv@v10.3.3
       - run: |
           # Package installation fails about 5% of the time depending on the environment, so retry
           for _ in $(seq 5); do
@@ -35,7 +35,7 @@ jobs:
             fi
           done
       - run: git diff
-      - uses: CodSpeedHQ/action@v5.6.0
+      - uses: CodSpeedHQ/action@v5.6.1
         with:
           mode: simulation
           run: uv run pytest src/ --codspeed
