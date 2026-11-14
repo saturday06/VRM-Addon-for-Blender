@@ -35,7 +35,7 @@ jobs:
             fi
           done
       - run: git diff
-      - uses: CodSpeedHQ/action@v5.6.1
+      - uses: CodSpeedHQ/action@v5.6.3
         with:
           mode: simulation
           run: uv run pytest src/ --codspeed
