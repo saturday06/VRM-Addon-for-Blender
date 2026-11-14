@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-FROM ubuntu:resolute@sha256:2260313b31c8c011cd2eebe728008efac1b3982be73eb71348ea2648d2c0e09b
+FROM ubuntu:resolute@sha256:065aa8626841f16057b78b027b464cd59c4fac36c204c72dcbf48d66f5fa8a96
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]

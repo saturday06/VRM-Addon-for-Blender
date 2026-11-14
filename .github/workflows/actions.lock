@@ -7,7 +7,7 @@ workflows:
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-python@v7.1.0'
         - 'astral-sh/setup-uv@v10.3.3'
-        - 'codspeedhq/action@v5.6.1'
+        - 'codspeedhq/action@v5.6.3'
     '.github/workflows/close-resolved-stale-issues.yml':
         - 'actions/stale@v11.0.0'
     '.github/workflows/gh-pages.yml':
@@ -100,9 +100,9 @@ dependencies:
         commit: 'sha1-68559e99cc807c1eb7e9238fd43a15bba460eec2'
         owner_id: 115962839
         repo_id: 846733598
-    'codspeedhq/action@v5.6.1':
-        ref: 'v5.6.1'
-        commit: 'sha1-61efe07e57e55bedeab750c434504de272a56e8c'
+    'codspeedhq/action@v5.6.3':
+        ref: 'v5.6.3'
+        commit: 'sha1-af75f77f17a054769abefaa42fe8dc2975469b5f'
         owner_id: 116658140
         repo_id: 561699778
         uses:
