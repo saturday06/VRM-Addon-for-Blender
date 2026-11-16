@@ -208,6 +208,8 @@ starry-bpy-typings = { workspace = true }
 
 [tool.uv.build-backend]
 module-name = "io_scene_vrm"
+source-exclude = [".local/**"]
+wheel-exclude = [".local/**"]
 
 [[tool.uv.index]]
 name = "download.blender.org"

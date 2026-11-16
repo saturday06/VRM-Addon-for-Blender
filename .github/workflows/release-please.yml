@@ -98,7 +98,7 @@ jobs:
       - uses: astral-sh/setup-uv@v10.3.3
         with:
           enable-cache: false
-      - run: uv build --out-dir dist
+      - run: uv build --no-cache --out-dir dist
       - uses: pypa/gh-action-pypi-publish@v1.14.3
         with:
           packages-dir: dist/
