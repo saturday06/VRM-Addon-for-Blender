@@ -212,3 +212,4 @@ module-name = "io_scene_vrm"
 [[tool.uv.index]]
 name = "download.blender.org"
 url = "https://download.blender.org/pypi/"
+explicit = true
