@@ -43,7 +43,7 @@ importers:
         version: 1.6.0(@types/node@26.6.6)(@vitest/ui@5.1.0)
       vitepress:
         specifier: 2.0.0-alpha.21
-        version: 2.0.0-alpha.21(@types/node@26.6.6)(postcss@8.5.32)
+        version: 2.0.0-alpha.21(@types/node@26.6.6)(postcss@8.5.33)
 
 packages:
 
@@ -1015,8 +1015,8 @@ packages:
   flatted@3.4.4:
     resolution: {integrity: sha512-5+ybhBZANEJxaH3X5evAFatUxLfEHSr7n6kYJ+1Qd0mUqr4eu9gIf6GDbWHf8RJijHrjjO8G+la14SlL2SeS1Q==}
 
-  focus-trap@8.2.4:
-    resolution: {integrity: sha512-oy6dj7WZYgMbbpoOA29K5W++473F1zEzdI1oJgPb6x7yWT36YaWedUe6i6YPWEt5quSh0pRMohVyHLWXUxtdxg==}
+  focus-trap@8.2.5:
+    resolution: {integrity: sha512-VrqfyRXaHZ0EkhXlfyalszmhnSN9yjdYXwlwLSRoJrDJ0/eswY5J5Avj/Hcd/PrOHCMnsMhwx7+7+s1kmv9Asg==}
 
   for-each@0.3.5:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
@@ -1306,8 +1306,8 @@ packages:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
     engines: {node: '>= 0.4'}
 
-  postcss@8.5.32:
-    resolution: {integrity: sha512-LJlKCCAUFKOuZxipUdYw1NzIITEsPcgyOG9LkvRJvuKj/bRzbuRY0ARXvL0pWGpsZvn8jku+LMep2eU0seHp8g==}
+  postcss@8.5.33:
+    resolution: {integrity: sha512-RVHEU9/Pp1Fnjr/MpAJsZoADukCKhfIi15OunEYiGktIkYLkPVvC1sioWolGDS7XByMTx9m/IGbro0Js13zhnQ==}
     engines: {node: ^10 || ^12 || >=14}
 
   pretty-format@27.5.1:
@@ -1373,8 +1373,8 @@ packages:
   stringify-entities@4.0.4:
     resolution: {integrity: sha512-IwfBptatlO+QCJUo19AqvrPNqlVMpW9YEL2LIVY+Rpv2qsjCGxaDLNRgeGsQWJhfItebuJhsGSLjaBbNSQ+ieg==}
 
-  tabbable@6.5.1:
-    resolution: {integrity: sha512-dMCuwDUY6Noz3zVKLefBC4wq+aJV20yc7vWmM7uTNGwtQSFF5kX7OUIUsxuVajz/bdt5Xqdah3/0NLjth+cM5A==}
+  tabbable@6.5.2:
+    resolution: {integrity: sha512-XgdnB1nGU6KU4VgMnZPaZCx7M1hBrLyEiZYau2G2gq9UT0d7d4FUBlNX7vvPlm/B1vk1PjrzJBx9Lbv4fsqS9g==}
 
   tinybench@6.2.3:
     resolution: {integrity: sha512-Al01C2JIBnO2CXCAPbpAl6sUiOZHeThGtHYNTa51JRw9PyWOCdr+9Ong05R4qg/Sk3+H645E8ov1h2c58ityNw==}
@@ -1986,7 +1986,7 @@ snapshots:
       '@oxc-project/runtime': 0.158.0
       '@oxc-project/types': 0.158.0
       lightningcss: 1.33.0
-      postcss: 8.5.32
+      postcss: 8.5.33
       yuku-parser: 0.19.0
     optionalDependencies:
       '@types/node': 26.6.6
@@ -2046,7 +2046,7 @@ snapshots:
       '@vue/shared': 3.5.45
       estree-walker: 2.0.2
       magic-string: 0.30.21
-      postcss: 8.5.32
+      postcss: 8.5.33
       source-map-js: 1.2.2
 
   '@vue/compiler-ssr@3.5.45':
@@ -2098,13 +2098,13 @@ snapshots:
       '@vueuse/shared': 15.0.0(vue@3.5.45)
       vue: 3.5.45
 
-  '@vueuse/integrations@15.0.0(focus-trap@8.2.4)(vue@3.5.45)':
+  '@vueuse/integrations@15.0.0(focus-trap@8.2.5)(vue@3.5.45)':
     dependencies:
       '@vueuse/core': 15.0.0(vue@3.5.45)
       '@vueuse/shared': 15.0.0(vue@3.5.45)
       vue: 3.5.45
     optionalDependencies:
-      focus-trap: 8.2.4
+      focus-trap: 8.2.5
 
   '@vueuse/metadata@15.0.0': {}
 
@@ -2263,9 +2263,9 @@ snapshots:
 
   flatted@3.4.4: {}
 
-  focus-trap@8.2.4:
+  focus-trap@8.2.5:
     dependencies:
-      tabbable: 6.5.1
+      tabbable: 6.5.2
 
   for-each@0.3.5:
     dependencies:
@@ -2557,7 +2557,7 @@ snapshots:
 
   possible-typed-array-names@1.1.0: {}
 
-  postcss@8.5.32:
+  postcss@8.5.33:
     dependencies:
       nanoid: 3.3.20
       picocolors: 1.1.1
@@ -2640,7 +2640,7 @@ snapshots:
       character-entities-html4: 2.1.0
       character-entities-legacy: 3.0.0
 
-  tabbable@6.5.1: {}
+  tabbable@6.5.2: {}
 
   tinybench@6.2.3: {}
 
@@ -2769,7 +2769,7 @@ snapshots:
       - vue-tsc
       - yaml
 
-  vitepress@2.0.0-alpha.21(@types/node@26.6.6)(postcss@8.5.32):
+  vitepress@2.0.0-alpha.21(@types/node@26.6.6)(postcss@8.5.33):
     dependencies:
       '@docsearch/css': 4.7.1
       '@docsearch/js': 4.7.1
@@ -2781,15 +2781,15 @@ snapshots:
       '@vue/devtools-api': 8.2.1
       '@vue/shared': 3.5.45
       '@vueuse/core': 15.0.0(vue@3.5.45)
-      '@vueuse/integrations': 15.0.0(focus-trap@8.2.4)(vue@3.5.45)
-      focus-trap: 8.2.4
+      '@vueuse/integrations': 15.0.0(focus-trap@8.2.5)(vue@3.5.45)
+      focus-trap: 8.2.5
       mark.js: 8.11.1
       minisearch: 7.2.0
       shiki: 4.6.0
       vite: '@voidzero-dev/vite-plus-core@1.6.0(@types/node@26.6.6)'
       vue: 3.5.45
     optionalDependencies:
-      postcss: 8.5.32
+      postcss: 8.5.33
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
       - '@types/node'
