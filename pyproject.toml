@@ -5,6 +5,7 @@ authors = [{ name = "Isamu Mogi" }, { name = "iCyP" }]
 description = "VRM import, export, and editing capabilities"
 readme = "pypi.md"
 license = { text = "SPDX-License-Identifier: MIT OR GPL-3.0-or-later" }
+requires-python = ">=3.9"
 
 dependencies = ["bpy"]
 
@@ -56,7 +57,7 @@ ignore_errors = true # Please use pyright instead.
 ignore-paths = "." # Please use Ruff instead.
 
 [tool.pyright]
-pythonVersion = "3.9" # It overrides 'project.requires-python = "== 3.10.*"'
+pythonVersion = "3.9" # It overrides 'requires-python = ">=3.10"'
 pythonPlatform = "All"
 typeCheckingMode = "strict"
 stubPath = "typings/src"
@@ -91,7 +92,7 @@ extraPaths = ["src", "typings/src", "."]
 reportPrivateUsage = "none"
 
 [tool.ruff]
-target-version = "py39" # It overrides 'project.requires-python = "== 3.10.*"'
+target-version = "py39" # It overrides 'requires-python = ">=3.10"'
 src = ["typings/src", "src"]
 
 [tool.ruff.lint]
@@ -197,6 +198,9 @@ max-statements = 550
 
 [tool.uv]
 cache-dir = "./.local/var/cache/uv"
+
+[tool.uv.dependency-groups]
+dev = { requires-python = ">=3.10" }
 
 [tool.uv.workspace]
 members = ["benchmarks", "typings"]
