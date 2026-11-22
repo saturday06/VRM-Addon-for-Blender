@@ -31,6 +31,7 @@ jobs:
             if uv sync; then
               break
             fi
+            sleep 60
           done
       - name: Check source code formatting
         run: |
@@ -69,6 +70,7 @@ jobs:
             if uv sync; then
               break
             fi
+            sleep 60
           done
       - name: Run examples
         run: uv run main.py

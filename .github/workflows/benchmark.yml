@@ -33,6 +33,7 @@ jobs:
             if uv sync --no-managed-python; then
               break
             fi
+            sleep 60
           done
       - run: git diff
       - uses: CodSpeedHQ/action@v5.6.3
