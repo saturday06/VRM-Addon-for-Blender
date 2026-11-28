@@ -16,7 +16,7 @@
     "@devcontainers/cli": "0.91.0",
     "@octokit/rest": "22.0.1",
     "@octokit/types": "18.0.0",
-    "@types/node": "26.6.7",
+    "@types/node": "26.6.10",
     "gltf-validator": "2.0.0-dev.3.10",
     "isomorphic-git": "1.44.19",
     "pyright": "1.1.414",
