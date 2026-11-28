@@ -3,8 +3,8 @@ pmOnFail: ignore
 allowBuilds:
   esbuild: true
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@8.3.8000
-  vite-plus: 1.7.0
+  vite: npm:@voidzero-dev/vite-plus-core@8.3.8001
+  vite-plus: 1.8.0
 minimumReleaseAgeExclude:
   - "@oxlint/binding-darwin-x64@1.91.0"
   - "@oxlint/binding-freebsd-x64@1.91.0"
